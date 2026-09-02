@@ -1,0 +1,31 @@
+{
+  "id": 4,
+  "name": "Knight",
+  "baseVocation": "Knight",
+  "promoted": false,
+  "fromVocationId": 4,
+  "gainHp": 15,
+  "gainMana": 5,
+  "gainCap": 25,
+  "healthGainTicks": 3,
+  "healthGainAmount": 80,
+  "manaGainTicks": 6,
+  "manaGainAmount": 40,
+  "manaMultiplier": 3,
+  "attackSpeedMs": 1500,
+  "baseSpeed": 220,
+  "meleeDamageMultiplier": 1,
+  "distanceDamageMultiplier": 1,
+  "defenseMultiplier": 1,
+  "armorMultiplier": 1,
+  "skillMultipliers": {
+    "fist": 1.1,
+    "club": 1.1,
+    "sword": 1.1,
+    "axe": 1.1,
+    "distance": 1.4,
+    "shielding": 1.1
+  },
+  "sourceFile": "data/XML/vocations.xml",
+  "sourceId": 4
+}

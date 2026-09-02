@@ -1,0 +1,69 @@
+{
+  "importedAtBuildTime": true,
+  "loadouts": [
+    {
+      "vocation": "Sorcerer",
+      "equipped": {
+        "head": 2457,
+        "armor": 2463,
+        "legs": 2647,
+        "boots": 2643,
+        "leftHand": 2190,
+        "rightHand": 2525
+      },
+      "sourceFile": "data/creaturescripts/scripts/custom/firstitems.lua",
+      "sourceVocationId": 1,
+      "warnings": [
+        "Complex wand/rod spell damage is deferred; the real starter item is equipped for training identity only."
+      ]
+    },
+    {
+      "vocation": "Druid",
+      "equipped": {
+        "head": 2457,
+        "armor": 2463,
+        "legs": 2647,
+        "boots": 2643,
+        "leftHand": 2182,
+        "rightHand": 2525
+      },
+      "sourceFile": "data/creaturescripts/scripts/custom/firstitems.lua",
+      "sourceVocationId": 2,
+      "warnings": [
+        "Complex wand/rod spell damage is deferred; the real starter item is equipped for training identity only."
+      ]
+    },
+    {
+      "vocation": "Paladin",
+      "equipped": {
+        "head": 2457,
+        "armor": 2463,
+        "legs": 2647,
+        "boots": 2643,
+        "leftHand": 2389,
+        "rightHand": null
+      },
+      "sourceFile": "data/creaturescripts/scripts/custom/firstitems.lua",
+      "sourceVocationId": 3,
+      "warnings": [
+        "The firstitems.lua backpack bow/arrows are deferred; the directly granted spear is used for this slice."
+      ]
+    },
+    {
+      "vocation": "Knight",
+      "equipped": {
+        "head": 2457,
+        "armor": 2463,
+        "legs": 2647,
+        "boots": 2643,
+        "leftHand": 8601,
+        "rightHand": 2525
+      },
+      "sourceFile": "data/creaturescripts/scripts/custom/firstitems.lua",
+      "sourceVocationId": 4,
+      "warnings": [
+        "Backpack alternatives jagged sword and daramian mace are deferred."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "rotworm",
+  "source": {
+    "format": "styller-monster-xml",
+    "relativePath": "data/monster/monsters/rotworm.xml"
+  },
+  "name": "Rotworm",
+  "description": "a rotworm",
+  "race": "blood",
+  "experience": 40,
+  "speed": 116,
+  "maxHp": 65,
+  "armor": 8,
+  "defense": 8,
+  "lookType": 26,
+  "corpseId": 5967,
+  "attacks": [
+    {
+      "kind": "melee",
+      "intervalMs": 2000,
+      "minDamage": 0,
+      "maxDamage": 40
+    }
+  ],
+  "loot": [
+    {
+      "itemId": 2148,
+      "name": "gold coin",
+      "chance": 71760,
+      "maxCount": 17
+    },
+    {
+      "itemId": 2671,
+      "name": "ham",
+      "chance": 20120,
+      "maxCount": 1
+    },
+    {
+      "itemId": 2666,
+      "name": "meat",
+      "chance": 20000,
+      "maxCount": 1
+    },
+    {
+      "itemId": 10609,
+      "name": "lump of dirt",
+      "chance": 10000,
+      "maxCount": 1
+    },
+    {
+      "itemId": 2398,
+      "name": "mace",
+      "chance": 4500,
+      "maxCount": 1
+    },
+    {
+      "itemId": 3976,
+      "name": "worm",
+      "chance": 3000,
+      "maxCount": 3
+    },
+    {
+      "itemId": 2376,
+      "name": "sword",
+      "chance": 3000,
+      "maxCount": 1
+    }
+  ],
+  "elementalPercent": {},
+  "immunities": []
+}

@@ -1,0 +1,918 @@
+{
+  "importedAtBuildTime": true,
+  "selectionReason": "Curated Knight development set plus four vocation starter loadouts, verified in items.otb and enriched from items.lua.",
+  "items": [
+    {
+      "id": 2376,
+      "name": "sword",
+      "weaponType": "sword",
+      "attack": 14,
+      "defense": 12,
+      "extraDefense": 1,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 3500,
+        "ounces": 35
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2376,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2376,
+          "clientId": 3264,
+          "group": 0,
+          "flags": 112
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2376,
+          "line": 2089
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2388,
+      "name": "hatchet",
+      "weaponType": "axe",
+      "attack": 15,
+      "defense": 8,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 3500,
+        "ounces": 35
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2388,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2388,
+          "clientId": 3276,
+          "group": 0,
+          "flags": 112
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2388,
+          "line": 2146
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2398,
+      "name": "mace",
+      "weaponType": "club",
+      "attack": 16,
+      "defense": 11,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 3800,
+        "ounces": 38
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2398,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2398,
+          "clientId": 3286,
+          "group": 0,
+          "flags": 112
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2398,
+          "line": 2228
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2512,
+      "name": "wooden shield",
+      "weaponType": "shield",
+      "attack": 0,
+      "defense": 14,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 4000,
+        "ounces": 40
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2512,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2512,
+          "clientId": 3412,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2512,
+          "line": 2789
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2526,
+      "name": "studded shield",
+      "weaponType": "shield",
+      "attack": 0,
+      "defense": 15,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 5800,
+        "ounces": 58
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2526,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2526,
+          "clientId": 3426,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2526,
+          "line": 2851
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2458,
+      "name": "chain helmet",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 2,
+      "slot": "head",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 4200,
+        "ounces": 42
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2458,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2458,
+          "clientId": 3352,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2458,
+          "line": 2680
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2461,
+      "name": "leather helmet",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 1,
+      "slot": "head",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 2200,
+        "ounces": 22
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2461,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2461,
+          "clientId": 3355,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2461,
+          "line": 2683
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2464,
+      "name": "chain armor",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 6,
+      "slot": "armor",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 10000,
+        "ounces": 100
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2464,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2464,
+          "clientId": 3358,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2464,
+          "line": 2686
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2467,
+      "name": "leather armor",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 4,
+      "slot": "armor",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 6000,
+        "ounces": 60
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2467,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2467,
+          "clientId": 3361,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2467,
+          "line": 2689
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2648,
+      "name": "chain legs",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 3,
+      "slot": "legs",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 3500,
+        "ounces": 35
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2648,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2648,
+          "clientId": 3558,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2648,
+          "line": 3061
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2649,
+      "name": "leather legs",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 1,
+      "slot": "legs",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 1800,
+        "ounces": 18
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2649,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2649,
+          "clientId": 3559,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2649,
+          "line": 3062
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2643,
+      "name": "leather boots",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 1,
+      "slot": "boots",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 900,
+        "ounces": 9
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2643,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2643,
+          "clientId": 3552,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2643,
+          "line": 3056
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2645,
+      "name": "steel boots",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 3,
+      "slot": "boots",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 2900,
+        "ounces": 29
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2645,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2645,
+          "clientId": 3554,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2645,
+          "line": 3058
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2457,
+      "name": "steel helmet",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 6,
+      "slot": "head",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 4600,
+        "ounces": 46
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2457,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2457,
+          "clientId": 3351,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2457,
+          "line": 2679
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2463,
+      "name": "plate armor",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 10,
+      "slot": "armor",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 12000,
+        "ounces": 120
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2463,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2463,
+          "clientId": 3357,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2463,
+          "line": 2685
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2647,
+      "name": "plate legs",
+      "weaponType": "none",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 7,
+      "slot": "legs",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 5000,
+        "ounces": 50
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2647,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2647,
+          "clientId": 3557,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2647,
+          "line": 3060
+        }
+      },
+      "importWarnings": [
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2525,
+      "name": "dwarven shield",
+      "weaponType": "shield",
+      "attack": 0,
+      "defense": 26,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 5500,
+        "ounces": 55
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2525,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2525,
+          "clientId": 3425,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2525,
+          "line": 2850
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 8601,
+      "name": "steel axe",
+      "weaponType": "axe",
+      "attack": 21,
+      "defense": 10,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 1,
+      "weight": {
+        "hundredthsOfOunce": 4100,
+        "ounces": 41
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 8601,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 8601,
+          "clientId": 7773,
+          "group": 0,
+          "flags": 112
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 8601,
+          "line": 12196
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2389,
+      "name": "spear",
+      "weaponType": "distance",
+      "attack": 25,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 3,
+      "weight": {
+        "hundredthsOfOunce": 2000,
+        "ounces": 20
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2389,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2389,
+          "clientId": 3277,
+          "group": 0,
+          "flags": 224
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2389,
+          "line": 2147
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2190,
+      "name": "wand of vortex",
+      "weaponType": "wand",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 3,
+      "weight": {
+        "hundredthsOfOunce": 1900,
+        "ounces": 19
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2190,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2190,
+          "clientId": 3074,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2190,
+          "line": 1256
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    },
+    {
+      "id": 2182,
+      "name": "snakebite rod",
+      "weaponType": "wand",
+      "attack": 0,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "slot": "hand",
+      "twoHanded": false,
+      "range": 3,
+      "weight": {
+        "hundredthsOfOunce": 1900,
+        "ounces": 19
+      },
+      "requirements": {},
+      "skillBonuses": {},
+      "magicLevelBonus": null,
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.lua"
+      ],
+      "sourceId": 2182,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2182,
+          "clientId": 3066,
+          "group": 0,
+          "flags": 96
+        },
+        "lua": {
+          "sourceFile": "data/items/items.lua",
+          "sourceId": 2182,
+          "line": 1185
+        }
+      },
+      "importWarnings": [
+        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
+        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
+        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
+      ]
+    }
+  ]
+}

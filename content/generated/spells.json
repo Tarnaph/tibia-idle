@@ -1,0 +1,724 @@
+{
+  "importedAtBuildTime": true,
+  "spells": [
+    {
+      "spellId": 1,
+      "name": "Light Healing",
+      "words": "exura",
+      "vocations": [
+        "Sorcerer",
+        "Druid",
+        "Paladin",
+        "Knight",
+        "Master Sorcerer",
+        "Elder Druid",
+        "Royal Paladin",
+        "Elite Knight"
+      ],
+      "requiredLevel": 9,
+      "mana": 20,
+      "cooldownMs": 1000,
+      "groupCooldownMs": 1000,
+      "group": "healing",
+      "range": 0,
+      "combatType": "healing",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.4,
+          "constant": 8
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 1.8,
+          "constant": 11
+        }
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 13,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_BLUE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/healing/light_healing.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 2,
+      "name": "Intense Healing",
+      "words": "exura gran",
+      "vocations": [
+        "Sorcerer",
+        "Druid",
+        "Paladin",
+        "Master Sorcerer",
+        "Elder Druid",
+        "Royal Paladin"
+      ],
+      "requiredLevel": 11,
+      "mana": 70,
+      "cooldownMs": 1000,
+      "groupCooldownMs": 1000,
+      "group": "healing",
+      "range": 0,
+      "combatType": "healing",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 3.2,
+          "constant": 20
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 5.4,
+          "constant": 40
+        }
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 13,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_BLUE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/healing/intense_healing.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 88,
+      "name": "Energy Strike",
+      "words": "exori vis",
+      "vocations": [
+        "Sorcerer",
+        "Druid",
+        "Master Sorcerer",
+        "Elder Druid"
+      ],
+      "requiredLevel": 12,
+      "mana": 20,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 3,
+      "combatType": "energy",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.4,
+          "constant": 8
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 2.2,
+          "constant": 14
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 38,
+        "projectileId": 5,
+        "effectConstant": "CONST_ME_ENERGYAREA",
+        "projectileConstant": "CONST_ANI_ENERGY"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/energy_strike.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 113,
+      "name": "Terra Strike",
+      "words": "exori tera",
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer",
+        "Druid",
+        "Elder Druid"
+      ],
+      "requiredLevel": 13,
+      "mana": 20,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 3,
+      "combatType": "earth",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.4,
+          "constant": 8
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 2.2,
+          "constant": 14
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 47,
+        "projectileId": 39,
+        "effectConstant": "CONST_ME_CARNIPHILA",
+        "projectileConstant": "CONST_ANI_SMALLEARTH"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/terra_strike.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 89,
+      "name": "Flame Strike",
+      "words": "exori flam",
+      "vocations": [
+        "Sorcerer",
+        "Druid",
+        "Master Sorcerer",
+        "Elder Druid"
+      ],
+      "requiredLevel": 14,
+      "mana": 20,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 3,
+      "combatType": "fire",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.4,
+          "constant": 8
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 2.2,
+          "constant": 14
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 37,
+        "projectileId": 4,
+        "effectConstant": "CONST_ME_FIREATTACK",
+        "projectileConstant": "CONST_ANI_FIRE"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/flame_strike.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 6,
+      "name": "Haste",
+      "words": "utani hur",
+      "vocations": [
+        "Sorcerer",
+        "Druid",
+        "Paladin",
+        "Knight",
+        "Master Sorcerer",
+        "Elder Druid",
+        "Royal Paladin",
+        "Elite Knight"
+      ],
+      "requiredLevel": 14,
+      "mana": 60,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "support",
+      "range": 0,
+      "combatType": "support",
+      "formula": {
+        "kind": "haste",
+        "min": {
+          "level": 0,
+          "constant": 0
+        },
+        "max": {
+          "level": 0,
+          "constant": 0
+        },
+        "durationMs": 33000,
+        "speedFormula": [
+          0.3,
+          -24,
+          0.3,
+          -24
+        ]
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 15,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_GREEN",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/support/haste.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 112,
+      "name": "Ice Strike",
+      "words": "exori frigo",
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer",
+        "Druid",
+        "Elder Druid"
+      ],
+      "requiredLevel": 15,
+      "mana": 20,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 3,
+      "combatType": "ice",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.4,
+          "constant": 8
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 2.2,
+          "constant": 14
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 44,
+        "projectileId": 37,
+        "effectConstant": "CONST_ME_ICEATTACK",
+        "projectileConstant": "CONST_ANI_SMALLICE"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/ice_strike.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 19,
+      "name": "Fire Wave",
+      "words": "exevo flam hur",
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "requiredLevel": 18,
+      "mana": 25,
+      "cooldownMs": 4000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 1,
+      "combatType": "fire",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.2,
+          "constant": 7
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 2,
+          "constant": 12
+        }
+      },
+      "area": "wave-4",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 16,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_HITBYFIRE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/fire_wave.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 84,
+      "name": "Heal Friend",
+      "words": "exura sio",
+      "vocations": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "requiredLevel": 18,
+      "mana": 140,
+      "cooldownMs": 1000,
+      "groupCooldownMs": 1000,
+      "group": "healing",
+      "range": 1,
+      "combatType": "healing",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 6.3,
+          "constant": 45
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 14.4,
+          "constant": 90
+        }
+      },
+      "area": "target",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 15,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_GREEN",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/healing/heal_friend.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 121,
+      "name": "Ice Wave",
+      "words": "exevo frigo hur",
+      "vocations": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "requiredLevel": 18,
+      "mana": 25,
+      "cooldownMs": 4000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 1,
+      "combatType": "ice",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 0.8,
+          "constant": 5
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 2,
+          "constant": 12
+        }
+      },
+      "area": "wave-4",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 42,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_ICEAREA",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/ice_wave.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 111,
+      "name": "Ethereal Spear",
+      "words": "exori con",
+      "vocations": [
+        "Paladin",
+        "Royal Paladin"
+      ],
+      "requiredLevel": 23,
+      "mana": 25,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 7,
+      "combatType": "physical",
+      "formula": {
+        "kind": "distance-skill",
+        "min": {
+          "level": 0.2,
+          "distanceSkill": 0,
+          "constant": 0
+        },
+        "max": {
+          "level": 0.2,
+          "distanceSkill": 1,
+          "constant": 5
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": 28,
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": "CONST_ANI_ETHEREALSPEAR"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/ethereal_spear.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 107,
+      "name": "Whirlwind Throw",
+      "words": "exori hur",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 28,
+      "mana": 40,
+      "cooldownMs": 6000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 5,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.2,
+          "skillAttack": 0.01,
+          "constant": 1
+        },
+        "max": {
+          "level": 0.2,
+          "skillAttack": 0.03,
+          "constant": 6
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": "weapon-type",
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": "CONST_ANI_WEAPONTYPE"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/whirlwind_throw.lua"
+      ],
+      "importWarnings": [
+        "Projectile appearance is resolved from the equipped weapon at runtime."
+      ]
+    },
+    {
+      "spellId": 7,
+      "name": "Wound Cleansing",
+      "words": "exana mort",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 30,
+      "mana": 65,
+      "cooldownMs": 1000,
+      "groupCooldownMs": 1000,
+      "group": "healing",
+      "range": 0,
+      "combatType": "healing",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 5,
+          "constant": 40
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 7,
+          "constant": 80
+        }
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 13,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_BLUE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/healing/wound_cleansing.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 80,
+      "name": "Berserk",
+      "words": "exori",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 35,
+      "mana": 115,
+      "cooldownMs": 4000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 1,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.2,
+          "skillAttack": 0.03,
+          "constant": 7
+        },
+        "max": {
+          "level": 0.2,
+          "skillAttack": 0.05,
+          "constant": 11
+        }
+      },
+      "area": "square-1x1",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/berserk.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 125,
+      "name": "Divine Healing",
+      "words": "exura san",
+      "vocations": [
+        "Paladin",
+        "Royal Paladin"
+      ],
+      "requiredLevel": 35,
+      "mana": 160,
+      "cooldownMs": 1000,
+      "groupCooldownMs": 1000,
+      "group": "healing",
+      "range": 0,
+      "combatType": "healing",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 6.9,
+          "constant": 40
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 13.2,
+          "constant": 82
+        }
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 13,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_BLUE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/healing/divine_healing.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 122,
+      "name": "Divine Missile",
+      "words": "exori san",
+      "vocations": [
+        "Paladin",
+        "Royal Paladin"
+      ],
+      "requiredLevel": 40,
+      "mana": 20,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 4,
+      "combatType": "holy",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.9,
+          "constant": 8
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 3,
+          "constant": 18
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 40,
+        "projectileId": 38,
+        "effectConstant": "CONST_ME_HOLYDAMAGE",
+        "projectileConstant": "CONST_ANI_SMALLHOLY"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/divine_missile.lua"
+      ],
+      "importWarnings": []
+    }
+  ]
+}

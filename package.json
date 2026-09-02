@@ -1,0 +1,52 @@
+{
+  "name": "mmorpg-web",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "predev": "npm run prepare:game",
+    "dev": "vinext dev",
+    "prebuild": "npm run prepare:game",
+    "build": "vinext build",
+    "start": "vinext start",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "typecheck": "tsc --noEmit --incremental false",
+    "test": "vitest run",
+    "prepare:game": "npm run import:content && npm run extract:tibia860",
+    "import:content": "node --experimental-strip-types packages/styller-importer/src/cli.ts",
+    "extract:tibia860": "node --experimental-strip-types packages/tibia860-assets/src/cli.ts",
+    "import:rotworm": "npm run import:content"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.5",
+    "@supabase/supabase-js": "^2.112.4",
+    "fast-xml-parser": "^5.11.1",
+    "next": "^16.3.4",
+    "pixi.js": "^8.20.1",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "1.37.1",
+    "@cloudflare/workers-types": "4.20260515.1",
+    "@openai/sites-vite-plugin": "^0.1.0 || ^0.2.0",
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
+    "@vitejs/plugin-rsc": "0.5.26",
+    "eslint": "9.39.4",
+    "eslint-config-next": "^16.3.4",
+    "react-server-dom-webpack": "19.2.6",
+    "tailwindcss": "4.2.1",
+    "typescript": "5.9.3",
+    "vinext": "1.0.0-beta.3",
+    "vite": "8.0.13",
+    "vitest": "^4.1.11",
+    "wrangler": "4.92.0"
+  },
+  "type": "module"
+}

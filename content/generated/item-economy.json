@@ -1,0 +1,506 @@
+{
+  "importedAtBuildTime": true,
+  "canonicalRule": "styller-first-then-web-highest-proven-sell-price",
+  "items": [
+    {
+      "itemId": 2050,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2120,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2148,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2170,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2172,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2213,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2230,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2235,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2376,
+      "canonicalSellPrice": 25,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 25,
+          "sourceNpc": "Mad",
+          "sourceFile": "data/npc/Mad.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2380,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2386,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2388,
+      "canonicalSellPrice": 20,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 20,
+          "sourceNpc": "Mad",
+          "sourceFile": "data/npc/Mad.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2389,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2398,
+      "canonicalSellPrice": 30,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 30,
+          "sourceNpc": "Mad",
+          "sourceFile": "data/npc/Mad.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2448,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2460,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2461,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2464,
+      "canonicalSellPrice": 100,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 100,
+          "sourceNpc": "Mad",
+          "sourceFile": "data/npc/Mad.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2473,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2484,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2510,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2511,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2512,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2530,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2553,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2554,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2580,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2597,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2643,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2649,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2666,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2667,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2671,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2679,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2687,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2696,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2787,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 2805,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 3976,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 5878,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 5880,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 5901,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 8859,
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Spider_Fangs",
+          "sourceName": "TibiaWiki — Spider Fangs",
+          "retrievedAt": "2026-09-02",
+          "tibiaVersionContext": "Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+        }
+      ],
+      "warnings": [
+        "Web fallback: Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+      ]
+    },
+    {
+      "itemId": 10603,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 10606,
+      "canonicalSellPrice": 30,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 30,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Bunch_of_Troll_Hair",
+          "sourceName": "TibiaWiki — Bunch of Troll Hair",
+          "retrievedAt": "2026-09-02",
+          "tibiaVersionContext": "Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+        }
+      ],
+      "warnings": [
+        "Web fallback: Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+      ]
+    },
+    {
+      "itemId": 10609,
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Lump_of_Dirt",
+          "sourceName": "TibiaWiki — Lump of Dirt",
+          "retrievedAt": "2026-09-02",
+          "tibiaVersionContext": "Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+        }
+      ],
+      "warnings": [
+        "Web fallback: Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+      ]
+    },
+    {
+      "itemId": 11192,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 12428,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 12437,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    },
+    {
+      "itemId": 12441,
+      "canonicalSellPrice": null,
+      "status": "priceUnknown",
+      "offers": [],
+      "warnings": [
+        "No NPC sell offer was found; no value was invented."
+      ]
+    }
+  ]
+}
