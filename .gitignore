@@ -38,4 +38,11 @@ next-env.d.ts
 /outputs/
 /work/
 *.tsbuildinfo
+
+# Large binary archives and map/sprite blobs (> 100MB)
 *.otbm
+*.spr
+*.zip
+*.rar
+*.z01
+*.z02
