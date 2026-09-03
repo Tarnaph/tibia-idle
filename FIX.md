@@ -1,7 +1,4 @@
 # RODADA DE AJUSTES
-Bugs encontrados:
-Quando você aperta para desequipar item ao invés de ir para bolsa, ele some, o comportamento esperado é: Ao apertar duas vezes ele desequipa e vai para a bolsa o equipamento, se você apertar com o botão direito e em equipar ele equipa e se apertar desequipar vai para a bolsa
+Vamos mudar o UI da janela de caçadas, deve ficar igual a referência que mandei, mas sem esse negócio de tamanho do pull, a ideia é mostrar os monstros, mostrar os loots que o bicho dropa, ao passar o mouse em cima ele mostra as fraquezas forças e quantos monstros precisa matar para completar o bestiary essas informações todas você encontra nas pastas do tibia, ai ao abertar ali em trocar de caçada ele da 5 segundos mostra um contador e troca de hunt para a nova que você escolheu, pode deixar as abas ja feitas de caçadas, treino, quests, arena e bosses, mas sem funcionar por enquanto.
 
-Quando o personagem mirar em um bicho, ele tem que atacar ele, as vezes o personagem esta mirando em um bicho e ataca outro a intenção da marcação vermelha é mostrar qual monstro ele está mirando naquele instante esse sistema precisa ser igual do tibia, estéticamente esta errado também na imagem de referência mostra como deve ficar o vermelho em volta do bicho
-
-Quando personagem pegar level, precisa aparecer no meio da tela "You advanced from level (o level atual) to level (o proximo level)" como na imagem de referência
+Vamos alterar a UI do menu party também, mostrando os personagens que estão no seu time com level, vida, mana e stamina, não precisa ter ratear custos e nem sair da party, no lugar destes botões você pode deixar aquela função de adicionar personagem, subi também a referência para esta parte do novo membro

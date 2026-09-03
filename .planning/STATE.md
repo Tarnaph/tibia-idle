@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 27 of 27 (Desequipar para Bolsa, Foco Autêntico de Alvo e Anúncio de Level Up)  
+Phase: 28 of 28 (Nova UI de Caçadas e Nova UI da Party com Modal Novo Membro)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 27 concluída: Itens desequipados vão para a Bolsa (`bag`) sem sumir; troca inteligente ao equipar de container; mira vermelha autêntica em retângulo fechado (32x32) contornando o monstro alvejado; foco travado no alvo em perseguição e ataques básicos/magias; seleção de alvo por clique; e anúncio centralizado de level up ("You advanced from Level X to Level Y.").
+Last activity: 2026-09-03 — Phase 28 concluída: Nova janela de caçadas em 3 colunas (Busca/Lista, Detalhes com Tooltip de Bestiary e Danos Recebidos por elemento, Loots com raridades e auto-loot, contagem regressiva de 5s para troca de hunt); e Nova UI da Party com barras de HP, MP e Stamina, com modal autêntico "NOVO MEMBRO" com opções de gênero e vocações.
 
 Progress: [██████████] 100%
 

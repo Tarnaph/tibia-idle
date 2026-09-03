@@ -99,3 +99,28 @@ export function sharedExperiencePerCharacter(rawExperience: number, characters: 
     : 1.2;
   return Math.ceil((rawExperience * multiplier) / characters.length);
 }
+
+export function removePartyMember(state: GameState, characterId: string): GameState {
+  if (state.session.leaderId === characterId) return state; // Líder não pode ser removido
+  const remaining = state.session.characters.filter((c) => c.id !== characterId);
+  if (remaining.length === 0) return state;
+
+  const newSelected =
+    state.session.selectedCharacterId === characterId
+      ? state.session.leaderId
+      : state.session.selectedCharacterId;
+
+  return {
+    ...state,
+    session: {
+      ...state.session,
+      characters: remaining,
+      selectedCharacterId: newSelected,
+      cameraTargetCharacterId: newSelected,
+    },
+    encounter: {
+      ...state.encounter,
+      partyActors: state.encounter.partyActors.filter((a) => a.characterId !== characterId),
+    },
+  };
+}

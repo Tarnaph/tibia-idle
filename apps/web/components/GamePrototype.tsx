@@ -14,7 +14,7 @@ import {
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   transferItemBetweenContainers, destroyContainerItem, executeQuickSell,
   setCharacterStance, setCharacterTargetDistance,
-  unequipSlotToBag, equipItemFromContainer, setActorTarget,
+  unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction,
@@ -390,64 +390,75 @@ function GamePrototypeContent() {
 
       {/* Window 3: Party */}
       <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{game.session.characters.length}/4</small>}>
-        <div className="party-list">
+        <div className="party-cards-list">
           {game.session.characters.map((character) => {
             const actor = encounter.partyActors.find((candidate) => candidate.characterId === character.id);
-            const stats = statsById.get(character.id);
+            const isLeader = character.id === game.session.leaderId;
+            const isSelected = character.id === activeCharacter.id;
             const hp = actor?.hp ?? character.currentHp;
             const mana = actor?.mana ?? character.currentMana;
+            const hpPct = Math.max(0, Math.min(100, (100 * hp) / character.maxHp));
+            const manaPct = character.maxMana > 0 ? Math.max(0, Math.min(100, (100 * mana) / character.maxMana)) : 0;
+
             return (
-              <button
-                type="button"
-                className={`party-member ${activeCharacter.id === character.id ? 'selected' : ''}`}
-                aria-pressed={activeCharacter.id === character.id}
+              <div
+                className={`party-card-item ${isSelected ? 'selected' : ''}`}
                 key={character.id}
                 onClick={() => selectPartyCharacter(character.id)}
               >
-                <span className={`role-badge role-${roleForVocation(character.vocation).toLowerCase()}`}>
-                  {roleForVocation(character.vocation)}
-                </span>
-                <span className="party-member-name">
-                  <strong>{character.name}</strong>
-                  <small>{character.vocation} · Lv {character.level}</small>
-                </span>
-                <div className="party-resource">
-                  <span>HP</span>
-                  <div className="compact-meter"><i className="hp-fill" style={{ width: `${100 * hp / character.maxHp}%` }} /></div>
-                  <b>{Math.round(100 * hp / character.maxHp)}%</b>
-                </div>
-                {character.maxMana > 0 && (
-                  <div className="party-resource">
-                    <span>MP</span>
-                    <div className="compact-meter"><i className="mana-fill" style={{ width: `${100 * mana / character.maxMana}%` }} /></div>
-                    <b>{mana}</b>
+                <div className="party-card-header">
+                  <div className="party-card-name-row">
+                    <span className="party-card-name">{character.name}</span>
+                    {isLeader && <span className="party-card-star" title="Líder da Party">★</span>}
                   </div>
-                )}
-                <div className="party-resource">
-                  <span>XP</span>
-                  <div className="compact-meter"><i className="xp-fill" style={{ width: `${xpProgressById.get(character.id) ?? 0}%` }} /></div>
-                  <b>{Math.round(xpProgressById.get(character.id) ?? 0)}%</b>
-                </div>
-                {stats && (
-                  <div className="party-combat-stats">
-                    <span>ATK <b>{stats.attack}</b></span>
-                    <span>DEF <b>{stats.defense}</b></span>
-                    <span>ARM <b>{stats.armor}</b></span>
+                  <div className="party-card-level-row">
+                    <span className="party-card-level">Lv. {character.level}</span>
+                    {!isLeader && (
+                      <button
+                        type="button"
+                        className="party-card-remove-btn"
+                        title="Remover da party"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setGame((cur) => removePartyMember(cur, character.id));
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
-                )}
-              </button>
+                </div>
+
+                {/* HP Bar */}
+                <div className="party-bar-container hp-bar-bg" title={`HP: ${hp}/${character.maxHp}`}>
+                  <div className="party-bar-fill hp-fill" style={{ width: `${hpPct}%` }} />
+                </div>
+
+                {/* MP Bar */}
+                <div className="party-bar-container mana-bar-bg" title={`MP: ${mana}/${character.maxMana}`}>
+                  <div className="party-bar-fill mana-fill" style={{ width: `${manaPct}%` }} />
+                </div>
+
+                {/* Stamina Bar */}
+                <div className="party-bar-container stamina-bar-bg" title="Stamina: 42:00h">
+                  <div className="party-bar-fill stamina-fill" style={{ width: '100%' }} />
+                  <span className="party-stamina-caption">42:00h</span>
+                </div>
+              </div>
             );
           })}
         </div>
-        <button
-          type="button"
-          className="add-party-member"
-          onClick={() => setPartyModalOpen(true)}
-          disabled={game.session.characters.length >= 4}
-          style={{ width: '100%', marginTop: '8px' }}
-        >
-          + Adicionar membro ({game.session.characters.length}/4)
-        </button>
+
+        <div className="party-window-footer-actions">
+          <button
+            type="button"
+            className="party-add-member-btn"
+            onClick={() => setPartyModalOpen(true)}
+            disabled={game.session.characters.length >= 4}
+          >
+            Adicionar membro ({game.session.characters.length}/4)
+          </button>
+        </div>
       </DraggableWindow>
 
       {/* Window 4: Hunt & Navigation */}
@@ -599,8 +610,10 @@ function GamePrototypeContent() {
         hunts={content.hunts}
         monsters={content.monsters}
         level={leader.level}
+        currentHuntId={game.encounter.hunt.id}
         onClose={() => setHuntSelectorOpen(false)}
         onSelect={startSelectedHunt}
+        onOpenPartyModal={() => setPartyModalOpen(true)}
       />
       {hotbarConfigSlot !== null && (
         <HotbarConfigModal

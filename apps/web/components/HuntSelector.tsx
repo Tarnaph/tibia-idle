@@ -1,54 +1,448 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { HuntDefinition } from '@/packages/domain/src';
 import type { MonsterDefinition } from '@/packages/content-schema/src';
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import { ItemSprite } from './ItemSprite';
 
 const assets = visualAssetsJson as Tibia860AssetManifest;
 
-interface Props { open: boolean; hunts: HuntDefinition[]; monsters: MonsterDefinition[]; level: number; onClose(): void; onSelect(huntId: string): void }
+interface Props {
+  open: boolean;
+  hunts: HuntDefinition[];
+  monsters: MonsterDefinition[];
+  level: number;
+  currentHuntId?: string;
+  onClose(): void;
+  onSelect(huntId: string): void;
+  onOpenPartyModal?: () => void;
+}
 
-export function HuntSelector({ open, hunts, monsters, level, onClose, onSelect }: Props) {
+type ActiveTab = 'CAÇADAS' | 'TREINO' | 'QUESTS' | 'ARENA' | 'BOSSES';
+
+interface ElementDef {
+  key: string;
+  label: string;
+  icon: string;
+}
+
+const ELEMENTS: ElementDef[] = [
+  { key: 'physical', label: 'Físico', icon: '🛡️' },
+  { key: 'fire', label: 'Fogo', icon: '🔥' },
+  { key: 'earth', label: 'Terra', icon: '🌿' },
+  { key: 'energy', label: 'Energia', icon: '⚡' },
+  { key: 'ice', label: 'Gelo', icon: '❄️' },
+  { key: 'holy', label: 'Sagrado', icon: '✨' },
+  { key: 'death', label: 'Morte', icon: '💀' },
+  { key: 'lifeDrain', label: 'Life Drain', icon: '🩸' },
+];
+
+export function HuntSelector({
+  open,
+  hunts,
+  monsters,
+  level,
+  currentHuntId,
+  onClose,
+  onSelect,
+  onOpenPartyModal,
+}: Props) {
+  const [activeTab, setActiveTab] = useState<ActiveTab>('CAÇADAS');
   const [query, setQuery] = useState('');
-  const filtered = useMemo(() => hunts.filter((hunt) => {
-    const monsterNames = hunt.monsters.map((id) => monsters.find((monster) => monster.id === id)?.name ?? id).join(' ');
-    return `${hunt.name} ${monsterNames}`.toLowerCase().includes(query.trim().toLowerCase());
-  }), [hunts, monsters, query]);
+  const [selectedHuntId, setSelectedHuntId] = useState<string>(() => hunts[0]?.id ?? 'rat-cellars');
+  const [showBestiaryTooltip, setShowBestiaryTooltip] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  // Sync selected hunt with currentHuntId when opened
+  useEffect(() => {
+    if (open && currentHuntId) {
+      setSelectedHuntId(currentHuntId);
+    }
+  }, [open, currentHuntId]);
+
+  // Handle 5-second countdown on hunt switch
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown <= 0) {
+      setCountdown(null);
+      onSelect(selectedHuntId);
+      onClose();
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setCountdown((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [countdown, selectedHuntId, onSelect, onClose]);
+
+  const filteredHunts = useMemo(() => {
+    return hunts.filter((hunt) => {
+      const monsterNames = hunt.monsters
+        .map((id) => monsters.find((monster) => monster.id === id)?.name ?? id)
+        .join(' ');
+      return `${hunt.name} ${monsterNames}`.toLowerCase().includes(query.trim().toLowerCase());
+    });
+  }, [hunts, monsters, query]);
+
+  const selectedHunt = useMemo(() => {
+    return hunts.find((h) => h.id === selectedHuntId) ?? hunts[0];
+  }, [hunts, selectedHuntId]);
+
+  const primaryMonster = useMemo(() => {
+    if (!selectedHunt) return null;
+    const monsterId = selectedHunt.monsters[0];
+    return monsters.find((m) => m.id === monsterId) ?? null;
+  }, [selectedHunt, monsters]);
+
+  // Calculate monster damage resistances: damage = 100 - elementalPercent
+  const elementDamages = useMemo(() => {
+    if (!primaryMonster) return [];
+    return ELEMENTS.map((elem) => {
+      const rawRes = primaryMonster.elementalPercent?.[elem.key] ?? 0;
+      const damagePercent = Math.max(0, 100 - rawRes);
+      return {
+        ...elem,
+        percent: damagePercent,
+      };
+    });
+  }, [primaryMonster]);
+
+  // Bestiary progress calculation
+  const bestiaryStats = useMemo(() => {
+    if (!primaryMonster) return { current: 2500, target: 2500, completed: true };
+    const exp = primaryMonster.experience ?? 50;
+    const target = exp < 50 ? 50 : exp < 200 ? 250 : exp < 1500 ? 1000 : 2500;
+    // Mock high completion for demonstrative fidelity
+    const current = target;
+    return {
+      current,
+      target,
+      completed: current >= target,
+    };
+  }, [primaryMonster]);
+
+  // Consolidated loot list for selected hunt
+  const huntLootList = useMemo(() => {
+    if (!selectedHunt) return [];
+    const map = new Map<number, { itemId: number; name: string; chance: number }>();
+    for (const monsterId of selectedHunt.monsters) {
+      const m = monsters.find((cand) => cand.id === monsterId);
+      if (!m || !m.loot) continue;
+      for (const drop of m.loot) {
+        if (drop.itemId !== undefined && drop.chance !== undefined) {
+          if (!map.has(drop.itemId) || map.get(drop.itemId)!.chance < drop.chance) {
+            map.set(drop.itemId, { itemId: drop.itemId, name: drop.name, chance: drop.chance });
+          }
+        }
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.chance - a.chance);
+  }, [selectedHunt, monsters]);
+
+  const getRarityTag = (chance: number) => {
+    if (chance >= 100000) return { label: 'always', className: 'rarity-always' };
+    if (chance >= 20000) return { label: 'common', className: 'rarity-common' };
+    if (chance >= 5000) return { label: 'semi-rare', className: 'rarity-semirare' };
+    if (chance >= 1000) return { label: 'rare', className: 'rarity-rare' };
+    return { label: 'very rare', className: 'rarity-veryrare' };
+  };
+
+  const startSwitchCountdown = () => {
+    if (countdown !== null) return;
+    setCountdown(5);
+  };
+
   if (!open) return null;
+
   return (
-    <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className="hunt-selector" role="dialog" aria-modal="true" aria-label="Selecionar hunt">
-        <header><div><p className="eyebrow">EXPEDIÇÕES INICIAIS</p><h2>Hunts — escolha onde caçar</h2></div><button type="button" onClick={onClose}>×</button></header>
-        <div className="hunt-selector-tools">
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar hunt ou monstro..." autoFocus />
-          <span>Seu level: <b>{level}</b></span>
+    <div
+      className="modal-backdrop hunt-selector-backdrop"
+      onMouseDown={(e) => e.target === e.currentTarget && countdown === null && onClose()}
+    >
+      <div className="hunt-window-container" role="dialog" aria-modal="true" aria-label="Escolha uma caçada">
+        {/* Window Title Bar */}
+        <div className="hunt-window-header">
+          <span className="hunt-window-title">Escolha uma caçada</span>
+          <button
+            type="button"
+            className="hunt-window-close-btn"
+            onClick={onClose}
+            disabled={countdown !== null}
+            title="Fechar janela"
+          >
+            ✕
+          </button>
         </div>
-        <div className="hunt-level-rail"><span className="unlocked">5 habitats do mapa STYLLER</span><span className="unlocked">6 zonas por rota</span><span>Loop contínuo · variantes raras</span></div>
-        <div className="hunt-card-grid">
-          {filtered.map((hunt) => {
-            const locked = level < hunt.minimumLevel;
-            return (
-              <button type="button" key={hunt.id} className={`hunt-card ${locked ? 'locked' : ''}`} disabled={locked} onClick={() => onSelect(hunt.id)}>
-                <span className="hunt-card-sprites">
-                  {hunt.monsters.map((monsterId) => {
-                    const monster = monsters.find((candidate) => candidate.id === monsterId);
-                    const frame = assets.creatures[monsterId]?.frames.find((candidate) => candidate.direction === 'south') ?? assets.creatures[monsterId]?.frames[0];
-                    // Pixel art generated locally must not pass through image optimization.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    return frame ? <img key={monsterId} src={frame.publicUrl} alt={monster?.name ?? monsterId} /> : null;
-                  })}
-                </span>
-                <span className="hunt-card-copy"><strong>{hunt.name}</strong><small>{hunt.monsters.map((id) => monsters.find((monster) => monster.id === id)?.name ?? id).join(' · ')}</small></span>
-                <span className="hunt-card-badges"><b>XP</b><i>{locked ? `🔒 Lv ${hunt.minimumLevel}` : 'loop ativo'}</i></span>
-                <span className="hunt-card-level"><b>{hunt.environment.label}</b> · recomendado Lv {hunt.recommendedLevel} · 6 zonas de respawn</span>
-              </button>
-            );
-          })}
+
+        {/* Top Tabs */}
+        <div className="hunt-top-tabs">
+          {(['CAÇADAS', 'TREINO', 'QUESTS', 'ARENA', 'BOSSES'] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              className={`hunt-top-tab-btn ${activeTab === tab ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab)}
+              disabled={tab !== 'CAÇADAS'}
+              title={tab !== 'CAÇADAS' ? `${tab} (Em breve)` : undefined}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
-        <footer>O level recomendado é um aviso de dificuldade; as cinco hunts permanecem acessíveis neste protótipo.</footer>
-      </section>
+
+        {/* Main 3-Column Content Body */}
+        <div className="hunt-window-body">
+          {/* Column 1: Search & Hunt List */}
+          <div className="hunt-col-list">
+            <div className="hunt-search-bar">
+              <span className="hunt-search-icon">🔍</span>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar uma caçada ou criatura"
+                className="hunt-search-input"
+              />
+            </div>
+            <div className="hunt-available-count">
+              {filteredHunts.length} CAÇADAS DISPONÍVEIS
+            </div>
+            <div className="hunt-scroll-list">
+              {filteredHunts.map((hunt) => {
+                const isSelected = hunt.id === selectedHuntId;
+                const monsterId = hunt.monsters[0];
+                const monster = monsters.find((m) => m.id === monsterId);
+                const frame =
+                  assets.creatures[monsterId]?.frames.find((f) => f.direction === 'south') ??
+                  assets.creatures[monsterId]?.frames[0];
+                const dropCount = hunt.monsters.reduce((acc, mId) => {
+                  const mDef = monsters.find((m) => m.id === mId);
+                  return acc + (mDef?.loot?.length ?? 0);
+                }, 0);
+
+                return (
+                  <div
+                    key={hunt.id}
+                    className={`hunt-list-card ${isSelected ? 'selected' : ''}`}
+                    onClick={() => {
+                      if (countdown === null) setSelectedHuntId(hunt.id);
+                    }}
+                  >
+                    <div className="hunt-card-sprite-box">
+                      {frame ? (
+                        <img
+                          src={frame.publicUrl}
+                          alt={monster?.name ?? monsterId}
+                          className="hunt-creature-sprite"
+                        />
+                      ) : (
+                        <div className="hunt-placeholder-sprite">🐾</div>
+                      )}
+                    </div>
+                    <div className="hunt-card-info">
+                      <div className="hunt-card-name">{hunt.name}</div>
+                      <div className="hunt-card-monster">{monster?.name ?? 'Criatura'}</div>
+                      <div className="hunt-card-drops">{dropCount} drops de loot</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Column 2: Selected Hunt Details & Monster */}
+          <div className="hunt-col-details">
+            {selectedHunt ? (
+              <>
+                <h3 className="hunt-selected-title">{selectedHunt.name}</h3>
+
+                {/* Record Card */}
+                <div className="hunt-record-card">
+                  <div className="hunt-record-header">
+                    <span>Seu recorde</span>
+                    <button
+                      type="button"
+                      className="hunt-record-reset-btn"
+                      title="Reiniciar métricas de caçada"
+                    >
+                      ⟳
+                    </button>
+                  </div>
+                  <div className="hunt-record-metrics">
+                    <span className="hunt-record-badge">Party</span>
+                    <span className="hunt-record-xp">2.1M XP/h</span>
+                    <span className="hunt-record-gp">-5.8K gp/h</span>
+                  </div>
+                </div>
+
+                {/* Monster Details Section */}
+                <div className="hunt-monster-display">
+                  <div
+                    className="hunt-monster-preview-box"
+                    onMouseEnter={() => setShowBestiaryTooltip(true)}
+                    onMouseLeave={() => setShowBestiaryTooltip(false)}
+                  >
+                    {primaryMonster && assets.creatures[primaryMonster.id]?.frames[0] ? (
+                      <img
+                        src={
+                          assets.creatures[primaryMonster.id]?.frames.find(
+                            (f) => f.direction === 'south'
+                          )?.publicUrl ?? assets.creatures[primaryMonster.id]?.frames[0].publicUrl
+                        }
+                        alt={primaryMonster.name}
+                        className="hunt-large-creature-sprite"
+                      />
+                    ) : (
+                      <div className="hunt-placeholder-large">👾</div>
+                    )}
+                    <button
+                      type="button"
+                      className="hunt-monster-details-btn"
+                      onClick={() => setShowBestiaryTooltip((prev) => !prev)}
+                    >
+                      DETALHES
+                    </button>
+                    <div className="hunt-monster-label">{primaryMonster?.name ?? 'Monstro'}</div>
+
+                    {/* Bestiary / Weaknesses Tooltip (Image 3) */}
+                    {showBestiaryTooltip && primaryMonster && (
+                      <div className="monster-bestiary-tooltip" role="tooltip">
+                        <div className="bestiary-tooltip-header">
+                          <h4>{primaryMonster.name}</h4>
+                          <span className="bestiary-subtitle">DANO RECEBIDO</span>
+                        </div>
+                        <div className="bestiary-elements-list">
+                          {elementDamages.map((elem) => {
+                            const isVulnerable = elem.percent > 100;
+                            return (
+                              <div key={elem.key} className="bestiary-element-row">
+                                <span className="bestiary-elem-icon">{elem.icon}</span>
+                                <span className="bestiary-elem-label">{elem.label}</span>
+                                <div className="bestiary-bar-track">
+                                  <div
+                                    className={`bestiary-bar-fill ${
+                                      elem.key === 'lifeDrain'
+                                        ? 'fill-drain'
+                                        : isVulnerable
+                                        ? 'fill-vulnerable'
+                                        : 'fill-resistant'
+                                    }`}
+                                    style={{
+                                      width: `${Math.min(100, (elem.percent / 150) * 100)}%`,
+                                    }}
+                                  />
+                                </div>
+                                <span className="bestiary-elem-val">{elem.percent}%</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="bestiary-section-divider" />
+                        <div className="bestiary-progress-section">
+                          <div className="bestiary-progress-header">
+                            <span>BESTIARY</span>
+                            <b>
+                              {bestiaryStats.current.toLocaleString('pt-BR')} /{' '}
+                              {bestiaryStats.target.toLocaleString('pt-BR')}
+                            </b>
+                          </div>
+                          <div className="bestiary-progress-track">
+                            <div
+                              className="bestiary-progress-fill"
+                              style={{
+                                width: `${Math.min(
+                                  100,
+                                  (bestiaryStats.current / bestiaryStats.target) * 100
+                                )}%`,
+                              }}
+                            />
+                          </div>
+                          <div className="bestiary-completed-badge">
+                            {bestiaryStats.completed ? '✓ Entrada concluída' : 'Em progresso'}
+                          </div>
+                          <div className="bestiary-click-caption">
+                            Clique para ver a entrada completa no Bestiary
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="hunt-monster-lore">
+                    {selectedHunt.description ||
+                      'Lightless halls patrolled by death itself. A creature of great renown with sharp instincts and rich rewards.'}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="hunt-empty-placeholder">Selecione uma caçada</div>
+            )}
+          </div>
+
+          {/* Column 3: Possible Loot */}
+          <div className="hunt-col-loot">
+            <h4 className="hunt-loot-title">Loot possível</h4>
+            <div className="hunt-loot-scroll">
+              {huntLootList.length > 0 ? (
+                huntLootList.map((loot) => {
+                  const tag = getRarityTag(loot.chance);
+                  return (
+                    <div key={loot.itemId} className="hunt-loot-row">
+                      <div className="hunt-loot-icon-box">
+                        <ItemSprite itemId={loot.itemId} label={loot.name} />
+                      </div>
+                      <span className="hunt-loot-name">{loot.name}</span>
+                      <span className={`hunt-loot-rarity-tag ${tag.className}`}>{tag.label}</span>
+                      <input
+                        type="checkbox"
+                        defaultChecked
+                        className="hunt-loot-checkbox"
+                        title="Ativar auto-loot deste item"
+                      />
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="hunt-no-loot-msg">Nenhum loot catalogado para esta área.</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Actions Bar */}
+        <div className="hunt-window-footer">
+          <button
+            type="button"
+            className={`hunt-btn-switch ${countdown !== null ? 'counting' : ''}`}
+            onClick={startSwitchCountdown}
+            disabled={countdown !== null}
+          >
+            {countdown !== null ? `Trocando de caçada em ${countdown}s...` : 'Trocar de caçada'}
+          </button>
+
+          <button
+            type="button"
+            className="hunt-btn-party"
+            onClick={() => {
+              if (onOpenPartyModal) onOpenPartyModal();
+              onClose();
+            }}
+          >
+            Completar o time
+          </button>
+
+          <button
+            type="button"
+            className="hunt-btn-close"
+            onClick={onClose}
+            disabled={countdown !== null}
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

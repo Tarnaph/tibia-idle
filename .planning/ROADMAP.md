@@ -382,6 +382,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1/1 | Complete | 2026-09-03 |
 | 26. Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância | 1/1 | Complete | 2026-09-03 |
 | 27. Desequipar para Bolsa, Foco Autêntico de Alvo (Retângulo Vermelho) e Anúncio de Level Up | 1/1 | Complete | 2026-09-03 |
+| 28. Nova UI de Caçadas (Bestiary, Loots e Countdown de Troca) e Nova UI da Party com Modal Novo Membro | 1/1 | Complete | 2026-09-03 |
 
 ---
 
@@ -419,3 +420,20 @@ Plans:
 Plans:
 - [x] 27-01-PLAN: Implementar desequipar para a bolsa, trava de foco e retângulo de alvo autêntico, e anúncio centralizado de level up.
 
+---
+
+### Phase 28: Nova UI de Caçadas (Bestiary, Loots e Countdown de Troca) e Nova UI da Party com Modal Novo Membro
+
+**Goal:** Reformular completamente a janela de Caçadas e a janela de Party de acordo com as referências enviadas: janela de caçadas em 3 colunas (lista de hunts, detalhes do monstro com tooltip de fraquezas/bestiary, loot possível com tags e checkboxes) com countdown de 5s para troca; e janela da Party com barras de HP, MP e Stamina, e modal "NOVO MEMBRO" com seleção de gênero e vocações.  
+**Depends on:** Phase 27  
+**Requirements:** `FIX.md`, 5 imagens de referência anexadas.  
+**Success Criteria:**
+1. Janela de caçadas com abas superiores (Caçadas, Treino, Quests, Arena, Bosses) e 3 colunas (Busca/Lista, Detalhes/Recorde, Loot Possível).
+2. Sem tamanho do pull; monstro com botão/hover "DETALHES" exibindo tooltip com elementos/fraquezas e progresso do Bestiary.
+3. Lista de loot possível com sprite, nome, raridade (always, common, semi-rare, rare) e toggle de auto-loot.
+4. Botão "Trocar de caçada" aciona um countdown visual de 5 segundos antes de efetuar a troca de rota/hunt.
+5. Janela da Party reformulada com barras de Vida, Mana e Stamina para cada membro, estrela de líder e botão de remover membros.
+6. Botão "Adicionar membro" abre o modal "NOVO MEMBRO" com input de nome, botões Masculino/Feminino e cards das vocações (Knight, Monk, Paladin, Sorcerer, Druid).
+
+Plans:
+- [x] 28-01-PLAN: Implementar nova UI de Caçadas com Bestiary/Loots/Countdown e nova UI de Party com Modal de Novo Membro.

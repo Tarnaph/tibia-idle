@@ -2875,6 +2875,1062 @@ h1, h2, h3, p { margin: 0; }
   }
 }
 
+/* ==========================================================================
+   Phase 28: Nova UI de Caçadas (3 Colunas, Bestiary & Loots)
+   ========================================================================== */
+
+.hunt-selector-backdrop {
+  z-index: 1500;
+  background: rgba(4, 7, 13, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hunt-window-container {
+  width: 860px;
+  max-width: 95vw;
+  height: 590px;
+  max-height: 92vh;
+  background: #11151e;
+  border: 1.5px solid #2d3b52;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  font-family: inherit;
+  color: #c9d1d9;
+}
+
+.hunt-window-header {
+  height: 32px;
+  background: linear-gradient(180deg, #1b2332 0%, #131822 100%);
+  border-bottom: 1.5px solid #2d3b52;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.hunt-window-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6da2ed;
+  letter-spacing: 0.5px;
+}
+
+.hunt-window-close-btn {
+  background: transparent;
+  border: 1px solid #364661;
+  color: #9ab;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+
+.hunt-window-close-btn:hover {
+  background: #2a384e;
+  color: #fff;
+  border-color: #516b94;
+}
+
+.hunt-top-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 6px 10px;
+  background: #0f131a;
+  border-bottom: 1.5px solid #253042;
+}
+
+.hunt-top-tab-btn {
+  padding: 5px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #7a8a9e;
+  background: #151b24;
+  border: 1px solid #2b384c;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hunt-top-tab-btn.active {
+  color: #ffffff;
+  background: #173868;
+  border: 1.5px solid #3c7de8;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 8px rgba(60, 125, 232, 0.4);
+}
+
+.hunt-top-tab-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hunt-window-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background: #0e1219;
+}
+
+/* Coluna 1: Lista e Busca */
+.hunt-col-list {
+  width: 260px;
+  border-right: 1.5px solid #253042;
+  display: flex;
+  flex-direction: column;
+  background: #10141c;
+  padding: 8px;
+}
+
+.hunt-search-bar {
+  display: flex;
+  align-items: center;
+  background: #090c12;
+  border: 1px solid #28364c;
+  border-radius: 3px;
+  padding: 4px 8px;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.hunt-search-icon {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.hunt-search-input {
+  background: transparent;
+  border: none;
+  color: #e6edf3;
+  font-size: 11px;
+  width: 100%;
+  outline: none;
+}
+
+.hunt-available-count {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #596b82;
+  margin-bottom: 6px;
+  padding-left: 2px;
+}
+
+.hunt-scroll-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 2px;
+}
+
+.hunt-list-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #141924;
+  border: 1px solid #232c3d;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hunt-list-card:hover {
+  background: #1a2232;
+  border-color: #384964;
+}
+
+.hunt-list-card.selected {
+  background: #192a47;
+  border: 1.5px solid #3c7de8;
+  box-shadow: inset 0 0 8px rgba(60, 125, 232, 0.25);
+}
+
+.hunt-card-sprite-box {
+  width: 36px;
+  height: 36px;
+  background: #090c12;
+  border: 1px solid #232e42;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hunt-creature-sprite {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.hunt-card-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.hunt-card-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e6edf3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hunt-card-monster {
+  font-size: 10px;
+  color: #8b9bb4;
+}
+
+.hunt-card-drops {
+  font-size: 9px;
+  color: #63758e;
+  margin-top: 1px;
+}
+
+/* Coluna 2: Detalhes da Hunt Selecionada */
+.hunt-col-details {
+  flex: 1;
+  border-right: 1.5px solid #253042;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+}
+
+.hunt-selected-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #6da2ed;
+  margin: 0 0 10px 0;
+}
+
+.hunt-record-card {
+  background: #121824;
+  border: 1px solid #263347;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.hunt-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  color: #8b9bb4;
+  margin-bottom: 4px;
+}
+
+.hunt-record-reset-btn {
+  background: transparent;
+  border: 1px solid #2b394f;
+  color: #7b8fa9;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.hunt-record-reset-btn:hover {
+  background: #202b3d;
+  color: #fff;
+}
+
+.hunt-record-metrics {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hunt-record-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #1a273b;
+  border: 1px solid #2d4160;
+  color: #9ac2f7;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.hunt-record-xp {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7ee787;
+}
+
+.hunt-record-gp {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e5b741;
+}
+
+.hunt-monster-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 6px;
+  position: relative;
+}
+
+.hunt-monster-preview-box {
+  width: 130px;
+  background: #090c12;
+  border: 1px solid #28364c;
+  border-radius: 4px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+}
+
+.hunt-monster-preview-box:hover {
+  border-color: #3c7de8;
+}
+
+.hunt-large-creature-sprite {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+  margin-bottom: 6px;
+}
+
+.hunt-monster-details-btn {
+  background: #182334;
+  border: 1px solid #2e4363;
+  color: #8cb6f5;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.hunt-monster-details-btn:hover {
+  background: #23344e;
+  color: #fff;
+}
+
+.hunt-monster-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e6edf3;
+}
+
+.hunt-monster-lore {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #8b9bb4;
+  text-align: center;
+  margin-top: 10px;
+  max-width: 90%;
+}
+
+/* Tooltip de Bestiary & Danos Recebidos (Imagem 3) */
+.monster-bestiary-tooltip {
+  position: absolute;
+  top: 10px;
+  left: 140px;
+  width: 250px;
+  background: #0e121a;
+  border: 1.5px solid #2f3e57;
+  border-radius: 4px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.95);
+  padding: 10px 12px;
+  z-index: 1600;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.bestiary-tooltip-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6da2ed;
+}
+
+.bestiary-subtitle {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #657791;
+  display: block;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+.bestiary-elements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5px;
+}
+
+.bestiary-element-row {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  color: #c9d1d9;
+}
+
+.bestiary-elem-icon {
+  width: 14px;
+  font-size: 9px;
+  text-align: center;
+}
+
+.bestiary-elem-label {
+  width: 65px;
+  font-size: 9.5px;
+  color: #8b9bb4;
+  white-space: nowrap;
+}
+
+.bestiary-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #06080d;
+  border-radius: 3px;
+  margin: 0 8px;
+  overflow: hidden;
+}
+
+.bestiary-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s;
+}
+
+.bestiary-bar-fill.fill-resistant {
+  background: #6eb77a; /* Verde */
+}
+
+.bestiary-bar-fill.fill-vulnerable {
+  background: #ea6472; /* Vermelho / Rosa */
+}
+
+.bestiary-bar-fill.fill-drain {
+  background: #5078c8; /* Azul */
+}
+
+.bestiary-elem-val {
+  width: 32px;
+  text-align: right;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #e6edf3;
+  font-family: monospace;
+}
+
+.bestiary-section-divider {
+  height: 1px;
+  background: #253042;
+  margin: 8px 0;
+}
+
+.bestiary-progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bestiary-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9.5px;
+  color: #8b9bb4;
+}
+
+.bestiary-progress-header span {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.bestiary-progress-track {
+  width: 100%;
+  height: 7px;
+  background: #06080d;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bestiary-progress-fill {
+  height: 100%;
+  background: #7ee787;
+  border-radius: 3px;
+}
+
+.bestiary-completed-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #7ee787;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.bestiary-click-caption {
+  font-size: 8.5px;
+  color: #55667d;
+  margin-top: 2px;
+}
+
+/* Coluna 3: Loot Possível */
+.hunt-col-loot {
+  width: 240px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  background: #10141c;
+}
+
+.hunt-loot-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e6edf3;
+  margin: 0 0 8px 0;
+}
+
+.hunt-loot-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-right: 2px;
+}
+
+.hunt-loot-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: #141924;
+  border: 1px solid #232c3d;
+  border-radius: 3px;
+}
+
+.hunt-loot-icon-box {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hunt-loot-name {
+  flex: 1;
+  font-size: 10.5px;
+  color: #c9d1d9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hunt-loot-rarity-tag {
+  font-size: 8.5px;
+  font-weight: 600;
+  text-transform: lowercase;
+  font-family: monospace;
+}
+
+.hunt-loot-rarity-tag.rarity-always {
+  color: #f1c40f;
+}
+
+.hunt-loot-rarity-tag.rarity-common {
+  color: #8b9bb4;
+}
+
+.hunt-loot-rarity-tag.rarity-semirare {
+  color: #79c0ff;
+}
+
+.hunt-loot-rarity-tag.rarity-rare {
+  color: #d2a8ff;
+}
+
+.hunt-loot-rarity-tag.rarity-veryrare {
+  color: #ff7b72;
+}
+
+.hunt-loot-checkbox {
+  width: 13px;
+  height: 13px;
+  accent-color: #3c7de8;
+  cursor: pointer;
+}
+
+/* Rodapé da Janela de Caçadas */
+.hunt-window-footer {
+  height: 44px;
+  background: #0d1017;
+  border-top: 1.5px solid #253042;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.hunt-btn-switch {
+  padding: 6px 14px;
+  background: #1b447a;
+  border: 1px solid #3472ca;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hunt-btn-switch:hover:not(:disabled) {
+  background: #255da6;
+  border-color: #4a8ee8;
+}
+
+.hunt-btn-switch.counting {
+  background: #875a13;
+  border-color: #d49528;
+  color: #fff9e6;
+  animation: pulse 1s infinite alternate;
+}
+
+.hunt-btn-party {
+  padding: 6px 14px;
+  background: #1e2634;
+  border: 1px solid #334259;
+  color: #c9d1d9;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hunt-btn-party:hover {
+  background: #283347;
+  color: #fff;
+  border-color: #455a79;
+}
+
+.hunt-btn-close {
+  padding: 6px 14px;
+  background: #191c22;
+  border: 1px solid #2f343e;
+  color: #8b9bb4;
+  font-size: 11px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hunt-btn-close:hover {
+  background: #242932;
+  color: #fff;
+}
+
+/* ==========================================================================
+   Phase 28: Nova UI da Janela da Party (Imagem 4)
+   ========================================================================== */
+
+.party-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 2px;
+}
+
+.party-card-item {
+  background: #14171d;
+  border: 1px solid #242a36;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.party-card-item:hover {
+  background: #1a1e27;
+  border-color: #343c4d;
+}
+
+.party-card-item.selected {
+  border-color: #3c7de8;
+  background: #172132;
+}
+
+.party-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.party-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.party-card-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #f0f3f6;
+}
+
+.party-card-star {
+  color: #f1c40f;
+  font-size: 11px;
+}
+
+.party-card-level-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.party-card-level {
+  font-size: 10.5px;
+  color: #8b9bb4;
+  font-family: monospace;
+}
+
+.party-card-remove-btn {
+  background: transparent;
+  border: none;
+  color: #7a8a9e;
+  font-size: 10px;
+  padding: 0 3px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.party-card-remove-btn:hover {
+  color: #ff7b72;
+  background: rgba(255, 123, 114, 0.15);
+}
+
+.party-bar-container {
+  height: 7.5px;
+  border-radius: 4px;
+  margin-top: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.party-bar-container.hp-bar-bg {
+  background: rgba(180, 40, 55, 0.25);
+}
+
+.party-bar-container.mana-bar-bg {
+  background: rgba(45, 90, 180, 0.25);
+}
+
+.party-bar-container.stamina-bar-bg {
+  background: rgba(35, 110, 95, 0.25);
+}
+
+.party-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s ease-out;
+}
+
+.party-bar-fill.hp-fill {
+  background: linear-gradient(90deg, #df5263 0%, #ea6574 100%);
+}
+
+.party-bar-fill.mana-fill {
+  background: linear-gradient(90deg, #3f73ce 0%, #5289ed 100%);
+}
+
+.party-bar-fill.stamina-fill {
+  background: linear-gradient(90deg, #2b8474 0%, #3ca08d 100%);
+}
+
+.party-stamina-caption {
+  position: absolute;
+  right: 4px;
+  top: -1px;
+  font-size: 7.5px;
+  color: #9ee5d7;
+  font-family: monospace;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.party-window-footer-actions {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #252c39;
+}
+
+.party-add-member-btn {
+  width: 100%;
+  padding: 6px 10px;
+  background: #182232;
+  border: 1px solid #2e415e;
+  color: #b7d1f5;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.party-add-member-btn:hover:not(:disabled) {
+  background: #202e44;
+  color: #fff;
+  border-color: #405c87;
+}
+
+.party-add-member-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Phase 28: Modal NOVO MEMBRO (Imagem 5)
+   ========================================================================== */
+
+.new-member-backdrop {
+  z-index: 2000;
+  background: rgba(5, 6, 7, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-member-modal-card {
+  width: 380px;
+  background: #1e1f20;
+  border: 1.5px solid #4a4740;
+  border-radius: 4px;
+  padding: 24px 22px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  font-family: inherit;
+}
+
+.new-member-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.new-member-title {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #eed5a3;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+}
+
+.new-member-subtitle {
+  font-size: 11px;
+  color: #9a9488;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.new-member-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.new-member-input-group {
+  margin-bottom: 10px;
+}
+
+.new-member-input {
+  width: 100%;
+  background: #131414;
+  border: 1.5px solid #3c3933;
+  border-radius: 3px;
+  padding: 8px 10px;
+  color: #f5f2ea;
+  font-size: 12.5px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.new-member-input:focus {
+  border-color: #eed5a3;
+}
+
+.new-member-gender-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.new-member-gender-btn {
+  flex: 1;
+  padding: 6px;
+  background: #252627;
+  border: 1px solid #3b3934;
+  color: #aba598;
+  font-size: 11.5px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.new-member-gender-btn.active {
+  background: #2d2b26;
+  border: 1.5px solid #eed5a3;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.new-member-vocations-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.new-member-voc-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #232426;
+  border: 1px solid #3a3834;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.new-member-voc-card:hover:not(.disabled) {
+  background: #2a2c2e;
+  border-color: #524e47;
+}
+
+.new-member-voc-card.selected {
+  background: #2d2a24;
+  border: 1.5px solid #eed5a3;
+  box-shadow: 0 0 8px rgba(238, 213, 163, 0.2);
+}
+
+.new-member-voc-card.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.voc-card-sprite {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.voc-sprite-img {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.voc-placeholder-icon {
+  font-size: 18px;
+}
+
+.voc-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.voc-card-name {
+  font-size: 12px;
+  color: #f0ece3;
+}
+
+.voc-card-role {
+  font-size: 9px;
+  color: #8c867a;
+  margin-top: 1px;
+}
+
+.new-member-error {
+  font-size: 10.5px;
+  color: #ff7b72;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.new-member-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.new-member-btn-create {
+  width: 100%;
+  padding: 10px;
+  background: #d8cbb5;
+  color: #1a1918;
+  font-size: 13px;
+  font-weight: 800;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.new-member-btn-create:hover {
+  background: #e6dac6;
+}
+
+.new-member-btn-cancel {
+  width: 100%;
+  padding: 8px;
+  background: #313133;
+  color: #c5bfb4;
+  font-size: 11.5px;
+  border: 1px solid #444341;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.new-member-btn-cancel:hover {
+  background: #3b3b3d;
+  color: #fff;
+}
+
+
 
 
 
