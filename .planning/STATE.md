@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 14 of 14 (Viewport em tela cheia e janelas de UI flutuantes e arrastáveis)  
+Phase: 15 of 15 (Janela compacta de inventário, tooltips de atributos e iluminação de tocha estilo Tibia)  
 Plan: 1 of 1 in current phase  
 Status: Milestone complete  
-Last activity: 2026-09-02 — Phase 14 concluída: viewport 100% fullscreen com janelas arrastáveis e HUD.
+Last activity: 2026-09-02 — Phase 15 concluída: inventário compacto, tooltips de atributos e iluminação com tocha.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 14
+- Total phases completed: 15
 - Tests status: 14 test suites passando (Vitest)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 warnings/erros (ESLint 9)
@@ -42,6 +42,7 @@ Progress: [██████████] 100%
 | 12. Fundação de Autenticação, Contas e Segurança (Supabase) | 1 | - | - | Complete |
 | 13. Ajuste de Indicador Visual de Dano (Remover sinal -) | 1 | - | - | Complete |
 | 14. Viewport em tela cheia e janelas de UI flutuantes e arrastáveis | 1 | - | - | Complete |
+| 15. Janela compacta de inventario, tooltips e iluminacao de tocha | 1 | - | - | Complete |
 
 ## Accumulated Context
 
@@ -60,11 +61,15 @@ Progress: [██████████] 100%
 - [Phase 11]: Loot Pouch com travas de venda (`lockSell`), peso/capacidade e divisão de experiência balanceada.
 - [Phase 12]: Autenticação Supabase, RLS restrito a admin no backend e rota `/game-preview` sem login para facilidade em desenvolvimento local.
 - [Phase 13]: Dano recebido exibido puramente em vermelho sem o sinal negativo (-), alinhado ao Tibia 8.60.
+- [Phase 14]: Viewport em tela cheia com sistema de janelas flutuantes arrastáveis e HUD modular.
+- [Phase 15]: Iluminação de masmorra via blendMode erase com tocha de ~7.5 tiles, mini-paperdoll integrado e tooltips de atributos clássicos.
 
 ### Roadmap Evolution
 
 - Phase 1 a 12 concluídas e mapeadas a partir dos testes, esquemas e componentes do projeto.
 - Phase 13 added: Remover sinal negativo dos danos recebidos e exibir apenas em vermelho (FIX.md).
 - Phase 14 added: Viewport em tela cheia e janelas de UI flutuantes e arrastáveis (solicitação do usuário).
+- Phase 15 added: Janela compacta de inventário, tooltips de atributos e iluminação de tocha estilo Tibia (FIX.md).
+
 
 

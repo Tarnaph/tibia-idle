@@ -995,3 +995,193 @@ h1, h2, h3, p { margin: 0; }
   font-family: monospace;
 }
 
+/* ============================================================
+   Phase 15: Item Tooltips & Compact Equipment Window
+   ============================================================ */
+
+.item-tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.item-tooltip-content {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(14, 18, 15, 0.97);
+  border: 1px solid #5a6658;
+  border-radius: 4px;
+  padding: 8px 10px;
+  width: max-content;
+  min-width: 140px;
+  max-width: 220px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease, transform 120ms ease;
+  backdrop-filter: blur(8px);
+}
+
+.item-tooltip-wrapper:hover .item-tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.item-tooltip-header {
+  border-bottom: 1px solid #2f382f;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item-tooltip-header .item-name {
+  font-family: Georgia, serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f0d886;
+  text-shadow: 1px 1px 1px #000;
+}
+
+.item-slot-tag {
+  font-size: 8px;
+  color: #8c9689;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.item-tooltip-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 9px;
+}
+
+.item-tooltip-stats .stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #b5beb2;
+}
+
+.item-tooltip-stats .stat-row.atk b {
+  color: #ff8478;
+}
+
+.item-tooltip-stats .stat-row.def b {
+  color: #6ed0ff;
+}
+
+.item-tooltip-stats .stat-row.arm b {
+  color: #92e59e;
+}
+
+.item-tooltip-stats .stat-row.oz b {
+  color: #e5bd50;
+}
+
+.item-tooltip-req {
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px solid #2f382f;
+  font-size: 8px;
+  color: #c98a58;
+}
+
+.item-tooltip-badge {
+  margin-top: 4px;
+  font-size: 8px;
+  color: #a89467;
+  font-style: italic;
+}
+
+/* Compact Equipment & Backpack Window */
+.compact-equipment-window {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compact-paperdoll {
+  display: grid;
+  grid-template-columns: repeat(3, 34px);
+  grid-template-rows: repeat(4, 34px);
+  gap: 4px;
+  justify-content: center;
+  margin: 4px 0 8px;
+  padding: 8px 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid #2c352d;
+  border-radius: 4px;
+}
+
+.compact-slot {
+  width: 34px;
+  height: 34px;
+  background: #151a16;
+  border: 1px solid #384237;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 120ms ease;
+  padding: 0;
+}
+
+.compact-slot:hover {
+  background: #232b25;
+  border-color: #657463;
+}
+
+.compact-slot.empty {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.compact-slot-icon {
+  font-size: 11px;
+  color: #556254;
+  pointer-events: none;
+}
+
+.compact-backpack-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 34px);
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.compact-backpack-slot {
+  width: 34px;
+  height: 34px;
+  background: #141815;
+  border: 1px solid #333d32;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 100ms ease;
+  padding: 0;
+  position: relative;
+}
+
+.compact-backpack-slot:hover {
+  background: #232b24;
+  border-color: #728470;
+}
+
+.compact-backpack-slot.empty {
+  opacity: 0.25;
+  cursor: default;
+}
+
+

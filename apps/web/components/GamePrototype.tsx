@@ -23,6 +23,7 @@ import { HuntHeader } from './HuntHeader';
 import { HuntSelector } from './HuntSelector';
 import { IdleHeader } from './IdleHeader';
 import { ItemSprite } from './ItemSprite';
+import { ItemTooltip } from './ItemTooltip';
 import { PartyMemberModal } from './PartyMemberModal';
 import { PixiArena } from './PixiArena';
 import { TrainingArena } from './TrainingArena';
@@ -62,6 +63,15 @@ export function GamePrototype() {
     </WindowManagerProvider>
   );
 }
+
+const MINI_SLOTS: Array<{ slot: CharacterEquipmentSlot; label: string; icon: string; gridArea: string }> = [
+  { slot: 'head', label: 'Elmo', icon: '🪖', gridArea: '1 / 2 / 2 / 3' },
+  { slot: 'leftHand', label: 'Arma', icon: '⚔️', gridArea: '2 / 1 / 3 / 2' },
+  { slot: 'armor', label: 'Armadura', icon: '🥋', gridArea: '2 / 2 / 3 / 3' },
+  { slot: 'rightHand', label: 'Escudo', icon: '🛡️', gridArea: '2 / 3 / 3 / 4' },
+  { slot: 'legs', label: 'Calça', icon: '👖', gridArea: '3 / 2 / 4 / 3' },
+  { slot: 'boots', label: 'Botas', icon: '👢', gridArea: '4 / 2 / 5 / 3' },
+];
 
 function GamePrototypeContent() {
   const [seed, setSeed] = useState(defaultSeed);
@@ -292,16 +302,53 @@ function GamePrototypeContent() {
 
       {/* Window 2: Equipment & Backpack */}
       <DraggableWindow id="equipment" icon="🛡️">
-        <div className="equipment-window-content">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <div className="compact-equipment-window">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#dfc882' }}>
+            <strong>Equipamentos</strong>
             <button
               type="button"
-              className="primary-button"
-              style={{ width: '100%', padding: '6px', fontSize: '10px' }}
+              style={{ fontSize: '8px', padding: '2px 5px', background: '#1a221c', border: '1px solid #3c493f', color: '#9ec49a', borderRadius: '3px', cursor: 'pointer' }}
               onClick={() => setEquipmentOpen(true)}
+              title="Abrir painel expandido com comparação de estatísticas"
             >
-              ⚔️ Abrir Painel de Equipamentos (Paperdoll)
+              ⛶ Expandir
             </button>
+          </div>
+
+          <div className="compact-paperdoll">
+            {MINI_SLOTS.map((slotInfo) => {
+              const itemId = activeCharacter.equipment[slotInfo.slot];
+              const equippedItem = itemId ? findEquipment(content.equipment, itemId) : null;
+              return (
+                <div
+                  key={slotInfo.slot}
+                  style={{ gridArea: slotInfo.gridArea, display: 'flex', justifyContent: 'center' }}
+                  data-equipment-drop="slot"
+                  data-equipment-slot={slotInfo.slot}
+                >
+                  {equippedItem ? (
+                    <ItemTooltip item={equippedItem}>
+                      <button
+                        type="button"
+                        className="compact-slot"
+                        onPointerDown={(event) => beginPointerEquipmentDrag({ kind: 'equipped', slot: slotInfo.slot }, event)}
+                        onClick={() => applyEquipmentTransfer({ kind: 'equipped', slot: slotInfo.slot }, { kind: 'inventory' })}
+                      >
+                        <ItemSprite itemId={equippedItem.id} label={equippedItem.name} />
+                      </button>
+                    </ItemTooltip>
+                  ) : (
+                    <button
+                      type="button"
+                      className="compact-slot empty"
+                      title={`${slotInfo.label} (vazio) - Arraste um item para cá`}
+                    >
+                      <span className="compact-slot-icon">{slotInfo.icon}</span>
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="backpack-module">
@@ -309,24 +356,23 @@ function GamePrototypeContent() {
               <span>Mochila ({inventoryEquipment.length} itens)</span>
               <span>Cap: {characterCapacity(activeCharacter, content).toFixed(0)} oz</span>
             </div>
-            <div className="backpack-grid" data-equipment-drop="inventory">
+            <div className="compact-backpack-grid" data-equipment-drop="inventory">
               {inventoryEquipment.map((item, index) => (
-                <button
-                  type="button"
-                  className="backpack-slot"
-                  key={`${item.id}-${index}`}
-                  data-equipment-drop="inventory-index"
-                  data-inventory-index={index}
-                  onPointerDown={(event) => beginPointerEquipmentDrag({ kind: 'inventory', itemId: item.id }, event)}
-                  onClick={() => applyEquipmentTransfer({ kind: 'inventory', itemId: item.id }, { kind: 'auto-slot' })}
-                  title={`${item.name} (${item.slot}) · Clique para equipar`}
-                >
-                  <ItemSprite itemId={item.id} label={item.name} />
-                  <span className="slot-item-name">{item.name}</span>
-                </button>
+                <ItemTooltip item={item} key={`${item.id}-${index}`}>
+                  <button
+                    type="button"
+                    className="compact-backpack-slot"
+                    data-equipment-drop="inventory-index"
+                    data-inventory-index={index}
+                    onPointerDown={(event) => beginPointerEquipmentDrag({ kind: 'inventory', itemId: item.id }, event)}
+                    onClick={() => applyEquipmentTransfer({ kind: 'inventory', itemId: item.id }, { kind: 'auto-slot' })}
+                  >
+                    <ItemSprite itemId={item.id} label={item.name} />
+                  </button>
+                </ItemTooltip>
               ))}
               {Array.from({ length: Math.max(0, 12 - inventoryEquipment.length) }).map((_, index) => (
-                <span className="backpack-slot empty" key={`empty-${index}`} data-equipment-drop="inventory" />
+                <span className="compact-backpack-slot empty" key={`empty-${index}`} data-equipment-drop="inventory" />
               ))}
             </div>
           </div>

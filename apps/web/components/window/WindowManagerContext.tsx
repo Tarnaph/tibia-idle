@@ -77,9 +77,9 @@ function getDefaultWindows(viewportWidth = 1280, viewportHeight = 720): Record<W
     equipment: {
       id: 'equipment',
       title: 'Equipamentos & Bolsa',
-      x: Math.max(320, w - 360),
-      y: Math.min(300, h - 420),
-      width: 340,
+      x: Math.max(320, w - 280),
+      y: Math.min(280, h - 440),
+      width: 260,
       isOpen: true,
       isMinimized: false,
       zIndex: 14,
