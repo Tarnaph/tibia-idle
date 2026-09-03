@@ -14317,6 +14317,124 @@
       },
       "importWarnings": []
     },
+    "435": {
+      "serverId": 435,
+      "clientId": 440,
+      "group": 0,
+      "name": "OTBM 10.98 item 435",
+      "resolved": true,
+      "source": {
+        "serverId": 435,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 440,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          12,
+          13
+        ],
+        "spriteIds": [
+          167
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          167
+        ],
+        "file": "public/generated/tibia1098/items/item-435.png",
+        "publicUrl": "/generated/tibia1098/items/item-435.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "437": {
+      "serverId": 437,
+      "clientId": 442,
+      "group": 0,
+      "name": "OTBM 10.98 item 437",
+      "resolved": true,
+      "source": {
+        "serverId": 437,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 442,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          12,
+          13
+        ],
+        "spriteIds": [
+          165
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          165
+        ],
+        "file": "public/generated/tibia1098/items/item-437.png",
+        "publicUrl": "/generated/tibia1098/items/item-437.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "442": {
       "serverId": 442,
       "clientId": 447,
@@ -14370,6 +14488,65 @@
         ],
         "file": "public/generated/tibia1098/items/item-442.png",
         "publicUrl": "/generated/tibia1098/items/item-442.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "444": {
+      "serverId": 444,
+      "clientId": 449,
+      "group": 0,
+      "name": "OTBM 10.98 item 444",
+      "resolved": true,
+      "source": {
+        "serverId": 444,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 449,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          12,
+          13
+        ],
+        "spriteIds": [
+          176
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          176
+        ],
+        "file": "public/generated/tibia1098/items/item-444.png",
+        "publicUrl": "/generated/tibia1098/items/item-444.png",
         "sha256": "",
         "width": 32,
         "height": 32
@@ -15991,19 +16168,21 @@
       "serverId": 1038,
       "clientId": 1283,
       "group": 0,
-      "name": "OTBM map item 1038",
+      "name": "OTBM 10.98 item 1038",
       "resolved": true,
       "source": {
         "serverId": 1038,
-        "otb": "styller-master/data/items/items.otb",
-        "dat": "tibia-860-client/Tibia.dat",
-        "spr": "tibia-860-client/Tibia.spr"
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
       },
       "appearanceId": 1283,
+      "isGround": false,
+      "blockSolid": true,
       "appearance": {
         "width": 2,
         "height": 2,
-        "exactSize": 40,
+        "exactSize": 32,
         "layers": 1,
         "patternX": 1,
         "patternY": 1,
@@ -16014,7 +16193,7 @@
           12,
           13,
           14,
-          28
+          29
         ],
         "spriteIds": [
           64,
@@ -16040,13 +16219,13 @@
         "layer": 0,
         "spriteIds": [
           64,
-          62,
           63,
+          62,
           61
         ],
-        "file": "public/generated/tibia860/items/item-1038.png",
-        "publicUrl": "/generated/tibia860/items/item-1038.png",
-        "sha256": "A3B0BF2127450B1FD6F28B1173920844ADEA0A807F790009B5FFB07828489CAD",
+        "file": "public/generated/tibia1098/items/item-1038.png",
+        "publicUrl": "/generated/tibia1098/items/item-1038.png",
+        "sha256": "",
         "width": 64,
         "height": 64
       },
@@ -17712,6 +17891,209 @@
         ],
         "file": "public/generated/tibia1098/items/item-1212.png",
         "publicUrl": "/generated/tibia1098/items/item-1212.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "1213": {
+      "serverId": 1213,
+      "clientId": 1632,
+      "group": 0,
+      "name": "OTBM 10.98 item 1213",
+      "resolved": true,
+      "source": {
+        "serverId": 1213,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 1632,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 2,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          254,
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          4887,
+          4885,
+          4886,
+          4884,
+          4819,
+          4818,
+          0,
+          0
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          4887,
+          4885,
+          4886,
+          4884,
+          4819,
+          4818,
+          0,
+          0
+        ],
+        "file": "public/generated/tibia1098/items/item-1213.png",
+        "publicUrl": "/generated/tibia1098/items/item-1213.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "1215": {
+      "serverId": 1215,
+      "clientId": 1634,
+      "group": 0,
+      "name": "OTBM 10.98 item 1215",
+      "resolved": true,
+      "source": {
+        "serverId": 1215,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 1634,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          3,
+          13
+        ],
+        "spriteIds": [
+          9657,
+          1660,
+          1661,
+          1659
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          9657,
+          1660,
+          1661,
+          1659
+        ],
+        "file": "public/generated/tibia1098/items/item-1215.png",
+        "publicUrl": "/generated/tibia1098/items/item-1215.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "1216": {
+      "serverId": 1216,
+      "clientId": 1635,
+      "group": 0,
+      "name": "OTBM 10.98 item 1216",
+      "resolved": true,
+      "source": {
+        "serverId": 1216,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 1635,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          3,
+          13
+        ],
+        "spriteIds": [
+          1665,
+          1664,
+          1663,
+          1662
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          1665,
+          1664,
+          1663,
+          1662
+        ],
+        "file": "public/generated/tibia1098/items/item-1216.png",
+        "publicUrl": "/generated/tibia1098/items/item-1216.png",
         "sha256": "",
         "width": 64,
         "height": 64
@@ -19860,15 +20242,17 @@
       "serverId": 1431,
       "clientId": 2014,
       "group": 0,
-      "name": "OTBM map item 1431",
+      "name": "OTBM 10.98 item 1431",
       "resolved": true,
       "source": {
         "serverId": 1431,
-        "otb": "styller-master/data/items/items.otb",
-        "dat": "tibia-860-client/Tibia.dat",
-        "spr": "tibia-860-client/Tibia.spr"
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
       },
       "appearanceId": 2014,
+      "isGround": false,
+      "blockSolid": true,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -19882,8 +20266,8 @@
           2,
           12,
           13,
-          28,
-          29
+          29,
+          30
         ],
         "spriteIds": [
           380
@@ -19907,9 +20291,9 @@
         "spriteIds": [
           380
         ],
-        "file": "public/generated/tibia860/items/item-1431.png",
-        "publicUrl": "/generated/tibia860/items/item-1431.png",
-        "sha256": "D4D11906D2135621632A5755949E33C0872045045F5C4B63C6013FB92F6FA395",
+        "file": "public/generated/tibia1098/items/item-1431.png",
+        "publicUrl": "/generated/tibia1098/items/item-1431.png",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
@@ -22561,6 +22945,68 @@
       },
       "importWarnings": []
     },
+    "1739": {
+      "serverId": 1739,
+      "clientId": 2471,
+      "group": 2,
+      "name": "OTBM 10.98 item 1739",
+      "resolved": true,
+      "source": {
+        "serverId": 1739,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 2471,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          254,
+          4,
+          15,
+          17,
+          34,
+          26
+        ],
+        "spriteIds": [
+          299
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          299
+        ],
+        "file": "public/generated/tibia1098/items/item-1739.png",
+        "publicUrl": "/generated/tibia1098/items/item-1739.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "1740": {
       "serverId": 1740,
       "clientId": 2472,
@@ -22866,6 +23312,67 @@
       },
       "importWarnings": []
     },
+    "1774": {
+      "serverId": 1774,
+      "clientId": 2523,
+      "group": 2,
+      "name": "OTBM 10.98 item 1774",
+      "resolved": true,
+      "source": {
+        "serverId": 1774,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 2523,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          254,
+          4,
+          15,
+          26,
+          36
+        ],
+        "spriteIds": [
+          46
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          46
+        ],
+        "file": "public/generated/tibia1098/items/item-1774.png",
+        "publicUrl": "/generated/tibia1098/items/item-1774.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "1776": {
       "serverId": 1776,
       "clientId": 2522,
@@ -22978,6 +23485,99 @@
         ],
         "file": "public/generated/tibia1098/items/item-1777.png",
         "publicUrl": "/generated/tibia1098/items/item-1777.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "1790": {
+      "serverId": 1790,
+      "clientId": 2539,
+      "group": 0,
+      "name": "OTBM 10.98 item 1790",
+      "resolved": true,
+      "source": {
+        "serverId": 1790,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 2539,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 2,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 8,
+        "attributes": [
+          254,
+          2,
+          12,
+          13,
+          22,
+          26,
+          29
+        ],
+        "spriteIds": [
+          202268,
+          17610,
+          202269,
+          17610,
+          202270,
+          0,
+          202271,
+          0,
+          202272,
+          0,
+          202271,
+          0,
+          202270,
+          0,
+          202269,
+          0
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          202268,
+          17610,
+          202269,
+          17610,
+          202270,
+          0,
+          202271,
+          0,
+          202272,
+          0,
+          202271,
+          0,
+          202270,
+          0,
+          202269,
+          0
+        ],
+        "file": "public/generated/tibia1098/items/item-1790.png",
+        "publicUrl": "/generated/tibia1098/items/item-1790.png",
         "sha256": "",
         "width": 32,
         "height": 32
@@ -23342,6 +23942,67 @@
         "sha256": "FDF7B232D1A9CF8598CFEC7B84455AC0DA5BBA9FDBF2DDE7D4EA97BBED5D8137",
         "width": 64,
         "height": 64
+      },
+      "importWarnings": []
+    },
+    "1987": {
+      "serverId": 1987,
+      "clientId": 2853,
+      "group": 2,
+      "name": "OTBM 10.98 item 1987",
+      "resolved": true,
+      "source": {
+        "serverId": 1987,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 2853,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          254,
+          4,
+          17,
+          33,
+          34
+        ],
+        "spriteIds": [
+          45
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          45
+        ],
+        "file": "public/generated/tibia1098/items/item-1987.png",
+        "publicUrl": "/generated/tibia1098/items/item-1987.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
       },
       "importWarnings": []
     },
@@ -24480,6 +25141,65 @@
       },
       "importWarnings": []
     },
+    "2100": {
+      "serverId": 2100,
+      "clientId": 2981,
+      "group": 0,
+      "name": "OTBM 10.98 item 2100",
+      "resolved": true,
+      "source": {
+        "serverId": 2100,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 2981,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          15,
+          17,
+          34
+        ],
+        "spriteIds": [
+          517
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          517
+        ],
+        "file": "public/generated/tibia1098/items/item-2100.png",
+        "publicUrl": "/generated/tibia1098/items/item-2100.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "2101": {
       "serverId": 2101,
       "clientId": 2982,
@@ -24839,6 +25559,82 @@
       },
       "importWarnings": []
     },
+    "2562": {
+      "serverId": 2562,
+      "clientId": 3465,
+      "group": 12,
+      "name": "OTBM 10.98 item 2562",
+      "resolved": true,
+      "source": {
+        "serverId": 2562,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 3465,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 4,
+        "patternY": 2,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          254,
+          7,
+          10,
+          17,
+          34,
+          26
+        ],
+        "spriteIds": [
+          1181,
+          1182,
+          1183,
+          1184,
+          1187,
+          1188,
+          1189,
+          1190
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          1181,
+          1182,
+          1183,
+          1184,
+          1187,
+          1188,
+          1189,
+          1190
+        ],
+        "file": "public/generated/tibia1098/items/item-2562.png",
+        "publicUrl": "/generated/tibia1098/items/item-2562.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "2589": {
       "serverId": 2589,
       "clientId": 3497,
@@ -25145,6 +25941,72 @@
       "importWarnings": [
         "Only animation frame 0 is rendered for this inventory icon."
       ]
+    },
+    "2703": {
+      "serverId": 2703,
+      "clientId": 3617,
+      "group": 0,
+      "name": "OTBM 10.98 item 2703",
+      "resolved": true,
+      "source": {
+        "serverId": 2703,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 3617,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          1168,
+          1167,
+          1166,
+          1165
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          1168,
+          1167,
+          1166,
+          1165
+        ],
+        "file": "public/generated/tibia1098/items/item-2703.png",
+        "publicUrl": "/generated/tibia1098/items/item-2703.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
     },
     "2706": {
       "serverId": 2706,
@@ -28069,15 +28931,17 @@
       "serverId": 3653,
       "clientId": 1897,
       "group": 0,
-      "name": "OTBM map item 3653",
+      "name": "OTBM 10.98 item 3653",
       "resolved": true,
       "source": {
         "serverId": 3653,
-        "otb": "styller-master/data/items/items.otb",
-        "dat": "tibia-860-client/Tibia.dat",
-        "spr": "tibia-860-client/Tibia.spr"
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
       },
       "appearanceId": 1897,
+      "isGround": false,
+      "blockSolid": false,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -28089,7 +28953,7 @@
         "frames": 1,
         "attributes": [
           13,
-          31
+          32
         ],
         "spriteIds": [
           7318
@@ -28113,9 +28977,9 @@
         "spriteIds": [
           7318
         ],
-        "file": "public/generated/tibia860/items/item-3653.png",
-        "publicUrl": "/generated/tibia860/items/item-3653.png",
-        "sha256": "6B1C0AB35E379B2E14882222E140BE50A37E1A8AD102E98FB6F9923249B9F213",
+        "file": "public/generated/tibia1098/items/item-3653.png",
+        "publicUrl": "/generated/tibia1098/items/item-3653.png",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
@@ -28125,15 +28989,17 @@
       "serverId": 3654,
       "clientId": 1898,
       "group": 0,
-      "name": "OTBM map item 3654",
+      "name": "OTBM 10.98 item 3654",
       "resolved": true,
       "source": {
         "serverId": 3654,
-        "otb": "styller-master/data/items/items.otb",
-        "dat": "tibia-860-client/Tibia.dat",
-        "spr": "tibia-860-client/Tibia.spr"
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
       },
       "appearanceId": 1898,
+      "isGround": false,
+      "blockSolid": false,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -28145,7 +29011,7 @@
         "frames": 1,
         "attributes": [
           13,
-          31
+          32
         ],
         "spriteIds": [
           7319
@@ -28169,9 +29035,9 @@
         "spriteIds": [
           7319
         ],
-        "file": "public/generated/tibia860/items/item-3654.png",
-        "publicUrl": "/generated/tibia860/items/item-3654.png",
-        "sha256": "16A1CDF34895B853EA18276BBE224CC5CFF82C32E1CB8941D89C80F020EAEED8",
+        "file": "public/generated/tibia1098/items/item-3654.png",
+        "publicUrl": "/generated/tibia1098/items/item-3654.png",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
@@ -28181,15 +29047,17 @@
       "serverId": 3655,
       "clientId": 1899,
       "group": 0,
-      "name": "OTBM map item 3655",
+      "name": "OTBM 10.98 item 3655",
       "resolved": true,
       "source": {
         "serverId": 3655,
-        "otb": "styller-master/data/items/items.otb",
-        "dat": "tibia-860-client/Tibia.dat",
-        "spr": "tibia-860-client/Tibia.spr"
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
       },
       "appearanceId": 1899,
+      "isGround": false,
+      "blockSolid": false,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -28201,7 +29069,7 @@
         "frames": 1,
         "attributes": [
           13,
-          31
+          32
         ],
         "spriteIds": [
           7320
@@ -28225,9 +29093,9 @@
         "spriteIds": [
           7320
         ],
-        "file": "public/generated/tibia860/items/item-3655.png",
-        "publicUrl": "/generated/tibia860/items/item-3655.png",
-        "sha256": "EAB33D8C82115B047CD46286A0740FB437A1EE15A23B86C6E958270A0EA0D99F",
+        "file": "public/generated/tibia1098/items/item-3655.png",
+        "publicUrl": "/generated/tibia1098/items/item-3655.png",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
@@ -28237,15 +29105,17 @@
       "serverId": 3656,
       "clientId": 1900,
       "group": 0,
-      "name": "OTBM map item 3656",
+      "name": "OTBM 10.98 item 3656",
       "resolved": true,
       "source": {
         "serverId": 3656,
-        "otb": "styller-master/data/items/items.otb",
-        "dat": "tibia-860-client/Tibia.dat",
-        "spr": "tibia-860-client/Tibia.spr"
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
       },
       "appearanceId": 1900,
+      "isGround": false,
+      "blockSolid": false,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -28257,7 +29127,7 @@
         "frames": 1,
         "attributes": [
           13,
-          31
+          32
         ],
         "spriteIds": [
           7321
@@ -28281,9 +29151,9 @@
         "spriteIds": [
           7321
         ],
-        "file": "public/generated/tibia860/items/item-3656.png",
-        "publicUrl": "/generated/tibia860/items/item-3656.png",
-        "sha256": "DECFBF2394BB0F9B3FC1B4108D145D654E0369371E7812131FAFF745C10C4860",
+        "file": "public/generated/tibia1098/items/item-3656.png",
+        "publicUrl": "/generated/tibia1098/items/item-3656.png",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
@@ -31290,6 +32160,124 @@
       },
       "importWarnings": []
     },
+    "4551": {
+      "serverId": 4551,
+      "clientId": 4540,
+      "group": 0,
+      "name": "OTBM 10.98 item 4551",
+      "resolved": true,
+      "source": {
+        "serverId": 4551,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 4540,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          3683
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          3683
+        ],
+        "file": "public/generated/tibia1098/items/item-4551.png",
+        "publicUrl": "/generated/tibia1098/items/item-4551.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "4598": {
+      "serverId": 4598,
+      "clientId": 4587,
+      "group": 0,
+      "name": "OTBM 10.98 item 4598",
+      "resolved": true,
+      "source": {
+        "serverId": 4598,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 4587,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 2,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          9900,
+          9901
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          9900,
+          9901
+        ],
+        "file": "public/generated/tibia1098/items/item-4598.png",
+        "publicUrl": "/generated/tibia1098/items/item-4598.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "4599": {
       "serverId": 4599,
       "clientId": 4588,
@@ -31402,6 +32390,93 @@
         ],
         "file": "public/generated/tibia1098/items/item-4603.png",
         "publicUrl": "/generated/tibia1098/items/item-4603.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "4614": {
+      "serverId": 4614,
+      "clientId": 4609,
+      "group": 1,
+      "name": "OTBM 10.98 item 4614",
+      "resolved": true,
+      "source": {
+        "serverId": 4614,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 4609,
+      "isGround": true,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 14,
+        "attributes": [
+          0,
+          12,
+          13,
+          29,
+          31
+        ],
+        "spriteIds": [
+          201884,
+          201885,
+          201886,
+          201887,
+          201888,
+          201889,
+          201890,
+          201891,
+          201892,
+          201893,
+          201894,
+          201895,
+          201896,
+          201897
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          201884,
+          201885,
+          201886,
+          201887,
+          201888,
+          201889,
+          201890,
+          201891,
+          201892,
+          201893,
+          201894,
+          201895,
+          201896,
+          201897
+        ],
+        "file": "public/generated/tibia1098/items/item-4614.png",
+        "publicUrl": "/generated/tibia1098/items/item-4614.png",
         "sha256": "",
         "width": 32,
         "height": 32
@@ -34971,6 +36046,131 @@
       },
       "importWarnings": []
     },
+    "5335": {
+      "serverId": 5335,
+      "clientId": 5334,
+      "group": 0,
+      "name": "OTBM 10.98 item 5335",
+      "resolved": true,
+      "source": {
+        "serverId": 5335,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5334,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          11340
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          11340
+        ],
+        "file": "public/generated/tibia1098/items/item-5335.png",
+        "publicUrl": "/generated/tibia1098/items/item-5335.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "5371": {
+      "serverId": 5371,
+      "clientId": 5370,
+      "group": 0,
+      "name": "OTBM 10.98 item 5371",
+      "resolved": true,
+      "source": {
+        "serverId": 5371,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5370,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          13,
+          30
+        ],
+        "spriteIds": [
+          0,
+          0,
+          11386,
+          11385
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          0,
+          0,
+          11386,
+          11385
+        ],
+        "file": "public/generated/tibia1098/items/item-5371.png",
+        "publicUrl": "/generated/tibia1098/items/item-5371.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
     "5372": {
       "serverId": 5372,
       "clientId": 5371,
@@ -35510,6 +36710,354 @@
       "importWarnings": [
         "Only DAT pattern 0/0/0 is rendered; stack/subtype variations are deferred."
       ]
+    },
+    "5590": {
+      "serverId": 5590,
+      "clientId": 5589,
+      "group": 0,
+      "name": "OTBM 10.98 item 5590",
+      "resolved": true,
+      "source": {
+        "serverId": 5590,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5589,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          12333
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          12333
+        ],
+        "file": "public/generated/tibia1098/items/item-5590.png",
+        "publicUrl": "/generated/tibia1098/items/item-5590.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "5591": {
+      "serverId": 5591,
+      "clientId": 5590,
+      "group": 0,
+      "name": "OTBM 10.98 item 5591",
+      "resolved": true,
+      "source": {
+        "serverId": 5591,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5590,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          12334
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          12334
+        ],
+        "file": "public/generated/tibia1098/items/item-5591.png",
+        "publicUrl": "/generated/tibia1098/items/item-5591.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "5592": {
+      "serverId": 5592,
+      "clientId": 5591,
+      "group": 0,
+      "name": "OTBM 10.98 item 5592",
+      "resolved": true,
+      "source": {
+        "serverId": 5592,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5591,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          12335
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          12335
+        ],
+        "file": "public/generated/tibia1098/items/item-5592.png",
+        "publicUrl": "/generated/tibia1098/items/item-5592.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "5593": {
+      "serverId": 5593,
+      "clientId": 5592,
+      "group": 0,
+      "name": "OTBM 10.98 item 5593",
+      "resolved": true,
+      "source": {
+        "serverId": 5593,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5592,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          12404
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          12404
+        ],
+        "file": "public/generated/tibia1098/items/item-5593.png",
+        "publicUrl": "/generated/tibia1098/items/item-5593.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "5594": {
+      "serverId": 5594,
+      "clientId": 5593,
+      "group": 0,
+      "name": "OTBM 10.98 item 5594",
+      "resolved": true,
+      "source": {
+        "serverId": 5594,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5593,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          12405
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          12405
+        ],
+        "file": "public/generated/tibia1098/items/item-5594.png",
+        "publicUrl": "/generated/tibia1098/items/item-5594.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "5595": {
+      "serverId": 5595,
+      "clientId": 5594,
+      "group": 0,
+      "name": "OTBM 10.98 item 5595",
+      "resolved": true,
+      "source": {
+        "serverId": 5595,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5594,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          12406
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          12406
+        ],
+        "file": "public/generated/tibia1098/items/item-5595.png",
+        "publicUrl": "/generated/tibia1098/items/item-5595.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
     },
     "5597": {
       "serverId": 5597,
@@ -38733,6 +40281,135 @@
       },
       "importWarnings": []
     },
+    "5853": {
+      "serverId": 5853,
+      "clientId": 5853,
+      "group": 0,
+      "name": "OTBM 10.98 item 5853",
+      "resolved": true,
+      "source": {
+        "serverId": 5853,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5853,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          14
+        ],
+        "spriteIds": [
+          6531,
+          6532,
+          6534,
+          6533
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          6531,
+          6532,
+          6534,
+          6533
+        ],
+        "file": "public/generated/tibia1098/items/item-5853.png",
+        "publicUrl": "/generated/tibia1098/items/item-5853.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "5855": {
+      "serverId": 5855,
+      "clientId": 5855,
+      "group": 0,
+      "name": "OTBM 10.98 item 5855",
+      "resolved": true,
+      "source": {
+        "serverId": 5855,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 5855,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          13
+        ],
+        "spriteIds": [
+          6540,
+          0,
+          6539,
+          6541
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          6540,
+          0,
+          6539,
+          6541
+        ],
+        "file": "public/generated/tibia1098/items/item-5855.png",
+        "publicUrl": "/generated/tibia1098/items/item-5855.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
     "5972": {
       "serverId": 5972,
       "clientId": 5972,
@@ -38786,6 +40463,66 @@
         "publicUrl": "/generated/tibia860/items/item-5972.png",
         "sha256": "642B322210C2B0B9C7DF29B1BA67E9F78CB08CD4550EECDEB19BB39ED5702AAF",
         "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "6121": {
+      "serverId": 6121,
+      "clientId": 6121,
+      "group": 0,
+      "name": "OTBM 10.98 item 6121",
+      "resolved": true,
+      "source": {
+        "serverId": 6121,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 6121,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          13,
+          30
+        ],
+        "spriteIds": [
+          14190,
+          14192
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          14190,
+          14192
+        ],
+        "file": "public/generated/tibia1098/items/item-6121.png",
+        "publicUrl": "/generated/tibia1098/items/item-6121.png",
+        "sha256": "",
+        "width": 64,
         "height": 32
       },
       "importWarnings": []
@@ -42288,6 +44025,131 @@
         ],
         "file": "public/generated/tibia1098/items/item-7653.png",
         "publicUrl": "/generated/tibia1098/items/item-7653.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "7656": {
+      "serverId": 7656,
+      "clientId": 307,
+      "group": 0,
+      "name": "OTBM 10.98 item 7656",
+      "resolved": true,
+      "source": {
+        "serverId": 7656,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 307,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 2,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          21780,
+          21781
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          21780,
+          21781
+        ],
+        "file": "public/generated/tibia1098/items/item-7656.png",
+        "publicUrl": "/generated/tibia1098/items/item-7656.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "7657": {
+      "serverId": 7657,
+      "clientId": 308,
+      "group": 0,
+      "name": "OTBM 10.98 item 7657",
+      "resolved": true,
+      "source": {
+        "serverId": 7657,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 308,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 2,
+        "patternY": 2,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13,
+          32
+        ],
+        "spriteIds": [
+          21782,
+          21783,
+          21783,
+          21782
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          21782,
+          21783,
+          21783,
+          21782
+        ],
+        "file": "public/generated/tibia1098/items/item-7657.png",
+        "publicUrl": "/generated/tibia1098/items/item-7657.png",
         "sha256": "",
         "width": 32,
         "height": 32
@@ -47486,6 +49348,804 @@
       },
       "importWarnings": []
     },
+    "9588": {
+      "serverId": 9588,
+      "clientId": 8672,
+      "group": 0,
+      "name": "OTBM 10.98 item 9588",
+      "resolved": true,
+      "source": {
+        "serverId": 9588,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8672,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 14,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          202321,
+          202322,
+          202323,
+          202324,
+          202325,
+          202326,
+          202327,
+          202328,
+          202329,
+          202330,
+          202331,
+          202332,
+          202333,
+          202334
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          202321,
+          202322,
+          202323,
+          202324,
+          202325,
+          202326,
+          202327,
+          202328,
+          202329,
+          202330,
+          202331,
+          202332,
+          202333,
+          202334
+        ],
+        "file": "public/generated/tibia1098/items/item-9588.png",
+        "publicUrl": "/generated/tibia1098/items/item-9588.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "9589": {
+      "serverId": 9589,
+      "clientId": 8673,
+      "group": 0,
+      "name": "OTBM 10.98 item 9589",
+      "resolved": true,
+      "source": {
+        "serverId": 9589,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8673,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          26752,
+          26753
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          26752,
+          26753
+        ],
+        "file": "public/generated/tibia1098/items/item-9589.png",
+        "publicUrl": "/generated/tibia1098/items/item-9589.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "9590": {
+      "serverId": 9590,
+      "clientId": 8674,
+      "group": 0,
+      "name": "OTBM 10.98 item 9590",
+      "resolved": true,
+      "source": {
+        "serverId": 9590,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8674,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 14,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          202335,
+          26755,
+          202336,
+          26755,
+          202337,
+          26755,
+          202338,
+          26755,
+          202339,
+          26755,
+          202340,
+          26755,
+          202341,
+          26755,
+          202342,
+          26755,
+          202341,
+          26755,
+          202343,
+          26755,
+          202344,
+          26755,
+          202345,
+          26755,
+          202346,
+          26755,
+          202347,
+          26755
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          202335,
+          26755,
+          202336,
+          26755,
+          202337,
+          26755,
+          202338,
+          26755,
+          202339,
+          26755,
+          202340,
+          26755,
+          202341,
+          26755,
+          202342,
+          26755,
+          202341,
+          26755,
+          202343,
+          26755,
+          202344,
+          26755,
+          202345,
+          26755,
+          202346,
+          26755,
+          202347,
+          26755
+        ],
+        "file": "public/generated/tibia1098/items/item-9590.png",
+        "publicUrl": "/generated/tibia1098/items/item-9590.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "9591": {
+      "serverId": 9591,
+      "clientId": 8675,
+      "group": 0,
+      "name": "OTBM 10.98 item 9591",
+      "resolved": true,
+      "source": {
+        "serverId": 9591,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8675,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          26756,
+          26757
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          26756,
+          26757
+        ],
+        "file": "public/generated/tibia1098/items/item-9591.png",
+        "publicUrl": "/generated/tibia1098/items/item-9591.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "9592": {
+      "serverId": 9592,
+      "clientId": 8676,
+      "group": 0,
+      "name": "OTBM 10.98 item 9592",
+      "resolved": true,
+      "source": {
+        "serverId": 9592,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8676,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 14,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          202348,
+          26759,
+          26760,
+          0,
+          202349,
+          26759,
+          26760,
+          0,
+          202350,
+          26759,
+          26760,
+          0,
+          202351,
+          26759,
+          26760,
+          0,
+          202352,
+          26759,
+          26760,
+          0,
+          202353,
+          26759,
+          26760,
+          0,
+          202354,
+          26759,
+          26760,
+          0,
+          202355,
+          26759,
+          26760,
+          0,
+          202354,
+          26759,
+          26760,
+          0,
+          202353,
+          26759,
+          26760,
+          0,
+          202352,
+          26759,
+          26760,
+          0,
+          202351,
+          26759,
+          26760,
+          0,
+          202350,
+          26759,
+          26760,
+          0,
+          202356,
+          26759,
+          26760,
+          0
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          202348,
+          26759,
+          26760,
+          0,
+          202349,
+          26759,
+          26760,
+          0,
+          202350,
+          26759,
+          26760,
+          0,
+          202351,
+          26759,
+          26760,
+          0,
+          202352,
+          26759,
+          26760,
+          0,
+          202353,
+          26759,
+          26760,
+          0,
+          202354,
+          26759,
+          26760,
+          0,
+          202355,
+          26759,
+          26760,
+          0,
+          202354,
+          26759,
+          26760,
+          0,
+          202353,
+          26759,
+          26760,
+          0,
+          202352,
+          26759,
+          26760,
+          0,
+          202351,
+          26759,
+          26760,
+          0,
+          202350,
+          26759,
+          26760,
+          0,
+          202356,
+          26759,
+          26760,
+          0
+        ],
+        "file": "public/generated/tibia1098/items/item-9592.png",
+        "publicUrl": "/generated/tibia1098/items/item-9592.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "9593": {
+      "serverId": 9593,
+      "clientId": 8677,
+      "group": 0,
+      "name": "OTBM 10.98 item 9593",
+      "resolved": true,
+      "source": {
+        "serverId": 9593,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8677,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          26761,
+          26762
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          26761,
+          26762
+        ],
+        "file": "public/generated/tibia1098/items/item-9593.png",
+        "publicUrl": "/generated/tibia1098/items/item-9593.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "9594": {
+      "serverId": 9594,
+      "clientId": 8678,
+      "group": 0,
+      "name": "OTBM 10.98 item 9594",
+      "resolved": true,
+      "source": {
+        "serverId": 9594,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8678,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 14,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          203819,
+          26764,
+          203820,
+          26764,
+          203821,
+          26764,
+          203822,
+          26764,
+          203823,
+          26764,
+          203824,
+          26764,
+          203825,
+          26764,
+          203826,
+          26764,
+          203827,
+          26764,
+          203828,
+          26764,
+          203829,
+          26764,
+          203830,
+          26764,
+          203831,
+          26764,
+          203832,
+          26764
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          203819,
+          26764,
+          203820,
+          26764,
+          203821,
+          26764,
+          203822,
+          26764,
+          203823,
+          26764,
+          203824,
+          26764,
+          203825,
+          26764,
+          203826,
+          26764,
+          203827,
+          26764,
+          203828,
+          26764,
+          203829,
+          26764,
+          203830,
+          26764,
+          203831,
+          26764,
+          203832,
+          26764
+        ],
+        "file": "public/generated/tibia1098/items/item-9594.png",
+        "publicUrl": "/generated/tibia1098/items/item-9594.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "9595": {
+      "serverId": 9595,
+      "clientId": 8679,
+      "group": 0,
+      "name": "OTBM 10.98 item 9595",
+      "resolved": true,
+      "source": {
+        "serverId": 9595,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8679,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          26750,
+          26765
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          26750,
+          26765
+        ],
+        "file": "public/generated/tibia1098/items/item-9595.png",
+        "publicUrl": "/generated/tibia1098/items/item-9595.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "9596": {
+      "serverId": 9596,
+      "clientId": 8680,
+      "group": 0,
+      "name": "OTBM 10.98 item 9596",
+      "resolved": true,
+      "source": {
+        "serverId": 9596,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 8680,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          29
+        ],
+        "spriteIds": [
+          26766,
+          26767,
+          26769,
+          26768
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          26766,
+          26767,
+          26769,
+          26768
+        ],
+        "file": "public/generated/tibia1098/items/item-9596.png",
+        "publicUrl": "/generated/tibia1098/items/item-9596.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
+      },
+      "importWarnings": []
+    },
     "9800": {
       "serverId": 9800,
       "clientId": 8886,
@@ -47910,6 +50570,304 @@
         "sha256": "",
         "width": 64,
         "height": 64
+      },
+      "importWarnings": []
+    },
+    "10441": {
+      "serverId": 10441,
+      "clientId": 9524,
+      "group": 1,
+      "name": "OTBM 10.98 item 10441",
+      "resolved": true,
+      "source": {
+        "serverId": 10441,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 9524,
+      "isGround": true,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          0,
+          13,
+          29,
+          31
+        ],
+        "spriteIds": [
+          29278
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          29278
+        ],
+        "file": "public/generated/tibia1098/items/item-10441.png",
+        "publicUrl": "/generated/tibia1098/items/item-10441.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "10442": {
+      "serverId": 10442,
+      "clientId": 9525,
+      "group": 1,
+      "name": "OTBM 10.98 item 10442",
+      "resolved": true,
+      "source": {
+        "serverId": 10442,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 9525,
+      "isGround": true,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          0,
+          13,
+          29,
+          31
+        ],
+        "spriteIds": [
+          29279
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          29279
+        ],
+        "file": "public/generated/tibia1098/items/item-10442.png",
+        "publicUrl": "/generated/tibia1098/items/item-10442.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "10443": {
+      "serverId": 10443,
+      "clientId": 9526,
+      "group": 1,
+      "name": "OTBM 10.98 item 10443",
+      "resolved": true,
+      "source": {
+        "serverId": 10443,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 9526,
+      "isGround": true,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          0,
+          13,
+          29,
+          31
+        ],
+        "spriteIds": [
+          29280
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          29280
+        ],
+        "file": "public/generated/tibia1098/items/item-10443.png",
+        "publicUrl": "/generated/tibia1098/items/item-10443.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "10446": {
+      "serverId": 10446,
+      "clientId": 9529,
+      "group": 1,
+      "name": "OTBM 10.98 item 10446",
+      "resolved": true,
+      "source": {
+        "serverId": 10446,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 9529,
+      "isGround": true,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          0,
+          13,
+          29,
+          31
+        ],
+        "spriteIds": [
+          29283
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          29283
+        ],
+        "file": "public/generated/tibia1098/items/item-10446.png",
+        "publicUrl": "/generated/tibia1098/items/item-10446.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "10456": {
+      "serverId": 10456,
+      "clientId": 9539,
+      "group": 0,
+      "name": "OTBM 10.98 item 10456",
+      "resolved": true,
+      "source": {
+        "serverId": 10456,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 9539,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          29189
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          29189
+        ],
+        "file": "public/generated/tibia1098/items/item-10456.png",
+        "publicUrl": "/generated/tibia1098/items/item-10456.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
       },
       "importWarnings": []
     },
@@ -48897,6 +51855,69 @@
       },
       "importWarnings": []
     },
+    "15822": {
+      "serverId": 15822,
+      "clientId": 2320,
+      "group": 0,
+      "name": "OTBM 10.98 item 15822",
+      "resolved": true,
+      "source": {
+        "serverId": 15822,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 2320,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          26,
+          29
+        ],
+        "spriteIds": [
+          1351,
+          1350
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          1351,
+          1350
+        ],
+        "file": "public/generated/tibia1098/items/item-15822.png",
+        "publicUrl": "/generated/tibia1098/items/item-15822.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
     "18491": {
       "serverId": 18491,
       "clientId": 16201,
@@ -49139,6 +52160,298 @@
       },
       "importWarnings": []
     },
+    "19679": {
+      "serverId": 19679,
+      "clientId": 17399,
+      "group": 0,
+      "name": "OTBM 10.98 item 19679",
+      "resolved": true,
+      "source": {
+        "serverId": 19679,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17399,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          68816
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          68816
+        ],
+        "file": "public/generated/tibia1098/items/item-19679.png",
+        "publicUrl": "/generated/tibia1098/items/item-19679.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "19681": {
+      "serverId": 19681,
+      "clientId": 17401,
+      "group": 0,
+      "name": "OTBM 10.98 item 19681",
+      "resolved": true,
+      "source": {
+        "serverId": 19681,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17401,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          68817
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          68817
+        ],
+        "file": "public/generated/tibia1098/items/item-19681.png",
+        "publicUrl": "/generated/tibia1098/items/item-19681.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "19682": {
+      "serverId": 19682,
+      "clientId": 17402,
+      "group": 0,
+      "name": "OTBM 10.98 item 19682",
+      "resolved": true,
+      "source": {
+        "serverId": 19682,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17402,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13
+        ],
+        "spriteIds": [
+          68818
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          68818
+        ],
+        "file": "public/generated/tibia1098/items/item-19682.png",
+        "publicUrl": "/generated/tibia1098/items/item-19682.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "19749": {
+      "serverId": 19749,
+      "clientId": 17469,
+      "group": 0,
+      "name": "OTBM 10.98 item 19749",
+      "resolved": true,
+      "source": {
+        "serverId": 19749,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17469,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13,
+          32
+        ],
+        "spriteIds": [
+          69334
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          69334
+        ],
+        "file": "public/generated/tibia1098/items/item-19749.png",
+        "publicUrl": "/generated/tibia1098/items/item-19749.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "19757": {
+      "serverId": 19757,
+      "clientId": 17477,
+      "group": 0,
+      "name": "OTBM 10.98 item 19757",
+      "resolved": true,
+      "source": {
+        "serverId": 19757,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17477,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13,
+          32
+        ],
+        "spriteIds": [
+          69342
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          69342
+        ],
+        "file": "public/generated/tibia1098/items/item-19757.png",
+        "publicUrl": "/generated/tibia1098/items/item-19757.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "19824": {
       "serverId": 19824,
       "clientId": 17544,
@@ -49196,6 +52509,626 @@
         "sha256": "",
         "width": 32,
         "height": 32
+      },
+      "importWarnings": []
+    },
+    "20007": {
+      "serverId": 20007,
+      "clientId": 17727,
+      "group": 0,
+      "name": "OTBM 10.98 item 20007",
+      "resolved": true,
+      "source": {
+        "serverId": 20007,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17727,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70086,
+          70085
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70086,
+          70085
+        ],
+        "file": "public/generated/tibia1098/items/item-20007.png",
+        "publicUrl": "/generated/tibia1098/items/item-20007.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "20014": {
+      "serverId": 20014,
+      "clientId": 17734,
+      "group": 0,
+      "name": "OTBM 10.98 item 20014",
+      "resolved": true,
+      "source": {
+        "serverId": 20014,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17734,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70094,
+          70096
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70094,
+          70096
+        ],
+        "file": "public/generated/tibia1098/items/item-20014.png",
+        "publicUrl": "/generated/tibia1098/items/item-20014.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "20027": {
+      "serverId": 20027,
+      "clientId": 17747,
+      "group": 0,
+      "name": "OTBM 10.98 item 20027",
+      "resolved": true,
+      "source": {
+        "serverId": 20027,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17747,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70116,
+          70115
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70116,
+          70115
+        ],
+        "file": "public/generated/tibia1098/items/item-20027.png",
+        "publicUrl": "/generated/tibia1098/items/item-20027.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "20034": {
+      "serverId": 20034,
+      "clientId": 17754,
+      "group": 0,
+      "name": "OTBM 10.98 item 20034",
+      "resolved": true,
+      "source": {
+        "serverId": 20034,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17754,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70124,
+          70126
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70124,
+          70126
+        ],
+        "file": "public/generated/tibia1098/items/item-20034.png",
+        "publicUrl": "/generated/tibia1098/items/item-20034.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "20035": {
+      "serverId": 20035,
+      "clientId": 17755,
+      "group": 0,
+      "name": "OTBM 10.98 item 20035",
+      "resolved": true,
+      "source": {
+        "serverId": 20035,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17755,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70128,
+          70127
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70128,
+          70127
+        ],
+        "file": "public/generated/tibia1098/items/item-20035.png",
+        "publicUrl": "/generated/tibia1098/items/item-20035.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "20042": {
+      "serverId": 20042,
+      "clientId": 17762,
+      "group": 0,
+      "name": "OTBM 10.98 item 20042",
+      "resolved": true,
+      "source": {
+        "serverId": 20042,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17762,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70136,
+          70138
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70136,
+          70138
+        ],
+        "file": "public/generated/tibia1098/items/item-20042.png",
+        "publicUrl": "/generated/tibia1098/items/item-20042.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "20043": {
+      "serverId": 20043,
+      "clientId": 17763,
+      "group": 0,
+      "name": "OTBM 10.98 item 20043",
+      "resolved": true,
+      "source": {
+        "serverId": 20043,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17763,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70140,
+          70139
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70140,
+          70139
+        ],
+        "file": "public/generated/tibia1098/items/item-20043.png",
+        "publicUrl": "/generated/tibia1098/items/item-20043.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "20053": {
+      "serverId": 20053,
+      "clientId": 17773,
+      "group": 0,
+      "name": "OTBM 10.98 item 20053",
+      "resolved": true,
+      "source": {
+        "serverId": 20053,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17773,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70156,
+          70157
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70156,
+          70157
+        ],
+        "file": "public/generated/tibia1098/items/item-20053.png",
+        "publicUrl": "/generated/tibia1098/items/item-20053.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "20066": {
+      "serverId": 20066,
+      "clientId": 17786,
+      "group": 0,
+      "name": "OTBM 10.98 item 20066",
+      "resolved": true,
+      "source": {
+        "serverId": 20066,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17786,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70174,
+          70176
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70174,
+          70176
+        ],
+        "file": "public/generated/tibia1098/items/item-20066.png",
+        "publicUrl": "/generated/tibia1098/items/item-20066.png",
+        "sha256": "",
+        "width": 64,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "20080": {
+      "serverId": 20080,
+      "clientId": 17800,
+      "group": 0,
+      "name": "OTBM 10.98 item 20080",
+      "resolved": true,
+      "source": {
+        "serverId": 20080,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 17800,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          12,
+          13,
+          29,
+          30
+        ],
+        "spriteIds": [
+          70200,
+          70201
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          70200,
+          70201
+        ],
+        "file": "public/generated/tibia1098/items/item-20080.png",
+        "publicUrl": "/generated/tibia1098/items/item-20080.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
       },
       "importWarnings": []
     },
@@ -49381,6 +53314,73 @@
         "sha256": "",
         "width": 32,
         "height": 32
+      },
+      "importWarnings": []
+    },
+    "25452": {
+      "serverId": 25452,
+      "clientId": 22796,
+      "group": 0,
+      "name": "OTBM 10.98 item 25452",
+      "resolved": true,
+      "source": {
+        "serverId": 25452,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 22796,
+      "isGround": false,
+      "blockSolid": true,
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          2,
+          12,
+          13,
+          25,
+          29
+        ],
+        "spriteIds": [
+          313187,
+          313188,
+          313190,
+          313189
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          313187,
+          313188,
+          313190,
+          313189
+        ],
+        "file": "public/generated/tibia1098/items/item-25452.png",
+        "publicUrl": "/generated/tibia1098/items/item-25452.png",
+        "sha256": "",
+        "width": 64,
+        "height": 64
       },
       "importWarnings": []
     }

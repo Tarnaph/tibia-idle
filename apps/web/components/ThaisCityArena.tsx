@@ -223,7 +223,18 @@ export function ThaisCityArena({
 
         // Update party character positions
         curChars.forEach((char, idx) => {
-          const sp = actorSprites.get(char.id);
+          let sp = actorSprites.get(char.id);
+          if (!sp) {
+            const outfit = visualAssets.outfits[char.vocation];
+            const initialUrl = outfit?.frames.find((f) => f.direction === 'south')?.publicUrl ?? outfit?.frames[0]?.publicUrl;
+            if (initialUrl && loaded[initialUrl]) {
+              sp = new Sprite(loaded[initialUrl]);
+              sp.anchor.set(0.5, 0.78);
+              sp.roundPixels = true;
+              actorsLayer.addChild(sp);
+              actorSprites.set(char.id, sp);
+            }
+          }
           if (!sp) return;
 
           // Offset party members slightly around the leader
@@ -249,7 +260,7 @@ export function ThaisCityArena({
       disposed = true;
       cleanup?.();
     };
-  }, [characters]);
+  }, []);
 
   return (
     <div

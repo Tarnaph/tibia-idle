@@ -97,7 +97,7 @@ async function run() {
   // Dummy: 32349, 32238, 7
   const minX = 32330;
   const maxX = 32380;
-  const minY = 32220;
+  const minY = 32210;
   const maxY = 32255;
   const targetZ = 7;
 

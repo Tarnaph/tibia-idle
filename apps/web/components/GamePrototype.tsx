@@ -41,6 +41,9 @@ import { WindowManagerProvider } from './window/WindowManagerContext';
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
+import thaisCityJson from '@/content/generated/thais-city.json';
+
+const thaisTileMap = new Map(thaisCityJson.tiles.map((t) => [`${t.x},${t.y}`, t]));
 
 const equipmentCatalog = equipmentJson as EquipmentCatalog;
 const monsterCatalog = monstersJson as MonsterCatalog;
@@ -103,7 +106,7 @@ function GamePrototypeContent() {
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
   const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>(THAIS_TEMPLE_POSITION);
   const [walkingPath, setWalkingPath] = useState<{
-    target: { x: number; y: number; z: number };
+    waypoints: Array<{ x: number; y: number; z: number }>;
     destinationName: string;
     onArrive?: () => void;
   } | null>(null);
@@ -137,7 +140,7 @@ function GamePrototypeContent() {
     return () => window.clearInterval(timer);
   }, [encounter.status, mode]);
 
-  // When defeated in hunt, resurrect and respawn in Thais Temple (32369, 32241, 7)
+  // When defeated in hunt, resurrect and respawn in Thais Temple (32369, 32241, 7) and walk to plaza
   useEffect(() => {
     if (mode === 'hunt' && encounter.status === 'defeated') {
       const timer = window.setTimeout(() => {
@@ -145,8 +148,18 @@ function GamePrototypeContent() {
         setMode('training');
         setIsTrainingAtDummy(false);
         setCityPos(THAIS_TEMPLE_POSITION);
-        setWalkingPath(null);
-        setSaleMessage('Alas! Você morreu e renasceu no Templo de Thais (32369, 32241, 7).');
+        setWalkingPath({
+          waypoints: [
+            { x: 32368, y: 32215, z: 7 },
+            { x: 32345, y: 32215, z: 7 },
+            { x: 32345, y: 32224, z: 7 },
+          ],
+          destinationName: 'Frente do Depot de Thais',
+          onArrive: () => {
+            setSaleMessage('Chegou na praça de Thais (32345, 32224, 7). Ande livremente com as setas do teclado!');
+          },
+        });
+        setSaleMessage('Alas! Você morreu, renasceu no Templo de Thais e está caminhando para a praça...');
       }, 1000);
       return () => window.clearTimeout(timer);
     }
@@ -167,23 +180,39 @@ function GamePrototypeContent() {
 
   // Autonomous walking loop across coordinates in city
   useEffect(() => {
-    if (!walkingPath || mode === 'hunt') return;
+    if (!walkingPath || walkingPath.waypoints.length === 0 || mode === 'hunt') return;
     const timer = window.setInterval(() => {
       setCityPos((current) => {
-        const dx = walkingPath.target.x - current.x;
-        const dy = walkingPath.target.y - current.y;
+        if (!walkingPath || walkingPath.waypoints.length === 0) return current;
+        const currentTarget = walkingPath.waypoints[0];
+        const dx = currentTarget.x - current.x;
+        const dy = currentTarget.y - current.y;
         if (dx === 0 && dy === 0) {
-          walkingPath.onArrive?.();
-          setWalkingPath(null);
+          if (walkingPath.waypoints.length > 1) {
+            setWalkingPath({
+              ...walkingPath,
+              waypoints: walkingPath.waypoints.slice(1),
+            });
+          } else {
+            walkingPath.onArrive?.();
+            setWalkingPath(null);
+          }
           return current;
         }
         const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
         const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
         const nextX = current.x + stepX;
         const nextY = current.y + stepY;
-        if (nextX === walkingPath.target.x && nextY === walkingPath.target.y) {
-          walkingPath.onArrive?.();
-          setWalkingPath(null);
+        if (nextX === currentTarget.x && nextY === currentTarget.y) {
+          if (walkingPath.waypoints.length > 1) {
+            setWalkingPath({
+              ...walkingPath,
+              waypoints: walkingPath.waypoints.slice(1),
+            });
+          } else {
+            walkingPath.onArrive?.();
+            setWalkingPath(null);
+          }
         }
         return { x: nextX, y: nextY, z: current.z };
       });
@@ -246,10 +275,24 @@ function GamePrototypeContent() {
     setMode('training');
     setHuntSelectorOpen(false);
     setIsTrainingAtDummy(false);
-    // Transport player and characters directly to Temple of Thais (32369, 32241, 7)
+    // Nasce no Templo de Thais (32369, 32241, 7)
     setCityPos(THAIS_TEMPLE_POSITION);
-    setWalkingPath(null);
-    setSaleMessage('Você retornou ao Templo de Thais (32369, 32241, 7).');
+    // Rota solicitada pelo usuário:
+    // Ponto 1: norte até x:32368 y:32215 z:7
+    // Ponto 2: oeste até x:32345 y:32215 z:7
+    // Ponto 3: sul até x:32345 y:32224 z:7 e ficar parado ali
+    setWalkingPath({
+      waypoints: [
+        { x: 32368, y: 32215, z: 7 },
+        { x: 32345, y: 32215, z: 7 },
+        { x: 32345, y: 32224, z: 7 },
+      ],
+      destinationName: 'Frente do Depot de Thais',
+      onArrive: () => {
+        setSaleMessage('Chegou em Thais (32345, 32224, 7). Ande livremente com as setas do teclado!');
+      },
+    });
+    setSaleMessage('Renasceu no Templo de Thais e caminhando pela cidade...');
   };
 
   const handleStartTraining = (skillName: string) => {
@@ -257,7 +300,7 @@ function GamePrototypeContent() {
     setMode('training');
     const dummyPos = { x: 32349, y: 32238, z: 7 };
     setWalkingPath({
-      target: dummyPos,
+      waypoints: [dummyPos],
       destinationName: 'Bonecos de Treino',
       onArrive: () => {
         setIsTrainingAtDummy(true);
@@ -345,6 +388,32 @@ function GamePrototypeContent() {
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
 
+      // Manual movement via arrow keys (and WASD) in city mode
+      if (mode !== 'hunt') {
+        let deltaX = 0;
+        let deltaY = 0;
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') deltaY = -1;
+        else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') deltaY = 1;
+        else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') deltaX = -1;
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') deltaX = 1;
+
+        if (deltaX !== 0 || deltaY !== 0) {
+          e.preventDefault();
+          setWalkingPath(null);
+          setIsTrainingAtDummy(false);
+          setCityPos((current) => {
+            const nextX = current.x + deltaX;
+            const nextY = current.y + deltaY;
+            const tile = thaisTileMap.get(`${nextX},${nextY}`);
+            if (tile && !tile.walkable) {
+              return current;
+            }
+            return { x: nextX, y: nextY, z: current.z };
+          });
+          return;
+        }
+      }
+
       if (e.key.startsWith('F') && e.key.length <= 3) {
         const fNum = parseInt(e.key.slice(1), 10);
         if (fNum >= 1 && fNum <= 12) {
@@ -358,7 +427,7 @@ function GamePrototypeContent() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleManualHotbarAction]);
+  }, [handleManualHotbarAction, mode]);
 
   const skillsList = [
     ['Fist', activeCharacter.skills.fist, selectedSkillProgress.fist],
@@ -401,9 +470,9 @@ function GamePrototypeContent() {
               <span className="city-coords">X: {cityPos.x} · Y: {cityPos.y} · Z: {cityPos.z}</span>
             </div>
             <div className="city-hud-status">
-              {walkingPath ? (
+              {walkingPath && walkingPath.waypoints[0] ? (
                 <span className="city-walking-badge">
-                  🚶 Andando sozinho até {walkingPath.destinationName} ({walkingPath.target.x}, {walkingPath.target.y}, {walkingPath.target.z})...
+                  🚶 Andando sozinho até {walkingPath.destinationName} ({walkingPath.waypoints[0].x}, {walkingPath.waypoints[0].y}, {walkingPath.waypoints[0].z})...
                 </span>
               ) : isTrainingAtDummy ? (
                 <span className="city-training-badge">
@@ -411,7 +480,7 @@ function GamePrototypeContent() {
                 </span>
               ) : (
                 <span className="city-idle-badge">
-                  🏛️ Parado no Depot ({cityPos.x}, {cityPos.y}, {cityPos.z})
+                  🏛️ Parado em Thais ({cityPos.x}, {cityPos.y}, {cityPos.z}) · [Setas do teclado para andar]
                 </span>
               )}
             </div>

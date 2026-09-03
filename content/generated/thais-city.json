@@ -3,7 +3,7 @@
   "bounds": {
     "minX": 32330,
     "maxX": 32380,
-    "minY": 32220,
+    "minY": 32210,
     "maxY": 32255,
     "z": 7
   },
@@ -22,8 +22,850 @@
     "y": 32238,
     "z": 7
   },
-  "tileCount": 1836,
+  "tileCount": 2346,
   "tiles": [
+    {
+      "x": 32330,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1036,
+        10433
+      ],
+      "clientItemIds": [
+        408,
+        1281,
+        9516
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1036,
+        10433
+      ],
+      "clientItemIds": [
+        408,
+        1281,
+        9516
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        6218
+      ],
+      "clientItemIds": [
+        4515,
+        6217
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        6218
+      ],
+      "clientItemIds": [
+        4515,
+        6217
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        6217
+      ],
+      "clientItemIds": [
+        4515,
+        6216
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043
+      ],
+      "clientItemIds": [
+        4515
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4528,
+      "serverItemIds": [
+        9056,
+        1036,
+        2061
+      ],
+      "clientItemIds": [
+        4528,
+        1281,
+        2931
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        1036
+      ],
+      "clientItemIds": [
+        4515,
+        1281
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1040,
+        10433,
+        10434,
+        20066
+      ],
+      "clientItemIds": [
+        870,
+        1285,
+        9516,
+        9517,
+        17786
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        430
+      ],
+      "clientItemIds": [
+        870,
+        435
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542
+      ],
+      "clientItemIds": [
+        870,
+        4531
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542,
+        1480
+      ],
+      "clientItemIds": [
+        870,
+        4531,
+        2109
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542,
+        1041
+      ],
+      "clientItemIds": [
+        870,
+        4531,
+        1286
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1037,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        1282,
+        9517
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1438
+      ],
+      "clientItemIds": [
+        870,
+        2021
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1213
+      ],
+      "clientItemIds": [
+        408,
+        1632
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32330,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32331,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1739
+      ],
+      "clientItemIds": [
+        870,
+        2471
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32332,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1739
+      ],
+      "clientItemIds": [
+        870,
+        2471
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32333,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32334,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32335,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
     {
       "x": 32330,
       "y": 32220,
@@ -376,6 +1218,2332 @@
         429,
         1270,
         2931
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1219
+      ],
+      "clientItemIds": [
+        408,
+        1638
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1036,
+        2037
+      ],
+      "clientItemIds": [
+        408,
+        1281,
+        2907
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1638
+      ],
+      "clientItemIds": [
+        408,
+        2338
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1632
+      ],
+      "clientItemIds": [
+        408,
+        2332
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        437,
+        5154,
+        10433
+      ],
+      "clientItemIds": [
+        408,
+        442,
+        5153,
+        9516
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        437,
+        5154,
+        10433
+      ],
+      "clientItemIds": [
+        408,
+        442,
+        5153,
+        9516
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1041
+      ],
+      "clientItemIds": [
+        870,
+        1286
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1039
+      ],
+      "clientItemIds": [
+        408,
+        1284
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1036
+      ],
+      "clientItemIds": [
+        870,
+        1281
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        4668,
+        1036,
+        10433
+      ],
+      "clientItemIds": [
+        408,
+        4657,
+        1281,
+        9516
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        4668,
+        1036,
+        10433
+      ],
+      "clientItemIds": [
+        408,
+        4657,
+        1281,
+        9516
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1212
+      ],
+      "clientItemIds": [
+        408,
+        1631
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        435,
+        1044,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        440,
+        1289,
+        9517
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        435,
+        1037,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        440,
+        1282,
+        9517
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4672,
+        1777
+      ],
+      "clientItemIds": [
+        870,
+        4661,
+        2526
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        435,
+        5152,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        440,
+        5151,
+        9517
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        435,
+        5152,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        440,
+        5151,
+        9517
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        4656,
+        1898
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        435,
+        1037,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        440,
+        1282,
+        9517
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        4656,
+        1897
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        444,
+        1040,
+        10433,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        449,
+        1285,
+        9516,
+        9517
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4671,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        4660,
+        1898
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1480
+      ],
+      "clientItemIds": [
+        870,
+        2109
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1041
+      ],
+      "clientItemIds": [
+        870,
+        1286
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        20053
+      ],
+      "clientItemIds": [
+        870,
+        17773
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        430
+      ],
+      "clientItemIds": [
+        870,
+        435
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1037,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        1282,
+        9517
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1438
+      ],
+      "clientItemIds": [
+        870,
+        2021
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1037,
+        10434,
+        20014
+      ],
+      "clientItemIds": [
+        408,
+        1282,
+        9517,
+        17734
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1221
+      ],
+      "clientItemIds": [
+        408,
+        1640
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1221
+      ],
+      "clientItemIds": [
+        408,
+        1640
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1037,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        1282,
+        9517
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1480
+      ],
+      "clientItemIds": [
+        870,
+        2109
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        4668,
+        1044,
+        10433,
+        10434
+      ],
+      "clientItemIds": [
+        408,
+        4657,
+        1289,
+        9516,
+        9517
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4672,
+        20034
+      ],
+      "clientItemIds": [
+        870,
+        4661,
+        17754
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32336,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32337,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32338,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32339,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32340,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1051
+      ],
+      "clientItemIds": [
+        870,
+        1296
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1480
+      ],
+      "clientItemIds": [
+        870,
+        2109
+      ]
+    },
+    {
+      "x": 32341,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1050
+      ],
+      "clientItemIds": [
+        870,
+        1295
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1051,
+        9476
+      ],
+      "clientItemIds": [
+        870,
+        1296,
+        8560
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1049
+      ],
+      "clientItemIds": [
+        870,
+        1294
+      ]
+    },
+    {
+      "x": 32342,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1053,
+        1810
+      ],
+      "clientItemIds": [
+        870,
+        1298,
+        2597
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5771,
+        1050,
+        9476
+      ],
+      "clientItemIds": [
+        870,
+        5771,
+        1295,
+        8560
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        1777
+      ],
+      "clientItemIds": [
+        429,
+        2526
+      ]
+    },
+    {
+      "x": 32343,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5771,
+        5372
+      ],
+      "clientItemIds": [
+        870,
+        5771,
+        5371
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32344,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5771
+      ],
+      "clientItemIds": [
+        870,
+        5771
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32345,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5771
+      ],
+      "clientItemIds": [
+        870,
+        5771
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32346,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5771
+      ],
+      "clientItemIds": [
+        870,
+        5771
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32347,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5771,
+        1050,
+        9477
+      ],
+      "clientItemIds": [
+        870,
+        5771,
+        1295,
+        8561
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        1624
+      ],
+      "clientItemIds": [
+        429,
+        2324
+      ]
+    },
+    {
+      "x": 32348,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        1622
+      ],
+      "clientItemIds": [
+        429,
+        2322
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1050
+      ],
+      "clientItemIds": [
+        870,
+        1295
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32349,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1050
+      ],
+      "clientItemIds": [
+        870,
+        1295
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        5371,
+        2101
+      ],
+      "clientItemIds": [
+        429,
+        5370,
+        2982
+      ]
+    },
+    {
+      "x": 32350,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424
+      ],
+      "clientItemIds": [
+        429
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4674,
+        1052,
+        9484,
+        20080
+      ],
+      "clientItemIds": [
+        870,
+        4663,
+        1297,
+        8568,
+        17800
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        4668,
+        1056
+      ],
+      "clientItemIds": [
+        429,
+        4657,
+        1301
+      ]
+    },
+    {
+      "x": 32351,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        4672,
+        1049
+      ],
+      "clientItemIds": [
+        429,
+        4661,
+        1294
       ]
     },
     {
@@ -1246,6 +4414,2386 @@
         429,
         1294,
         5596
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        1025,
+        2038
+      ],
+      "clientItemIds": [
+        103,
+        1270,
+        2908
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        1025
+      ],
+      "clientItemIds": [
+        103,
+        1270
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1739,
+        1987
+      ],
+      "clientItemIds": [
+        408,
+        2471,
+        2853
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1774
+      ],
+      "clientItemIds": [
+        408,
+        2523
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1774
+      ],
+      "clientItemIds": [
+        408,
+        2523
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1774
+      ],
+      "clientItemIds": [
+        408,
+        2523
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        2562
+      ],
+      "clientItemIds": [
+        408,
+        3465
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1206
+      ],
+      "clientItemIds": [
+        408,
+        1625
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1025
+      ],
+      "clientItemIds": [
+        408,
+        1270
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        15822
+      ],
+      "clientItemIds": [
+        408,
+        2320
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        15822,
+        2057
+      ],
+      "clientItemIds": [
+        408,
+        2320,
+        2927
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5590
+      ],
+      "clientItemIds": [
+        408,
+        5589
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5593
+      ],
+      "clientItemIds": [
+        408,
+        5592
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5591
+      ],
+      "clientItemIds": [
+        408,
+        5590
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5594
+      ],
+      "clientItemIds": [
+        408,
+        5593
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5591,
+        5591
+      ],
+      "clientItemIds": [
+        408,
+        5590,
+        5590
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5594,
+        1790
+      ],
+      "clientItemIds": [
+        408,
+        5593,
+        2539
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5591
+      ],
+      "clientItemIds": [
+        408,
+        5590
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5594
+      ],
+      "clientItemIds": [
+        408,
+        5593
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5592
+      ],
+      "clientItemIds": [
+        408,
+        5591
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        5595
+      ],
+      "clientItemIds": [
+        408,
+        5594
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        6443
+      ],
+      "clientItemIds": [
+        408,
+        6442
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1025
+      ],
+      "clientItemIds": [
+        408,
+        1270
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4670,
+        2100
+      ],
+      "clientItemIds": [
+        870,
+        4659,
+        2981
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4670,
+        1777
+      ],
+      "clientItemIds": [
+        870,
+        4659,
+        2526
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        1030,
+        9476
+      ],
+      "clientItemIds": [
+        103,
+        1275,
+        8560
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        4656,
+        1899
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1026
+      ],
+      "clientItemIds": [
+        408,
+        1271
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1026
+      ],
+      "clientItemIds": [
+        408,
+        1271
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        19757,
+        1026
+      ],
+      "clientItemIds": [
+        408,
+        17477,
+        1271
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        19749,
+        1026
+      ],
+      "clientItemIds": [
+        408,
+        17469,
+        1271
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1033,
+        6121
+      ],
+      "clientItemIds": [
+        408,
+        1278,
+        6121
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1026
+      ],
+      "clientItemIds": [
+        408,
+        1271
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        6442
+      ],
+      "clientItemIds": [
+        408,
+        6441
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1026,
+        2059
+      ],
+      "clientItemIds": [
+        408,
+        1271,
+        2929
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1026
+      ],
+      "clientItemIds": [
+        408,
+        1271
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        6442
+      ],
+      "clientItemIds": [
+        408,
+        6441
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        4656,
+        1897
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1026
+      ],
+      "clientItemIds": [
+        408,
+        1271
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1026,
+        20014
+      ],
+      "clientItemIds": [
+        408,
+        1271,
+        17734
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667
+      ],
+      "clientItemIds": [
+        870,
+        4656
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1029,
+        9476
+      ],
+      "clientItemIds": [
+        408,
+        1274,
+        8560
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4667,
+        2593
+      ],
+      "clientItemIds": [
+        870,
+        4656,
+        3501
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4670,
+        1439
+      ],
+      "clientItemIds": [
+        870,
+        4659,
+        2022
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4671,
+        3654,
+        20035
+      ],
+      "clientItemIds": [
+        870,
+        4660,
+        1898,
+        17755
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        5771,
+        1050,
+        9476
+      ],
+      "clientItemIds": [
+        103,
+        5771,
+        1295,
+        8560
+      ]
+    },
+    {
+      "x": 32352,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        19681,
+        5853,
+        5855
+      ],
+      "clientItemIds": [
+        429,
+        17401,
+        5853,
+        5855
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        5771
+      ],
+      "clientItemIds": [
+        103,
+        5771
+      ]
+    },
+    {
+      "x": 32353,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        19679
+      ],
+      "clientItemIds": [
+        429,
+        17399
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669,
+        25452
+      ],
+      "clientItemIds": [
+        870,
+        4658,
+        22796
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        5771
+      ],
+      "clientItemIds": [
+        103,
+        5771
+      ]
+    },
+    {
+      "x": 32354,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        19682
+      ],
+      "clientItemIds": [
+        429,
+        17402
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669,
+        1480
+      ],
+      "clientItemIds": [
+        870,
+        4658,
+        2109
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        5771,
+        1050,
+        9477
+      ],
+      "clientItemIds": [
+        103,
+        5771,
+        1295,
+        8561
+      ]
+    },
+    {
+      "x": 32355,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        4667,
+        1049
+      ],
+      "clientItemIds": [
+        429,
+        4656,
+        1294
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        9061
+      ],
+      "clientItemIds": [
+        429,
+        1283
+      ]
+    },
+    {
+      "x": 32356,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 429,
+      "serverItemIds": [
+        424,
+        1036
+      ],
+      "clientItemIds": [
+        429,
+        1281
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669,
+        5335
+      ],
+      "clientItemIds": [
+        870,
+        4658,
+        5334
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        1037
+      ],
+      "clientItemIds": [
+        103,
+        1282
+      ]
+    },
+    {
+      "x": 32357,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        2101
+      ],
+      "clientItemIds": [
+        408,
+        2982
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4673
+      ],
+      "clientItemIds": [
+        870,
+        4662
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4670,
+        1037,
+        2040
+      ],
+      "clientItemIds": [
+        870,
+        4659,
+        1282,
+        2910
+      ]
+    },
+    {
+      "x": 32358,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1212
+      ],
+      "clientItemIds": [
+        870,
+        1631
+      ]
+    },
+    {
+      "x": 32359,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1212
+      ],
+      "clientItemIds": [
+        870,
+        1631
+      ]
+    },
+    {
+      "x": 32360,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1037,
+        2040
+      ],
+      "clientItemIds": [
+        870,
+        1282,
+        2910
+      ]
+    },
+    {
+      "x": 32361,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4674
+      ],
+      "clientItemIds": [
+        870,
+        4663
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4668,
+        1037
+      ],
+      "clientItemIds": [
+        870,
+        4657,
+        1282
+      ]
+    },
+    {
+      "x": 32362,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        2101
+      ],
+      "clientItemIds": [
+        408,
+        2982
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        1039
+      ],
+      "clientItemIds": [
+        103,
+        1284
+      ]
+    },
+    {
+      "x": 32363,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1036,
+        10433
+      ],
+      "clientItemIds": [
+        408,
+        1281,
+        9516
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        1897
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        20027
+      ],
+      "clientItemIds": [
+        103,
+        17747
+      ]
+    },
+    {
+      "x": 32364,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        4598
+      ],
+      "clientItemIds": [
+        103,
+        4587
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        4549
+      ],
+      "clientItemIds": [
+        103,
+        4538
+      ]
+    },
+    {
+      "x": 32365,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        4598,
+        7710
+      ],
+      "clientItemIds": [
+        103,
+        4587,
+        618
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4673,
+        1480
+      ],
+      "clientItemIds": [
+        870,
+        4662,
+        2109
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4670,
+        4544,
+        6216
+      ],
+      "clientItemIds": [
+        870,
+        4659,
+        4533,
+        6215
+      ]
+    },
+    {
+      "x": 32366,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        2708
+      ],
+      "clientItemIds": [
+        4515,
+        3622
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4548
+      ],
+      "clientItemIds": [
+        870,
+        4537
+      ]
+    },
+    {
+      "x": 32367,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4545
+      ],
+      "clientItemIds": [
+        870,
+        4534
       ]
     },
     {
@@ -2194,6 +7742,1870 @@
       "clientItemIds": [
         870,
         4534
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4547
+      ],
+      "clientItemIds": [
+        870,
+        4536
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4551
+      ],
+      "clientItemIds": [
+        870,
+        4540
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4543
+      ],
+      "clientItemIds": [
+        870,
+        4532
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4518,
+      "serverItemIds": [
+        9046
+      ],
+      "clientItemIds": [
+        4518
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4524,
+      "serverItemIds": [
+        9052
+      ],
+      "clientItemIds": [
+        4524
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        2703
+      ],
+      "clientItemIds": [
+        4515,
+        3617
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043
+      ],
+      "clientItemIds": [
+        4515
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4520,
+      "serverItemIds": [
+        9048,
+        9588
+      ],
+      "clientItemIds": [
+        4520,
+        8672
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4609,
+      "serverItemIds": [
+        4614,
+        9595
+      ],
+      "clientItemIds": [
+        4609,
+        8679
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4609,
+      "serverItemIds": [
+        4614,
+        9589
+      ],
+      "clientItemIds": [
+        4609,
+        8673
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        9596
+      ],
+      "clientItemIds": [
+        4515,
+        8680
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32210,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        9590
+      ],
+      "clientItemIds": [
+        4515,
+        8674
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32211,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4609,
+      "serverItemIds": [
+        4614,
+        9591
+      ],
+      "clientItemIds": [
+        4609,
+        8675
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4526,
+      "serverItemIds": [
+        9054
+      ],
+      "clientItemIds": [
+        4526
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4521,
+      "serverItemIds": [
+        9049
+      ],
+      "clientItemIds": [
+        4521
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        6219
+      ],
+      "clientItemIds": [
+        4515,
+        6218
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4518,
+      "serverItemIds": [
+        9046
+      ],
+      "clientItemIds": [
+        4518
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 9524,
+      "serverItemIds": [
+        10441,
+        7656
+      ],
+      "clientItemIds": [
+        9524,
+        307
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 9525,
+      "serverItemIds": [
+        10442,
+        7656
+      ],
+      "clientItemIds": [
+        9525,
+        307
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32210,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 9529,
+      "serverItemIds": [
+        10446
+      ],
+      "clientItemIds": [
+        9529
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32211,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 9526,
+      "serverItemIds": [
+        10443
+      ],
+      "clientItemIds": [
+        9526
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        430
+      ],
+      "clientItemIds": [
+        870,
+        435
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4543,
+        1480
+      ],
+      "clientItemIds": [
+        870,
+        4532,
+        2109
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4547,
+        20007
+      ],
+      "clientItemIds": [
+        870,
+        4536,
+        17727
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043
+      ],
+      "clientItemIds": [
+        4515
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32213,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542,
+        1438,
+        3653
+      ],
+      "clientItemIds": [
+        870,
+        4531,
+        2021,
+        1897
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 4517,
+      "serverItemIds": [
+        9045
+      ],
+      "clientItemIds": [
+        4517
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542
+      ],
+      "clientItemIds": [
+        870,
+        4531
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4519,
+      "serverItemIds": [
+        9047,
+        9594
+      ],
+      "clientItemIds": [
+        4519,
+        8678
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542
+      ],
+      "clientItemIds": [
+        870,
+        4531
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4609,
+      "serverItemIds": [
+        4614,
+        9593
+      ],
+      "clientItemIds": [
+        4609,
+        8677
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542
+      ],
+      "clientItemIds": [
+        870,
+        4531
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3655
+      ],
+      "clientItemIds": [
+        870,
+        1899
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        9592
+      ],
+      "clientItemIds": [
+        4515,
+        8676
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542
+      ],
+      "clientItemIds": [
+        870,
+        4531
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4522,
+      "serverItemIds": [
+        9050,
+        1431
+      ],
+      "clientItemIds": [
+        4522,
+        2014
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542
+      ],
+      "clientItemIds": [
+        870,
+        4531
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32212,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        2708
+      ],
+      "clientItemIds": [
+        4515,
+        3622
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4542,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        4531,
+        1900
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        10456,
+        7657,
+        4545
+      ],
+      "clientItemIds": [
+        870,
+        9539,
+        308,
+        4534
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4546
+      ],
+      "clientItemIds": [
+        870,
+        4535
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32212,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        10456
+      ],
+      "clientItemIds": [
+        870,
+        9539
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32213,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32214,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32215,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32368,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32369,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4549
+      ],
+      "clientItemIds": [
+        870,
+        4538
+      ]
+    },
+    {
+      "x": 32370,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4543
+      ],
+      "clientItemIds": [
+        870,
+        4532
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4674
+      ],
+      "clientItemIds": [
+        870,
+        4663
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4668,
+        4544
+      ],
+      "clientItemIds": [
+        870,
+        4657,
+        4533
+      ]
+    },
+    {
+      "x": 32371,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 4515,
+      "serverItemIds": [
+        9043,
+        2708
+      ],
+      "clientItemIds": [
+        4515,
+        3622
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        4548,
+        20043
+      ],
+      "clientItemIds": [
+        103,
+        4537,
+        17763
+      ]
+    },
+    {
+      "x": 32372,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        4598,
+        4545
+      ],
+      "clientItemIds": [
+        103,
+        4587,
+        4534
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103
+      ],
+      "clientItemIds": [
+        103
+      ]
+    },
+    {
+      "x": 32373,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        4598
+      ],
+      "clientItemIds": [
+        103,
+        4587
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103
+      ],
+      "clientItemIds": [
+        103
+      ]
+    },
+    {
+      "x": 32374,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        4598
+      ],
+      "clientItemIds": [
+        103,
+        4587
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3654
+      ],
+      "clientItemIds": [
+        870,
+        1898
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32217,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669,
+        20042
+      ],
+      "clientItemIds": [
+        870,
+        4658,
+        17762
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        1038
+      ],
+      "clientItemIds": [
+        103,
+        1283
+      ]
+    },
+    {
+      "x": 32375,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 103,
+      "serverItemIds": [
+        103,
+        5154
+      ],
+      "clientItemIds": [
+        103,
+        5153
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4669
+      ],
+      "clientItemIds": [
+        870,
+        4658
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5153
+      ],
+      "clientItemIds": [
+        870,
+        5152
+      ]
+    },
+    {
+      "x": 32376,
+      "y": 32219,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067,
+        1042
+      ],
+      "clientItemIds": [
+        408,
+        1287
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4673
+      ],
+      "clientItemIds": [
+        870,
+        4662
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4670,
+        5152
+      ],
+      "clientItemIds": [
+        870,
+        4659,
+        5151
+      ]
+    },
+    {
+      "x": 32377,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1215
+      ],
+      "clientItemIds": [
+        870,
+        1634
+      ]
+    },
+    {
+      "x": 32378,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724
+      ],
+      "clientItemIds": [
+        870
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32218,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        1216
+      ],
+      "clientItemIds": [
+        870,
+        1635
+      ]
+    },
+    {
+      "x": 32379,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32216,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        3656
+      ],
+      "clientItemIds": [
+        870,
+        1900
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32217,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        4674
+      ],
+      "clientItemIds": [
+        870,
+        4663
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32218,
+      "z": 7,
+      "walkable": false,
+      "groundClientId": 870,
+      "serverItemIds": [
+        724,
+        5152
+      ],
+      "clientItemIds": [
+        870,
+        5151
+      ]
+    },
+    {
+      "x": 32380,
+      "y": 32219,
+      "z": 7,
+      "walkable": true,
+      "groundClientId": 408,
+      "serverItemIds": [
+        9067
+      ],
+      "clientItemIds": [
+        408
       ]
     },
     {

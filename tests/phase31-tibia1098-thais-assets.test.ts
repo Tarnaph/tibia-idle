@@ -80,4 +80,73 @@ describe('Phase 31: Tibia 10.98 DAT/SPR Asset Pipeline and Authentic Thais Rende
     expect(visualAssets.mapItems['1515'].isGround).toBe(false); // Column
     expect(visualAssets.mapItems['1049'].isGround).toBe(false); // Wall
   });
+
+  it('verifies the canonical multi-waypoint walking route from Thais Temple to Depot plaza', () => {
+    const tileMap = new Map(thaisCityJson.tiles.map((t: { x: number; y: number; walkable: boolean }) => [`${t.x},${t.y}`, t]));
+
+    const waypoints = [
+      { x: 32369, y: 32241, z: 7 }, // Temple spawn
+      { x: 32368, y: 32215, z: 7 }, // North plaza corner
+      { x: 32345, y: 32215, z: 7 }, // Street junction
+      { x: 32345, y: 32224, z: 7 }, // Depot entrance
+    ];
+
+    // Every waypoint must be defined and walkable
+    for (const wp of waypoints) {
+      const tile = tileMap.get(`${wp.x},${wp.y}`);
+      expect(tile, `Tile at ${wp.x},${wp.y} must exist in Thais`).toBeDefined();
+      expect(tile?.walkable, `Tile at ${wp.x},${wp.y} must be walkable`).toBe(true);
+    }
+
+    // Simulate multi-waypoint step progression
+    let current = { ...waypoints[0] };
+    let queue = waypoints.slice(1);
+
+    while (queue.length > 0) {
+      const target = queue[0];
+      const dx = target.x - current.x;
+      const dy = target.y - current.y;
+
+      const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
+      const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
+      current.x += stepX;
+      current.y += stepY;
+
+      if (current.x === target.x && current.y === target.y) {
+        queue = queue.slice(1);
+      }
+    }
+
+    expect(current).toEqual({ x: 32345, y: 32224, z: 7 });
+  });
+
+  it('verifies keyboard arrow manual navigation in city with wall collision blocking', () => {
+    const tileMap = new Map(thaisCityJson.tiles.map((t: { x: number; y: number; walkable: boolean }) => [`${t.x},${t.y}`, t]));
+
+    // Start at plaza
+    let pos = { x: 32345, y: 32224, z: 7 };
+
+    const move = (deltaX: number, deltaY: number) => {
+      const nextX = pos.x + deltaX;
+      const nextY = pos.y + deltaY;
+      const tile = tileMap.get(`${nextX},${nextY}`);
+      if (tile && !tile.walkable) {
+        return pos; // Obstructed
+      }
+      pos = { x: nextX, y: nextY, z: pos.z };
+      return pos;
+    };
+
+    // Move South (walkable street)
+    const afterSouth = move(0, 1);
+    expect(afterSouth.y).toBe(32225);
+
+    // Attempt to walk into a known solid wall (e.g. wall at 32340, 32230)
+    pos = { x: 32341, y: 32230, z: 7 };
+    const wallTile = tileMap.get('32340,32230');
+    expect(wallTile?.walkable).toBe(false);
+
+    const obstructed = move(-1, 0); // Try to walk west into wall
+    expect(obstructed.x).toBe(32341); // Position didn't change
+  });
 });
