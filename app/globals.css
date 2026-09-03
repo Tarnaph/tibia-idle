@@ -2160,8 +2160,7 @@ h1, h2, h3, p { margin: 0; }
    ========================================================================== */
 
 /* 1. Quick Action Dock (Above Hotbar Console) */
-.quick-action-dock {
-  display: flex;
+.quick-action-dock,
 .quick-action-bar {
   display: flex;
   align-items: center;
