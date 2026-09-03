@@ -5,7 +5,7 @@ import { huntById } from './hunt';
 import { createContinuousHuntRoute } from './huntRoute';
 import { createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
 import { createSeededRng, rollInteger } from './rng';
-import { isSpellUnlocked, spellById, spellFormulaRange } from './spells';
+import { spellFormulaRange } from './spells';
 import { findHotbarAction, isHotbarActionUnlocked } from './hotbarActions';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { isMeleeRange, meleeDistance } from './spatial/pathfinding';
@@ -13,7 +13,7 @@ import { createRoomState, roomDefinitionAt } from './spatial/rooms';
 import { clonePosition, samePosition } from './spatial/tileMap';
 import type { GridPosition } from './spatial/types';
 import type {
-  CharacterState, CombatEvent, CombatLogEntry, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
+  CharacterState, CombatEvent, CombatLogEntry, CombatStance, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
   LootStack, MonsterVariantDefinition, PartyActorState, SessionState,
 } from './types';
 import type { MonsterDefinition } from '../../content-schema/src';
@@ -66,6 +66,7 @@ function makeActor(character: SessionState['characters'][number], spawn: PartyAc
     spellCooldowns: { ...character.combatState.spellCooldowns }, groupCooldowns: { ...character.combatState.groupCooldowns }, hasteUntil: 0,
     magicShieldUntil: 0, bloodRageUntil: 0, lastHitTakenAt: 0,
     nextManaRegenAt: vocation.manaGainTicks * 2_000, nextHealthRegenAt: vocation.healthGainTicks * 2_000, pendingAttack: null,
+    stance: character.stance ?? 'offensive', targetDistance: character.targetDistance ?? 1,
   };
 }
 
@@ -271,7 +272,11 @@ function defeatEnemy(state: GameState, target: EnemyState, content: GameContent)
 }
 
 function attackRange(characterId: string, state: GameState, content: GameContent): number {
-  const character = state.session.characters.find((candidate) => candidate.id === characterId)!;
+  const character = state.session.characters.find((candidate) => candidate.id === characterId);
+  if (!character) return 1;
+  if (typeof character.targetDistance === 'number' && character.targetDistance >= 1) {
+    return character.targetDistance;
+  }
   const weapon = getEquippedItems(character, content.equipment).find((item) => item.weaponType === 'distance');
   return weapon ? Math.max(2, weapon.range) : 1;
 }
@@ -283,6 +288,8 @@ function syncCharacterResources(state: GameState, actor: PartyActorState): void 
   character.combatState.targetId = actor.targetId;
   character.combatState.spellCooldowns = { ...actor.spellCooldowns };
   character.combatState.groupCooldowns = { ...actor.groupCooldowns };
+  if (actor.stance) character.stance = actor.stance;
+  if (typeof actor.targetDistance === 'number') character.targetDistance = actor.targetDistance;
 }
 
 function regenerateParty(state: GameState, content: GameContent): void {
@@ -768,12 +775,15 @@ function playerAttacks(state: GameState, content: GameContent): void {
     const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
     const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
     if (stats.attack <= 0) continue;
+    const stance = character.stance ?? actor.stance ?? 'offensive';
+    const stanceMultiplier = stance === 'offensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
+    const effectiveAttack = Math.max(1, Math.round(stats.attack * stanceMultiplier));
     const range = attackRange(character.id, state, content);
     const target = encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
       ?? encounter.enemies.find((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
     if (!target) continue;
     const ranged = range > 1;
-    actor.pendingAttack = { targetId: target.id, impactAt: encounter.elapsedMs + 180, attack: stats.attack, weaponName: stats.weaponName, activeSkill: stats.activeSkill, activeSkillLevel: stats.activeSkillLevel, ranged };
+    actor.pendingAttack = { targetId: target.id, impactAt: encounter.elapsedMs + 180, attack: effectiveAttack, weaponName: stats.weaponName, activeSkill: stats.activeSkill, activeSkillLevel: stats.activeSkillLevel, ranged };
     encounter.visualEvents.push({ type: 'basic-attack-started', sourceId: character.id, targetId: target.id, ranged });
     if (ranged) encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId: 28 });
     actor.nextAttackAt = encounter.elapsedMs + actor.attackIntervalMs;
@@ -790,8 +800,11 @@ function enemyAttacks(state: GameState, content: GameContent): void {
     if (!target) continue;
     const character = state.session.characters.find((candidate) => candidate.id === target.characterId)!;
     const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
+    const stance = character.stance ?? target.stance ?? 'offensive';
+    const defenseMultiplier = stance === 'defensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
     const raw = rollInteger(rng, 0, enemy.attackMax);
-    const defense = rollInteger(rng, Math.floor(stats.defense / 2), stats.defense);
+    const effectiveDefense = Math.max(0, Math.round(stats.defense * defenseMultiplier));
+    const defense = rollInteger(rng, Math.floor(effectiveDefense / 2), effectiveDefense);
     const armor = rollInteger(rng, Math.floor(stats.armor / 2), stats.armor);
     const damage = Math.max(0, raw - defense - armor);
     enemy.nextAttackAt = encounter.elapsedMs + enemy.attackIntervalMs;
@@ -1078,3 +1091,23 @@ export function synchronizePartyWithEncounter(state: GameState, content: GameCon
   }
   synchronizeEncounterOccupancy(encounter); return next;
 }
+
+export function setCharacterStance(state: GameState, characterId: string, stance: CombatStance): GameState {
+  const next = cloneState(state);
+  const character = next.session.characters.find((candidate) => candidate.id === characterId);
+  if (character) character.stance = stance;
+  const actor = next.encounter.partyActors.find((candidate) => candidate.characterId === characterId);
+  if (actor) actor.stance = stance;
+  return next;
+}
+
+export function setCharacterTargetDistance(state: GameState, characterId: string, distance: number): GameState {
+  const next = cloneState(state);
+  const targetDistance = Math.max(1, Math.min(5, Math.floor(distance)));
+  const character = next.session.characters.find((candidate) => candidate.id === characterId);
+  if (character) character.targetDistance = targetDistance;
+  const actor = next.encounter.partyActors.find((candidate) => candidate.characterId === characterId);
+  if (actor) actor.targetDistance = targetDistance;
+  return next;
+}
+

@@ -41,6 +41,7 @@ const TRAINING_RUG_SERVER_ID = 1798;
 const TRAINING_DUMMY_SERVER_ID = 5787;
 const TRAINING_DECOR_SERVER_ID = 5852;
 const SELECTED_ITEM_NAMES = new Map<number, string>([
+  [1988, 'Backpack'] as const,
   ...equipmentCatalog.items.map((item) => [item.id, item.name] as const),
   ...monsterCatalog.monsters.flatMap((monster) => monster.loot.flatMap((item) => (
     item.itemId === undefined ? [] : [[item.itemId, item.name] as const]

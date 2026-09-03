@@ -1368,13 +1368,18 @@ h1, h2, h3, p { margin: 0; }
 .bottom-dock-wrapper {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 900;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   padding: 0 8px 4px 8px;
   pointer-events: none;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+  margin: 0 auto;
 }
 
 .bottom-console-hud {
@@ -2157,26 +2162,33 @@ h1, h2, h3, p { margin: 0; }
 /* 1. Quick Action Dock (Above Hotbar Console) */
 .quick-action-dock {
   display: flex;
+.quick-action-bar {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 5px;
-  padding: 0 4px;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  padding: 0;
+  width: 100%;
 }
 
 .quick-action-btn {
-  padding: 5px 14px;
+  padding: 2.5px 8px;
+  height: 20px;
+  line-height: 14px;
   background: linear-gradient(180deg, #1d222e 0%, #131720 100%);
-  border: 1.5px solid #333d52;
-  border-radius: 4px;
+  border: 1px solid #333d52;
+  border-radius: 3px;
   color: #c7d5ea;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 120ms ease;
+  white-space: nowrap;
 }
 
 .quick-action-btn:hover {
@@ -2192,16 +2204,16 @@ h1, h2, h3, p { margin: 0; }
 
 .quick-action-btn.highlighted-gold {
   background: linear-gradient(180deg, #252219 0%, #17140e 100%);
-  border: 1.5px solid #d49e35;
+  border: 1px solid #d49e35;
   color: #f6ce6d;
-  box-shadow: 0 0 10px rgba(212, 158, 53, 0.35), inset 0 1px 0 rgba(255, 230, 150, 0.25);
+  box-shadow: 0 0 8px rgba(212, 158, 53, 0.35), inset 0 1px 0 rgba(255, 230, 150, 0.25);
 }
 
 .quick-action-btn.highlighted-gold:hover {
   background: linear-gradient(180deg, #38311d 0%, #201a10 100%);
   border-color: #f1ba4f;
   color: #ffe699;
-  box-shadow: 0 0 14px rgba(241, 186, 79, 0.5), inset 0 1px 0 rgba(255, 240, 180, 0.4);
+  box-shadow: 0 0 12px rgba(241, 186, 79, 0.5), inset 0 1px 0 rgba(255, 240, 180, 0.4);
 }
 
 /* 2. Window Overlays & Containers (Tibia Blue/Slate Theme) */
@@ -2237,6 +2249,11 @@ h1, h2, h3, p { margin: 0; }
 
 .inventory-window-container {
   width: 520px;
+}
+
+.inventory-window-container.floating-window {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  pointer-events: auto;
 }
 
 .depot-window-container {
@@ -2304,9 +2321,9 @@ h1, h2, h3, p { margin: 0; }
   grid-template-columns: repeat(3, 38px);
   grid-template-rows: repeat(4, 38px);
   grid-template-areas:
-    ". head ."
-    "neck armor backpack"
-    "leftHand legs rightHand"
+    "neck head backpack"
+    "leftHand armor rightHand"
+    ". legs ."
     "finger boots ammo";
   gap: 6px;
   justify-content: center;

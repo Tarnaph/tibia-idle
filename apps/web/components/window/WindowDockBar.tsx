@@ -13,7 +13,6 @@ interface WindowDockBarProps {
 
 const WINDOW_ITEMS: Array<{ id: WindowId; label: string; icon: string }> = [
   { id: 'character', label: 'Personagem', icon: '👤' },
-  { id: 'equipment', label: 'Equipamentos', icon: '🛡️' },
   { id: 'party', label: 'Party', icon: '👥' },
   { id: 'hunt', label: 'Expedição', icon: '🗺️' },
   { id: 'metrics', label: 'Métricas', icon: '📊' },

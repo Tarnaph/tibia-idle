@@ -380,3 +380,24 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 23. Cooldowns Oficiais, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats | 1/1 | Complete | 2026-09-03 |
 | 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1/1 | Complete | 2026-09-03 |
 | 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1/1 | Complete | 2026-09-03 |
+| 26. Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância | 1/1 | Complete | 2026-09-03 |
+
+---
+
+### Phase 26: Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância
+
+**Goal:** Implementar os ajustes refinados solicitados em `FIX.md` para alinhamento de paperdoll, HUD centralizada, sprite autêntico de backpack, janela flutuante, remoção da aba antiga e controle funcional de stances e distância.  
+**Depends on:** Phase 25  
+**Requirements:** `FIX.md`, imagens de referência (`media_1788454390455.png` a `media_1788454860183.png`).  
+**Success Criteria:**
+1. Paperdoll alinhado exatamente como a referência: Colar/Capacete/Backpack no topo, Espada/Armadura/Escudo no meio, Calça centralizada abaixo, Anel/Botas/Ammo na base.
+2. Console inferior (hotkeys) fixo e perfeitamente centralizado no meio da tela; botões `DEPOT`, `VENDA RÁPIDA`, `IMBUEMENTS`, `BLESSINGS` menores e centralizados acima das hotkeys.
+3. Mochila ao lado das barras de HP/MP com o sprite oficial de backpack de 32x32 px.
+4. Remoção definitiva da aba antiga de Equipamentos do topo da tela.
+5. Janela de Inventário flutuante (sem overlay escuro de modal que bloqueia a tela), podendo ser arrastada e permitindo interação contínua com o jogo.
+6. Botões de Full Atk, Balanced e Full Def funcionais aplicando multiplicadores de ataque e defesa.
+7. Seletor de distância `[ - 1 + ]` controlando a distância mínima que o personagem mantém do alvo (1 = melee, 2+ = distância mantida).
+
+Plans:
+- [x] 26-01-PLAN: Implementar alinhamento do paperdoll, centralização da HUD, sprite de backpack, inventário flutuante, remoção da aba antiga e sistema funcional de stances e distância.
+

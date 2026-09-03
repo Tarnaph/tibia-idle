@@ -13,6 +13,7 @@ import {
   addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   transferItemBetweenContainers, destroyContainerItem, executeQuickSell,
+  setCharacterStance, setCharacterTargetDistance,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction,
@@ -363,134 +364,6 @@ function GamePrototypeContent() {
         )}
       </DraggableWindow>
 
-      {/* Window 2: Equipment & Backpack */}
-      <DraggableWindow id="equipment" icon="🛡️">
-        <div className="compact-equipment-window">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#dfc882' }}>
-            <strong>Equipamentos</strong>
-            <button
-              type="button"
-              style={{ fontSize: '8px', padding: '2px 5px', background: '#1a221c', border: '1px solid #3c493f', color: '#9ec49a', borderRadius: '3px', cursor: 'pointer' }}
-              onClick={() => setEquipmentOpen(true)}
-              title="Abrir painel expandido com comparação de estatísticas"
-            >
-              ⛶ Expandir
-            </button>
-          </div>
-
-          <div className="compact-paperdoll">
-            {MINI_SLOTS.map((slotInfo) => {
-              const itemId = activeCharacter.equipment[slotInfo.slot];
-              const equippedItem = itemId ? findEquipment(content.equipment, itemId) : null;
-              return (
-                <div
-                  key={slotInfo.slot}
-                  style={{ gridArea: slotInfo.gridArea, display: 'flex', justifyContent: 'center' }}
-                  data-equipment-drop="slot"
-                  data-equipment-slot={slotInfo.slot}
-                >
-                  {equippedItem ? (
-                    <ItemTooltip item={equippedItem}>
-                      <button
-                        type="button"
-                        className="compact-slot"
-                        onPointerDown={(event) => beginPointerEquipmentDrag({ kind: 'equipped', slot: slotInfo.slot }, event)}
-                        onClick={() => applyEquipmentTransfer({ kind: 'equipped', slot: slotInfo.slot }, { kind: 'inventory' })}
-                      >
-                        <ItemSprite itemId={equippedItem.id} label={equippedItem.name} />
-                      </button>
-                    </ItemTooltip>
-                  ) : (
-                    <button
-                      type="button"
-                      className="compact-slot empty"
-                      title={`${slotInfo.label} (vazio) - Arraste um item para cá`}
-                    >
-                      <span className="compact-slot-icon">{slotInfo.icon}</span>
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="backpack-module">
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#9ea49c', marginBottom: '4px' }}>
-              <span>Mochila ({inventoryEquipment.length} itens)</span>
-              <span>Cap: {characterCapacity(activeCharacter, content).toFixed(0)} oz</span>
-            </div>
-            <div className="compact-backpack-grid" data-equipment-drop="inventory">
-              {inventoryEquipment.map((item, index) => (
-                <ItemTooltip item={item} key={`${item.id}-${index}`}>
-                  <button
-                    type="button"
-                    className="compact-backpack-slot"
-                    data-equipment-drop="inventory-index"
-                    data-inventory-index={index}
-                    onPointerDown={(event) => beginPointerEquipmentDrag({ kind: 'inventory', itemId: item.id }, event)}
-                    onClick={() => applyEquipmentTransfer({ kind: 'inventory', itemId: item.id }, { kind: 'auto-slot' })}
-                  >
-                    <ItemSprite itemId={item.id} label={item.name} />
-                  </button>
-                </ItemTooltip>
-              ))}
-              {Array.from({ length: Math.max(0, 12 - inventoryEquipment.length) }).map((_, index) => (
-                <span className="compact-backpack-slot empty" key={`empty-${index}`} data-equipment-drop="inventory" />
-              ))}
-            </div>
-          </div>
-
-          {/* Loot Pouch section */}
-          <div className="pouch-module" style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #333a34' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', marginBottom: '6px' }}>
-              <strong style={{ color: '#dfc882' }}>Bolsa de Saques (Loot Pouch)</strong>
-              <span>Valor: <b style={{ color: '#e5bd50' }}>{sellableValue.toLocaleString('pt-BR')} gp</b></span>
-            </div>
-            <div className="pouch-actions" style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
-              {confirmSale ? (
-                <>
-                  <button type="button" className="sell-confirm-button" style={{ flex: 1 }} onClick={() => { sellLoot(); setConfirmSale(false); }}>Confirmar Venda</button>
-                  <button type="button" className="sell-cancel-button" onClick={() => setConfirmSale(false)}>Cancelar</button>
-                </>
-              ) : (
-                <button type="button" className="sell-all-button" style={{ flex: 1, padding: '5px' }} onClick={() => setConfirmSale(true)} disabled={sellableValue <= 0}>
-                  Vender Itens Livres
-                </button>
-              )}
-            </div>
-            {saleMessage && <div className="pouch-message" style={{ fontSize: '8px', color: '#99a198', marginBottom: '6px' }}>{saleMessage}</div>}
-            <div className="pouch-list" style={{ maxHeight: '110px', overflowY: 'auto' }}>
-              {game.session.loot.map((stack) => {
-                const price = stack.itemId === undefined ? null : prices.get(stack.itemId);
-                const pref = stack.itemId === undefined ? { autoLoot: true, lockSell: false, quickSell: false } : itemLootPreference(game, stack.itemId);
-                return (
-                  <div className="pouch-item" key={stack.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '3px 0', fontSize: '9px', borderBottom: '1px solid #232a24' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      {stack.itemId !== undefined && <ItemSprite itemId={stack.itemId} label={stack.name} />}
-                      {stack.name} ×{stack.amount}
-                    </span>
-                    <div style={{ display: 'flex', gap: '3px' }}>
-                      {stack.itemId !== undefined && (
-                        <>
-                          <button type="button" style={{ padding: '2px 4px', fontSize: '8px', background: pref.lockSell ? '#5a2220' : '#1f2521', border: '1px solid #444' }} onClick={() => toggleLootPreference(stack.itemId!, 'lockSell')} title={pref.lockSell ? 'Item bloqueado para venda' : 'Bloquear venda'}>
-                            {pref.lockSell ? '🔒' : '🔓'}
-                          </button>
-                          {price !== null && price !== undefined && (
-                            <button type="button" style={{ padding: '2px 4px', fontSize: '8px' }} onClick={() => sellOneLoot(stack.itemId!)} disabled={pref.lockSell} title={`Vender 1 stack por ${price * stack.amount} gp`}>
-                              Vender
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </DraggableWindow>
-
       {/* Window 3: Party */}
       <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{game.session.characters.length}/4</small>}>
         <div className="party-list">
@@ -649,6 +522,8 @@ function GamePrototypeContent() {
         onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
         onOpenDepot={() => setDepotOpen(true)}
         onOpenQuickSell={() => setQuickSellOpen(true)}
+        onChangeStance={(stance) => setGame((cur) => setCharacterStance(cur, activeCharacter.id, stance))}
+        onChangeTargetDistance={(dist) => setGame((cur) => setCharacterTargetDistance(cur, activeCharacter.id, dist))}
       />
 
       {/* Modals & Drawers */}

@@ -91,8 +91,8 @@ function nearestEnemy(actor: PartyActorState, encounter: HuntEncounterState, ran
   blocked.delete(positionKey(actor.position));
 
   const evaluated = candidates.map((enemy) => {
-    const alreadyInRange = meleeDistance(actor.position, enemy.position) <= range;
     const directDist = meleeDistance(actor.position, enemy.position);
+    const alreadyInRange = range <= 1 ? directDist <= 1 : directDist === range;
     const goals = range <= 1
       ? findMeleeApproachTiles(encounter.room.map, enemy.position, blocked)
       : findRangedApproachTiles(encounter.room.map, enemy.position, range, blocked);

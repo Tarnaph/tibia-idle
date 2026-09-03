@@ -48,7 +48,11 @@ export function findRangedApproachTiles(map: TileMap, target: GridPosition, desi
     const distance = meleeDistance(position, target);
     if (distance >= 1 && distance <= range && isTileWalkable(map, position) && !blocked.has(positionKey(position))) result.push(position);
   }
-  return result.sort((left, right) => meleeDistance(left, target) - meleeDistance(right, target) || left.y - right.y || left.x - right.x);
+  return result.sort((left, right) => (
+    Math.abs(meleeDistance(left, target) - range) - Math.abs(meleeDistance(right, target) - range)
+    || meleeDistance(left, target) - meleeDistance(right, target)
+    || left.y - right.y || left.x - right.x
+  ));
 }
 
 function heuristic(position: GridPosition, goals: GridPosition[]): number {

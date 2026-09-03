@@ -9,20 +9,20 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 25 of 25 (Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços)  
+Phase: 26 of 26 (Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 25 concluída com sucesso: Reformulação completa do Inventário (Bolsa 12 slots + Mochila 20 slots + Silhuetas clássicas vazias + Badge de Capacidade oz + Gold Coins), Menu de Contexto (botão direito com Auto-loot, Travar venda, Venda rápida e Destruir), Janelas Depot (Armazém com abas de filtros e 63 slots) e Venda Rápida (lista interativa, seleção rápida e cálculo em tempo real), Quick Action Dock acima da hotbar, movimentação ortogonal prioritária no A* e precificação canônica de 100% dos loots em item-economy.json.
+Last activity: 2026-09-03 — Phase 26 concluída: Alinhamento do Paperdoll de equipamentos (3x4), HUD centralizada, botões de atalho menores, sprite oficial de backpack (item 1988), remoção da aba antiga de equipamentos, janela de inventário flutuante sem overlay e mecânica funcional de stances e seletor de distância de alvo.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 25
-- Tests status: 20 test suites passando (Vitest - 163 testes aprovados, 100%)
+- Total phases completed: 26
+- Tests status: 21 test suites passando (Vitest - 169 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
-- Lint status: 0 warnings/erros (ESLint 9)
+- Lint status: 0 erros
 
 **By Phase:**
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100%
 | 23. Cooldowns Oficiais, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats | 1 | - | - | Complete |
 | 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1 | - | - | Complete |
 | 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1 | - | - | Complete |
+| 26. Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância | 1 | - | - | Complete |
 
 ## Accumulated Context
 

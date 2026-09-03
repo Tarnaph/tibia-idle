@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useState, type PointerEvent as ReactPointerEvent } from 'react';
+import React, { useState } from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
 import {
   findEquipment,
   type CharacterEquipmentSlot,
   type CharacterState,
-  type EquipmentTransferSource,
-  type EquipmentTransferTarget,
   type LootStack,
 } from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
@@ -65,6 +63,60 @@ export function InventoryWindow({
     itemId: number;
   } | null>(null);
 
+  const [position, setPosition] = useState<{ x: number; y: number }>(() => {
+    if (typeof window !== 'undefined') {
+      return {
+        x: Math.max(20, window.innerWidth - 560),
+        y: 70,
+      };
+    }
+    return { x: 400, y: 70 };
+  });
+
+  const dragRef = React.useRef<{
+    startX: number;
+    startY: number;
+    initialX: number;
+    initialY: number;
+    isDragging: boolean;
+  }>({
+    startX: 0,
+    startY: 0,
+    initialX: 0,
+    initialY: 0,
+    isDragging: false,
+  });
+
+  const handleHeaderPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: position.x,
+      initialY: position.y,
+      isDragging: true,
+    };
+  };
+
+  const handleHeaderPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.isDragging) return;
+    const deltaX = e.clientX - dragRef.current.startX;
+    const deltaY = e.clientY - dragRef.current.startY;
+    const newX = Math.max(10, Math.min(window.innerWidth - 200, dragRef.current.initialX + deltaX));
+    const newY = Math.max(10, Math.min(window.innerHeight - 100, dragRef.current.initialY + deltaY));
+    setPosition({ x: newX, y: newY });
+  };
+
+  const handleHeaderPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragRef.current.isDragging) {
+      dragRef.current.isDragging = false;
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {}
+    }
+  };
+
   if (!open) return null;
 
   // Format gold coins with thousand separators
@@ -73,13 +125,17 @@ export function InventoryWindow({
   // Format capacity oz
   const formattedCapacity = availableCapacityOz.toFixed(2);
 
-  // Equip slot definition
+  // Equip slot definition aligned exactly to reference screenshot:
+  // Row 1: Neck (left) - Head (center) - Backpack (right)
+  // Row 2: LeftHand (left) - Armor (center) - RightHand (right)
+  // Row 3: Legs (center)
+  // Row 4: Finger (left) - Boots (center) - Ammo (right)
   const slotsConfig: Array<{ slot: InventoryPaperdollSlot; label: string; gridArea: string }> = [
-    { slot: 'head', label: 'Capacete', gridArea: 'head' },
     { slot: 'neck', label: 'Amuleto', gridArea: 'neck' },
+    { slot: 'head', label: 'Capacete', gridArea: 'head' },
     { slot: 'backpack', label: 'Mochila', gridArea: 'backpack' },
-    { slot: 'armor', label: 'Armadura', gridArea: 'armor' },
     { slot: 'leftHand', label: 'Arma', gridArea: 'leftHand' },
+    { slot: 'armor', label: 'Armadura', gridArea: 'armor' },
     { slot: 'rightHand', label: 'Escudo', gridArea: 'rightHand' },
     { slot: 'legs', label: 'Calça', gridArea: 'legs' },
     { slot: 'finger', label: 'Anel', gridArea: 'finger' },
@@ -98,7 +154,7 @@ export function InventoryWindow({
     e.dataTransfer.setData('text/plain', JSON.stringify({ source, index, slot, itemId }));
   };
 
-  const handleDropOnSlot = (e: React.DragEvent, targetSlot: CharacterEquipmentSlot) => {
+  const handleDropOnSlot = (e: React.DragEvent, _targetSlot: CharacterEquipmentSlot) => {
     e.preventDefault();
     if (!draggedItem) return;
     if (draggedItem.source !== 'equipped') {
@@ -119,59 +175,85 @@ export function InventoryWindow({
   };
 
   return (
-    <div className="inventory-window-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="inventory-window-container" role="dialog" aria-modal="true" aria-label="Inventário">
-        {/* Header */}
-        <div className="inventory-window-header">
-          <span className="inventory-header-title">Inventário</span>
-          <button type="button" className="inventory-close-btn" onClick={onClose} aria-label="Fechar">
+    <div
+      className="inventory-window-container floating-window"
+      style={{
+        position: 'fixed',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        zIndex: 960,
+      }}
+      role="dialog"
+      aria-label="Inventário"
+    >
+      {/* Draggable Header */}
+      <div
+        className="inventory-window-header draggable-header"
+        onPointerDown={handleHeaderPointerDown}
+        onPointerMove={handleHeaderPointerMove}
+        onPointerUp={handleHeaderPointerUp}
+        style={{ cursor: 'grab', userSelect: 'none' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img src="/backpack.png" alt="" width={16} height={16} style={{ imageRendering: 'pixelated' }} />
+          <span className="inventory-header-title">Inventário & Mochila</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span className="inventory-gold-badge">
+            <span className="gold-coin-icon">🟡</span>
+            <span className="gold-value">{formattedGold} gp</span>
+          </span>
+          <button type="button" className="inventory-close-btn" onClick={onClose} aria-label="Fechar" title="Fechar (I)">
             ×
           </button>
         </div>
+      </div>
 
-        {/* Content Body: 2 Columns */}
-        <div className="inventory-window-body">
-          {/* Left Column: Equipment Paperdoll & Capacity */}
-          <div className="inventory-paperdoll-column">
-            <div className="paperdoll-grid">
-              {slotsConfig.map(({ slot, label, gridArea }) => {
-                const itemId = (character.equipment as Record<string, number | null>)[slot] ?? null;
-                const item = itemId ? findEquipment(equipmentCatalog, itemId) : null;
-                const isSupportedEquipSlot = slot in character.equipment;
+      {/* Content Body: 2 Columns */}
+      <div className="inventory-window-body">
+        {/* Left Column: Equipment Paperdoll & Capacity */}
+        <div className="inventory-paperdoll-column">
+          <div className="paperdoll-grid">
+            {slotsConfig.map(({ slot, label, gridArea }) => {
+              const itemId = (character.equipment as Record<string, number | null>)[slot] ?? null;
+              const item = itemId ? findEquipment(equipmentCatalog, itemId) : null;
+              const isSupportedEquipSlot = slot in character.equipment;
 
-                return (
-                  <div
-                    key={slot}
-                    className={`paperdoll-slot-box ${item ? 'occupied' : 'empty'}`}
-                    style={{ gridArea }}
-                    title={item ? `${item.name} (${label})` : `Slot vazio de ${label}`}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => isSupportedEquipSlot && handleDropOnSlot(e, slot as CharacterEquipmentSlot)}
-                    draggable={!!item}
-                    onDragStart={(e) => item && isSupportedEquipSlot && handleDragStart(e, 'equipped', item.id, undefined, slot as CharacterEquipmentSlot)}
-                    onDoubleClick={() => item && isSupportedEquipSlot && onUnequipSlot(slot as CharacterEquipmentSlot)}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      if (item) {
-                        setContextMenu({
-                          x: e.clientX,
-                          y: e.clientY,
-                          item,
-                          container: 'equipped',
-                          slot: isSupportedEquipSlot ? (slot as CharacterEquipmentSlot) : undefined,
-                        });
-                      }
-                    }}
-                  >
-                    {item ? (
-                      <ItemSprite itemId={item.id} label={item.name} />
-                    ) : (
-                      <SlotSilhouette slot={slot} size={30} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+              return (
+                <div
+                  key={slot}
+                  className={`paperdoll-slot-box ${item ? 'occupied' : 'empty'}`}
+                  style={{ gridArea }}
+                  title={item ? `${item.name} (${label})` : `Slot de ${label}`}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => isSupportedEquipSlot && handleDropOnSlot(e, slot as CharacterEquipmentSlot)}
+                  draggable={!!item}
+                  onDragStart={(e) => item && isSupportedEquipSlot && handleDragStart(e, 'equipped', item.id, undefined, slot as CharacterEquipmentSlot)}
+                  onDoubleClick={() => item && isSupportedEquipSlot && onUnequipSlot(slot as CharacterEquipmentSlot)}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    if (item) {
+                      setContextMenu({
+                        x: e.clientX,
+                        y: e.clientY,
+                        item,
+                        container: 'equipped',
+                        slot: isSupportedEquipSlot ? (slot as CharacterEquipmentSlot) : undefined,
+                      });
+                    }
+                  }}
+                >
+                  {item ? (
+                    <ItemSprite itemId={item.id} label={item.name} />
+                  ) : slot === 'backpack' ? (
+                    <img src="/backpack.png" alt="Mochila" width={30} height={30} style={{ imageRendering: 'pixelated', opacity: 0.85 }} />
+                  ) : (
+                    <SlotSilhouette slot={slot} size={30} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
             {/* Capacity Inset */}
             <div className="capacity-inset-box">
@@ -295,7 +377,6 @@ export function InventoryWindow({
             </div>
           </div>
         </div>
-      </div>
 
       {/* Item Context Menu */}
       {contextMenu && (

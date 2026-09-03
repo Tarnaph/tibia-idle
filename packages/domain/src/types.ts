@@ -14,6 +14,7 @@ import type { CardinalDirection, GridPosition, RoomState } from './spatial/types
 
 export type CharacterEquipmentSlot = 'head' | 'armor' | 'legs' | 'boots' | 'leftHand' | 'rightHand';
 export type CombatSkill = 'fist' | 'club' | 'sword' | 'axe' | 'distance' | 'shielding';
+export type CombatStance = 'offensive' | 'balanced' | 'defensive';
 export type TrainableSkill = CombatSkill | 'magicLevel';
 
 export interface CharacterSkills {
@@ -52,6 +53,8 @@ export interface CharacterState {
     spellCooldowns: Record<string, number>;
     groupCooldowns: Record<string, number>;
   };
+  stance?: CombatStance;
+  targetDistance?: number;
   trainingState: {
     skillRemainderMs: number;
     shieldingRemainderMs: number;
@@ -83,6 +86,8 @@ export interface PartyActorState {
   lastHitTakenAt: number;
   nextManaRegenAt: number;
   nextHealthRegenAt: number;
+  stance?: CombatStance;
+  targetDistance?: number;
   pendingAttack: PendingBasicAttack | null;
 }
 

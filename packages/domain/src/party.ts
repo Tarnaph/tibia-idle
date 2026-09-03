@@ -48,6 +48,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
     skills: { ...baseSkills[vocationName] }, skillTries: emptyTries(),
     equipment: { ...starter.equipped },
     inventory: { equipmentIds: content.equipment.map((item) => item.id) }, spells, hotbar: [],
+    stance: 'offensive', targetDistance: vocationName === 'Paladin' ? 2 : 1,
     combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
     trainingState: { skillRemainderMs: 0, shieldingRemainderMs: 0, manaSpent: 0, manaSimulationRemainderMs: 0 },
   };

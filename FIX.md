@@ -1,13 +1,23 @@
-# CORREÇÕES COMPORTAMENTO
-No Tibia o personagem sempre da preferência para andar horizontalmente ou verticalmente ao invés de diagonal, ele deixa para usar a diagonal, só como ultimo recurso
+# RODADA DE AJUSTES
+Nesta nova rodada de ajustes, vamos alinhar o inventário, o escudo e a espada tem que ficar alinhado com a armadura, e a backpack e colar devem ficar ao lado do capacete e boots tem que ficar ao lado do anel e acessório como na imagem de referência
 
-Vamos reajustar agora o layout UI do inventário e equipamento no print mostra como deve ficar, inclusive quando não está equipado nada precisa ficar igual a imagem.
+a hotkey ela tem que ficar fixa e centralizada na parte inferior, no meio da tela, os botões depot, venda rápida imbuements e blessings precisam ser menores e fixos acima da parte das hotkeys igual na imagem de referência.
 
-Ao apertar com o botão direito deve surgir esse menu, é necessário que funcione o menu, ao invés de leilão, vamos chamar de market então ficaria Vender no Market e Ver no Market, o auto loot é para você decidir se aquele item você vai querer pegar quando cair ou se o jogo pode destruir, o travar venda é para você bloquear o item de ser vendido e o venda rápida é para colocar na lista do que vai ser vendido usando o botão de venda rápida, o valor no analyzer vamos retirar e destruir pode manter, com essa atualização mudamos completamente o menu de equipamentos, bolsa e a venda de itens ficando mais enxuto e mais dinâmico, então tudo que cair vai direto para a "Mochila" e os itens que eu quiser guardar eu posso clicar e arrastar para a "Bolsa" neste menu também temos a capacidade que mostra o pessoa que você tem disponível, isso você encontra nos arquivos do tibia para saber quanto de PZ tem cada personagem e quanto ele ganha por level
+A mochila ela precisa ter a aparecência de uma backpack ali do lado das hotkeys, você encontra ela nos arquivos do jogo.
 
-Vamos incluir os botões "Depot" e "Venda Rápida" acima das hotkeys igual a imagem, sendo o depot para você armazernar o que está na mochila e bolsa no DP igual na imagem e no venda rápida você consegue selecionar os itens que estão na sua mochila para vender, você seleciona eles ele já faz o calculo ali do total e você aperta vender e ja receber o seu gold coin
+Retire do jogo a aba equipamentos antiga dali de cima, agora toda parte de itens vai ser feita pela backpack/invetário novos que está junto as hotkeys
 
-Correção dos loots:
-Ainda existem itens sem preço, todos precisam ter preço
+Correção, ao apertar na mochila pode abrir flutuante o inventário também, não precisa aparecer na frente de tudo como está atualmente
 
+Ainda em hotkeys, vamos deixar funcionais os botões de full atk, full def e balanced, as informações e comportamento sobre esse sistema tem nos arquivos do jogo, aquele - 1 + que tem nas hotkeys ele funciona assim: Quando está 1 o personagem encosta no bicho, se estiver 2, quer dizer que o personagem sempre vai manter uma distancia de 2 tiles dos bichos, por exemplo paladin não precisa grudar no bicho então você pode deixar 2, que ele vai ficar sempre 2 quadrados de distancia do bicho
 
+---
+**Status da Rodada:** CONCLUÍDO (Phase 26)
+- [x] Alinhamento do inventário paperdoll (Neck-Head-Backpack / LeftHand-Armor-RightHand / Legs / Finger-Boots-Ammo)
+- [x] Hotkey fixa e perfeitamente centralizada na parte inferior
+- [x] Botões Depot, Venda Rápida, Imbuements e Blessings menores e centralizados acima das hotkeys
+- [x] Mochila com o sprite clássico oficial de Backpack (item 1988) extraído dos arquivos
+- [x] Remoção da aba antiga de equipamentos
+- [x] Janela de inventário flutuante e arrastável sem overlay escuro bloqueando a tela
+- [x] Stances de combate (Full Atk, Balanced, Full Def) funcionais com multiplicadores
+- [x] Seletor de distância de alvo [ - 1 + ] funcional controlando a aproximação em combate (1 = corpo a corpo, 2+ = manter distância)

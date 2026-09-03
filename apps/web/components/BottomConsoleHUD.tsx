@@ -5,6 +5,7 @@ import type { SpellDefinition } from '@/packages/content-schema/src';
 import {
   findHotbarAction,
   type CharacterState,
+  type CombatStance,
   type PartyActorState,
 } from '@/packages/domain/src';
 import { Tibia11ActionIcon } from './Tibia11ActionIcon';
@@ -19,6 +20,8 @@ interface BottomConsoleHUDProps {
   onToggleBackpack?: () => void;
   onToggleCombatLog?: () => void;
   logCount?: number;
+  onChangeStance?: (stance: CombatStance) => void;
+  onChangeTargetDistance?: (distance: number) => void;
 }
 
 export function BottomConsoleHUD({
@@ -31,12 +34,17 @@ export function BottomConsoleHUD({
   onToggleBackpack,
   onToggleCombatLog,
   logCount = 0,
+  onChangeStance,
+  onChangeTargetDistance,
 }: BottomConsoleHUDProps) {
   // Stances: 'offensive' | 'balanced' | 'defensive'
-  const [stance, setStance] = useState<'offensive' | 'balanced' | 'defensive'>('offensive');
+  const [stance, setStance] = useState<CombatStance>('offensive');
   const [presetSet, setPresetSet] = useState('Default');
   const [targetMode, setTargetMode] = useState('Mais próximo');
   const [targetCount, setTargetCount] = useState(1);
+
+  const currentStance = character.stance ?? stance;
+  const currentTargetDistance = character.targetDistance ?? targetCount;
 
   const maxHp = character.maxHp || 2555;
   const currentHp = actor?.hp ?? character.currentHp;
@@ -73,7 +81,7 @@ export function BottomConsoleHUD({
   const renderSlot = (slotIndex: number, isBottomRow = false) => {
     const actionId = character.hotbar[slotIndex];
     const hasAction = typeof actionId === 'number' && actionId > 0;
-    const action = hasAction ? findHotbarAction(actionId, { spells } as any) : undefined;
+    const action = hasAction ? findHotbarAction(actionId, { spells } as unknown as Parameters<typeof findHotbarAction>[1]) : undefined;
     const hotkeyLabel = !isBottomRow ? `F${slotIndex + 1}` : `${(slotIndex - 10 + 1) % 10}`;
 
     // If empty slot
@@ -223,18 +231,13 @@ export function BottomConsoleHUD({
           title="Abrir Mochila / Equipamentos (I)"
           onClick={onToggleBackpack}
         >
-          {/* Authentic Leather Backpack SVG Icon */}
-          <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-            <rect x="5" y="8" width="22" height="20" rx="4" fill="#693d1b" stroke="#3d220e" strokeWidth="1.2" />
-            {/* Top flap */}
-            <path d="M5 12 C5 7, 27 7, 27 12 L25 18 C20 19, 12 19, 7 18 Z" fill="#874e22" stroke="#4a2a12" strokeWidth="1" />
-            {/* Straps */}
-            <line x1="10" y1="9" x2="10" y2="28" stroke="#361e0b" strokeWidth="2" />
-            <line x1="22" y1="9" x2="22" y2="28" stroke="#361e0b" strokeWidth="2" />
-            {/* Golden Buckle */}
-            <rect x="13.5" y="15" width="5" height="4" rx="0.5" fill="#f5c242" stroke="#876612" strokeWidth="0.8" />
-            <rect x="15" y="16" width="2" height="2" fill="#361e0b" />
-          </svg>
+          <img
+            src="/backpack.png"
+            alt="Mochila"
+            width={32}
+            height={32}
+            style={{ imageRendering: 'pixelated', display: 'block' }}
+          />
         </button>
       </div>
 
@@ -287,9 +290,12 @@ export function BottomConsoleHUD({
           {/* Defensive Stance (Shield) */}
           <button
             type="button"
-            className={`hud-stance-btn ${stance === 'defensive' ? 'active' : ''}`}
-            title="Modo Defensivo (Foco em Defesa)"
-            onClick={() => setStance('defensive')}
+            className={`hud-stance-btn ${currentStance === 'defensive' ? 'active' : ''}`}
+            title="Modo Defensivo (Foco em Defesa Máxima, 50% de Dano de Ataque)"
+            onClick={() => {
+              setStance('defensive');
+              onChangeStance?.('defensive');
+            }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
               <path d="M8 1 L14 3 C14 8, 12 13, 8 15 C4 13, 2 8, 2 3 Z" fill="none" stroke="currentColor" strokeWidth="1.5" />
@@ -299,9 +305,12 @@ export function BottomConsoleHUD({
           {/* Balanced Stance (Scales) */}
           <button
             type="button"
-            className={`hud-stance-btn ${stance === 'balanced' ? 'active' : ''}`}
-            title="Modo Equilibrado (Ataque e Defesa balanceados)"
-            onClick={() => setStance('balanced')}
+            className={`hud-stance-btn ${currentStance === 'balanced' ? 'active' : ''}`}
+            title="Modo Equilibrado (75% de Ataque e 75% de Defesa)"
+            onClick={() => {
+              setStance('balanced');
+              onChangeStance?.('balanced');
+            }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
               <line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" strokeWidth="1.5" />
@@ -314,9 +323,12 @@ export function BottomConsoleHUD({
           {/* Offensive Stance (Crossed Swords - Highlighted active with green border) */}
           <button
             type="button"
-            className={`hud-stance-btn ${stance === 'offensive' ? 'active' : ''}`}
-            title="Modo Ofensivo (Foco em Dano Máximo)"
-            onClick={() => setStance('offensive')}
+            className={`hud-stance-btn ${currentStance === 'offensive' ? 'active' : ''}`}
+            title="Modo Ofensivo (100% de Dano de Ataque, 50% de Fator de Defesa)"
+            onClick={() => {
+              setStance('offensive');
+              onChangeStance?.('offensive');
+            }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
               <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" strokeWidth="1.6" />
@@ -329,7 +341,7 @@ export function BottomConsoleHUD({
           <button
             type="button"
             className="hud-target-reticle-btn"
-            title="Fixar Alvo / Mira Automática"
+            title="Fixar Alvo / Perseguição Automática"
           >
             <svg width="16" height="14" viewBox="0 0 20 16" fill="currentColor">
               <circle cx="6" cy="8" r="5" fill="none" stroke="#e03838" strokeWidth="1.5" />
@@ -341,20 +353,35 @@ export function BottomConsoleHUD({
             </svg>
           </button>
 
-          {/* Target Count Adjuster (- 1 +) */}
+          {/* Target Distance Stepper (- 1 +) */}
           <div className="hud-target-stepper">
             <button
               type="button"
               className="stepper-btn"
-              onClick={() => setTargetCount((c) => Math.max(1, c - 1))}
+              onClick={() => {
+                const nextVal = Math.max(1, currentTargetDistance - 1);
+                setTargetCount(nextVal);
+                onChangeTargetDistance?.(nextVal);
+              }}
+              title="Reduzir distância mantida do alvo (1 = melee/encostar)"
             >
               -
             </button>
-            <span className="stepper-val">{targetCount}</span>
+            <span
+              className="stepper-val"
+              title={currentTargetDistance === 1 ? 'Distância 1: Encosta no monstro (corpo a corpo)' : `Distância ${currentTargetDistance}: Mantém ${currentTargetDistance} tiles de distância`}
+            >
+              {currentTargetDistance}
+            </span>
             <button
               type="button"
               className="stepper-btn"
-              onClick={() => setTargetCount((c) => Math.min(5, c + 1))}
+              onClick={() => {
+                const nextVal = Math.min(5, currentTargetDistance + 1);
+                setTargetCount(nextVal);
+                onChangeTargetDistance?.(nextVal);
+              }}
+              title="Aumentar distância mantida do alvo (útil para Paladinos e Magos)"
             >
               +
             </button>

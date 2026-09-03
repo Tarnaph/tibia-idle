@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
-import type { CharacterState, CombatLogEntry, HuntEncounterState, PartyActorState } from '@/packages/domain/src';
+import type { CharacterState, CombatLogEntry, CombatStance, HuntEncounterState, PartyActorState } from '@/packages/domain/src';
 import { BottomConsoleHUD } from './BottomConsoleHUD';
 
 interface BottomDockProps {
@@ -20,6 +20,8 @@ interface BottomDockProps {
   onToggleBackpack?: () => void;
   onOpenDepot?: () => void;
   onOpenQuickSell?: () => void;
+  onChangeStance?: (stance: CombatStance) => void;
+  onChangeTargetDistance?: (distance: number) => void;
 }
 
 export function BottomDock({
@@ -33,6 +35,8 @@ export function BottomDock({
   onToggleBackpack,
   onOpenDepot,
   onOpenQuickSell,
+  onChangeStance,
+  onChangeTargetDistance,
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
 
@@ -56,44 +60,43 @@ export function BottomDock({
         </section>
       )}
 
-      {/* Top Quick Action Bar above console matching Image 3 */}
+      {/* Top Quick Action Bar above console centered matching Image 4 */}
       {onOpenDepot && onOpenQuickSell && (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', paddingLeft: '8px' }}>
-          <button
-            type="button"
-            className="quick-action-btn btn-depot"
-            onClick={onOpenDepot}
-            title="Abrir Armazém do Depot"
-          >
-            DEPOT
-          </button>
-          <button
-            type="button"
-            className="quick-action-btn btn-quicksell highlighted-gold"
-            onClick={onOpenQuickSell}
-            title="Venda Rápida de Itens da Mochila"
-            style={{ marginLeft: '6px' }}
-          >
-            VENDA RÁPIDA
-          </button>
-          <button
-            type="button"
-            className="quick-action-btn btn-imbuements"
-            onClick={() => alert('Sistema de Imbuements')}
-            title="Imbuements"
-            style={{ marginLeft: '6px' }}
-          >
-            IMBUEMENTS
-          </button>
-          <button
-            type="button"
-            className="quick-action-btn btn-blessings"
-            onClick={() => alert('Sistema de Blessings')}
-            title="Blessings"
-            style={{ marginLeft: '6px' }}
-          >
-            BLESSINGS
-          </button>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', pointerEvents: 'auto', marginBottom: '3px' }}>
+          <nav className="quick-action-bar" aria-label="Ações Rápidas">
+            <button
+              type="button"
+              className="quick-action-btn btn-depot"
+              onClick={onOpenDepot}
+              title="Abrir Armazém do Depot"
+            >
+              DEPOT
+            </button>
+            <button
+              type="button"
+              className="quick-action-btn btn-quicksell highlighted-gold"
+              onClick={onOpenQuickSell}
+              title="Venda Rápida de Itens da Mochila"
+            >
+              VENDA RÁPIDA
+            </button>
+            <button
+              type="button"
+              className="quick-action-btn btn-imbuements"
+              onClick={() => {}}
+              title="Imbuements"
+            >
+              IMBUEMENTS
+            </button>
+            <button
+              type="button"
+              className="quick-action-btn btn-blessings"
+              onClick={() => {}}
+              title="Blessings"
+            >
+              BLESSINGS
+            </button>
+          </nav>
         </div>
       )}
 
@@ -108,6 +111,8 @@ export function BottomDock({
         onToggleBackpack={onToggleBackpack}
         onToggleCombatLog={() => setLogOpen((v) => !v)}
         logCount={logs.length}
+        onChangeStance={onChangeStance}
+        onChangeTargetDistance={onChangeTargetDistance}
       />
     </footer>
   );

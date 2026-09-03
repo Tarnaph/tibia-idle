@@ -7812,6 +7812,62 @@
     }
   },
   "items": {
+    "1988": {
+      "serverId": 1988,
+      "clientId": 2854,
+      "group": 2,
+      "name": "Backpack",
+      "resolved": true,
+      "source": {
+        "serverId": 1988,
+        "otb": "styller-master/data/items/items.otb",
+        "dat": "tibia-860-client/Tibia.dat",
+        "spr": "tibia-860-client/Tibia.spr"
+      },
+      "appearanceId": 2854,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          4,
+          16
+        ],
+        "spriteIds": [
+          200
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          200
+        ],
+        "file": "public/generated/tibia860/items/item-1988.png",
+        "publicUrl": "/generated/tibia860/items/item-1988.png",
+        "sha256": "226F66BAC8F5802C881C025D71EF4CFBD537BB84609FFA50336CA2AACDA1542A",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "2050": {
       "serverId": 2050,
       "clientId": 2920,
