@@ -2830,6 +2830,52 @@ h1, h2, h3, p { margin: 0; }
   cursor: not-allowed;
 }
 
+/* Authentic Tibia Level Advancement Banner (Center Screen) */
+.tibia-advancement-banner {
+  position: absolute;
+  top: 36%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 850;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow:
+    -1.5px -1.5px 0 #000000,
+    1.5px -1.5px 0 #000000,
+    -1.5px 1.5px 0 #000000,
+    1.5px 1.5px 0 #000000,
+    0 1.5px 0 #000000,
+    0 -1.5px 0 #000000,
+    1.5px 0 0 #000000,
+    -1.5px 0 0 #000000;
+  letter-spacing: 0.3px;
+  animation: tibiaAdvancementFade 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes tibiaAdvancementFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.95);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.98);
+  }
+}
+
+
 
 
 

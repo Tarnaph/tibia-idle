@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 26 of 26 (Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância)  
+Phase: 27 of 27 (Desequipar para Bolsa, Foco Autêntico de Alvo e Anúncio de Level Up)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 26 concluída: Alinhamento do Paperdoll de equipamentos (3x4), HUD centralizada, botões de atalho menores, sprite oficial de backpack (item 1988), remoção da aba antiga de equipamentos, janela de inventário flutuante sem overlay e mecânica funcional de stances e seletor de distância de alvo.
+Last activity: 2026-09-03 — Phase 27 concluída: Itens desequipados vão para a Bolsa (`bag`) sem sumir; troca inteligente ao equipar de container; mira vermelha autêntica em retângulo fechado (32x32) contornando o monstro alvejado; foco travado no alvo em perseguição e ataques básicos/magias; seleção de alvo por clique; e anúncio centralizado de level up ("You advanced from Level X to Level Y.").
 
 Progress: [██████████] 100%
 

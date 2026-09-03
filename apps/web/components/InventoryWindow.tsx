@@ -285,7 +285,7 @@ export function InventoryWindow({
                       className={`inventory-slot-cell ${stack ? 'occupied' : 'empty'}`}
                       draggable={!!stack}
                       onDragStart={(e) => stack?.itemId && handleDragStart(e, 'bag', stack.itemId, index)}
-                      onClick={() => stack?.itemId && onTransferContainerItem('bag', 'backpack', index)}
+                      onDoubleClick={() => stack?.itemId && onEquipItem(stack.itemId)}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         if (stack) {

@@ -381,6 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1/1 | Complete | 2026-09-03 |
 | 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1/1 | Complete | 2026-09-03 |
 | 26. Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância | 1/1 | Complete | 2026-09-03 |
+| 27. Desequipar para Bolsa, Foco Autêntico de Alvo (Retângulo Vermelho) e Anúncio de Level Up | 1/1 | Complete | 2026-09-03 |
 
 ---
 
@@ -400,4 +401,21 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 Plans:
 - [x] 26-01-PLAN: Implementar alinhamento do paperdoll, centralização da HUD, sprite de backpack, inventário flutuante, remoção da aba antiga e sistema funcional de stances e distância.
+
+---
+
+### Phase 27: Desequipar para Bolsa, Foco Autêntico de Alvo (Retângulo Vermelho) e Anúncio de Level Up
+
+**Goal:** Fazer com que o ato de desequipar itens envie os itens diretamente para a Bolsa (`game.session.bag`), garantir que o monstro marcado com o retângulo vermelho autêntico seja perseguido e atacado com prioridade sem desviar para outros alvos, e exibir o anúncio centralizado "You advanced from Level X to Level Y." ao subir de nível.  
+**Depends on:** Phase 26  
+**Requirements:** `FIX.md`, imagens de referência (`media_1788455221707.png`, `media_1788455241506.png`, `media_1788455331069.png`).  
+**Success Criteria:**
+1. Desequipar item (por duplo clique ou pelo menu de contexto) envia o item para a Bolsa (`bag`) sem fazê-lo sumir.
+2. Equipar item (duplo clique na bolsa/mochila ou pelo menu de contexto) equipa o item no slot correto e, caso haja item anterior equipado, envia o anterior para a bolsa.
+3. A marcação do alvo atual é exibida como um retângulo/quadrado vermelho sólido e nítido de 32x32 ao redor da criatura alvejada (idêntico à imagem de referência).
+4. O personagem ataca e persegue estritamente o monstro focado pelo alvo vermelho, sem alternar aleatoriamente para outro bicho que esteja próximo.
+5. Ao avançar de nível, é exibida no centro da tela a mensagem autêntica "You advanced from Level X to Level Y." com tipografia clássica branca contornada em preto.
+
+Plans:
+- [x] 27-01-PLAN: Implementar desequipar para a bolsa, trava de foco e retângulo de alvo autêntico, e anúncio centralizado de level up.
 

@@ -218,12 +218,26 @@ function levelUpCharacter(state: GameState, characterId: string, content: GameCo
   const character = state.session.characters.find((candidate) => candidate.id === characterId)!;
   const vocation = vocationFor(content, character.vocation);
   while (character.experience >= experienceForLevel(character.level + 1)) {
-    character.level += 1; character.maxHp += vocation.gainHp; character.maxMana += vocation.gainMana;
-    character.currentHp = character.maxHp; character.currentMana = character.maxMana;
+    const previousLevel = character.level;
+    character.level += 1;
+    character.maxHp += vocation.gainHp;
+    character.maxMana += vocation.gainMana;
+    character.currentHp = character.maxHp;
+    character.currentMana = character.maxMana;
     const actor = state.encounter.partyActors.find((candidate) => candidate.characterId === character.id);
-    if (actor) { actor.hp = character.maxHp; actor.mana = character.maxMana; }
-    state.encounter.events.push({ type: 'level-up', characterId, level: character.level });
-    addLog(state, `${character.name} avançou para o level ${character.level}.`);
+    if (actor) {
+      actor.hp = character.maxHp;
+      actor.mana = character.maxMana;
+    }
+    const message = `You advanced from Level ${previousLevel} to Level ${character.level}.`;
+    state.encounter.events.push({
+      type: 'level-up',
+      characterId,
+      level: character.level,
+      previousLevel,
+      message,
+    });
+    addLog(state, message);
   }
 }
 
@@ -483,10 +497,14 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
               continue;
             }
           } else {
-            // Attack Spells
             const range = spell.area === 'wave-4' ? 4 : Math.max(1, spell.range);
             const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
-              .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+              .sort((left, right) => {
+                const isLeftTarget = left.id === actor.targetId;
+                const isRightTarget = right.id === actor.targetId;
+                if (isLeftTarget !== isRightTarget) return isLeftTarget ? -1 : 1;
+                return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
+              });
             if (inRange.length === 0) continue;
             targets = spell.area === 'wave-4' || spell.area === 'square-1x1' ? inRange.slice(0, spell.area === 'wave-4' ? 4 : 8) : [inRange[0]];
           }
@@ -634,7 +652,12 @@ export function triggerManualHotbarAction(
     if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs) return false;
     const inRange = encounter.enemies
       .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
-      .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+      .sort((left, right) => {
+        const isLeftTarget = left.id === actor.targetId;
+        const isRightTarget = right.id === actor.targetId;
+        if (isLeftTarget !== isRightTarget) return isLeftTarget ? -1 : 1;
+        return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
+      });
 
     if (inRange.length === 0) return false;
     const targets = rune.area === 'square-1x1' ? inRange.slice(0, 8) : [inRange[0]];
@@ -708,7 +731,12 @@ export function triggerManualHotbarAction(
   // Attack spell
   const spellRange = spell.area === 'wave-4' ? 4 : Math.max(1, spell.range);
   const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= spellRange)
-    .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+    .sort((left, right) => {
+      const isLeftTarget = left.id === actor.targetId;
+      const isRightTarget = right.id === actor.targetId;
+      if (isLeftTarget !== isRightTarget) return isLeftTarget ? -1 : 1;
+      return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
+    });
 
   if (inRange.length === 0 && spell.area === 'target') return false;
   const targets = spell.area === 'wave-4' || spell.area === 'square-1x1' ? inRange.slice(0, spell.area === 'wave-4' ? 4 : 8) : (inRange.length > 0 ? [inRange[0]] : []);
@@ -779,8 +807,12 @@ function playerAttacks(state: GameState, content: GameContent): void {
     const stanceMultiplier = stance === 'offensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
     const effectiveAttack = Math.max(1, Math.round(stats.attack * stanceMultiplier));
     const range = attackRange(character.id, state, content);
-    const target = encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
-      ?? encounter.enemies.find((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
+    const lockedTarget = encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive);
+    let target = lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range ? lockedTarget : undefined;
+    if (!target && !lockedTarget) {
+      target = encounter.enemies.find((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
+      if (target) actor.targetId = target.id;
+    }
     if (!target) continue;
     const ranged = range > 1;
     actor.pendingAttack = { targetId: target.id, impactAt: encounter.elapsedMs + 180, attack: effectiveAttack, weaponName: stats.weaponName, activeSkill: stats.activeSkill, activeSkillLevel: stats.activeSkillLevel, ranged };
@@ -1110,4 +1142,14 @@ export function setCharacterTargetDistance(state: GameState, characterId: string
   if (actor) actor.targetDistance = targetDistance;
   return next;
 }
+
+export function setActorTarget(state: GameState, characterId: string, targetId: string | null): GameState {
+  const next = cloneState(state);
+  const actor = next.encounter.partyActors.find((candidate) => candidate.characterId === characterId);
+  if (actor) actor.targetId = targetId;
+  const character = next.session.characters.find((candidate) => candidate.id === characterId);
+  if (character) character.combatState.targetId = targetId;
+  return next;
+}
+
 

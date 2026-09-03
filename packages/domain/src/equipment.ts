@@ -4,6 +4,7 @@ import type {
   CharacterState,
   GameContent,
   GameState,
+  LootStack,
 } from './types';
 import { activeCharacterOf } from './party';
 
@@ -266,4 +267,130 @@ export function unequipOwnedSlot(
   content: GameContent,
 ): EquipmentStateResult {
   return transferOwnedEquipment(state, { kind: 'equipped', slot }, { kind: 'inventory' }, content);
+}
+
+export function unequipSlotToBag(
+  state: GameState,
+  characterId: string,
+  slot: CharacterEquipmentSlot,
+  content: GameContent,
+): GameState {
+  const character = state.session.characters.find((c) => c.id === characterId);
+  if (!character) return state;
+  const itemId = (character.equipment as Record<string, number | null>)[slot];
+  if (itemId === null || itemId === undefined) return state;
+
+  const itemDef = findEquipment(content.equipment, itemId);
+  const itemName = itemDef?.name ?? `Item #${itemId}`;
+
+  const updatedEquipment = { ...character.equipment, [slot]: null };
+  const updatedCharacter = { ...character, equipment: updatedEquipment };
+
+  const bag = [...(state.session.bag ?? [])];
+  const loot = [...state.session.loot];
+
+  const unequippedStack: LootStack = {
+    itemId,
+    name: itemName,
+    amount: 1,
+  };
+
+  if (bag.length < 12) {
+    bag.push(unequippedStack);
+  } else {
+    const existingInLoot = loot.find((s) => s.itemId === itemId);
+    if (existingInLoot) {
+      existingInLoot.amount += 1;
+    } else {
+      loot.push(unequippedStack);
+    }
+  }
+
+  return {
+    ...state,
+    session: {
+      ...state.session,
+      bag,
+      loot,
+      characters: state.session.characters.map((c) => (c.id === characterId ? updatedCharacter : c)),
+    },
+  };
+}
+
+export function equipItemFromContainer(
+  state: GameState,
+  characterId: string,
+  itemId: number,
+  content: GameContent,
+): GameState {
+  const character = state.session.characters.find((c) => c.id === characterId);
+  if (!character) return state;
+
+  const itemDef = findEquipment(content.equipment, itemId);
+  if (!itemDef) return state;
+
+  const targetSlot = preferredSlotForItem(itemDef);
+  if (!targetSlot) return state;
+
+  const bag = [...(state.session.bag ?? [])];
+  const loot = [...state.session.loot];
+
+  const bagIndex = bag.findIndex((s) => s.itemId === itemId);
+  const lootIndex = bagIndex === -1 ? loot.findIndex((s) => s.itemId === itemId) : -1;
+
+  if (bagIndex === -1 && lootIndex === -1) {
+    return state;
+  }
+
+  if (bagIndex !== -1) {
+    if (bag[bagIndex].amount > 1) {
+      bag[bagIndex] = { ...bag[bagIndex], amount: bag[bagIndex].amount - 1 };
+    } else {
+      bag.splice(bagIndex, 1);
+    }
+  } else if (lootIndex !== -1) {
+    if (loot[lootIndex].amount > 1) {
+      loot[lootIndex] = { ...loot[lootIndex], amount: loot[lootIndex].amount - 1 };
+    } else {
+      loot.splice(lootIndex, 1);
+    }
+  }
+
+  const previousItemId = (character.equipment as Record<string, number | null>)[targetSlot];
+  if (previousItemId !== null && previousItemId !== undefined) {
+    const prevDef = findEquipment(content.equipment, previousItemId);
+    const prevStack: LootStack = {
+      itemId: previousItemId,
+      name: prevDef?.name ?? `Item #${previousItemId}`,
+      amount: 1,
+    };
+    if (bag.length < 12) {
+      bag.push(prevStack);
+    } else {
+      const existingInLoot = loot.find((s) => s.itemId === previousItemId);
+      if (existingInLoot) existingInLoot.amount += 1;
+      else loot.push(prevStack);
+    }
+  }
+
+  const equipmentIds = character.inventory.equipmentIds.includes(itemId)
+    ? character.inventory.equipmentIds
+    : [...character.inventory.equipmentIds, itemId];
+
+  const updatedEquipment = { ...character.equipment, [targetSlot]: itemId };
+  const updatedCharacter = {
+    ...character,
+    equipment: updatedEquipment,
+    inventory: { ...character.inventory, equipmentIds },
+  };
+
+  return {
+    ...state,
+    session: {
+      ...state.session,
+      bag,
+      loot,
+      characters: state.session.characters.map((c) => (c.id === characterId ? updatedCharacter : c)),
+    },
+  };
 }

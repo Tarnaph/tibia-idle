@@ -114,11 +114,11 @@ function nearestEnemy(actor: PartyActorState, encounter: HuntEncounterState, ran
 
   return reachable.sort((a, b) => {
     if (a.alreadyInRange !== b.alreadyInRange) return a.alreadyInRange ? -1 : 1;
+    if (a.isCurrentTarget !== b.isCurrentTarget) return a.isCurrentTarget ? -1 : 1;
     const pathA = a.alreadyInRange ? 0 : a.path.length;
     const pathB = b.alreadyInRange ? 0 : b.path.length;
     if (pathA !== pathB) return pathA - pathB;
     if (a.directDist !== b.directDist) return a.directDist - b.directDist;
-    if (a.isCurrentTarget !== b.isCurrentTarget) return a.isCurrentTarget ? -1 : 1;
     return a.enemy.id.localeCompare(b.enemy.id);
   })[0];
 }

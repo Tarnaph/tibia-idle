@@ -7,7 +7,7 @@ import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldC
 import type { Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
 import type { Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 
-interface PixiArenaProps { game: GameState; debug: boolean }
+interface PixiArenaProps { game: GameState; debug: boolean; onSelectTarget?: (enemyId: string) => void }
 interface ActorView {
   root: Container;
   sprite: Sprite;
@@ -44,10 +44,10 @@ function projectileDirection(from: GridPosition, to: GridPosition): string {
   return vertical && horizontal ? `${vertical}-${horizontal}` : vertical || horizontal || 'south';
 }
 
-export function PixiArena({ game, debug }: PixiArenaProps) {
+export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const syncRef = useRef<((state: GameState, showDebug: boolean) => void) | null>(null);
-  const latestRef = useRef({ game, debug });
+  const latestRef = useRef({ game, debug, onSelectTarget });
 
   useEffect(() => {
     let disposed = false;
@@ -169,8 +169,16 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         tileText.label = 'tile-debug'; tileText.position.set(12, 78); overlay.addChild(tileText);
       };
 
-      const createView = (id: string, mapping: VisualAssetMapping, position: GridPosition, direction: CardinalDirection, labelText: string): ActorView => {
+      const createView = (id: string, mapping: VisualAssetMapping, position: GridPosition, direction: CardinalDirection, labelText: string, isEnemy = false): ActorView => {
         const root = new Container();
+        if (isEnemy) {
+          root.eventMode = 'static';
+          root.cursor = 'pointer';
+          root.on('pointerdown', (e) => {
+            e.stopPropagation();
+            latestRef.current.onSelectTarget?.(id);
+          });
+        }
         const initialUrl = frameUrl(mapping, direction, 0);
         const aura = new Graphics();
         const sprite = new Sprite(loaded[initialUrl]); sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY); sprite.position.set(creatureVisualLayout.spriteOffsetX, creatureVisualLayout.spriteOffsetY); sprite.roundPixels = true;
@@ -260,7 +268,7 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         }
         for (const enemy of state.encounter.enemies.filter((candidate) => candidate.alive)) {
           liveIds.add(enemy.id); const mapping = visualAssets.creatures[enemy.monsterId]; if (!mapping) continue;
-          const view = views.get(enemy.id) ?? createView(enemy.id, mapping, enemy.previousPosition, enemy.direction, enemy.name);
+          const view = views.get(enemy.id) ?? createView(enemy.id, mapping, enemy.previousPosition, enemy.direction, enemy.name, true);
           view.label.text = enemy.name; view.label.style.fill = enemy.variant?.visualModifier === 'rare-aura' ? 0xd694ff : enemy.variant ? 0xffc857 : 0xe6ded0;
           view.sprite.scale.set(enemy.variant?.scale ?? 1);
         }
@@ -349,7 +357,7 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
           view.aura.clear(); if (enemy?.variant) view.aura.circle(0, 4, 17 + Math.sin(now / 180) * 2).stroke({ color: variantColor, width: 1, alpha: 0.7 });
         }
 
-        // Classic Tibia Red Target Corners around focused target
+        // Classic Tibia Solid Red Target Rectangle around focused target matching reference
         targetReticle.clear();
         const activeActor = state.encounter.partyActors.find((a) => a.alive);
         const targetId = activeActor?.targetId ?? state.session.characters.find((c) => c.id === activeActor?.characterId)?.combatState.targetId;
@@ -359,23 +367,13 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
           if (targetView && targetEnemy) {
             const p = targetView.root.position;
             const half = 16;
-            const corner = 6;
-            const red = 0xff1a1a;
+            const red = 0xff0000;
             const left = p.x - half;
             const top = p.y - half;
-            const right = p.x + half;
-            const bottom = p.y + half;
 
             targetReticle
-              // Top-Left corner
-              .moveTo(left, top + corner).lineTo(left, top).lineTo(left + corner, top)
-              // Top-Right corner
-              .moveTo(right - corner, top).lineTo(right, top).lineTo(right, top + corner)
-              // Bottom-Left corner
-              .moveTo(left, bottom - corner).lineTo(left, bottom).lineTo(left + corner, bottom)
-              // Bottom-Right corner
-              .moveTo(right - corner, bottom).lineTo(right, bottom).lineTo(right, bottom - corner)
-              .stroke({ color: red, width: 2, alpha: 0.95 });
+              .rect(left, top, 32, 32)
+              .stroke({ color: red, width: 2, alpha: 1.0 });
           }
         }
         for (let index = timed.length - 1; index >= 0; index -= 1) {
@@ -442,6 +440,6 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };
   }, []);
 
-  useEffect(() => { latestRef.current = { game, debug }; syncRef.current?.(game, debug); }, [game, debug]);
+  useEffect(() => { latestRef.current = { game, debug, onSelectTarget }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget]);
   return <div ref={hostRef} className="pixi-arena" aria-label="Arena OTBM 2D com movimento interpolado, spells, party, monstros e corpses reais" />;
 }

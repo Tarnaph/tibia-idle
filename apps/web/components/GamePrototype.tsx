@@ -14,6 +14,7 @@ import {
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   transferItemBetweenContainers, destroyContainerItem, executeQuickSell,
   setCharacterStance, setCharacterTargetDistance,
+  unequipSlotToBag, equipItemFromContainer, setActorTarget,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction,
@@ -96,6 +97,7 @@ function GamePrototypeContent() {
   const [statsDelta, setStatsDelta] = useState<StatsDelta | null>(null);
   const [pointerDrag, setPointerDrag] = useState<PointerDragVisual | null>(null);
   const [confirmSale, setConfirmSale] = useState(false);
+  const [levelUpMessage, setLevelUpMessage] = useState<{ text: string; timestamp: number } | null>(null);
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
@@ -104,6 +106,19 @@ function GamePrototypeContent() {
   const statsById = useMemo(() => new Map(game.session.characters.map((character) => [
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
   ])), [game.session.characters]);
+
+  useEffect(() => {
+    const levelUpEvent = encounter.events.find((e) => e.type === 'level-up');
+    if (levelUpEvent && 'message' in levelUpEvent && levelUpEvent.message) {
+      setLevelUpMessage({ text: levelUpEvent.message, timestamp: Date.now() });
+    }
+  }, [encounter.events]);
+
+  useEffect(() => {
+    if (!levelUpMessage) return;
+    const timer = window.setTimeout(() => setLevelUpMessage(null), 4500);
+    return () => window.clearTimeout(timer);
+  }, [levelUpMessage]);
 
   useEffect(() => {
     if (mode !== 'hunt' || encounter.status !== 'running') return;
@@ -278,9 +293,18 @@ function GamePrototypeContent() {
       {/* Background 100% Fullscreen Viewport */}
       <div className="fullscreen-viewport">
         {mode === 'hunt' ? (
-          <PixiArena game={game} debug={debugGrid} />
+          <PixiArena
+            game={game}
+            debug={debugGrid}
+            onSelectTarget={(enemyId) => setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId))}
+          />
         ) : (
           <TrainingArena members={trainingMembers} visualEvents={encounter.visualEvents} debug={debugGrid} />
+        )}
+        {levelUpMessage && (
+          <div className="tibia-advancement-banner" key={levelUpMessage.timestamp}>
+            {levelUpMessage.text}
+          </div>
         )}
       </div>
 
@@ -536,8 +560,8 @@ function GamePrototypeContent() {
         availableCapacityOz={Math.max(0, characterCapacity(activeCharacter, content) - inventoryWeight(activeCharacter, content.equipment))}
         totalGold={game.session.gold}
         onClose={() => setEquipmentOpen(false)}
-        onEquipItem={(itemId) => applyEquipmentTransfer({ kind: 'inventory', itemId }, { kind: 'auto-slot' })}
-        onUnequipSlot={(slot) => applyEquipmentTransfer({ kind: 'equipped', slot }, { kind: 'inventory' })}
+        onEquipItem={(itemId) => setGame((cur) => equipItemFromContainer(cur, activeCharacter.id, itemId, content))}
+        onUnequipSlot={(slot) => setGame((cur) => unequipSlotToBag(cur, activeCharacter.id, slot, content))}
         onTransferContainerItem={(from, to, index) => setGame((cur) => transferItemBetweenContainers(cur, from, to, index))}
         onDestroyItem={(container, index) => setGame((cur) => destroyContainerItem(cur, container, index))}
         onToggleItemPreference={(itemId, key) => setGame((cur) => updateItemLootPreference(cur, itemId, { [key]: !itemLootPreference(cur, itemId)[key] }))}
