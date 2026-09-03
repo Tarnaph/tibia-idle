@@ -13,12 +13,21 @@ const counts: Record<string, Array<[number, number]>> = {
 };
 
 function routeThroughMap(room: RoomState): GridPosition[] {
-  const walkable = room.map.tiles.filter((tile) => tile.walkable)
-    .sort((a, b) => (Math.abs(a.position.x - room.entrance.x) + Math.abs(a.position.y - room.entrance.y))
-      - (Math.abs(b.position.x - room.entrance.x) + Math.abs(b.position.y - room.entrance.y)));
-  const farthest = walkable.at(-1)?.position ?? room.exit;
-  const outward = findPath(room.map, room.entrance, [farthest], new Set());
-  const homeward = findPath(room.map, farthest, [room.entrance], new Set());
+  const reachableCandidates = room.map.tiles
+    .filter((tile) => tile.walkable)
+    .sort((a, b) => (Math.abs(b.position.x - room.entrance.x) + Math.abs(b.position.y - room.entrance.y))
+      - (Math.abs(a.position.x - room.entrance.x) + Math.abs(a.position.y - room.entrance.y)));
+  let farthest: GridPosition = room.entrance;
+  let outward: GridPosition[] = [];
+  for (const candidate of reachableCandidates) {
+    const path = findPath(room.map, room.entrance, [candidate.position], new Set());
+    if (path.length > 0) {
+      farthest = candidate.position;
+      outward = path;
+      break;
+    }
+  }
+  const homeward = outward.length > 0 ? findPath(room.map, farthest, [room.entrance], new Set()) : [];
   return [clonePosition(room.entrance), ...outward.map(clonePosition), ...homeward.slice(1).map(clonePosition)];
 }
 
@@ -26,7 +35,8 @@ export function createContinuousHuntRoute(hunt: HuntDefinition, room: RoomState,
   const path = routeThroughMap(room);
   const outwardLength = Math.max(2, Math.ceil(path.length / 2));
   const profile = counts[hunt.id] ?? Array.from({ length: 6 }, () => [2, 4] as [number, number]);
-  const monsterId = hunt.monsters[0] ?? hunt.waves[0].monsterId;
+  const monsterPool = hunt.monsters && hunt.monsters.length > 0 ? hunt.monsters : [hunt.waves[0].monsterId];
+  const monsterId = monsterPool[0];
   const importedSpawns = (region?.spawnPositions ?? []).map((spawn) => ({
     position: { x: spawn.x - (region?.bounds.x ?? 0), y: spawn.y - (region?.bounds.y ?? 0), z: spawn.z }, spawntime: spawn.spawntime ?? 60,
   })).filter(({ position }) => room.map.tiles[position.y * room.map.width + position.x]?.walkable
@@ -43,7 +53,7 @@ export function createContinuousHuntRoute(hunt: HuntDefinition, room: RoomState,
     if (positions.length === 0) positions.push(center);
     return ({
     id: `${hunt.id}-respawn-${index + 1}`,
-    center, positions, radius: 3, monsterPool: [monsterId], monsterComposition: [{ monsterId, count: Math.min(maxCount, Math.max(minCount, positions.length)) }], minCount, maxCount, activationRadius: 4,
+    center, positions, radius: 3, monsterPool, monsterComposition: monsterPool.map((id) => ({ monsterId: id, count: Math.ceil(Math.min(maxCount, Math.max(minCount, positions.length)) / monsterPool.length) })), minCount, maxCount, activationRadius: 4,
     sourceRespawnSeconds: source?.spawntime ?? null, gameRespawnSeconds: 20,
   }); });
   return {

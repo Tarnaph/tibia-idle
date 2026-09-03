@@ -1,7 +1,7 @@
 import type { EnemyState, HuntEncounterState, PartyActorState } from '../types';
 import { findPath, findMeleeApproachTiles, findRangedApproachTiles, isMeleeRange, meleeDistance, surroundingPositions } from './pathfinding';
 import type { CardinalDirection, GridPosition } from './types';
-import { buildOccupancyMap, clonePosition, positionKey, tileAt } from './tileMap';
+import { buildOccupancyMap, clonePosition, isTileWalkable, positionKey, tileAt } from './tileMap';
 import { createSeededRng, rollInteger } from '../rng';
 
 export function directionBetween(from: GridPosition, to: GridPosition): CardinalDirection {
@@ -83,20 +83,44 @@ function destinationAvailable(encounter: HuntEncounterState, position: GridPosit
 
 function nearestEnemy(actor: PartyActorState, encounter: HuntEncounterState, range: number, reserved: ReadonlySet<string>, allowedEnemyIds?: Set<string>) {
   const occupied = occupiedKeys(encounter);
-  const existingTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id))) : undefined;
-  const pool = existingTarget ? [existingTarget] : encounter.enemies.filter((enemy) => enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id)));
-  return pool.map((enemy) => {
-    const blocked = new Set(occupied);
-    for (const key of reserved) blocked.add(key);
-    blocked.delete(positionKey(actor.position));
+  const candidates = encounter.enemies.filter((enemy) => enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id)));
+  if (candidates.length === 0) return undefined;
+
+  const blocked = new Set(occupied);
+  for (const key of reserved) blocked.add(key);
+  blocked.delete(positionKey(actor.position));
+
+  const evaluated = candidates.map((enemy) => {
     const alreadyInRange = meleeDistance(actor.position, enemy.position) <= range;
+    const directDist = meleeDistance(actor.position, enemy.position);
     const goals = range <= 1
       ? findMeleeApproachTiles(encounter.room.map, enemy.position, blocked)
       : findRangedApproachTiles(encounter.room.map, enemy.position, range, blocked);
-    const path = alreadyInRange ? [] : findPath(encounter.room.map, actor.position, goals, blocked);
-    return { enemy, path, alreadyInRange };
-  }).filter((candidate) => candidate.alreadyInRange || candidate.path.length > 0)
-    .sort((left, right) => left.path.length - right.path.length || left.enemy.id.localeCompare(right.enemy.id))[0];
+    const fallbackGoals = goals.length === 0 && range <= 1
+      ? surroundingPositions(enemy.position).filter((p) => isTileWalkable(encounter.room.map, p))
+      : goals;
+    const path = alreadyInRange ? [] : findPath(encounter.room.map, actor.position, fallbackGoals, blocked);
+    return {
+      enemy,
+      path,
+      alreadyInRange,
+      directDist,
+      isCurrentTarget: actor.targetId === enemy.id,
+    };
+  });
+
+  const reachable = evaluated.filter((candidate) => candidate.alreadyInRange || candidate.path.length > 0);
+  if (reachable.length === 0) return undefined;
+
+  return reachable.sort((a, b) => {
+    if (a.alreadyInRange !== b.alreadyInRange) return a.alreadyInRange ? -1 : 1;
+    const pathA = a.alreadyInRange ? 0 : a.path.length;
+    const pathB = b.alreadyInRange ? 0 : b.path.length;
+    if (pathA !== pathB) return pathA - pathB;
+    if (a.directDist !== b.directDist) return a.directDist - b.directDist;
+    if (a.isCurrentTarget !== b.isCurrentTarget) return a.isCurrentTarget ? -1 : 1;
+    return a.enemy.id.localeCompare(b.enemy.id);
+  })[0];
 }
 
 export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Map<string, number>, allowedEnemyIds?: Set<string>): void {
@@ -137,10 +161,18 @@ export function movePartyTowardPoint(encounter: HuntEncounterState, target: Grid
     const desiredDistance = index === 0 ? 0 : Math.min(2, index);
     if (meleeDistance(actor.position, followTarget) <= desiredDistance) { actor.path = []; continue; }
     const blocked = new Set([...occupied, ...reserved]); blocked.delete(positionKey(actor.position));
-    const goals = desiredDistance === 0
-      ? [followTarget]
-      : surroundingPositions(followTarget).filter((goal) => !blocked.has(positionKey(goal)));
-    const path = findPath(encounter.room.map, actor.position, goals, blocked);
+    const targetBlocked = blocked.has(positionKey(followTarget));
+    const candidateGoals = desiredDistance === 0
+      ? (targetBlocked
+          ? surroundingPositions(followTarget).filter((goal) => isTileWalkable(encounter.room.map, goal) && !blocked.has(positionKey(goal)))
+          : [followTarget])
+      : surroundingPositions(followTarget).filter((goal) => isTileWalkable(encounter.room.map, goal) && !blocked.has(positionKey(goal)));
+
+    const effectiveBlocked = candidateGoals.length === 0 && targetBlocked
+      ? new Set([...blocked].filter((k) => k !== positionKey(followTarget)))
+      : blocked;
+    const goals = candidateGoals.length > 0 ? candidateGoals : [followTarget];
+    const path = findPath(encounter.room.map, actor.position, goals, effectiveBlocked);
     actor.path = path.map(clonePosition);
     const next = path[0];
     if (!next || !destinationAvailable(encounter, next, occupied, reserved)) { actor.path = []; continue; }

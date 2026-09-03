@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 22 of 22 (Autenticidade de Combate Tibia)  
+Phase: 23 of 23 (Cooldowns, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 22 concluída: Whirlwind Throw com projétil dinâmico de arma e impacto, regeneração autêntica de vida (1 HP/tick), retículo vermelho de mira, falas flutuantes de magias e poções ("Aaaah..."), IA de perseguição (chase) e cooldown overlay com timer na hotbar.
+Last activity: 2026-09-03 — Phase 23 concluída: Confirmação de cooldowns em realmap11, fluidez de início imediato de caçada com correção em routeThroughMap, seleção inteligente de alvo priorizando monstros frontais desobstruídos em nearestEnemy, XP ajustado para 50.000 em Rat e Cave Rat, e inclusão de Cave Rats no mesmo respawn.
 
 Progress: [██████████] 100%
 

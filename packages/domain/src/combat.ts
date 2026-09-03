@@ -899,7 +899,12 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   if (objective.kind === 'combat') {
     progress.currentZoneIndex = objective.zoneIndex;
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds)); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
+    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds));
+    const leader = encounter.partyActors.find((actor) => actor.characterId === state.session.leaderId && actor.alive) ?? encounter.partyActors.find((actor) => actor.alive);
+    if (leader && leader.path.length === 0 && !encounter.enemies.some((e) => e.alive && meleeDistance(leader.position, e.position) <= (ranges.get(leader.characterId) ?? 1))) {
+      movePartyTowardPoint(encounter, objective.target);
+    }
+    moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
     castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content);
     recordContinuousActivityOrThrow(state, objective);
     return;

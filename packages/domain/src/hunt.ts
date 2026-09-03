@@ -20,7 +20,7 @@ function waves(monsterId: string, counts: number[], bossName: string, bossAdds: 
 export const initialHunts: HuntDefinition[] = [
   {
     id: 'rat-cellars', name: 'Rat Cellars', description: 'Porão e esgoto extraídos de um spawn real de Rat.',
-    recommendedLevel: 1, minimumLevel: 1, monsters: ['rat'], rewardProfile: 'xp', status: 'available',
+    recommendedLevel: 1, minimumLevel: 1, monsters: ['rat', 'cave-rat'], rewardProfile: 'xp', status: 'available',
     roomDefinitions: rooms('rat-cellars'), environment: { regionId: 'rat-cellars', label: 'Porão / esgoto', source: 'styller-otbm' },
     waves: waves('rat', [2, 2, 3, 3, 4, 4, 5, 5, 6, 0], 'Gnawmaw', 3),
   },

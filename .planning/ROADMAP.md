@@ -293,12 +293,23 @@ Plans:
 
 - [x] 22-01-PLAN: Animações de armas/Whirlwind Throw, retículo vermelho, speech flutuante, regen autêntica, IA de perseguição e cooldown overlay nas hotkeys.
 
+### Phase 23: Cooldowns Oficiais, Fluidez de Movimento Inicial, Seleção Inteligente de Alvo, XP 50000 e Cave Rats no Respawn
+
+**Goal:** Implementar as correções detalhadas no FIX.md: verificação e alinhamento rigoroso dos cooldowns com realmap11; eliminação do delay/parada no início das caçadas (movimento imediato e busca fluida de alvos); seleção de alvo inteligente priorizando monstros acessíveis e frontais (sem travar em monstros bloqueados atrás); ajuste de XP dos Ratos para 50.000; e inclusão de Cave Rats com 50.000 XP nos mesmos respawns dos Ratos.
+**Requirements:** `c:\Users\desig\OneDrive\Documentos\TibiaWeb\Tibia\FIX.md`
+**Depends on:** Phase 22
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 23-01-PLAN: Movimento inicial imediato em rotas contínuas, targeting inteligente frontal em `nearestEnemy`, XP 50k em Rat/Cave Rat, Cave Rats no respawn de Rat Cellars e auditoria de cooldowns.
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -324,3 +335,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 20. Extração e Integração Oficial de Ícones e Poções | 1/1 | Complete | 2026-09-03 |
 | 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1/1 | Complete | 2026-09-03 |
 | 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1/1 | Complete | 2026-09-03 |
+| 23. Cooldowns Oficiais, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats | 1/1 | Complete | 2026-09-03 |

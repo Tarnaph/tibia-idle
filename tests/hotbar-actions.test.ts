@@ -13,12 +13,12 @@ import {
 } from '../packages/domain/src';
 
 describe('Phase 16: Hotbar Actions, Potions, Runes, and XP Boost', () => {
-  it('boosts Rat and Cave Rat experience to 5000 for rapid spell testing', () => {
+  it('boosts Rat and Cave Rat experience to 50000 for rapid spell testing', () => {
     const rat = monstersJson.monsters.find((m) => m.id === 'rat');
     const caveRat = monstersJson.monsters.find((m) => m.id === 'cave-rat');
 
-    expect(rat?.experience).toBe(5000);
-    expect(caveRat?.experience).toBe(5000);
+    expect(rat?.experience).toBe(50000);
+    expect(caveRat?.experience).toBe(50000);
   });
 
   it('defines valid potions and runes with unlock requirements', () => {
