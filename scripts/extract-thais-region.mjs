@@ -95,10 +95,10 @@ async function run() {
   // Temple: 32369, 32241, 7
   // Depot: 32342, 32231, 7
   // Dummy: 32349, 32238, 7
-  const minX = 32330;
-  const maxX = 32380;
-  const minY = 32210;
-  const maxY = 32255;
+  const minX = 32280;
+  const maxX = 32430;
+  const minY = 32170;
+  const maxY = 32290;
   const targetZ = 7;
 
   // Let's use a stack-based parser that only expands children if area overlaps Thais!

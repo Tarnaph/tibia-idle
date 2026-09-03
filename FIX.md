@@ -1,2 +1,4 @@
 # RODADA DE AJUSTES
-Ao entrar no mapa de Thais, sumiu o nome do personagem e a vida verde dele, isso tem que estar sempre presente não importa aonde o personagem esteja, outro bug, o personagme não esta fazendo a animação de andar que ele faz, precisa corrigir isso, a cidade tem alguns elementos que tem animação, fogo azul, luz de teleporte, tochas, precisa deixar tudo funcionando, verifique os arquivos do jogo e do servidor para achar tudo que precisa para fazer funcionar 100%
+Precisamos corrigir a proporção dos nomes e definição da fonte, precisa ficar mais parecido com o da imagem de referência, a velocidade do personagem andando está errada, veja nos arquivos do server para saber a velocidade certa e aplique, cada personagem ganha velocidade a cada level
+
+A cidade de thais não está completa ela precisa ficar inteira sem essa parte preta, aonde você passar o mouse deve ficar com esse quadrado mostrando aonde está o mouse, e se você clicar ele anda até aonde foi clicado

@@ -18,6 +18,7 @@ import {
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION,
+  calculatePlayerSpeed, calculateStepDurationMs, findCityPath,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack,
 } from '@/packages/domain/src';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -109,6 +110,7 @@ function GamePrototypeContent() {
     waypoints: Array<{ x: number; y: number; z: number }>;
     destinationName: string;
     onArrive?: () => void;
+    currentIndex?: number;
   } | null>(null);
   const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
@@ -120,6 +122,22 @@ function GamePrototypeContent() {
   const statsById = useMemo(() => new Map(game.session.characters.map((character) => [
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
   ])), [game.session.characters]);
+
+  const playerSpeed = calculatePlayerSpeed(activeCharacter.level);
+  const stepDurationMs = calculateStepDurationMs(playerSpeed);
+
+  const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
+    if (mode === 'hunt') return;
+    setIsTrainingAtDummy(false);
+    const path = findCityPath(thaisTileMap, cityPos, target);
+    if (path.length > 0) {
+      setWalkingPath({
+        waypoints: path,
+        destinationName: `Tile (${target.x}, ${target.y})`,
+        currentIndex: 0,
+      });
+    }
+  }, [cityPos, mode]);
 
   useEffect(() => {
     const levelUpEvent = encounter.events.find((e) => e.type === 'level-up');
@@ -138,7 +156,16 @@ function GamePrototypeContent() {
     if (mode !== 'hunt' || encounter.status !== 'running') return;
     const timer = window.setInterval(() => setGame((current) => advanceCombat(current, content, 120)), 120);
     return () => window.clearInterval(timer);
-  }, [encounter.status, mode]);
+  }, [encounter.status, mode, content]);
+
+  useEffect(() => {
+    if (mode === 'hunt' && encounter.status === 'running') {
+      const timer = window.setTimeout(() => {
+        setGame((current) => advanceCombat(current, content, 100));
+      }, 50);
+      return () => window.clearTimeout(timer);
+    }
+  }, [mode, encounter.status, content]);
 
   // When defeated in hunt, resurrect and respawn in Thais Temple (32369, 32241, 7) and walk to plaza
   useEffect(() => {
@@ -154,9 +181,10 @@ function GamePrototypeContent() {
             { x: 32345, y: 32215, z: 7 },
             { x: 32345, y: 32224, z: 7 },
           ],
-          destinationName: 'Frente do Depot de Thais',
+          destinationName: 'Depot de Thais',
+          currentIndex: 0,
           onArrive: () => {
-            setSaleMessage('Chegou na praça de Thais (32345, 32224, 7). Ande livremente com as setas do teclado!');
+            setSaleMessage('Chegou no Depot de Thais.');
           },
         });
         setSaleMessage('Alas! Você morreu, renasceu no Templo de Thais e está caminhando para a praça...');
@@ -184,14 +212,15 @@ function GamePrototypeContent() {
     const timer = window.setInterval(() => {
       setCityPos((current) => {
         if (!walkingPath || walkingPath.waypoints.length === 0) return current;
-        const currentTarget = walkingPath.waypoints[0];
+        const index = walkingPath.currentIndex ?? 0;
+        const currentTarget = walkingPath.waypoints[index];
         const dx = currentTarget.x - current.x;
         const dy = currentTarget.y - current.y;
         if (dx === 0 && dy === 0) {
-          if (walkingPath.waypoints.length > 1) {
+          if (index < walkingPath.waypoints.length - 1) {
             setWalkingPath({
               ...walkingPath,
-              waypoints: walkingPath.waypoints.slice(1),
+              currentIndex: index + 1,
             });
           } else {
             walkingPath.onArrive?.();
@@ -204,10 +233,10 @@ function GamePrototypeContent() {
         const nextX = current.x + stepX;
         const nextY = current.y + stepY;
         if (nextX === currentTarget.x && nextY === currentTarget.y) {
-          if (walkingPath.waypoints.length > 1) {
+          if (index < walkingPath.waypoints.length - 1) {
             setWalkingPath({
               ...walkingPath,
-              waypoints: walkingPath.waypoints.slice(1),
+              currentIndex: index + 1,
             });
           } else {
             walkingPath.onArrive?.();
@@ -216,9 +245,9 @@ function GamePrototypeContent() {
         }
         return { x: nextX, y: nextY, z: current.z };
       });
-    }, 150);
+    }, stepDurationMs);
     return () => window.clearInterval(timer);
-  }, [walkingPath, mode]);
+  }, [walkingPath, mode, stepDurationMs]);
 
   useEffect(() => {
     if (!statsDelta) return;
@@ -459,6 +488,8 @@ function GamePrototypeContent() {
             cityPos={cityPos}
             isWalking={walkingPath !== null}
             isTraining={isTrainingAtDummy}
+            stepDurationMs={stepDurationMs}
+            onTileClick={handleTileClick}
             visualEvents={encounter.visualEvents}
             debug={debugGrid}
           />

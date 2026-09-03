@@ -13,6 +13,8 @@ interface Props {
   cityPos: { x: number; y: number; z: number };
   isWalking: boolean;
   isTraining: boolean;
+  stepDurationMs?: number;
+  onTileClick?: (tile: { x: number; y: number; z: number }) => void;
   visualEvents?: CombatVisualEvent[];
   debug?: boolean;
 }
@@ -41,16 +43,19 @@ export function ThaisCityArena({
   cityPos,
   isWalking,
   isTraining,
+  stepDurationMs = 500,
+  onTileClick,
   visualEvents = [],
   debug = false,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
-  const latestRef = useRef({ characters, cityPos, isWalking, isTraining });
+  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick });
 
   useEffect(() => {
-    latestRef.current = { characters, cityPos, isWalking, isTraining };
-  }, [characters, cityPos, isWalking, isTraining]);
+    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick };
+  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick]);
+
 
   useEffect(() => {
     let disposed = false;
@@ -206,7 +211,64 @@ export function ThaisCityArena({
         }
       }
 
-      // Character actor containers with nameplate and green health bar
+      // Tile Hover Indicator Graphic (exact 32x32 border from reference screenshots)
+      const hoverCursor = new Graphics();
+      hoverCursor.rect(0, 0, 32, 32).fill({ color: 0x3da5ff, alpha: 0.08 });
+      hoverCursor.moveTo(0, 0).lineTo(32, 0).stroke({ color: 0x3da5ff, width: 1.5 });
+      hoverCursor.moveTo(0, 0).lineTo(0, 32).stroke({ color: 0x3da5ff, width: 1.5 });
+      hoverCursor.moveTo(32, 0).lineTo(32, 32).stroke({ color: 0x3da5ff, width: 1.5 });
+      hoverCursor.moveTo(0, 32).lineTo(32, 32).stroke({ color: 0xf5d547, width: 1.5 });
+      hoverCursor.visible = false;
+      hoverCursor.zIndex = 999999;
+      objectsLayer.addChild(hoverCursor);
+
+      const onPointerMove = (e: PointerEvent) => {
+        const rect = app.canvas.getBoundingClientRect();
+        const clientX = e.clientX - rect.left;
+        const clientY = e.clientY - rect.top;
+
+        const worldX = (clientX - world.position.x) / world.scale.x;
+        const worldY = (clientY - world.position.y) / world.scale.y;
+
+        const tileX = Math.floor(worldX / TILE_SIZE);
+        const tileY = Math.floor(worldY / TILE_SIZE);
+
+        const tile = tileMap.get(`${tileX},${tileY}`);
+        if (tile) {
+          hoverCursor.position.set(tileX * TILE_SIZE, tileY * TILE_SIZE);
+          hoverCursor.visible = true;
+        } else {
+          hoverCursor.visible = false;
+        }
+      };
+
+      const onPointerLeave = () => {
+        hoverCursor.visible = false;
+      };
+
+      const onPointerDown = (e: PointerEvent) => {
+        if (e.button !== 0) return; // Only left click
+        const rect = app.canvas.getBoundingClientRect();
+        const clientX = e.clientX - rect.left;
+        const clientY = e.clientY - rect.top;
+
+        const worldX = (clientX - world.position.x) / world.scale.x;
+        const worldY = (clientY - world.position.y) / world.scale.y;
+
+        const tileX = Math.floor(worldX / TILE_SIZE);
+        const tileY = Math.floor(worldY / TILE_SIZE);
+
+        const tile = tileMap.get(`${tileX},${tileY}`);
+        if (tile && tile.walkable) {
+          latestRef.current.onTileClick?.({ x: tileX, y: tileY, z: tile.z });
+        }
+      };
+
+      app.canvas.addEventListener('pointermove', onPointerMove);
+      app.canvas.addEventListener('pointerleave', onPointerLeave);
+      app.canvas.addEventListener('pointerdown', onPointerDown);
+
+      // Character actor containers with crisp nameplate and health bar
       interface CityActorView {
         root: InstanceType<typeof Container>;
         sprite: InstanceType<typeof Sprite>;
@@ -237,19 +299,20 @@ export function ThaisCityArena({
         sprite.anchor.set(0.5, 0.78);
         sprite.roundPixels = true;
 
+        // Authentic Tibia text matching reference screenshots: vivid bright green, bold, crisp 2.5px outline
         const label = new Text({
           text: char.name,
           style: {
-            fill: 0x58f773, // Authentic Tibia green character name
-            fontSize: 10,
-            fontFamily: 'Verdana, Arial, sans-serif',
+            fill: 0x00ff00,
+            fontSize: 11,
+            fontFamily: 'Verdana, Tahoma, Arial, sans-serif',
             fontWeight: 'bold',
-            stroke: { color: 0x000000, width: 2 },
+            stroke: { color: 0x000000, width: 2.5, join: 'round' },
             align: 'center',
           },
         });
         label.anchor.set(0.5, 1);
-        label.position.set(0, -28);
+        label.position.set(0, -25);
 
         const bar = new Graphics();
         root.addChild(sprite, label, bar);
@@ -269,7 +332,7 @@ export function ThaisCityArena({
       let tickCount = 0;
 
       app.ticker.add(() => {
-        const { characters: curChars, cityPos: curPos, isWalking: curWalk, isTraining: curTrain } = latestRef.current;
+        const { characters: curChars, cityPos: curPos, isWalking: curWalk, isTraining: curTrain, stepDurationMs: curStepDuration } = latestRef.current;
         tickCount++;
         const now = performance.now();
 
@@ -282,7 +345,7 @@ export function ThaisCityArena({
           }
         }
 
-        // 2. Smooth movement towards current logical cityPos
+        // 2. Movement speed calibrated to official TFS level-based speed
         const targetPixelX = curPos.x * TILE_SIZE + 16;
         const targetPixelY = curPos.y * TILE_SIZE + 16;
         const deltaX = targetPixelX - currentPixelX;
@@ -292,7 +355,11 @@ export function ThaisCityArena({
         let isMoving = false;
         if (dist > 0.5) {
           isMoving = true;
-          const stepSpeed = Math.max(3.5, dist * 0.22);
+          const deltaMs = app.ticker.deltaMS || 16.66;
+          // Step duration in ms determines pixels per ms
+          const targetPixelsPerFrame = (32 / Math.max(80, curStepDuration)) * deltaMs;
+          const stepSpeed = Math.max(targetPixelsPerFrame, dist * 0.24);
+
           if (dist <= stepSpeed) {
             currentPixelX = targetPixelX;
             currentPixelY = targetPixelY;
@@ -319,10 +386,11 @@ export function ThaisCityArena({
           app.screen.height / 2 - currentPixelY * camera.scale
         );
 
-        // 4. Update party characters: walking animation frames, names, and green health bars
+        // 4. Update party characters: walking animation frames, names, and authentic health bars
         // Walk frame sequence: 0 -> 1 -> 0 -> 2
         const walkCycle = [0, 1, 0, 2];
-        const walkFrame = isMoving || curWalk ? walkCycle[Math.floor(now / 150) % 4] : 0;
+        const stepRateMs = Math.max(100, Math.min(200, Math.floor(curStepDuration / 3)));
+        const walkFrame = isMoving || curWalk ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
 
         curChars.forEach((char, idx) => {
           const view = ensureActorView(char);
@@ -342,11 +410,13 @@ export function ThaisCityArena({
           view.root.position.set(currentPixelX + offsetX, currentPixelY + offsetY);
           view.root.zIndex = currentPixelY + offsetY;
 
-          // Update authentic Tibia green health bar
+          // Update authentic Tibia health bar matching reference screenshots: 1px black outline, 26x2 inner
           const hpRatio = char.maxHp > 0 ? Math.max(0, Math.min(1, char.currentHp / char.maxHp)) : 1;
+          const hpFillColor = hpRatio > 0.5 ? 0x00e600 : hpRatio > 0.2 ? 0xffcc00 : 0xff3333;
           view.bar.clear()
-            .rect(-14, -22, 28, 3).fill({ color: 0x251010 })
-            .rect(-14, -22, 28 * hpRatio, 3).fill({ color: 0x4fc977 });
+            .rect(-14, -21, 28, 4).fill({ color: 0x000000 })
+            .rect(-13, -20, 26, 2).fill({ color: 0x220000 })
+            .rect(-13, -20, Math.round(26 * hpRatio), 2).fill({ color: hpFillColor });
 
           // Animate attack if training at dummy
           if (curTrain && idx === 0 && tickCount % 30 < 10) {
@@ -358,6 +428,9 @@ export function ThaisCityArena({
       });
 
       cleanup = () => {
+        app.canvas.removeEventListener('pointermove', onPointerMove);
+        app.canvas.removeEventListener('pointerleave', onPointerLeave);
+        app.canvas.removeEventListener('pointerdown', onPointerDown);
         app.destroy(true, { children: true });
       };
     })();

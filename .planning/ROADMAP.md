@@ -506,3 +506,20 @@ Plans:
 
 Plans:
 - [x] 32-01-PLAN: Extrair múltiplos frames dos itens animados de Thais, implementar nameplate/vida verde, direção/passos dos personagens e animação contínua dos elementos no Pixi.
+
+---
+
+### Phase 33: Thais Completa - Fonte Nítida, Velocidade Oficial por Nível e Pathfinding por Clique com Hover de Tile
+
+**Goal:** Refinar a proporção/definição dos nomes e barras de vida conforme as imagens de referência; aplicar a fórmula oficial de velocidade do servidor TFS/Tibia vinculada ao level; expandir Thais para a cidade inteira (18.271 tiles) eliminando áreas pretas; e implementar o cursor quadrado de hover sobre o tile e a caminhada por clique do mouse com pathfinding A*.  
+**Depends on:** Phase 32  
+**Requirements:** `FIX.md`, screenshots de referência do hover e nomes, arquivos do servidor `realmap11/src/creature.cpp` e `player.h`.  
+**Success Criteria:**
+1. Nome do personagem e barra de vida com fidelidade às imagens de referência: verde vivo (`#00ff00`), outline preto nítido de 2.5px e barra de HP com moldura preta de 1px e preenchimento verde clássico.
+2. Velocidade de movimento calculada pela fórmula oficial do TFS: `baseSpeed = 220 + 2 * (level - 1)` e step duration em milissegundos derivada de `speedA`, `speedB`, `speedC` e velocidade do piso.
+3. Mapa de Thais expandido cobrindo 18.271 tiles autênticos sem vazios pretos nas proximidades da cidade.
+4. Indicador retangular de hover nos tiles com moldura ciano/amarela idêntica às imagens de referência.
+5. Clique com o botão esquerdo em qualquer tile válido aciona o pathfinding A* e move o personagem fluidamente até o destino.
+
+Plans:
+- [x] 33-01-PLAN: Implementar fórmula oficial de velocidade do TFS por level, cursor de hover no tile, clique com A* pathfinding e proporções dos nomes/HP bar conforme referência.

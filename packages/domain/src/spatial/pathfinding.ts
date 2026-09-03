@@ -151,3 +151,89 @@ export function findPathToMeleeRange(
 ): GridPosition[] {
   return findPath(map, start, findMeleeApproachTiles(map, target, blocked), blocked);
 }
+
+/**
+ * A* pathfinding for city navigation across a walkable tile map.
+ */
+export function findCityPath(
+  tileMap: Map<string, { walkable: boolean }>,
+  start: { x: number; y: number; z: number },
+  goal: { x: number; y: number; z: number },
+  maxNodes = 1000,
+): Array<{ x: number; y: number; z: number }> {
+  if (start.x === goal.x && start.y === goal.y) return [];
+  const goalTile = tileMap.get(`${goal.x},${goal.y}`);
+  if (goalTile && !goalTile.walkable) return [];
+
+  interface CityNode {
+    x: number;
+    y: number;
+    g: number;
+    h: number;
+    f: number;
+    parent?: CityNode;
+  }
+
+  const startNode: CityNode = {
+    x: start.x,
+    y: start.y,
+    g: 0,
+    h: Math.abs(goal.x - start.x) + Math.abs(goal.y - start.y),
+    f: Math.abs(goal.x - start.x) + Math.abs(goal.y - start.y),
+  };
+
+  const openList = new Map<string, CityNode>([[`${start.x},${start.y}`, startNode]]);
+  const closedSet = new Set<string>();
+
+  const neighbors = [
+    { x: 0, y: -1 }, // north
+    { x: 1, y: 0 },  // east
+    { x: 0, y: 1 },  // south
+    { x: -1, y: 0 }, // west
+  ];
+
+  let iterations = 0;
+  while (openList.size > 0 && iterations++ < maxNodes) {
+    let current: CityNode | null = null;
+    for (const node of openList.values()) {
+      if (!current || node.f < current.f) current = node;
+    }
+    if (!current) break;
+
+    const currentKey = `${current.x},${current.y}`;
+    openList.delete(currentKey);
+    closedSet.add(currentKey);
+
+    if (current.x === goal.x && current.y === goal.y) {
+      const path: Array<{ x: number; y: number; z: number }> = [];
+      let curr: CityNode | undefined = current;
+      while (curr && curr.parent) {
+        path.unshift({ x: curr.x, y: curr.y, z: start.z });
+        curr = curr.parent;
+      }
+      return path;
+    }
+
+    for (const n of neighbors) {
+      const nx = current.x + n.x;
+      const ny = current.y + n.y;
+      const nKey = `${nx},${ny}`;
+      if (closedSet.has(nKey)) continue;
+
+      const tile = tileMap.get(nKey);
+      if (tile && !tile.walkable) continue;
+
+      const g = current.g + 1;
+      const h = Math.abs(goal.x - nx) + Math.abs(goal.y - ny);
+      const f = g + h;
+
+      const existing = openList.get(nKey);
+      if (!existing || g < existing.g) {
+        openList.set(nKey, { x: nx, y: ny, g, h, f, parent: current });
+      }
+    }
+  }
+
+  return [];
+}
+

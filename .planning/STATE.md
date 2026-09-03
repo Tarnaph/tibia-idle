@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 32 of 32 (Vida, Nome do Personagem, Animação de Caminhada e Elementos Animados em Thais)  
+Phase: 33 of 33 (Thais Completa - Fonte Nítida, Velocidade Oficial por Nível e Pathfinding por Clique com Hover de Tile)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 32 concluída: Exibição permanente do nome do personagem em verde (#58f773) com contorno preto e barra de vida verde (#4fc977) sobre fundo escuro acima da cabeça em Thais; rotação direcional e ciclo de animação de caminhada oficial com interpolação contínua; extração de todos os frames dos elementos do mapa (fogo azul 8058, teleporte 1387, tochas 2059/2061, lâmpadas de parede 2038/2040, bacias de carvão 1481, fontes 1360-1363 e ondas de água); e animação contínua em tempo real no ticker do Pixi.
+Last activity: 2026-09-03 — Phase 33 concluída: Proporções e definição nítida dos nomes (#00ff00 com contorno 2.5px) e barra de vida com moldura preta de 1px conforme referências; aplicação da fórmula oficial de velocidade do TFS (baseSpeed = 220 + 2 * (level - 1) e stepDurationMs logarítmico com speedA=857.36, speedB=261.29, speedC=-4795.01) acelerando passos e deslizamento por nível; expansão do mapa de Thais para a cidade inteira (18.271 tiles, 818 itens de cenário) sem áreas pretas; cursor retangular de hover nos tiles (32x32 com bordas ciano/amarelo); e movimentação por clique com pathfinding A*.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 32
-- Tests status: 27 test suites passando (Vitest - 198 testes aprovados, 100%)
+- Total phases completed: 33
+- Tests status: 28 test suites passando (Vitest - 203 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | 30. Mapa Global de Thais, Início Imediato de Hunt e Sair no Dock | 1 | - | - | Complete |
 | 31. Migração Tibia 10.98 DAT/SPR e Renderização Autêntica de Thais | 1 | - | - | Complete |
 | 32. Vida, Nome do Personagem, Passos e Elementos Animados em Thais | 1 | - | - | Complete |
+| 33. Thais Completa, Fonte Nítida, Velocidade por Nível e Pathfinding por Clique | 1 | - | - | Complete |
 
 ## Accumulated Context
 
