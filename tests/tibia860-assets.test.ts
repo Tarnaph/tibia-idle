@@ -79,7 +79,7 @@ describe('Tibia 8.60 asset spike', () => {
     expect(firstRotworm.relationship).toBe('direct-look-type');
     expect(firstRotworm.sourceId).toBe(26);
     expect(firstRotworm.appearanceId).toBe(26);
-    expect(firstRotworm.frames.filter((frame) => frame.direction === 'south').map((frame) => frame.spriteIds)).toEqual([
+    expect(firstRotworm.frames.filter((frame) => frame.direction === 'north').map((frame) => frame.spriteIds)).toEqual([
       [3412, 3413, 0, 0],
       [3414, 3415, 0, 0],
     ]);

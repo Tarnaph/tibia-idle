@@ -48,9 +48,9 @@ const SELECTED_ITEM_NAMES = new Map<number, string>([
 ]);
 const PARTY_OUTFITS = { Knight: 128, Paladin: 129, Sorcerer: 130, Druid: 131 } as const;
 const CREATURE_DIRECTIONS = [
-  { direction: 'south', x: 0, y: 0, z: 0 },
+  { direction: 'north', x: 0, y: 0, z: 0 },
   { direction: 'east', x: 1, y: 0, z: 0 },
-  { direction: 'north', x: 2, y: 0, z: 0 },
+  { direction: 'south', x: 2, y: 0, z: 0 },
   { direction: 'west', x: 3, y: 0, z: 0 },
 ] as const;
 const MISSILE_PATTERNS = [
@@ -450,7 +450,7 @@ export async function extractTibia860Assets(options: ExtractOptions = {}): Promi
     sourceId: rotwormLookType,
     sourceFile: 'styller-master/data/monster/monsters/rotworm.xml',
     patterns: [...CREATURE_DIRECTIONS],
-    notes: ['Creature direction patternX 0 is rendered as south.'],
+    notes: ['Creature direction patternX 0 is rendered as north.'],
   });
   const aldric = extractAppearanceFrames('aldric', 'Aldric prototype outfit', aldricAppearance, spr, {
     relationship: 'selected-outfit',

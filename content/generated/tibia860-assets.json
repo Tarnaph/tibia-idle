@@ -103,7 +103,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -116,15 +116,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/rotworm-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/rotworm-south-frame-0.png",
+          "file": "public/generated/tibia860/rotworm-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/rotworm-north-frame-0.png",
           "sha256": "8092425CA1DC41FF433AA1676C40E84A1FF2434BACB5235953AB90EA90505F01",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -137,8 +137,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/rotworm-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/rotworm-south-frame-1.png",
+          "file": "public/generated/tibia860/rotworm-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/rotworm-north-frame-1.png",
           "sha256": "202626A7C6FB125AE8E57467389D081AD93853F8C76EAC97E3554C21B603E7E4",
           "width": 64,
           "height": 64
@@ -187,7 +187,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -200,15 +200,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/rotworm-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/rotworm-north-frame-0.png",
+          "file": "public/generated/tibia860/rotworm-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/rotworm-south-frame-0.png",
           "sha256": "720AC6120FCB16B2FB1EE03D79F79887329B0430311F7F3F307BEC4F1377B5CD",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -221,8 +221,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/rotworm-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/rotworm-north-frame-1.png",
+          "file": "public/generated/tibia860/rotworm-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/rotworm-south-frame-1.png",
           "sha256": "DF65AE0AD0E0970FAEF50FC0CB387E41B53BDBA54BF511C42D4185F6678C0CA1",
           "width": 64,
           "height": 64
@@ -271,7 +271,7 @@
         }
       ],
       "notes": [
-        "Creature direction patternX 0 is rendered as south."
+        "Creature direction patternX 0 is rendered as north."
       ]
     },
     "aldric": {
@@ -595,7 +595,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -608,15 +608,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/aldric-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/aldric-south-frame-0.png",
+          "file": "public/generated/tibia860/aldric-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/aldric-north-frame-0.png",
           "sha256": "8034C2BB0587434DC253B62BF83D04E256BF3158D8C832605B7E9A542682C253",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -629,15 +629,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/aldric-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/aldric-south-frame-1.png",
+          "file": "public/generated/tibia860/aldric-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/aldric-north-frame-1.png",
           "sha256": "62E226B17583D9A0A36D3D8D3F3D53A91081A2DFD744ADBABDFA8A65163FA4B8",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -650,8 +650,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/aldric-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/aldric-south-frame-2.png",
+          "file": "public/generated/tibia860/aldric-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/aldric-north-frame-2.png",
           "sha256": "599CB58B943C17D203AD67B3DD09BA89C604FBCBB7474D8AD36C873B36338BCA",
           "width": 64,
           "height": 64
@@ -721,7 +721,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -734,15 +734,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/aldric-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/aldric-north-frame-0.png",
+          "file": "public/generated/tibia860/aldric-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/aldric-south-frame-0.png",
           "sha256": "128D2D7F893285B7BDA8477F06B5DF71E5E5709F0D12646E9DA43C7343AD15F2",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -755,15 +755,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/aldric-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/aldric-north-frame-1.png",
+          "file": "public/generated/tibia860/aldric-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/aldric-south-frame-1.png",
           "sha256": "29A1FD4CA1CCF78710F6110C3D13C85E68F39F253EBD872AAC192EC02C2B8130",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -776,8 +776,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/aldric-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/aldric-north-frame-2.png",
+          "file": "public/generated/tibia860/aldric-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/aldric-south-frame-2.png",
           "sha256": "03AD790AD9EB9FBF8907D221BAED82917E5335EB0FFCCF159FA006A03D2147A9",
           "width": 64,
           "height": 64
@@ -1632,7 +1632,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -1642,15 +1642,15 @@
           "spriteIds": [
             2657
           ],
-          "file": "public/generated/tibia860/monster-rat-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-rat-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-rat-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-rat-north-frame-0.png",
           "sha256": "6E8FB82DC10769ED9B31D284DAE563B154756AB2599DDB23AA596A87DCB1694B",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -1660,15 +1660,15 @@
           "spriteIds": [
             2658
           ],
-          "file": "public/generated/tibia860/monster-rat-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-rat-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-rat-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-rat-north-frame-1.png",
           "sha256": "FCD7A991A8BB5AF87E691986ECA845AF50EB782A63D55303F8978CCE5514CA89",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -1678,8 +1678,8 @@
           "spriteIds": [
             2659
           ],
-          "file": "public/generated/tibia860/monster-rat-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-rat-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-rat-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-rat-north-frame-2.png",
           "sha256": "B70405C4688B422009D1FB1DBA24115BDA68A339ACC864C9F745A0BE048BEFD5",
           "width": 32,
           "height": 32
@@ -1740,7 +1740,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -1750,15 +1750,15 @@
           "spriteIds": [
             2654
           ],
-          "file": "public/generated/tibia860/monster-rat-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-rat-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-rat-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-rat-south-frame-0.png",
           "sha256": "44156E2950A7EEF14BA5DDDFF2F22FCEC5CADB8FDA1F59705A3C32A95F514ED5",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -1768,15 +1768,15 @@
           "spriteIds": [
             2655
           ],
-          "file": "public/generated/tibia860/monster-rat-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-rat-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-rat-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-rat-south-frame-1.png",
           "sha256": "6173A002CC22E98E2F59D9C00D049BDD32E83281F5C736A8AB5C6E5D7809135B",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -1786,8 +1786,8 @@
           "spriteIds": [
             2656
           ],
-          "file": "public/generated/tibia860/monster-rat-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-rat-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-rat-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-rat-south-frame-2.png",
           "sha256": "FDF6532305BC8B1A75288693FEE021B2015E4100B75DB171BA76872CFD023A66",
           "width": 32,
           "height": 32
@@ -1892,7 +1892,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -1902,15 +1902,15 @@
           "spriteIds": [
             4087
           ],
-          "file": "public/generated/tibia860/monster-cave-rat-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-cave-rat-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-cave-rat-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-cave-rat-north-frame-0.png",
           "sha256": "3F0369A797F1AE6A0247ACAE0D98109FD132F60ABA5352104A250CCC6B3BB26F",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -1920,15 +1920,15 @@
           "spriteIds": [
             4088
           ],
-          "file": "public/generated/tibia860/monster-cave-rat-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-cave-rat-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-cave-rat-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-cave-rat-north-frame-1.png",
           "sha256": "F64440A3BD3896EF89EEF7C3C098100E2C9C72D0F906B61133B4CC12C66F2CB2",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -1938,8 +1938,8 @@
           "spriteIds": [
             4089
           ],
-          "file": "public/generated/tibia860/monster-cave-rat-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-cave-rat-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-cave-rat-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-cave-rat-north-frame-2.png",
           "sha256": "F6217F03EC401B5615E042D1D56140FFF3917BBC2B8932F9370F430CF6AD92DB",
           "width": 32,
           "height": 32
@@ -2000,7 +2000,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2010,15 +2010,15 @@
           "spriteIds": [
             4084
           ],
-          "file": "public/generated/tibia860/monster-cave-rat-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-cave-rat-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-cave-rat-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-cave-rat-south-frame-0.png",
           "sha256": "29FB2A35DDF0A49B7788058C963E1226141603A17790948568FA12E24F4F5541",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2028,15 +2028,15 @@
           "spriteIds": [
             4085
           ],
-          "file": "public/generated/tibia860/monster-cave-rat-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-cave-rat-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-cave-rat-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-cave-rat-south-frame-1.png",
           "sha256": "BED766F4CFD94B14D72F6DBB45FAF817B237E5CF06A32A506491820839AE078F",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2046,8 +2046,8 @@
           "spriteIds": [
             4086
           ],
-          "file": "public/generated/tibia860/monster-cave-rat-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-cave-rat-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-cave-rat-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-cave-rat-south-frame-2.png",
           "sha256": "5B15AB05F180B1D50BC4E94AD747BBECAEFAE8BB38D553C40C359F28AB3D12BD",
           "width": 32,
           "height": 32
@@ -2152,7 +2152,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2162,15 +2162,15 @@
           "spriteIds": [
             3054
           ],
-          "file": "public/generated/tibia860/monster-spider-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-spider-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-spider-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-spider-north-frame-0.png",
           "sha256": "B156CE6C326E2C7AD4C55EE5AC4FA9230E90BD0A9569EA0B9173A0873EB3EE2B",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2180,15 +2180,15 @@
           "spriteIds": [
             3055
           ],
-          "file": "public/generated/tibia860/monster-spider-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-spider-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-spider-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-spider-north-frame-1.png",
           "sha256": "74BB0C926D8BA497EBC6398CCFD9DD19984C35A28299C16506BCED3C9EC7D744",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2198,8 +2198,8 @@
           "spriteIds": [
             3056
           ],
-          "file": "public/generated/tibia860/monster-spider-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-spider-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-spider-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-spider-north-frame-2.png",
           "sha256": "2176CDCAFB7BB8544B2278ADF60B917CE01404D53CBF5C651642FA322D0FB180",
           "width": 32,
           "height": 32
@@ -2260,7 +2260,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2270,15 +2270,15 @@
           "spriteIds": [
             3060
           ],
-          "file": "public/generated/tibia860/monster-spider-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-spider-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-spider-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-spider-south-frame-0.png",
           "sha256": "E9BCC268E0C803E43209CA0E3277F12961B255CE4910B68527EE107FBCAE13DB",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2288,15 +2288,15 @@
           "spriteIds": [
             3061
           ],
-          "file": "public/generated/tibia860/monster-spider-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-spider-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-spider-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-spider-south-frame-1.png",
           "sha256": "144BE09EEB5FF36D541F29368B0D348119323F65337E181CA98E7C319454C2FA",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2306,8 +2306,8 @@
           "spriteIds": [
             3062
           ],
-          "file": "public/generated/tibia860/monster-spider-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-spider-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-spider-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-spider-south-frame-2.png",
           "sha256": "5DC57B668038C4BC8327F1BC1869D4A36D8E307B821C285C25D8267D6DB4F682",
           "width": 32,
           "height": 32
@@ -2412,7 +2412,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2422,15 +2422,15 @@
           "spriteIds": [
             2447
           ],
-          "file": "public/generated/tibia860/monster-bug-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-bug-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-bug-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-bug-north-frame-0.png",
           "sha256": "5832ED35FF7A978C67531FA1F5715A0BBFA8A2021857249FAB794F3BEB95E4C5",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2440,15 +2440,15 @@
           "spriteIds": [
             2448
           ],
-          "file": "public/generated/tibia860/monster-bug-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-bug-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-bug-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-bug-north-frame-1.png",
           "sha256": "1624CBD6ADC0E94431AC334ED4E474FD2DD5573100A3D3E1F6905013DC94486B",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2458,8 +2458,8 @@
           "spriteIds": [
             2449
           ],
-          "file": "public/generated/tibia860/monster-bug-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-bug-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-bug-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-bug-north-frame-2.png",
           "sha256": "8C8E058FE1F7A3803C83BEF2F4E050AE3CE076BED6B732D9B9A099C6DEBB0F69",
           "width": 32,
           "height": 32
@@ -2520,7 +2520,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2530,15 +2530,15 @@
           "spriteIds": [
             2444
           ],
-          "file": "public/generated/tibia860/monster-bug-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-bug-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-bug-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-bug-south-frame-0.png",
           "sha256": "7EC8A4C6539A38B3B92EC3AD69FF1FD2BEB206389A564BD1130DE7953413DB0E",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2548,15 +2548,15 @@
           "spriteIds": [
             2445
           ],
-          "file": "public/generated/tibia860/monster-bug-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-bug-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-bug-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-bug-south-frame-1.png",
           "sha256": "D780035E75156003840CF877BB2EFF6E5EFAF2FB9BC071A9D9A81673267CFB0B",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2566,8 +2566,8 @@
           "spriteIds": [
             2446
           ],
-          "file": "public/generated/tibia860/monster-bug-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-bug-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-bug-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-bug-south-frame-2.png",
           "sha256": "A257451DF8EBF6CABB89E91ECFB91007F662051E5445F4CE80C3068A9CDA7EA2",
           "width": 32,
           "height": 32
@@ -2672,7 +2672,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2682,15 +2682,15 @@
           "spriteIds": [
             1523
           ],
-          "file": "public/generated/tibia860/monster-poison-spider-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-poison-spider-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-poison-spider-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-poison-spider-north-frame-0.png",
           "sha256": "03B9624F3B8A60540103CCA8CC3C858F7300D09E09D9EC261357D7D11352911D",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2700,15 +2700,15 @@
           "spriteIds": [
             1524
           ],
-          "file": "public/generated/tibia860/monster-poison-spider-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-poison-spider-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-poison-spider-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-poison-spider-north-frame-1.png",
           "sha256": "DE1EA589BB38A79262698ADAAAF83997153BD4FD0B3CB79448353FDB95789D5A",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2718,8 +2718,8 @@
           "spriteIds": [
             1525
           ],
-          "file": "public/generated/tibia860/monster-poison-spider-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-poison-spider-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-poison-spider-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-poison-spider-north-frame-2.png",
           "sha256": "380F6F89561A8EAA2022E5981A491B8C577A98849B0254C213C0AFA25675448F",
           "width": 32,
           "height": 32
@@ -2780,7 +2780,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2790,15 +2790,15 @@
           "spriteIds": [
             1517
           ],
-          "file": "public/generated/tibia860/monster-poison-spider-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-poison-spider-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-poison-spider-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-poison-spider-south-frame-0.png",
           "sha256": "11416A413D331C3566D385BDF2CC010FE32C477E2B0A9E0E1D96287E69D32FF6",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2808,15 +2808,15 @@
           "spriteIds": [
             1518
           ],
-          "file": "public/generated/tibia860/monster-poison-spider-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-poison-spider-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-poison-spider-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-poison-spider-south-frame-1.png",
           "sha256": "6D8A2FB78B750251812872F05EE049EA6F4108D1756C509B1347A43C823BEEA2",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -2826,8 +2826,8 @@
           "spriteIds": [
             1519
           ],
-          "file": "public/generated/tibia860/monster-poison-spider-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-poison-spider-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-poison-spider-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-poison-spider-south-frame-2.png",
           "sha256": "23A0C638C057C41F7EAC50DF54B8F0E38F2BAA660751915E1A33775505C76135",
           "width": 32,
           "height": 32
@@ -2970,7 +2970,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -2983,15 +2983,15 @@
             21478,
             0
           ],
-          "file": "public/generated/tibia860/monster-troll-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-troll-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-troll-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-troll-north-frame-0.png",
           "sha256": "610FD9EEAB20CBDEBFE9247F601517655D30EE999817078AE183DC87496F136C",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3004,15 +3004,15 @@
             21481,
             0
           ],
-          "file": "public/generated/tibia860/monster-troll-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-troll-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-troll-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-troll-north-frame-1.png",
           "sha256": "3E59B00CB7EAC3D302E358045572D7AE6D0612E26DF8058057DD34836E5F1DBA",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3025,8 +3025,8 @@
             21484,
             0
           ],
-          "file": "public/generated/tibia860/monster-troll-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-troll-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-troll-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-troll-north-frame-2.png",
           "sha256": "BEEE4387B23D8B701589CCF349B89EDDB1E600155F9E928A8D5C37CF8309FB6B",
           "width": 64,
           "height": 64
@@ -3096,7 +3096,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3109,15 +3109,15 @@
             22906,
             0
           ],
-          "file": "public/generated/tibia860/monster-troll-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-troll-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-troll-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-troll-south-frame-0.png",
           "sha256": "201673B10CC3C81027E2A885CB780808213CFB71D9205AE56813E9EFFC89F7E3",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3130,15 +3130,15 @@
             22908,
             0
           ],
-          "file": "public/generated/tibia860/monster-troll-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-troll-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-troll-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-troll-south-frame-1.png",
           "sha256": "F2A445C4689F391826C380FBCC90694AF08B9A674A80F4313AB0B62AAF2ADA1B",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3151,8 +3151,8 @@
             22910,
             0
           ],
-          "file": "public/generated/tibia860/monster-troll-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-troll-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-troll-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-troll-south-frame-2.png",
           "sha256": "5A5B73888D7F0C9351CCCF4E50D9DEAFAA70D3E2ABD587154391651877BCA6E0",
           "width": 64,
           "height": 64
@@ -3304,7 +3304,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3317,15 +3317,15 @@
             22920,
             0
           ],
-          "file": "public/generated/tibia860/monster-swamp-troll-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-swamp-troll-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-swamp-troll-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-swamp-troll-north-frame-0.png",
           "sha256": "FE9DB851BA2509543CB977B2E9A7CB29237DF48C41146E46176129E9D0003F18",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3338,15 +3338,15 @@
             22923,
             0
           ],
-          "file": "public/generated/tibia860/monster-swamp-troll-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-swamp-troll-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-swamp-troll-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-swamp-troll-north-frame-1.png",
           "sha256": "9699280DA231F2BEED0AF2AB453D437DE681541E2B5E359A53B47916A8CCD652",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3359,8 +3359,8 @@
             22926,
             0
           ],
-          "file": "public/generated/tibia860/monster-swamp-troll-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-swamp-troll-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-swamp-troll-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-swamp-troll-north-frame-2.png",
           "sha256": "D818D543AAA31DCCBCD8C3762DD7432B62F20B889EC0A7656884C4A4D10EF087",
           "width": 64,
           "height": 64
@@ -3430,7 +3430,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3443,15 +3443,15 @@
             22934,
             0
           ],
-          "file": "public/generated/tibia860/monster-swamp-troll-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-swamp-troll-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-swamp-troll-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-swamp-troll-south-frame-0.png",
           "sha256": "AEF959F412321DAC26F38BE7E2AD89CB1B6630E4228760EF0439A83B7535F3AB",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3464,15 +3464,15 @@
             22936,
             0
           ],
-          "file": "public/generated/tibia860/monster-swamp-troll-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-swamp-troll-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-swamp-troll-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-swamp-troll-south-frame-1.png",
           "sha256": "7DF185761FE9DD373EFBC21699344B84AF3C9BB62E55D533C939EC011FEDBE62",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3485,8 +3485,8 @@
             22938,
             0
           ],
-          "file": "public/generated/tibia860/monster-swamp-troll-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-swamp-troll-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-swamp-troll-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-swamp-troll-south-frame-2.png",
           "sha256": "71DB4A91DE533ACBFAC8AF9D04CF7AEB633B8A1C93EF2B93F7ED6999C4CF6437",
           "width": 64,
           "height": 64
@@ -3622,7 +3622,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3635,15 +3635,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/monster-rotworm-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-rotworm-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-rotworm-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-rotworm-north-frame-0.png",
           "sha256": "8092425CA1DC41FF433AA1676C40E84A1FF2434BACB5235953AB90EA90505F01",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3656,8 +3656,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/monster-rotworm-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-rotworm-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-rotworm-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-rotworm-north-frame-1.png",
           "sha256": "202626A7C6FB125AE8E57467389D081AD93853F8C76EAC97E3554C21B603E7E4",
           "width": 64,
           "height": 64
@@ -3706,7 +3706,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3719,15 +3719,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/monster-rotworm-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-rotworm-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-rotworm-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-rotworm-south-frame-0.png",
           "sha256": "720AC6120FCB16B2FB1EE03D79F79887329B0430311F7F3F307BEC4F1377B5CD",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3740,8 +3740,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/monster-rotworm-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-rotworm-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-rotworm-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-rotworm-south-frame-1.png",
           "sha256": "DF65AE0AD0E0970FAEF50FC0CB387E41B53BDBA54BF511C42D4185F6678C0CA1",
           "width": 64,
           "height": 64
@@ -3836,7 +3836,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3846,15 +3846,15 @@
           "spriteIds": [
             12383
           ],
-          "file": "public/generated/tibia860/monster-skeleton-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-skeleton-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-skeleton-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-skeleton-north-frame-0.png",
           "sha256": "E456E3D6B8902D6278A0FE0B96BAFB42DC2AFCFE1CA8196514EF1671683C683B",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3864,15 +3864,15 @@
           "spriteIds": [
             12385
           ],
-          "file": "public/generated/tibia860/monster-skeleton-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-skeleton-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-skeleton-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-skeleton-north-frame-1.png",
           "sha256": "2BB5F57EB48E77BFED9B78BFBD095009F8600BD70783FD4FE16CF9267EAD7702",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -3882,8 +3882,8 @@
           "spriteIds": [
             12388
           ],
-          "file": "public/generated/tibia860/monster-skeleton-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-skeleton-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-skeleton-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-skeleton-north-frame-2.png",
           "sha256": "73BDEF014575292FFF36056622D047929FE3F357219F9B902B1CB03767E8A9EE",
           "width": 32,
           "height": 32
@@ -3944,7 +3944,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3954,15 +3954,15 @@
           "spriteIds": [
             11869
           ],
-          "file": "public/generated/tibia860/monster-skeleton-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-skeleton-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-skeleton-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-skeleton-south-frame-0.png",
           "sha256": "598B2D0A9EC6F3AD7701340D2B47C97F2CC90DCC6EE99083490A59F59E67F79F",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3972,15 +3972,15 @@
           "spriteIds": [
             12384
           ],
-          "file": "public/generated/tibia860/monster-skeleton-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-skeleton-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-skeleton-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-skeleton-south-frame-1.png",
           "sha256": "B1C051F9A01DB9FA3C72DD080CC71271153BAAD0E2D382AB34D682814193E347",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -3990,8 +3990,8 @@
           "spriteIds": [
             12390
           ],
-          "file": "public/generated/tibia860/monster-skeleton-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-skeleton-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-skeleton-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-skeleton-south-frame-2.png",
           "sha256": "3A452765E54CED573AB6F2A3C53673FF05979BF794ECDD4F6625D3B3047A0082",
           "width": 32,
           "height": 32
@@ -4098,7 +4098,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4108,15 +4108,15 @@
           "spriteIds": [
             2336
           ],
-          "file": "public/generated/tibia860/monster-minotaur-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-minotaur-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-minotaur-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-minotaur-north-frame-0.png",
           "sha256": "D9F94F3F84A2F11FD4955870B5332A63861B1C70FBFCF2AC0084F4A7E7DA470C",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4126,15 +4126,15 @@
           "spriteIds": [
             2337
           ],
-          "file": "public/generated/tibia860/monster-minotaur-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-minotaur-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-minotaur-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-minotaur-north-frame-1.png",
           "sha256": "3F18370817C9C2173FD67C6E1BDAAD9A2D2768D27131590A1B34289B1F1B1404",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4144,8 +4144,8 @@
           "spriteIds": [
             2338
           ],
-          "file": "public/generated/tibia860/monster-minotaur-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-minotaur-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-minotaur-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-minotaur-north-frame-2.png",
           "sha256": "277543D32014640EA581E29C9EEE975DED084B23A9D387EA4C78D573C6025792",
           "width": 32,
           "height": 32
@@ -4206,7 +4206,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4216,15 +4216,15 @@
           "spriteIds": [
             2333
           ],
-          "file": "public/generated/tibia860/monster-minotaur-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-minotaur-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-minotaur-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-minotaur-south-frame-0.png",
           "sha256": "F63FE92B35EF20EFD58865790429FEB127E60246000888EF235021E2742A4A0D",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4234,15 +4234,15 @@
           "spriteIds": [
             2334
           ],
-          "file": "public/generated/tibia860/monster-minotaur-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-minotaur-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-minotaur-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-minotaur-south-frame-1.png",
           "sha256": "22C07F39AF39B3CC0C223C6E9086FA73783E290B0C04423CA7756BCDA91913C1",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4252,8 +4252,8 @@
           "spriteIds": [
             2335
           ],
-          "file": "public/generated/tibia860/monster-minotaur-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-minotaur-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-minotaur-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-minotaur-south-frame-2.png",
           "sha256": "430C5E05CF5832B7DE2D78FDDAE620C1F4E8EAFDAEF6B947C11F6BEB040CFF0F",
           "width": 32,
           "height": 32
@@ -4360,7 +4360,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4370,15 +4370,15 @@
           "spriteIds": [
             1467
           ],
-          "file": "public/generated/tibia860/monster-dwarf-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-dwarf-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-dwarf-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-dwarf-north-frame-0.png",
           "sha256": "A23D4CF65C73714829433BA98C6D53752F5CDE793571D74135C26560F5FCCCD6",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4388,15 +4388,15 @@
           "spriteIds": [
             1468
           ],
-          "file": "public/generated/tibia860/monster-dwarf-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-dwarf-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-dwarf-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-dwarf-north-frame-1.png",
           "sha256": "B36736DB4D3A577D33DB970B8D6B08D975C872A228C9FF728B4ADD5F8982F841",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4406,8 +4406,8 @@
           "spriteIds": [
             1469
           ],
-          "file": "public/generated/tibia860/monster-dwarf-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-dwarf-south-frame-2.png",
+          "file": "public/generated/tibia860/monster-dwarf-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-dwarf-north-frame-2.png",
           "sha256": "01375EA10F7768391E3D15ED3832A54C3AC022E02199F2B5DE06E23CB2B2E902",
           "width": 32,
           "height": 32
@@ -4468,7 +4468,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4478,15 +4478,15 @@
           "spriteIds": [
             1464
           ],
-          "file": "public/generated/tibia860/monster-dwarf-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-dwarf-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-dwarf-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-dwarf-south-frame-0.png",
           "sha256": "19EED3BF394D1E9368E5DE299912F3371B71183C3AEE5A39E5E7637E61A34A58",
           "width": 32,
           "height": 32
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4496,15 +4496,15 @@
           "spriteIds": [
             1465
           ],
-          "file": "public/generated/tibia860/monster-dwarf-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-dwarf-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-dwarf-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-dwarf-south-frame-1.png",
           "sha256": "4AAA73CB909A9331DC1F27132F7FD96D007FC5AD9339EA1670F50D6F42BF47D7",
           "width": 32,
           "height": 32
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4514,8 +4514,8 @@
           "spriteIds": [
             1466
           ],
-          "file": "public/generated/tibia860/monster-dwarf-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/monster-dwarf-north-frame-2.png",
+          "file": "public/generated/tibia860/monster-dwarf-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-dwarf-south-frame-2.png",
           "sha256": "C04C3902EC57E39F174994D4DE3E205DDFD8597048C2E36FE50FDDC1A65C1C36",
           "width": 32,
           "height": 32
@@ -4642,7 +4642,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4655,15 +4655,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/monster-carrion-worm-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-carrion-worm-south-frame-0.png",
+          "file": "public/generated/tibia860/monster-carrion-worm-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-carrion-worm-north-frame-0.png",
           "sha256": "6FDB25D972AEC4ED67C8A91ED8A501BBEF8537441100F86EE0F11F0D80F126D8",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -4676,8 +4676,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/monster-carrion-worm-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-carrion-worm-south-frame-1.png",
+          "file": "public/generated/tibia860/monster-carrion-worm-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-carrion-worm-north-frame-1.png",
           "sha256": "7FD6171DA9C80003CB121C6F10F24FDE903CCB1F53931B21BC11F61AC33017C7",
           "width": 64,
           "height": 64
@@ -4726,7 +4726,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4739,15 +4739,15 @@
             12159,
             0
           ],
-          "file": "public/generated/tibia860/monster-carrion-worm-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/monster-carrion-worm-north-frame-0.png",
+          "file": "public/generated/tibia860/monster-carrion-worm-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-carrion-worm-south-frame-0.png",
           "sha256": "3EFDC8F2626FC729A3F356BC95F74E97992881A3ACBFD535E1B23F61109399D5",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -4760,8 +4760,8 @@
             12169,
             0
           ],
-          "file": "public/generated/tibia860/monster-carrion-worm-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/monster-carrion-worm-north-frame-1.png",
+          "file": "public/generated/tibia860/monster-carrion-worm-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-carrion-worm-south-frame-1.png",
           "sha256": "1968BE35D0C141872263A3965C16E42B221BEF278691CB4AB2E460D2ABBEDFB3",
           "width": 64,
           "height": 64
@@ -5134,7 +5134,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -5147,15 +5147,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-knight-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-knight-south-frame-0.png",
+          "file": "public/generated/tibia860/outfit-knight-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-knight-north-frame-0.png",
           "sha256": "8034C2BB0587434DC253B62BF83D04E256BF3158D8C832605B7E9A542682C253",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -5168,15 +5168,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-knight-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-knight-south-frame-1.png",
+          "file": "public/generated/tibia860/outfit-knight-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-knight-north-frame-1.png",
           "sha256": "62E226B17583D9A0A36D3D8D3F3D53A91081A2DFD744ADBABDFA8A65163FA4B8",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -5189,8 +5189,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-knight-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-knight-south-frame-2.png",
+          "file": "public/generated/tibia860/outfit-knight-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-knight-north-frame-2.png",
           "sha256": "599CB58B943C17D203AD67B3DD09BA89C604FBCBB7474D8AD36C873B36338BCA",
           "width": 64,
           "height": 64
@@ -5260,7 +5260,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -5273,15 +5273,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-knight-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-knight-north-frame-0.png",
+          "file": "public/generated/tibia860/outfit-knight-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-knight-south-frame-0.png",
           "sha256": "128D2D7F893285B7BDA8477F06B5DF71E5E5709F0D12646E9DA43C7343AD15F2",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -5294,15 +5294,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-knight-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-knight-north-frame-1.png",
+          "file": "public/generated/tibia860/outfit-knight-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-knight-south-frame-1.png",
           "sha256": "29A1FD4CA1CCF78710F6110C3D13C85E68F39F253EBD872AAC192EC02C2B8130",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -5315,8 +5315,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-knight-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-knight-north-frame-2.png",
+          "file": "public/generated/tibia860/outfit-knight-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-knight-south-frame-2.png",
           "sha256": "03AD790AD9EB9FBF8907D221BAED82917E5335EB0FFCCF159FA006A03D2147A9",
           "width": 64,
           "height": 64
@@ -5710,7 +5710,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -5723,15 +5723,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-paladin-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-paladin-south-frame-0.png",
+          "file": "public/generated/tibia860/outfit-paladin-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-paladin-north-frame-0.png",
           "sha256": "01726A0D3D943010016BC36C7720478C60A6363F77AE79FF937863B019C2AD1B",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -5744,15 +5744,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-paladin-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-paladin-south-frame-1.png",
+          "file": "public/generated/tibia860/outfit-paladin-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-paladin-north-frame-1.png",
           "sha256": "2B61E0231F2B774A7E28E04A39A1000D5B557EA88F628469EF27BA3621D9900B",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -5765,8 +5765,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-paladin-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-paladin-south-frame-2.png",
+          "file": "public/generated/tibia860/outfit-paladin-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-paladin-north-frame-2.png",
           "sha256": "0D6838DC1E8DDF71D18D2D6E44D264D603C8E10D88C3A378B50A9CD4655EDF7A",
           "width": 64,
           "height": 64
@@ -5836,7 +5836,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -5849,15 +5849,15 @@
             14220,
             0
           ],
-          "file": "public/generated/tibia860/outfit-paladin-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-paladin-north-frame-0.png",
+          "file": "public/generated/tibia860/outfit-paladin-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-paladin-south-frame-0.png",
           "sha256": "B394AEB13B74AEBBED3B582215953D34828CC49CAE23845FA51FEF0CED6C0575",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -5870,15 +5870,15 @@
             14220,
             0
           ],
-          "file": "public/generated/tibia860/outfit-paladin-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-paladin-north-frame-1.png",
+          "file": "public/generated/tibia860/outfit-paladin-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-paladin-south-frame-1.png",
           "sha256": "4AD28D23C31D8DA7510F615EE4EEC7112BDD3A2BD67D3E5FCA5BE82D960F2267",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -5891,8 +5891,8 @@
             14313,
             0
           ],
-          "file": "public/generated/tibia860/outfit-paladin-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-paladin-north-frame-2.png",
+          "file": "public/generated/tibia860/outfit-paladin-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-paladin-south-frame-2.png",
           "sha256": "C742636407B3E920E28B80D87C7B694D3EFC2819C23C8DF1A94BA9E5C2FC230E",
           "width": 64,
           "height": 64
@@ -6286,7 +6286,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -6299,15 +6299,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-sorcerer-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-sorcerer-south-frame-0.png",
+          "file": "public/generated/tibia860/outfit-sorcerer-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-sorcerer-north-frame-0.png",
           "sha256": "395B4EB5741134B0D6C7B5B5AA1DC5571E18C1D6F7A4E802D4E79A5E154D344C",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -6320,15 +6320,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-sorcerer-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-sorcerer-south-frame-1.png",
+          "file": "public/generated/tibia860/outfit-sorcerer-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-sorcerer-north-frame-1.png",
           "sha256": "007E1F8E2255D16DD8E27707914EF749A3E0F12DDBB8EC6EA32588A43FBDA5C9",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -6341,8 +6341,8 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-sorcerer-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-sorcerer-south-frame-2.png",
+          "file": "public/generated/tibia860/outfit-sorcerer-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-sorcerer-north-frame-2.png",
           "sha256": "B3295A1FCF70915EA718796262FF953F4B1D5D82B184370AA3EDCD62A44BE1E3",
           "width": 64,
           "height": 64
@@ -6412,7 +6412,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -6425,15 +6425,15 @@
             3567,
             0
           ],
-          "file": "public/generated/tibia860/outfit-sorcerer-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-sorcerer-north-frame-0.png",
+          "file": "public/generated/tibia860/outfit-sorcerer-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-sorcerer-south-frame-0.png",
           "sha256": "2A22327865DA11104B8916BABA4B84DB782E1AB6E5DECC909900B9E75A04D7FF",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -6446,15 +6446,15 @@
             0,
             0
           ],
-          "file": "public/generated/tibia860/outfit-sorcerer-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-sorcerer-north-frame-1.png",
+          "file": "public/generated/tibia860/outfit-sorcerer-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-sorcerer-south-frame-1.png",
           "sha256": "B319D847A903EF8595AC2680C54433DC941384D24D3D241D6B1A3B505CC00273",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -6467,8 +6467,8 @@
             3567,
             0
           ],
-          "file": "public/generated/tibia860/outfit-sorcerer-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-sorcerer-north-frame-2.png",
+          "file": "public/generated/tibia860/outfit-sorcerer-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-sorcerer-south-frame-2.png",
           "sha256": "3B0DDCBF92270E214394F951F5605B8561E4A4789ADDBAEDBA9F07F1DC4F8E75",
           "width": 64,
           "height": 64
@@ -6862,7 +6862,7 @@
       "frames": [
         {
           "frame": 0,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -6875,15 +6875,15 @@
             13488,
             0
           ],
-          "file": "public/generated/tibia860/outfit-druid-south-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-druid-south-frame-0.png",
+          "file": "public/generated/tibia860/outfit-druid-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-druid-north-frame-0.png",
           "sha256": "1203D60BA0527D6BC4D506ED768AD5FE5C7986E0CC1D83C2FAAB06E74BA56BBB",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -6896,15 +6896,15 @@
             13488,
             0
           ],
-          "file": "public/generated/tibia860/outfit-druid-south-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-druid-south-frame-1.png",
+          "file": "public/generated/tibia860/outfit-druid-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-druid-north-frame-1.png",
           "sha256": "376075543BFDF2DC5BA1D22D3495D64C800A4E650DC99519CC49AAEC47AA06AC",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "south",
+          "direction": "north",
           "pattern": {
             "x": 0,
             "y": 0,
@@ -6917,8 +6917,8 @@
             13497,
             0
           ],
-          "file": "public/generated/tibia860/outfit-druid-south-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-druid-south-frame-2.png",
+          "file": "public/generated/tibia860/outfit-druid-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-druid-north-frame-2.png",
           "sha256": "053E7672D4A8D9556C89D5841511B9A3E81C00CDEEB494D4EAE4AFA6D6407492",
           "width": 64,
           "height": 64
@@ -6988,7 +6988,7 @@
         },
         {
           "frame": 0,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -7001,15 +7001,15 @@
             13504,
             0
           ],
-          "file": "public/generated/tibia860/outfit-druid-north-frame-0.png",
-          "publicUrl": "/generated/tibia860/outfit-druid-north-frame-0.png",
+          "file": "public/generated/tibia860/outfit-druid-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-druid-south-frame-0.png",
           "sha256": "07BA36B4952FBD85F3B6E4C1D0266B9A459E3F0C369C477F26BE5A49100297D4",
           "width": 64,
           "height": 64
         },
         {
           "frame": 1,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -7022,15 +7022,15 @@
             13504,
             0
           ],
-          "file": "public/generated/tibia860/outfit-druid-north-frame-1.png",
-          "publicUrl": "/generated/tibia860/outfit-druid-north-frame-1.png",
+          "file": "public/generated/tibia860/outfit-druid-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-druid-south-frame-1.png",
           "sha256": "51B1F476D8D71DFF2A5B6CF2E13EDE02AC4757FC568A842584778CD4271FC96D",
           "width": 64,
           "height": 64
         },
         {
           "frame": 2,
-          "direction": "north",
+          "direction": "south",
           "pattern": {
             "x": 2,
             "y": 0,
@@ -7043,8 +7043,8 @@
             13507,
             0
           ],
-          "file": "public/generated/tibia860/outfit-druid-north-frame-2.png",
-          "publicUrl": "/generated/tibia860/outfit-druid-north-frame-2.png",
+          "file": "public/generated/tibia860/outfit-druid-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-druid-south-frame-2.png",
           "sha256": "C1A7FD2E06A68BE8076AA5D7595F0D1E02ECE757900D858AADEF2E29D9EF9A73",
           "width": 64,
           "height": 64
