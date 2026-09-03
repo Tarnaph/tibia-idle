@@ -13,23 +13,23 @@ import {
   addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
-  selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor,
-  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill,
+  selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
+  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack,
 } from '@/packages/domain/src';
-import { calculateSessionRates } from '@/packages/presentation/src';
+import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
 import { BottomDock } from './BottomDock';
 import { EquipmentPanel, type StatsDelta } from './EquipmentPanel';
 import { HuntHeader } from './HuntHeader';
 import { HuntSelector } from './HuntSelector';
 import { IdleHeader } from './IdleHeader';
 import { ItemSprite } from './ItemSprite';
-import { LeftSidebar } from './LeftSidebar';
 import { PartyMemberModal } from './PartyMemberModal';
 import { PixiArena } from './PixiArena';
-import { RightSidebar } from './RightSidebar';
-import { TopNavigation } from './TopNavigation';
 import { TrainingArena } from './TrainingArena';
 import { WorldNavigation } from './WorldNavigation';
+import { WindowManagerProvider } from './window/WindowManagerContext';
+import { DraggableWindow } from './window/DraggableWindow';
+import { WindowDockBar } from './window/WindowDockBar';
 
 const equipmentCatalog = equipmentJson as EquipmentCatalog;
 const monsterCatalog = monstersJson as MonsterCatalog;
@@ -51,7 +51,19 @@ const defaultSeed = 'cavebound-party-alpha';
 
 interface PointerDragVisual { itemId: number; label: string; x: number; y: number }
 
+function ValueRow({ label, value, changed = false }: { label: string; value: string | number; changed?: boolean }) {
+  return <div className={changed ? 'compact-value-row changed' : 'compact-value-row'}><span>{label}</span><strong>{value}</strong></div>;
+}
+
 export function GamePrototype() {
+  return (
+    <WindowManagerProvider>
+      <GamePrototypeContent />
+    </WindowManagerProvider>
+  );
+}
+
+function GamePrototypeContent() {
   const [seed, setSeed] = useState(defaultSeed);
   const [game, setGame] = useState(() => createIdleGame(defaultSeed, content));
   const [mode, setMode] = useState<'training' | 'hunt'>('training');
@@ -59,14 +71,12 @@ export function GamePrototype() {
   const [partyModalOpen, setPartyModalOpen] = useState(false);
   const [debugGrid, setDebugGrid] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
-  const [leftMobileOpen, setLeftMobileOpen] = useState(false);
-  const [rightMobileOpen, setRightMobileOpen] = useState(false);
   const [equipmentMessage, setEquipmentMessage] = useState('Arraste ou clique em um item para alterar o loadout.');
   const [saleMessage, setSaleMessage] = useState('Itens sem preço comprovado permanecem no pouch.');
   const [promotionMessage, setPromotionMessage] = useState('');
   const [statsDelta, setStatsDelta] = useState<StatsDelta | null>(null);
   const [pointerDrag, setPointerDrag] = useState<PointerDragVisual | null>(null);
-  const [clockNow, setClockNow] = useState(0);
+  const [confirmSale, setConfirmSale] = useState(false);
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
@@ -89,11 +99,10 @@ export function GamePrototype() {
   }, [mode]);
 
   useEffect(() => {
-    const firstFrame = window.requestAnimationFrame(() => setClockNow(Date.now()));
-    const timer = window.setInterval(() => setClockNow(Date.now()), 1000);
-    return () => { window.cancelAnimationFrame(firstFrame); window.clearInterval(timer); };
-  }, []);
-  useEffect(() => { if (!statsDelta) return; const timer = window.setTimeout(() => setStatsDelta(null), 1800); return () => window.clearTimeout(timer); }, [statsDelta]);
+    if (!statsDelta) return;
+    const timer = window.setTimeout(() => setStatsDelta(null), 1800);
+    return () => window.clearTimeout(timer);
+  }, [statsDelta]);
 
   const applyEquipmentTransfer = useCallback((source: EquipmentTransferSource, target: EquipmentTransferTarget) => {
     setGame((current) => {
@@ -176,26 +185,385 @@ export function GamePrototype() {
     };
   });
 
+  const skillsList = [
+    ['Fist', activeCharacter.skills.fist, selectedSkillProgress.fist],
+    ['Club', activeCharacter.skills.club, selectedSkillProgress.club],
+    ['Sword', activeCharacter.skills.sword, selectedSkillProgress.sword],
+    ['Axe', activeCharacter.skills.axe, selectedSkillProgress.axe],
+    ['Distance', activeCharacter.skills.distance, selectedSkillProgress.distance],
+    ['Shielding', activeCharacter.skills.shielding, selectedSkillProgress.shielding],
+    ['Magic level', activeCharacter.skills.magicLevel, selectedSkillProgress.magicLevel],
+  ] as const;
+
+  const currentActor = encounter.partyActors.find((actor) => actor.characterId === activeCharacter.id);
+  const prices = new Map(content.economy.items.map((item) => [item.itemId, preferredSellPrice(item)?.price ?? null]));
+  const sellableValue = game.session.loot.reduce((total, stack) => total + (stack.itemId === undefined ? 0 : (prices.get(stack.itemId) ?? 0) * stack.amount), 0);
+
   return (
-    <main className="mmorpg-client">
-      <TopNavigation characterName={activeCharacter.name} gold={game.session.gold} debug={debugGrid} onEquipment={() => setEquipmentOpen(true)} onToggleDebug={() => setDebugGrid((value) => !value)} onToggleLeftSidebar={() => setLeftMobileOpen((value) => !value)} onToggleRightSidebar={() => setRightMobileOpen((value) => !value)} />
-      <div className="client-workspace">
-        <LeftSidebar character={activeCharacter} characters={game.session.characters} actor={encounter.partyActors.find((actor) => actor.characterId === activeCharacter.id)} skillProgress={selectedSkillProgress} stats={activeStats} statsDelta={statsDelta} xpToNext={experienceForLevel(activeCharacter.level + 1)} xpProgress={xpProgressById.get(activeCharacter.id) ?? 0} metrics={metrics} mobileOpen={leftMobileOpen} gold={game.session.gold} promotionName={promotedVocationFor(activeCharacter.baseVocation)} canPromote={!activeCharacter.promotion && activeCharacter.level >= PROMOTION_LEVEL && game.session.gold >= PROMOTION_COST} promotionMessage={promotionMessage} onSelectCharacter={selectPartyCharacter} onPromote={promoteSelectedCharacter} onMobileClose={() => setLeftMobileOpen(false)} />
-        <section className="client-center">
-          {mode === 'hunt' ? <HuntHeader encounter={encounter} elapsedMs={encounter.elapsedMs} aliveEnemies={encounter.enemies.filter((enemy) => enemy.alive).length} onExit={exitHunt} /> : <IdleHeader activeSkill={activeStats.activeSkill} activeSkillLevel={activeStats.activeSkillLevel} previousResult={encounter.status === 'running' ? 'ready' : encounter.status} />}
-          <div className="game-viewport">
-            <WorldNavigation mode={mode} onTraining={() => setMode('training')} onHunts={() => setHuntSelectorOpen(true)} />
-            {mode === 'hunt' ? <PixiArena game={game} debug={debugGrid} /> : <TrainingArena members={trainingMembers} visualEvents={encounter.visualEvents} debug={debugGrid} />}
-          </div>
-          <BottomDock logs={encounter.log} seed={seed} status={encounter.status} character={activeCharacter} actor={encounter.partyActors.find((actor) => actor.characterId === activeCharacter.id)} spells={content.spells} elapsedMs={encounter.elapsedMs} onSeed={setSeed} onBegin={beginOrRestart} onReset={resetPrototype} onReorderSpell={reorderSelectedHotbar} />
-        </section>
-        <RightSidebar characters={game.session.characters} actors={encounter.partyActors} statsById={statsById} xpProgressById={xpProgressById} selectedCharacterId={activeCharacter.id} onSelectCharacter={selectPartyCharacter} inventoryEquipment={inventoryEquipment} loot={game.session.loot} economy={content.economy} preferences={game.session.itemLootPreferences} equipmentMessage={equipmentMessage} saleMessage={saleMessage} onEquipment={() => setEquipmentOpen(true)} onAddMember={() => setPartyModalOpen(true)} onSellAll={sellLoot} onSellOne={sellOneLoot} onTogglePreference={toggleLootPreference} onTransfer={applyEquipmentTransfer} onPointerDragStart={beginPointerEquipmentDrag} mobileOpen={rightMobileOpen} onMobileClose={() => setRightMobileOpen(false)} />
+    <main className="mmorpg-client fullscreen-mode">
+      {/* Background 100% Fullscreen Viewport */}
+      <div className="fullscreen-viewport">
+        {mode === 'hunt' ? (
+          <PixiArena game={game} debug={debugGrid} />
+        ) : (
+          <TrainingArena members={trainingMembers} visualEvents={encounter.visualEvents} debug={debugGrid} />
+        )}
       </div>
-      <EquipmentPanel open={equipmentOpen} character={activeCharacter} catalog={content.equipment} inventory={inventoryEquipment} currentWeight={inventoryWeight(activeCharacter, content.equipment)} capacity={characterCapacity(activeCharacter, content)} gold={game.session.gold} stats={activeStats} statsDelta={statsDelta} message={equipmentMessage} disabled={false} onClose={() => setEquipmentOpen(false)} onTransfer={applyEquipmentTransfer} onPointerDragStart={beginPointerEquipmentDrag} />
-      <HuntSelector open={huntSelectorOpen} hunts={content.hunts} monsters={content.monsters} level={leader.level} onClose={() => setHuntSelectorOpen(false)} onSelect={startSelectedHunt} />
-      <PartyMemberModal open={partyModalOpen} used={game.session.characters.map((character) => character.baseVocation)} onClose={() => setPartyModalOpen(false)} onCreate={createMember} />
-      {pointerDrag && <div className="pointer-drag-ghost" style={{ left: pointerDrag.x, top: pointerDrag.y }} aria-hidden="true"><ItemSprite itemId={pointerDrag.itemId} label={pointerDrag.label} /><span>{pointerDrag.label}</span></div>}
-      <span className="prototype-clock" aria-hidden="true">{new Date(clockNow).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+
+      {/* Top HUD Dock Bar */}
+      <WindowDockBar
+        gold={game.session.gold}
+        characterName={activeCharacter.name}
+        debug={debugGrid}
+        onToggleDebug={() => setDebugGrid((value) => !value)}
+        onSelectHunt={() => setHuntSelectorOpen(true)}
+      />
+
+      {/* Window 1: Character & Skills */}
+      <DraggableWindow id="character" icon="👤" badge={<small className="window-badge">Lv {activeCharacter.level}</small>}>
+        <div className="character-tabs" role="tablist" aria-label="Selecionar personagem para skills">
+          {game.session.characters.map((candidate) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={candidate.id === activeCharacter.id}
+              className={candidate.id === activeCharacter.id ? 'selected' : ''}
+              key={candidate.id}
+              onClick={() => selectPartyCharacter(candidate.id)}
+            >
+              {candidate.name}
+            </button>
+          ))}
+        </div>
+        <div className="selected-character-summary">
+          <span><strong>{activeCharacter.name}</strong><small>{activeCharacter.vocation} · Lv {activeCharacter.level} · {activeStats.weaponName}</small></span>
+          <span className="selected-stats"><b>ATK {activeStats.attack}</b><b>DEF {activeStats.defense}</b><b>ARM {activeStats.armor}</b></span>
+        </div>
+        <div className="resource-line">
+          <span>HP</span>
+          <div className="compact-meter"><i className="hp-fill" style={{ width: `${100 * (currentActor?.hp ?? activeCharacter.currentHp) / activeCharacter.maxHp}%` }} /></div>
+          <b>{currentActor?.hp ?? activeCharacter.currentHp}/{activeCharacter.maxHp}</b>
+        </div>
+        {activeCharacter.maxMana > 0 && (
+          <div className="resource-line">
+            <span>MP</span>
+            <div className="compact-meter"><i className="mana-fill" style={{ width: `${100 * (currentActor?.mana ?? activeCharacter.currentMana) / activeCharacter.maxMana}%` }} /></div>
+            <b>{currentActor?.mana ?? activeCharacter.currentMana}/{activeCharacter.maxMana}</b>
+          </div>
+        )}
+        <div className="resource-line">
+          <span>XP</span>
+          <div className="compact-meter"><i className="xp-fill" style={{ width: `${xpProgressById.get(activeCharacter.id) ?? 0}%` }} /></div>
+          <b>{Math.round(xpProgressById.get(activeCharacter.id) ?? 0)}%</b>
+        </div>
+        <div className="xp-caption">
+          {activeCharacter.experience.toLocaleString('pt-BR')} / {experienceForLevel(activeCharacter.level + 1).toLocaleString('pt-BR')}
+        </div>
+
+        {statsDelta && (
+          <div className="stat-change-summary" aria-live="polite">
+            Loadout: ATK {statsDelta.attack.from}→{statsDelta.attack.to} · DEF {statsDelta.defense.from}→{statsDelta.defense.to} · ARM {statsDelta.armor.from}→{statsDelta.armor.to}
+          </div>
+        )}
+
+        <div className="skill-list">
+          {skillsList.map(([name, level, progress]) => (
+            <div className="skill-item" key={name}>
+              <div className="skill-meta"><span>{name}</span><b>{level}</b></div>
+              <div className="skill-meter"><i className="skill-meter-fill" style={{ width: `${Math.round(progress * 100)}%` }} /></div>
+            </div>
+          ))}
+        </div>
+
+        {!activeCharacter.promotion && (
+          <div className="promotion-action">
+            <button
+              type="button"
+              disabled={activeCharacter.level < PROMOTION_LEVEL || game.session.gold < PROMOTION_COST}
+              onClick={promoteSelectedCharacter}
+              title={activeCharacter.level < PROMOTION_LEVEL ? `Requer nível ${PROMOTION_LEVEL}` : game.session.gold < PROMOTION_COST ? `Requer ${PROMOTION_COST} gold` : `Promover para ${promotedVocationFor(activeCharacter.baseVocation)}`}
+            >
+              Promover ({PROMOTION_COST} gold)
+            </button>
+            {promotionMessage && <small className="promotion-message">{promotionMessage}</small>}
+          </div>
+        )}
+      </DraggableWindow>
+
+      {/* Window 2: Equipment & Backpack */}
+      <DraggableWindow id="equipment" icon="🛡️">
+        <div className="equipment-window-content">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <button
+              type="button"
+              className="primary-button"
+              style={{ width: '100%', padding: '6px', fontSize: '10px' }}
+              onClick={() => setEquipmentOpen(true)}
+            >
+              ⚔️ Abrir Painel de Equipamentos (Paperdoll)
+            </button>
+          </div>
+
+          <div className="backpack-module">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: '#9ea49c', marginBottom: '4px' }}>
+              <span>Mochila ({inventoryEquipment.length} itens)</span>
+              <span>Cap: {characterCapacity(activeCharacter, content).toFixed(0)} oz</span>
+            </div>
+            <div className="backpack-grid" data-equipment-drop="inventory">
+              {inventoryEquipment.map((item, index) => (
+                <button
+                  type="button"
+                  className="backpack-slot"
+                  key={`${item.id}-${index}`}
+                  data-equipment-drop="inventory-index"
+                  data-inventory-index={index}
+                  onPointerDown={(event) => beginPointerEquipmentDrag({ kind: 'inventory', itemId: item.id }, event)}
+                  onClick={() => applyEquipmentTransfer({ kind: 'inventory', itemId: item.id }, { kind: 'auto-slot' })}
+                  title={`${item.name} (${item.slot}) · Clique para equipar`}
+                >
+                  <ItemSprite itemId={item.id} label={item.name} />
+                  <span className="slot-item-name">{item.name}</span>
+                </button>
+              ))}
+              {Array.from({ length: Math.max(0, 12 - inventoryEquipment.length) }).map((_, index) => (
+                <span className="backpack-slot empty" key={`empty-${index}`} data-equipment-drop="inventory" />
+              ))}
+            </div>
+          </div>
+
+          {/* Loot Pouch section */}
+          <div className="pouch-module" style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #333a34' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', marginBottom: '6px' }}>
+              <strong style={{ color: '#dfc882' }}>Bolsa de Saques (Loot Pouch)</strong>
+              <span>Valor: <b style={{ color: '#e5bd50' }}>{sellableValue.toLocaleString('pt-BR')} gp</b></span>
+            </div>
+            <div className="pouch-actions" style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+              {confirmSale ? (
+                <>
+                  <button type="button" className="sell-confirm-button" style={{ flex: 1 }} onClick={() => { sellLoot(); setConfirmSale(false); }}>Confirmar Venda</button>
+                  <button type="button" className="sell-cancel-button" onClick={() => setConfirmSale(false)}>Cancelar</button>
+                </>
+              ) : (
+                <button type="button" className="sell-all-button" style={{ flex: 1, padding: '5px' }} onClick={() => setConfirmSale(true)} disabled={sellableValue <= 0}>
+                  Vender Itens Livres
+                </button>
+              )}
+            </div>
+            {saleMessage && <div className="pouch-message" style={{ fontSize: '8px', color: '#99a198', marginBottom: '6px' }}>{saleMessage}</div>}
+            <div className="pouch-list" style={{ maxHeight: '110px', overflowY: 'auto' }}>
+              {game.session.loot.map((stack) => {
+                const price = stack.itemId === undefined ? null : prices.get(stack.itemId);
+                const pref = stack.itemId === undefined ? { autoLoot: true, lockSell: false, quickSell: false } : itemLootPreference(game, stack.itemId);
+                return (
+                  <div className="pouch-item" key={stack.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '3px 0', fontSize: '9px', borderBottom: '1px solid #232a24' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {stack.itemId !== undefined && <ItemSprite itemId={stack.itemId} label={stack.name} />}
+                      {stack.name} ×{stack.amount}
+                    </span>
+                    <div style={{ display: 'flex', gap: '3px' }}>
+                      {stack.itemId !== undefined && (
+                        <>
+                          <button type="button" style={{ padding: '2px 4px', fontSize: '8px', background: pref.lockSell ? '#5a2220' : '#1f2521', border: '1px solid #444' }} onClick={() => toggleLootPreference(stack.itemId!, 'lockSell')} title={pref.lockSell ? 'Item bloqueado para venda' : 'Bloquear venda'}>
+                            {pref.lockSell ? '🔒' : '🔓'}
+                          </button>
+                          {price !== null && price !== undefined && (
+                            <button type="button" style={{ padding: '2px 4px', fontSize: '8px' }} onClick={() => sellOneLoot(stack.itemId!)} disabled={pref.lockSell} title={`Vender 1 stack por ${price * stack.amount} gp`}>
+                              Vender
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </DraggableWindow>
+
+      {/* Window 3: Party */}
+      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{game.session.characters.length}/4</small>}>
+        <div className="party-list">
+          {game.session.characters.map((character) => {
+            const actor = encounter.partyActors.find((candidate) => candidate.characterId === character.id);
+            const stats = statsById.get(character.id);
+            const hp = actor?.hp ?? character.currentHp;
+            const mana = actor?.mana ?? character.currentMana;
+            return (
+              <button
+                type="button"
+                className={`party-member ${activeCharacter.id === character.id ? 'selected' : ''}`}
+                aria-pressed={activeCharacter.id === character.id}
+                key={character.id}
+                onClick={() => selectPartyCharacter(character.id)}
+              >
+                <span className={`role-badge role-${roleForVocation(character.vocation).toLowerCase()}`}>
+                  {roleForVocation(character.vocation)}
+                </span>
+                <span className="party-member-name">
+                  <strong>{character.name}</strong>
+                  <small>{character.vocation} · Lv {character.level}</small>
+                </span>
+                <div className="party-resource">
+                  <span>HP</span>
+                  <div className="compact-meter"><i className="hp-fill" style={{ width: `${100 * hp / character.maxHp}%` }} /></div>
+                  <b>{Math.round(100 * hp / character.maxHp)}%</b>
+                </div>
+                {character.maxMana > 0 && (
+                  <div className="party-resource">
+                    <span>MP</span>
+                    <div className="compact-meter"><i className="mana-fill" style={{ width: `${100 * mana / character.maxMana}%` }} /></div>
+                    <b>{mana}</b>
+                  </div>
+                )}
+                <div className="party-resource">
+                  <span>XP</span>
+                  <div className="compact-meter"><i className="xp-fill" style={{ width: `${xpProgressById.get(character.id) ?? 0}%` }} /></div>
+                  <b>{Math.round(xpProgressById.get(character.id) ?? 0)}%</b>
+                </div>
+                {stats && (
+                  <div className="party-combat-stats">
+                    <span>ATK <b>{stats.attack}</b></span>
+                    <span>DEF <b>{stats.defense}</b></span>
+                    <span>ARM <b>{stats.armor}</b></span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          className="add-party-member"
+          onClick={() => setPartyModalOpen(true)}
+          disabled={game.session.characters.length >= 4}
+          style={{ width: '100%', marginTop: '8px' }}
+        >
+          + Adicionar membro ({game.session.characters.length}/4)
+        </button>
+      </DraggableWindow>
+
+      {/* Window 4: Hunt & Navigation */}
+      <DraggableWindow id="hunt" icon="🗺️">
+        <div className="window-hunt-nav">
+          <WorldNavigation mode={mode} onTraining={() => setMode('training')} onHunts={() => setHuntSelectorOpen(true)} />
+          {mode === 'hunt' ? (
+            <HuntHeader
+              encounter={encounter}
+              elapsedMs={encounter.elapsedMs}
+              aliveEnemies={encounter.enemies.filter((enemy) => enemy.alive).length}
+              onExit={exitHunt}
+            />
+          ) : (
+            <IdleHeader
+              activeSkill={activeStats.activeSkill}
+              activeSkillLevel={activeStats.activeSkillLevel}
+              previousResult={encounter.status === 'running' ? 'ready' : encounter.status}
+            />
+          )}
+          <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+            <button
+              type="button"
+              className="primary-button"
+              style={{ flex: 1, padding: '6px', fontSize: '10px' }}
+              onClick={beginOrRestart}
+            >
+              {mode === 'hunt' ? (encounter.status === 'running' ? 'Reiniciar Caçada' : 'Entrar na Caçada') : 'Selecionar Caçada'}
+            </button>
+            <button
+              type="button"
+              className="dock-action-btn"
+              onClick={resetPrototype}
+              title="Resetar estado do protótipo"
+            >
+              Resetar
+            </button>
+          </div>
+        </div>
+      </DraggableWindow>
+
+      {/* Window 5: Metrics & Battle Stats */}
+      <DraggableWindow id="metrics" icon="📊">
+        <div className="metrics-window-content">
+          <div style={{ marginBottom: '8px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#c5a046', marginBottom: '4px' }}>DANO DE COMBATE</div>
+            <ValueRow label="DPS Médio" value={`${metrics.approximateDps.toFixed(1)}`} />
+            <ValueRow label="Dano Causado" value={metrics.damageDealt.toLocaleString('pt-BR')} />
+            <ValueRow label="Dano Recebido" value={metrics.damageTaken.toLocaleString('pt-BR')} />
+          </div>
+          <div style={{ paddingTop: '6px', borderTop: '1px solid #333a34' }}>
+            <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#c5a046', marginBottom: '4px' }}>PROGRESSÃO DA SESSÃO</div>
+            <ValueRow label="Tempo" value={formatSessionDuration(metrics.elapsedMs)} />
+            <ValueRow label="XP Ganho" value={metrics.xpGained.toLocaleString('pt-BR')} />
+            <ValueRow label="Taxa de XP" value={`${metrics.xpPerHour.toLocaleString('pt-BR')}/h`} />
+            <ValueRow label="Abates" value={metrics.kills} />
+            <ValueRow label="Loot Coletado" value={metrics.lootGained} />
+            <ValueRow label="Salas Alcançadas" value={encounter.room.number} />
+          </div>
+        </div>
+      </DraggableWindow>
+
+      {/* Window 6: Hotbar & Combat Log */}
+      <DraggableWindow id="logs" icon="📜">
+        <div className="window-hotbar-container">
+          <div style={{ fontSize: '9px', color: '#9ea49c', marginBottom: '2px' }}>
+            Rotação de Spells ({activeCharacter.name})
+          </div>
+          <BottomDock
+            logs={encounter.log}
+            seed={seed}
+            status={encounter.status}
+            character={activeCharacter}
+            actor={currentActor}
+            spells={content.spells}
+            elapsedMs={encounter.elapsedMs}
+            onSeed={setSeed}
+            onBegin={beginOrRestart}
+            onReset={resetPrototype}
+            onReorderSpell={reorderSelectedHotbar}
+          />
+        </div>
+      </DraggableWindow>
+
+      {/* Modals & Drawers */}
+      <EquipmentPanel
+        open={equipmentOpen}
+        character={activeCharacter}
+        catalog={content.equipment}
+        inventory={inventoryEquipment}
+        currentWeight={inventoryWeight(activeCharacter, content.equipment)}
+        capacity={characterCapacity(activeCharacter, content)}
+        gold={game.session.gold}
+        stats={activeStats}
+        statsDelta={statsDelta}
+        message={equipmentMessage}
+        disabled={false}
+        onClose={() => setEquipmentOpen(false)}
+        onTransfer={applyEquipmentTransfer}
+        onPointerDragStart={beginPointerEquipmentDrag}
+      />
+      <HuntSelector
+        open={huntSelectorOpen}
+        hunts={content.hunts}
+        monsters={content.monsters}
+        level={leader.level}
+        onClose={() => setHuntSelectorOpen(false)}
+        onSelect={startSelectedHunt}
+      />
+      <PartyMemberModal
+        open={partyModalOpen}
+        used={game.session.characters.map((character) => character.baseVocation)}
+        onClose={() => setPartyModalOpen(false)}
+        onCreate={createMember}
+      />
+
+      {pointerDrag && (
+        <div className="pointer-drag-ghost" style={{ left: pointerDrag.x, top: pointerDrag.y }} aria-hidden="true">
+          <ItemSprite itemId={pointerDrag.itemId} label={pointerDrag.label} />
+          <span>{pointerDrag.label}</span>
+        </div>
+      )}
     </main>
   );
 }

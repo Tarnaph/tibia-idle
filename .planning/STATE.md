@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 13 of 13 (Ajuste de Indicador Visual de Dano - Remover sinal -)  
+Phase: 14 of 14 (Viewport em tela cheia e janelas de UI flutuantes e arrastáveis)  
 Plan: 1 of 1 in current phase  
 Status: Milestone complete  
-Last activity: 2026-09-02 — Phase 13 concluída: danos numéricos sem sinal negativo e em vermelho.
+Last activity: 2026-09-02 — Phase 14 concluída: viewport 100% fullscreen com janelas arrastáveis e HUD.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 13
+- Total phases completed: 14
 - Tests status: 14 test suites passando (Vitest)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 warnings/erros (ESLint 9)
@@ -41,6 +41,7 @@ Progress: [██████████] 100%
 | 11. Economia de Party, Loot Pouch e UX Estrutural | 1 | - | - | Complete |
 | 12. Fundação de Autenticação, Contas e Segurança (Supabase) | 1 | - | - | Complete |
 | 13. Ajuste de Indicador Visual de Dano (Remover sinal -) | 1 | - | - | Complete |
+| 14. Viewport em tela cheia e janelas de UI flutuantes e arrastáveis | 1 | - | - | Complete |
 
 ## Accumulated Context
 
@@ -58,9 +59,12 @@ Progress: [██████████] 100%
 - [Phase 10]: Câmera de expedição desacoplada da seleção de UI e suporte a hot-swap de equipamentos em combate ativo.
 - [Phase 11]: Loot Pouch com travas de venda (`lockSell`), peso/capacidade e divisão de experiência balanceada.
 - [Phase 12]: Autenticação Supabase, RLS restrito a admin no backend e rota `/game-preview` sem login para facilidade em desenvolvimento local.
+- [Phase 13]: Dano recebido exibido puramente em vermelho sem o sinal negativo (-), alinhado ao Tibia 8.60.
 
 ### Roadmap Evolution
 
 - Phase 1 a 12 concluídas e mapeadas a partir dos testes, esquemas e componentes do projeto.
 - Phase 13 added: Remover sinal negativo dos danos recebidos e exibir apenas em vermelho (FIX.md).
+- Phase 14 added: Viewport em tela cheia e janelas de UI flutuantes e arrastáveis (solicitação do usuário).
+
 

@@ -648,3 +648,350 @@ h1, h2, h3, p { margin: 0; }
 }
 .camera-follow { grid-column: 1 / -1; justify-self: end; color: #87968c; font-size: 9px; cursor: pointer; }
 .camera-follow.active { color: #e5bd50; }
+
+/* ============================================================
+   Phase 14: Fullscreen Viewport & Draggable Windows System
+   ============================================================ */
+
+.fullscreen-viewport {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+  background: #080a0b;
+}
+
+.fullscreen-viewport .pixi-arena,
+.fullscreen-viewport .training-arena-host {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Window Dock Bar (Top HUD) */
+.window-dock-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: linear-gradient(180deg, rgba(16, 20, 18, 0.95) 0%, rgba(11, 14, 12, 0.9) 100%);
+  border-bottom: 1px solid #3c433b;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+.dock-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.game-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #62e58a;
+  box-shadow: 0 0 8px #62e58a;
+}
+
+.brand-title {
+  font-family: Georgia, serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: #dfc882;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.brand-sub {
+  font-size: 9px;
+  color: #8c9288;
+  font-weight: bold;
+}
+
+.player-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid #2b322c;
+  border-radius: 4px;
+}
+
+.player-name {
+  font-weight: 700;
+  font-size: 12px;
+  color: #e2ded4;
+}
+
+.player-gold {
+  font-size: 11px;
+  color: #e5bd50;
+  font-weight: 700;
+}
+
+.dock-windows {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dock-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: #181d1a;
+  border: 1px solid #333a34;
+  border-radius: 4px;
+  color: #9ea49c;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 120ms ease;
+  position: relative;
+}
+
+.dock-btn:hover {
+  background: #232a25;
+  border-color: #555f56;
+  color: #e4e2d8;
+}
+
+.dock-btn.is-active {
+  background: #252b22;
+  border-color: #8f793e;
+  color: #e5bd50;
+  box-shadow: inset 0 0 6px rgba(229, 189, 80, 0.2);
+}
+
+.dock-btn.is-min {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.dock-btn-icon {
+  font-size: 13px;
+}
+
+.dock-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e5bd50;
+}
+
+.dock-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dock-action-btn {
+  padding: 5px 9px;
+  background: #141715;
+  border: 1px solid #3c433b;
+  border-radius: 4px;
+  color: #a4aba2;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.dock-action-btn:hover {
+  background: #1f2521;
+  border-color: #636d62;
+  color: #ece8dd;
+}
+
+.dock-action-btn.is-active {
+  border-color: #62e58a;
+  color: #62e58a;
+}
+
+/* Draggable Windows Styles */
+.draggable-window {
+  position: fixed;
+  background: rgba(18, 22, 19, 0.94);
+  border: 1px solid #4a5348;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow 150ms ease;
+  user-select: none;
+}
+
+.draggable-window.is-dragging {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.88), 0 0 0 2px var(--accent);
+  opacity: 0.96;
+}
+
+.draggable-window.is-minimized {
+  height: auto !important;
+}
+
+.window-header {
+  height: 32px;
+  min-height: 32px;
+  background: linear-gradient(180deg, #2a312b 0%, #1f2520 100%);
+  border-bottom: 1px solid #3d463d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 10px;
+  cursor: grab;
+}
+
+.window-header:active {
+  cursor: grabbing;
+}
+
+.window-title-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+}
+
+.window-icon {
+  font-size: 13px;
+}
+
+.window-title {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: #dfdbcf;
+  letter-spacing: 0.03em;
+  text-shadow: 1px 1px 1px #000;
+}
+
+.window-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.window-btn {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  background: #141815;
+  border: 1px solid #373f36;
+  border-radius: 3px;
+  color: #92998f;
+  font-size: 9px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: all 100ms ease;
+}
+
+.window-btn:hover {
+  background: #2a332c;
+  color: #fff;
+  border-color: #556253;
+}
+
+.window-btn.close-btn:hover {
+  background: #501e1a;
+  border-color: #a84038;
+  color: #ff9d94;
+}
+
+.window-body {
+  padding: 8px;
+  max-height: calc(85vh - 70px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  user-select: auto;
+}
+
+.window-body::-webkit-scrollbar {
+  width: 6px;
+}
+.window-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.window-body::-webkit-scrollbar-thumb {
+  background: #394339;
+  border-radius: 3px;
+}
+.window-body::-webkit-scrollbar-thumb:hover {
+  background: #526052;
+}
+
+.window-hunt-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.window-hunt-nav .world-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.window-hunt-nav .world-nav button {
+  flex: 1;
+  padding: 6px;
+  font-size: 11px;
+}
+
+.window-hotbar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.window-log-container {
+  margin-top: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  border: 1px solid #283029;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px;
+  font-size: 10px;
+}
+
+.window-log-container ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.window-log-container li {
+  display: flex;
+  gap: 6px;
+  color: #92998f;
+}
+
+.window-log-container li time {
+  color: #e5bd50;
+  font-family: monospace;
+}
+
