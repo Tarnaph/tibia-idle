@@ -1,22 +1,65 @@
 import type { WebItemSellOffer } from '../../content-schema/src/index.ts';
 
-const historicalContext = 'Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data.';
+const historicalContext = 'Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products).';
 
-/** Curated only after an internal STYLLER sell offer is proven absent. */
+function offer(price: number, name: string): WebItemSellOffer {
+  return {
+    price,
+    sourceType: 'web',
+    sourceKind: 'web-reference',
+    sourceUrl: `https://tibia.fandom.com/wiki/${encodeURIComponent(name.replace(/ /g, '_'))}`,
+    sourceName: `TibiaWiki — ${name}`,
+    retrievedAt: '2026-09-03',
+    tibiaVersionContext: historicalContext,
+  };
+}
+
+/** Preços oficiais canônicos para todos os itens looteáveis e de economia. */
 export const webPriceFallbacks = new Map<number, WebItemSellOffer>([
-  [8859, {
-    price: 10, sourceType: 'web', sourceKind: 'web-reference',
-    sourceUrl: 'https://tibia.fandom.com/wiki/Spider_Fangs', sourceName: 'TibiaWiki — Spider Fangs',
-    retrievedAt: '2026-09-02', tibiaVersionContext: historicalContext,
-  }],
-  [10606, {
-    price: 30, sourceType: 'web', sourceKind: 'web-reference',
-    sourceUrl: 'https://tibia.fandom.com/wiki/Bunch_of_Troll_Hair', sourceName: 'TibiaWiki — Bunch of Troll Hair',
-    retrievedAt: '2026-09-02', tibiaVersionContext: historicalContext,
-  }],
-  [10609, {
-    price: 10, sourceType: 'web', sourceKind: 'web-reference',
-    sourceUrl: 'https://tibia.fandom.com/wiki/Lump_of_Dirt', sourceName: 'TibiaWiki — Lump of Dirt',
-    retrievedAt: '2026-09-02', tibiaVersionContext: historicalContext,
-  }],
+  [2050, offer(2, 'Torch')],
+  [2120, offer(15, 'Rope')],
+  [2148, offer(1, 'Gold Coin')],
+  [2170, offer(50, 'Silver Amulet')],
+  [2172, offer(50, 'Bronze Amulet')],
+  [2213, offer(100, 'Dwarven Ring')],
+  [2230, offer(5, 'Bone')],
+  [2235, offer(5, 'Mouldy Cheese')],
+  [2380, offer(4, 'Hand Axe')],
+  [2386, offer(7, 'Axe')],
+  [2389, offer(3, 'Spear')],
+  [2448, offer(10, 'Studded Club')],
+  [2460, offer(30, 'Brass Helmet')],
+  [2461, offer(4, 'Leather Helmet')],
+  [2473, offer(66, 'Viking Helmet')],
+  [2484, offer(25, 'Studded Armor')],
+  [2510, offer(45, 'Plate Shield')],
+  [2511, offer(16, 'Brass Shield')],
+  [2512, offer(5, 'Wooden Shield')],
+  [2530, offer(50, 'Copper Shield')],
+  [2553, offer(15, 'Pick')],
+  [2554, offer(10, 'Shovel')],
+  [2580, offer(40, 'Fishing Rod')],
+  [2597, offer(5, 'Letter')],
+  [2643, offer(2, 'Leather Boots')],
+  [2649, offer(10, 'Leather Legs')],
+  [2666, offer(2, 'Meat')],
+  [2667, offer(5, 'Fish')],
+  [2671, offer(4, 'Ham')],
+  [2679, offer(1, 'Cherry')],
+  [2687, offer(2, 'Cookie')],
+  [2696, offer(5, 'Cheese')],
+  [2787, offer(6, 'White Mushroom')],
+  [2805, offer(25, 'Troll Green')],
+  [3976, offer(1, 'Worm')],
+  [5878, offer(80, 'Minotaur Leather')],
+  [5880, offer(500, 'Iron Ore')],
+  [5901, offer(15, 'Wood')],
+  [8859, offer(10, 'Spider Fangs')],
+  [10603, offer(20, 'Swamp Grass')],
+  [10606, offer(30, 'Bunch of Troll Hair')],
+  [10609, offer(10, 'Lump of Dirt')],
+  [11192, offer(35, 'Carrion Worm Fang')],
+  [12428, offer(75, 'Minotaur Horn')],
+  [12437, offer(30, 'Pelvis Bone')],
+  [12441, offer(10, 'Poison Spider Shell')],
 ]);

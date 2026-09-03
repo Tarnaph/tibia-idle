@@ -201,7 +201,9 @@ export interface SessionState {
   selectedCharacterId: string;
   cameraTargetCharacterId: string;
   characters: CharacterState[];
-  loot: LootStack[];
+  loot: LootStack[]; // Mochila (retrocompatibilidade)
+  bag?: LootStack[];  // Bolsa (12 slots seguros)
+  depot?: LootStack[]; // Armazém DP
   gold: number;
   trainingElapsedMs: number;
   itemLootPreferences: Record<string, ItemLootPreference>;

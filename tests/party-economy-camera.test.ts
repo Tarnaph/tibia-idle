@@ -62,7 +62,7 @@ describe('Loot Pouch economy', () => {
 
   it('keeps items whose sell price is unknown', () => {
     const state = createIdleGame('unknown-price', content);
-    state.session.loot = [{ itemId: 2666, name: 'meat', amount: 2 }];
+    state.session.loot = [{ itemId: 999999, name: 'mysterious artifact', amount: 2 }];
     const result = sellAllLoot(state, content);
     expect(result.goldEarned).toBe(0); expect(result.state.session.loot).toEqual(state.session.loot);
   });

@@ -1,18 +1,157 @@
 'use client';
 
-import { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-export interface ItemMenuAction { label: string; disabled?: boolean; active?: boolean; run(): void }
+export interface ItemContextMenuProps {
+  x: number;
+  y: number;
+  itemName: string;
+  itemId?: number;
+  isEquipped?: boolean;
+  isEquippable?: boolean;
+  autoLoot: boolean;
+  lockSell: boolean;
+  quickSell: boolean;
+  onEquipToggle?: () => void;
+  onMarketSell?: () => void;
+  onMarketView?: () => void;
+  onToggleAutoLoot: () => void;
+  onToggleLockSell: () => void;
+  onToggleQuickSell: () => void;
+  onDestroy: () => void;
+  onClose: () => void;
+}
 
-export function ItemContextMenu({ x, y, title, actions, onClose }: { x: number; y: number; title: string; actions: ItemMenuAction[]; onClose(): void }) {
+export function ItemContextMenu({
+  x,
+  y,
+  itemName,
+  isEquipped = false,
+  isEquippable = true,
+  autoLoot,
+  lockSell,
+  quickSell,
+  onEquipToggle,
+  onMarketSell,
+  onMarketView,
+  onToggleAutoLoot,
+  onToggleLockSell,
+  onToggleQuickSell,
+  onDestroy,
+  onClose,
+}: ItemContextMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const close = () => onClose();
-    window.addEventListener('pointerdown', close);
-    window.addEventListener('blur', close);
-    return () => { window.removeEventListener('pointerdown', close); window.removeEventListener('blur', close); };
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    window.addEventListener('mousedown', handleOutsideClick);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('mousedown', handleOutsideClick);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [onClose]);
-  return <div className="item-context-menu" style={{ left: x, top: y }} role="menu" onPointerDown={(event) => event.stopPropagation()}>
-    <strong>{title}</strong>
-    {actions.map((action) => <button type="button" role="menuitem" key={action.label} disabled={action.disabled} className={action.active ? 'active' : ''} onClick={() => { action.run(); onClose(); }}>{action.active ? '✓ ' : ''}{action.label}</button>)}
-  </div>;
+
+  // Adjust position so it stays on screen
+  const adjustedLeft = Math.min(x, typeof window !== 'undefined' ? window.innerWidth - 200 : x);
+  const adjustedTop = Math.min(y, typeof window !== 'undefined' ? window.innerHeight - 280 : y);
+
+  return (
+    <div
+      ref={menuRef}
+      className="tibia-context-menu"
+      style={{ left: `${adjustedLeft}px`, top: `${adjustedTop}px` }}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      <div className="context-menu-title">{itemName}</div>
+      <div className="context-menu-divider" />
+
+      {isEquippable && (
+        <button
+          type="button"
+          className="context-menu-item"
+          onClick={() => {
+            onEquipToggle?.();
+            onClose();
+          }}
+        >
+          {isEquipped ? 'Desequipar' : 'Equipar'}
+        </button>
+      )}
+
+      <button
+        type="button"
+        className="context-menu-item"
+        onClick={() => {
+          onMarketSell?.();
+          onClose();
+        }}
+      >
+        Vender no Market
+      </button>
+
+      <button
+        type="button"
+        className="context-menu-item"
+        onClick={() => {
+          onMarketView?.();
+          onClose();
+        }}
+      >
+        Ver no Market
+      </button>
+
+      <label className="context-menu-item checkbox-item">
+        <span>Auto loot</span>
+        <input
+          type="checkbox"
+          checked={autoLoot}
+          onChange={() => onToggleAutoLoot()}
+        />
+        <span className="custom-checkbox" />
+      </label>
+
+      <label className="context-menu-item checkbox-item">
+        <span>Travar venda</span>
+        <input
+          type="checkbox"
+          checked={lockSell}
+          onChange={() => onToggleLockSell()}
+        />
+        <span className="custom-checkbox" />
+      </label>
+
+      <label className="context-menu-item checkbox-item">
+        <span>Venda rápida</span>
+        <input
+          type="checkbox"
+          checked={quickSell}
+          onChange={() => onToggleQuickSell()}
+        />
+        <span className="custom-checkbox" />
+      </label>
+
+      <button
+        type="button"
+        className="context-menu-item destructive-item"
+        onClick={() => {
+          if (confirm(`Deseja realmente destruir "${itemName}"?`)) {
+            onDestroy();
+          }
+          onClose();
+        }}
+      >
+        <span>Destruir</span>
+        <span className="chevron-icon">›</span>
+      </button>
+    </div>
+  );
 }

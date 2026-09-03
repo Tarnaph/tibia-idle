@@ -319,12 +319,39 @@ Plans:
 
 - [x] 24-01-PLAN: Área 3x3 completa de `exori`, efeito visual nos 8 tiles simultâneos em `PixiArena`, conjuração de área e fórmula de dano de `realmap11`.
 
+### Phase 25: Novo Inventário com Bolsa, Depot, Venda Rápida, Menu de Contexto, Movimentação Ortogonal e Preços de Loot
+
+**Goal:** Implementar a reformulação completa do sistema de inventário, equipamentos, armazenamento e movimentação conforme especificações visuais do usuário e do Tibia:
+1. **Movimentação Preferencial Ortogonal (Horizontal/Vertical)**: Ajustar custos e heurística do pathfinding A* para preferir movimentos retos, utilizando passos diagonais apenas como último recurso ou desobstrução.
+2. **Novo Layout do Inventário (Visual Idêntico ao Print)**:
+   - Coluna esquerda: slots de equipamentos no layout autêntico com silhuetas oficiais quando vazios, e badge inferior de Capacidade (`oz`).
+   - Coluna direita: compartimento `Bolsa` (12 slots) para itens protegidos e `Mochila` (20 slots) onde todo loot cai diretamente.
+   - Rodapé com contagem de gold formatada com ícone de moedas de ouro.
+   - Drag & drop fluido entre slots de equipamentos, Mochila e Bolsa.
+3. **Menu de Contexto de Item (Botão Direito)**:
+   - Opções: Equipar/Desequipar, Vender no Market, Ver no Market, Auto loot (checkbox), Travar venda (checkbox), Venda rápida (checkbox) e Destruir.
+4. **Botões de Atalho Acima das Hotkeys**:
+   - Barra superior contendo botões `DEPOT`, `VENDA RÁPIDA` (em destaque dourado), `IMBUEMENTS` e `BLESSINGS`.
+5. **Janela do Depot (Armazém)**:
+   - Modal com abas de filtros por categoria, busca textual, grid espaçoso do Armazém e visualização lateral da Bolsa/Mochila para transferências rápidas.
+6. **Janela de Venda Rápida**:
+   - Modal listando itens elegíveis da Mochila com cálculo de valor em tempo real e botão de venda em massa com crédito instantâneo de gold.
+7. **Preços Completos de Todos os Itens**:
+   - Atribuir preços de venda canônicos a todos os 43 itens anteriormente sem preço em `item-economy.json`.
+**Requirements:** Prints fornecidos pelo usuário, `FIX.md`, `vocations.xml` e `items.xml` de `realmap11`.
+**Depends on:** Phase 24
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 25-01-PLAN: Movimentação ortogonal no A*, novo layout de Inventário (Bolsa + Mochila + Capacidade), menu de contexto botão direito, janelas Depot e Venda Rápida, botões de ação e precificação de todo o loot.
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 25
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -352,3 +379,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1/1 | Complete | 2026-09-03 |
 | 23. Cooldowns Oficiais, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats | 1/1 | Complete | 2026-09-03 |
 | 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1/1 | Complete | 2026-09-03 |
+| 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1/1 | Complete | 2026-09-03 |

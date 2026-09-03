@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 24 of 24 (Área Autêntica da Magia Exori)  
+Phase: 25 of 25 (Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 24 concluída: Área autêntica 3x3 (SQUARE1X1) de Berserk (exori), efeito visual CONST_ME_HITAREA (10) projetado simultaneamente nos 8 tiles ao redor do conjurador no PixiArena, acerto em todos os inimigos da área, conjuração instantânea e fórmula de dano oficial realmap11.
+Last activity: 2026-09-03 — Phase 25 concluída com sucesso: Reformulação completa do Inventário (Bolsa 12 slots + Mochila 20 slots + Silhuetas clássicas vazias + Badge de Capacidade oz + Gold Coins), Menu de Contexto (botão direito com Auto-loot, Travar venda, Venda rápida e Destruir), Janelas Depot (Armazém com abas de filtros e 63 slots) e Venda Rápida (lista interativa, seleção rápida e cálculo em tempo real), Quick Action Dock acima da hotbar, movimentação ortogonal prioritária no A* e precificação canônica de 100% dos loots em item-economy.json.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 22
-- Tests status: 17 test suites passando (Vitest - 148 testes)
+- Total phases completed: 25
+- Tests status: 20 test suites passando (Vitest - 163 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 warnings/erros (ESLint 9)
 
@@ -50,6 +50,9 @@ Progress: [██████████] 100%
 | 20. Extração e Integração Oficial de Ícones e Poções | 1 | - | - | Complete |
 | 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1 | - | - | Complete |
 | 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1 | - | - | Complete |
+| 23. Cooldowns Oficiais, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats | 1 | - | - | Complete |
+| 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1 | - | - | Complete |
+| 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1 | - | - | Complete |
 
 ## Accumulated Context
 

@@ -104,7 +104,7 @@ describe('read-only STYLLER importer', () => {
     const sword = economy.items.find((item) => item.itemId === 2376);
     expect(sword).toMatchObject({ canonicalSellPrice: 25, status: 'sellable' });
     expect(sword?.offers[0]).toMatchObject({ sourceNpc: 'Mad', sourceKind: 'npc-xml-shop-sellable' });
-    expect(economy.items.find((item) => item.itemId === 2666)?.status).toBe('priceUnknown');
+    expect(economy.items.find((item) => item.itemId === 2666)).toMatchObject({ canonicalSellPrice: 2, status: 'sellable' });
     expect(economy.items.find((item) => item.itemId === 8859)).toMatchObject({
       canonicalSellPrice: 10,
       offers: [{ sourceType: 'web', sourceKind: 'web-reference', tibiaVersionContext: expect.stringContaining('8.60') }],

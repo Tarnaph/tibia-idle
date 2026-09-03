@@ -12,6 +12,7 @@ import type { BaseVocationName, EquipmentCatalog, HuntRegionCatalog, ItemEconomy
 import {
   addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
+  transferItemBetweenContainers, destroyContainerItem, executeQuickSell,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction,
@@ -20,6 +21,9 @@ import {
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
 import { BottomDock } from './BottomDock';
 import { EquipmentPanel, type StatsDelta } from './EquipmentPanel';
+import { InventoryWindow } from './InventoryWindow';
+import { DepotWindow } from './DepotWindow';
+import { QuickSellWindow } from './QuickSellWindow';
 import { HotbarConfigModal } from './HotbarConfigModal';
 import { HuntHeader } from './HuntHeader';
 import { HuntSelector } from './HuntSelector';
@@ -83,6 +87,8 @@ function GamePrototypeContent() {
   const [partyModalOpen, setPartyModalOpen] = useState(false);
   const [debugGrid, setDebugGrid] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
+  const [depotOpen, setDepotOpen] = useState(false);
+  const [quickSellOpen, setQuickSellOpen] = useState(false);
   const [equipmentMessage, setEquipmentMessage] = useState('Arraste ou clique em um item para alterar o loadout.');
   const [saleMessage, setSaleMessage] = useState('Itens sem preço comprovado permanecem no pouch.');
   const [promotionMessage, setPromotionMessage] = useState('');
@@ -641,24 +647,53 @@ function GamePrototypeContent() {
         onConfigureSlot={setHotbarConfigSlot}
         onSlotClick={handleManualHotbarAction}
         onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
+        onOpenDepot={() => setDepotOpen(true)}
+        onOpenQuickSell={() => setQuickSellOpen(true)}
       />
 
       {/* Modals & Drawers */}
-      <EquipmentPanel
+      <InventoryWindow
         open={equipmentOpen}
         character={activeCharacter}
-        catalog={content.equipment}
-        inventory={inventoryEquipment}
-        currentWeight={inventoryWeight(activeCharacter, content.equipment)}
-        capacity={characterCapacity(activeCharacter, content)}
-        gold={game.session.gold}
-        stats={activeStats}
-        statsDelta={statsDelta}
-        message={equipmentMessage}
-        disabled={false}
+        equipmentCatalog={content.equipment}
+        backpackItems={game.session.loot}
+        bagItems={game.session.bag ?? []}
+        availableCapacityOz={Math.max(0, characterCapacity(activeCharacter, content) - inventoryWeight(activeCharacter, content.equipment))}
+        totalGold={game.session.gold}
         onClose={() => setEquipmentOpen(false)}
-        onTransfer={applyEquipmentTransfer}
-        onPointerDragStart={beginPointerEquipmentDrag}
+        onEquipItem={(itemId) => applyEquipmentTransfer({ kind: 'inventory', itemId }, { kind: 'auto-slot' })}
+        onUnequipSlot={(slot) => applyEquipmentTransfer({ kind: 'equipped', slot }, { kind: 'inventory' })}
+        onTransferContainerItem={(from, to, index) => setGame((cur) => transferItemBetweenContainers(cur, from, to, index))}
+        onDestroyItem={(container, index) => setGame((cur) => destroyContainerItem(cur, container, index))}
+        onToggleItemPreference={(itemId, key) => setGame((cur) => updateItemLootPreference(cur, itemId, { [key]: !itemLootPreference(cur, itemId)[key] }))}
+        getItemPreference={(itemId) => itemLootPreference(game, itemId)}
+      />
+
+      <DepotWindow
+        open={depotOpen}
+        depotItems={game.session.depot ?? []}
+        bagItems={game.session.bag ?? []}
+        backpackItems={game.session.loot}
+        onClose={() => setDepotOpen(false)}
+        onTransferToDepot={(from, index) => setGame((cur) => transferItemBetweenContainers(cur, from, 'depot', index))}
+        onTransferFromDepot={(to, depotIndex) => setGame((cur) => transferItemBetweenContainers(cur, 'depot', to, depotIndex))}
+      />
+
+      <QuickSellWindow
+        open={quickSellOpen}
+        backpackItems={game.session.loot}
+        economy={content.economy}
+        state={game}
+        onClose={() => setQuickSellOpen(false)}
+        onExecuteSell={(selectedIds) => {
+          setGame((cur) => {
+            const result = executeQuickSell(cur, content, selectedIds);
+            return result.state;
+          });
+        }}
+        onToggleQuickSellPreference={(itemId) => {
+          setGame((cur) => updateItemLootPreference(cur, itemId, { quickSell: !itemLootPreference(cur, itemId).quickSell }));
+        }}
       />
       <HuntSelector
         open={huntSelectorOpen}

@@ -6,10 +6,10 @@ const NEIGHBORS = [
   { x: 1, y: 0, cost: 10 },
   { x: 0, y: 1, cost: 10 },
   { x: -1, y: 0, cost: 10 },
-  { x: 1, y: -1, cost: 14 },
-  { x: 1, y: 1, cost: 14 },
-  { x: -1, y: 1, cost: 14 },
-  { x: -1, y: -1, cost: 14 },
+  { x: 1, y: -1, cost: 25 },
+  { x: 1, y: 1, cost: 25 },
+  { x: -1, y: 1, cost: 25 },
+  { x: -1, y: -1, cost: 25 },
 ] as const;
 
 interface OpenNode {
@@ -55,7 +55,7 @@ function heuristic(position: GridPosition, goals: GridPosition[]): number {
   return Math.min(...goals.map((goal) => {
     const dx = Math.abs(position.x - goal.x);
     const dy = Math.abs(position.y - goal.y);
-    return Math.min(dx, dy) * 14 + Math.abs(dx - dy) * 10;
+    return (dx + dy) * 10;
   }));
 }
 

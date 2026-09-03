@@ -18,6 +18,8 @@ interface BottomDockProps {
   onConfigureSlot?: (slotIndex: number) => void;
   onSlotClick?: (slotIndex: number) => void;
   onToggleBackpack?: () => void;
+  onOpenDepot?: () => void;
+  onOpenQuickSell?: () => void;
 }
 
 export function BottomDock({
@@ -29,6 +31,8 @@ export function BottomDock({
   onConfigureSlot,
   onSlotClick,
   onToggleBackpack,
+  onOpenDepot,
+  onOpenQuickSell,
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
 
@@ -50,6 +54,47 @@ export function BottomDock({
             ))}
           </ol>
         </section>
+      )}
+
+      {/* Top Quick Action Bar above console matching Image 3 */}
+      {onOpenDepot && onOpenQuickSell && (
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', paddingLeft: '8px' }}>
+          <button
+            type="button"
+            className="quick-action-btn btn-depot"
+            onClick={onOpenDepot}
+            title="Abrir Armazém do Depot"
+          >
+            DEPOT
+          </button>
+          <button
+            type="button"
+            className="quick-action-btn btn-quicksell highlighted-gold"
+            onClick={onOpenQuickSell}
+            title="Venda Rápida de Itens da Mochila"
+            style={{ marginLeft: '6px' }}
+          >
+            VENDA RÁPIDA
+          </button>
+          <button
+            type="button"
+            className="quick-action-btn btn-imbuements"
+            onClick={() => alert('Sistema de Imbuements')}
+            title="Imbuements"
+            style={{ marginLeft: '6px' }}
+          >
+            IMBUEMENTS
+          </button>
+          <button
+            type="button"
+            className="quick-action-btn btn-blessings"
+            onClick={() => alert('Sistema de Blessings')}
+            title="Blessings"
+            style={{ marginLeft: '6px' }}
+          >
+            BLESSINGS
+          </button>
+        </div>
       )}
 
       {/* Full Bottom Console HUD matching user reference screenshot */}

@@ -2150,5 +2150,670 @@ h1, h2, h3, p { margin: 0; }
   border-color: #7d4444;
 }
 
+/* ==========================================================================
+   PHASE 25: NOVO INVENTÁRIO, DEPOT, VENDA RÁPIDA, CONTEXT MENU & QUICK ACTIONS
+   ========================================================================== */
+
+/* 1. Quick Action Dock (Above Hotbar Console) */
+.quick-action-dock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  padding: 0 4px;
+}
+
+.quick-action-btn {
+  padding: 5px 14px;
+  background: linear-gradient(180deg, #1d222e 0%, #131720 100%);
+  border: 1.5px solid #333d52;
+  border-radius: 4px;
+  color: #c7d5ea;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 120ms ease;
+}
+
+.quick-action-btn:hover {
+  background: linear-gradient(180deg, #272f40 0%, #1a202d 100%);
+  border-color: #485775;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.quick-action-btn:active {
+  transform: translateY(1px);
+}
+
+.quick-action-btn.highlighted-gold {
+  background: linear-gradient(180deg, #252219 0%, #17140e 100%);
+  border: 1.5px solid #d49e35;
+  color: #f6ce6d;
+  box-shadow: 0 0 10px rgba(212, 158, 53, 0.35), inset 0 1px 0 rgba(255, 230, 150, 0.25);
+}
+
+.quick-action-btn.highlighted-gold:hover {
+  background: linear-gradient(180deg, #38311d 0%, #201a10 100%);
+  border-color: #f1ba4f;
+  color: #ffe699;
+  box-shadow: 0 0 14px rgba(241, 186, 79, 0.5), inset 0 1px 0 rgba(255, 240, 180, 0.4);
+}
+
+/* 2. Window Overlays & Containers (Tibia Blue/Slate Theme) */
+.inventory-window-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.inventory-window-container,
+.depot-window-container,
+.quicksell-window-container {
+  background: #171b25;
+  border: 2px solid #2d3648;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #dce4f0;
+  font-family: inherit;
+  user-select: none;
+  overflow: hidden;
+  animation: modalFadeIn 150ms ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.inventory-window-container {
+  width: 520px;
+}
+
+.depot-window-container {
+  width: 680px;
+}
+
+.quicksell-window-container {
+  width: 440px;
+}
+
+/* Window Headers */
+.inventory-window-header,
+.depot-window-header,
+.quicksell-window-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #222938 0%, #191e2a 100%);
+  border-bottom: 1px solid #2d3648;
+}
+
+.inventory-header-title,
+.depot-header-title,
+.quicksell-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8da3c9;
+  letter-spacing: 0.3px;
+}
+
+.inventory-close-btn {
+  background: transparent;
+  border: none;
+  color: #72819c;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 120ms ease;
+}
+
+.inventory-close-btn:hover {
+  color: #ff6e6e;
+}
+
+/* 3. Inventory Window Body (2 Columns) */
+.inventory-window-body {
+  display: flex;
+  padding: 12px;
+  gap: 14px;
+}
+
+/* Left Column: Equipment Paperdoll */
+.inventory-paperdoll-column {
+  width: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.paperdoll-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 38px);
+  grid-template-rows: repeat(4, 38px);
+  grid-template-areas:
+    ". head ."
+    "neck armor backpack"
+    "leftHand legs rightHand"
+    "finger boots ammo";
+  gap: 6px;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.paperdoll-slot-box {
+  width: 38px;
+  height: 38px;
+  background: #11141c;
+  border: 1.5px solid #2a3344;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  transition: all 120ms ease;
+}
+
+.paperdoll-slot-box:hover {
+  border-color: #485977;
+  background: #151a24;
+}
+
+.paperdoll-slot-box.occupied {
+  border-color: #3b4961;
+}
+
+/* Capacity Inset Box */
+.capacity-inset-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0d1017;
+  border: 1px solid #232a39;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-top: 10px;
+}
+
+.capacity-badge {
+  background: linear-gradient(180deg, #2b6d37 0%, #1a4923 100%);
+  border: 1px solid #3c914d;
+  border-radius: 3px;
+  color: #ecffef;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  letter-spacing: 0.2px;
+}
+
+.capacity-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2eaf5;
+}
+
+/* Right Column: Bolsa & Mochila */
+.inventory-items-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.container-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.container-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd7eb;
+}
+
+.container-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid #4a5770;
+  color: #798ba8;
+  font-size: 9px;
+  cursor: help;
+}
+
+.container-section-divider {
+  height: 1px;
+  background: #252e3e;
+  margin: 10px 0;
+}
+
+/* Grids */
+.container-grid {
+  display: grid;
+  gap: 5px;
+}
+
+.bolsa-grid {
+  grid-template-columns: repeat(6, 36px);
+  grid-template-rows: repeat(2, 36px);
+}
+
+.mochila-grid {
+  grid-template-columns: repeat(5, 36px);
+  grid-template-rows: repeat(4, 36px);
+}
+
+.inventory-slot-cell {
+  width: 36px;
+  height: 36px;
+  background: #11141c;
+  border: 1.5px solid #273142;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  transition: all 120ms ease;
+}
+
+.inventory-slot-cell:hover {
+  border-color: #4b5c7a;
+  background: #161b26;
+}
+
+.inventory-slot-cell.occupied {
+  border-color: #38465c;
+}
+
+/* Badges on Items */
+.item-amount-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 8px;
+  font-weight: 800;
+  color: #f7fafc;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  z-index: 5;
+}
+
+.item-quicksell-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 8px 8px 0;
+  border-color: transparent #f5c242 transparent transparent;
+  z-index: 6;
+}
+
+.item-locked-dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ff5252;
+  box-shadow: 0 0 3px #ff5252;
+  z-index: 6;
+}
+
+/* Gold Footer */
+.inventory-gold-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 6px;
+}
+
+.gold-text-value {
+  font-size: 13px;
+  font-weight: 800;
+  color: #f5c242;
+  letter-spacing: 0.4px;
+}
+
+/* 4. Context Menu (Tibia Right-Click) */
+.tibia-context-menu {
+  position: fixed;
+  z-index: 1200;
+  width: 170px;
+  background: #141822;
+  border: 1.5px solid #2a3447;
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85);
+  padding: 4px 0;
+  font-family: inherit;
+  animation: menuFadeIn 100ms ease-out;
+}
+
+@keyframes menuFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.context-menu-title {
+  padding: 6px 12px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7c9bf8;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: #242c3d;
+  margin: 3px 0 4px;
+}
+
+.context-menu-item {
+  width: 100%;
+  padding: 5px 12px;
+  background: transparent;
+  border: none;
+  color: #cad5e8;
+  font-size: 11px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.context-menu-item:hover {
+  background: #232c3f;
+  color: #ffffff;
+}
+
+.context-menu-item.checkbox-item {
+  cursor: pointer;
+  position: relative;
+}
+
+.context-menu-item.checkbox-item input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  accent-color: #5375d6;
+  cursor: pointer;
+}
+
+.context-menu-item.destructive-item:hover {
+  background: #331d22;
+  color: #ff8595;
+}
+
+.chevron-icon {
+  font-size: 14px;
+  color: #74849e;
+}
+
+/* 5. Depot Window */
+.depot-window-body {
+  display: flex;
+  padding: 12px;
+  gap: 16px;
+}
+
+.depot-storage-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.depot-pane-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #cbd7eb;
+}
+
+.depot-filter-bar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.depot-filter-btn {
+  padding: 3px 8px;
+  background: #141822;
+  border: 1px solid #2b3548;
+  border-radius: 3px;
+  color: #92a2bd;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.depot-filter-btn.active,
+.depot-filter-btn:hover {
+  background: #222a3a;
+  border-color: #485978;
+  color: #ffffff;
+}
+
+.depot-search-box {
+  width: 100%;
+}
+
+.depot-search-input {
+  width: 100%;
+  padding: 6px 10px;
+  background: #0f121a;
+  border: 1px solid #263042;
+  border-radius: 3px;
+  color: #dce4f2;
+  font-size: 11px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.depot-search-input:focus {
+  border-color: #485978;
+}
+
+.depot-grid-container {
+  display: grid;
+  grid-template-columns: repeat(9, 34px);
+  grid-template-rows: repeat(7, 34px);
+  gap: 4px;
+  max-height: 270px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.depot-character-pane {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #232b3a;
+  padding-left: 12px;
+}
+
+/* 6. Quick Sell Window (Image 5) */
+.quicksell-description-text {
+  padding: 10px 14px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #8fa0ba;
+  background: #11141d;
+  border-bottom: 1px solid #232b3a;
+}
+
+.quicksell-items-list {
+  padding: 10px 14px;
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quicksell-empty-message {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 11px;
+  color: #697891;
+}
+
+.quicksell-item-card {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: #121620;
+  border: 1.5px solid #263042;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.quicksell-item-card:hover {
+  background: #171c29;
+  border-color: #3b4b66;
+}
+
+.quicksell-item-card.selected {
+  background: #182033;
+  border-color: #4a77e8;
+  box-shadow: 0 0 8px rgba(74, 119, 232, 0.25);
+}
+
+.quicksell-item-icon-box {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-right: 10px;
+}
+
+.quicksell-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.quicksell-item-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e2eaf5;
+}
+
+.quicksell-unit-price {
+  font-size: 9.5px;
+  color: #798ca8;
+}
+
+.quicksell-item-total {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f5c242;
+}
+
+.quicksell-item-card.unselected .quicksell-item-total {
+  color: #697891;
+}
+
+/* QuickSell Footer */
+.quicksell-window-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #11151e;
+  border-top: 1px solid #252e3f;
+}
+
+.quicksell-summary-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gold-coin-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f5c242;
+  box-shadow: 0 0 4px #f5c242;
+}
+
+.quicksell-total-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #f5c242;
+}
+
+.quicksell-footer-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.quicksell-btn-cancel {
+  padding: 6px 14px;
+  background: #171c26;
+  border: 1px solid #2f3a4d;
+  border-radius: 4px;
+  color: #b1c1d9;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.quicksell-btn-cancel:hover {
+  background: #232a3a;
+  color: #ffffff;
+}
+
+.quicksell-btn-confirm {
+  padding: 6px 14px;
+  background: linear-gradient(180deg, #325fb8 0%, #1f428d 100%);
+  border: 1px solid #4a7be6;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: all 120ms ease;
+}
+
+.quicksell-btn-confirm:hover:not(:disabled) {
+  background: linear-gradient(180deg, #3d72db 0%, #2651ac 100%);
+  border-color: #6191fa;
+}
+
+.quicksell-btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
 
 

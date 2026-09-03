@@ -4,74 +4,154 @@
   "items": [
     {
       "itemId": 2050,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 2,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 2,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Torch",
+          "sourceName": "TibiaWiki — Torch",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2120,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 15,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 15,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Rope",
+          "sourceName": "TibiaWiki — Rope",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2148,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 1,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 1,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Gold_Coin",
+          "sourceName": "TibiaWiki — Gold Coin",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2170,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 50,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 50,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Silver_Amulet",
+          "sourceName": "TibiaWiki — Silver Amulet",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2172,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 50,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 50,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Bronze_Amulet",
+          "sourceName": "TibiaWiki — Bronze Amulet",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2213,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 100,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 100,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Dwarven_Ring",
+          "sourceName": "TibiaWiki — Dwarven Ring",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2230,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 5,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 5,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Bone",
+          "sourceName": "TibiaWiki — Bone",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2235,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 5,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 5,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Mouldy_Cheese",
+          "sourceName": "TibiaWiki — Mouldy Cheese",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
@@ -90,20 +170,40 @@
     },
     {
       "itemId": 2380,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 4,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 4,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Hand_Axe",
+          "sourceName": "TibiaWiki — Hand Axe",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2386,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 7,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 7,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Axe",
+          "sourceName": "TibiaWiki — Axe",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
@@ -122,11 +222,21 @@
     },
     {
       "itemId": 2389,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 3,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 3,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Spear",
+          "sourceName": "TibiaWiki — Spear",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
@@ -145,29 +255,59 @@
     },
     {
       "itemId": 2448,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Studded_Club",
+          "sourceName": "TibiaWiki — Studded Club",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2460,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 30,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 30,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Brass_Helmet",
+          "sourceName": "TibiaWiki — Brass Helmet",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2461,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 4,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 4,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Leather_Helmet",
+          "sourceName": "TibiaWiki — Leather Helmet",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
@@ -186,218 +326,458 @@
     },
     {
       "itemId": 2473,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 66,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 66,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Viking_Helmet",
+          "sourceName": "TibiaWiki — Viking Helmet",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2484,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 25,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 25,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Studded_Armor",
+          "sourceName": "TibiaWiki — Studded Armor",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2510,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 45,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 45,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Plate_Shield",
+          "sourceName": "TibiaWiki — Plate Shield",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2511,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 16,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 16,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Brass_Shield",
+          "sourceName": "TibiaWiki — Brass Shield",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2512,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 5,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 5,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Wooden_Shield",
+          "sourceName": "TibiaWiki — Wooden Shield",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2530,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 50,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 50,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Copper_Shield",
+          "sourceName": "TibiaWiki — Copper Shield",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2553,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 15,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 15,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Pick",
+          "sourceName": "TibiaWiki — Pick",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2554,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Shovel",
+          "sourceName": "TibiaWiki — Shovel",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2580,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 40,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 40,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Fishing_Rod",
+          "sourceName": "TibiaWiki — Fishing Rod",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2597,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 5,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 5,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Letter",
+          "sourceName": "TibiaWiki — Letter",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2643,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 2,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 2,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Leather_Boots",
+          "sourceName": "TibiaWiki — Leather Boots",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2649,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Leather_Legs",
+          "sourceName": "TibiaWiki — Leather Legs",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2666,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 2,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 2,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Meat",
+          "sourceName": "TibiaWiki — Meat",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2667,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 5,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 5,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Fish",
+          "sourceName": "TibiaWiki — Fish",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2671,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 4,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 4,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Ham",
+          "sourceName": "TibiaWiki — Ham",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2679,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 1,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 1,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Cherry",
+          "sourceName": "TibiaWiki — Cherry",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2687,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 2,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 2,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Cookie",
+          "sourceName": "TibiaWiki — Cookie",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2696,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 5,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 5,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Cheese",
+          "sourceName": "TibiaWiki — Cheese",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2787,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 6,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 6,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/White_Mushroom",
+          "sourceName": "TibiaWiki — White Mushroom",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 2805,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 25,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 25,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Troll_Green",
+          "sourceName": "TibiaWiki — Troll Green",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 3976,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 1,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 1,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Worm",
+          "sourceName": "TibiaWiki — Worm",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 5878,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 80,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 80,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Minotaur_Leather",
+          "sourceName": "TibiaWiki — Minotaur Leather",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 5880,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 500,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 500,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Iron_Ore",
+          "sourceName": "TibiaWiki — Iron Ore",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 5901,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 15,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 15,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Wood",
+          "sourceName": "TibiaWiki — Wood",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
@@ -411,21 +791,31 @@
           "sourceKind": "web-reference",
           "sourceUrl": "https://tibia.fandom.com/wiki/Spider_Fangs",
           "sourceName": "TibiaWiki — Spider Fangs",
-          "retrievedAt": "2026-09-02",
-          "tibiaVersionContext": "Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
         }
       ],
       "warnings": [
-        "Web fallback: Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 10603,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 20,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 20,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Swamp_Grass",
+          "sourceName": "TibiaWiki — Swamp Grass",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
@@ -439,12 +829,12 @@
           "sourceKind": "web-reference",
           "sourceUrl": "https://tibia.fandom.com/wiki/Bunch_of_Troll_Hair",
           "sourceName": "TibiaWiki — Bunch of Troll Hair",
-          "retrievedAt": "2026-09-02",
-          "tibiaVersionContext": "Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
         }
       ],
       "warnings": [
-        "Web fallback: Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
@@ -458,48 +848,88 @@
           "sourceKind": "web-reference",
           "sourceUrl": "https://tibia.fandom.com/wiki/Lump_of_Dirt",
           "sourceName": "TibiaWiki — Lump of Dirt",
-          "retrievedAt": "2026-09-02",
-          "tibiaVersionContext": "Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
         }
       ],
       "warnings": [
-        "Web fallback: Item page identifies version 8.54 and reports the current NPC sell value. The item existed in 8.60; price continuity is documented as a web fallback, not treated as STYLLER data."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 11192,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 35,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 35,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Carrion_Worm_Fang",
+          "sourceName": "TibiaWiki — Carrion Worm Fang",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 12428,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 75,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 75,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Minotaur_Horn",
+          "sourceName": "TibiaWiki — Minotaur Horn",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 12437,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 30,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 30,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Pelvis_Bone",
+          "sourceName": "TibiaWiki — Pelvis Bone",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     },
     {
       "itemId": 12441,
-      "canonicalSellPrice": null,
-      "status": "priceUnknown",
-      "offers": [],
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Poison_Spider_Shell",
+          "sourceName": "TibiaWiki — Poison Spider Shell",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
       "warnings": [
-        "No NPC sell offer was found; no value was invented."
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
       ]
     }
   ]
