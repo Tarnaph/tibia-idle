@@ -15,8 +15,8 @@ export interface Tibia11ActionIconProps {
 /**
  * Resolves an action to an authentic official CipSoft image path extracted in Phase 20
  */
-export function resolveActionImagePath(id: number, kind?: string, name: string = ''): string | null {
-  const lower = name.toLowerCase();
+export function resolveActionImagePath(id?: number, kind?: string, name?: string): string | null {
+  const lower = (name || '').toLowerCase();
 
   // 1. Potions (Authentic transparent flacons)
   if (kind === 'potion' || lower.includes('potion')) {
@@ -46,12 +46,12 @@ export function resolveActionImagePath(id: number, kind?: string, name: string =
   if (id === 2274 || lower.includes('avalanche')) return '/spells/ice-storm.png';
 
   // 3. Spells (Mapped to the 60 official CipSoft Spell Icons)
+  if (lower.includes('exura ico') || lower.includes('wound') || lower.includes('exana mort') || id === 5) return '/spells/exura-ico.png';
   if (lower.includes('exura vita') || lower.includes('ultimate healing') || id === 3) return '/spells/exura-vita.png';
   if (lower.includes('exura gran') || lower.includes('intense healing') || id === 2) return '/spells/exura-gran.png';
   if (lower.includes('exura sio') || lower.includes('heal friend') || id === 4) return '/spells/exura-sio.png';
   if (lower.includes('mas res') || lower.includes('mass healing') || id === 7) return '/spells/exura-gran-mas-res.png';
   if (lower.includes('exura san') || lower.includes('divine healing') || id === 6) return '/spells/exura-san.png';
-  if (lower.includes('wound') || lower.includes('exana mort') || id === 5) return '/spells/exana-mort.png';
   if (lower.includes('exura') || lower.includes('light healing') || id === 1) return '/spells/exura.png';
 
   if (lower.includes('exori gran') || lower.includes('fierce berserk') || id === 10) return '/spells/exori-gran.png';

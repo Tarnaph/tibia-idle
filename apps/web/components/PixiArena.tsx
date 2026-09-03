@@ -6,8 +6,49 @@ import type { CardinalDirection, GameState, GridPosition } from '@/packages/doma
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
 import type { Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
 import type { Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
+import { resolveActionImagePath } from './Tibia11ActionIcon';
 
 interface PixiArenaProps { game: GameState; debug: boolean; onSelectTarget?: (enemyId: string) => void }
+
+const ALL_SPELL_ICON_URLS = [
+  '/spells/exura.png',
+  '/spells/exura-gran.png',
+  '/spells/exura-vita.png',
+  '/spells/exura-sio.png',
+  '/spells/exura-san.png',
+  '/spells/exura-ico.png',
+  '/spells/exana-mort.png',
+  '/spells/exori.png',
+  '/spells/exori-ico.png',
+  '/spells/exori-gran.png',
+  '/spells/exori-mas.png',
+  '/spells/exori-hur.png',
+  '/spells/exori-min.png',
+  '/spells/exori-vis.png',
+  '/spells/exori-flam.png',
+  '/spells/exori-frigo.png',
+  '/spells/exori-tera.png',
+  '/spells/exori-san.png',
+  '/spells/utamo-vita.png',
+  '/spells/utani-hur.png',
+  '/spells/utani-gran-hur.png',
+  '/spells/utito-tempo.png',
+  '/spells/exeta-res.png',
+  '/spells/exevo-vis-hur.png',
+  '/spells/exevo-flam-hur.png',
+  '/spells/exevo-frigo-hur.png',
+  '/spells/exevo-tera-hur.png',
+  '/spells/exevo-gran-mas-flam.png',
+  '/spells/exevo-gran-mas-frigo.png',
+  '/spells/exevo-gran-mas-vis.png',
+  '/spells/exevo-gran-mas-tera.png',
+  '/spells/exevo-mas-san.png',
+  '/spells/sd-rune.png',
+  '/spells/gfb-rune.png',
+  '/spells/explosion-rune.png',
+  '/spells/hmm-rune.png',
+  '/spells/ice-storm.png',
+];
 interface ActorView {
   root: Container;
   sprite: Sprite;
@@ -63,6 +104,7 @@ export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
         for (const frame of asset.frames) urls.add(frame.publicUrl);
       }
       for (const item of [...Object.values(visualAssets.corpses), ...Object.values(visualAssets.mapItems)]) if (item.frame) urls.add(item.frame.publicUrl);
+      for (const url of ALL_SPELL_ICON_URLS) urls.add(url);
       const loaded = await Assets.load([...urls]) as Record<string, Texture>;
       if (disposed) { app.destroy(true, { children: true }); return; }
       for (const texture of Object.values(loaded)) texture.source.style.scaleMode = 'nearest';
@@ -289,20 +331,49 @@ export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
             if (sourcePos) {
               const point = worldPoint(sourcePos);
               const isPotion = event.speech === 'Aaaah...';
+
+              // Speech container holding spell icon + speech text side-by-side
+              const speechContainer = new Container();
+              let iconWidth = 0;
+
+              const iconPath = !isPotion
+                ? resolveActionImagePath(event.spellId, 'spell', event.speech)
+                : null;
+
+              if (iconPath && loaded[iconPath]) {
+                const iconSize = 14;
+                const iconSprite = new Sprite(loaded[iconPath]);
+                iconSprite.width = iconSize;
+                iconSprite.height = iconSize;
+                iconSprite.position.set(0, 0);
+
+                // Small 1px dark border around the icon matching official Tibia UI
+                const iconBorder = new Graphics()
+                  .rect(-0.5, -0.5, iconSize + 1, iconSize + 1)
+                  .stroke({ color: 0x111315, width: 1 });
+
+                speechContainer.addChild(iconBorder, iconSprite);
+                iconWidth = iconSize + 3;
+              }
+
               const speechText = new Text({
                 text: event.speech,
+                resolution: 2,
                 style: {
-                  fill: isPotion ? 0xffaa00 : 0xffcc00,
-                  stroke: { color: 0x000000, width: 3 },
-                  fontSize: isPotion ? 10 : 11,
-                  fontFamily: 'Arial',
-                  fontWeight: 'bold',
+                  fill: isPotion ? 0xffaa00 : 0xf2a33c, // Authentic warm Tibia spell orange
+                  stroke: { color: 0x000000, width: 2.5 },
+                  fontSize: 10.5,
+                  fontFamily: 'Verdana, Arial, sans-serif',
+                  fontWeight: '700',
                 },
               });
-              speechText.anchor.set(0.5, 1);
-              speechText.position.set(point.x, point.y - 20);
-              effects.addChild(speechText);
-              timed.push({ root: speechText, startedAt: now, durationMs: 1200, kind: 'float' });
+              speechText.position.set(iconWidth, 0);
+              speechContainer.addChild(speechText);
+
+              const totalWidth = iconWidth + speechText.width;
+              speechContainer.position.set(point.x - totalWidth / 2, point.y - 24);
+              effects.addChild(speechContainer);
+              timed.push({ root: speechContainer, startedAt: now, durationMs: 1200, kind: 'float' });
             }
           }
           if (event.type === 'experience-gained') {
@@ -311,18 +382,19 @@ export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
               const point = worldPoint(charPos);
               const xpText = new Text({
                 text: `+${event.amount} XP`,
+                resolution: 2,
                 style: {
                   fill: 0xffffff,
-                  stroke: { color: 0x000000, width: 3 },
-                  fontSize: 10,
+                  stroke: { color: 0x000000, width: 2.5 },
+                  fontSize: 11.5,
                   fontFamily: 'Verdana, Arial, sans-serif',
-                  fontWeight: '700',
+                  fontWeight: '800',
                 },
               });
               xpText.anchor.set(0.5, 1);
-              xpText.position.set(point.x, point.y - 24);
+              xpText.position.set(point.x, point.y - 26);
               effects.addChild(xpText);
-              timed.push({ root: xpText, startedAt: now, durationMs: 1000, kind: 'float' });
+              timed.push({ root: xpText, startedAt: now, durationMs: 1100, kind: 'float' });
             }
           }
           if (event.type !== 'player-attack' && event.type !== 'enemy-attack' && event.type !== 'spell-cast') continue;
