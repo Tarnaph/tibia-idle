@@ -21,3 +21,7 @@ O assistente Antigravity DEVE **sempre utilizar a skill `/gsd`** e o ecossistema
 
 3. **Autonomia:**
    - O assistente deve agir proativamente adotando o padrão GSD mesmo quando o usuário não prefixar explicitamente `/gsd` na mensagem.
+
+4. **Modo Totalmente Autônomo (Allow All & Accept All):**
+   - O assistente opera em modo **100% autônomo**, com **Allow All** e **Accept All** pré-aprovados para todas as decisões, comandos, criações de arquivos e execução de planos.
+   - Não interromper o fluxo para pedir confirmações triviais ou autorizações intermediárias; avançar diretamente de planejamento -> execução -> testes -> entrega.
