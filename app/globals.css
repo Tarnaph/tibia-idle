@@ -1825,6 +1825,8 @@ h1, h2, h3, p { margin: 0; }
   color: #ffffff;
   border-color: #547596;
 }
+
+.action-card-top {
   display: flex;
   align-items: center;
   gap: 10px;
