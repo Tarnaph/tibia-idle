@@ -77,12 +77,14 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
           const east = appearance.frames.filter((frame) => frame.direction === 'east');
           const sprite = new Sprite(loaded[(east[0] ?? appearance.frames[0]).publicUrl]);
           sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
-          sprite.position.set(positions[index][0] * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, positions[index][1] * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
+          const tileCenterX = positions[index][0] * TILE_SIZE + 16;
+          const tileCenterY = positions[index][1] * TILE_SIZE + 16;
+          sprite.position.set(tileCenterX + creatureVisualLayout.spriteOffsetX, tileCenterY + creatureVisualLayout.spriteOffsetY);
           actors.addChild(sprite);
-          memberPoints.set(character.id, { x: sprite.x, y: sprite.y });
+          memberPoints.set(character.id, { x: tileCenterX, y: tileCenterY });
           const label = new Text({ text: `${character.name} · ${skill} ${character.skills[skill]}`, style: { fill: 0x69df82, stroke: { color: 0x071108, width: 3 }, fontSize: 9, fontWeight: '700', fontFamily: 'Arial' } });
-          label.anchor.set(0.5); label.position.set(sprite.x, sprite.y - 28); actors.addChild(label);
-          const meter = new Graphics().rect(sprite.x - 16, sprite.y + 17, 32, 3).fill({ color: 0x171b18 }).rect(sprite.x - 16, sprite.y + 17, 32 * progress, 3).fill({ color: 0xd8b64f }); actors.addChild(meter);
+          label.anchor.set(0.5); label.position.set(tileCenterX, tileCenterY + creatureVisualLayout.nameplateY); actors.addChild(label);
+          const meter = new Graphics().rect(tileCenterX - 16, tileCenterY + 17, 32, 3).fill({ color: 0x171b18 }).rect(tileCenterX - 16, tileCenterY + 17, 32 * progress, 3).fill({ color: 0xd8b64f }); actors.addChild(meter);
         });
         const title = new Text({ text: `TREINO ATIVO · ${renderMembers.length} MEMBRO(S)${debug ? ` · ${camera.visibleColumns}×${camera.visibleRows} · ${camera.scale}x` : ''}`, style: { fill: 0xe1c568, fontSize: 10, fontWeight: '700', fontFamily: 'Arial', letterSpacing: 1 } });
         title.position.set(12, 10); overlay.addChild(title);

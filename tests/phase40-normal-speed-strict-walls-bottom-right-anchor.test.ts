@@ -55,15 +55,19 @@ describe('Phase 40: Velocidade Normal na Cidade, Bloqueio Estrito de Paredes e Ã
   it('Bug 3: validates that characters and dummies are anchored to the south-east / bottom-right corner of the tile/SQM', () => {
     expect(creatureVisualLayout.spriteAnchorX).toBe(1); // Right
     expect(creatureVisualLayout.spriteAnchorY).toBe(1); // Bottom
-    expect(creatureVisualLayout.spriteOffsetX).toBe(14);
-    expect(creatureVisualLayout.spriteOffsetY).toBe(11);
+    expect(creatureVisualLayout.spriteOffsetX).toBe(16);
+    expect(creatureVisualLayout.spriteOffsetY).toBe(12);
+    expect(creatureVisualLayout.hpBarY).toBe(-24);
+    expect(creatureVisualLayout.nameplateY).toBe(-32);
 
     const projectRoot = resolve(__dirname, '..');
     const thaisArenaSrc = readFileSync(resolve(projectRoot, 'apps/web/components/ThaisCityArena.tsx'), 'utf8');
 
-    // ThaisCityArena uses creatureVisualLayout for sprite anchoring
+    // ThaisCityArena uses creatureVisualLayout for sprite anchoring and ticker offset
     expect(thaisArenaSrc).toContain('sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY)');
     expect(thaisArenaSrc).toContain('sprite.position.set(creatureVisualLayout.spriteOffsetX, creatureVisualLayout.spriteOffsetY)');
+    expect(thaisArenaSrc).toContain('view.sprite.x = creatureVisualLayout.spriteOffsetX');
+    expect(thaisArenaSrc).not.toContain('view.sprite.x = 0;');
     expect(thaisArenaSrc).not.toContain('sprite.anchor.set(0.5, 0.78)');
 
     // Training dummy also uses bottom-right anchor

@@ -479,10 +479,11 @@ export function ThaisCityArena({
 
           // Animate attack if training at dummy
           if (curTrain && idx === 0 && tickCount % 30 < 10) {
-            view.sprite.x = 4;
+            view.sprite.x = creatureVisualLayout.spriteOffsetX + 4;
           } else {
-            view.sprite.x = 0;
+            view.sprite.x = creatureVisualLayout.spriteOffsetX;
           }
+          view.sprite.y = creatureVisualLayout.spriteOffsetY;
         });
       });
 

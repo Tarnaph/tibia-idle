@@ -17,10 +17,10 @@ export const visualMovementConfig: VisualMovementConfig = {
 export const creatureVisualLayout = {
   spriteAnchorX: 1,
   spriteAnchorY: 1,
-  spriteOffsetX: 14,
-  spriteOffsetY: 11,
-  nameplateY: -28,
-  hpBarY: -20,
+  spriteOffsetX: 16,
+  spriteOffsetY: 12,
+  nameplateY: -32,
+  hpBarY: -24,
   hpBarWidth: 28,
   footprintSize: 32,
 } as const;
