@@ -555,3 +555,20 @@ Plans:
 
 Plans:
 - [x] 35-01-PLAN: Implementar cadência de teclado, velocidade urbana (+25%), rota z:7 -> z:6 via escada do cais e teleporte para caçada.
+
+---
+
+### Phase 36: Restauração Visual da Cidade (Isolamento de Andares Z:7 e Z:6) e Sistema Canônico de Escadas TFS
+
+**Goal:** Restaurar a cidade de Thais para sua exibição limpa original no piso Z:7, eliminando a sobreposição indevida do segundo andar (Z:6); isolar o piso Z:6 em seu próprio container ativado ao subir escadas; e implementar a transição canônica de escadas do TFS tanto na movimentação manual quanto no trajeto para o barco.  
+**Depends on:** Phase 35  
+**Requirements:** `FIX.md`, lógica oficial de `Tile::queryDestination` do TFS (`realmap11/src/tile.cpp`), `ThaisCityArena.tsx`, `GamePrototype.tsx`.  
+**Success Criteria:**
+1. No piso Z:7 (térreo), apenas os tiles de Z:7 são exibidos. O chão, construções, praças e ruas voltam a ficar 100% limpos como antes, sem telhados ou paredes do segundo andar cobrindo a visão.
+2. O piso Z:6 é isolado em container dedicado, tornando-se visível quando o personagem sobe a escada para `z: 6`.
+3. Ao subir as escadas do cais (`x: 32321, y: 32211, z: 7` subindo ao norte para `x: 32321, y: 32210, z: 6`), a visão alterna para o piso Z:6, o personagem anda pela passarela de madeira do cais e viaja para a caçada ao chegar no barco (`x: 32310, y: 32210, z: 6`).
+4. Suporte à transição de escadas também na movimentação manual por teclado (subir ao norte na escada de Z:7 vai para Z:6; descer ao sul no topo de Z:6 volta para Z:7).
+5. 100% dos testes passando e 0 erros de tipagem.
+
+Plans:
+- [x] 36-01-PLAN: Separar visualmente os andares Z:7 e Z:6 em containers dedicados e implementar transições canônicas de escadas.

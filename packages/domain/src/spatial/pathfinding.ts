@@ -273,3 +273,48 @@ export function findHuntTravelRoute(
   return waypoints;
 }
 
+export interface StairsTransition {
+  from: { x: number; y: number; z: number };
+  to: { x: number; y: number; z: number };
+  stepDirection: { dx: number; dy: number };
+}
+
+export const THAIS_STAIRS_TRANSITIONS: StairsTransition[] = [
+  // Cais do porto de Thais (escada de madeira/pedra norte-sul)
+  // Subida ao Norte: pé da escada em Z:7 vai para o topo da passarela em Z:6
+  {
+    from: { x: 32321, y: 32211, z: 7 },
+    to: { x: 32321, y: 32210, z: 6 },
+    stepDirection: { dx: 0, dy: -1 },
+  },
+  // Descida ao Sul: topo da escada em Z:6 desce para o térreo em Z:7
+  {
+    from: { x: 32321, y: 32210, z: 6 },
+    to: { x: 32321, y: 32211, z: 7 },
+    stepDirection: { dx: 0, dy: 1 },
+  },
+];
+
+/**
+ * Checks if taking a step (deltaX, deltaY) from the current position triggers a stairs/ramp floor change.
+ * Follows official TFS Tile::queryDestination behavior.
+ */
+export function resolveStairsTransition(
+  currentPos: { x: number; y: number; z: number },
+  deltaX: number,
+  deltaY: number,
+): { x: number; y: number; z: number } | null {
+  for (const trans of THAIS_STAIRS_TRANSITIONS) {
+    if (
+      trans.from.x === currentPos.x &&
+      trans.from.y === currentPos.y &&
+      trans.from.z === currentPos.z &&
+      trans.stepDirection.dx === deltaX &&
+      trans.stepDirection.dy === deltaY
+    ) {
+      return { ...trans.to };
+    }
+  }
+  return null;
+}
+

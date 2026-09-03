@@ -18,7 +18,7 @@ import {
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION,
-  calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL,
+  calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack,
 } from '@/packages/domain/src';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -476,6 +476,12 @@ function GamePrototypeContent() {
           setWalkingPath(null);
           setIsTrainingAtDummy(false);
           setCityPos((current) => {
+            // First check if this step triggers a stairs/floor transition (TFS Tile::queryDestination)
+            const stairTarget = resolveStairsTransition(current, deltaX, deltaY);
+            if (stairTarget) {
+              return stairTarget;
+            }
+
             const nextX = current.x + deltaX;
             const nextY = current.y + deltaY;
             const activeTileMap = current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;

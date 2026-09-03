@@ -112,15 +112,23 @@ export function ThaisCityArena({
       }
 
       const world = new Container();
-      const terrainLayer = new Container();
-      const objectsLayer = new Container();
+      const floor7Container = new Container();
+      const terrainLayerZ7 = new Container();
+      const objectsLayerZ7 = new Container();
+      objectsLayerZ7.sortableChildren = true;
+      floor7Container.addChild(terrainLayerZ7, objectsLayerZ7);
+
+      const floor6Container = new Container();
+      const terrainLayerZ6 = new Container();
+      const objectsLayerZ6 = new Container();
+      objectsLayerZ6.sortableChildren = true;
+      floor6Container.addChild(terrainLayerZ6, objectsLayerZ6);
+
       const actorsLayer = new Container();
+      actorsLayer.sortableChildren = true;
       const overlayLayer = new Container();
 
-      actorsLayer.sortableChildren = true;
-      objectsLayer.sortableChildren = true;
-
-      world.addChild(terrainLayer, objectsLayer, actorsLayer);
+      world.addChild(floor7Container, floor6Container, actorsLayer);
       app.stage.addChild(world, overlayLayer);
       appRef.current = app;
       hostRef.current.appendChild(app.canvas);
@@ -136,13 +144,13 @@ export function ThaisCityArena({
         tileMapZ6.set(`${t.x},${t.y}`, t);
       }
 
-      // Training dummies placed in the training room
+      // Training dummies placed in the training room on Z:7
       const dummyPos = thaisData.trainingDummy;
       const dummySprite = new Sprite(loaded[dummyUrl]);
       dummySprite.anchor.set(0.5, 0.78);
       dummySprite.position.set(dummyPos.x * TILE_SIZE + 16, dummyPos.y * TILE_SIZE + 16);
       dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
-      objectsLayer.addChild(dummySprite);
+      objectsLayerZ7.addChild(dummySprite);
 
       // Pre-render world tiles in the Thais bounding box and collect animated items
       const minX = thaisData.bounds.minX;
@@ -163,18 +171,17 @@ export function ThaisCityArena({
           const px = x * TILE_SIZE;
           const py = y * TILE_SIZE;
 
-          // Render Z: 7 (ground floor)
-          let hasGroundSprite = false;
+          // Render Z: 7 (ground floor) in floor7Container
+          let hasGroundSprite7 = false;
           if (tile7) {
-            // First pass: render ground in terrainLayer
             for (const sId of tile7.serverItemIds) {
               const mapping = visualAssets.mapItems[String(sId)];
               if (mapping?.isGround && mapping.frame && loaded[mapping.frame.publicUrl]) {
                 const sp = new Sprite(loaded[mapping.frame.publicUrl]);
                 sp.position.set(px, py);
                 sp.roundPixels = true;
-                terrainLayer.addChild(sp);
-                hasGroundSprite = true;
+                terrainLayerZ7.addChild(sp);
+                hasGroundSprite7 = true;
                 if (mapping.frames && mapping.frames.length > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
@@ -186,7 +193,6 @@ export function ThaisCityArena({
               }
             }
 
-            // Second pass: render all non-ground objects
             for (const sId of tile7.serverItemIds) {
               const mapping = visualAssets.mapItems[String(sId)];
               if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
@@ -196,7 +202,7 @@ export function ThaisCityArena({
                 sp.position.set(px + offsetX, py + offsetY);
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
-                objectsLayer.addChild(sp);
+                objectsLayerZ7.addChild(sp);
                 if (mapping.frames && mapping.frames.length > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
@@ -208,24 +214,25 @@ export function ThaisCityArena({
             }
           }
 
-          if (!hasGroundSprite) {
+          if (!hasGroundSprite7) {
             const isWalkable = tile7?.walkable ?? false;
             const floorSp = new Sprite(loaded[isWalkable ? floorUrl : wallUrl]);
             floorSp.position.set(px, py);
             floorSp.roundPixels = true;
-            terrainLayer.addChild(floorSp);
+            terrainLayerZ7.addChild(floorSp);
           }
 
-          // Render Z: 6 (upper walkways, stairs top, dock pier)
+          // Render Z: 6 (upper floor / dock pier) in floor6Container
           if (tile6) {
+            let hasGroundSprite6 = false;
             for (const sId of tile6.serverItemIds) {
               const mapping = visualAssets.mapItems[String(sId)];
               if (mapping?.isGround && mapping.frame && loaded[mapping.frame.publicUrl]) {
                 const sp = new Sprite(loaded[mapping.frame.publicUrl]);
                 sp.position.set(px, py);
                 sp.roundPixels = true;
-                sp.zIndex = py;
-                objectsLayer.addChild(sp);
+                terrainLayerZ6.addChild(sp);
+                hasGroundSprite6 = true;
                 if (mapping.frames && mapping.frames.length > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
@@ -245,8 +252,8 @@ export function ThaisCityArena({
                 const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
                 sp.position.set(px + offsetX, py + offsetY);
                 sp.roundPixels = true;
-                sp.zIndex = py + 36;
-                objectsLayer.addChild(sp);
+                sp.zIndex = py + 32;
+                objectsLayerZ6.addChild(sp);
                 if (mapping.frames && mapping.frames.length > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
@@ -255,6 +262,13 @@ export function ThaisCityArena({
                   });
                 }
               }
+            }
+
+            if (!hasGroundSprite6 && tile6.walkable) {
+              const floorSp = new Sprite(loaded[floorUrl]);
+              floorSp.position.set(px, py);
+              floorSp.roundPixels = true;
+              terrainLayerZ6.addChild(floorSp);
             }
           }
         }
@@ -308,9 +322,9 @@ export function ThaisCityArena({
 
         const activeZ = latestRef.current.cityPos.z;
         const activeTileMap = activeZ === 6 ? tileMapZ6 : tileMapZ7;
-        const tile = activeTileMap.get(`${tileX},${tileY}`) || tileMapZ7.get(`${tileX},${tileY}`);
+        const tile = activeTileMap.get(`${tileX},${tileY}`);
         if (tile && tile.walkable) {
-          latestRef.current.onTileClick?.({ x: tileX, y: tileY, z: tile.z });
+          latestRef.current.onTileClick?.({ x: tileX, y: tileY, z: activeZ });
         }
       };
 
@@ -384,6 +398,10 @@ export function ThaisCityArena({
         const { characters: curChars, cityPos: curPos, isWalking: curWalk, isTraining: curTrain, stepDurationMs: curStepDuration } = latestRef.current;
         tickCount++;
         const now = performance.now();
+
+        // Floor isolation: only display the floor where the character currently stands
+        floor7Container.visible = curPos.z === 7;
+        floor6Container.visible = curPos.z === 6;
 
         // 1. Animate all animated map elements (mystic blue fire, teleports, torches, lamps, fountains, water)
         for (const anim of animatedMapSprites) {

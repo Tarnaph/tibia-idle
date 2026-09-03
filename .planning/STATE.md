@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 35 of 35 (Cadência de Teclado, Velocidade Urbana (+25%) e Viagem para Caçada via Cais de Thais)  
+Phase: 36 of 36 (Restauração Visual da Cidade com Isolamento de Andares e Escadas Canônicas)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 35 concluída: Correção do bug de repetição contínua de setinhas travando a cadência manual exatamente no intervalo da velocidade do personagem (cityStepDurationMs); aplicação de velocidade urbana 25% mais rápida que a base (cityStepDurationMs = Math.round(baseStepDurationMs / 1.25)); suporte completo e isolado aos pisos Z:7 (18.271 tiles) e Z:6 (7.722 tiles) em thais-city.json; rota imersiva de viagem para caçadas através da escada do cais (x:32321 y:32211 z:7 -> subida para x:32321 y:32210 z:6 -> caminhada pelo píer até x:32310 y:32210 z:6) seguida de teleporte automático para a caçada escolhida.
+Last activity: 2026-09-03 — Phase 36 concluída: Restauração da cidade de Thais para sua renderização 100% limpa original no piso Z:7, eliminando sobreposição indevida do segundo andar (Z:6); isolamento visual com floor7Container e floor6Container independentes alternados via ticker de acordo com cityPos.z; implementação do sistema oficial de escadas do TFS (Tile::queryDestination) tanto na movimentação manual por setinhas (subida Norte de Z:7 para Z:6 no pé da escada, descida Sul de Z:6 para Z:7 no topo) quanto na rota autônoma até o barco para início de caçadas.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 35
-- Tests status: 30 test suites passando (Vitest - 210 testes aprovados, 100%)
+- Total phases completed: 36
+- Tests status: 31 test suites passando (Vitest - 214 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -63,6 +63,7 @@ Progress: [██████████] 100%
 | 33. Thais Completa, Fonte Nítida, Velocidade por Nível e Pathfinding por Clique | 1 | - | - | Complete |
 | 34. Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada | 1 | - | - | Complete |
 | 35. Cadência de Teclado, Velocidade Urbana (+25%) e Viagem para Caçada via Cais | 1 | - | - | Complete |
+| 36. Restauração Visual da Cidade, Isolamento de Andares e Escadas Canônicas | 1 | - | - | Complete |
 
 ## Accumulated Context
 
