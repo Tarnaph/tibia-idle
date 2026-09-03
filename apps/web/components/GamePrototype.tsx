@@ -33,6 +33,7 @@ import { HuntSelector } from './HuntSelector';
 import { IdleHeader } from './IdleHeader';
 import { ItemSprite } from './ItemSprite';
 import { ItemTooltip } from './ItemTooltip';
+import { GlobalItemTooltip } from './GlobalItemTooltip';
 import { PartyMemberModal } from './PartyMemberModal';
 import { PixiArena } from './PixiArena';
 import { TrainingArena } from './TrainingArena';
@@ -850,6 +851,9 @@ function GamePrototypeContent() {
           <span>{pointerDrag.label}</span>
         </div>
       )}
+
+      {/* Global Item Tooltip & Player Inspection (Highest z-index, always on top) */}
+      <GlobalItemTooltip />
     </main>
   );
 }

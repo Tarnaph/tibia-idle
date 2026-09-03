@@ -641,5 +641,23 @@ Plans:
 Plans:
 - [x] 40-01-PLAN: Restaurar velocidade normal, aplicar bloqueio estrito de paredes e alinhar personagem no canto inferior direito do SQM.
 
+---
+
+### Phase 41: Tooltip Global de Atributos de Itens (Sempre no Topo) e Inspeção de Jogadores na Cidade (Level, Vocação e Status Premium)
+
+**Goal:** Implementar o sistema singleton de tooltip global para itens no nível raiz do app (`z-index: 99999999` com clamping contra bordas), eliminando de vez casos onde o card de atributos ficava atrás de outras janelas ou era cortado; exibir atributos completos (ataque, defesa, armadura, peso, level requerido, slot, tipo, badges especiais e preços) ao passar o mouse em itens no inventário, paperdoll, bolsa, mochila, depot e barra lateral; e implementar inspeção interativa ao passar o mouse sobre outro player na cidade de Thais, exibindo card dedicado com nome, level, vocação e status de conta (Premium/Free).  
+**Depends on:** Phase 40  
+**Requirements:** `FIX.md`, `InventoryWindow.tsx`, `RightSidebar.tsx`, `DepotWindow.tsx`, `EquipmentPanel.tsx`, `ThaisCityArena.tsx`, `GamePrototype.tsx`.  
+**Success Criteria:**
+1. Ao passar o mouse em qualquer item (equipamento, consumível, stack) no inventário, mochila, bolsa, depot ou barra lateral, seus atributos completos são exibidos.
+2. O tooltip de atributos é renderizado na camada global com `position: fixed` e `z-index: 99999999`, permanecendo 100% visível sobre qualquer janela flutuante, modal ou HUD sem nunca ficar por trás.
+3. Ao passar o mouse em cima de outro jogador na cidade de Thais (membros do grupo ou outros aventureiros), surge um card de inspeção exibindo o Nome, Level, Vocação e Status de Conta (Premium Account com badge dourada ou Free Account).
+4. O card de inspeção de jogadores na cidade também é renderizado na camada de topo (`z-index: 99999999`) sem ser bloqueado pelo canvas ou janelas.
+5. 100% dos testes passando (36 arquivos de teste) e 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 41-01-PLAN: Implementar tooltip global de atributos de itens e inspeção de jogadores na cidade.
+
+
 
 

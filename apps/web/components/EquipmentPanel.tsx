@@ -11,6 +11,7 @@ import {
   type EquipmentTransferTarget,
 } from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
+import { showGlobalItemTooltip, hideGlobalItemTooltip } from './GlobalItemTooltip';
 
 const slots: Array<{ slot: CharacterEquipmentSlot; label: string; area: string }> = [
   { slot: 'head', label: 'Head', area: 'head' },
@@ -112,6 +113,9 @@ export function EquipmentPanel({
                 data-equipment-slot={slot}
                 onPointerDown={(event) => item && !disabled && onPointerDragStart({ kind: 'equipped', slot }, event)}
                 onClick={() => item && onTransfer({ kind: 'equipped', slot }, { kind: 'inventory' })}
+                onMouseEnter={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
+                onMouseMove={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
+                onMouseLeave={() => hideGlobalItemTooltip()}
                 disabled={disabled}
                 title={item ? `Clique para desequipar ${item.name}` : `Solte um item compatível em ${label}`}
               >
@@ -132,7 +136,27 @@ export function EquipmentPanel({
         </div>
         </div><div className="inventory-backpack-pane"><h3>Backpack</h3><small>Arraste para equipar ou reorganizar.</small>
           <div className="inventory-grid inventory-window-grid" data-equipment-drop="inventory">
-            {inventory.map((item, index) => <button type="button" key={`${item.id}-${index}`} className="inventory-cell" data-equipment-drop="inventory-index" data-inventory-index={index} onContextMenu={(event) => { event.preventDefault(); setMenu({ x: event.clientX, y: event.clientY, item }); }} onPointerDown={(event) => onPointerDragStart({ kind: 'inventory', itemId: item.id }, event)} onDoubleClick={() => onTransfer({ kind: 'inventory', itemId: item.id }, { kind: 'auto-slot' })}><ItemSprite itemId={item.id} label={item.name} /><strong>{item.name}</strong></button>)}
+            {inventory.map((item, index) => (
+              <button
+                type="button"
+                key={`${item.id}-${index}`}
+                className="inventory-cell"
+                data-equipment-drop="inventory-index"
+                data-inventory-index={index}
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  setMenu({ x: event.clientX, y: event.clientY, item });
+                }}
+                onPointerDown={(event) => onPointerDragStart({ kind: 'inventory', itemId: item.id }, event)}
+                onDoubleClick={() => onTransfer({ kind: 'inventory', itemId: item.id }, { kind: 'auto-slot' })}
+                onMouseEnter={(e) => showGlobalItemTooltip({ item, itemId: item.id, name: item.name }, e)}
+                onMouseMove={(e) => showGlobalItemTooltip({ item, itemId: item.id, name: item.name }, e)}
+                onMouseLeave={() => hideGlobalItemTooltip()}
+              >
+                <ItemSprite itemId={item.id} label={item.name} />
+                <strong>{item.name}</strong>
+              </button>
+            ))}
           </div>
         </div></div>
         {menu && <div className="item-context-menu" style={{ left: menu.x, top: menu.y }} onPointerDown={(event) => event.stopPropagation()}><strong>{menu.item.name}</strong><button type="button" onClick={() => { onTransfer({ kind: 'inventory', itemId: menu.item.id }, { kind: 'auto-slot' }); setMenu(null); }}>Equipar</button><button type="button" onClick={() => setMenu(null)}>Fechar</button></div>}

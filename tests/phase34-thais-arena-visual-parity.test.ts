@@ -3,8 +3,8 @@ import { creatureVisualLayout } from '../packages/presentation/src';
 
 describe('Phase 34: Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada', () => {
   it('verifies that creatureVisualLayout defines the unified standard for nameplate and health bar', () => {
-    expect(creatureVisualLayout.nameplateY).toBe(-28);
-    expect(creatureVisualLayout.hpBarY).toBe(-20);
+    expect(creatureVisualLayout.nameplateY).toBe(-32);
+    expect(creatureVisualLayout.hpBarY).toBe(-24);
     expect(creatureVisualLayout.hpBarWidth).toBe(28);
   });
 

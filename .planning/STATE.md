@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 40 of 40 (Velocidade Normal na Cidade, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM)  
+Phase: 41 of 41 (Tooltip Global de Atributos de Itens e Inspeção de Jogadores na Cidade)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 40 concluída: Caminhada na cidade ajustada para a velocidade normal do personagem baseada em nível (cityStepDurationMs = baseStepDurationMs) com cadência suave e sem acelerações exageradas ao segurar as teclas; bloqueio estrito de colisão (!tile || !tile.walkable) tanto na locomoção manual quanto no pathfinding eliminando a possibilidade de subir em paredes ou transitar por tiles vazios/não indexados; e alinhamento do personagem no canto inferior direito do SQM (spriteAnchorX: 1, spriteAnchorY: 1 em +16, +16) padronizado em todas as arenas com fidelidade total à perspectiva do Tibia.
+Last activity: 2026-09-03 — Concluída Phase 41: Tooltip Global de Atributos de Itens (z-index 99999999, sem ficar atrás de janelas) e Inspeção de Jogadores na Cidade (Level, Vocação e Status Premium).
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 40
-- Tests status: 35 test suites passando (Vitest - 229 testes aprovados, 100%)
+- Total phases completed: 41
+- Tests status: 36 test suites passando (Vitest - 235 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -68,6 +68,7 @@ Progress: [██████████] 100%
 | 38. Fontes da Caçada Unificadas, VisualMotionTrack na Cidade e Integridade do Barco | 1 | - | - | Complete |
 | 39. Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Dobrada | 1 | - | - | Complete |
 | 40. Velocidade Normal, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM | 1 | - | - | Complete |
+| 41. Tooltip Global de Itens no Topo e Inspeção de Jogadores na Cidade | 1 | - | - | Complete |
 
 ## Accumulated Context
 

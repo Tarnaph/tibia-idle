@@ -38,6 +38,7 @@ export interface CharacterState {
   promotion: PromotedVocationName | null;
   level: number;
   experience: number;
+  isPremium?: boolean;
   currentHp: number;
   currentMana: number;
   maxHp: number;

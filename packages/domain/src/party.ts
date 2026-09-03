@@ -43,6 +43,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
   const maxMana = vocation.gainMana === 30 ? 60 : vocation.gainMana === 15 ? 30 : vocation.gainMana === 5 ? 10 : 0;
   return {
     id, name, vocation: vocationName, baseVocation: vocationName, promotion: null, level: 1, experience: 0,
+    isPremium: true,
     currentHp: 150, currentMana: maxMana,
     maxHp: 150, maxMana: vocation.gainMana === 30 ? 60 : vocation.gainMana === 15 ? 30 : vocation.gainMana === 5 ? 10 : 0,
     skills: { ...baseSkills[vocationName] }, skillTries: emptyTries(),

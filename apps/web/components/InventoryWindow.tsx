@@ -11,6 +11,7 @@ import {
 import { ItemSprite } from './ItemSprite';
 import { SlotSilhouette } from './SlotSilhouette';
 import { ItemContextMenu } from './ItemContextMenu';
+import { showGlobalItemTooltip, hideGlobalItemTooltip } from './GlobalItemTooltip';
 
 export type InventoryPaperdollSlot = CharacterEquipmentSlot | 'neck' | 'backpack' | 'finger' | 'ammo';
 
@@ -224,7 +225,9 @@ export function InventoryWindow({
                   key={slot}
                   className={`paperdoll-slot-box ${item ? 'occupied' : 'empty'}`}
                   style={{ gridArea }}
-                  title={item ? `${item.name} (${label})` : `Slot de ${label}`}
+                  onMouseEnter={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
+                  onMouseMove={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
+                  onMouseLeave={() => hideGlobalItemTooltip()}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => isSupportedEquipSlot && handleDropOnSlot(e, slot as CharacterEquipmentSlot)}
                   draggable={!!item}
@@ -286,6 +289,9 @@ export function InventoryWindow({
                       draggable={!!stack}
                       onDragStart={(e) => stack?.itemId && handleDragStart(e, 'bag', stack.itemId, index)}
                       onDoubleClick={() => stack?.itemId && onEquipItem(stack.itemId)}
+                      onMouseEnter={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
+                      onMouseMove={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         if (stack) {
@@ -298,7 +304,6 @@ export function InventoryWindow({
                           });
                         }
                       }}
-                      title={stack ? `${stack.name} (${stack.amount}x)` : 'Slot de Bolsa vazio'}
                     >
                       {stack?.itemId && (
                         <>
@@ -337,6 +342,9 @@ export function InventoryWindow({
                       draggable={!!stack}
                       onDragStart={(e) => stack?.itemId && handleDragStart(e, 'backpack', stack.itemId, index)}
                       onDoubleClick={() => stack?.itemId && onEquipItem(stack.itemId)}
+                      onMouseEnter={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
+                      onMouseMove={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         if (stack) {
@@ -349,7 +357,6 @@ export function InventoryWindow({
                           });
                         }
                       }}
-                      title={stack ? `${stack.name} (${stack.amount}x) · Clique direito para menu` : 'Slot de Mochila vazio'}
                     >
                       {stack?.itemId && (
                         <>

@@ -63,7 +63,7 @@ describe('visual movement presentation', () => {
   });
 
   it('uses a stable feet anchor and centered nameplate geometry', () => {
-    expect(creatureVisualLayout).toEqual({ spriteAnchorX: 1, spriteAnchorY: 1, spriteOffsetX: 14, spriteOffsetY: 11, nameplateY: -28, hpBarY: -20, hpBarWidth: 28, footprintSize: 32 });
+    expect(creatureVisualLayout).toEqual({ spriteAnchorX: 1, spriteAnchorY: 1, spriteOffsetX: 16, spriteOffsetY: 12, nameplateY: -32, hpBarY: -24, hpBarWidth: 28, footprintSize: 32 });
     expect(creatureVisualLayout.nameplateY).toBeLessThan(creatureVisualLayout.hpBarY);
   });
 

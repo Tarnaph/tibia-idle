@@ -8,6 +8,7 @@ import {
   type LootStack,
 } from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
+import { showGlobalItemTooltip, hideGlobalItemTooltip } from './GlobalItemTooltip';
 
 interface QuickSellWindowProps {
   open: boolean;
@@ -122,6 +123,9 @@ export function QuickSellWindow({
                   key={`quicksell-${itemId}`}
                   className={`quicksell-item-card ${isSelected ? 'selected' : 'unselected'}`}
                   onClick={() => toggleSelect(itemId)}
+                  onMouseEnter={(e) => showGlobalItemTooltip({ itemId, name: stack.name, amount: stack.amount, price: unitPrice }, e)}
+                  onMouseMove={(e) => showGlobalItemTooltip({ itemId, name: stack.name, amount: stack.amount, price: unitPrice }, e)}
+                  onMouseLeave={() => hideGlobalItemTooltip()}
                 >
                   <div className="quicksell-item-icon-box">
                     <ItemSprite itemId={itemId} label={stack.name} />

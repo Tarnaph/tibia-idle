@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import type { LootStack } from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
+import { showGlobalItemTooltip, hideGlobalItemTooltip } from './GlobalItemTooltip';
 
 interface DepotWindowProps {
   open: boolean;
@@ -100,7 +101,9 @@ export function DepotWindow({
                     key={`depot-slot-${index}`}
                     className={`inventory-slot-cell ${item ? 'occupied' : 'empty'}`}
                     onClick={() => item && onTransferFromDepot('backpack', index)}
-                    title={item ? `${item.name} (${item.amount}x) · Clique para enviar à Mochila` : 'Armazém vazio'}
+                    onMouseEnter={(e) => item?.itemId && showGlobalItemTooltip({ itemId: item.itemId, name: item.name, amount: item.amount }, e)}
+                    onMouseMove={(e) => item?.itemId && showGlobalItemTooltip({ itemId: item.itemId, name: item.name, amount: item.amount }, e)}
+                    onMouseLeave={() => hideGlobalItemTooltip()}
                   >
                     {item?.itemId && (
                       <>
@@ -129,7 +132,9 @@ export function DepotWindow({
                       key={`depot-bag-slot-${index}`}
                       className={`inventory-slot-cell ${stack ? 'occupied' : 'empty'}`}
                       onClick={() => stack && onTransferToDepot('bag', index)}
-                      title={stack ? `${stack.name} (${stack.amount}x) · Clique para enviar ao Armazém` : 'Bolsa vazia'}
+                      onMouseEnter={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount }, e)}
+                      onMouseMove={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount }, e)}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                     >
                       {stack?.itemId && (
                         <>
@@ -158,7 +163,9 @@ export function DepotWindow({
                       key={`depot-backpack-slot-${index}`}
                       className={`inventory-slot-cell ${stack ? 'occupied' : 'empty'}`}
                       onClick={() => stack && onTransferToDepot('backpack', index)}
-                      title={stack ? `${stack.name} (${stack.amount}x) · Clique para enviar ao Armazém` : 'Mochila vazia'}
+                      onMouseEnter={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount }, e)}
+                      onMouseMove={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount }, e)}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                     >
                       {stack?.itemId && (
                         <>

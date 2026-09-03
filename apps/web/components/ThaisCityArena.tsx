@@ -7,6 +7,102 @@ import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
 import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
+import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
+
+export interface AmbientCityPlayer {
+  id: string;
+  name: string;
+  vocation: string;
+  level: number;
+  isPremium: boolean;
+  x: number;
+  y: number;
+  z: number;
+  direction: 'north' | 'south' | 'east' | 'west';
+  currentHp: number;
+  maxHp: number;
+}
+
+export const AMBIENT_THAIS_PLAYERS: AmbientCityPlayer[] = [
+  {
+    id: 'player-vimago',
+    name: 'Vimago',
+    vocation: 'Master Sorcerer',
+    level: 45,
+    isPremium: true,
+    x: 32344,
+    y: 32230,
+    z: 7,
+    direction: 'south',
+    currentHp: 380,
+    maxHp: 380,
+  },
+  {
+    id: 'player-elane',
+    name: 'Elane',
+    vocation: 'Royal Paladin',
+    level: 32,
+    isPremium: true,
+    x: 32358,
+    y: 32225,
+    z: 7,
+    direction: 'east',
+    currentHp: 520,
+    maxHp: 520,
+  },
+  {
+    id: 'player-harkath',
+    name: 'Harkath Bloodblade',
+    vocation: 'Elite Knight',
+    level: 68,
+    isPremium: true,
+    x: 32348,
+    y: 32222,
+    z: 7,
+    direction: 'south',
+    currentHp: 1150,
+    maxHp: 1150,
+  },
+  {
+    id: 'player-muriel',
+    name: 'Muriel',
+    vocation: 'Sorcerer',
+    level: 54,
+    isPremium: false,
+    x: 32367,
+    y: 32240,
+    z: 7,
+    direction: 'south',
+    currentHp: 440,
+    maxHp: 440,
+  },
+  {
+    id: 'player-gorn',
+    name: 'Gorn',
+    vocation: 'Knight',
+    level: 28,
+    isPremium: false,
+    x: 32350,
+    y: 32236,
+    z: 7,
+    direction: 'north',
+    currentHp: 580,
+    maxHp: 580,
+  },
+  {
+    id: 'player-quentin',
+    name: 'Quentin',
+    vocation: 'Elder Druid',
+    level: 80,
+    isPremium: true,
+    x: 32369,
+    y: 32243,
+    z: 7,
+    direction: 'south',
+    currentHp: 650,
+    maxHp: 650,
+  },
+];
 
 interface Props {
   characters: CharacterState[];
@@ -286,6 +382,18 @@ export function ThaisCityArena({
       world.addChild(hoverCursor);
       hoverCursor.visible = false;
 
+      let playerDirection: 'north' | 'south' | 'east' | 'west' = 'south';
+      const initialPos = latestRef.current.cityPos;
+      const motionTrack = new VisualMotionTrack(
+        { x: initialPos.x, y: initialPos.y, z: initialPos.z },
+        'south'
+      );
+      let lastCommittedPos = { ...initialPos };
+      let tickCount = 0;
+      let currentPixelX = initialPos.x * TILE_SIZE + 16;
+      let currentPixelY = initialPos.y * TILE_SIZE + 16;
+      let hoveredPlayerId: string | null = null;
+
       const onPointerMove = (e: PointerEvent) => {
         const rect = app.canvas.getBoundingClientRect();
         const clientX = e.clientX - rect.left;
@@ -303,10 +411,85 @@ export function ThaisCityArena({
         } else {
           hoverCursor.visible = false;
         }
+
+        // Hover detection over other players / characters in Thais
+        const activeZ = latestRef.current.cityPos.z;
+        const curChars = latestRef.current.characters;
+        let matchedPlayer: {
+          id: string;
+          name: string;
+          level: number;
+          vocation: string;
+          isPremium: boolean;
+          currentHp?: number;
+          maxHp?: number;
+        } | null = null;
+
+        // 1. Check ambient city players on the active Z floor
+        for (const p of AMBIENT_THAIS_PLAYERS) {
+          if (p.z !== activeZ) continue;
+          const px = p.x * TILE_SIZE + 16;
+          const py = p.y * TILE_SIZE + 16;
+          const dx = worldX - px;
+          const dy = worldY - py;
+          if (dx >= -18 && dx <= 18 && dy >= -38 && dy <= 16) {
+            matchedPlayer = p;
+            break;
+          }
+        }
+
+        // 2. Check party characters (including other players in party)
+        if (!matchedPlayer) {
+          curChars.forEach((char, idx) => {
+            const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
+            const offsetY = idx === 0 ? 0 : idx === 3 ? 24 : 12;
+            const px = currentPixelX + offsetX;
+            const py = currentPixelY + offsetY;
+            const dx = worldX - px;
+            const dy = worldY - py;
+            if (dx >= -18 && dx <= 18 && dy >= -38 && dy <= 16) {
+              matchedPlayer = {
+                id: char.id,
+                name: char.name,
+                level: char.level,
+                vocation: char.vocation,
+                isPremium: char.isPremium ?? true,
+                currentHp: char.currentHp,
+                maxHp: char.maxHp,
+              };
+            }
+          });
+        }
+
+        if (matchedPlayer) {
+          hoveredPlayerId = matchedPlayer.id;
+          app.canvas.style.cursor = 'pointer';
+          showGlobalPlayerTooltip(
+            {
+              name: matchedPlayer.name,
+              level: matchedPlayer.level,
+              vocation: matchedPlayer.vocation,
+              isPremium: matchedPlayer.isPremium,
+              currentHp: matchedPlayer.currentHp,
+              maxHp: matchedPlayer.maxHp,
+            },
+            e.clientX,
+            e.clientY
+          );
+        } else if (hoveredPlayerId) {
+          hoveredPlayerId = null;
+          app.canvas.style.cursor = 'default';
+          hideGlobalPlayerTooltip();
+        }
       };
 
       const onPointerLeave = () => {
         hoverCursor.visible = false;
+        if (hoveredPlayerId) {
+          hoveredPlayerId = null;
+          app.canvas.style.cursor = 'default';
+          hideGlobalPlayerTooltip();
+        }
       };
 
       const onPointerDown = (e: PointerEvent) => {
@@ -344,7 +527,16 @@ export function ThaisCityArena({
       const actorViews = new Map<string, CityActorView>();
 
       function getOutfitFrameUrl(vocation: string, direction: string, frame: number): string {
-        const outfit = visualAssets.outfits[vocation] || Object.values(visualAssets.outfits)[0];
+        const normKey = vocation.includes('Sorcerer')
+          ? 'Sorcerer'
+          : vocation.includes('Druid')
+          ? 'Druid'
+          : vocation.includes('Paladin')
+          ? 'Paladin'
+          : vocation.includes('Knight')
+          ? 'Knight'
+          : vocation;
+        const outfit = visualAssets.outfits[normKey] || Object.values(visualAssets.outfits)[0];
         if (!outfit) return '';
         const dirFrames = outfit.frames.filter((f) => f.direction === direction);
         const candidates = dirFrames.length > 0 ? dirFrames : outfit.frames.filter((f) => f.direction === 'south');
@@ -352,7 +544,7 @@ export function ThaisCityArena({
         return match?.publicUrl ?? outfit.frames[0]?.publicUrl ?? '';
       }
 
-      function ensureActorView(char: CharacterState): CityActorView | null {
+      function ensureActorView(char: { id: string; name: string; vocation: string }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) return view;
 
@@ -390,17 +582,9 @@ export function ThaisCityArena({
       }
 
       characters.forEach(ensureActorView);
+      AMBIENT_THAIS_PLAYERS.forEach(ensureActorView);
 
       // Ticker to smoothly follow player with VisualMotionTrack (matching hunt fluidity), animate characters & animate map elements
-      let playerDirection: 'north' | 'south' | 'east' | 'west' = 'south';
-      const initialPos = latestRef.current.cityPos;
-      const motionTrack = new VisualMotionTrack(
-        { x: initialPos.x, y: initialPos.y, z: initialPos.z },
-        'south'
-      );
-      let lastCommittedPos = { ...initialPos };
-      let tickCount = 0;
-
       app.ticker.add(() => {
         const { characters: curChars, cityPos: curPos, isWalking: curWalk, isTraining: curTrain, stepDurationMs: curStepDuration } = latestRef.current;
         tickCount++;
@@ -432,8 +616,8 @@ export function ThaisCityArena({
         }
 
         const sample = motionTrack.sample(now);
-        const currentPixelX = sample.renderPosition.x * TILE_SIZE + 16;
-        const currentPixelY = sample.renderPosition.y * TILE_SIZE + 16;
+        currentPixelX = sample.renderPosition.x * TILE_SIZE + 16;
+        currentPixelY = sample.renderPosition.y * TILE_SIZE + 16;
         if (sample.direction) {
           playerDirection = sample.direction;
         }
@@ -485,9 +669,36 @@ export function ThaisCityArena({
           }
           view.sprite.y = creatureVisualLayout.spriteOffsetY;
         });
+
+        // 5. Update ambient city players stationed across Thais
+        for (const p of AMBIENT_THAIS_PLAYERS) {
+          const view = ensureActorView(p);
+          if (!view) continue;
+          view.root.visible = curPos.z === p.z;
+          if (!view.root.visible) continue;
+
+          const url = getOutfitFrameUrl(p.vocation, p.direction, 0);
+          if (url && url !== view.lastUrl && loaded[url]) {
+            view.sprite.texture = loaded[url];
+            view.lastUrl = url;
+          }
+
+          const px = p.x * TILE_SIZE + 16;
+          const py = p.y * TILE_SIZE + 16;
+          view.root.position.set(px, py);
+          view.root.zIndex = py;
+          view.label.position.set(0, creatureVisualLayout.nameplateY);
+          const hpRatio = p.maxHp > 0 ? Math.max(0, Math.min(1, p.currentHp / p.maxHp)) : 1;
+          view.bar.clear()
+            .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
+            .fill({ color: 0x251010 })
+            .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
+            .fill({ color: 0x4fc977 });
+        }
       });
 
       cleanup = () => {
+        hideGlobalPlayerTooltip();
         app.canvas.removeEventListener('pointermove', onPointerMove);
         app.canvas.removeEventListener('pointerleave', onPointerLeave);
         app.canvas.removeEventListener('pointerdown', onPointerDown);
