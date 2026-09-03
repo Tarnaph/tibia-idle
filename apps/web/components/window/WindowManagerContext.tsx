@@ -100,8 +100,14 @@ function getDefaultWindows(viewportWidth = 1280, viewportHeight = 720): Record<W
 const WindowManagerContext = createContext<WindowManagerContextValue | null>(null);
 
 export function WindowManagerProvider({ children }: { children: React.ReactNode }) {
-  const [windows, setWindows] = useState<Record<WindowId, WindowState>>(() => {
-    if (typeof window === 'undefined') return getDefaultWindows();
+  // Always initialize with defaults so SSR and initial client render match identically
+  const [windows, setWindows] = useState<Record<WindowId, WindowState>>(() => getDefaultWindows());
+  const [mounted, setMounted] = useState(false);
+  const [topZ, setTopZ] = useState(20);
+
+  // Load saved positions from localStorage strictly after client hydration
+  useEffect(() => {
+    setMounted(true);
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -113,30 +119,27 @@ export function WindowManagerProvider({ children }: { children: React.ReactNode 
             merged[key] = {
               ...defaults[key],
               ...parsed[key],
-              // Ensure coordinates remain within screen bounds
               x: Math.max(0, Math.min(window.innerWidth - 80, parsed[key].x ?? defaults[key].x)),
               y: Math.max(40, Math.min(window.innerHeight - 60, parsed[key].y ?? defaults[key].y)),
             };
           }
         }
-        return merged;
+        setWindows(merged);
       }
     } catch {
-      // Ignore parse error
+      // Ignore parse errors
     }
-    return getDefaultWindows();
-  });
+  }, []);
 
-  const [topZ, setTopZ] = useState(20);
-
-  // Save to localStorage
+  // Save to localStorage only after mounted
   useEffect(() => {
+    if (!mounted) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(windows));
     } catch {
       // Ignore write errors
     }
-  }, [windows]);
+  }, [windows, mounted]);
 
   const bringToFront = useCallback((id: WindowId) => {
     setTopZ((current) => {
