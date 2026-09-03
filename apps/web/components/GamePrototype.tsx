@@ -129,9 +129,9 @@ function GamePrototypeContent() {
 
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level);
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
-  // In the city, 50% faster than base for fast, fluid navigation
-  const cityStepDurationMs = Math.round(baseStepDurationMs / 1.5);
-  const lastKeyStepTimeRef = useRef(0);
+  // In the city, 2x faster than base (100% bonus) for ultra-fast, responsive navigation
+  const cityStepDurationMs = Math.round(baseStepDurationMs / 2.0);
+  const heldDirectionRef = useRef<{ dx: number; dy: number } | null>(null);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
     if (mode === 'hunt') return;
@@ -451,6 +451,32 @@ function GamePrototypeContent() {
     });
   }, [activeCharacter.hotbar, activeCharacter.id]);
 
+  const takeCityStep = useCallback((deltaX: number, deltaY: number) => {
+    setWalkingPath(null);
+    setIsTrainingAtDummy(false);
+    setCityPos((current) => {
+      const stairTarget = resolveStairsTransition(current, deltaX, deltaY);
+      if (stairTarget) return stairTarget;
+      const nextX = current.x + deltaX;
+      const nextY = current.y + deltaY;
+      const activeTileMap = current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+      const tile = activeTileMap.get(`${nextX},${nextY}`);
+      if (tile && !tile.walkable) return current;
+      return { x: nextX, y: nextY, z: current.z };
+    });
+  }, [thaisTileMapZ6, thaisTileMapZ7]);
+
+  // Continuous movement loop while arrow keys or WASD are held
+  useEffect(() => {
+    if (mode === 'hunt') return;
+    const interval = window.setInterval(() => {
+      if (heldDirectionRef.current) {
+        takeCityStep(heldDirectionRef.current.dx, heldDirectionRef.current.dy);
+      }
+    }, cityStepDurationMs);
+    return () => window.clearInterval(interval);
+  }, [mode, cityStepDurationMs, takeCityStep]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -467,30 +493,11 @@ function GamePrototypeContent() {
 
         if (deltaX !== 0 || deltaY !== 0) {
           e.preventDefault();
-          const now = performance.now();
-          if (now - lastKeyStepTimeRef.current < cityStepDurationMs) {
-            return;
+          const isNewDir = !heldDirectionRef.current || heldDirectionRef.current.dx !== deltaX || heldDirectionRef.current.dy !== deltaY;
+          heldDirectionRef.current = { dx: deltaX, dy: deltaY };
+          if (isNewDir) {
+            takeCityStep(deltaX, deltaY); // Instant step with 0ms delay on press
           }
-          lastKeyStepTimeRef.current = now;
-
-          setWalkingPath(null);
-          setIsTrainingAtDummy(false);
-          setCityPos((current) => {
-            // First check if this step triggers a stairs/floor transition (TFS Tile::queryDestination)
-            const stairTarget = resolveStairsTransition(current, deltaX, deltaY);
-            if (stairTarget) {
-              return stairTarget;
-            }
-
-            const nextX = current.x + deltaX;
-            const nextY = current.y + deltaY;
-            const activeTileMap = current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
-            const tile = activeTileMap.get(`${nextX},${nextY}`);
-            if (tile && !tile.walkable) {
-              return current;
-            }
-            return { x: nextX, y: nextY, z: current.z };
-          });
           return;
         }
       }
@@ -506,9 +513,35 @@ function GamePrototypeContent() {
         handleManualHotbarAction(10 + keyNum);
       }
     };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      let deltaX = 0;
+      let deltaY = 0;
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') deltaY = -1;
+      else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') deltaY = 1;
+      else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') deltaX = -1;
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') deltaX = 1;
+
+      if (deltaX !== 0 || deltaY !== 0) {
+        if (heldDirectionRef.current && heldDirectionRef.current.dx === deltaX && heldDirectionRef.current.dy === deltaY) {
+          heldDirectionRef.current = null;
+        }
+      }
+    };
+
+    const handleBlur = () => {
+      heldDirectionRef.current = null;
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleManualHotbarAction, mode]);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [handleManualHotbarAction, mode, takeCityStep]);
 
   const skillsList = [
     ['Fist', activeCharacter.skills.fist, selectedSkillProgress.fist],

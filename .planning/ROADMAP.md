@@ -607,3 +607,21 @@ Plans:
 Plans:
 - [x] 38-01-PLAN: Unificar fontes na caçada, sincronizar VisualMotionTrack na cidade, corrigir alinhamento de tiles e renderizar mastros/velas do barco.
 
+---
+
+### Phase 39: Integração de mapaserver.otbm, Resposta Instantânea do Teclado (0ms) e Velocidade Urbana Dobrada (2x)
+
+**Goal:** Substituir o mapa de Thais pelo arquivo oficial fornecido pelo usuário (`mapaserver.otbm`), restaurando os offsets de sprites autênticos do Tibia para todas as paredes, estruturas e itens; dobrar a velocidade de locomoção na cidade (2.0x / +100% de bônus); e eliminar o delay nas setinhas através de resposta imediata com tracking de teclas pressionadas e repetição fluida contínua.  
+**Depends on:** Phase 38  
+**Requirements:** `FIX.md`, `mapaserver.otbm`, `GamePrototype.tsx`, `ThaisCityArena.tsx`, `extract-thais-region.mjs`, `extract-tibia1098-thais.mjs`.  
+**Success Criteria:**
+1. O mapa de Thais é 100% extraído diretamente do arquivo do usuário `mapaserver.otbm` (145MB), cobrindo todos os tiles de Z:7 (18.271) e Z:6 (7.722) com pureza de dados.
+2. Todas as paredes, construções, portas, árvores e balcões respeitam seus tiles de ancoragem no grid sem deslocamentos fora de lugar.
+3. Velocidade urbana dobrada: `cityStepDurationMs = Math.round(baseStepDurationMs / 2.0)` (ex: 250ms no lvl 20 e 200ms no lvl 50).
+4. Resposta instantânea de teclado: ao tocar na setinha ou WASD, o personagem dá o passo imediatamente com 0ms de delay (sem aguardar o repeat delay do sistema operacional) e caminha de forma contínua e veloz enquanto a tecla for mantida pressionada.
+5. 100% dos testes passando (34 arquivos de teste, 226/226 testes) e 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 39-01-PLAN: Integrar mapaserver.otbm, restaurar offsets autênticos, dobrar velocidade urbana e implementar resposta instantânea de teclado.
+
+

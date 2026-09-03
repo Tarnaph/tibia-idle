@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 38 of 38 (Fontes da Caçada Unificadas, Caminhada Fluída com VisualMotionTrack e Integridade Completa do Barco e Cidade)  
+Phase: 39 of 39 (Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Urbana Dobrada)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 38 concluída: Fontes flutuantes de XP, Magia/Falas, Dano e Cura padronizadas rigorosamente no tamanho 7 (fontSize: 7), ligeiramente menores que o nome do personagem (fontSize: 8); movimentação e passos na cidade integrados com VisualMotionTrack proporcionando movimento linear uniforme e sincronização de passos idêntica à caçada; remoção de offsets negativos artificiais de multi-tile items alinhando mesas, balcões e divisórias perfeitamente aos seus tiles de origem sem sobreposições; extração e renderização das estruturas superiores do barco (mastros, velas e quarterdeck nos pisos Z:5 e Z:4) cobrindo mais de 1.180 sprites autênticos de itens do Tibia 10.98.
+Last activity: 2026-09-03 — Phase 39 concluída: Substituição da base do mapa de Thais diretamente pelo arquivo mapaserver.otbm fornecido pelo usuário (145MB), com extração limpa de Z:7 (18.271 tiles) e Z:6 (7.722 tiles); restauração do posicionamento autêntico de itens multi-tile (paredes, portas, balcões, árvores) em seus tiles de ancoragem; velocidade urbana dobrada (2.0x / +100% de velocidade); e resposta instantânea do teclado (0ms de atraso) eliminando o delay do sistema operacional e permitindo caminhada contínua veloz enquanto mantida pressionada.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 38
-- Tests status: 33 test suites passando (Vitest - 221 testes aprovados, 100%)
+- Total phases completed: 39
+- Tests status: 34 test suites passando (Vitest - 226 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -65,6 +65,8 @@ Progress: [██████████] 100%
 | 35. Cadência de Teclado, Velocidade Urbana (+25%) e Viagem para Caçada via Cais | 1 | - | - | Complete |
 | 36. Restauração Visual da Cidade, Isolamento de Andares e Escadas Canônicas | 1 | - | - | Complete |
 | 37. Movimento Fluído na Cidade (+50% Velocidade) e Mapa Completo do Segundo Andar | 1 | - | - | Complete |
+| 38. Fontes da Caçada Unificadas, VisualMotionTrack na Cidade e Integridade do Barco | 1 | - | - | Complete |
+| 39. Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Dobrada | 1 | - | - | Complete |
 
 ## Accumulated Context
 

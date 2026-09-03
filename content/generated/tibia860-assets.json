@@ -166363,6 +166363,86 @@
       "animDurationMs": 0,
       "importWarnings": []
     },
+    "11778": {
+      "serverId": 11778,
+      "clientId": 10822,
+      "group": 0,
+      "name": "OTBM 10.98 item 11778",
+      "resolved": true,
+      "source": {
+        "serverId": 11778,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 11/Tibia 11/Tibia 11/Tibia.dat",
+        "spr": "Tibia 11/Tibia 11/Tibia 11/Tibia.spr"
+      },
+      "appearanceId": 10822,
+      "isGround": false,
+      "blockSolid": false,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          1,
+          13,
+          32
+        ],
+        "spriteIds": [
+          32795
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          32795
+        ],
+        "file": "public/generated/tibia1098/items/item-11778.png",
+        "publicUrl": "/generated/tibia1098/items/item-11778.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "frames": [
+        {
+          "frame": 0,
+          "direction": "static",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            32795
+          ],
+          "file": "public/generated/tibia1098/items/item-11778.png",
+          "publicUrl": "/generated/tibia1098/items/item-11778.png",
+          "sha256": "",
+          "width": 32,
+          "height": 32
+        }
+      ],
+      "animDurationMs": 0,
+      "importWarnings": []
+    },
     "11785": {
       "serverId": 11785,
       "clientId": 10829,

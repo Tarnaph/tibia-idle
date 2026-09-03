@@ -87,9 +87,9 @@ async function run() {
   }
   console.log(`Loaded ${itemFlags.size} item definitions from items.otb`);
 
-  console.log('Loading realmap.otbm (145MB)...');
-  const otbm = await readFile('C:/Users/desig/OneDrive/Documentos/TibiaWeb/realmap11/data/realmap.otbm');
-  console.log('Parsing realmap.otbm stream...');
+  console.log('Loading mapaserver.otbm (145MB)...');
+  const otbm = await readFile('mapaserver.otbm');
+  console.log('Parsing mapaserver.otbm stream...');
 
   // Bounds for Thais:
   // Temple: 32369, 32241, 7
@@ -131,7 +131,7 @@ async function run() {
     const baseY = areaProps.readUInt16LE(2);
     const baseZ = areaProps[4];
 
-    if (baseZ < 4 || baseZ > 7) return area.next;
+    if (baseZ !== 6 && baseZ !== 7) return area.next;
 
     for (const tile of area.node.children) {
       if ((tile.type !== 5 && tile.type !== 14) || tile.props.length < 2) continue;
@@ -215,8 +215,7 @@ async function run() {
           // Check if this area overlaps Thais target box:
           // A tile area is 256x256 max
           const overlaps =
-            baseZ >= 4 &&
-            baseZ <= 7 &&
+            (baseZ === 6 || baseZ === 7) &&
             baseX <= maxX &&
             baseX + 256 >= minX &&
             baseY <= maxY &&
@@ -244,7 +243,6 @@ async function run() {
 
   const z7Tiles = thaisTiles.filter((t) => t.z === 7);
   const z6Tiles = thaisTiles.filter((t) => t.z === 6);
-  const roofTiles = thaisTiles.filter((t) => t.z < 6);
 
   // Write out thais-city-region.json
   const output = {
@@ -256,7 +254,6 @@ async function run() {
     tileCount: z7Tiles.length,
     tiles: z7Tiles,
     upperTiles: z6Tiles,
-    roofTiles,
   };
 
   await writeFile('content/generated/thais-city.json', JSON.stringify(output, null, 2));

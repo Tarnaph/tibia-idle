@@ -197,7 +197,9 @@ export function ThaisCityArena({
               const mapping = visualAssets.mapItems[String(sId)];
               if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
                 const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-                sp.position.set(px, py);
+                const offsetY = mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0;
+                const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
+                sp.position.set(px + offsetX, py + offsetY);
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
                 objectsLayerZ7.addChild(sp);
@@ -246,7 +248,9 @@ export function ThaisCityArena({
               const mapping = visualAssets.mapItems[String(sId)];
               if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
                 const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-                sp.position.set(px, py);
+                const offsetY = mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0;
+                const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
+                sp.position.set(px + offsetX, py + offsetY);
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
                 objectsLayerZ6.addChild(sp);
@@ -266,23 +270,6 @@ export function ThaisCityArena({
               floorSp.roundPixels = true;
               terrainLayerZ6.addChild(floorSp);
             }
-          }
-        }
-      }
-
-      // Render elevated roof and ship structures (masts, sails, quarterdeck on Z:5 and Z:4)
-      const roofTiles = (thaisData as { roofTiles?: typeof thaisData.tiles }).roofTiles ?? [];
-      for (const rt of roofTiles) {
-        const px = rt.x * TILE_SIZE;
-        const py = rt.y * TILE_SIZE;
-        for (const sId of rt.serverItemIds) {
-          const mapping = visualAssets.mapItems[String(sId)];
-          if (mapping?.frame && loaded[mapping.frame.publicUrl]) {
-            const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-            sp.position.set(px, py);
-            sp.roundPixels = true;
-            sp.zIndex = py + 32 + (7 - rt.z) * 10;
-            objectsLayerZ6.addChild(sp);
           }
         }
       }
