@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
+import { Tibia11ActionIcon } from './Tibia11ActionIcon';
 import {
   HOTBAR_POTIONS,
   HOTBAR_RUNES,
@@ -128,9 +129,12 @@ export function HotbarConfigModal({
                     className={`hotbar-action-card ${isSelected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
                     onClick={() => handleSelect(spell.spellId)}
                   >
-                    <div className="action-card-header">
-                      <span className="action-name">{spell.name}</span>
-                      <span className="action-words">{spell.words}</span>
+                    <div className="action-card-top">
+                      <Tibia11ActionIcon id={spell.spellId} kind="spell" name={spell.name} size={32} />
+                      <div className="action-card-header">
+                        <span className="action-name">{spell.name}</span>
+                        <span className="action-words">{spell.words}</span>
+                      </div>
                     </div>
                     <div className="action-card-meta">
                       <span className="badge mana">{spell.mana} MP</span>
@@ -161,9 +165,12 @@ export function HotbarConfigModal({
                     className={`hotbar-action-card ${isSelected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
                     onClick={() => handleSelect(rune.id)}
                   >
-                    <div className="action-card-header">
-                      <span className="action-name">{rune.name}</span>
-                      <span className="action-words">{rune.words}</span>
+                    <div className="action-card-top">
+                      <Tibia11ActionIcon id={rune.id} kind="rune" name={rune.name} size={32} />
+                      <div className="action-card-header">
+                        <span className="action-name">{rune.name}</span>
+                        <span className="action-words">{rune.words}</span>
+                      </div>
                     </div>
                     <div className="action-card-meta">
                       <span className="badge type">{rune.combatType.toUpperCase()}</span>
@@ -192,9 +199,12 @@ export function HotbarConfigModal({
                     className={`hotbar-action-card ${isSelected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
                     onClick={() => handleSelect(potion.id)}
                   >
-                    <div className="action-card-header">
-                      <span className="action-name">{potion.name}</span>
-                      <span className="action-badge-tag">{potion.category === 'healing' ? '❤️ VIDA' : '💙 MANA'}</span>
+                    <div className="action-card-top">
+                      <Tibia11ActionIcon id={potion.id} kind="potion" name={potion.name} size={32} />
+                      <div className="action-card-header">
+                        <span className="action-name">{potion.name}</span>
+                        <span className="action-badge-tag">{potion.category === 'healing' ? '❤️ VIDA' : '💙 MANA'}</span>
+                      </div>
                     </div>
                     <div className="action-card-meta">
                       <span className={`badge req ${unlocked ? 'ok' : 'req-fail'}`}>
@@ -214,17 +224,25 @@ export function HotbarConfigModal({
         <div className="hotbar-modal-footer">
           <div className="hotbar-selected-info">
             {selectedAction ? (
-              <span>
-                Selecionado:{' '}
-                <strong>
-                  {selectedAction.kind === 'spell'
-                    ? selectedAction.spell.name
-                    : selectedAction.kind === 'rune'
-                    ? selectedAction.rune.name
-                    : selectedAction.potion.name}
-                </strong>{' '}
-                ({selectedAction.kind.toUpperCase()})
-              </span>
+              <div className="selected-preview-box">
+                <Tibia11ActionIcon
+                  id={selectedAction.kind === 'spell' ? selectedAction.spell.spellId : selectedAction.kind === 'rune' ? selectedAction.rune.id : selectedAction.potion.id}
+                  kind={selectedAction.kind}
+                  name={selectedAction.kind === 'spell' ? selectedAction.spell.name : selectedAction.kind === 'rune' ? selectedAction.rune.name : selectedAction.potion.name}
+                  size={24}
+                />
+                <span>
+                  Selecionado:{' '}
+                  <strong>
+                    {selectedAction.kind === 'spell'
+                      ? selectedAction.spell.name
+                      : selectedAction.kind === 'rune'
+                      ? selectedAction.rune.name
+                      : selectedAction.potion.name}
+                  </strong>{' '}
+                  ({selectedAction.kind.toUpperCase()})
+                </span>
+              </div>
             ) : (
               <span className="text-muted">Nenhuma ação selecionada (slot ficará vazio: +)</span>
             )}

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { SpellDefinition } from '@/packages/content-schema/src';
 import { findHotbarAction, type CharacterState, type CombatLogEntry, type HuntEncounterState, type PartyActorState } from '@/packages/domain/src';
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import { Tibia11ActionIcon } from './Tibia11ActionIcon';
 
 const visualAssets = visualAssetsJson as Tibia860AssetManifest;
 
@@ -39,6 +40,27 @@ export function BottomDock({
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
   const running = status === 'running';
+
+  // Global keyboard shortcuts (1 - 5) for the Tibia 11 Action Bar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const keyNum = parseInt(e.key, 10);
+      if (!isNaN(keyNum) && keyNum >= 1 && keyNum <= 5) {
+        const slotIdx = keyNum - 1;
+        const slotEl = document.getElementById(`tibia11-slot-${slotIdx}`);
+        slotEl?.classList.add('hotkey-pressed');
+        setTimeout(() => slotEl?.classList.remove('hotkey-pressed'), 160);
+
+        if (character.hotbar[slotIdx] === undefined) {
+          onConfigureSlot?.(slotIdx);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [character.hotbar, onConfigureSlot]);
+
   return (
     <footer className="bottom-dock">
       {logOpen && (
@@ -52,20 +74,25 @@ export function BottomDock({
         <button type="button" disabled title="Em breve">Geral</button>
         <button type="button" disabled title="Em breve">Sistema</button>
       </div>
-      <div className="character-hotbar" aria-label={`Rotação automática de ${character.name}`}>
-        <span className="hotbar-vocation">{character.promotion ? character.promotion.split(' ').map((part) => part[0]).join('') : character.baseVocation.slice(0, 2).toUpperCase()}</span>
+      <div className="character-hotbar tibia11-action-bar" aria-label={`Tibia 11 Action Bar - ${character.name}`}>
+        <span className="hotbar-vocation tibia11-vocation-badge">
+          {character.promotion ? character.promotion.split(' ').map((part) => part[0]).join('') : character.baseVocation.slice(0, 2).toUpperCase()}
+        </span>
         {[0, 1, 2, 3, 4].map((index) => {
           const actionId = character.hotbar[index];
+          const hotkeyLabel = String(index + 1);
+
           if (typeof actionId !== 'number') {
             return (
               <button
                 type="button"
-                className="hotbar-slot empty-slot"
+                id={`tibia11-slot-${index}`}
+                className="hotbar-slot tibia11-slot empty-slot"
                 key={`empty-${index}`}
-                title={`Slot ${index + 1} Vazio · Clique para configurar`}
+                title={`Slot ${hotkeyLabel} Vazio · Clique ou pressione [${hotkeyLabel}] para configurar`}
                 onClick={() => onConfigureSlot?.(index)}
               >
-                <span className="slot-num">{index + 1}</span>
+                <span className="tibia11-hotkey-badge">{hotkeyLabel}</span>
                 <span className="empty-plus">+</span>
               </button>
             );
@@ -76,12 +103,13 @@ export function BottomDock({
             return (
               <button
                 type="button"
-                className="hotbar-slot empty-slot"
+                id={`tibia11-slot-${index}`}
+                className="hotbar-slot tibia11-slot empty-slot"
                 key={`empty-${index}`}
-                title={`Slot ${index + 1} Vazio · Clique para configurar`}
+                title={`Slot ${hotkeyLabel} Vazio · Clique ou pressione [${hotkeyLabel}] para configurar`}
                 onClick={() => onConfigureSlot?.(index)}
               >
-                <span className="slot-num">{index + 1}</span>
+                <span className="tibia11-hotkey-badge">{hotkeyLabel}</span>
                 <span className="empty-plus">+</span>
               </button>
             );
@@ -96,20 +124,21 @@ export function BottomDock({
 
             return (
               <div
-                className="hotbar-slot potion-slot"
+                id={`tibia11-slot-${index}`}
+                className="hotbar-slot tibia11-slot potion-slot"
                 key={`action-${index}-${potion.id}`}
-                title={`${potion.name} · ${potion.description} · Clique para alterar`}
+                title={`${potion.name} [${hotkeyLabel}] · ${potion.description} · Clique para alterar`}
                 onClick={() => onConfigureSlot?.(index)}
               >
-                <span className="slot-num">{index + 1}</span>
-                <div className={`action-icon-tag ${isHealing ? 'hp-tag' : 'mp-tag'}`}>
+                <span className="tibia11-hotkey-badge">{hotkeyLabel}</span>
+                <Tibia11ActionIcon id={potion.id} kind="potion" name={potion.name} size={30} />
+                <span className={`tibia11-cost-badge ${isHealing ? 'hp-cost' : 'mp-cost'}`}>
                   {isHealing ? 'HP' : 'MP'}
-                </div>
-                <small>{isHealing ? 'Vida' : 'Mana'}</small>
+                </span>
                 {cooldownRatio > 0 && (
-                  <i className="hotbar-cooldown" style={{ height: `${cooldownRatio * 100}%` }}>
-                    <em>{(cooldownLeft / 1000).toFixed(1)}</em>
-                  </i>
+                  <div className="tibia11-cooldown-sweep" style={{ height: `${cooldownRatio * 100}%` }}>
+                    <em className="cd-timer">{(cooldownLeft / 1000).toFixed(1)}</em>
+                  </div>
                 )}
                 <button
                   type="button"
@@ -147,20 +176,21 @@ export function BottomDock({
 
             return (
               <div
-                className="hotbar-slot rune-slot"
+                id={`tibia11-slot-${index}`}
+                className="hotbar-slot tibia11-slot rune-slot"
                 key={`action-${index}-${rune.id}`}
-                title={`${rune.name} · ${rune.words} · Clique para alterar`}
+                title={`${rune.name} [${hotkeyLabel}] · ${rune.words} · Clique para alterar`}
                 onClick={() => onConfigureSlot?.(index)}
               >
-                <span className="slot-num">{index + 1}</span>
-                <div className="action-icon-tag rune-tag">
+                <span className="tibia11-hotkey-badge">{hotkeyLabel}</span>
+                <Tibia11ActionIcon id={rune.id} kind="rune" name={rune.name} size={30} />
+                <span className="tibia11-cost-badge rune-cost">
                   {rune.name.split(' ').map((w) => w[0]).join('')}
-                </div>
-                <small>{rune.combatType}</small>
+                </span>
                 {cooldownRatio > 0 && (
-                  <i className="hotbar-cooldown" style={{ height: `${cooldownRatio * 100}%` }}>
-                    <em>{(cooldownLeft / 1000).toFixed(1)}</em>
-                  </i>
+                  <div className="tibia11-cooldown-sweep" style={{ height: `${cooldownRatio * 100}%` }}>
+                    <em className="cd-timer">{(cooldownLeft / 1000).toFixed(1)}</em>
+                  </div>
                 )}
                 <button
                   type="button"
@@ -194,25 +224,23 @@ export function BottomDock({
           const cooldownUntil = Math.max(actor?.spellCooldowns[String(spell.spellId)] ?? 0, actor?.groupCooldowns[spell.group] ?? 0);
           const cooldownLeft = Math.max(0, cooldownUntil - elapsedMs);
           const cooldownRatio = Math.min(1, cooldownLeft / Math.max(spell.cooldownMs, spell.groupCooldownMs));
-          const effectFrame = spell.visual.effectId === null ? null : visualAssets.effects[String(spell.visual.effectId)]?.frames[0];
           const disabled = (actor?.mana ?? character.currentMana) < spell.mana;
 
           return (
             <div
-              className={`hotbar-slot ${disabled ? 'disabled' : ''}`}
+              id={`tibia11-slot-${index}`}
+              className={`hotbar-slot tibia11-slot ${disabled ? 'disabled' : ''}`}
               key={`action-${index}-${spell.spellId}`}
-              title={`${spell.name} · ${spell.words} · ${spell.mana} mana · Clique para alterar`}
+              title={`${spell.name} [${hotkeyLabel}] · ${spell.words} · ${spell.mana} mana · Clique para alterar`}
               onClick={() => onConfigureSlot?.(index)}
             >
-              {/* Generated pixel art must remain unoptimized and pixel-perfect. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {effectFrame ? <img src={effectFrame.publicUrl} alt="" /> : <b>{spell.name.slice(0, 2).toUpperCase()}</b>}
-              <span className="slot-num">{index + 1}</span>
-              <small>{spell.mana}mp</small>
+              <span className="tibia11-hotkey-badge">{hotkeyLabel}</span>
+              <Tibia11ActionIcon id={spell.spellId} kind="spell" name={spell.name} size={30} />
+              <span className="tibia11-cost-badge mana-cost">{spell.mana}</span>
               {cooldownRatio > 0 && (
-                <i className="hotbar-cooldown" style={{ height: `${cooldownRatio * 100}%` }}>
-                  <em>{(cooldownLeft / 1000).toFixed(1)}</em>
-                </i>
+                <div className="tibia11-cooldown-sweep" style={{ height: `${cooldownRatio * 100}%` }}>
+                  <em className="cd-timer">{(cooldownLeft / 1000).toFixed(1)}</em>
+                </div>
               )}
               <button
                 type="button"

@@ -1184,18 +1184,68 @@ h1, h2, h3, p { margin: 0; }
   cursor: default;
 }
 
-/* Hotbar Slot Enhancements & Empty Slots */
-.hotbar-slot.empty-slot {
-  border: 1px dashed #4e584c;
-  background: rgba(18, 24, 20, 0.7);
-  cursor: pointer;
-  transition: all 120ms ease;
+/* Tibia 11 Action Bar & Slots */
+.tibia11-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #111412;
+  padding: 3px 5px;
+  border: 1px solid #363d37;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 3px 8px rgba(0, 0, 0, 0.6);
 }
 
-.hotbar-slot.empty-slot:hover {
+.tibia11-vocation-badge {
+  display: grid;
+  width: 28px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid #7d6b38;
+  color: #f1d587;
+  background: linear-gradient(180deg, #2b2518 0%, #17140b 100%);
+  font: 800 9px Georgia, serif;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.hotbar-slot.tibia11-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle at center, #262e28 0%, #131714 100%);
+  border: 1px solid #3d473f;
+  border-radius: 3px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08), inset -1px -1px 0 rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+  transition: transform 80ms ease, border-color 100ms ease, background 100ms ease;
+}
+
+.hotbar-slot.tibia11-slot:hover {
+  border-color: #d4ba6a;
+  background: radial-gradient(circle at center, #303b33 0%, #171c19 100%);
+}
+
+.hotbar-slot.tibia11-slot.hotkey-pressed {
+  transform: scale(0.93);
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.7);
+}
+
+.hotbar-slot.tibia11-slot.empty-slot {
+  border: 1px dashed #475247;
+  background: rgba(18, 22, 19, 0.75);
+}
+
+.hotbar-slot.tibia11-slot.empty-slot:hover {
   border-color: #e5c56c;
+  border-style: solid;
   background: rgba(35, 45, 38, 0.9);
-  transform: translateY(-1px);
 }
 
 .hotbar-slot .empty-plus {
@@ -1209,13 +1259,88 @@ h1, h2, h3, p { margin: 0; }
   color: #f1d587;
 }
 
-.hotbar-slot .slot-num {
+.tibia11-hotkey-badge {
   position: absolute;
   top: 1px;
   left: 2px;
-  color: #a2aba0;
-  font-size: 7px;
-  font-family: ui-monospace, monospace;
+  color: #e2e8e3;
+  font: 800 8px ui-monospace, monospace;
+  line-height: 1;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.tibia11-cost-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font: 800 8px ui-monospace, monospace;
+  line-height: 1;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.tibia11-cost-badge.mana-cost {
+  color: #59d2fe;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+.tibia11-cost-badge.hp-cost {
+  color: #ff7575;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+.tibia11-cost-badge.mp-cost {
+  color: #6ed0ff;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+.tibia11-cost-badge.rune-cost {
+  color: #ffd966;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+.tibia11-cooldown-sweep {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(8, 11, 9, 0.85);
+  border-top: 1px solid #ffd700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.tibia11-cooldown-sweep .cd-timer {
+  font-style: normal;
+  font: 800 9px ui-monospace, monospace;
+  color: #ffffff;
+  text-shadow: 0 0 3px #000, 1px 1px 0 #000;
+}
+
+.tibia11-icon {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  transition: transform 100ms ease;
+}
+
+.tibia11-slot:hover .tibia11-icon {
+  transform: scale(1.05);
+}
+
+.action-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.selected-preview-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .hotbar-slot.potion-slot,

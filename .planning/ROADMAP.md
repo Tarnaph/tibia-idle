@@ -223,12 +223,23 @@ Plans:
 
 - [x] 16-01-PLAN: Hotbar customizável com 3 abas, automação de combate/cura com poções/runas, arraste de janelas e XP 5000 para ratos
 
+### Phase 17: Migracao para Tibia 11, Icones Oficiais e Action Bar Autentica
+
+**Goal:** Realizar o upgrade do ecossistema do jogo para o Tibia 11 utilizando as fontes de dados do servidor `realmap11` e os assets do cliente `Tibia 11`, integrando os novos ícones oficiais de magias, runas e poções/itens, e construindo a Hotbar/Action Bar moderna autêntica do Tibia 11 com grid de atalhos, cooldown sweeps e visual graphite.
+**Requirements:** FIX.md (Upgrade de versão para Tibia 11, ícones de magias/poções/runas na hotbar, Action Bar estilo Tibia 11)
+**Depends on:** Phase 16
+**Plans:** 1/1 complete
+
+Plans:
+
+- [x] 17-01-PLAN: Migracao para Tibia 11, novos dados de pocoes, icones oficiais de magias e Action Bar autentica
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -248,3 +259,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Viewport em tela cheia e janelas de UI flutuantes e arrastaveis | 1/1 | Complete | 2026-09-02 |
 | 15. Janela compacta de inventario, tooltips e iluminacao de tocha | 1/1 | Complete | 2026-09-02 |
 | 16. Arraste de janelas, hotbar customizavel e XP 5000 | 1/1 | Complete | 2026-09-03 |
+| 17. Migracao para Tibia 11, Icones Oficiais e Action Bar | 1/1 | Complete | 2026-09-03 |
