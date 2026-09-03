@@ -105,8 +105,9 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
       const effects = new Container();
       const spatialDebug = new Container();
       const overlay = new Container();
+      const targetReticle = new Graphics();
       actors.sortableChildren = true; effects.sortableChildren = true;
-      world.addChild(backing, terrain, corpses, actors, darkSprite, effects, spatialDebug);
+      world.addChild(backing, terrain, corpses, actors, targetReticle, darkSprite, effects, spatialDebug);
       app.stage.addChild(world, overlay);
       hostRef.current.appendChild(app.canvas);
       const views = new Map<string, ActorView>();
@@ -186,8 +187,11 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
       const addSpellVisual = (state: GameState, event: Extract<GameState['encounter']['events'][number], { type: 'spell-visual' }>, now: number) => {
         const from = actorPosition(state, event.sourceId); const to = actorPosition(state, event.targetId);
         if (!from || !to) return;
-        if (typeof event.projectileId === 'number') {
-          const mapping = visualAssets.missiles[String(event.projectileId)];
+        const projectileId = typeof event.projectileId === 'number'
+          ? event.projectileId
+          : event.projectileId === 'weapon-type' ? 24 : null;
+        if (projectileId !== null) {
+          const mapping = visualAssets.missiles[String(projectileId)];
           const direction = projectileDirection(from, to);
           const frame = mapping?.frames.find((candidate) => candidate.direction === direction) ?? mapping?.frames[0];
           if (frame) {
@@ -200,7 +204,7 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
           if (mapping) {
             const root = new Container(); const point = worldPoint(to); root.position.set(point.x, point.y);
             const sprite = new Sprite(loaded[mapping.frames[0].publicUrl]); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root);
-            timed.push({ root, startedAt: now + (event.projectileId === null ? 0 : 240), durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) });
+            timed.push({ root, startedAt: now + (projectileId === null ? 0 : 240), durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) });
           }
         }
       };
@@ -271,6 +275,27 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         }
         for (const event of state.encounter.events) {
           if (event.type === 'spell-visual') addSpellVisual(state, event, now);
+          if (event.type === 'spell-cast' && event.speech) {
+            const sourcePos = actorPosition(state, event.sourceId);
+            if (sourcePos) {
+              const point = worldPoint(sourcePos);
+              const isPotion = event.speech === 'Aaaah...';
+              const speechText = new Text({
+                text: event.speech,
+                style: {
+                  fill: isPotion ? 0xffaa00 : 0xffcc00,
+                  stroke: { color: 0x000000, width: 3 },
+                  fontSize: isPotion ? 10 : 11,
+                  fontFamily: 'Arial',
+                  fontWeight: 'bold',
+                },
+              });
+              speechText.anchor.set(0.5, 1);
+              speechText.position.set(point.x, point.y - 20);
+              effects.addChild(speechText);
+              timed.push({ root: speechText, startedAt: now, durationMs: 1200, kind: 'float' });
+            }
+          }
           if (event.type !== 'player-attack' && event.type !== 'enemy-attack' && event.type !== 'spell-cast') continue;
           const targetId = event.targetId; const targetPosition = actorPosition(state, targetId); if (!targetPosition) continue;
           const amount = event.type === 'spell-cast' ? event.amount : event.damage;
@@ -321,6 +346,36 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
           view.debugLabel.position.set(0, 18);
           view.debugLabel.text = logical ? `${id}\ntile ${logical.x},${logical.y}\nrender ${sample.renderPosition.x.toFixed(2)},${sample.renderPosition.y.toFixed(2)}` : '';
           view.aura.clear(); if (enemy?.variant) view.aura.circle(0, 4, 17 + Math.sin(now / 180) * 2).stroke({ color: variantColor, width: 1, alpha: 0.7 });
+        }
+
+        // Classic Tibia Red Target Corners around focused target
+        targetReticle.clear();
+        const activeActor = state.encounter.partyActors.find((a) => a.alive);
+        const targetId = activeActor?.targetId ?? state.session.characters.find((c) => c.id === activeActor?.characterId)?.combatState.targetId;
+        if (targetId) {
+          const targetView = views.get(targetId);
+          const targetEnemy = state.encounter.enemies.find((e) => e.id === targetId && e.alive);
+          if (targetView && targetEnemy) {
+            const p = targetView.root.position;
+            const half = 16;
+            const corner = 6;
+            const red = 0xff1a1a;
+            const left = p.x - half;
+            const top = p.y - half;
+            const right = p.x + half;
+            const bottom = p.y + half;
+
+            targetReticle
+              // Top-Left corner
+              .moveTo(left, top + corner).lineTo(left, top).lineTo(left + corner, top)
+              // Top-Right corner
+              .moveTo(right - corner, top).lineTo(right, top).lineTo(right, top + corner)
+              // Bottom-Left corner
+              .moveTo(left, bottom - corner).lineTo(left, bottom).lineTo(left + corner, bottom)
+              // Bottom-Right corner
+              .moveTo(right - corner, bottom).lineTo(right, bottom).lineTo(right, bottom - corner)
+              .stroke({ color: red, width: 2, alpha: 0.95 });
+          }
         }
         for (let index = timed.length - 1; index >= 0; index -= 1) {
           const visual = timed[index]; const progress = (now - visual.startedAt) / visual.durationMs;

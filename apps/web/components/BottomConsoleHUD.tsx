@@ -96,12 +96,27 @@ export function BottomConsoleHUD({
     const borderColorClass = topRowBorderColors[slotIndex % 8] || 'border-cyan';
     const manaCost = action.kind === 'spell' ? action.spell.mana : undefined;
 
+    // Cooldown calculation
+    const spellCooldown = action.kind === 'spell'
+      ? (actor?.spellCooldowns?.[String(action.spell.spellId)] ?? character.combatState?.spellCooldowns?.[String(action.spell.spellId)] ?? 0)
+      : 0;
+    const groupCooldown = action.kind === 'spell'
+      ? (actor?.groupCooldowns?.[action.spell.group] ?? character.combatState?.groupCooldowns?.[action.spell.group] ?? 0)
+      : action.kind === 'potion'
+      ? (actor?.groupCooldowns?.['potion'] ?? character.combatState?.groupCooldowns?.['potion'] ?? 0)
+      : (actor?.groupCooldowns?.['rune'] ?? character.combatState?.groupCooldowns?.['rune'] ?? 0);
+
+    const cooldownUntil = Math.max(spellCooldown, groupCooldown);
+    const isOnCooldown = cooldownUntil > elapsedMs;
+    const remainingSec = isOnCooldown ? ((cooldownUntil - elapsedMs) / 1000).toFixed(1) : null;
+
     return (
       <div
         key={`slot-${slotIndex}`}
         id={`hud-slot-${slotIndex}`}
         className={`hud-action-slot occupied-slot ${borderColorClass}`}
         onClick={() => {
+          if (isOnCooldown) return;
           if (onSlotClick) onSlotClick(slotIndex);
           else onConfigureSlot?.(slotIndex);
         }}
@@ -109,8 +124,8 @@ export function BottomConsoleHUD({
           e.preventDefault();
           onConfigureSlot?.(slotIndex);
         }}
-        title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] (Clique para usar · Botão direito para configurar)`}
-        style={{ cursor: 'pointer', position: 'relative' }}
+        title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] ${isOnCooldown ? `(Cooldown: ${remainingSec}s)` : '(Clique para usar · Botão direito para configurar)'}`}
+        style={{ cursor: isOnCooldown ? 'not-allowed' : 'pointer', position: 'relative' }}
       >
         {/* Hotkey Indicator */}
         <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#c7d6cc', zIndex: 7, textShadow: '1px 1px 0 #000' }}>
@@ -124,6 +139,36 @@ export function BottomConsoleHUD({
           name={action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name}
           size={30}
         />
+
+        {/* Cooldown Dark Overlay & Timer */}
+        {isOnCooldown && (
+          <div
+            className="hud-slot-cooldown-overlay"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.65)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10,
+              pointerEvents: 'none',
+              borderRadius: '2px',
+            }}
+          >
+            <span
+              style={{
+                color: '#ffffff',
+                fontSize: '10.5px',
+                fontWeight: 'bold',
+                fontFamily: 'Verdana, Arial, sans-serif',
+                textShadow: '0 0 3px #000, 1px 1px 0 #000',
+              }}
+            >
+              {remainingSec}s
+            </span>
+          </div>
+        )}
 
         {/* Bottom-Right Blue Mana Cost */}
         {manaCost !== undefined && (

@@ -282,12 +282,23 @@ Plans:
 
 - [x] 21-01-PLAN: Implementação de hotkeys vazias por default, auto-cast inteligente (cura/poções reativas ao dano, buffs de suporte contínuos, ataques no range), acionamento manual (F1-F12/1-0) e extração de 100% dos efeitos mágicos e projéteis do Tibia.
 
+### Phase 22: Autenticidade de Combate Tibia (Animações, Retículo Alvo, Speech Flutuante, Chase IA e Cooldown Visual)
+
+**Goal:** Implementar as correções detalhadas no FIX.md: animação de Whirlwind Throw e projéteis com weapon-type; ajuste da regeneração de vida (1 HP por ciclo conforme realmap11); retículo vermelho (target box) ao mirar monstros; falas flutuantes das magias (e "Aaaah..." para poções); perseguição inteligente (chase) ao mirar em monstros; e overlay de cooldown com contagem regressiva em segundos nas hotkeys.
+**Requirements:** `c:\Users\desig\OneDrive\Documentos\TibiaWeb\Tibia\FIX.md`
+**Depends on:** Phase 21
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 22-01-PLAN: Animações de armas/Whirlwind Throw, retículo vermelho, speech flutuante, regen autêntica, IA de perseguição e cooldown overlay nas hotkeys.
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -312,3 +323,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 19. Console Inferior Completo de Batalha e Acoes | 1/1 | Complete | 2026-09-03 |
 | 20. Extração e Integração Oficial de Ícones e Poções | 1/1 | Complete | 2026-09-03 |
 | 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1/1 | Complete | 2026-09-03 |
+| 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1/1 | Complete | 2026-09-03 |

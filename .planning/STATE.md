@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 21 of 21 (Magias, Poções, Runas, Hotkeys e Animações Oficiais)  
+Phase: 22 of 22 (Autenticidade de Combate Tibia)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 21 concluída: hotkeys default vazias, auto-cast inteligente (cura/poções reativas, buffs contínuos, ataques no range), acionamento manual (F1-F12/1-0) e extração de 100% dos efeitos mágicos (70) e projéteis (42) do Tibia.
+Last activity: 2026-09-03 — Phase 22 concluída: Whirlwind Throw com projétil dinâmico de arma e impacto, regeneração autêntica de vida (1 HP/tick), retículo vermelho de mira, falas flutuantes de magias e poções ("Aaaah..."), IA de perseguição (chase) e cooldown overlay com timer na hotbar.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 21
-- Tests status: 16 test suites passando (Vitest - 142 testes)
+- Total phases completed: 22
+- Tests status: 17 test suites passando (Vitest - 148 testes)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 warnings/erros (ESLint 9)
 
@@ -49,6 +49,7 @@ Progress: [██████████] 100%
 | 19. Console Inferior Completo de Batalha e Acoes | 1 | - | - | Complete |
 | 20. Extração e Integração Oficial de Ícones e Poções | 1 | - | - | Complete |
 | 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1 | - | - | Complete |
+| 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1 | - | - | Complete |
 
 ## Accumulated Context
 

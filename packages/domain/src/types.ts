@@ -181,7 +181,7 @@ export type CombatEvent =
   | { type: 'room-transition'; room: number }
   | { type: 'hunt-complete' }
   | { type: 'player-death'; characterId: string }
-  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean }
+  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string }
   | { type: 'spell-visual'; sourceId: string; targetId: string; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null };
 
 export type CombatVisualEvent =

@@ -13,7 +13,7 @@ import { createRoomState, roomDefinitionAt } from './spatial/rooms';
 import { clonePosition, samePosition } from './spatial/tileMap';
 import type { GridPosition } from './spatial/types';
 import type {
-  CombatEvent, CombatLogEntry, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
+  CharacterState, CombatEvent, CombatLogEntry, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
   LootStack, MonsterVariantDefinition, PartyActorState, SessionState,
 } from './types';
 import type { MonsterDefinition } from '../../content-schema/src';
@@ -311,6 +311,22 @@ function resistedDamage(rawDamage: number, enemy: EnemyState, combatType: string
   return Math.max(0, Math.round(rawDamage * (1 - resistance / 100)));
 }
 
+function resolveWeaponProjectile(character: CharacterState, content: GameContent): number {
+  const equipped = getEquippedItems(character, content.equipment);
+  const weapon = equipped.find((item) => ['sword', 'axe', 'club'].includes(item.weaponType));
+  if (weapon?.weaponType === 'axe') return 25; // CONST_ANI_WHIRLWINDAXE
+  if (weapon?.weaponType === 'club') return 26; // CONST_ANI_WHIRLWINDCLUB
+  return 24; // CONST_ANI_WHIRLWINDSWORD / default
+}
+
+function formatSpellWords(words: string): string {
+  if (!words) return '';
+  return words
+    .split(' ')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ');
+}
+
 function castAutomaticSpells(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   for (const actor of encounter.partyActors.filter((candidate) => candidate.alive)) {
@@ -362,6 +378,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
               spellId: potion.id,
               amount: healed || restoredMana,
               healing: healed > 0,
+              speech: 'Aaaah...',
             });
             encounter.events.push({
               type: 'spell-visual',
@@ -417,7 +434,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
             for (const target of targets) {
               const damage = resistedDamage(rawDamage, target, rune.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
-              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false });
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false, speech: rune.name });
               encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, effectId: rune.effectId, projectileId: rune.projectileId });
               addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
               if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
@@ -475,12 +492,15 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
           actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
           actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
 
+          const spellSpeech = formatSpellWords(spell.words);
+          const projectileId = spell.visual.projectileId === 'weapon-type' ? resolveWeaponProjectile(character, content) : spell.visual.projectileId;
+
           if (spell.group === 'healing' && targetActor) {
             const targetCharacter = state.session.characters.find((candidate) => candidate.id === targetActor!.characterId)!;
             const healed = Math.min(amount, targetCharacter.maxHp - targetActor.hp);
             targetActor.hp += healed;
-            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, amount: healed, healing: true });
-            encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, amount: healed, healing: true, speech: spellSpeech });
+            encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
             addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
             syncCharacterResources(state, targetActor);
             usedSpellThisTick = true;
@@ -490,16 +510,16 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
             else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
             else actor.hasteUntil = encounter.elapsedMs + duration;
 
-            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false });
-            encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+            encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
             addLog(state, `${character.name} usou ${spell.name}.`);
             usedSpellThisTick = true;
           } else {
             for (const target of targets) {
               const damage = resistedDamage(amount, target, spell.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
-              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false });
-              encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech });
+              encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
               addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
               if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
             }
@@ -556,6 +576,7 @@ export function triggerManualHotbarAction(
       spellId: potion.id,
       amount: healed || restoredMana,
       healing: healed > 0,
+      speech: 'Aaaah...',
     });
     encounter.events.push({
       type: 'spell-visual',
@@ -602,7 +623,7 @@ export function triggerManualHotbarAction(
     for (const target of targets) {
       const damage = resistedDamage(rawDamage, target, rune.combatType, content);
       target.hp = Math.max(0, target.hp - damage);
-      encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false });
+      encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false, speech: rune.name });
       encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, effectId: rune.effectId, projectileId: rune.projectileId });
       addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
       if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
@@ -627,11 +648,14 @@ export function triggerManualHotbarAction(
   actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
   actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
 
+  const spellSpeech = formatSpellWords(spell.words);
+  const projectileId = spell.visual.projectileId === 'weapon-type' ? resolveWeaponProjectile(character, content) : spell.visual.projectileId;
+
   if (spell.group === 'healing') {
     const healed = Math.min(amount, character.maxHp - actor.hp);
     actor.hp += healed;
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: healed, healing: true });
-    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: healed, healing: true, speech: spellSpeech });
+    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
     syncCharacterResources(state, actor);
     return true;
@@ -643,8 +667,8 @@ export function triggerManualHotbarAction(
     else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
     else actor.hasteUntil = encounter.elapsedMs + duration;
 
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false });
-    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     addLog(state, `${character.name} usou ${spell.name}.`);
     syncCharacterResources(state, actor);
     return true;
@@ -661,8 +685,8 @@ export function triggerManualHotbarAction(
   for (const target of targets) {
     const damage = resistedDamage(amount, target, spell.combatType, content);
     target.hp = Math.max(0, target.hp - damage);
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false });
-    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech });
+    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
     if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
   }
@@ -876,13 +900,33 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
     progress.currentZoneIndex = objective.zoneIndex;
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
     movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds)); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
-    castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content); recordContinuousActivityOrThrow(state, objective); return;
+    castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content);
+    recordContinuousActivityOrThrow(state, objective);
+    return;
   }
+
+  const visibleEnemies = encounter.enemies.filter((enemy) => enemy.alive && encounter.partyActors.some((actor) => actor.alive && (actor.targetId === enemy.id || meleeDistance(actor.position, enemy.position) <= 7)));
+  if (visibleEnemies.length > 0) {
+    const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
+    movePartyTowardTargets(encounter, ranges, new Set(visibleEnemies.map((e) => e.id)));
+    moveEnemiesTowardParty(encounter);
+    recordMovementEvents(encounter);
+    castAutomaticSpells(state, content);
+    playerAttacks(state, content);
+    enemyAttacks(state, content);
+    recordContinuousActivityOrThrow(state, objective);
+    return;
+  }
+
   const leader = encounter.partyActors.find((actor) => actor.characterId === state.session.leaderId && actor.alive) ?? encounter.partyActors.find((actor) => actor.alive);
   if (!leader) return;
   const before = `${leader.position.x},${leader.position.y}`;
-  const reached = movePartyTowardPoint(encounter, objective.target); recordMovementEvents(encounter);
+  const reached = movePartyTowardPoint(encounter, objective.target);
+  moveEnemiesTowardParty(encounter);
+  recordMovementEvents(encounter);
   castAutomaticSpells(state, content);
+  playerAttacks(state, content);
+  enemyAttacks(state, content);
   if (`${leader.position.x},${leader.position.y}` !== before) progress.lastActivityAt = encounter.elapsedMs;
   if (reached && objective.enemyIds.length === 0) {
     progress.currentZoneIndex = (progress.currentZoneIndex + 1) % route.respawnZones.length;

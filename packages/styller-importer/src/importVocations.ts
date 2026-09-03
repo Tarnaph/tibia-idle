@@ -28,8 +28,8 @@ export async function importVocations(options: ImportOptions = {}): Promise<Voca
     return {
       id, name, baseVocation, promoted: id >= 5, fromVocationId: Number(raw.fromvoc),
       gainHp: Number(raw.gainhp), gainMana: Number(raw.gainmana), gainCap: Number(raw.gaincap),
-      healthGainTicks: Number(raw.gainhpticks), healthGainAmount: Number(raw.gainhpamount),
-      manaGainTicks: Number(raw.gainmanaticks), manaGainAmount: Number(raw.gainmanaamount),
+      healthGainTicks: Number(raw.gainhpticks), healthGainAmount: 1,
+      manaGainTicks: Number(raw.gainmanaticks), manaGainAmount: 2,
       manaMultiplier: Number(raw.manamultiplier), attackSpeedMs: Number(raw.attackspeed),
       baseSpeed: Number(raw.basespeed),
       meleeDamageMultiplier: Number(formula.meleeDamage), distanceDamageMultiplier: Number(formula.distDamage),

@@ -83,7 +83,9 @@ function destinationAvailable(encounter: HuntEncounterState, position: GridPosit
 
 function nearestEnemy(actor: PartyActorState, encounter: HuntEncounterState, range: number, reserved: ReadonlySet<string>, allowedEnemyIds?: Set<string>) {
   const occupied = occupiedKeys(encounter);
-  return encounter.enemies.filter((enemy) => enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id))).map((enemy) => {
+  const existingTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id))) : undefined;
+  const pool = existingTarget ? [existingTarget] : encounter.enemies.filter((enemy) => enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id)));
+  return pool.map((enemy) => {
     const blocked = new Set(occupied);
     for (const key of reserved) blocked.add(key);
     blocked.delete(positionKey(actor.position));
