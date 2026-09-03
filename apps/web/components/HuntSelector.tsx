@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { HuntDefinition } from '@/packages/domain/src';
 import type { MonsterDefinition } from '@/packages/content-schema/src';
@@ -55,27 +55,44 @@ export function HuntSelector({
   const [showBestiaryTooltip, setShowBestiaryTooltip] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // Sync selected hunt with currentHuntId when opened
+  const onSelectRef = useRef(onSelect);
+  const onCloseRef = useRef(onClose);
+  const selectedHuntIdRef = useRef(selectedHuntId);
+  const prevOpenRef = useRef(open);
+
   useEffect(() => {
-    if (open && currentHuntId) {
+    onSelectRef.current = onSelect;
+    onCloseRef.current = onClose;
+    selectedHuntIdRef.current = selectedHuntId;
+  });
+
+  // Sync selected hunt with currentHuntId only when opened fresh
+  useEffect(() => {
+    if (open && !prevOpenRef.current && currentHuntId) {
       setSelectedHuntId(currentHuntId);
+      setCountdown(null);
     }
+    prevOpenRef.current = open;
   }, [open, currentHuntId]);
 
-  // Handle 5-second countdown on hunt switch
+  // Handle 5-second countdown on hunt switch using interval resilient to parent re-renders
+  const isCountingDown = countdown !== null;
   useEffect(() => {
-    if (countdown === null) return;
-    if (countdown <= 0) {
-      setCountdown(null);
-      onSelect(selectedHuntId);
-      onClose();
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      setCountdown((prev) => (prev !== null ? prev - 1 : null));
+    if (!isCountingDown) return;
+    const interval = window.setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null) return null;
+        if (prev <= 1) {
+          window.clearInterval(interval);
+          onSelectRef.current(selectedHuntIdRef.current);
+          onCloseRef.current();
+          return null;
+        }
+        return prev - 1;
+      });
     }, 1000);
-    return () => window.clearTimeout(timer);
-  }, [countdown, selectedHuntId, onSelect, onClose]);
+    return () => window.clearInterval(interval);
+  }, [isCountingDown]);
 
   const filteredHunts = useMemo(() => {
     return hunts.filter((hunt) => {
@@ -149,8 +166,11 @@ export function HuntSelector({
     return { label: 'very rare', className: 'rarity-veryrare' };
   };
 
-  const startSwitchCountdown = () => {
-    if (countdown !== null) return;
+  const handleSwitchClick = () => {
+    if (countdown !== null) {
+      setCountdown(null);
+      return;
+    }
     setCountdown(5);
   };
 
@@ -416,10 +436,9 @@ export function HuntSelector({
           <button
             type="button"
             className={`hunt-btn-switch ${countdown !== null ? 'counting' : ''}`}
-            onClick={startSwitchCountdown}
-            disabled={countdown !== null}
+            onClick={handleSwitchClick}
           >
-            {countdown !== null ? `Trocando de caçada em ${countdown}s...` : 'Trocar de caçada'}
+            {countdown !== null ? `Trocando em ${countdown}s (cancelar)` : 'Trocar de caçada'}
           </button>
 
           <button

@@ -177,11 +177,10 @@ function GamePrototypeContent() {
   const metrics = calculateSessionRates({ kills: encounter.corpses.length, damageDealt: 0, damageTaken: 0 }, { elapsedMs, xpGained: leader.experience, lootGained: totalLoot, roomsReached: encounter.room.number });
 
   const startSelectedHunt = (huntId: string) => {
-    if (mode === 'hunt' && encounter.status === 'running' && encounter.hunt.id !== huntId
-      && !window.confirm(`Sair de ${encounter.hunt.name} e entrar em ${content.hunts.find((hunt) => hunt.id === huntId)?.name ?? 'outra hunt'}?`)) return;
     const nextSeed = seed.trim() || defaultSeed;
     setGame((current) => restartHunt(current, nextSeed, content, huntId));
-    setMode('hunt'); setHuntSelectorOpen(false);
+    setMode('hunt');
+    setHuntSelectorOpen(false);
   };
   const exitHunt = () => { setGame((current) => leaveHunt(current)); setMode('training'); setHuntSelectorOpen(false); };
   const beginOrRestart = () => {
