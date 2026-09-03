@@ -86,4 +86,48 @@ describe('Phase 17: Tibia 11 Migration, Potions, Runes and Action Bar', () => {
     expect(actorAfter.mana).toBeGreaterThanOrEqual(600);
     expect(afterCombat.encounter.log.some((entry) => entry.message.includes('Ultimate Mana Potion'))).toBe(true);
   });
+
+  it('supports full 12 F1-F12 slots configuration and handles mixed spells, potions and runes', () => {
+    const game = createIdleGame('tibia11-f1-f12-test', content);
+    const knight = game.session.characters[0];
+    knight.level = 200;
+
+    // Configure matching the screenshot: F2 Potion (26030), F3 Heal (1), F4 Ice (2274), rest empty or configured
+    const hotbarConfig: (number | undefined)[] = [
+      undefined, // F1
+      26030,     // F2: Ultimate Spirit Potion
+      1,         // F3: Light Healing / Healing
+      2274,      // F4: Avalanche / Ice
+      undefined, // F5
+      undefined, // F6
+      undefined, // F7
+      8888,      // F8: Token / Coin
+      undefined, // F9
+      undefined, // F10
+      undefined, // F11
+      undefined, // F12
+    ];
+
+    knight.hotbar = hotbarConfig as number[];
+
+    // Validate resolution of F2, F3, F4
+    const f2Action = findHotbarAction(knight.hotbar[1], content);
+    expect(f2Action?.kind).toBe('potion');
+    if (f2Action?.kind === 'potion') {
+      expect(f2Action.potion.name).toBe('Ultimate Spirit Potion');
+    }
+
+    const f3Action = findHotbarAction(knight.hotbar[2], content);
+    expect(f3Action?.kind).toBe('spell');
+
+    const f4Action = findHotbarAction(knight.hotbar[3], content);
+    expect(f4Action?.kind).toBe('rune');
+    if (f4Action?.kind === 'rune') {
+      expect(f4Action.rune.name).toBe('Avalanche');
+    }
+
+    // Validate empty slot is undefined
+    expect(knight.hotbar[0]).toBeUndefined();
+    expect(knight.hotbar[4]).toBeUndefined();
+  });
 });

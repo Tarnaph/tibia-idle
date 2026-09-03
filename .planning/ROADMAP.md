@@ -234,12 +234,23 @@ Plans:
 
 - [x] 17-01-PLAN: Migracao para Tibia 11, novos dados de pocoes, icones oficiais de magias e Action Bar autentica
 
+### Phase 18: Action Bar F1-F12 e Icones Identicos ao Tibia 11 Original
+
+**Goal:** Reconstruir a Action Bar exatamente com o design, proporções e formato da imagem de referência do Tibia 11: barra horizontal com slots F1 a F12 (e slots adicionais), botões laterais de rolagem (`<`, `|<<`, `>`, `>>|`), botão de cadeado (lock/unlock), textura de ardósia chanfrada com indicador de 4 pontos (`▫ ▫ ▫ ▫`) nos slots vazios, badges F1-F12 no canto superior direito com fonte e brilho autênticos, contadores de itens no canto inferior direito, indicador de cast mode (chapéu de mago / target) e renderização pixel-perfect dos ícones de magias e poções exatamente iguais aos do jogo original.
+**Requirements:** Screenshot da Action Bar do Tibia 11 (Layout F1-F12, moldura e controles laterais, ícones idênticos ao jogo original)
+**Depends on:** Phase 17
+**Plans:** 1/1 complete
+
+Plans:
+
+- [x] 18-01-PLAN: Action Bar F1-F12 com botões de scroll, cadeado, indicador de 4 pontos, badges no canto superior direito e ícones autênticos
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -260,3 +271,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 15. Janela compacta de inventario, tooltips e iluminacao de tocha | 1/1 | Complete | 2026-09-02 |
 | 16. Arraste de janelas, hotbar customizavel e XP 5000 | 1/1 | Complete | 2026-09-03 |
 | 17. Migracao para Tibia 11, Icones Oficiais e Action Bar | 1/1 | Complete | 2026-09-03 |
+| 18. Action Bar F1-F12 e Icones Identicos ao Tibia 11 Original | 1/1 | Complete | 2026-09-03 |

@@ -77,7 +77,7 @@ export function HotbarConfigModal({
         {/* Header */}
         <div className="hotbar-modal-header">
           <div className="hotbar-modal-title">
-            <span>⚙️ Configurar Slot {slotIndex + 1}</span>
+            <span>⚙️ Configurar Hotkey {slotIndex < 12 ? `[F${slotIndex + 1}]` : `Slot ${slotIndex + 1}`}</span>
             <small>Personagem: {character.name} ({character.vocation} · Lv {character.level})</small>
           </div>
           <button type="button" className="hotbar-modal-close" onClick={onClose} title="Fechar">
