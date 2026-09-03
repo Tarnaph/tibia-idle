@@ -1,4 +1,5 @@
 # RODADA DE AJUSTES
-Precisamos corrigir a proporção dos nomes e definição da fonte, precisa ficar mais parecido com o da imagem de referência, a velocidade do personagem andando está errada, veja nos arquivos do server para saber a velocidade certa e aplique, cada personagem ganha velocidade a cada level
+Existe um bug, quando você segura uma das setinhas na cidade ele anda super rapido, trave a velocidade para andar só na velocidade base do personagem, na cidade faça a velocidade de andar 25% mais rápido da base só para ele se locomover melhor
 
-A cidade de thais não está completa ela precisa ficar inteira sem essa parte preta, aonde você passar o mouse deve ficar com esse quadrado mostrando aonde está o mouse, e se você clicar ele anda até aonde foi clicado
+
+Quando você escolher uma caçada o personagem vai andar até o x:32321 y:32211 z:7 que é uma escada vai subir ela o personagem vai sair no x:32321 y:32210 z:6 vai andar novamente até o x:32310 y:32210 z:6 ai quando chegar nesse lugar ele vai ser teleportado para a hunt que escolheu

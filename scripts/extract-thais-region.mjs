@@ -131,7 +131,7 @@ async function run() {
     const baseY = areaProps.readUInt16LE(2);
     const baseZ = areaProps[4];
 
-    if (baseZ !== targetZ) return area.next;
+    if (baseZ !== 6 && baseZ !== 7) return area.next;
 
     for (const tile of area.node.children) {
       if ((tile.type !== 5 && tile.type !== 14) || tile.props.length < 2) continue;
@@ -148,7 +148,7 @@ async function run() {
         thaisTiles.push({
           x: tileX,
           y: tileY,
-          z: targetZ,
+          z: baseZ,
           walkable,
           groundClientId: ground?.clientId ?? null,
           serverItemIds,
@@ -215,7 +215,7 @@ async function run() {
           // Check if this area overlaps Thais target box:
           // A tile area is 256x256 max
           const overlaps =
-            baseZ === targetZ &&
+            (baseZ === 6 || baseZ === 7) &&
             baseX <= maxX &&
             baseX + 256 >= minX &&
             baseY <= maxY &&
@@ -241,6 +241,9 @@ async function run() {
 
   console.log(`Scan complete. Found ${thaisTiles.length} tiles in Thais bounding box from ${matchingAreas} areas.`);
 
+  const z7Tiles = thaisTiles.filter((t) => t.z === 7);
+  const z6Tiles = thaisTiles.filter((t) => t.z === 6);
+
   // Write out thais-city-region.json
   const output = {
     region: 'thais-city',
@@ -248,8 +251,9 @@ async function run() {
     temple: { x: 32369, y: 32241, z: 7 },
     depot: { x: 32342, y: 32231, z: 7 },
     trainingDummy: { x: 32349, y: 32238, z: 7 },
-    tileCount: thaisTiles.length,
-    tiles: thaisTiles,
+    tileCount: z7Tiles.length,
+    tiles: z7Tiles,
+    upperTiles: z6Tiles,
   };
 
   await writeFile('content/generated/thais-city.json', JSON.stringify(output, null, 2));

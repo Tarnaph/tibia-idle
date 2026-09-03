@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 34 of 34 (Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada)  
+Phase: 35 of 35 (Cadência de Teclado, Velocidade Urbana (+25%) e Viagem para Caçada via Cais de Thais)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 34 concluída: Padronização completa do nome do personagem e barra de vida na cidade (ThaisCityArena) para ficarem 100% idênticos aos da caçada (PixiArena), conforme captura de referência do combate (Aldric); adoção direta de creatureVisualLayout (nameplateY: -28, hpBarY: -20, hpBarWidth: 28, height: 3), tipografia Arial 8px 700 com fill 0x67de82, stroke 0x08120a width 2, resolution 2 e cores canônicas de vida (fundo 0x251010 e preenchimento 0x4fc977).
+Last activity: 2026-09-03 — Phase 35 concluída: Correção do bug de repetição contínua de setinhas travando a cadência manual exatamente no intervalo da velocidade do personagem (cityStepDurationMs); aplicação de velocidade urbana 25% mais rápida que a base (cityStepDurationMs = Math.round(baseStepDurationMs / 1.25)); suporte completo e isolado aos pisos Z:7 (18.271 tiles) e Z:6 (7.722 tiles) em thais-city.json; rota imersiva de viagem para caçadas através da escada do cais (x:32321 y:32211 z:7 -> subida para x:32321 y:32210 z:6 -> caminhada pelo píer até x:32310 y:32210 z:6) seguida de teleporte automático para a caçada escolhida.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 34
-- Tests status: 29 test suites passando (Vitest - 205 testes aprovados, 100%)
+- Total phases completed: 35
+- Tests status: 30 test suites passando (Vitest - 210 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -62,6 +62,7 @@ Progress: [██████████] 100%
 | 32. Vida, Nome do Personagem, Passos e Elementos Animados em Thais | 1 | - | - | Complete |
 | 33. Thais Completa, Fonte Nítida, Velocidade por Nível e Pathfinding por Clique | 1 | - | - | Complete |
 | 34. Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada | 1 | - | - | Complete |
+| 35. Cadência de Teclado, Velocidade Urbana (+25%) e Viagem para Caçada via Cais | 1 | - | - | Complete |
 
 ## Accumulated Context
 

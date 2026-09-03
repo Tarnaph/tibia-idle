@@ -159,7 +159,7 @@ export function findCityPath(
   tileMap: Map<string, { walkable: boolean }>,
   start: { x: number; y: number; z: number },
   goal: { x: number; y: number; z: number },
-  maxNodes = 1000,
+  maxNodes = 4000,
 ): Array<{ x: number; y: number; z: number }> {
   if (start.x === goal.x && start.y === goal.y) return [];
   const goalTile = tileMap.get(`${goal.x},${goal.y}`);
@@ -235,5 +235,41 @@ export function findCityPath(
   }
 
   return [];
+}
+
+export const THAIS_DOCK_TRAVEL = {
+  stairsFoot: { x: 32321, y: 32211, z: 7 },
+  stairsTop: { x: 32321, y: 32210, z: 6 },
+  dockTeleport: { x: 32310, y: 32210, z: 6 },
+} as const;
+
+/**
+ * Calculates the complete route to travel from any city position to the Thais ship dock,
+ * going through the stairs (z:7 to z:6) and down the wooden pier to the boat teleporter.
+ */
+export function findHuntTravelRoute(
+  tileMapZ7: Map<string, { walkable: boolean }>,
+  tileMapZ6: Map<string, { walkable: boolean }>,
+  currentPos: { x: number; y: number; z: number },
+): Array<{ x: number; y: number; z: number }> {
+  const waypoints: Array<{ x: number; y: number; z: number }> = [];
+
+  if (currentPos.z === 7) {
+    if (currentPos.x !== THAIS_DOCK_TRAVEL.stairsFoot.x || currentPos.y !== THAIS_DOCK_TRAVEL.stairsFoot.y) {
+      const pathToStairs = findCityPath(tileMapZ7, currentPos, THAIS_DOCK_TRAVEL.stairsFoot);
+      waypoints.push(...pathToStairs);
+    }
+    if (waypoints.length === 0 && (currentPos.x !== THAIS_DOCK_TRAVEL.stairsFoot.x || currentPos.y !== THAIS_DOCK_TRAVEL.stairsFoot.y)) {
+      waypoints.push({ ...THAIS_DOCK_TRAVEL.stairsFoot });
+    }
+    waypoints.push({ ...THAIS_DOCK_TRAVEL.stairsTop });
+    const pathToDock = findCityPath(tileMapZ6, THAIS_DOCK_TRAVEL.stairsTop, THAIS_DOCK_TRAVEL.dockTeleport);
+    waypoints.push(...pathToDock);
+  } else {
+    const pathToDock = findCityPath(tileMapZ6, currentPos, THAIS_DOCK_TRAVEL.dockTeleport);
+    waypoints.push(...pathToDock);
+  }
+
+  return waypoints;
 }
 

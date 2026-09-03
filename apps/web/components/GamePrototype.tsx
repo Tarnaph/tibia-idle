@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import economyJson from '@/content/generated/item-economy.json';
 import equipmentJson from '@/content/generated/equipment.json';
 import monstersJson from '@/content/generated/monsters.json';
@@ -18,7 +18,7 @@ import {
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION,
-  calculatePlayerSpeed, calculateStepDurationMs, findCityPath,
+  calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack,
 } from '@/packages/domain/src';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -44,7 +44,11 @@ import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
-const thaisTileMap = new Map(thaisCityJson.tiles.map((t) => [`${t.x},${t.y}`, t]));
+const thaisTilesZ7 = thaisCityJson.tiles;
+const thaisTilesZ6 = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];
+const thaisTileMapZ7 = new Map(thaisTilesZ7.map((t) => [`${t.x},${t.y}`, t]));
+const thaisTileMapZ6 = new Map(thaisTilesZ6.map((t) => [`${t.x},${t.y}`, t]));
+const thaisTileMap = new Map([...thaisTilesZ7, ...thaisTilesZ6].map((t) => [`${t.x},${t.y},${t.z}`, t]));
 
 const equipmentCatalog = equipmentJson as EquipmentCatalog;
 const monsterCatalog = monstersJson as MonsterCatalog;
@@ -124,12 +128,16 @@ function GamePrototypeContent() {
   ])), [game.session.characters]);
 
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level);
-  const stepDurationMs = calculateStepDurationMs(playerSpeed);
+  const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
+  // In the city, 25% faster than base for smoother navigation
+  const cityStepDurationMs = Math.round(baseStepDurationMs / 1.25);
+  const lastKeyStepTimeRef = useRef(0);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
     if (mode === 'hunt') return;
     setIsTrainingAtDummy(false);
-    const path = findCityPath(thaisTileMap, cityPos, target);
+    const activeTileMap = cityPos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+    const path = findCityPath(activeTileMap, cityPos, target);
     if (path.length > 0) {
       setWalkingPath({
         waypoints: path,
@@ -226,13 +234,14 @@ function GamePrototypeContent() {
             walkingPath.onArrive?.();
             setWalkingPath(null);
           }
-          return current;
+          return { x: current.x, y: current.y, z: currentTarget.z ?? current.z };
         }
         const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
         const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
         const nextX = current.x + stepX;
         const nextY = current.y + stepY;
-        if (nextX === currentTarget.x && nextY === currentTarget.y) {
+        const isAtTarget = nextX === currentTarget.x && nextY === currentTarget.y;
+        if (isAtTarget) {
           if (index < walkingPath.waypoints.length - 1) {
             setWalkingPath({
               ...walkingPath,
@@ -243,11 +252,11 @@ function GamePrototypeContent() {
             setWalkingPath(null);
           }
         }
-        return { x: nextX, y: nextY, z: current.z };
+        return { x: nextX, y: nextY, z: isAtTarget ? currentTarget.z : current.z };
       });
-    }, stepDurationMs);
+    }, cityStepDurationMs);
     return () => window.clearInterval(timer);
-  }, [walkingPath, mode, stepDurationMs]);
+  }, [walkingPath, mode, cityStepDurationMs]);
 
   useEffect(() => {
     if (!statsDelta) return;
@@ -294,10 +303,40 @@ function GamePrototypeContent() {
   const metrics = calculateSessionRates({ kills: encounter.corpses.length, damageDealt: 0, damageTaken: 0 }, { elapsedMs, xpGained: leader.experience, lootGained: totalLoot, roomsReached: encounter.room.number });
 
   const startSelectedHunt = (huntId: string) => {
-    const nextSeed = seed.trim() || defaultSeed;
-    setGame((current) => restartHunt(current, nextSeed, content, huntId));
-    setMode('hunt');
+    const targetHunt = content.hunts.find((h) => h.id === huntId) ?? encounter.hunt;
     setHuntSelectorOpen(false);
+
+    // If already in hunt mode, switch directly
+    if (mode === 'hunt') {
+      const nextSeed = seed.trim() || defaultSeed;
+      setGame((current) => restartHunt(current, nextSeed, content, huntId));
+      return;
+    }
+
+    // In city mode: walk to stairs (z:7 -> z:6) and along the dock to the boat teleporter
+    setIsTrainingAtDummy(false);
+    const waypoints = findHuntTravelRoute(thaisTileMapZ7, thaisTileMapZ6, cityPos);
+
+    if (waypoints.length === 0) {
+      const nextSeed = seed.trim() || defaultSeed;
+      setGame((current) => restartHunt(current, nextSeed, content, huntId));
+      setMode('hunt');
+      return;
+    }
+
+    setWalkingPath({
+      waypoints,
+      destinationName: `Cais do Navio (${targetHunt.name})`,
+      currentIndex: 0,
+      onArrive: () => {
+        const nextSeed = seed.trim() || defaultSeed;
+        setGame((current) => restartHunt(current, nextSeed, content, huntId));
+        setMode('hunt');
+        setSaleMessage(`Você embarcou no navio em Thais e chegou em ${targetHunt.name}!`);
+      },
+    });
+
+    setSaleMessage(`Caminhando até as escadas do cais para viajar para ${targetHunt.name}...`);
   };
   const exitHunt = () => {
     setGame((current) => respawnInTemple(current));
@@ -428,12 +467,19 @@ function GamePrototypeContent() {
 
         if (deltaX !== 0 || deltaY !== 0) {
           e.preventDefault();
+          const now = performance.now();
+          if (now - lastKeyStepTimeRef.current < cityStepDurationMs) {
+            return;
+          }
+          lastKeyStepTimeRef.current = now;
+
           setWalkingPath(null);
           setIsTrainingAtDummy(false);
           setCityPos((current) => {
             const nextX = current.x + deltaX;
             const nextY = current.y + deltaY;
-            const tile = thaisTileMap.get(`${nextX},${nextY}`);
+            const activeTileMap = current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+            const tile = activeTileMap.get(`${nextX},${nextY}`);
             if (tile && !tile.walkable) {
               return current;
             }
@@ -488,7 +534,7 @@ function GamePrototypeContent() {
             cityPos={cityPos}
             isWalking={walkingPath !== null}
             isTraining={isTrainingAtDummy}
-            stepDurationMs={stepDurationMs}
+            stepDurationMs={cityStepDurationMs}
             onTileClick={handleTileClick}
             visualEvents={encounter.visualEvents}
             debug={debugGrid}

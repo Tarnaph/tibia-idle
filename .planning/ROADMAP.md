@@ -538,3 +538,20 @@ Plans:
 
 Plans:
 - [x] 34-01-PLAN: Alinhar visualmente nome e barra de vida de ThaisCityArena com PixiArena usando creatureVisualLayout.
+
+---
+
+### Phase 35: Cadência de Teclado, Velocidade Urbana (+25%) e Viagem para Caçada via Cais de Thais
+
+**Goal:** Corrigir o bug de repetição desenfreada de setinhas na cidade travando os passos na cadência exata do personagem; aplicar bônus de 25% na velocidade de caminhada urbana; e implementar o trajeto imersivo até a caçada através das escadas do cais (`x:32321 y:32211 z:7` -> `x:32321 y:32210 z:6` -> `x:32310 y:32210 z:6`) antes do teleporte.  
+**Depends on:** Phase 34  
+**Requirements:** `FIX.md`, `content/generated/thais-city.json` (pisos Z:7 e Z:6), `GamePrototype.tsx`, `packages/domain/src/spatial/pathfinding.ts`.  
+**Success Criteria:**
+1. Manter a tecla de setinha pressionada respeita rigorosamente a velocidade do personagem (`cityStepDurationMs`), impedindo movimentação em alta velocidade descompassada.
+2. A velocidade de caminhada na cidade é 25% mais rápida que a velocidade base (`cityStepDurationMs = Math.round(stepDurationMs / 1.25)`).
+3. Ao selecionar uma caçada na cidade, o personagem traça e percorre o caminho até a escada `32321, 32211, 7`, sobe para `32321, 32210, 6`, caminha pelo cais até `32310, 32210, 6` e então é teleportado para a caçada escolhida.
+4. Suporte aos pisos Z:7 e Z:6 no mapa de Thais e no pathfinding.
+5. 100% dos testes passando e 0 erros de tipagem.
+
+Plans:
+- [x] 35-01-PLAN: Implementar cadência de teclado, velocidade urbana (+25%), rota z:7 -> z:6 via escada do cais e teleporte para caçada.
