@@ -342,9 +342,9 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         darkSprite.visible = !showDebug;
 
         if (!showDebug && darkCanvas.width > 0 && darkCanvas.height > 0) {
-          // 1. Fill entire room with soft, translucent dungeon darkness (allows seeing through)
+          // 1. Fill entire room with soft, transparent dungeon shade (clearly visible)
           darkCtx.globalCompositeOperation = 'source-over';
-          darkCtx.fillStyle = 'rgba(5, 8, 12, 0.50)';
+          darkCtx.fillStyle = 'rgba(5, 8, 12, 0.30)';
           darkCtx.fillRect(0, 0, darkCanvas.width, darkCanvas.height);
 
           // 2. Erase darkness where the characters are (illuminated up to 4 tiles)
