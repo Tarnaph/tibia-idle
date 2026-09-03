@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 15 of 15 (Janela compacta de inventário, tooltips de atributos e iluminação de tocha estilo Tibia)  
+Phase: 16 of 16 (Arraste de janelas, hotbar customizável e XP 5000)  
 Plan: 1 of 1 in current phase  
-Status: Milestone complete  
-Last activity: 2026-09-02 — Phase 15 concluída: inventário compacto, tooltips de atributos e iluminação com tocha.
+Status: Complete  
+Last activity: 2026-09-03 — Phase 16 finalizada com 127 testes passando.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 15
-- Tests status: 14 test suites passando (Vitest)
+- Total phases completed: 16
+- Tests status: 14 test suites passando (Vitest - 127 testes)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 warnings/erros (ESLint 9)
 
@@ -43,6 +43,7 @@ Progress: [██████████] 100%
 | 13. Ajuste de Indicador Visual de Dano (Remover sinal -) | 1 | - | - | Complete |
 | 14. Viewport em tela cheia e janelas de UI flutuantes e arrastáveis | 1 | - | - | Complete |
 | 15. Janela compacta de inventario, tooltips e iluminacao de tocha | 1 | - | - | Complete |
+| 16. Arraste de janelas, hotbar customizavel e XP 5000 | 1 | - | - | Complete |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Progress: [██████████] 100%
 - Phase 13 added: Remover sinal negativo dos danos recebidos e exibir apenas em vermelho (FIX.md).
 - Phase 14 added: Viewport em tela cheia e janelas de UI flutuantes e arrastáveis (solicitação do usuário).
 - Phase 15 added: Janela compacta de inventário, tooltips de atributos e iluminação de tocha estilo Tibia (FIX.md).
+- Phase 16 added: Correção de arraste de janelas, hotbar customizável (magias, runas, itens) e boost de XP dos ratos (FIX.md).
 
 
 

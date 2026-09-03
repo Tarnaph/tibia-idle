@@ -22,6 +22,7 @@ export function DraggableWindow({
 }: DraggableWindowProps) {
   const { windows, bringToFront, updatePosition, closeWindow, toggleMinimize } = useWindowManager();
   const windowState = windows[id];
+  const windowRef = useRef<HTMLDivElement>(null);
 
   const dragRef = useRef<{
     startX: number;
@@ -47,11 +48,16 @@ export function DraggableWindow({
       bringToFront(id);
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
+      // Read true current DOM screen position to prevent jumping
+      const rect = windowRef.current ? windowRef.current.getBoundingClientRect() : null;
+      const initialX = rect ? rect.left : windowState.x;
+      const initialY = rect ? rect.top : windowState.y;
+
       dragRef.current = {
         startX: e.clientX,
         startY: e.clientY,
-        initialX: windowState.x,
-        initialY: windowState.y,
+        initialX,
+        initialY,
         isDragging: true,
       };
       setIsDraggingState(true);
@@ -66,15 +72,19 @@ export function DraggableWindow({
       const deltaX = e.clientX - dragRef.current.startX;
       const deltaY = e.clientY - dragRef.current.startY;
 
-      const maxX = typeof window !== 'undefined' ? window.innerWidth - 80 : 1200;
-      const maxY = typeof window !== 'undefined' ? window.innerHeight - 50 : 800;
+      // Threshold: ignore tiny vibrations/clicks so simple click never moves the window
+      if (Math.abs(deltaX) < 2 && Math.abs(deltaY) < 2) return;
 
-      const nextX = Math.max(0, Math.min(maxX, dragRef.current.initialX + deltaX));
-      const nextY = Math.max(40, Math.min(maxY, dragRef.current.initialY + deltaY));
+      const windowWidth = windowRef.current?.offsetWidth ?? windowState.width ?? 280;
+      const maxX = typeof window !== 'undefined' ? Math.max(0, window.innerWidth - windowWidth) : 1200;
+      const maxY = typeof window !== 'undefined' ? Math.max(40, window.innerHeight - 40) : 800;
+
+      const nextX = Math.max(0, Math.min(maxX, Math.round(dragRef.current.initialX + deltaX)));
+      const nextY = Math.max(40, Math.min(maxY, Math.round(dragRef.current.initialY + deltaY)));
 
       updatePosition(id, nextX, nextY);
     },
-    [id, updatePosition]
+    [id, updatePosition, windowState.width]
   );
 
   const handlePointerUp = useCallback(
@@ -96,6 +106,7 @@ export function DraggableWindow({
 
   return (
     <div
+      ref={windowRef}
       className={`draggable-window ${isDraggingState ? 'is-dragging' : ''} ${
         windowState.isMinimized ? 'is-minimized' : ''
       } ${className}`}

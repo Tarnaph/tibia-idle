@@ -19,6 +19,7 @@ import {
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
 import { BottomDock } from './BottomDock';
 import { EquipmentPanel, type StatsDelta } from './EquipmentPanel';
+import { HotbarConfigModal } from './HotbarConfigModal';
 import { HuntHeader } from './HuntHeader';
 import { HuntSelector } from './HuntSelector';
 import { IdleHeader } from './IdleHeader';
@@ -194,6 +195,31 @@ function GamePrototypeContent() {
       },
     };
   });
+
+  const [hotbarConfigSlot, setHotbarConfigSlot] = useState<number | null>(null);
+
+  const handleSaveHotbarSlot = (slotIndex: number, actionId: number | null) => {
+    setGame((current) => {
+      const activeId = current.session.selectedCharacterId;
+      const characters = current.session.characters.map((char) => {
+        if (char.id !== activeId) return char;
+        const hotbar = [...char.hotbar];
+        if (actionId === null) {
+          hotbar.splice(slotIndex, 1);
+        } else {
+          hotbar[slotIndex] = actionId;
+        }
+        return { ...char, hotbar: hotbar.filter((id) => typeof id === 'number') };
+      });
+      return {
+        ...current,
+        session: {
+          ...current.session,
+          characters,
+        },
+      };
+    });
+  };
 
   const skillsList = [
     ['Fist', activeCharacter.skills.fist, selectedSkillProgress.fist],
@@ -568,6 +594,7 @@ function GamePrototypeContent() {
             onBegin={beginOrRestart}
             onReset={resetPrototype}
             onReorderSpell={reorderSelectedHotbar}
+            onConfigureSlot={setHotbarConfigSlot}
           />
         </div>
       </DraggableWindow>
@@ -597,6 +624,16 @@ function GamePrototypeContent() {
         onClose={() => setHuntSelectorOpen(false)}
         onSelect={startSelectedHunt}
       />
+      {hotbarConfigSlot !== null && (
+        <HotbarConfigModal
+          open={hotbarConfigSlot !== null}
+          slotIndex={hotbarConfigSlot}
+          character={activeCharacter}
+          content={content}
+          onClose={() => setHotbarConfigSlot(null)}
+          onSave={handleSaveHotbarSlot}
+        />
+      )}
       <PartyMemberModal
         open={partyModalOpen}
         used={game.session.characters.map((character) => character.baseVocation)}

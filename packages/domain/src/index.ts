@@ -12,6 +12,7 @@ export * from './types';
 export * from './training';
 export * from './promotion';
 export * from './spells';
+export * from './hotbarActions';
 export * from './spatial/movement';
 export * from './spatial/pathfinding';
 export * from './spatial/rooms';

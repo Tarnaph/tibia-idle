@@ -1,4 +1,4 @@
-# UI UX
-Janela de equipamento e inventário precisa ser menor
-Ao passar o mouse em cima dos itens aparecer atributos do item por exemplo, ataque, def, peso
-Espaços aonde o personagem não está devem estar um pouco mais escuro, use o sistema de iluminação do tibia, simulando como se o personagem sempre estivesse com uma tocha acesa igual aos arquivos do jogo
+# UI UX (Concluído na Phase 16)
+- [x] Quando eu clico na janela flutuável ele joga a janela para a direita, precisa alinhar para poder clicar e arrastar sem bugar
+- [x] Barra de skill não deve ter level, quando não tiver magia nem poção escolhida ela tem que ter um sinal de +, ao clicar ele vai abrir um menu com 3 abas sendo: Magias, Runas e Itens, ao escolher a magia (que são as magias da vocação daquele personagem que estão disponíveis nos arquivos do jogo) itens (que são health potions, mana potions verifique nos arquivos as poções disponíveis e coloque ali) ou runas (que precisa aceitar por vocação, level também estão disponíveis nos arquivos do jogo) após escolher o que vai estar na barra de skill precisa apertar em salvar, após isso o personagem começa a usar aquele item automaticamente, se ele tomar dano ele vai usar a poção, quando ele mirar em um inimigo ele vai usar as runas de ataque ou magias, veja o comportamento de cada um destes nos arquivos, aumente a XP dos ratos para 5000 para que a gente consiga fazer testes das magias
+
