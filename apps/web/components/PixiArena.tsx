@@ -342,12 +342,15 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         darkSprite.visible = !showDebug;
 
         if (!showDebug && darkCanvas.width > 0 && darkCanvas.height > 0) {
-          // 1. Fill entire room with soft, transparent dungeon shade (clearly visible)
+          // 1. Reset canvas cleanly every frame to prevent alpha accumulation
+          darkCtx.clearRect(0, 0, darkCanvas.width, darkCanvas.height);
+
+          // 2. Fill entire room with transparent shade (transparent, clearly visible)
           darkCtx.globalCompositeOperation = 'source-over';
-          darkCtx.fillStyle = 'rgba(5, 8, 12, 0.30)';
+          darkCtx.fillStyle = 'rgba(5, 8, 12, 0.35)';
           darkCtx.fillRect(0, 0, darkCanvas.width, darkCanvas.height);
 
-          // 2. Erase darkness where the characters are (illuminated up to 4 tiles)
+          // 3. Erase darkness where the characters are (100% clear up to 4 tiles)
           darkCtx.globalCompositeOperation = 'destination-out';
           for (const actor of state.encounter.partyActors) {
             const visualPos = views.get(actor.characterId)?.track.sample(now).renderPosition ?? actor.position;
