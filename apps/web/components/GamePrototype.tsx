@@ -35,6 +35,7 @@ import { ItemTooltip } from './ItemTooltip';
 import { PartyMemberModal } from './PartyMemberModal';
 import { PixiArena } from './PixiArena';
 import { TrainingArena } from './TrainingArena';
+import { ThaisCityArena } from './ThaisCityArena';
 import { WorldNavigation } from './WorldNavigation';
 import { WindowManagerProvider } from './window/WindowManagerContext';
 import { DraggableWindow } from './window/DraggableWindow';
@@ -371,7 +372,14 @@ function GamePrototypeContent() {
             onSelectTarget={(enemyId) => setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId))}
           />
         ) : (
-          <TrainingArena members={trainingMembers} visualEvents={encounter.visualEvents} debug={debugGrid} />
+          <ThaisCityArena
+            characters={game.session.characters}
+            cityPos={cityPos}
+            isWalking={walkingPath !== null}
+            isTraining={isTrainingAtDummy}
+            visualEvents={encounter.visualEvents}
+            debug={debugGrid}
+          />
         )}
         {mode !== 'hunt' && (
           <div className="city-location-hud">
@@ -495,45 +503,6 @@ function GamePrototypeContent() {
         </div>
       </DraggableWindow>
 
-      {/* Window 4: Hunt & Navigation */}
-      <DraggableWindow id="hunt" icon="🗺️">
-        <div className="window-hunt-nav">
-          <WorldNavigation mode={mode} onTraining={() => setMode('training')} onHunts={() => setHuntSelectorOpen(true)} />
-          {mode === 'hunt' ? (
-            <HuntHeader
-              encounter={encounter}
-              elapsedMs={encounter.elapsedMs}
-              aliveEnemies={encounter.enemies.filter((enemy) => enemy.alive).length}
-              onExit={exitHunt}
-            />
-          ) : (
-            <IdleHeader
-              activeSkill={activeStats.activeSkill}
-              activeSkillLevel={activeStats.activeSkillLevel}
-              previousResult={encounter.status === 'running' ? 'ready' : encounter.status}
-            />
-          )}
-          <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
-            <button
-              type="button"
-              className="primary-button"
-              style={{ flex: 1, padding: '6px', fontSize: '10px' }}
-              onClick={beginOrRestart}
-            >
-              {mode === 'hunt' ? (encounter.status === 'running' ? 'Reiniciar Caçada' : 'Entrar na Caçada') : 'Selecionar Caçada'}
-            </button>
-            <button
-              type="button"
-              className="dock-action-btn"
-              onClick={resetPrototype}
-              title="Resetar estado do protótipo"
-            >
-              Resetar
-            </button>
-          </div>
-        </div>
-      </DraggableWindow>
-
       {/* Window 5: Metrics & Battle Stats */}
       <DraggableWindow id="metrics" icon="📊">
         <div className="metrics-window-content">
@@ -582,6 +551,8 @@ function GamePrototypeContent() {
         actor={currentActor}
         spells={content.spells}
         elapsedMs={encounter.elapsedMs}
+        isHunting={mode === 'hunt'}
+        onExitHunt={exitHunt}
         onSeed={setSeed}
         onBegin={beginOrRestart}
         onReset={resetPrototype}

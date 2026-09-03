@@ -172,6 +172,11 @@ export function HuntSelector({
   };
 
   const handleSwitchClick = () => {
+    if (isInCity) {
+      onSelect(selectedHuntId);
+      onClose();
+      return;
+    }
     if (countdown !== null) {
       setCountdown(null);
       return;
@@ -523,7 +528,11 @@ export function HuntSelector({
                 className={`hunt-btn-switch ${countdown !== null ? 'counting' : ''}`}
                 onClick={handleSwitchClick}
               >
-                {countdown !== null ? `Trocando em ${countdown}s (cancelar)` : 'Trocar de caçada'}
+                {countdown !== null
+                  ? `Trocando em ${countdown}s (cancelar)`
+                  : isInCity
+                  ? 'Começar caçada'
+                  : 'Trocar de caçada'}
               </button>
 
               <button

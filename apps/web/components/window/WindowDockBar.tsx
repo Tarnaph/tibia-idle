@@ -14,7 +14,6 @@ interface WindowDockBarProps {
 
 const WINDOW_ITEMS: Array<{ id: WindowId; label: string; icon: string }> = [
   { id: 'party', label: 'Party', icon: '👥' },
-  { id: 'hunt', label: 'Expedição', icon: '🗺️' },
   { id: 'metrics', label: 'Métricas', icon: '📊' },
   { id: 'logs', label: 'Logs', icon: '📜' },
 ];

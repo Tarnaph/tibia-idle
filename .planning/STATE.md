@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 29 of 29 (Saída a Thais Depot, Treino no Dummy e Nova Janela Skills)  
+Phase: 30 of 30 (Mapa Global de Thais, Início Imediato de Hunt, Skills Escuro e Botão Sair no Dock)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 29 concluída: Saída de caçada com contagem de 5s, teleporte para Thais (32369, 32241, 7) e caminhada automática passo a passo ao Depot (32342, 32231, 7); aba Treino da cidade completa com caminhada ao Dummy (32349, 32238, 7); e nova janela clássica de Skills do Tibia 11 acessível com clique no nome do personagem no topo esquerdo.
+Last activity: 2026-09-03 — Phase 30 concluída: Integração do mapa global de Thais (1.836 tiles de realmap.otbm); botão 'Começar caçada' imediato sem 5s quando na cidade; tema escuro estilo hotkeys para a janela Skills; e botão vermelho 'SAIR DA CAÇADA' no dock rápido ao lado de BLESSINGS com remoção da janela antiga de hunt/training room.
 
 Progress: [██████████] 100%
 

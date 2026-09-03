@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
 import type { CharacterState, CombatLogEntry, CombatStance, HuntEncounterState, PartyActorState } from '@/packages/domain/src';
 import { BottomConsoleHUD } from './BottomConsoleHUD';
@@ -11,6 +11,8 @@ interface BottomDockProps {
   actor?: PartyActorState;
   spells: SpellDefinition[];
   elapsedMs: number;
+  isHunting?: boolean;
+  onExitHunt?: () => void;
   onSeed?(value: string): void;
   onBegin?(): void;
   onReset?(): void;
@@ -30,6 +32,8 @@ export function BottomDock({
   actor,
   spells,
   elapsedMs,
+  isHunting = false,
+  onExitHunt,
   onConfigureSlot,
   onSlotClick,
   onToggleBackpack,
@@ -39,6 +43,30 @@ export function BottomDock({
   onChangeTargetDistance,
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
+  const [exitCountdown, setExitCountdown] = useState<number | null>(null);
+  const onExitRef = useRef(onExitHunt);
+  onExitRef.current = onExitHunt;
+
+  useEffect(() => {
+    if (exitCountdown === null) return;
+    if (exitCountdown <= 0) {
+      setExitCountdown(null);
+      onExitRef.current?.();
+      return;
+    }
+    const timer = setInterval(() => {
+      setExitCountdown((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [exitCountdown]);
+
+  const handleExitClick = () => {
+    if (exitCountdown !== null) {
+      setExitCountdown(null);
+      return;
+    }
+    setExitCountdown(5);
+  };
 
   return (
     <footer className="bottom-dock-wrapper" aria-label="Console de Batalha e Ações">
@@ -95,6 +123,15 @@ export function BottomDock({
               title="Blessings"
             >
               BLESSINGS
+            </button>
+            <button
+              type="button"
+              className={`quick-action-btn btn-leave-hunt ${exitCountdown !== null ? 'counting-exit' : ''}`}
+              onClick={handleExitClick}
+              disabled={!isHunting}
+              title={!isHunting ? 'Você não está em uma caçada' : 'Sair da caçada para o templo de Thais'}
+            >
+              {exitCountdown !== null ? `SAINDO EM ${exitCountdown}S (CANCELAR)` : 'SAIR DA CAÇADA'}
             </button>
           </nav>
         </div>

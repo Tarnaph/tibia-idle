@@ -384,6 +384,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 27. Desequipar para Bolsa, Foco Autêntico de Alvo (Retângulo Vermelho) e Anúncio de Level Up | 1/1 | Complete | 2026-09-03 |
 | 28. Nova UI de Caçadas (Bestiary, Loots e Countdown de Troca) e Nova UI da Party com Modal Novo Membro | 1/1 | Complete | 2026-09-03 |
 | 29. Saída de Caçada a Thais Depot, Sistema de Treino no Dummy, e Nova Janela Skills | 1/1 | Complete | 2026-09-03 |
+| 30. Mapa Global de Thais, Início Imediato de Hunt, Skills Escuro e Botão Sair no Dock | 1/1 | Complete | 2026-09-03 |
 
 ---
 
@@ -455,3 +456,20 @@ Plans:
 
 Plans:
 - [x] 29-01-PLAN: Implementar saída com teleporte/caminhada a Thais, aba de Treino com caminhada ao dummy, e janela clássica Skills aberta pelo nome do personagem.
+
+---
+
+### Phase 30: Mapa Global de Thais no Jogo, Início Imediato de Hunt, Cores Escuras em Skills e Botão Sair da Caçada no Dock
+
+**Goal:** Integrar a renderização do mapa global de Thais (1.836 tiles extraídos do realmap.otbm) ao viewport da cidade; ajustar o botão de caçada para "Começar caçada" imediato (sem 5s) quando na cidade; aplicar paleta escura da barra de hotkeys à janela Skills; e adicionar o botão vermelho "SAIR DA CAÇADA" no dock inferior ao lado de BLESSINGS, removendo a janela antiga de hunt/training room.  
+**Depends on:** Phase 29  
+**Requirements:** `FIX.md`, imagem do dock inferior com hotkeys e blessings anexada.  
+**Success Criteria:**
+1. Viewport na cidade renderiza os tiles reais do mapa global de Thais (`content/generated/thais-city.json`) cobrindo Templo (32369, 32241, 7), Depot (32342, 32231, 7) e Dummies (32349, 32238, 7).
+2. Na janela de caçadas, quando o jogador não estiver em caçada, o botão exibe "Começar caçada" e inicia imediatamente sem os 5 segundos de espera (os 5s permanecem apenas para "Trocar de caçada").
+3. Janela de Skills atualizada com as cores escuras idênticas à barra de hotkeys (fundo carvão escuro `#16191d`, bordas sutis e contrastes refinados).
+4. Botão vermelho "SAIR DA CAÇADA" adicionado ao dock de ações rápidas inferior ao lado de "BLESSINGS" com timer de 5s.
+5. Removida completamente a antiga janela 4 (`id="hunt"`, que continha "training room").
+
+Plans:
+- [x] 30-01-PLAN: Integrar arena com mapa real de Thais, início imediato de hunt fora da caçada, tema escuro na janela Skills e botão Sair da Caçada no dock rápido.

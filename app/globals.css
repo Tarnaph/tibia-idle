@@ -3958,36 +3958,33 @@ h1, h2, h3, p { margin: 0; }
   position: fixed;
   top: 54px;
   left: 18px;
-  width: 215px;
-  background: #363636;
-  border: 2px solid #5a5a5a;
-  border-top-color: #7b7b7b;
-  border-left-color: #7b7b7b;
-  border-bottom-color: #1a1a1a;
-  border-right-color: #1a1a1a;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), inset 1px 1px 0 #4a4a4a;
+  width: 220px;
+  background: #15181b;
+  border: 1px solid #272e33;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9), inset 1px 1px 0 rgba(255, 255, 255, 0.04);
   z-index: 105;
   font-family: Verdana, Tahoma, sans-serif;
   color: #dfdfdf;
   user-select: none;
+  border-radius: 2px;
 }
 
 .tibia-skills-titlebar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #2b2b2b;
-  padding: 3px 6px;
-  border-bottom: 1px solid #1a1a1a;
+  background: #111417;
+  padding: 4px 8px;
+  border-bottom: 1px solid #20262b;
   font-size: 11px;
   font-weight: 700;
-  color: #c8c8c8;
+  color: #d2dbe3;
 }
 
 .tibia-skills-title {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .skills-icon {
@@ -4000,11 +3997,9 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .tibia-skills-btn-ctrl {
-  background: #404040;
-  border: 1px solid #666;
-  border-bottom-color: #111;
-  border-right-color: #111;
-  color: #eee;
+  background: #1d2125;
+  border: 1px solid #2f363d;
+  color: #a6b4bf;
   width: 15px;
   height: 14px;
   font-size: 9px;
@@ -4013,15 +4008,18 @@ h1, h2, h3, p { margin: 0; }
   display: grid;
   place-items: center;
   padding: 0;
+  border-radius: 1px;
 }
 
 .tibia-skills-btn-ctrl:hover {
-  background: #555;
+  background: #272d33;
+  color: #fff;
+  border-color: #444e57;
 }
 
 .tibia-skills-body {
-  padding: 6px 8px 10px 8px;
-  background: #333333;
+  padding: 6px 9px 10px 9px;
+  background: #14171a;
   font-size: 10px;
   max-height: 520px;
   overflow-y: auto;
@@ -4032,19 +4030,19 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5px 0;
+  padding: 2px 0;
   line-height: 1.2;
 }
 
 .skills-label {
-  color: #d2d2d2;
+  color: #8c979e;
   font-size: 10px;
 }
 
 .skills-val {
-  color: #ffffff;
+  color: #f0f3f6;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .skills-val.bold {
@@ -4052,19 +4050,18 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .skills-val.green {
-  color: #38e038;
+  color: #52e043;
   font-weight: 700;
 }
 
 .skills-meter-track {
   width: 100%;
   height: 4px;
-  background: #141414;
-  border: 1px solid #0a0a0a;
-  border-bottom-color: #444;
-  border-right-color: #444;
+  background: #0d0f11;
+  border: 1px solid #1a1d21;
   margin: 1px 0 3px 0;
   overflow: hidden;
+  border-radius: 1px;
 }
 
 .skills-meter-fill {
@@ -4073,11 +4070,11 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .skills-meter-fill.red {
-  background: #d94343;
+  background: #e03838;
 }
 
 .skills-meter-fill.green {
-  background: #28c830;
+  background: #52e043;
 }
 
 .skills-boost-container {
@@ -4090,40 +4087,114 @@ h1, h2, h3, p { margin: 0; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #1a4f8b;
-  border: 1px solid #d4af37;
-  padding: 1px 8px;
+  background: #17243b;
+  border: 1px solid #388bfd;
+  padding: 2px 8px;
   border-radius: 2px;
   font-size: 9.5px;
   font-weight: 700;
-  color: #ffffff;
+  color: #79c0ff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.skills-boost-badge:hover {
+  background: #1e3152;
+  color: #a5d6ff;
 }
 
 .tibia-skills-divider {
   height: 2px;
-  border-top: 1px solid #1f1f1f;
-  border-bottom: 1px solid #4a4a4a;
-  margin: 5px 0;
+  border-top: 1px solid #0d0f11;
+  border-bottom: 1px solid #23292e;
+  margin: 6px 0;
 }
 
 .skills-section-header {
-  color: #e0e0e0;
+  color: #c9d4de;
   font-size: 10px;
   font-weight: 700;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 
 .skills-sub-row {
   display: flex;
   justify-content: space-between;
-  padding: 1px 0 1px 12px;
+  padding: 1.5px 0 1.5px 10px;
   font-size: 9.5px;
 }
 
 .skills-sub-label {
-  color: #b0b0b0;
+  color: #7b8893;
+}
+
+/* ==========================================================================
+   Quick Action Buttons & Leave Hunt (Bottom Dock)
+   ========================================================================== */
+.quick-action-dock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.quick-action-btn {
+  background: #191d21;
+  border: 1px solid #30373d;
+  color: #9aa8b4;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  letter-spacing: 0.3px;
+}
+
+.quick-action-btn:hover:not(:disabled) {
+  background: #252b31;
+  border-color: #4a545e;
+  color: #ffffff;
+}
+
+.quick-action-btn.btn-quicksell.highlighted-gold {
+  border-color: #7d6526;
+  color: #e5c46d;
+}
+
+.quick-action-btn.btn-quicksell.highlighted-gold:hover {
+  background: #2e2617;
+  border-color: #bfa14c;
+  color: #fff;
+}
+
+.quick-action-btn.btn-leave-hunt {
+  background: #521616;
+  border: 1px solid #852525;
+  color: #ffcccc;
+}
+
+.quick-action-btn.btn-leave-hunt:hover:not(:disabled) {
+  background: #6e1d1d;
+  border-color: #b03333;
+  color: #ffffff;
+  box-shadow: 0 0 6px rgba(220, 50, 50, 0.4);
+}
+
+.quick-action-btn.btn-leave-hunt:disabled {
+  background: #221414;
+  border-color: #381e1e;
+  color: #694444;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.quick-action-btn.btn-leave-hunt.counting-exit {
+  background: #8f1f1f;
+  border-color: #ff4d4d;
+  color: #ffffff;
+  animation: pulseExit 1s infinite alternate;
 }
 
 /* ==========================================================================
