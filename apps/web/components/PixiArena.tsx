@@ -67,56 +67,45 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
       if (disposed) { app.destroy(true, { children: true }); return; }
       for (const texture of Object.values(loaded)) texture.source.style.scaleMode = 'nearest';
 
-      // Pre-render authentic Tibia torch textures
-      const torchSize = 512;
-      const alphaCanvas = document.createElement('canvas');
-      alphaCanvas.width = torchSize;
-      alphaCanvas.height = torchSize;
-      const alphaCtx = alphaCanvas.getContext('2d')!;
-      const alphaCenter = torchSize / 2;
-      const alphaGrad = alphaCtx.createRadialGradient(alphaCenter, alphaCenter, 24, alphaCenter, alphaCenter, alphaCenter);
-      alphaGrad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-      alphaGrad.addColorStop(0.35, 'rgba(255, 255, 255, 0.95)');
-      alphaGrad.addColorStop(0.65, 'rgba(255, 255, 255, 0.60)');
-      alphaGrad.addColorStop(0.85, 'rgba(255, 255, 255, 0.20)');
-      alphaGrad.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)');
-      alphaCtx.fillStyle = alphaGrad;
-      alphaCtx.beginPath();
-      alphaCtx.arc(alphaCenter, alphaCenter, alphaCenter, 0, Math.PI * 2);
-      alphaCtx.fill();
-      const torchAlphaTexture = Texture.from(alphaCanvas);
+      // Pre-render the 4-tile torch hole stamp
+      // Up to 4 tiles (4 * 32px = 128px): 100% transparent (clear vision, zero darkness)
+      // 4 to 6.5 tiles: smooth dark penumbra falloff
+      const holeSize = 480;
+      const holeCenter = holeSize / 2;
+      const holeRadius = 210;
+      const clearRadius = 4 * TILE_SIZE; // exactly 4 tiles = 128px
+      const holeCanvas = document.createElement('canvas');
+      holeCanvas.width = holeSize;
+      holeCanvas.height = holeSize;
+      const holeCtx = holeCanvas.getContext('2d')!;
+      const holeGrad = holeCtx.createRadialGradient(holeCenter, holeCenter, clearRadius, holeCenter, holeCenter, holeRadius);
+      holeGrad.addColorStop(0, 'rgba(0, 0, 0, 1.0)'); // destination-out leaves 0 darkness inside 4 tiles!
+      holeGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.65)');
+      holeGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+      holeCtx.fillStyle = holeGrad;
+      holeCtx.beginPath();
+      holeCtx.arc(holeCenter, holeCenter, holeRadius, 0, Math.PI * 2);
+      holeCtx.fill();
 
-      const warmCanvas = document.createElement('canvas');
-      warmCanvas.width = torchSize;
-      warmCanvas.height = torchSize;
-      const warmCtx = warmCanvas.getContext('2d')!;
-      const warmGrad = warmCtx.createRadialGradient(alphaCenter, alphaCenter, 16, alphaCenter, alphaCenter, alphaCenter);
-      warmGrad.addColorStop(0, 'rgba(255, 205, 110, 0.32)');
-      warmGrad.addColorStop(0.40, 'rgba(255, 150, 50, 0.16)');
-      warmGrad.addColorStop(0.75, 'rgba(200, 90, 20, 0.05)');
-      warmGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
-      warmCtx.fillStyle = warmGrad;
-      warmCtx.beginPath();
-      warmCtx.arc(alphaCenter, alphaCenter, alphaCenter, 0, Math.PI * 2);
-      warmCtx.fill();
-      const torchWarmTexture = Texture.from(warmCanvas);
+      // Dynamic darkness canvas for the room
+      const darkCanvas = document.createElement('canvas');
+      darkCanvas.width = 32;
+      darkCanvas.height = 32;
+      const darkCtx = darkCanvas.getContext('2d')!;
+      const darkTexture = Texture.from(darkCanvas);
+      const darkSprite = new Sprite(darkTexture);
+      darkSprite.position.set(0, 0);
 
       const world = new Container();
       const backing = new Container();
       const terrain = new Container();
       const corpses = new Container();
       const actors = new Container();
-      const darkness = new Container();
-      const ambientFill = new Graphics();
-      const torchCutouts = new Container();
-      darkness.addChild(ambientFill, torchCutouts);
-      const warmGlow = new Container();
-      warmGlow.blendMode = 'add';
       const effects = new Container();
       const spatialDebug = new Container();
       const overlay = new Container();
       actors.sortableChildren = true; effects.sortableChildren = true;
-      world.addChild(backing, terrain, corpses, actors, darkness, warmGlow, effects, spatialDebug);
+      world.addChild(backing, terrain, corpses, actors, darkSprite, effects, spatialDebug);
       app.stage.addChild(world, overlay);
       hostRef.current.appendChild(app.canvas);
       const views = new Map<string, ActorView>();
@@ -139,8 +128,13 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         terrainKey = key;
         for (const layer of [backing, terrain, corpses, overlay]) layer.removeChildren().forEach((child) => child.destroy({ children: true }));
         mapOffsetX = 0; mapOffsetY = 0;
-        backing.addChild(new Graphics().rect(0, 0, state.encounter.room.map.width * TILE_SIZE, state.encounter.room.map.height * TILE_SIZE).fill({ color: 0x11120f }));
-        ambientFill.clear().rect(0, 0, state.encounter.room.map.width * TILE_SIZE, state.encounter.room.map.height * TILE_SIZE).fill({ color: 0x040608, alpha: 0.76 });
+        const roomW = Math.max(32, state.encounter.room.map.width * TILE_SIZE);
+        const roomH = Math.max(32, state.encounter.room.map.height * TILE_SIZE);
+        if (darkCanvas.width !== roomW || darkCanvas.height !== roomH) {
+          darkCanvas.width = roomW;
+          darkCanvas.height = roomH;
+          darkTexture.source.resize(roomW, roomH);
+        }
         for (const tile of state.encounter.room.map.tiles) {
           const point = worldPoint(tile.position);
           let rendered = false;
@@ -344,31 +338,23 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         }
 
         const showDebug = latestRef.current.debug;
-        darkness.visible = !showDebug;
-        warmGlow.visible = !showDebug;
+        darkSprite.visible = !showDebug;
 
-        if (!showDebug) {
-          torchCutouts.removeChildren();
-          warmGlow.removeChildren();
-          const flicker = Math.sin(now * 0.006) * 2 + Math.cos(now * 0.011) * 1.5;
+        if (!showDebug && darkCanvas.width > 0 && darkCanvas.height > 0) {
+          // 1. Fill entire room with dark dungeon fog (around the characters)
+          darkCtx.globalCompositeOperation = 'source-over';
+          darkCtx.fillStyle = 'rgba(4, 6, 8, 0.85)';
+          darkCtx.fillRect(0, 0, darkCanvas.width, darkCanvas.height);
+
+          // 2. Erase darkness where the characters are (illuminated up to 4 tiles)
+          darkCtx.globalCompositeOperation = 'destination-out';
           for (const actor of state.encounter.partyActors) {
             const visualPos = views.get(actor.characterId)?.track.sample(now).renderPosition ?? actor.position;
             const p = worldPoint(visualPos);
-
-            const cutout = new Sprite(torchAlphaTexture);
-            cutout.anchor.set(0.5);
-            cutout.position.set(p.x, p.y);
-            cutout.blendMode = 'erase';
-            cutout.scale.set(1 + flicker * 0.008);
-            torchCutouts.addChild(cutout);
-
-            const glow = new Sprite(torchWarmTexture);
-            glow.anchor.set(0.5);
-            glow.position.set(p.x, p.y);
-            glow.alpha = 0.40;
-            glow.scale.set(1 + flicker * 0.012);
-            warmGlow.addChild(glow);
+            darkCtx.drawImage(holeCanvas, p.x - holeCenter, p.y - holeCenter);
           }
+
+          darkTexture.source.update();
         }
 
         const target = state.encounter.partyActors.find((actor) => actor.characterId === state.session.cameraTargetCharacterId)
