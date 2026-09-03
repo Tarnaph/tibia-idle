@@ -9,10 +9,10 @@ interface WindowDockBarProps {
   debug: boolean;
   onToggleDebug: () => void;
   onSelectHunt: () => void;
+  onOpenSkills: () => void;
 }
 
 const WINDOW_ITEMS: Array<{ id: WindowId; label: string; icon: string }> = [
-  { id: 'character', label: 'Personagem', icon: '👤' },
   { id: 'party', label: 'Party', icon: '👥' },
   { id: 'hunt', label: 'Expedição', icon: '🗺️' },
   { id: 'metrics', label: 'Métricas', icon: '📊' },
@@ -25,6 +25,7 @@ export function WindowDockBar({
   debug,
   onToggleDebug,
   onSelectHunt,
+  onOpenSkills,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -46,7 +47,14 @@ export function WindowDockBar({
           <span className="brand-sub">8.60</span>
         </div>
         <div className="player-summary">
-          <span className="player-name">{characterName}</span>
+          <button
+            type="button"
+            className="player-name-btn"
+            onClick={onOpenSkills}
+            title="Abrir janela de Skills"
+          >
+            {characterName}
+          </button>
           <span className="player-gold">💰 {gold.toLocaleString('pt-BR')} gp</span>
         </div>
       </div>

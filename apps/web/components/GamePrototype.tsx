@@ -39,6 +39,7 @@ import { WorldNavigation } from './WorldNavigation';
 import { WindowManagerProvider } from './window/WindowManagerContext';
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
+import { SkillsWindow } from './SkillsWindow';
 
 const equipmentCatalog = equipmentJson as EquipmentCatalog;
 const monsterCatalog = monstersJson as MonsterCatalog;
@@ -98,6 +99,15 @@ function GamePrototypeContent() {
   const [pointerDrag, setPointerDrag] = useState<PointerDragVisual | null>(null);
   const [confirmSale, setConfirmSale] = useState(false);
   const [levelUpMessage, setLevelUpMessage] = useState<{ text: string; timestamp: number } | null>(null);
+  const [skillsModalOpen, setSkillsModalOpen] = useState(false);
+  const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>({ x: 32342, y: 32231, z: 7 });
+  const [walkingPath, setWalkingPath] = useState<{
+    target: { x: number; y: number; z: number };
+    destinationName: string;
+    onArrive?: () => void;
+  } | null>(null);
+  const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
+  const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
@@ -126,11 +136,44 @@ function GamePrototypeContent() {
     return () => window.clearInterval(timer);
   }, [encounter.status, mode]);
 
+  // Advance training at dummy using selected skill
   useEffect(() => {
     if (mode !== 'training') return;
-    const timer = window.setInterval(() => setGame((current) => advanceTraining(current, content, 500)), 500);
+    const skillKey: TrainableSkill =
+      activeTrainingSkill === 'Club Fighting' ? 'club' :
+      activeTrainingSkill === 'Axe Fighting' ? 'axe' :
+      activeTrainingSkill === 'Distance Fighting' ? 'distance' :
+      activeTrainingSkill === 'Shielding' ? 'shielding' :
+      activeTrainingSkill === 'Magic Level' ? 'magicLevel' : 'sword';
+    const timer = window.setInterval(() => setGame((current) => advanceTraining(current, content, 500, skillKey)), 500);
     return () => window.clearInterval(timer);
-  }, [mode]);
+  }, [mode, activeTrainingSkill]);
+
+  // Autonomous walking loop across coordinates in city
+  useEffect(() => {
+    if (!walkingPath || mode === 'hunt') return;
+    const timer = window.setInterval(() => {
+      setCityPos((current) => {
+        const dx = walkingPath.target.x - current.x;
+        const dy = walkingPath.target.y - current.y;
+        if (dx === 0 && dy === 0) {
+          walkingPath.onArrive?.();
+          setWalkingPath(null);
+          return current;
+        }
+        const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
+        const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
+        const nextX = current.x + stepX;
+        const nextY = current.y + stepY;
+        if (nextX === walkingPath.target.x && nextY === walkingPath.target.y) {
+          walkingPath.onArrive?.();
+          setWalkingPath(null);
+        }
+        return { x: nextX, y: nextY, z: current.z };
+      });
+    }, 150);
+    return () => window.clearInterval(timer);
+  }, [walkingPath, mode]);
 
   useEffect(() => {
     if (!statsDelta) return;
@@ -182,7 +225,37 @@ function GamePrototypeContent() {
     setMode('hunt');
     setHuntSelectorOpen(false);
   };
-  const exitHunt = () => { setGame((current) => leaveHunt(current)); setMode('training'); setHuntSelectorOpen(false); };
+  const exitHunt = () => {
+    setGame((current) => leaveHunt(current));
+    setMode('training');
+    setHuntSelectorOpen(false);
+    setIsTrainingAtDummy(false);
+    // Transport player and characters to Thais (32369, 32241, 7)
+    const thaisStart = { x: 32369, y: 32241, z: 7 };
+    const depotTarget = { x: 32342, y: 32231, z: 7 };
+    setCityPos(thaisStart);
+    setWalkingPath({
+      target: depotTarget,
+      destinationName: 'Depot de Thais',
+      onArrive: () => {
+        setSaleMessage('Chegou ao Depot de Thais (32342, 32231, 7).');
+      },
+    });
+  };
+
+  const handleStartTraining = (skillName: string) => {
+    setActiveTrainingSkill(skillName);
+    setMode('training');
+    const dummyPos = { x: 32349, y: 32238, z: 7 };
+    setWalkingPath({
+      target: dummyPos,
+      destinationName: 'Bonecos de Treino',
+      onArrive: () => {
+        setIsTrainingAtDummy(true);
+        setSaleMessage(`Treinando ${skillName} no dummy (32349, 32238, 7).`);
+      },
+    });
+  };
   const beginOrRestart = () => {
     if (mode === 'training') { setHuntSelectorOpen(true); return; }
     startSelectedHunt(encounter.hunt.id);
@@ -300,6 +373,29 @@ function GamePrototypeContent() {
         ) : (
           <TrainingArena members={trainingMembers} visualEvents={encounter.visualEvents} debug={debugGrid} />
         )}
+        {mode !== 'hunt' && (
+          <div className="city-location-hud">
+            <div className="city-hud-header">
+              <span className="city-tag">CIDADE DE THAIS</span>
+              <span className="city-coords">X: {cityPos.x} · Y: {cityPos.y} · Z: {cityPos.z}</span>
+            </div>
+            <div className="city-hud-status">
+              {walkingPath ? (
+                <span className="city-walking-badge">
+                  🚶 Andando sozinho até {walkingPath.destinationName} ({walkingPath.target.x}, {walkingPath.target.y}, {walkingPath.target.z})...
+                </span>
+              ) : isTrainingAtDummy ? (
+                <span className="city-training-badge">
+                  ⚔️ Treinando {activeTrainingSkill} no boneco de treino ({cityPos.x}, {cityPos.y}, {cityPos.z})
+                </span>
+              ) : (
+                <span className="city-idle-badge">
+                  🏛️ Parado no Depot ({cityPos.x}, {cityPos.y}, {cityPos.z})
+                </span>
+              )}
+            </div>
+          </div>
+        )}
         {levelUpMessage && (
           <div className="tibia-advancement-banner" key={levelUpMessage.timestamp}>
             {levelUpMessage.text}
@@ -314,78 +410,17 @@ function GamePrototypeContent() {
         debug={debugGrid}
         onToggleDebug={() => setDebugGrid((value) => !value)}
         onSelectHunt={() => setHuntSelectorOpen(true)}
+        onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
       />
 
-      {/* Window 1: Character & Skills */}
-      <DraggableWindow id="character" icon="👤" badge={<small className="window-badge">Lv {activeCharacter.level}</small>}>
-        <div className="character-tabs" role="tablist" aria-label="Selecionar personagem para skills">
-          {game.session.characters.map((candidate) => (
-            <button
-              type="button"
-              role="tab"
-              aria-selected={candidate.id === activeCharacter.id}
-              className={candidate.id === activeCharacter.id ? 'selected' : ''}
-              key={candidate.id}
-              onClick={() => selectPartyCharacter(candidate.id)}
-            >
-              {candidate.name}
-            </button>
-          ))}
-        </div>
-        <div className="selected-character-summary">
-          <span><strong>{activeCharacter.name}</strong><small>{activeCharacter.vocation} · Lv {activeCharacter.level} · {activeStats.weaponName}</small></span>
-          <span className="selected-stats"><b>ATK {activeStats.attack}</b><b>DEF {activeStats.defense}</b><b>ARM {activeStats.armor}</b></span>
-        </div>
-        <div className="resource-line">
-          <span>HP</span>
-          <div className="compact-meter"><i className="hp-fill" style={{ width: `${100 * (currentActor?.hp ?? activeCharacter.currentHp) / activeCharacter.maxHp}%` }} /></div>
-          <b>{currentActor?.hp ?? activeCharacter.currentHp}/{activeCharacter.maxHp}</b>
-        </div>
-        {activeCharacter.maxMana > 0 && (
-          <div className="resource-line">
-            <span>MP</span>
-            <div className="compact-meter"><i className="mana-fill" style={{ width: `${100 * (currentActor?.mana ?? activeCharacter.currentMana) / activeCharacter.maxMana}%` }} /></div>
-            <b>{currentActor?.mana ?? activeCharacter.currentMana}/{activeCharacter.maxMana}</b>
-          </div>
-        )}
-        <div className="resource-line">
-          <span>XP</span>
-          <div className="compact-meter"><i className="xp-fill" style={{ width: `${xpProgressById.get(activeCharacter.id) ?? 0}%` }} /></div>
-          <b>{Math.round(xpProgressById.get(activeCharacter.id) ?? 0)}%</b>
-        </div>
-        <div className="xp-caption">
-          {activeCharacter.experience.toLocaleString('pt-BR')} / {experienceForLevel(activeCharacter.level + 1).toLocaleString('pt-BR')}
-        </div>
-
-        {statsDelta && (
-          <div className="stat-change-summary" aria-live="polite">
-            Loadout: ATK {statsDelta.attack.from}→{statsDelta.attack.to} · DEF {statsDelta.defense.from}→{statsDelta.defense.to} · ARM {statsDelta.armor.from}→{statsDelta.armor.to}
-          </div>
-        )}
-
-        <div className="skill-list">
-          {skillsList.map(([name, level, progress]) => (
-            <div className="skill-item" key={name}>
-              <div className="skill-meta"><span>{name}</span><b>{level}</b></div>
-              <div className="skill-meter"><i className="skill-meter-fill" style={{ width: `${Math.round(progress * 100)}%` }} /></div>
-            </div>
-          ))}
-        </div>
-
-        {!activeCharacter.promotion && (
-          <div className="promotion-action">
-            <button
-              type="button"
-              disabled={activeCharacter.level < PROMOTION_LEVEL || game.session.gold < PROMOTION_COST}
-              onClick={promoteSelectedCharacter}
-              title={activeCharacter.level < PROMOTION_LEVEL ? `Requer nível ${PROMOTION_LEVEL}` : game.session.gold < PROMOTION_COST ? `Requer ${PROMOTION_COST} gold` : `Promover para ${promotedVocationFor(activeCharacter.baseVocation)}`}
-            >
-              Promover ({PROMOTION_COST} gold)
-            </button>
-            {promotionMessage && <small className="promotion-message">{promotionMessage}</small>}
-          </div>
-        )}
-      </DraggableWindow>
+      {/* Window 1: Classic Skills Window (acessada pelo nome do personagem) */}
+      <SkillsWindow
+        open={skillsModalOpen}
+        character={activeCharacter}
+        stats={activeStats}
+        content={content}
+        onClose={() => setSkillsModalOpen(false)}
+      />
 
       {/* Window 3: Party */}
       <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{game.session.characters.length}/4</small>}>
@@ -610,9 +645,11 @@ function GamePrototypeContent() {
         monsters={content.monsters}
         level={leader.level}
         currentHuntId={game.encounter.hunt.id}
+        isInCity={mode !== 'hunt'}
         onClose={() => setHuntSelectorOpen(false)}
         onSelect={startSelectedHunt}
         onOpenPartyModal={() => setPartyModalOpen(true)}
+        onStartTraining={handleStartTraining}
       />
       {hotbarConfigSlot !== null && (
         <HotbarConfigModal

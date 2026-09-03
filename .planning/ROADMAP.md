@@ -383,6 +383,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 26. Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância | 1/1 | Complete | 2026-09-03 |
 | 27. Desequipar para Bolsa, Foco Autêntico de Alvo (Retângulo Vermelho) e Anúncio de Level Up | 1/1 | Complete | 2026-09-03 |
 | 28. Nova UI de Caçadas (Bestiary, Loots e Countdown de Troca) e Nova UI da Party com Modal Novo Membro | 1/1 | Complete | 2026-09-03 |
+| 29. Saída de Caçada a Thais Depot, Sistema de Treino no Dummy, e Nova Janela Skills | 1/1 | Complete | 2026-09-03 |
 
 ---
 
@@ -437,3 +438,20 @@ Plans:
 
 Plans:
 - [x] 28-01-PLAN: Implementar nova UI de Caçadas com Bestiary/Loots/Countdown e nova UI de Party com Modal de Novo Membro.
+
+---
+
+### Phase 29: Saída de Caçada com Teleporte e Caminhada a Thais Depot, Sistema de Treino com Caminhada ao Dummy, e Nova Janela Skills
+
+**Goal:** Implementar o fluxo autêntico de saída de caçada com contagem de 5s, teleporte para Thais (32369, 32241, 7) e caminhada automática ao Depot (32342, 32231, 7); adicionar a aba de Treino com seleção de skill e caminhada ao Dummy de Thais (32349, 32238, 7); e substituir a janela antiga pela janela autêntica de Skills acessada ao clicar no nome do personagem no topo esquerdo.  
+**Depends on:** Phase 28  
+**Requirements:** `FIX.md`, 2 imagens de referência anexadas.  
+**Success Criteria:**
+1. Botão "Sair da Caçada" inicia contagem regressiva de 5 segundos; ao finalizar, transporta os personagens para Thais (32369, 32241, 7).
+2. Personagem anda sozinho passo a passo da coordenada de chegada até o Depot de Thais (32342, 32231, 7) e permanece em repouso.
+3. Aba "TREINO" exibe 6 skills selecionáveis e 3 painéis (Arma de Exercício, Treino Online e Treino Offline); liberado apenas na cidade de Thais.
+4. Ao clicar em "Iniciar treino", o personagem anda sozinho da sua posição até o boneco de treino (32349, 32238, 7) e inicia o ciclo de treino e ganho de skill.
+5. Antiga janela de personagem removida; nova janela "Skills" fiel à imagem de referência é aberta ao clicar no nome do personagem no canto superior esquerdo.
+
+Plans:
+- [x] 29-01-PLAN: Implementar saída com teleporte/caminhada a Thais, aba de Treino com caminhada ao dummy, e janela clássica Skills aberta pelo nome do personagem.

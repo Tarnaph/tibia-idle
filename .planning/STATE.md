@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 28 of 28 (Nova UI de Caçadas e Nova UI da Party com Modal Novo Membro)  
+Phase: 29 of 29 (Saída a Thais Depot, Treino no Dummy e Nova Janela Skills)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 28 concluída: Nova janela de caçadas em 3 colunas (Busca/Lista, Detalhes com Tooltip de Bestiary e Danos Recebidos por elemento, Loots com raridades e auto-loot, contagem regressiva de 5s para troca de hunt); e Nova UI da Party com barras de HP, MP e Stamina, com modal autêntico "NOVO MEMBRO" com opções de gênero e vocações.
+Last activity: 2026-09-03 — Phase 29 concluída: Saída de caçada com contagem de 5s, teleporte para Thais (32369, 32241, 7) e caminhada automática passo a passo ao Depot (32342, 32231, 7); aba Treino da cidade completa com caminhada ao Dummy (32349, 32238, 7); e nova janela clássica de Skills do Tibia 11 acessível com clique no nome do personagem no topo esquerdo.
 
 Progress: [██████████] 100%
 

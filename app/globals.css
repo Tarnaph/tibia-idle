@@ -3930,6 +3930,460 @@ h1, h2, h3, p { margin: 0; }
   color: #fff;
 }
 
+/* ==========================================================================
+   Phase 29: Skills Window (Authentic Tibia 11 / Classic Theme)
+   ========================================================================== */
+.player-name-btn {
+  background: transparent;
+  border: none;
+  color: #f3f0e6;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.player-name-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f7d26d;
+  text-shadow: 0 0 6px rgba(247, 210, 109, 0.5);
+}
+
+.tibia-skills-floating-window {
+  position: fixed;
+  top: 54px;
+  left: 18px;
+  width: 215px;
+  background: #363636;
+  border: 2px solid #5a5a5a;
+  border-top-color: #7b7b7b;
+  border-left-color: #7b7b7b;
+  border-bottom-color: #1a1a1a;
+  border-right-color: #1a1a1a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85), inset 1px 1px 0 #4a4a4a;
+  z-index: 105;
+  font-family: Verdana, Tahoma, sans-serif;
+  color: #dfdfdf;
+  user-select: none;
+}
+
+.tibia-skills-titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2b2b2b;
+  padding: 3px 6px;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8c8c8;
+}
+
+.tibia-skills-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.skills-icon {
+  font-size: 11px;
+}
+
+.tibia-skills-controls {
+  display: flex;
+  gap: 3px;
+}
+
+.tibia-skills-btn-ctrl {
+  background: #404040;
+  border: 1px solid #666;
+  border-bottom-color: #111;
+  border-right-color: #111;
+  color: #eee;
+  width: 15px;
+  height: 14px;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.tibia-skills-btn-ctrl:hover {
+  background: #555;
+}
+
+.tibia-skills-body {
+  padding: 6px 8px 10px 8px;
+  background: #333333;
+  font-size: 10px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.skills-row-level,
+.skills-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5px 0;
+  line-height: 1.2;
+}
+
+.skills-label {
+  color: #d2d2d2;
+  font-size: 10px;
+}
+
+.skills-val {
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.skills-val.bold {
+  font-weight: 700;
+}
+
+.skills-val.green {
+  color: #38e038;
+  font-weight: 700;
+}
+
+.skills-meter-track {
+  width: 100%;
+  height: 4px;
+  background: #141414;
+  border: 1px solid #0a0a0a;
+  border-bottom-color: #444;
+  border-right-color: #444;
+  margin: 1px 0 3px 0;
+  overflow: hidden;
+}
+
+.skills-meter-fill {
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+.skills-meter-fill.red {
+  background: #d94343;
+}
+
+.skills-meter-fill.green {
+  background: #28c830;
+}
+
+.skills-boost-container {
+  display: flex;
+  justify-content: center;
+  margin: 3px 0 5px 0;
+}
+
+.skills-boost-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #1a4f8b;
+  border: 1px solid #d4af37;
+  padding: 1px 8px;
+  border-radius: 2px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.tibia-skills-divider {
+  height: 2px;
+  border-top: 1px solid #1f1f1f;
+  border-bottom: 1px solid #4a4a4a;
+  margin: 5px 0;
+}
+
+.skills-section-header {
+  color: #e0e0e0;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.skills-sub-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1px 0 1px 12px;
+  font-size: 9.5px;
+}
+
+.skills-sub-label {
+  color: #b0b0b0;
+}
+
+/* ==========================================================================
+   Phase 29: City Location HUD
+   ========================================================================== */
+.city-location-hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 22, 28, 0.92);
+  border: 1px solid #444c56;
+  border-radius: 4px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  z-index: 90;
+  text-align: center;
+  pointer-events: none;
+}
+
+.city-hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.city-tag {
+  color: #e6cb94;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.city-coords {
+  color: #9eb0c0;
+  font-family: monospace;
+  font-size: 10.5px;
+}
+
+.city-hud-status {
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.city-walking-badge {
+  color: #79c0ff;
+  font-weight: 600;
+  animation: pulseWalk 1s infinite alternate;
+}
+
+.city-training-badge {
+  color: #56d364;
+  font-weight: 600;
+}
+
+.city-idle-badge {
+  color: #d2a8ff;
+  font-weight: 500;
+}
+
+@keyframes pulseWalk {
+  from { opacity: 0.75; }
+  to { opacity: 1; }
+}
+
+/* ==========================================================================
+   Phase 29: Training Window (Image 1)
+   ========================================================================== */
+.training-window-body {
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #11141c;
+  color: #e2e7ec;
+}
+
+.training-window-subtitle {
+  font-size: 12px;
+  color: #8c97a5;
+  margin: 0;
+}
+
+.training-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.training-skill-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: #181d28;
+  border: 1px solid #293244;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.training-skill-card:hover {
+  background: #1f2636;
+  border-color: #3b4862;
+}
+
+.training-skill-card.selected {
+  background: #1d2b44;
+  border: 2px solid #58a6ff;
+  box-shadow: 0 0 10px rgba(88, 166, 255, 0.35);
+}
+
+.training-skill-icon {
+  font-size: 20px;
+}
+
+.training-skill-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #d8e2ed;
+}
+
+.training-methods-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.training-method-card {
+  background: #161b25;
+  border: 1px solid #293244;
+  border-radius: 4px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.training-method-card.highlight {
+  border-color: #314463;
+  background: #19202f;
+}
+
+.training-method-card.gold {
+  border-color: #524328;
+  background: #1d1b1f;
+}
+
+.training-method-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.training-method-title.blue {
+  color: #58a6ff;
+}
+
+.training-method-title.gold {
+  color: #e3b341;
+}
+
+.training-method-desc {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #9ba7b7;
+  margin: 0;
+  flex: 1;
+}
+
+.training-method-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.training-btn-action {
+  flex: 1;
+  padding: 8px;
+  background: #242c3b;
+  border: 1px solid #364359;
+  border-radius: 3px;
+  color: #d2dce6;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.training-btn-action:hover {
+  background: #2f3a4d;
+  color: #fff;
+}
+
+.training-btn-primary {
+  width: 100%;
+  padding: 8px;
+  background: #234676;
+  border: 1px solid #388bfd;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.training-btn-primary:hover:not(:disabled) {
+  background: #2c5996;
+}
+
+.training-btn-primary:disabled {
+  background: #222a36;
+  border-color: #313c4c;
+  color: #647080;
+  cursor: not-allowed;
+}
+
+.training-btn-gold {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid #d29922;
+  border-radius: 3px;
+  color: #e3b341;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.training-btn-gold:hover {
+  background: rgba(210, 153, 34, 0.15);
+}
+
+.training-footer-status {
+  flex: 1;
+  font-size: 11px;
+  color: #8c97a5;
+  display: flex;
+  align-items: center;
+}
+
+.loop-indicator.counting-exit {
+  background: #b52a2a;
+  border-color: #ff5555;
+  color: #ffffff;
+  animation: pulseExit 1s infinite alternate;
+}
+
+@keyframes pulseExit {
+  from { opacity: 0.8; }
+  to { opacity: 1; }
+}
+
+
 
 
 

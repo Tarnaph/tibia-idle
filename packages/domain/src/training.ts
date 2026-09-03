@@ -42,7 +42,7 @@ export function skillProgress(character: CharacterState, skill: TrainableSkill, 
   return next <= 0 ? 0 : Math.min(1, character.skillTries[skill] / next);
 }
 
-export function advanceTraining(state: GameState, content: GameContent, deltaMs: number): GameState {
+export function advanceTraining(state: GameState, content: GameContent, deltaMs: number, targetSkill?: TrainableSkill): GameState {
   if (deltaMs <= 0) return state;
   const next = structuredClone(state) as GameState;
   next.session.trainingElapsedMs += deltaMs;
@@ -50,7 +50,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
   next.encounter.visualEvents = [];
   for (const character of next.session.characters) {
     const vocation = vocationFor(content, character.vocation);
-    const skill = trainingSkillFor(character, content);
+    const skill = targetSkill ?? trainingSkillFor(character, content);
     if (skill === 'magicLevel') {
       const regenerationIntervalMs = Math.max(1, vocation.manaGainTicks * 2_000);
       character.trainingState.manaSimulationRemainderMs += deltaMs;
