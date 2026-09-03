@@ -12,7 +12,7 @@ import type {
 interface ImportOptions { projectRoot?: string; write?: boolean }
 
 const SELECTED_SPELLS = new Set([
-  'Light Healing', 'Intense Healing', 'Haste', 'Whirlwind Throw', 'Wound Cleansing', 'Berserk',
+  'Light Healing', 'Intense Healing', 'Haste', 'Strong Haste', 'Magic Shield', 'Whirlwind Throw', 'Wound Cleansing', 'Berserk',
   'Ethereal Spear', 'Divine Healing', 'Divine Missile', 'Energy Strike', 'Flame Strike', 'Fire Wave',
   'Terra Strike', 'Ice Strike', 'Heal Friend', 'Ice Wave',
 ]);
@@ -43,13 +43,19 @@ function constantOf(line: string): number {
 }
 
 function parseFormula(script: string, name: string): SpellFormulaDefinition {
-  if (name === 'Haste') {
+  if (name === 'Haste' || name === 'Strong Haste') {
     const duration = Number(script.match(/CONDITION_PARAM_TICKS,\s*(\d+)/)?.[1]);
     const speed = script.match(/setFormula\(([-0-9.]+),\s*([-0-9.]+),\s*([-0-9.]+),\s*([-0-9.]+)\)/);
-    if (!duration || !speed) throw new Error('Haste formula could not be normalized.');
+    if (!duration || !speed) throw new Error(`${name} formula could not be normalized.`);
     return {
       kind: 'haste', min: { level: 0, constant: 0 }, max: { level: 0, constant: 0 }, durationMs: duration,
       speedFormula: [Number(speed[1]), Number(speed[2]), Number(speed[3]), Number(speed[4])],
+    };
+  }
+  if (name === 'Magic Shield') {
+    const duration = Number(script.match(/CONDITION_PARAM_TICKS,\s*(\d+)/)?.[1]) || 200000;
+    return {
+      kind: 'haste', min: { level: 0, constant: 0 }, max: { level: 0, constant: 0 }, durationMs: duration,
     };
   }
   const minLine = script.match(/local min = ([^\r\n]+)/)?.[1];

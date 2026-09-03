@@ -340,7 +340,7 @@ export function validateTibia860Manifest(manifest: Tibia860AssetManifest): void 
     }
   }
   for (const asset of [...Object.values(manifest.effects), ...Object.values(manifest.missiles)]) {
-    if (asset.frames.length === 0 || !asset.frames.every((frame) => frame.spriteIds.some((id) => id > 0))) {
+    if (asset.frames.length === 0 || !asset.frames.some((frame) => frame.spriteIds.some((id) => id > 0))) {
       throw new Error(`${asset.key} has an invalid visual frame.`);
     }
   }
@@ -533,7 +533,7 @@ export async function extractTibia860Assets(options: ExtractOptions = {}): Promi
     mergeFiles(files, extracted.files);
     return [String(serverId), extracted.mapping];
   }));
-  const effectIds = [...new Set(spellCatalog.spells.flatMap((spell) => spell.visual.effectId === null ? [] : [spell.visual.effectId]))].sort((a, b) => a - b);
+  const effectIds = [...dat.appearances.effect.keys()].sort((a, b) => a - b);
   const effects = Object.fromEntries(effectIds.map((effectId) => {
     const extracted = extractAppearanceFrames(`effect-${effectId}`, `Magic effect ${effectId}`, requireAppearance(dat.appearances.effect, effectId, 'Effect'), spr, {
       relationship: 'direct-visual-id', validation: `STYLLER effect constant ${effectId} resolves to Tibia.dat effect appearance ${effectId}.`,
@@ -542,7 +542,7 @@ export async function extractTibia860Assets(options: ExtractOptions = {}): Promi
     mergeFiles(files, extracted.files);
     return [String(effectId), extracted.mapping];
   }));
-  const missileIds = [...new Set(spellCatalog.spells.flatMap((spell) => typeof spell.visual.projectileId === 'number' ? [spell.visual.projectileId] : []))].sort((a, b) => a - b);
+  const missileIds = [...dat.appearances.missile.keys()].sort((a, b) => a - b);
   const missiles = Object.fromEntries(missileIds.map((missileId) => {
     const extracted = extractAppearanceFrames(`missile-${missileId}`, `Projectile ${missileId}`, requireAppearance(dat.appearances.missile, missileId, 'Missile'), spr, {
       relationship: 'direct-visual-id', validation: `STYLLER projectile constant ${missileId} resolves to Tibia.dat missile appearance ${missileId}.`,

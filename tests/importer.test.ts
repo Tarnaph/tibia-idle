@@ -113,7 +113,7 @@ describe('read-only STYLLER importer', () => {
 
   it('imports only the proven spell subset with source formulas and visual ids', async () => {
     const catalog = await importSpells({ projectRoot: process.cwd(), write: false });
-    expect(catalog.spells).toHaveLength(16);
+    expect(catalog.spells).toHaveLength(18);
     expect(catalog.spells.find((spell) => spell.name === 'Energy Strike')).toMatchObject({
       spellId: 88, requiredLevel: 12, mana: 20, cooldownMs: 2000, combatType: 'energy',
       formula: { kind: 'level-magic' }, visual: { effectId: 38, projectileId: 5 },

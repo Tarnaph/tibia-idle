@@ -47,7 +47,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
     maxHp: 150, maxMana: vocation.gainMana === 30 ? 60 : vocation.gainMana === 15 ? 30 : vocation.gainMana === 5 ? 10 : 0,
     skills: { ...baseSkills[vocationName] }, skillTries: emptyTries(),
     equipment: { ...starter.equipped },
-    inventory: { equipmentIds: content.equipment.map((item) => item.id) }, spells, hotbar: spells.slice(0, 5),
+    inventory: { equipmentIds: content.equipment.map((item) => item.id) }, spells, hotbar: [],
     combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
     trainingState: { skillRemainderMs: 0, shieldingRemainderMs: 0, manaSpent: 0, manaSimulationRemainderMs: 0 },
   };

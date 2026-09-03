@@ -64,6 +64,7 @@ function makeActor(character: SessionState['characters'][number], spawn: PartyAc
     position: clonePosition(spawn), previousPosition: clonePosition(spawn), direction: 'east', path: [], targetId: null,
     nextAttackAt: 0, attackIntervalMs: vocation.attackSpeedMs, speed: vocation.baseSpeed, nextMoveAt: 0, nextSpellAt: 0,
     spellCooldowns: { ...character.combatState.spellCooldowns }, groupCooldowns: { ...character.combatState.groupCooldowns }, hasteUntil: 0,
+    magicShieldUntil: 0, bloodRageUntil: 0, lastHitTakenAt: 0,
     nextManaRegenAt: vocation.manaGainTicks * 2_000, nextHealthRegenAt: vocation.healthGainTicks * 2_000, pendingAttack: null,
   };
 }
@@ -317,169 +318,356 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
     const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
     const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
 
+    let usedPotionThisTick = false;
+    let usedSpellThisTick = false;
+    let usedRuneThisTick = false;
+
     for (const actionId of character.hotbar) {
-      if (typeof actionId !== 'number') continue;
+      if (typeof actionId !== 'number' || actionId === 0) continue;
       const action = findHotbarAction(actionId, content);
-      if (!action) continue;
+      if (!action || !isHotbarActionUnlocked(character, action)) continue;
 
-      if (action.kind === 'potion') {
+      // 1. POTIONS AUTO-TRIGGER
+      if (action.kind === 'potion' && !usedPotionThisTick) {
         const potion = action.potion;
-        if (!isHotbarActionUnlocked(character, action)) continue;
-        if ((actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) continue;
+        if ((actor.groupCooldowns['potion'] ?? 0) <= encounter.elapsedMs) {
+          const tookRecentHit = (encounter.elapsedMs - actor.lastHitTakenAt) < 3000 && actor.hp < character.maxHp;
+          const needsHp = typeof potion.healMin === 'number' && (actor.hp / character.maxHp < 0.88 || tookRecentHit);
+          const needsMana = typeof potion.manaMin === 'number' && character.maxMana > 0 && actor.mana / character.maxMana < 0.70;
 
-        const needsHp = typeof potion.healMin === 'number' && actor.hp / character.maxHp < 0.75;
-        const needsMana = typeof potion.manaMin === 'number' && character.maxMana > 0 && actor.mana / character.maxMana < 0.5;
+          if (needsHp || needsMana) {
+            const rng = createSeededRng(encounter.rngState);
+            let healed = 0;
+            let restoredMana = 0;
 
-        if (!needsHp && !needsMana) continue;
+            if (typeof potion.healMin === 'number' && typeof potion.healMax === 'number') {
+              const rawHeal = rollInteger(rng, potion.healMin, potion.healMax);
+              healed = Math.min(rawHeal, character.maxHp - actor.hp);
+              actor.hp += healed;
+            }
 
-        const rng = createSeededRng(encounter.rngState);
-        let healed = 0;
-        let restoredMana = 0;
+            if (typeof potion.manaMin === 'number' && typeof potion.manaMax === 'number') {
+              const rawMana = rollInteger(rng, potion.manaMin, potion.manaMax);
+              restoredMana = Math.min(rawMana, character.maxMana - actor.mana);
+              actor.mana += restoredMana;
+            }
 
-        if (typeof potion.healMin === 'number' && typeof potion.healMax === 'number') {
-          const rawHeal = rollInteger(rng, potion.healMin, potion.healMax);
-          healed = Math.min(rawHeal, character.maxHp - actor.hp);
-          actor.hp += healed;
+            encounter.rngState = rng.state;
+            actor.groupCooldowns['potion'] = encounter.elapsedMs + potion.cooldownMs;
+
+            encounter.events.push({
+              type: 'spell-cast',
+              sourceId: actor.characterId,
+              targetId: actor.characterId,
+              spellId: potion.id,
+              amount: healed || restoredMana,
+              healing: healed > 0,
+            });
+            encounter.events.push({
+              type: 'spell-visual',
+              sourceId: actor.characterId,
+              targetId: actor.characterId,
+              spellId: potion.id,
+              effectId: potion.effectId,
+              projectileId: null,
+            });
+
+            const details = [
+              healed > 0 ? `recuperou ${healed} HP` : '',
+              restoredMana > 0 ? `recuperou ${restoredMana} MP` : '',
+            ].filter(Boolean).join(' e ');
+
+            addLog(state, `${character.name} usou ${potion.name} e ${details}.`);
+            syncCharacterResources(state, actor);
+            usedPotionThisTick = true;
+          }
         }
-
-        if (typeof potion.manaMin === 'number' && typeof potion.manaMax === 'number') {
-          const rawMana = rollInteger(rng, potion.manaMin, potion.manaMax);
-          restoredMana = Math.min(rawMana, character.maxMana - actor.mana);
-          actor.mana += restoredMana;
-        }
-
-        encounter.rngState = rng.state;
-        actor.groupCooldowns['potion'] = encounter.elapsedMs + potion.cooldownMs;
-
-        encounter.events.push({
-          type: 'spell-cast',
-          sourceId: actor.characterId,
-          targetId: actor.characterId,
-          spellId: potion.id,
-          amount: healed || restoredMana,
-          healing: healed > 0,
-        });
-        encounter.events.push({
-          type: 'spell-visual',
-          sourceId: actor.characterId,
-          targetId: actor.characterId,
-          spellId: potion.id,
-          effectId: potion.effectId,
-          projectileId: null,
-        });
-
-        const details = [
-          healed > 0 ? `recuperou ${healed} HP` : '',
-          restoredMana > 0 ? `recuperou ${restoredMana} MP` : '',
-        ].filter(Boolean).join(' e ');
-
-        addLog(state, `${character.name} usou ${potion.name} e ${details}.`);
-        syncCharacterResources(state, actor);
-        break;
       }
 
-      if (action.kind === 'rune') {
+      // 2. RUNES AUTO-TRIGGER
+      if (action.kind === 'rune' && !usedRuneThisTick) {
         const rune = action.rune;
-        if (!isHotbarActionUnlocked(character, action)) continue;
-        if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs) continue;
+        if ((actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs) {
+          const inRange = encounter.enemies
+            .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
+            .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
 
-        const inRange = encounter.enemies
-          .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
-          .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+          if (inRange.length > 0) {
+            const targets = rune.area === 'square-1x1' ? inRange.slice(0, 8) : [inRange[0]];
+            const rng = createSeededRng(encounter.rngState);
 
-        if (inRange.length === 0) continue;
+            let minDmg = character.level * 0.2 + character.skills.magicLevel * 2.5 + 15;
+            let maxDmg = character.level * 0.2 + character.skills.magicLevel * 4.0 + 30;
 
-        const targets = rune.area === 'square-1x1' ? inRange.slice(0, 8) : [inRange[0]];
-        const rng = createSeededRng(encounter.rngState);
+            if (rune.id === 2268) {
+              minDmg = character.level * 0.2 + character.skills.magicLevel * 7.0 + 40;
+              maxDmg = character.level * 0.2 + character.skills.magicLevel * 9.5 + 65;
+            } else if (rune.id === 2311) {
+              minDmg = character.level * 0.2 + character.skills.magicLevel * 1.6 + 10;
+              maxDmg = character.level * 0.2 + character.skills.magicLevel * 2.4 + 18;
+            } else if (rune.id === 2304 || rune.id === 2274) {
+              minDmg = character.level * 0.2 + character.skills.magicLevel * 2.2 + 15;
+              maxDmg = character.level * 0.2 + character.skills.magicLevel * 3.5 + 25;
+            }
 
-        let minDmg = character.level * 0.2 + character.skills.magicLevel * 2.5 + 15;
-        let maxDmg = character.level * 0.2 + character.skills.magicLevel * 4.0 + 30;
+            const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
+            encounter.rngState = rng.state;
+            actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
 
-        if (rune.id === 2268) {
-          minDmg = character.level * 0.2 + character.skills.magicLevel * 7.0 + 40;
-          maxDmg = character.level * 0.2 + character.skills.magicLevel * 9.5 + 65;
-        } else if (rune.id === 2311) {
-          minDmg = character.level * 0.2 + character.skills.magicLevel * 1.6 + 10;
-          maxDmg = character.level * 0.2 + character.skills.magicLevel * 2.4 + 18;
-        } else if (rune.id === 2304 || rune.id === 2274) {
-          minDmg = character.level * 0.2 + character.skills.magicLevel * 2.2 + 15;
-          maxDmg = character.level * 0.2 + character.skills.magicLevel * 3.5 + 25;
-        }
+            for (const target of targets) {
+              const damage = resistedDamage(rawDamage, target, rune.combatType, content);
+              target.hp = Math.max(0, target.hp - damage);
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false });
+              encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, effectId: rune.effectId, projectileId: rune.projectileId });
+              addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
+              if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+            }
 
-        const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
-        encounter.rngState = rng.state;
-        actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
-
-        for (const target of targets) {
-          const damage = resistedDamage(rawDamage, target, rune.combatType, content);
-          target.hp = Math.max(0, target.hp - damage);
-          encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false });
-          encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, effectId: rune.effectId, projectileId: rune.projectileId });
-          addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
-          if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
-        }
-
-        syncCharacterResources(state, actor);
-        break;
-      }
-
-      // Existing spell execution:
-      const spell = action.spell;
-      if (!isSpellUnlocked(character, spell) || actor.mana < spell.mana) continue;
-      if ((actor.spellCooldowns[String(spell.spellId)] ?? 0) > encounter.elapsedMs) continue;
-      if ((actor.groupCooldowns[spell.group] ?? 0) > encounter.elapsedMs) continue;
-      let targetActor: PartyActorState | undefined;
-      let targets: EnemyState[] = [];
-      if (spell.group === 'healing') {
-        targetActor = spell.name === 'Heal Friend'
-          ? encounter.partyActors.filter((candidate) => candidate.alive && candidate.hp / state.session.characters.find((member) => member.id === candidate.characterId)!.maxHp < 0.6)
-            .sort((left, right) => left.hp - right.hp || left.characterId.localeCompare(right.characterId))[0]
-          : actor.hp / character.maxHp < 0.6 ? actor : undefined;
-        if (!targetActor) continue;
-      } else if (spell.group === 'support') {
-        if (spell.name !== 'Haste' || actor.hasteUntil > encounter.elapsedMs) continue;
-        targetActor = actor;
-      } else {
-        const range = spell.area === 'wave-4' ? 4 : Math.max(1, spell.range);
-        const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
-          .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
-        if (inRange.length === 0) continue;
-        targets = spell.area === 'wave-4' || spell.area === 'square-1x1' ? inRange.slice(0, spell.area === 'wave-4' ? 4 : 8) : [inRange[0]];
-      }
-      const rng = createSeededRng(encounter.rngState);
-      const range = spellFormulaRange(spell, character, stats.activeSkillLevel, weapon?.attack ?? stats.attack);
-      const amount = rollInteger(rng, Math.floor(range.min), Math.max(Math.floor(range.min), Math.ceil(range.max)));
-      encounter.rngState = rng.state;
-      actor.mana -= spell.mana;
-      actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
-      actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
-      if (spell.group === 'healing' && targetActor) {
-        const targetCharacter = state.session.characters.find((candidate) => candidate.id === targetActor!.characterId)!;
-        const healed = Math.min(amount, targetCharacter.maxHp - targetActor.hp);
-        targetActor.hp += healed;
-        encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, amount: healed, healing: true });
-        encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
-        addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
-        syncCharacterResources(state, targetActor);
-      } else if (spell.group === 'support' && targetActor) {
-        actor.hasteUntil = encounter.elapsedMs + (spell.formula.durationMs ?? 0);
-        encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false });
-        encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
-        addLog(state, `${character.name} usou ${spell.name}.`);
-      } else {
-        for (const target of targets) {
-          const damage = resistedDamage(amount, target, spell.combatType, content);
-          target.hp = Math.max(0, target.hp - damage);
-          encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false });
-          encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
-          addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
-          if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+            syncCharacterResources(state, actor);
+            usedRuneThisTick = true;
+          }
         }
       }
-      syncCharacterResources(state, actor);
-      break;
+
+      // 3. SPELLS AUTO-TRIGGER
+      if (action.kind === 'spell' && !usedSpellThisTick) {
+        const spell = action.spell;
+        if (actor.mana >= spell.mana && (actor.spellCooldowns[String(spell.spellId)] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns[spell.group] ?? 0) <= encounter.elapsedMs) {
+          let targetActor: PartyActorState | undefined;
+          let targets: EnemyState[] = [];
+          const tookRecentHit = (encounter.elapsedMs - actor.lastHitTakenAt) < 3000 && actor.hp < character.maxHp;
+
+          if (spell.group === 'healing') {
+            const needsHealing = actor.hp / character.maxHp < 0.88 || tookRecentHit;
+            targetActor = spell.name === 'Heal Friend'
+              ? encounter.partyActors.filter((candidate) => candidate.alive && candidate.hp / state.session.characters.find((member) => member.id === candidate.characterId)!.maxHp < 0.75)
+                  .sort((left, right) => left.hp - right.hp || left.characterId.localeCompare(right.characterId))[0]
+              : needsHealing ? actor : undefined;
+            if (!targetActor) continue;
+          } else if (spell.group === 'support') {
+            const isHaste = spell.name === 'Haste' || spell.name === 'Strong Haste' || spell.words.includes('hur');
+            const isMagicShield = spell.words.includes('utamo') || spell.name.toLowerCase().includes('shield');
+            const isBloodRage = spell.words.includes('tempo') || spell.name.toLowerCase().includes('rage');
+
+            if (isHaste && actor.hasteUntil <= encounter.elapsedMs) {
+              targetActor = actor;
+            } else if (isMagicShield && actor.magicShieldUntil <= encounter.elapsedMs) {
+              targetActor = actor;
+            } else if (isBloodRage && actor.bloodRageUntil <= encounter.elapsedMs && encounter.enemies.some((enemy) => enemy.alive)) {
+              targetActor = actor;
+            } else {
+              continue;
+            }
+          } else {
+            // Attack Spells
+            const range = spell.area === 'wave-4' ? 4 : Math.max(1, spell.range);
+            const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
+              .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+            if (inRange.length === 0) continue;
+            targets = spell.area === 'wave-4' || spell.area === 'square-1x1' ? inRange.slice(0, spell.area === 'wave-4' ? 4 : 8) : [inRange[0]];
+          }
+
+          const rng = createSeededRng(encounter.rngState);
+          const formulaRange = spellFormulaRange(spell, character, stats.activeSkillLevel, weapon?.attack ?? stats.attack);
+          const amount = rollInteger(rng, Math.floor(formulaRange.min), Math.max(Math.floor(formulaRange.min), Math.ceil(formulaRange.max)));
+          encounter.rngState = rng.state;
+          actor.mana -= spell.mana;
+          actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
+          actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
+
+          if (spell.group === 'healing' && targetActor) {
+            const targetCharacter = state.session.characters.find((candidate) => candidate.id === targetActor!.characterId)!;
+            const healed = Math.min(amount, targetCharacter.maxHp - targetActor.hp);
+            targetActor.hp += healed;
+            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, amount: healed, healing: true });
+            encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+            addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
+            syncCharacterResources(state, targetActor);
+            usedSpellThisTick = true;
+          } else if (spell.group === 'support' && targetActor) {
+            const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
+            if (spell.words.includes('utamo')) actor.magicShieldUntil = encounter.elapsedMs + duration;
+            else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
+            else actor.hasteUntil = encounter.elapsedMs + duration;
+
+            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false });
+            encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+            addLog(state, `${character.name} usou ${spell.name}.`);
+            usedSpellThisTick = true;
+          } else {
+            for (const target of targets) {
+              const damage = resistedDamage(amount, target, spell.combatType, content);
+              target.hp = Math.max(0, target.hp - damage);
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false });
+              encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+              addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
+              if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+            }
+            usedSpellThisTick = true;
+          }
+          syncCharacterResources(state, actor);
+        }
+      }
     }
   }
+}
+
+export function triggerManualHotbarAction(
+  state: GameState,
+  characterId: string,
+  actionId: number,
+  content: GameContent,
+): boolean {
+  const encounter = state.encounter;
+  const actor = encounter.partyActors.find((candidate) => candidate.characterId === characterId && candidate.alive);
+  if (!actor) return false;
+  const character = state.session.characters.find((candidate) => candidate.id === characterId);
+  if (!character) return false;
+  const action = findHotbarAction(actionId, content);
+  if (!action || !isHotbarActionUnlocked(character, action)) return false;
+
+  // 1. Potion manual trigger
+  if (action.kind === 'potion') {
+    const potion = action.potion;
+    if ((actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
+
+    const rng = createSeededRng(encounter.rngState);
+    let healed = 0;
+    let restoredMana = 0;
+
+    if (typeof potion.healMin === 'number' && typeof potion.healMax === 'number') {
+      const rawHeal = rollInteger(rng, potion.healMin, potion.healMax);
+      healed = Math.min(rawHeal, character.maxHp - actor.hp);
+      actor.hp += healed;
+    }
+    if (typeof potion.manaMin === 'number' && typeof potion.manaMax === 'number') {
+      const rawMana = rollInteger(rng, potion.manaMin, potion.manaMax);
+      restoredMana = Math.min(rawMana, character.maxMana - actor.mana);
+      actor.mana += restoredMana;
+    }
+
+    encounter.rngState = rng.state;
+    actor.groupCooldowns['potion'] = encounter.elapsedMs + potion.cooldownMs;
+
+    encounter.events.push({
+      type: 'spell-cast',
+      sourceId: actor.characterId,
+      targetId: actor.characterId,
+      spellId: potion.id,
+      amount: healed || restoredMana,
+      healing: healed > 0,
+    });
+    encounter.events.push({
+      type: 'spell-visual',
+      sourceId: actor.characterId,
+      targetId: actor.characterId,
+      spellId: potion.id,
+      effectId: potion.effectId,
+      projectileId: null,
+    });
+
+    const details = [
+      healed > 0 ? `recuperou ${healed} HP` : '',
+      restoredMana > 0 ? `recuperou ${restoredMana} MP` : '',
+    ].filter(Boolean).join(' e ');
+
+    addLog(state, `${character.name} usou ${potion.name} e ${details}.`);
+    syncCharacterResources(state, actor);
+    return true;
+  }
+
+  // 2. Rune manual trigger
+  if (action.kind === 'rune') {
+    const rune = action.rune;
+    if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs) return false;
+    const inRange = encounter.enemies
+      .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
+      .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+
+    if (inRange.length === 0) return false;
+    const targets = rune.area === 'square-1x1' ? inRange.slice(0, 8) : [inRange[0]];
+    const rng = createSeededRng(encounter.rngState);
+
+    let minDmg = character.level * 0.2 + character.skills.magicLevel * 2.5 + 15;
+    let maxDmg = character.level * 0.2 + character.skills.magicLevel * 4.0 + 30;
+    if (rune.id === 2268) {
+      minDmg = character.level * 0.2 + character.skills.magicLevel * 7.0 + 40;
+      maxDmg = character.level * 0.2 + character.skills.magicLevel * 9.5 + 65;
+    }
+
+    const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
+    encounter.rngState = rng.state;
+    actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
+
+    for (const target of targets) {
+      const damage = resistedDamage(rawDamage, target, rune.combatType, content);
+      target.hp = Math.max(0, target.hp - damage);
+      encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false });
+      encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, effectId: rune.effectId, projectileId: rune.projectileId });
+      addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
+      if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+    }
+    syncCharacterResources(state, actor);
+    return true;
+  }
+
+  // 3. Spell manual trigger
+  const spell = action.spell;
+  if (actor.mana < spell.mana) return false;
+  if ((actor.spellCooldowns[String(spell.spellId)] ?? 0) > encounter.elapsedMs) return false;
+  if ((actor.groupCooldowns[spell.group] ?? 0) > encounter.elapsedMs) return false;
+
+  const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
+  const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
+  const rng = createSeededRng(encounter.rngState);
+  const formulaRange = spellFormulaRange(spell, character, stats.activeSkillLevel, weapon?.attack ?? stats.attack);
+  const amount = rollInteger(rng, Math.floor(formulaRange.min), Math.max(Math.floor(formulaRange.min), Math.ceil(formulaRange.max)));
+  encounter.rngState = rng.state;
+  actor.mana -= spell.mana;
+  actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
+  actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
+
+  if (spell.group === 'healing') {
+    const healed = Math.min(amount, character.maxHp - actor.hp);
+    actor.hp += healed;
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: healed, healing: true });
+    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+    addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
+    syncCharacterResources(state, actor);
+    return true;
+  }
+
+  if (spell.group === 'support') {
+    const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
+    if (spell.words.includes('utamo')) actor.magicShieldUntil = encounter.elapsedMs + duration;
+    else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
+    else actor.hasteUntil = encounter.elapsedMs + duration;
+
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false });
+    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+    addLog(state, `${character.name} usou ${spell.name}.`);
+    syncCharacterResources(state, actor);
+    return true;
+  }
+
+  // Attack spell
+  const spellRange = spell.area === 'wave-4' ? 4 : Math.max(1, spell.range);
+  const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= spellRange)
+    .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+
+  if (inRange.length === 0) return false;
+  const targets = spell.area === 'wave-4' || spell.area === 'square-1x1' ? inRange.slice(0, spell.area === 'wave-4' ? 4 : 8) : [inRange[0]];
+
+  for (const target of targets) {
+    const damage = resistedDamage(amount, target, spell.combatType, content);
+    target.hp = Math.max(0, target.hp - damage);
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false });
+    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId: spell.visual.projectileId });
+    addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
+    if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+  }
+  syncCharacterResources(state, actor);
+  return true;
 }
 
 function playerAttacks(state: GameState, content: GameContent): void {
@@ -534,7 +722,19 @@ function enemyAttacks(state: GameState, content: GameContent): void {
     const armor = rollInteger(rng, Math.floor(stats.armor / 2), stats.armor);
     const damage = Math.max(0, raw - defense - armor);
     enemy.nextAttackAt = encounter.elapsedMs + enemy.attackIntervalMs;
-    target.hp = Math.max(0, target.hp - damage);
+    if (damage > 0) {
+      target.lastHitTakenAt = encounter.elapsedMs;
+      // Magic Shield (Utamo Vita) absorbs damage with mana first!
+      if (target.magicShieldUntil > encounter.elapsedMs && target.mana > 0) {
+        const manaDamage = Math.min(damage, target.mana);
+        target.mana -= manaDamage;
+        const remainingDamage = damage - manaDamage;
+        target.hp = Math.max(0, target.hp - remainingDamage);
+        encounter.visualEvents.push({ type: 'heal-applied', sourceId: target.characterId, targetId: target.characterId, effectId: 13 });
+      } else {
+        target.hp = Math.max(0, target.hp - damage);
+      }
+    }
     encounter.events.push({ type: 'enemy-attack', sourceId: enemy.id, targetId: target.characterId, damage });
     addLog(state, `${enemy.name} causou ${damage} em ${character.name}.`);
     if (target.hp <= 0) {

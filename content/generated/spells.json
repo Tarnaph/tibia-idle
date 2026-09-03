@@ -287,6 +287,52 @@
       "importWarnings": []
     },
     {
+      "spellId": 44,
+      "name": "Magic Shield",
+      "words": "utamo vita",
+      "vocations": [
+        "Sorcerer",
+        "Druid",
+        "Paladin",
+        "Master Sorcerer",
+        "Elder Druid",
+        "Royal Paladin"
+      ],
+      "requiredLevel": 14,
+      "mana": 50,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "support",
+      "range": 0,
+      "combatType": "support",
+      "formula": {
+        "kind": "haste",
+        "min": {
+          "level": 0,
+          "constant": 0
+        },
+        "max": {
+          "level": 0,
+          "constant": 0
+        },
+        "durationMs": 200000
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 13,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_BLUE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/support/magic_shield.lua"
+      ],
+      "importWarnings": []
+    },
+    {
       "spellId": 112,
       "name": "Ice Strike",
       "words": "exori frigo",
@@ -457,6 +503,56 @@
       "sourceFiles": [
         "data/spells/spells.xml",
         "data/spells/scripts/attack/ice_wave.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 39,
+      "name": "Strong Haste",
+      "words": "utani gran hur",
+      "vocations": [
+        "Sorcerer",
+        "Druid",
+        "Master Sorcerer",
+        "Elder Druid"
+      ],
+      "requiredLevel": 20,
+      "mana": 100,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "support",
+      "range": 0,
+      "combatType": "support",
+      "formula": {
+        "kind": "haste",
+        "min": {
+          "level": 0,
+          "constant": 0
+        },
+        "max": {
+          "level": 0,
+          "constant": 0
+        },
+        "durationMs": 22000,
+        "speedFormula": [
+          0.7,
+          -56,
+          0.7,
+          -56
+        ]
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 15,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_GREEN",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/support/strong_haste.lua"
       ],
       "importWarnings": []
     },

@@ -78,6 +78,9 @@ export interface PartyActorState {
   spellCooldowns: Record<string, number>;
   groupCooldowns: Record<string, number>;
   hasteUntil: number;
+  magicShieldUntil: number;
+  bloodRageUntil: number;
+  lastHitTakenAt: number;
   nextManaRegenAt: number;
   nextHealthRegenAt: number;
   pendingAttack: PendingBasicAttack | null;

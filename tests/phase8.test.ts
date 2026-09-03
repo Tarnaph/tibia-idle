@@ -40,7 +40,7 @@ describe('Phase 8 multi-character state', () => {
     const selected = selectCharacter(initial, bobik.id);
     selected.session.characters[1].skills.distance += 7;
     selected.session.characters[1].equipment.leftHand = 2376;
-    selected.session.characters[1].inventory.equipmentIds = [2376];
+    selected.session.characters[1].hotbar = [1, 2];
     selected.session.characters[1] = reorderHotbar(selected.session.characters[1], 0, 1);
 
     expect(selectedCharacterOf(selected).id).toBe(bobik.id);

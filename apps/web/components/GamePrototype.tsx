@@ -14,6 +14,7 @@ import {
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
+  triggerManualHotbarAction,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack,
 } from '@/packages/domain/src';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -204,12 +205,9 @@ function GamePrototypeContent() {
       const characters = current.session.characters.map((char) => {
         if (char.id !== activeId) return char;
         const hotbar = [...char.hotbar];
-        if (actionId === null) {
-          hotbar.splice(slotIndex, 1);
-        } else {
-          hotbar[slotIndex] = actionId;
-        }
-        return { ...char, hotbar: hotbar.filter((id) => typeof id === 'number') };
+        while (hotbar.length <= slotIndex) hotbar.push(0);
+        hotbar[slotIndex] = actionId === null ? 0 : actionId;
+        return { ...char, hotbar };
       });
       return {
         ...current,
@@ -220,6 +218,39 @@ function GamePrototypeContent() {
       };
     });
   };
+
+  const handleManualHotbarAction = useCallback((slotIndex: number) => {
+    const actionId = activeCharacter.hotbar[slotIndex];
+    if (typeof actionId !== 'number' || actionId === 0) {
+      setHotbarConfigSlot(slotIndex);
+      return;
+    }
+    setGame((current) => {
+      const next = structuredClone(current);
+      const triggered = triggerManualHotbarAction(next, activeCharacter.id, actionId, content);
+      return triggered ? next : current;
+    });
+  }, [activeCharacter.hotbar, activeCharacter.id]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+
+      if (e.key.startsWith('F') && e.key.length <= 3) {
+        const fNum = parseInt(e.key.slice(1), 10);
+        if (fNum >= 1 && fNum <= 12) {
+          e.preventDefault();
+          handleManualHotbarAction(fNum - 1);
+        }
+      } else if (e.key >= '0' && e.key <= '9' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        const keyNum = e.key === '0' ? 9 : parseInt(e.key, 10) - 1;
+        handleManualHotbarAction(10 + keyNum);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleManualHotbarAction]);
 
   const skillsList = [
     ['Fist', activeCharacter.skills.fist, selectedSkillProgress.fist],
@@ -608,6 +639,7 @@ function GamePrototypeContent() {
         onReset={resetPrototype}
         onReorderSpell={reorderSelectedHotbar}
         onConfigureSlot={setHotbarConfigSlot}
+        onSlotClick={handleManualHotbarAction}
         onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
       />
 

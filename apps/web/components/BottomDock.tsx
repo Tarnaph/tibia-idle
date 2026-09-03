@@ -16,6 +16,7 @@ interface BottomDockProps {
   onReset?(): void;
   onReorderSpell?(fromIndex: number, toIndex: number): void;
   onConfigureSlot?: (slotIndex: number) => void;
+  onSlotClick?: (slotIndex: number) => void;
   onToggleBackpack?: () => void;
 }
 
@@ -26,6 +27,7 @@ export function BottomDock({
   spells,
   elapsedMs,
   onConfigureSlot,
+  onSlotClick,
   onToggleBackpack,
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
@@ -57,6 +59,7 @@ export function BottomDock({
         spells={spells}
         elapsedMs={elapsedMs}
         onConfigureSlot={onConfigureSlot}
+        onSlotClick={onSlotClick}
         onToggleBackpack={onToggleBackpack}
         onToggleCombatLog={() => setLogOpen((v) => !v)}
         logCount={logs.length}

@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 20 of 20 (Extração e Integração Oficial de Ícones e Poções)  
+Phase: 21 of 21 (Magias, Poções, Runas, Hotkeys e Animações Oficiais)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 20 finalizada com extração de 60 ícones oficiais de magias e 15 variantes de poções e 134 testes passando.
+Last activity: 2026-09-03 — Phase 21 concluída: hotkeys default vazias, auto-cast inteligente (cura/poções reativas, buffs contínuos, ataques no range), acionamento manual (F1-F12/1-0) e extração de 100% dos efeitos mágicos (70) e projéteis (42) do Tibia.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 20
-- Tests status: 15 test suites passando (Vitest - 134 testes)
+- Total phases completed: 21
+- Tests status: 16 test suites passando (Vitest - 142 testes)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 warnings/erros (ESLint 9)
 
@@ -48,6 +48,7 @@ Progress: [██████████] 100%
 | 18. Action Bar F1-F12 e Icones Identicos ao Tibia 11 Original | 1 | - | - | Complete |
 | 19. Console Inferior Completo de Batalha e Acoes | 1 | - | - | Complete |
 | 20. Extração e Integração Oficial de Ícones e Poções | 1 | - | - | Complete |
+| 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1 | - | - | Complete |
 
 ## Accumulated Context
 

@@ -271,12 +271,23 @@ Plans:
 
 - [x] 20-01-PLAN: Extração automatizada de 60 ícones de magias e 15 variantes de poções da CipSoft e integração em ActionIcon e HUD
 
+### Phase 21: Magias, Poções, Runas, Hotkeys Inteligentes e Animações Oficiais
+
+**Goal:** Tornar 100% funcional o ecossistema de magias, poções e runas: inicializar hotkeys vazias por default para configuração do jogador; implementar execução automática inteligente (auto-cast reativo ao tomar hit para curas/poções, recast contínuo de suporte como haste e magic shield ao expirar, e uso de magias de ataque ao ver alvos no alcance); suporte a acionamento manual; e importação completa de todas as animações de magias e projéteis do Tibia.
+**Requirements:** `c:\Users\desig\OneDrive\Documentos\TibiaWeb\Tibia\FIX.md`
+**Depends on:** Phase 20
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 21-01-PLAN: Implementação de hotkeys vazias por default, auto-cast inteligente (cura/poções reativas ao dano, buffs de suporte contínuos, ataques no range), acionamento manual (F1-F12/1-0) e extração de 100% dos efeitos mágicos e projéteis do Tibia.
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -300,3 +311,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 18. Action Bar F1-F12 e Icones Identicos ao Tibia 11 Original | 1/1 | Complete | 2026-09-03 |
 | 19. Console Inferior Completo de Batalha e Acoes | 1/1 | Complete | 2026-09-03 |
 | 20. Extração e Integração Oficial de Ícones e Poções | 1/1 | Complete | 2026-09-03 |
+| 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1/1 | Complete | 2026-09-03 |

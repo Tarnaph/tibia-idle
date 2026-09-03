@@ -15,6 +15,7 @@ interface BottomConsoleHUDProps {
   spells: SpellDefinition[];
   elapsedMs: number;
   onConfigureSlot?: (slotIndex: number) => void;
+  onSlotClick?: (slotIndex: number) => void;
   onToggleBackpack?: () => void;
   onToggleCombatLog?: () => void;
   logCount?: number;
@@ -26,6 +27,7 @@ export function BottomConsoleHUD({
   spells,
   elapsedMs,
   onConfigureSlot,
+  onSlotClick,
   onToggleBackpack,
   onToggleCombatLog,
   logCount = 0,
@@ -56,101 +58,74 @@ export function BottomConsoleHUD({
     )
   );
 
-  // Border colors corresponding to top row actions (as in reference screenshot)
+  // Border colors corresponding to action categories
   const topRowBorderColors: Record<number, string> = {
-    0: 'border-gold',     // Slot 0: Potion (Gold)
-    1: 'border-red',      // Slot 1: Berserk 40mp (Red)
-    2: 'border-pink',     // Slot 2: Groundshaker 300mp (Pink)
-    3: 'border-pink',     // Slot 3: Enrage 120mp (Pink)
-    4: 'border-orange',   // Slot 4: Shout 60mp (Orange)
-    5: 'border-white',    // Slot 5: Punch 15mp (White)
-    6: 'border-cyan',     // Slot 6: Shield/Heal 40mp (Cyan)
-    7: 'border-green',    // Slot 7: Haste 60mp (Green)
-  };
-
-  // Mana costs in bottom-right matching reference
-  const topRowManaCosts: Record<number, number> = {
-    1: 40,
-    2: 300,
-    3: 120,
-    4: 60,
-    5: 15,
-    6: 40,
-    7: 60,
+    0: 'border-gold',
+    1: 'border-red',
+    2: 'border-pink',
+    3: 'border-pink',
+    4: 'border-orange',
+    5: 'border-white',
+    6: 'border-cyan',
+    7: 'border-green',
   };
 
   const renderSlot = (slotIndex: number, isBottomRow = false) => {
     const actionId = character.hotbar[slotIndex];
-    const isSlot0 = slotIndex === 0;
-    const isSlot11 = slotIndex === 11;
-    const isSlot18 = slotIndex === 18;
-
-    // Special styling from reference:
-    // Slot 0: Potion with count 379
-    // Slot 11: Spirit potion with count 56
-    // Slot 18: Special 'Grátis' slot
-    const borderColorClass = isSlot0 || isSlot11 || isSlot18
-      ? 'border-gold'
-      : topRowBorderColors[slotIndex] || '';
+    const hasAction = typeof actionId === 'number' && actionId > 0;
+    const action = hasAction ? findHotbarAction(actionId, { spells } as any) : undefined;
+    const hotkeyLabel = !isBottomRow ? `F${slotIndex + 1}` : `${(slotIndex - 10 + 1) % 10}`;
 
     // If empty slot
-    if (typeof actionId !== 'number' && !isSlot0 && !isSlot11 && !isSlot18) {
+    if (!hasAction || !action) {
       return (
         <button
           type="button"
           key={`slot-${slotIndex}`}
           id={`hud-slot-${slotIndex}`}
           className="hud-action-slot empty-plus-slot"
-          title={`Slot ${slotIndex + 1} Vazio · Clique para configurar`}
+          title={`Slot ${slotIndex + 1} [${hotkeyLabel}] Vazio · Clique para configurar magia/poção`}
           onClick={() => onConfigureSlot?.(slotIndex)}
         >
-          <span className="plus-char">+</span>
+          <span className="empty-dots" style={{ opacity: 0.45, fontSize: '9px', letterSpacing: '1px' }}>▫ ▫ ▫ ▫</span>
+          <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#7e8781' }}>{hotkeyLabel}</span>
         </button>
       );
     }
 
-    // Resolved action or simulated reference slot
-    const action = typeof actionId === 'number' ? findHotbarAction(actionId, { spells } as any) : undefined;
-    const manaCost = topRowManaCosts[slotIndex] || (action?.kind === 'spell' ? action.spell.mana : undefined);
-    const stackCount = isSlot0 ? 379 : isSlot11 ? 56 : undefined;
+    const borderColorClass = topRowBorderColors[slotIndex % 8] || 'border-cyan';
+    const manaCost = action.kind === 'spell' ? action.spell.mana : undefined;
 
     return (
       <div
         key={`slot-${slotIndex}`}
         id={`hud-slot-${slotIndex}`}
         className={`hud-action-slot occupied-slot ${borderColorClass}`}
-        onClick={() => onConfigureSlot?.(slotIndex)}
-        title={action?.kind === 'spell' ? action.spell.name : action?.kind === 'potion' ? action.potion.name : 'Configurar ação'}
+        onClick={() => {
+          if (onSlotClick) onSlotClick(slotIndex);
+          else onConfigureSlot?.(slotIndex);
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          onConfigureSlot?.(slotIndex);
+        }}
+        title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] (Clique para usar · Botão direito para configurar)`}
+        style={{ cursor: 'pointer', position: 'relative' }}
       >
-        {/* Top-Left Stack Count (e.g. 379 or 56) */}
-        {stackCount !== undefined && (
-          <span className="hud-stack-count">{stackCount}</span>
-        )}
+        {/* Hotkey Indicator */}
+        <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#c7d6cc', zIndex: 7, textShadow: '1px 1px 0 #000' }}>
+          {hotkeyLabel}
+        </span>
 
-        {/* Top 'Grátis' Badge for Slot 18 */}
-        {isSlot18 && (
-          <span className="hud-free-badge">Grátis</span>
-        )}
+        {/* Center Icon with official CipSoft sprites */}
+        <Tibia11ActionIcon
+          id={action.kind === 'spell' ? action.spell.spellId : action.kind === 'potion' ? action.potion.id : action.rune.id}
+          kind={action.kind}
+          name={action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name}
+          size={30}
+        />
 
-        {/* Center Icon */}
-        {action ? (
-          <Tibia11ActionIcon
-            id={action.kind === 'spell' ? action.spell.spellId : action.kind === 'potion' ? action.potion.id : action.rune.id}
-            kind={action.kind}
-            name={action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name}
-            size={30}
-          />
-        ) : isSlot0 ? (
-          <Tibia11ActionIcon id={7618} kind="potion" name="Health Potion" size={30} />
-        ) : isSlot11 ? (
-          <Tibia11ActionIcon id={8472} kind="potion" name="Spirit Potion" size={30} />
-        ) : isSlot18 ? (
-          <Tibia11ActionIcon id={26031} kind="potion" name="Health Potion" size={30} />
-        ) : (
-          <Tibia11ActionIcon id={slotIndex + 1} kind="spell" name="Strike" size={30} />
-        )}
-
-        {/* Bottom-Right Blue Mana Cost (e.g. 40, 300, 120, 60, 15) */}
+        {/* Bottom-Right Blue Mana Cost */}
         {manaCost !== undefined && (
           <span className="hud-mana-cost">{manaCost}</span>
         )}
