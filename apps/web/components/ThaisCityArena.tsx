@@ -131,14 +131,6 @@ export function ThaisCityArena({
       dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
       objectsLayer.addChild(dummySprite);
 
-      // Depot marker at depot pos
-      const depotPos = thaisData.depot;
-      const depotDecor = new Sprite(loaded[decorUrl]);
-      depotDecor.anchor.set(0.5, 0.5);
-      depotDecor.position.set(depotPos.x * TILE_SIZE + 16, depotPos.y * TILE_SIZE + 16);
-      depotDecor.zIndex = depotPos.y * TILE_SIZE;
-      objectsLayer.addChild(depotDecor);
-
       // Pre-render world tiles in the Thais bounding box
       const minX = thaisData.bounds.minX;
       const maxX = thaisData.bounds.maxX;
@@ -151,22 +143,37 @@ export function ThaisCityArena({
           const px = x * TILE_SIZE;
           const py = y * TILE_SIZE;
 
-          let hasCustomSprite = false;
+          let hasGroundSprite = false;
           if (tile) {
+            // First pass: render ground in terrainLayer
             for (const sId of tile.serverItemIds) {
               const mapping = visualAssets.mapItems[String(sId)];
-              if (mapping?.frame && loaded[mapping.frame.publicUrl]) {
+              if (mapping?.isGround && mapping.frame && loaded[mapping.frame.publicUrl]) {
                 const sp = new Sprite(loaded[mapping.frame.publicUrl]);
                 sp.position.set(px, py);
                 sp.roundPixels = true;
                 terrainLayer.addChild(sp);
-                hasCustomSprite = true;
+                hasGroundSprite = true;
                 break;
+              }
+            }
+
+            // Second pass: render all non-ground objects (walls, columns, altar, counters, chests)
+            for (const sId of tile.serverItemIds) {
+              const mapping = visualAssets.mapItems[String(sId)];
+              if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
+                const sp = new Sprite(loaded[mapping.frame.publicUrl]);
+                const offsetY = mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0;
+                const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
+                sp.position.set(px + offsetX, py + offsetY);
+                sp.roundPixels = true;
+                sp.zIndex = py + 32;
+                objectsLayer.addChild(sp);
               }
             }
           }
 
-          if (!hasCustomSprite) {
+          if (!hasGroundSprite) {
             const isWalkable = tile?.walkable ?? false;
             const floorSp = new Sprite(loaded[isWalkable ? floorUrl : wallUrl]);
             floorSp.position.set(px, py);

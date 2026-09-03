@@ -85,11 +85,13 @@ export interface ItemVisualAssetMapping {
   resolved: boolean;
   source: {
     serverId: number;
-    otb: 'styller-master/data/items/items.otb';
-    dat: 'tibia-860-client/Tibia.dat';
-    spr: 'tibia-860-client/Tibia.spr';
+    otb: string;
+    dat: string;
+    spr: string;
   };
   appearanceId: number | null;
+  isGround?: boolean;
+  blockSolid?: boolean;
   appearance: (AppearanceDimensions & {
     attributes: number[];
     spriteIds: number[];

@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 30 of 30 (Mapa Global de Thais, Início Imediato de Hunt, Skills Escuro e Botão Sair no Dock)  
+Phase: 31 of 31 (Migração para Tibia 10.98/11 DAT/SPR e Renderização Autêntica do Mapa Global de Thais)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 30 concluída: Integração do mapa global de Thais (1.836 tiles de realmap.otbm); botão 'Começar caçada' imediato sem 5s quando na cidade; tema escuro estilo hotkeys para a janela Skills; e botão vermelho 'SAIR DA CAÇADA' no dock rápido ao lado de BLESSINGS com remoção da janela antiga de hunt/training room.
+Last activity: 2026-09-03 — Phase 31 concluída: Migração do pipeline de assets para os binários oficiais do Tibia 10.98/11 (Tibia.dat 0x42A3 e Tibia.spr 0x57BBD603); extração dos 244 sprites autênticos de Thais de items.otb para PNGs; renderização em camadas separadas (terrainLayer para pisos e objectsLayer com zIndex para colunas, altar, paredes e depot); e respawn autêntico no Templo de Thais (32369, 32241, 7).
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 26
-- Tests status: 21 test suites passando (Vitest - 169 testes aprovados, 100%)
+- Total phases completed: 31
+- Tests status: 26 test suites passando (Vitest - 193 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -54,6 +54,11 @@ Progress: [██████████] 100%
 | 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1 | - | - | Complete |
 | 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1 | - | - | Complete |
 | 26. Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância | 1 | - | - | Complete |
+| 27. Desequipar Mochila, Trava de Foco e Level Up | 1 | - | - | Complete |
+| 28. Nova UI de Caçadas e Nova UI da Party com Modal | 1 | - | - | Complete |
+| 29. Saída de Caçada e Sistema de Treino com Dummies | 1 | - | - | Complete |
+| 30. Mapa Global de Thais, Início Imediato de Hunt e Sair no Dock | 1 | - | - | Complete |
+| 31. Migração Tibia 10.98 DAT/SPR e Renderização Autêntica de Thais | 1 | - | - | Complete |
 
 ## Accumulated Context
 

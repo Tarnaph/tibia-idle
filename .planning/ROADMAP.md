@@ -473,3 +473,20 @@ Plans:
 
 Plans:
 - [x] 30-01-PLAN: Integrar arena com mapa real de Thais, início imediato de hunt fora da caçada, tema escuro na janela Skills e botão Sair da Caçada no dock rápido.
+
+---
+
+### Phase 31: Migração para Tibia 10.98/11 (Tibia.dat e Tibia.spr) e Renderização Autêntica do Mapa Global de Thais
+
+**Goal:** Migrar o pipeline de assets para os binários oficiais do Tibia 10.98/11 (`Tibia.dat` e `Tibia.spr`), extraindo todos os pisos e objetos reais de Thais a partir de `realmap11/data/items/items.otb`, eliminando sprites genéricos e garantindo renderização autêntica de templo, colunas, altar, paredes de pedra e depot.  
+**Depends on:** Phase 30  
+**Requirements:** `FIX.md`, binários oficiais `Tibia 11/Tibia 11/Tibia 11/Tibia.dat` e `Tibia.spr`.  
+**Success Criteria:**
+1. Pipeline decodifica `Tibia.dat` 10.98 (signature `0x42A3`, 23.725 itens) e `Tibia.spr` (signature `0x57BBD603`, 338.944 sprites com índices u32).
+2. Extração de 244 sprites PNGs de alta definição para todos os pisos e objetos do mapa global de Thais (`public/generated/tibia1098/items/`).
+3. Templo de Thais com renderização dos pisos xadrez autênticos (406/407), altar sagrado (1448), colunas de mármore (1515/1481) e paredes de pedra clássicas (1049-1057).
+4. Separação de camadas no Pixi: pisos em `terrainLayer` e paredes/objetos/colunas/altares em `objectsLayer` com `zIndex` e offsets verticais para ordenação 2.5D precisa.
+5. Ao sair da caçada ou morrer, o personagem respawna visivelmente no autêntico Templo de Thais (`32369, 32241, 7`).
+
+Plans:
+- [x] 31-01-PLAN: Integrar extrator de assets Tibia 10.98/11, gerar PNGs dos 244 itens de Thais e renderizar camadas de piso e objetos em ThaisCityArena.
