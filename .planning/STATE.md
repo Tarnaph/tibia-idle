@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 12 concluída (todas as 12 fases do vertical slice finalizadas e testadas).
+**Current focus:** Phase 32 concluída (Vida, Nome do Personagem, Animação de Caminhada e Elementos Animados em Thais).
 
 ## Current Position
 
-Phase: 31 of 31 (Migração para Tibia 10.98/11 DAT/SPR e Renderização Autêntica do Mapa Global de Thais)  
+Phase: 32 of 32 (Vida, Nome do Personagem, Animação de Caminhada e Elementos Animados em Thais)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 31 concluída: Migração do pipeline de assets para os binários oficiais do Tibia 10.98/11 (Tibia.dat 0x42A3 e Tibia.spr 0x57BBD603); extração dos 244 sprites autênticos de Thais de items.otb para PNGs; renderização em camadas separadas (terrainLayer para pisos e objectsLayer com zIndex para colunas, altar, paredes e depot); e respawn autêntico no Templo de Thais (32369, 32241, 7).
+Last activity: 2026-09-03 — Phase 32 concluída: Exibição permanente do nome do personagem em verde (#58f773) com contorno preto e barra de vida verde (#4fc977) sobre fundo escuro acima da cabeça em Thais; rotação direcional e ciclo de animação de caminhada oficial com interpolação contínua; extração de todos os frames dos elementos do mapa (fogo azul 8058, teleporte 1387, tochas 2059/2061, lâmpadas de parede 2038/2040, bacias de carvão 1481, fontes 1360-1363 e ondas de água); e animação contínua em tempo real no ticker do Pixi.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 31
-- Tests status: 26 test suites passando (Vitest - 193 testes aprovados, 100%)
+- Total phases completed: 32
+- Tests status: 27 test suites passando (Vitest - 198 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -33,20 +33,20 @@ Progress: [██████████] 100%
 | 3. Espacialidade 2D, Grid e Pathfinding A\* | 1 | - | - | Complete |
 | 4. Camada de Apresentação e Interpolação PixiJS | 1 | - | - | Complete |
 | 5. Treinamento Funcional de Habilidades | 1 | - | - | Complete |
-| 6. Importadores de Conteúdo STYLLER (XML / OTBM) | 1 | - | - | Complete |
-| 7. Pipeline de Extração de Assets Tibia 8.60 (DAT/SPR) | 1 | - | - | Complete |
-| 8. Multi-Personagem, Spells, Promoção e Caçadas OTBM | 1 | - | - | Complete |
-| 9. Rotas de Caça Contínuas (Continuous Hunt Routes) | 1 | - | - | Complete |
-| 10. Câmera de Expedição e Controles em Tempo Real | 1 | - | - | Complete |
-| 11. Economia de Party, Loot Pouch e UX Estrutural | 1 | - | - | Complete |
-| 12. Fundação de Autenticação, Contas e Segurança (Supabase) | 1 | - | - | Complete |
-| 13. Ajuste de Indicador Visual de Dano (Remover sinal -) | 1 | - | - | Complete |
-| 14. Viewport em tela cheia e janelas de UI flutuantes e arrastáveis | 1 | - | - | Complete |
-| 15. Janela compacta de inventario, tooltips e iluminacao de tocha | 1 | - | - | Complete |
-| 16. Arraste de janelas, hotbar customizavel e XP 5000 | 1 | - | - | Complete |
-| 17. Migracao para Tibia 11, Icones Oficiais e Action Bar | 1 | - | - | Complete |
-| 18. Action Bar F1-F12 e Icones Identicos ao Tibia 11 Original | 1 | - | - | Complete |
-| 19. Console Inferior Completo de Batalha e Acoes | 1 | - | - | Complete |
+| 6. Importador Oficial de Mapas OTBM e Spawns XML | 1 | - | - | Complete |
+| 7. Preservação de Integridade e Isolamento de Servidores Legados | 1 | - | - | Complete |
+| 8. Pipeline Oficial de Assets Tibia 8.60 (DAT/SPR/OTB) | 1 | - | - | Complete |
+| 9. Decodificador Universal de Sprites RLE do Tibia | 1 | - | - | Complete |
+| 10. Catálogo Visual Integrado de Sprites e Apresentação | 1 | - | - | Complete |
+| 11. Pipeline Automatizado de Extração e Validação Visual | 1 | - | - | Complete |
+| 12. Arena OTBM 2D Real com Sprites Autênticos do Tibia 8.60 | 1 | - | - | Complete |
+| 13. Combate Fluido com Movimento Contínuo e Câmera Centrada | 1 | - | - | Complete |
+| 14. Animação Oficial de Morte, Cadáveres e Drop de Loot | 1 | - | - | Complete |
+| 15. Sistema de Party, Gestão de Membros e Vocations | 1 | - | - | Complete |
+| 16. Sistema de Economia, Moedas, Loot e Preços Oficiais | 1 | - | - | Complete |
+| 17. Janelas Arrastáveis e HUD Tibia 11 | 1 | - | - | Complete |
+| 18. Hotkeys Tibia 11, Action Bar e Disparo de Magias/Poções | 1 | - | - | Complete |
+| 19. Refinamento Visual de Itens, Inventário e HUD | 1 | - | - | Complete |
 | 20. Extração e Integração Oficial de Ícones e Poções | 1 | - | - | Complete |
 | 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1 | - | - | Complete |
 | 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1 | - | - | Complete |
@@ -59,6 +59,7 @@ Progress: [██████████] 100%
 | 29. Saída de Caçada e Sistema de Treino com Dummies | 1 | - | - | Complete |
 | 30. Mapa Global de Thais, Início Imediato de Hunt e Sair no Dock | 1 | - | - | Complete |
 | 31. Migração Tibia 10.98 DAT/SPR e Renderização Autêntica de Thais | 1 | - | - | Complete |
+| 32. Vida, Nome do Personagem, Passos e Elementos Animados em Thais | 1 | - | - | Complete |
 
 ## Accumulated Context
 

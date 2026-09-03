@@ -221,36 +221,60 @@ async function run() {
 
     const width = datItem.width * 32;
     const height = datItem.height * 32;
-    const rgba = Buffer.alloc(width * height * 4);
+    const totalPhases = Math.max(1, datItem.animPhases);
+    const animFrames = [];
 
-    // Sprite index formula for layer 0, patternX 0, patternY 0, patternZ 0, frame 0
-    function getSpriteId(tileW, tileH) {
-      const idx = (((((0 * datItem.patternZ + 0) * datItem.patternY + 0) * datItem.patternX + 0) * datItem.layers + 0) * datItem.height + tileH) * datItem.width + tileW;
-      return datItem.spriteIds[idx] || 0;
-    }
+    for (let f = 0; f < totalPhases; f++) {
+      const rgba = Buffer.alloc(width * height * 4);
 
-    for (let tileW = 0; tileW < datItem.width; tileW++) {
-      for (let tileH = 0; tileH < datItem.height; tileH++) {
-        const spriteId = getSpriteId(tileW, tileH);
-        if (spriteId > 0) {
-          const spriteRgba = decodeSprite(spriteId);
-          copySprite(
-            rgba,
-            width,
-            spriteRgba,
-            (datItem.width - tileW - 1) * 32,
-            (datItem.height - tileH - 1) * 32,
-          );
+      function getSpriteId(tileW, tileH) {
+        const idx = (((((f * datItem.patternZ + 0) * datItem.patternY + 0) * datItem.patternX + 0) * datItem.layers + 0) * datItem.height + tileH) * datItem.width + tileW;
+        return datItem.spriteIds[idx] || 0;
+      }
+
+      for (let tileW = 0; tileW < datItem.width; tileW++) {
+        for (let tileH = 0; tileH < datItem.height; tileH++) {
+          const spriteId = getSpriteId(tileW, tileH);
+          if (spriteId > 0) {
+            const spriteRgba = decodeSprite(spriteId);
+            copySprite(
+              rgba,
+              width,
+              spriteRgba,
+              (datItem.width - tileW - 1) * 32,
+              (datItem.height - tileH - 1) * 32,
+            );
+          }
         }
       }
+
+      const png = encodeRgbaPng(width, height, rgba);
+      const fileName = totalPhases > 1 ? `item-${serverId}-frame-${f}.png` : `item-${serverId}.png`;
+      const filePath = `public/generated/tibia1098/items/${fileName}`;
+      await writeFile(filePath, png);
+      const publicUrl = `/generated/tibia1098/items/${fileName}`;
+
+      // Also ensure default item-${serverId}.png exists for frame 0
+      if (totalPhases > 1 && f === 0) {
+        const baseFilePath = `public/generated/tibia1098/items/item-${serverId}.png`;
+        await writeFile(baseFilePath, png);
+      }
+
+      animFrames.push({
+        frame: f,
+        direction: 'static',
+        pattern: { x: 0, y: 0, z: 0 },
+        layer: 0,
+        spriteIds: datItem.spriteIds,
+        file: filePath,
+        publicUrl,
+        sha256: '',
+        width,
+        height,
+      });
     }
 
-    const png = encodeRgbaPng(width, height, rgba);
-    const fileName = `item-${serverId}.png`;
-    const filePath = `public/generated/tibia1098/items/${fileName}`;
-    await writeFile(filePath, png);
-
-    const publicUrl = `/generated/tibia1098/items/${fileName}`;
+    const defaultFrame = animFrames[0];
     extractedMap[String(serverId)] = {
       serverId,
       clientId: otb.clientId,
@@ -280,18 +304,9 @@ async function run() {
       },
       extractedPattern: { x: 0, y: 0, z: 0 },
       extractedLayer: 0,
-      frame: {
-        frame: 0,
-        direction: 'static',
-        pattern: { x: 0, y: 0, z: 0 },
-        layer: 0,
-        spriteIds: datItem.spriteIds,
-        file: filePath,
-        publicUrl,
-        sha256: '',
-        width,
-        height,
-      },
+      frame: defaultFrame,
+      frames: animFrames,
+      animDurationMs: totalPhases > 1 ? 200 : 0,
       importWarnings: [],
     };
     savedCount++;

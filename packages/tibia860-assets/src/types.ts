@@ -99,6 +99,8 @@ export interface ItemVisualAssetMapping {
   extractedPattern: { x: number; y: number; z: number } | null;
   extractedLayer: number | null;
   frame: ExtractedFrame | null;
+  frames?: ExtractedFrame[];
+  animDurationMs?: number;
   importWarnings: string[];
 }
 

@@ -79,12 +79,15 @@ export function ThaisCityArena({
       const rugUrl = visualAssets.assets.trainingRug.frames[0].publicUrl;
       const dummyUrl = visualAssets.assets.trainingDummy.frames[0].publicUrl;
       const decorUrl = visualAssets.assets.trainingDecor.frames[0].publicUrl;
-      const outfitUrls = characters.flatMap((c) =>
-        visualAssets.outfits[c.vocation]?.frames.map((f) => f.publicUrl) ?? []
+      const outfitUrls = Object.values(visualAssets.outfits).flatMap((outfit) =>
+        outfit.frames.map((f) => f.publicUrl)
       );
       const mapItemUrls = thaisData.tiles.flatMap((t) =>
         t.serverItemIds.flatMap((id) => {
           const mapping = visualAssets.mapItems[String(id)];
+          if (mapping?.frames && mapping.frames.length > 0) {
+            return mapping.frames.map((f) => f.publicUrl);
+          }
           return mapping?.frame ? [mapping.frame.publicUrl] : [];
         })
       );
@@ -117,7 +120,7 @@ export function ThaisCityArena({
       appRef.current = app;
       hostRef.current.appendChild(app.canvas);
 
-      // Map tile fast lookup: key = `${x},${y}`
+      // Fast tile lookup: key = `${x},${y}`
       const tileMap = new Map<string, typeof thaisData.tiles[0]>();
       for (const t of thaisData.tiles) {
         tileMap.set(`${t.x},${t.y}`, t);
@@ -131,11 +134,17 @@ export function ThaisCityArena({
       dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
       objectsLayer.addChild(dummySprite);
 
-      // Pre-render world tiles in the Thais bounding box
+      // Pre-render world tiles in the Thais bounding box and collect animated items
       const minX = thaisData.bounds.minX;
       const maxX = thaisData.bounds.maxX;
       const minY = thaisData.bounds.minY;
       const maxY = thaisData.bounds.maxY;
+
+      const animatedMapSprites: Array<{
+        sprite: InstanceType<typeof Sprite>;
+        frames: string[];
+        frameDurationMs: number;
+      }> = [];
 
       for (let y = minY; y <= maxY; y++) {
         for (let x = minX; x <= maxX; x++) {
@@ -154,11 +163,18 @@ export function ThaisCityArena({
                 sp.roundPixels = true;
                 terrainLayer.addChild(sp);
                 hasGroundSprite = true;
+                if (mapping.frames && mapping.frames.length > 1) {
+                  animatedMapSprites.push({
+                    sprite: sp,
+                    frames: mapping.frames.map((f) => f.publicUrl),
+                    frameDurationMs: mapping.animDurationMs || 180,
+                  });
+                }
                 break;
               }
             }
 
-            // Second pass: render all non-ground objects (walls, columns, altar, counters, chests)
+            // Second pass: render all non-ground objects (walls, columns, altar, counters, chests, torches, flames)
             for (const sId of tile.serverItemIds) {
               const mapping = visualAssets.mapItems[String(sId)];
               if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
@@ -169,6 +185,13 @@ export function ThaisCityArena({
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
                 objectsLayer.addChild(sp);
+                if (mapping.frames && mapping.frames.length > 1) {
+                  animatedMapSprites.push({
+                    sprite: sp,
+                    frames: mapping.frames.map((f) => f.publicUrl),
+                    frameDurationMs: mapping.animDurationMs || 180,
+                  });
+                }
               }
             }
           }
@@ -183,70 +206,153 @@ export function ThaisCityArena({
         }
       }
 
-      // Character actor sprites
-      const actorSprites = new Map<string, InstanceType<typeof Sprite>>();
-      characters.forEach((char, idx) => {
-        const outfit = visualAssets.outfits[char.vocation];
-        const initialUrl = outfit?.frames.find((f) => f.direction === 'south')?.publicUrl ?? outfit?.frames[0]?.publicUrl;
-        if (initialUrl && loaded[initialUrl]) {
-          const sp = new Sprite(loaded[initialUrl]);
-          sp.anchor.set(0.5, 0.78);
-          sp.roundPixels = true;
-          actorsLayer.addChild(sp);
-          actorSprites.set(char.id, sp);
-        }
-      });
+      // Character actor containers with nameplate and green health bar
+      interface CityActorView {
+        root: InstanceType<typeof Container>;
+        sprite: InstanceType<typeof Sprite>;
+        label: InstanceType<typeof Text>;
+        bar: InstanceType<typeof Graphics>;
+        lastUrl: string;
+      }
+      const actorViews = new Map<string, CityActorView>();
 
-      // Ticker to follow player smoothly and animate characters
-      let walkFrame = 0;
+      function getOutfitFrameUrl(vocation: string, direction: string, frame: number): string {
+        const outfit = visualAssets.outfits[vocation] || Object.values(visualAssets.outfits)[0];
+        if (!outfit) return '';
+        const dirFrames = outfit.frames.filter((f) => f.direction === direction);
+        const candidates = dirFrames.length > 0 ? dirFrames : outfit.frames.filter((f) => f.direction === 'south');
+        const match = candidates.find((f) => f.frame === frame) ?? candidates[0];
+        return match?.publicUrl ?? outfit.frames[0]?.publicUrl ?? '';
+      }
+
+      function ensureActorView(char: CharacterState): CityActorView | null {
+        let view = actorViews.get(char.id);
+        if (view) return view;
+
+        const initialUrl = getOutfitFrameUrl(char.vocation, 'south', 0);
+        if (!initialUrl || !loaded[initialUrl]) return null;
+
+        const root = new Container();
+        const sprite = new Sprite(loaded[initialUrl]);
+        sprite.anchor.set(0.5, 0.78);
+        sprite.roundPixels = true;
+
+        const label = new Text({
+          text: char.name,
+          style: {
+            fill: 0x58f773, // Authentic Tibia green character name
+            fontSize: 10,
+            fontFamily: 'Verdana, Arial, sans-serif',
+            fontWeight: 'bold',
+            stroke: { color: 0x000000, width: 2 },
+            align: 'center',
+          },
+        });
+        label.anchor.set(0.5, 1);
+        label.position.set(0, -28);
+
+        const bar = new Graphics();
+        root.addChild(sprite, label, bar);
+        actorsLayer.addChild(root);
+
+        view = { root, sprite, label, bar, lastUrl: initialUrl };
+        actorViews.set(char.id, view);
+        return view;
+      }
+
+      characters.forEach(ensureActorView);
+
+      // Ticker to smoothly follow player, animate characters & animate map elements
+      let playerDirection: 'north' | 'south' | 'east' | 'west' = 'south';
+      let currentPixelX = latestRef.current.cityPos.x * TILE_SIZE + 16;
+      let currentPixelY = latestRef.current.cityPos.y * TILE_SIZE + 16;
       let tickCount = 0;
 
       app.ticker.add(() => {
         const { characters: curChars, cityPos: curPos, isWalking: curWalk, isTraining: curTrain } = latestRef.current;
         tickCount++;
+        const now = performance.now();
 
-        if (curWalk && tickCount % 12 === 0) {
-          walkFrame = (walkFrame + 1) % 4;
+        // 1. Animate all animated map elements (mystic blue fire, teleports, torches, lamps, fountains, water)
+        for (const anim of animatedMapSprites) {
+          const frameIdx = Math.floor(now / anim.frameDurationMs) % anim.frames.length;
+          const url = anim.frames[frameIdx];
+          if (url && loaded[url] && anim.sprite.texture !== loaded[url]) {
+            anim.sprite.texture = loaded[url];
+          }
         }
 
-        // Camera smoothly follows curPos
+        // 2. Smooth movement towards current logical cityPos
+        const targetPixelX = curPos.x * TILE_SIZE + 16;
+        const targetPixelY = curPos.y * TILE_SIZE + 16;
+        const deltaX = targetPixelX - currentPixelX;
+        const deltaY = targetPixelY - currentPixelY;
+        const dist = Math.hypot(deltaX, deltaY);
+
+        let isMoving = false;
+        if (dist > 0.5) {
+          isMoving = true;
+          const stepSpeed = Math.max(3.5, dist * 0.22);
+          if (dist <= stepSpeed) {
+            currentPixelX = targetPixelX;
+            currentPixelY = targetPixelY;
+          } else {
+            currentPixelX += (deltaX / dist) * stepSpeed;
+            currentPixelY += (deltaY / dist) * stepSpeed;
+          }
+
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            playerDirection = deltaX > 0 ? 'east' : 'west';
+          } else if (Math.abs(deltaY) > 0) {
+            playerDirection = deltaY > 0 ? 'south' : 'north';
+          }
+        } else {
+          currentPixelX = targetPixelX;
+          currentPixelY = targetPixelY;
+        }
+
+        // 3. Camera smoothly follows interpolated player position
         const camera = calculatePixelCamera(app.screen.width, app.screen.height, TILE_SIZE);
         world.scale.set(camera.scale);
-
-        // Center on cityPos
-        const focusPixelX = curPos.x * TILE_SIZE + 16;
-        const focusPixelY = curPos.y * TILE_SIZE + 16;
         world.position.set(
-          app.screen.width / 2 - focusPixelX * camera.scale,
-          app.screen.height / 2 - focusPixelY * camera.scale
+          app.screen.width / 2 - currentPixelX * camera.scale,
+          app.screen.height / 2 - currentPixelY * camera.scale
         );
 
-        // Update party character positions
+        // 4. Update party characters: walking animation frames, names, and green health bars
+        // Walk frame sequence: 0 -> 1 -> 0 -> 2
+        const walkCycle = [0, 1, 0, 2];
+        const walkFrame = isMoving || curWalk ? walkCycle[Math.floor(now / 150) % 4] : 0;
+
         curChars.forEach((char, idx) => {
-          let sp = actorSprites.get(char.id);
-          if (!sp) {
-            const outfit = visualAssets.outfits[char.vocation];
-            const initialUrl = outfit?.frames.find((f) => f.direction === 'south')?.publicUrl ?? outfit?.frames[0]?.publicUrl;
-            if (initialUrl && loaded[initialUrl]) {
-              sp = new Sprite(loaded[initialUrl]);
-              sp.anchor.set(0.5, 0.78);
-              sp.roundPixels = true;
-              actorsLayer.addChild(sp);
-              actorSprites.set(char.id, sp);
-            }
+          const view = ensureActorView(char);
+          if (!view) return;
+
+          // Texture based on direction and walking animation
+          const nextUrl = getOutfitFrameUrl(char.vocation, playerDirection, walkFrame);
+          if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+            view.sprite.texture = loaded[nextUrl];
+            view.lastUrl = nextUrl;
           }
-          if (!sp) return;
 
           // Offset party members slightly around the leader
           const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
           const offsetY = idx === 0 ? 0 : idx === 3 ? 24 : 12;
 
-          sp.position.set(focusPixelX + offsetX, focusPixelY + offsetY);
-          sp.zIndex = focusPixelY + offsetY;
+          view.root.position.set(currentPixelX + offsetX, currentPixelY + offsetY);
+          view.root.zIndex = currentPixelY + offsetY;
 
-          // Animate attack if training
+          // Update authentic Tibia green health bar
+          const hpRatio = char.maxHp > 0 ? Math.max(0, Math.min(1, char.currentHp / char.maxHp)) : 1;
+          view.bar.clear()
+            .rect(-14, -22, 28, 3).fill({ color: 0x251010 })
+            .rect(-14, -22, 28 * hpRatio, 3).fill({ color: 0x4fc977 });
+
+          // Animate attack if training at dummy
           if (curTrain && idx === 0 && tickCount % 30 < 10) {
-            sp.x += 4;
+            view.sprite.x = 4;
+          } else {
+            view.sprite.x = 0;
           }
         });
       });

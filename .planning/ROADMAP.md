@@ -490,3 +490,19 @@ Plans:
 
 Plans:
 - [x] 31-01-PLAN: Integrar extrator de assets Tibia 10.98/11, gerar PNGs dos 244 itens de Thais e renderizar camadas de piso e objetos em ThaisCityArena.
+
+---
+
+### Phase 32: Vida, Nome do Personagem, Animação de Caminhada e Elementos Animados do Mapa de Thais (Fogo Azul, Teleporte, Tochas, Fontes)
+
+**Goal:** Implementar o nameplate e a barra de vida verde clássica dos personagens na cidade de Thais; adicionar rotação e ciclo de animação de caminhada com interpolação suave; e extrair/animar todos os frames dos elementos do mapa (fogo azul, luz de teleporte, tochas, candelabros, postes, bacias e fontes).  
+**Depends on:** Phase 31  
+**Requirements:** `FIX.md`, itens oficiais do servidor `realmap11` e binários `Tibia 11/Tibia 11/Tibia 11/Tibia.dat` e `Tibia.spr`.  
+**Success Criteria:**
+1. Nome do personagem em verde clássico (`#58f773`) com contorno preto e barra de vida verde (`#4fc977`) sobre fundo vermelho escuro renderizados acima da cabeça de todos os personagens em Thais.
+2. Animação de caminhada com troca direcional (`north`, `south`, `east`, `west`), alternância de frames dos passos e interpolação contínua entre tiles.
+3. Extração no `extract-tibia1098-thais.mjs` de todos os frames (`animPhases > 1`) para os itens animados de Thais (fogo azul `8058`, teleporte `1387`, tochas `2059/2061`, lâmpadas `2038/2040`, bacias `1481`, fontes `1360-1363`, água `4614/9588-9594`).
+4. Ticker do Pixi em `ThaisCityArena.tsx` atualiza a textura dos itens animados em tempo real, gerando movimento contínuo nos elementos da cidade.
+
+Plans:
+- [x] 32-01-PLAN: Extrair múltiplos frames dos itens animados de Thais, implementar nameplate/vida verde, direção/passos dos personagens e animação contínua dos elementos no Pixi.
