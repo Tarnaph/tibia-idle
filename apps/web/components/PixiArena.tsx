@@ -69,10 +69,10 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
 
       // Pre-render the 4-tile torch hole stamp
       // Up to 4 tiles (4 * 32px = 128px): 100% transparent (clear vision, zero darkness)
-      // 4 to 6.5 tiles: smooth dark penumbra falloff
-      const holeSize = 480;
+      // 4 to 8 tiles: smooth gradual penumbra falloff
+      const holeSize = 560;
       const holeCenter = holeSize / 2;
-      const holeRadius = 210;
+      const holeRadius = 260;
       const clearRadius = 4 * TILE_SIZE; // exactly 4 tiles = 128px
       const holeCanvas = document.createElement('canvas');
       holeCanvas.width = holeSize;
@@ -80,7 +80,8 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
       const holeCtx = holeCanvas.getContext('2d')!;
       const holeGrad = holeCtx.createRadialGradient(holeCenter, holeCenter, clearRadius, holeCenter, holeCenter, holeRadius);
       holeGrad.addColorStop(0, 'rgba(0, 0, 0, 1.0)'); // destination-out leaves 0 darkness inside 4 tiles!
-      holeGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.65)');
+      holeGrad.addColorStop(0.45, 'rgba(0, 0, 0, 0.75)');
+      holeGrad.addColorStop(0.75, 'rgba(0, 0, 0, 0.35)');
       holeGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
       holeCtx.fillStyle = holeGrad;
       holeCtx.beginPath();
@@ -341,9 +342,9 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         darkSprite.visible = !showDebug;
 
         if (!showDebug && darkCanvas.width > 0 && darkCanvas.height > 0) {
-          // 1. Fill entire room with dark dungeon fog (around the characters)
+          // 1. Fill entire room with soft, translucent dungeon darkness (allows seeing through)
           darkCtx.globalCompositeOperation = 'source-over';
-          darkCtx.fillStyle = 'rgba(4, 6, 8, 0.85)';
+          darkCtx.fillStyle = 'rgba(5, 8, 12, 0.50)';
           darkCtx.fillRect(0, 0, darkCanvas.width, darkCanvas.height);
 
           // 2. Erase darkness where the characters are (illuminated up to 4 tiles)
