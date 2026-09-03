@@ -515,13 +515,37 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
             addLog(state, `${character.name} usou ${spell.name}.`);
             usedSpellThisTick = true;
           } else {
+            if (spell.area === 'square-1x1') {
+              const SURROUNDING_OFFSETS = [
+                { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
+                { dx: -1, dy:  0 },                     { dx:  1, dy:  0 },
+                { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
+              ];
+              for (const offset of SURROUNDING_OFFSETS) {
+                encounter.events.push({
+                  type: 'spell-visual',
+                  sourceId: actor.characterId,
+                  targetPosition: { x: actor.position.x + offset.dx, y: actor.position.y + offset.dy, z: actor.position.z },
+                  spellId: spell.spellId,
+                  effectId: spell.visual.effectId,
+                  projectileId: null,
+                });
+              }
+            }
+
             for (const target of targets) {
               const damage = resistedDamage(amount, target, spell.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
               encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech });
-              encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
+              if (spell.area !== 'square-1x1') {
+                encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
+              }
               addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
               if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+            }
+            if (targets.length === 0) {
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+              addLog(state, `${character.name} usou ${spell.name}.`);
             }
             usedSpellThisTick = true;
           }
@@ -679,16 +703,41 @@ export function triggerManualHotbarAction(
   const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= spellRange)
     .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
 
-  if (inRange.length === 0) return false;
-  const targets = spell.area === 'wave-4' || spell.area === 'square-1x1' ? inRange.slice(0, spell.area === 'wave-4' ? 4 : 8) : [inRange[0]];
+  if (inRange.length === 0 && spell.area === 'target') return false;
+  const targets = spell.area === 'wave-4' || spell.area === 'square-1x1' ? inRange.slice(0, spell.area === 'wave-4' ? 4 : 8) : (inRange.length > 0 ? [inRange[0]] : []);
+
+  if (spell.area === 'square-1x1') {
+    const SURROUNDING_OFFSETS = [
+      { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
+      { dx: -1, dy:  0 },                     { dx:  1, dy:  0 },
+      { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
+    ];
+    for (const offset of SURROUNDING_OFFSETS) {
+      encounter.events.push({
+        type: 'spell-visual',
+        sourceId: actor.characterId,
+        targetPosition: { x: actor.position.x + offset.dx, y: actor.position.y + offset.dy, z: actor.position.z },
+        spellId: spell.spellId,
+        effectId: spell.visual.effectId,
+        projectileId: null,
+      });
+    }
+  }
 
   for (const target of targets) {
     const damage = resistedDamage(amount, target, spell.combatType, content);
     target.hp = Math.max(0, target.hp - damage);
     encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech });
-    encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
+    if (spell.area !== 'square-1x1') {
+      encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
+    }
     addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
     if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+  }
+
+  if (targets.length === 0) {
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+    addLog(state, `${character.name} usou ${spell.name}.`);
   }
   syncCharacterResources(state, actor);
   return true;

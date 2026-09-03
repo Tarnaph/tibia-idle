@@ -304,12 +304,27 @@ Plans:
 
 - [x] 23-01-PLAN: Movimento inicial imediato em rotas contínuas, targeting inteligente frontal em `nearestEnemy`, XP 50k em Rat/Cave Rat, Cave Rats no respawn de Rat Cellars e auditoria de cooldowns.
 
+### Phase 24: Área Autêntica da Magia Exori (SQUARE1X1 nos 8 Tiles, Efeito Visual em Toda a Área e Dano Oficial realmap11)
+
+**Goal:** Implementar o comportamento 100% autêntico da magia Berserk (`exori`) conforme os arquivos oficiais de `realmap11` e do Tibia:
+1. Área de efeito `AREA_SQUARE1X1` cobrindo o quadrado 3x3 (todos os 8 tiles ao redor do conjurador).
+2. Efeito visual `CONST_ME_HITAREA` (efeito 10) projetado e renderizado simultaneamente em todos os 8 tiles da área 3x3 no `PixiArena`, criando o impacto visual de área clássico do Tibia em vez de animar apenas em monstros individuais.
+3. Capacidade de conjuração de área instantânea mesmo sem alvo travado, acertando todos os monstros adjacentes no raio de 1 tile.
+4. Fórmula oficial de dano alinhada com `realmap11/data/spells/scripts/attack/berserk.lua` (`skillAttack`: 0.07 e 0.09).
+**Requirements:** Arquivos oficiais `realmap11` (`spells.xml`, `berserk.lua`, `spells.lua`) e `Tibia 11`.
+**Depends on:** Phase 23
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 24-01-PLAN: Área 3x3 completa de `exori`, efeito visual nos 8 tiles simultâneos em `PixiArena`, conjuração de área e fórmula de dano de `realmap11`.
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -336,3 +351,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1/1 | Complete | 2026-09-03 |
 | 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1/1 | Complete | 2026-09-03 |
 | 23. Cooldowns Oficiais, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats | 1/1 | Complete | 2026-09-03 |
+| 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1/1 | Complete | 2026-09-03 |

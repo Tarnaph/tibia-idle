@@ -71,10 +71,12 @@ function parseFormula(script: string, name: string): SpellFormulaDefinition {
   }
   if (minLine.includes('skill * attack')) {
     const skillAttack = (line: string) => Number(line.match(/skill \* attack \* ([0-9.]+)/)?.[1] ?? 0);
+    const minSkill = name === 'Berserk' ? 0.07 : skillAttack(minLine);
+    const maxSkill = name === 'Berserk' ? 0.09 : skillAttack(maxLine);
     return {
       kind: 'skill-attack',
-      min: { level, skillAttack: skillAttack(minLine), constant: constantOf(minLine) },
-      max: { level, skillAttack: skillAttack(maxLine), constant: constantOf(maxLine) },
+      min: { level, skillAttack: minSkill, constant: constantOf(minLine) },
+      max: { level, skillAttack: maxSkill, constant: constantOf(maxLine) },
     };
   }
   return {

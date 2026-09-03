@@ -706,12 +706,12 @@
         "kind": "skill-attack",
         "min": {
           "level": 0.2,
-          "skillAttack": 0.03,
+          "skillAttack": 0.07,
           "constant": 7
         },
         "max": {
           "level": 0.2,
-          "skillAttack": 0.05,
+          "skillAttack": 0.09,
           "constant": 11
         }
       },

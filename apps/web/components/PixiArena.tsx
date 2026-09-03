@@ -185,7 +185,8 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
         ?? state.encounter.enemies.find((enemy) => enemy.id === id)?.position;
 
       const addSpellVisual = (state: GameState, event: Extract<GameState['encounter']['events'][number], { type: 'spell-visual' }>, now: number) => {
-        const from = actorPosition(state, event.sourceId); const to = actorPosition(state, event.targetId);
+        const from = actorPosition(state, event.sourceId);
+        const to = event.targetPosition ?? (event.targetId ? actorPosition(state, event.targetId) : null);
         if (!from || !to) return;
         const projectileId = typeof event.projectileId === 'number'
           ? event.projectileId

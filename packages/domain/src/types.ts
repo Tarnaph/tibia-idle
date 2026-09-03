@@ -182,7 +182,7 @@ export type CombatEvent =
   | { type: 'hunt-complete' }
   | { type: 'player-death'; characterId: string }
   | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string }
-  | { type: 'spell-visual'; sourceId: string; targetId: string; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null };
+  | { type: 'spell-visual'; sourceId: string; targetId?: string; targetPosition?: GridPosition; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null };
 
 export type CombatVisualEvent =
   | { type: 'basic-attack-started'; sourceId: string; targetId: string; ranged: boolean }

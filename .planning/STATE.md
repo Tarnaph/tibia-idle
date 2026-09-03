@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 23 of 23 (Cooldowns, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats)  
+Phase: 24 of 24 (Área Autêntica da Magia Exori)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 23 concluída: Confirmação de cooldowns em realmap11, fluidez de início imediato de caçada com correção em routeThroughMap, seleção inteligente de alvo priorizando monstros frontais desobstruídos em nearestEnemy, XP ajustado para 50.000 em Rat e Cave Rat, e inclusão de Cave Rats no mesmo respawn.
+Last activity: 2026-09-03 — Phase 24 concluída: Área autêntica 3x3 (SQUARE1X1) de Berserk (exori), efeito visual CONST_ME_HITAREA (10) projetado simultaneamente nos 8 tiles ao redor do conjurador no PixiArena, acerto em todos os inimigos da área, conjuração instantânea e fórmula de dano oficial realmap11.
 
 Progress: [██████████] 100%
 
