@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 12 of 12 (Fundação de Autenticação, Contas e Segurança - Supabase)  
+Phase: 13 of 13 (Ajuste de Indicador Visual de Dano - Remover sinal -)  
 Plan: 1 of 1 in current phase  
 Status: Milestone complete  
-Last activity: 2026-09-02 — Documentação e consolidação de todas as fases implementadas e versionamento no Git/GitHub.
+Last activity: 2026-09-02 — Phase 13 concluída: danos numéricos sem sinal negativo e em vermelho.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 12
+- Total phases completed: 13
 - Tests status: 14 test suites passando (Vitest)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 warnings/erros (ESLint 9)
@@ -40,6 +40,7 @@ Progress: [██████████] 100%
 | 10. Câmera de Expedição e Controles em Tempo Real | 1 | - | - | Complete |
 | 11. Economia de Party, Loot Pouch e UX Estrutural | 1 | - | - | Complete |
 | 12. Fundação de Autenticação, Contas e Segurança (Supabase) | 1 | - | - | Complete |
+| 13. Ajuste de Indicador Visual de Dano (Remover sinal -) | 1 | - | - | Complete |
 
 ## Accumulated Context
 
@@ -61,3 +62,5 @@ Progress: [██████████] 100%
 ### Roadmap Evolution
 
 - Phase 1 a 12 concluídas e mapeadas a partir dos testes, esquemas e componentes do projeto.
+- Phase 13 added: Remover sinal negativo dos danos recebidos e exibir apenas em vermelho (FIX.md).
+

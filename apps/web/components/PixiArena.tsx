@@ -239,7 +239,9 @@ export function PixiArena({ game, debug }: PixiArenaProps) {
           const targetId = event.targetId; const targetPosition = actorPosition(state, targetId); if (!targetPosition) continue;
           const amount = event.type === 'spell-cast' ? event.amount : event.damage;
           if (amount > 0) {
-            const text = new Text({ text: `${event.type === 'spell-cast' && event.healing ? '+' : '-'}${amount}`, style: { fill: event.type === 'spell-cast' && event.healing ? 0x62e58a : 0xff766b, stroke: { color: 0x1a0504, width: 3 }, fontSize: 12, fontFamily: 'Arial', fontWeight: '800' } });
+            const isHealing = event.type === 'spell-cast' && event.healing;
+            const prefix = isHealing ? '+' : '';
+            const text = new Text({ text: `${prefix}${amount}`, style: { fill: isHealing ? 0x62e58a : 0xff766b, stroke: { color: 0x1a0504, width: 3 }, fontSize: 12, fontFamily: 'Arial', fontWeight: '800' } });
             text.anchor.set(0.5); const point = worldPoint(targetPosition); text.position.set(point.x, point.y - 18); effects.addChild(text);
             timed.push({ root: text, startedAt: now, durationMs: 700, kind: 'float' });
           }

@@ -11,9 +11,9 @@ export function HeroScene() {
           <figure><img src="/generated/tibia860/outfit-druid-east-frame-1.png" alt="Druid" /><figcaption>Elowen</figcaption></figure>
         </div>
         <div className="scene-enemies">
-          <figure><span className="damage-pop">-18</span><img src="/generated/tibia860/monster-rotworm-west-frame-1.png" alt="Rotworm" /><figcaption>Rotworm</figcaption></figure>
+          <figure><span className="damage-pop">18</span><img src="/generated/tibia860/monster-rotworm-west-frame-1.png" alt="Rotworm" /><figcaption>Rotworm</figcaption></figure>
           <figure><img src="/generated/tibia860/monster-rotworm-west-frame-0.png" alt="Rotworm" /><figcaption>Rotworm</figcaption></figure>
-          <figure><span className="damage-pop delayed">-24</span><img src="/generated/tibia860/monster-carrion-worm-west-frame-1.png" alt="Carrion Worm" /><figcaption>Carrion Worm</figcaption></figure>
+          <figure><span className="damage-pop delayed">24</span><img src="/generated/tibia860/monster-carrion-worm-west-frame-1.png" alt="Carrion Worm" /><figcaption>Carrion Worm</figcaption></figure>
         </div>
       </div>
       <div className="scene-log"><span>XP +40</span><span>Loot: gold coin × 7</span><span>Aldric atingiu Rotworm por 18.</span></div>
