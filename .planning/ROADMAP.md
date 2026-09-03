@@ -523,3 +523,18 @@ Plans:
 
 Plans:
 - [x] 33-01-PLAN: Implementar fórmula oficial de velocidade do TFS por level, cursor de hover no tile, clique com A* pathfinding e proporções dos nomes/HP bar conforme referência.
+
+---
+
+### Phase 34: Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada
+
+**Goal:** Padronizar a renderização do nome do personagem e barra de vida na cidade (`ThaisCityArena`) para ficarem 100% idênticos aos da caçada (`PixiArena`), conforme screenshot de referência.  
+**Depends on:** Phase 33  
+**Requirements:** Screenshot de referência de caçada (`Aldric`), `packages/presentation/src/movement.ts` (`creatureVisualLayout`), `PixiArena.tsx`.  
+**Success Criteria:**
+1. Nome do personagem em Thais renderizado com fonte, tamanho, cor, resolução e stroke idênticos aos de PixiArena (`Arial 8px 700, fill: 0x67de82, stroke: 0x08120a width 2, resolution: 2, anchor: 0.5, nameplateY: -28`).
+2. Barra de vida em Thais renderizada com dimensões e cores idênticas às de PixiArena (`hpBarY: -20, hpBarWidth: 28, height: 3, bg: 0x251010, fill: 0x4fc977`).
+3. 100% dos testes passando e 0 erros de tipagem.
+
+Plans:
+- [x] 34-01-PLAN: Alinhar visualmente nome e barra de vida de ThaisCityArena com PixiArena usando creatureVisualLayout.

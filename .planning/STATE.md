@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 33 of 33 (Thais Completa - Fonte Nítida, Velocidade Oficial por Nível e Pathfinding por Clique com Hover de Tile)  
+Phase: 34 of 34 (Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 33 concluída: Proporções e definição nítida dos nomes (#00ff00 com contorno 2.5px) e barra de vida com moldura preta de 1px conforme referências; aplicação da fórmula oficial de velocidade do TFS (baseSpeed = 220 + 2 * (level - 1) e stepDurationMs logarítmico com speedA=857.36, speedB=261.29, speedC=-4795.01) acelerando passos e deslizamento por nível; expansão do mapa de Thais para a cidade inteira (18.271 tiles, 818 itens de cenário) sem áreas pretas; cursor retangular de hover nos tiles (32x32 com bordas ciano/amarelo); e movimentação por clique com pathfinding A*.
+Last activity: 2026-09-03 — Phase 34 concluída: Padronização completa do nome do personagem e barra de vida na cidade (ThaisCityArena) para ficarem 100% idênticos aos da caçada (PixiArena), conforme captura de referência do combate (Aldric); adoção direta de creatureVisualLayout (nameplateY: -28, hpBarY: -20, hpBarWidth: 28, height: 3), tipografia Arial 8px 700 com fill 0x67de82, stroke 0x08120a width 2, resolution 2 e cores canônicas de vida (fundo 0x251010 e preenchimento 0x4fc977).
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 33
-- Tests status: 28 test suites passando (Vitest - 203 testes aprovados, 100%)
+- Total phases completed: 34
+- Tests status: 29 test suites passando (Vitest - 205 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -61,6 +61,7 @@ Progress: [██████████] 100%
 | 31. Migração Tibia 10.98 DAT/SPR e Renderização Autêntica de Thais | 1 | - | - | Complete |
 | 32. Vida, Nome do Personagem, Passos e Elementos Animados em Thais | 1 | - | - | Complete |
 | 33. Thais Completa, Fonte Nítida, Velocidade por Nível e Pathfinding por Clique | 1 | - | - | Complete |
+| 34. Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada | 1 | - | - | Complete |
 
 ## Accumulated Context
 

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import thaisCityJson from '@/content/generated/thais-city.json';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
-import { calculatePixelCamera } from '@/packages/presentation/src';
+import { calculatePixelCamera, creatureVisualLayout } from '@/packages/presentation/src';
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 
@@ -297,22 +297,21 @@ export function ThaisCityArena({
         const root = new Container();
         const sprite = new Sprite(loaded[initialUrl]);
         sprite.anchor.set(0.5, 0.78);
-        sprite.roundPixels = true;
-
-        // Authentic Tibia text matching reference screenshots: vivid bright green, bold, crisp 2.5px outline
+        // Identical to hunt arena (PixiArena): 0x67de82, Arial 8px 700, stroke 0x08120a width 2, resolution 2
         const label = new Text({
           text: char.name,
+          resolution: 2,
           style: {
-            fill: 0x00ff00,
-            fontSize: 11,
-            fontFamily: 'Verdana, Tahoma, Arial, sans-serif',
-            fontWeight: 'bold',
-            stroke: { color: 0x000000, width: 2.5, join: 'round' },
-            align: 'center',
+            fill: 0x67de82,
+            stroke: { color: 0x08120a, width: 2 },
+            fontSize: 8,
+            fontFamily: 'Arial',
+            fontWeight: '700',
           },
         });
-        label.anchor.set(0.5, 1);
-        label.position.set(0, -25);
+        label.anchor.set(0.5);
+        label.roundPixels = true;
+        label.position.set(0, creatureVisualLayout.nameplateY);
 
         const bar = new Graphics();
         root.addChild(sprite, label, bar);
@@ -409,14 +408,13 @@ export function ThaisCityArena({
 
           view.root.position.set(currentPixelX + offsetX, currentPixelY + offsetY);
           view.root.zIndex = currentPixelY + offsetY;
-
-          // Update authentic Tibia health bar matching reference screenshots: 1px black outline, 26x2 inner
+          view.label.position.set(0, creatureVisualLayout.nameplateY);
           const hpRatio = char.maxHp > 0 ? Math.max(0, Math.min(1, char.currentHp / char.maxHp)) : 1;
-          const hpFillColor = hpRatio > 0.5 ? 0x00e600 : hpRatio > 0.2 ? 0xffcc00 : 0xff3333;
           view.bar.clear()
-            .rect(-14, -21, 28, 4).fill({ color: 0x000000 })
-            .rect(-13, -20, 26, 2).fill({ color: 0x220000 })
-            .rect(-13, -20, Math.round(26 * hpRatio), 2).fill({ color: hpFillColor });
+            .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
+            .fill({ color: 0x251010 })
+            .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
+            .fill({ color: 0x4fc977 });
 
           // Animate attack if training at dummy
           if (curTrain && idx === 0 && tickCount % 30 < 10) {
