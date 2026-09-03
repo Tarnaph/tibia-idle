@@ -589,3 +589,21 @@ Plans:
 
 Plans:
 - [x] 37-01-PLAN: Implementar velocidade urbana de +50%, interpolação fluída e mapa completo sem tela preta no segundo andar.
+
+---
+
+### Phase 38: Fontes da Caçada Unificadas, Caminhada Fluída com VisualMotionTrack e Integridade Completa do Barco e Cidade
+
+**Goal:** Unificar o tamanho das fontes flutuantes na caçada (XP, Magia, Dano e Cura para tamanho 7, ligeiramente menor que o nome do personagem tamanho 8); sincronizar a interpolação e animação de passos na cidade com `VisualMotionTrack` proporcionando a mesma fluidez da caçada; eliminar offsets negativos artificiais de multi-tile items alinhando mesas, balcões e paredes divisórias; e extrair/renderizar as estruturas elevadas do barco (mastros, velas e quarterdeck dos pisos Z:5 e Z:4).  
+**Depends on:** Phase 37  
+**Requirements:** `FIX.md`, 5 imagens de referência do usuário, `PixiArena.tsx`, `ThaisCityArena.tsx`, `extract-thais-region.mjs`, `extract-tibia1098-thais.mjs`.  
+**Success Criteria:**
+1. Fontes de XP, Magia/Falas, Dano e Cura têm rigorosamente o mesmo tamanho (`fontSize: 7`), ligeiramente menor que o nome do personagem (`fontSize: 8`).
+2. Movimentação na cidade utiliza `VisualMotionTrack` com velocidade linear uniforme e sincronização de passos perfeita, eliminando desacelerações bruscas a cada tile.
+3. Itens multi-tile e paredes divisórias (itens 1618, 1621, 1626, 1644, 1526) não sofrem offsets negativos artificiais, alinhando-se perfeitamente aos seus tiles de origem e eliminando cortes e colisões indesejadas no banco, depot e escadas.
+4. Estruturas superiores do barco (mastros, velas, cabine do capitão e quarterdeck em Z:5 e Z:4) extraídas e renderizadas na camada superior de Thais, totalizando mais de 1.180 sprites de itens autênticos do Tibia 10.98.
+5. 100% dos testes passando (33 arquivos de teste, 221/221 testes) e 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 38-01-PLAN: Unificar fontes na caçada, sincronizar VisualMotionTrack na cidade, corrigir alinhamento de tiles e renderizar mastros/velas do barco.
+

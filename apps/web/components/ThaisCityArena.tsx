@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import thaisCityJson from '@/content/generated/thais-city.json';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
-import { calculatePixelCamera, creatureVisualLayout } from '@/packages/presentation/src';
+import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 
@@ -197,9 +197,7 @@ export function ThaisCityArena({
               const mapping = visualAssets.mapItems[String(sId)];
               if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
                 const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-                const offsetY = mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0;
-                const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
-                sp.position.set(px + offsetX, py + offsetY);
+                sp.position.set(px, py);
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
                 objectsLayerZ7.addChild(sp);
@@ -248,9 +246,7 @@ export function ThaisCityArena({
               const mapping = visualAssets.mapItems[String(sId)];
               if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
                 const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-                const offsetY = mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0;
-                const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
-                sp.position.set(px + offsetX, py + offsetY);
+                sp.position.set(px, py);
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
                 objectsLayerZ6.addChild(sp);
@@ -270,6 +266,23 @@ export function ThaisCityArena({
               floorSp.roundPixels = true;
               terrainLayerZ6.addChild(floorSp);
             }
+          }
+        }
+      }
+
+      // Render elevated roof and ship structures (masts, sails, quarterdeck on Z:5 and Z:4)
+      const roofTiles = (thaisData as { roofTiles?: typeof thaisData.tiles }).roofTiles ?? [];
+      for (const rt of roofTiles) {
+        const px = rt.x * TILE_SIZE;
+        const py = rt.y * TILE_SIZE;
+        for (const sId of rt.serverItemIds) {
+          const mapping = visualAssets.mapItems[String(sId)];
+          if (mapping?.frame && loaded[mapping.frame.publicUrl]) {
+            const sp = new Sprite(loaded[mapping.frame.publicUrl]);
+            sp.position.set(px, py);
+            sp.roundPixels = true;
+            sp.zIndex = py + 32 + (7 - rt.z) * 10;
+            objectsLayerZ6.addChild(sp);
           }
         }
       }
@@ -388,10 +401,14 @@ export function ThaisCityArena({
 
       characters.forEach(ensureActorView);
 
-      // Ticker to smoothly follow player, animate characters & animate map elements
+      // Ticker to smoothly follow player with VisualMotionTrack (matching hunt fluidity), animate characters & animate map elements
       let playerDirection: 'north' | 'south' | 'east' | 'west' = 'south';
-      let currentPixelX = latestRef.current.cityPos.x * TILE_SIZE + 16;
-      let currentPixelY = latestRef.current.cityPos.y * TILE_SIZE + 16;
+      const initialPos = latestRef.current.cityPos;
+      const motionTrack = new VisualMotionTrack(
+        { x: initialPos.x, y: initialPos.y, z: initialPos.z },
+        'south'
+      );
+      let lastCommittedPos = { ...initialPos };
       let tickCount = 0;
 
       app.ticker.add(() => {
@@ -413,41 +430,24 @@ export function ThaisCityArena({
           }
         }
 
-        // 2. High-fluidity movement interpolation with instant snap on large jumps
-        const targetPixelX = curPos.x * TILE_SIZE + 16;
-        const targetPixelY = curPos.y * TILE_SIZE + 16;
-        const deltaX = targetPixelX - currentPixelX;
-        const deltaY = targetPixelY - currentPixelY;
-        const dist = Math.hypot(deltaX, deltaY);
-
-        let isMoving = false;
-        if (dist > 96) {
-          // Large teleport or floor respawn: snap instantly
-          currentPixelX = targetPixelX;
-          currentPixelY = targetPixelY;
-        } else if (dist > 0.3) {
-          isMoving = true;
-          const deltaMs = app.ticker.deltaMS || 16.66;
-          const targetPixelsPerFrame = (32 / Math.max(50, curStepDuration)) * deltaMs;
-          const stepSpeed = Math.max(targetPixelsPerFrame * 1.15, dist * 0.28);
-
-          if (dist <= stepSpeed) {
-            currentPixelX = targetPixelX;
-            currentPixelY = targetPixelY;
+        // 2. High-fluidity linear movement interpolation via VisualMotionTrack (identical to hunt mode)
+        if (curPos.x !== lastCommittedPos.x || curPos.y !== lastCommittedPos.y || curPos.z !== lastCommittedPos.z) {
+          const distJump = Math.hypot(curPos.x - lastCommittedPos.x, curPos.y - lastCommittedPos.y);
+          if (distJump > 2.5 || curPos.z !== lastCommittedPos.z) {
+            motionTrack.reset({ x: curPos.x, y: curPos.y, z: curPos.z });
           } else {
-            currentPixelX += (deltaX / dist) * stepSpeed;
-            currentPixelY += (deltaY / dist) * stepSpeed;
+            motionTrack.commit(lastCommittedPos, curPos, now, curStepDuration);
           }
-
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            playerDirection = deltaX > 0 ? 'east' : 'west';
-          } else if (Math.abs(deltaY) > 0) {
-            playerDirection = deltaY > 0 ? 'south' : 'north';
-          }
-        } else {
-          currentPixelX = targetPixelX;
-          currentPixelY = targetPixelY;
+          lastCommittedPos = { ...curPos };
         }
+
+        const sample = motionTrack.sample(now);
+        const currentPixelX = sample.renderPosition.x * TILE_SIZE + 16;
+        const currentPixelY = sample.renderPosition.y * TILE_SIZE + 16;
+        if (sample.direction) {
+          playerDirection = sample.direction;
+        }
+        const isMoving = sample.moving;
 
         // 3. Camera smoothly follows interpolated player position
         const camera = calculatePixelCamera(app.screen.width, app.screen.height, TILE_SIZE);

@@ -361,8 +361,8 @@ export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
                 resolution: 2,
                 style: {
                   fill: isPotion ? 0xffaa00 : 0xf2a33c, // Authentic warm Tibia spell orange
-                  stroke: { color: 0x000000, width: 2.5 },
-                  fontSize: 10.5,
+                  stroke: { color: 0x000000, width: 2 },
+                  fontSize: 7,
                   fontFamily: 'Verdana, Arial, sans-serif',
                   fontWeight: '700',
                 },
@@ -385,10 +385,10 @@ export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
                 resolution: 2,
                 style: {
                   fill: 0xffffff,
-                  stroke: { color: 0x000000, width: 2.5 },
-                  fontSize: 11.5,
+                  stroke: { color: 0x000000, width: 2 },
+                  fontSize: 7,
                   fontFamily: 'Verdana, Arial, sans-serif',
-                  fontWeight: '800',
+                  fontWeight: '700',
                 },
               });
               xpText.anchor.set(0.5, 1);
@@ -403,7 +403,17 @@ export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
           if (amount > 0) {
             const isHealing = event.type === 'spell-cast' && event.healing;
             const prefix = isHealing ? '+' : '';
-            const text = new Text({ text: `${prefix}${amount}`, style: { fill: isHealing ? 0x62e58a : 0xff766b, stroke: { color: 0x1a0504, width: 3 }, fontSize: 12, fontFamily: 'Arial', fontWeight: '800' } });
+            const text = new Text({
+              text: `${prefix}${amount}`,
+              resolution: 2,
+              style: {
+                fill: isHealing ? 0x62e58a : 0xff766b,
+                stroke: { color: 0x1a0504, width: 2 },
+                fontSize: 7,
+                fontFamily: 'Verdana, Arial, sans-serif',
+                fontWeight: '700',
+              },
+            });
             text.anchor.set(0.5); const point = worldPoint(targetPosition); text.position.set(point.x, point.y - 18); effects.addChild(text);
             timed.push({ root: text, startedAt: now, durationMs: 700, kind: 'float' });
           }

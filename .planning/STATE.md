@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 37 of 37 (Movimento Fluído na Cidade (+50% Velocidade) e Mapa Completo do Segundo Andar)  
+Phase: 38 of 38 (Fontes da Caçada Unificadas, Caminhada Fluída com VisualMotionTrack e Integridade Completa do Barco e Cidade)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 37 concluída: Velocidade urbana ampliada para 50% superior à base oficial (cityStepDurationMs = Math.round(baseStepDurationMs / 1.5)); interpolação de movimento otimizada com linearidade + spring e ciclo de animação ágil (stepRateMs calibrado em curStepDuration / 3.5); extração completa de todos os 1.082 itens do Tibia 10.98 incluindo os 266 itens exclusivos do segundo andar (Z:6); preservação do chão/mar de Z:7 como fundação visível sob Z:6, eliminando qualquer tela preta ou vazio ao redor do barco, píer e telhados.
+Last activity: 2026-09-03 — Phase 38 concluída: Fontes flutuantes de XP, Magia/Falas, Dano e Cura padronizadas rigorosamente no tamanho 7 (fontSize: 7), ligeiramente menores que o nome do personagem (fontSize: 8); movimentação e passos na cidade integrados com VisualMotionTrack proporcionando movimento linear uniforme e sincronização de passos idêntica à caçada; remoção de offsets negativos artificiais de multi-tile items alinhando mesas, balcões e divisórias perfeitamente aos seus tiles de origem sem sobreposições; extração e renderização das estruturas superiores do barco (mastros, velas e quarterdeck nos pisos Z:5 e Z:4) cobrindo mais de 1.180 sprites autênticos de itens do Tibia 10.98.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 37
-- Tests status: 32 test suites passando (Vitest - 217 testes aprovados, 100%)
+- Total phases completed: 38
+- Tests status: 33 test suites passando (Vitest - 221 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
