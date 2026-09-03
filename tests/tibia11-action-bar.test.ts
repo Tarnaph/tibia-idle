@@ -165,4 +165,40 @@ describe('Phase 17: Tibia 11 Migration, Potions, Runes and Action Bar', () => {
     const supremeAction = findHotbarAction(knight.hotbar[18], content);
     expect(supremeAction?.kind).toBe('potion');
   });
+
+  it('Phase 20: resolves authentic CipSoft official sprites for spells, runes and potions', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const { resolveActionImagePath } = await import('../apps/web/components/Tibia11ActionIcon');
+
+    // Spells
+    const exuraPath = resolveActionImagePath(1, 'spell', 'Light Healing');
+    expect(exuraPath).toBe('/spells/exura.png');
+    expect(fs.existsSync(path.resolve('public', exuraPath!.slice(1)))).toBe(true);
+
+    const exoriGranPath = resolveActionImagePath(10, 'spell', 'Fierce Berserk');
+    expect(exoriGranPath).toBe('/spells/exori-gran.png');
+    expect(fs.existsSync(path.resolve('public', exoriGranPath!.slice(1)))).toBe(true);
+
+    const utaniHurPath = resolveActionImagePath(16, 'spell', 'Haste');
+    expect(utaniHurPath).toBe('/spells/utani-hur.png');
+    expect(fs.existsSync(path.resolve('public', utaniHurPath!.slice(1)))).toBe(true);
+
+    const utitoTempoPath = resolveActionImagePath(15, 'spell', 'Blood Rage');
+    expect(utitoTempoPath).toBe('/spells/utito-tempo.png');
+    expect(fs.existsSync(path.resolve('public', utitoTempoPath!.slice(1)))).toBe(true);
+
+    // Potions
+    const healthPotionPath = resolveActionImagePath(7618, 'potion', 'Health Potion');
+    expect(healthPotionPath).toBe('/potions/small-health-potion.png');
+    expect(fs.existsSync(path.resolve('public', healthPotionPath!.slice(1)))).toBe(true);
+
+    const supremePotionPath = resolveActionImagePath(26031, 'potion', 'Supreme Health Potion');
+    expect(supremePotionPath).toBe('/potions/supreme-health-potion.png');
+    expect(fs.existsSync(path.resolve('public', supremePotionPath!.slice(1)))).toBe(true);
+
+    const ultimateSpiritPath = resolveActionImagePath(26030, 'potion', 'Ultimate Spirit Potion');
+    expect(ultimateSpiritPath).toBe('/potions/ultimate-spirit-potion.png');
+    expect(fs.existsSync(path.resolve('public', ultimateSpiritPath!.slice(1)))).toBe(true);
+  });
 });

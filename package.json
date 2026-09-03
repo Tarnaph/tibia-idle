@@ -14,9 +14,10 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "typecheck": "tsc --noEmit --incremental false",
     "test": "vitest run",
-    "prepare:game": "npm run import:content && npm run extract:tibia860",
+    "prepare:game": "npm run import:content && npm run extract:tibia860 && node scripts/extract-tibia11-icons.cjs",
     "import:content": "node --experimental-strip-types packages/styller-importer/src/cli.ts",
     "extract:tibia860": "node --experimental-strip-types packages/tibia860-assets/src/cli.ts",
+    "extract:tibia11:icons": "node scripts/extract-tibia11-icons.cjs",
     "import:rotworm": "npm run import:content"
   },
   "dependencies": {

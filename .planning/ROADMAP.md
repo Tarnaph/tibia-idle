@@ -260,12 +260,23 @@ Plans:
 
 - [x] 19-01-PLAN: Console inferior completo com HUD de status, mochila rápida, hotbar dupla de 2 fileiras e painel tático
 
+### Phase 20: Extração e Integração Oficial dos Ícones de Magias e Poções do Tibia 11
+
+**Goal:** Extrair da planilha oficial do CipSoft os 60 ícones autênticos de magias (5 linhas × 12 colunas) e os 5 frascos de poções (Normal, Strong, Great, Ultimate, Supreme), salvá-los no diretório público da aplicação e conectar em `Tibia11ActionIcon.tsx`, `BottomConsoleHUD.tsx` e `HotbarConfigModal.tsx` para que cada magia e poção exiba o seu sprite exato e oficial do Tibia 11.
+**Requirements:** Planilha de Spell Icons (CipSoft 2010, 60 ícones) e sprite sheet de Poções do Tibia 11.
+**Depends on:** Phase 19
+**Plans:** 1/1 complete
+
+Plans:
+
+- [x] 20-01-PLAN: Extração automatizada de 60 ícones de magias e 15 variantes de poções da CipSoft e integração em ActionIcon e HUD
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -288,3 +299,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Migracao para Tibia 11, Icones Oficiais e Action Bar | 1/1 | Complete | 2026-09-03 |
 | 18. Action Bar F1-F12 e Icones Identicos ao Tibia 11 Original | 1/1 | Complete | 2026-09-03 |
 | 19. Console Inferior Completo de Batalha e Acoes | 1/1 | Complete | 2026-09-03 |
+| 20. Extração e Integração Oficial de Ícones e Poções | 1/1 | Complete | 2026-09-03 |
