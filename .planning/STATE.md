@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 39 of 39 (Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Urbana Dobrada)  
+Phase: 40 of 40 (Velocidade Normal na Cidade, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Phase 39 concluída: Substituição da base do mapa de Thais diretamente pelo arquivo mapaserver.otbm fornecido pelo usuário (145MB), com extração limpa de Z:7 (18.271 tiles) e Z:6 (7.722 tiles); restauração do posicionamento autêntico de itens multi-tile (paredes, portas, balcões, árvores) em seus tiles de ancoragem; velocidade urbana dobrada (2.0x / +100% de velocidade); e resposta instantânea do teclado (0ms de atraso) eliminando o delay do sistema operacional e permitindo caminhada contínua veloz enquanto mantida pressionada.
+Last activity: 2026-09-03 — Phase 40 concluída: Caminhada na cidade ajustada para a velocidade normal do personagem baseada em nível (cityStepDurationMs = baseStepDurationMs) com cadência suave e sem acelerações exageradas ao segurar as teclas; bloqueio estrito de colisão (!tile || !tile.walkable) tanto na locomoção manual quanto no pathfinding eliminando a possibilidade de subir em paredes ou transitar por tiles vazios/não indexados; e alinhamento do personagem no canto inferior direito do SQM (spriteAnchorX: 1, spriteAnchorY: 1 em +16, +16) padronizado em todas as arenas com fidelidade total à perspectiva do Tibia.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 39
-- Tests status: 34 test suites passando (Vitest - 226 testes aprovados, 100%)
+- Total phases completed: 40
+- Tests status: 35 test suites passando (Vitest - 229 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -67,6 +67,7 @@ Progress: [██████████] 100%
 | 37. Movimento Fluído na Cidade (+50% Velocidade) e Mapa Completo do Segundo Andar | 1 | - | - | Complete |
 | 38. Fontes da Caçada Unificadas, VisualMotionTrack na Cidade e Integridade do Barco | 1 | - | - | Complete |
 | 39. Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Dobrada | 1 | - | - | Complete |
+| 40. Velocidade Normal, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM | 1 | - | - | Complete |
 
 ## Accumulated Context
 

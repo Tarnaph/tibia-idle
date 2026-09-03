@@ -624,4 +624,22 @@ Plans:
 Plans:
 - [x] 39-01-PLAN: Integrar mapaserver.otbm, restaurar offsets autênticos, dobrar velocidade urbana e implementar resposta instantânea de teclado.
 
+---
+
+### Phase 40: Velocidade Normal na Cidade, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM
+
+**Goal:** Ajustar a velocidade de caminhada na cidade ao segurar a seta para a velocidade normal do personagem (`baseStepDurationMs`), garantindo cadência suave e sem velocidade excessiva; aplicar bloqueio estrito (`!tile || !tile.walkable`) no movimento manual e no pathfinding, impedindo completamente o personagem de subir ou andar em cima de paredes ou transitar por tiles vazios/não mapeados; e alinhar o personagem no canto inferior direito do tile/SQM (`creatureVisualLayout.spriteAnchorX: 1, creatureVisualLayout.spriteAnchorY: 1, creatureVisualLayout.spriteOffsetX: 16, creatureVisualLayout.spriteOffsetY: 16`), unificando a perspectiva visual autêntica do Tibia em todas as arenas.  
+**Depends on:** Phase 39  
+**Requirements:** `FIX.md`, imagem do usuário, `GamePrototype.tsx`, `pathfinding.ts`, `ThaisCityArena.tsx`, `TrainingArena.tsx`.  
+**Success Criteria:**
+1. Ao segurar a setinha ou tecla WASD, o personagem caminha na sua velocidade normal baseada na fórmula oficial de nível do TFS (`cityStepDurationMs = baseStepDurationMs`), sem acelerações desproporcionais.
+2. O passo inicial responde imediatamente com 0ms de delay ao pressionar a tecla, e a caminhada contínua é sincronizada a cada `cityStepDurationMs`.
+3. Bloqueio estrito de colisão: `if (!tile || !tile.walkable) return current;` no `GamePrototype.tsx` e `if (!tile || !tile.walkable) continue;` no `pathfinding.ts`, impedindo que paredes (como a parede de tijolo 1025 e framework 1036) ou coordenadas fora do mapa sejam ultrapassadas.
+4. O personagem é posicionado no canto inferior direito do SQM (`anchor(1, 1)` em `+16, +16`), conferindo fidelidade visual absoluta ao Tibia e paridade com a arena de caçada (`PixiArena.tsx`).
+5. 100% dos testes passando (35 arquivos de teste, 229/229 testes) e 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 40-01-PLAN: Restaurar velocidade normal, aplicar bloqueio estrito de paredes e alinhar personagem no canto inferior direito do SQM.
+
+
 

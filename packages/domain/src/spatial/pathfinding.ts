@@ -221,7 +221,7 @@ export function findCityPath(
       if (closedSet.has(nKey)) continue;
 
       const tile = tileMap.get(nKey);
-      if (tile && !tile.walkable) continue;
+      if (!tile || !tile.walkable) continue;
 
       const g = current.g + 1;
       const h = Math.abs(goal.x - nx) + Math.abs(goal.y - ny);

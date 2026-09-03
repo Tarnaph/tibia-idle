@@ -5,28 +5,18 @@ import { calculatePlayerSpeed, calculateStepDurationMs } from '../packages/domai
 import thaisCityJson from '../content/generated/thais-city.json';
 
 describe('Phase 39: Integração de mapaserver.otbm, Resposta Instantânea do Teclado (0ms) e Velocidade Urbana Dobrada (2x)', () => {
-  it('calculates city movement speed as double the base speed (2.0x / 100% bonus)', () => {
-    // Level 1: base 550ms -> city 275ms (550 / 2.0)
+  it('calculates player speed using the official TFS formula based on level', () => {
+    // Level 1: base 550ms
     const baseLvl1 = calculateStepDurationMs(calculatePlayerSpeed(1));
-    const cityLvl1 = Math.round(baseLvl1 / 2.0);
     expect(baseLvl1).toBe(550);
-    expect(cityLvl1).toBe(275);
 
-    // Level 20: base 500ms -> city 250ms (500 / 2.0)
+    // Level 20: base 500ms
     const baseLvl20 = calculateStepDurationMs(calculatePlayerSpeed(20));
-    const cityLvl20 = Math.round(baseLvl20 / 2.0);
     expect(baseLvl20).toBe(500);
-    expect(cityLvl20).toBe(250);
 
-    // Level 50: base 400ms -> city 200ms (400 / 2.0)
+    // Level 50: base 400ms
     const baseLvl50 = calculateStepDurationMs(calculatePlayerSpeed(50));
-    const cityLvl50 = Math.round(baseLvl50 / 2.0);
     expect(baseLvl50).toBe(400);
-    expect(cityLvl50).toBe(200);
-
-    // City speed is strictly faster than 1.5x (50%) and 1.25x (25%)
-    expect(cityLvl20).toBeLessThan(Math.round(baseLvl20 / 1.5));
-    expect(cityLvl20).toBeLessThan(Math.round(baseLvl20 / 1.25));
   });
 
   it('validates that GamePrototype implements instant keyboard response without initial delay and continuous stepping', () => {

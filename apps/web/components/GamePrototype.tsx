@@ -129,9 +129,10 @@ function GamePrototypeContent() {
 
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level);
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
-  // In the city, 2x faster than base (100% bonus) for ultra-fast, responsive navigation
-  const cityStepDurationMs = Math.round(baseStepDurationMs / 2.0);
+  // Normal character speed based on level formula
+  const cityStepDurationMs = baseStepDurationMs;
   const heldDirectionRef = useRef<{ dx: number; dy: number } | null>(null);
+  const lastStepTimeRef = useRef(0);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
     if (mode === 'hunt') return;
@@ -461,19 +462,23 @@ function GamePrototypeContent() {
       const nextY = current.y + deltaY;
       const activeTileMap = current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
       const tile = activeTileMap.get(`${nextX},${nextY}`);
-      if (tile && !tile.walkable) return current;
+      if (!tile || !tile.walkable) return current;
       return { x: nextX, y: nextY, z: current.z };
     });
   }, [thaisTileMapZ6, thaisTileMapZ7]);
 
-  // Continuous movement loop while arrow keys or WASD are held
+  // Continuous movement loop while arrow keys or WASD are held, strictly paced at normal speed
   useEffect(() => {
     if (mode === 'hunt') return;
     const interval = window.setInterval(() => {
       if (heldDirectionRef.current) {
-        takeCityStep(heldDirectionRef.current.dx, heldDirectionRef.current.dy);
+        const now = performance.now();
+        if (now - lastStepTimeRef.current >= cityStepDurationMs) {
+          lastStepTimeRef.current = now;
+          takeCityStep(heldDirectionRef.current.dx, heldDirectionRef.current.dy);
+        }
       }
-    }, cityStepDurationMs);
+    }, 16);
     return () => window.clearInterval(interval);
   }, [mode, cityStepDurationMs, takeCityStep]);
 
@@ -493,10 +498,12 @@ function GamePrototypeContent() {
 
         if (deltaX !== 0 || deltaY !== 0) {
           e.preventDefault();
+          const now = performance.now();
           const isNewDir = !heldDirectionRef.current || heldDirectionRef.current.dx !== deltaX || heldDirectionRef.current.dy !== deltaY;
           heldDirectionRef.current = { dx: deltaX, dy: deltaY };
-          if (isNewDir) {
-            takeCityStep(deltaX, deltaY); // Instant step with 0ms delay on press
+          if (isNewDir && now - lastStepTimeRef.current >= cityStepDurationMs) {
+            lastStepTimeRef.current = now;
+            takeCityStep(deltaX, deltaY); // Instant step on first key press
           }
           return;
         }

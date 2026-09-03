@@ -147,8 +147,9 @@ export function ThaisCityArena({
       // Training dummies placed in the training room on Z:7
       const dummyPos = thaisData.trainingDummy;
       const dummySprite = new Sprite(loaded[dummyUrl]);
-      dummySprite.anchor.set(0.5, 0.78);
-      dummySprite.position.set(dummyPos.x * TILE_SIZE + 16, dummyPos.y * TILE_SIZE + 16);
+      dummySprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
+      dummySprite.position.set(dummyPos.x * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, dummyPos.y * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
+      dummySprite.roundPixels = true;
       dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
       objectsLayerZ7.addChild(dummySprite);
 
@@ -360,7 +361,9 @@ export function ThaisCityArena({
 
         const root = new Container();
         const sprite = new Sprite(loaded[initialUrl]);
-        sprite.anchor.set(0.5, 0.78);
+        sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
+        sprite.position.set(creatureVisualLayout.spriteOffsetX, creatureVisualLayout.spriteOffsetY);
+        sprite.roundPixels = true;
         // Identical to hunt arena (PixiArena): 0x67de82, Arial 8px 700, stroke 0x08120a width 2, resolution 2
         const label = new Text({
           text: char.name,

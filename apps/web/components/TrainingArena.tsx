@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CharacterState, CombatVisualEvent, TrainableSkill } from '@/packages/domain/src';
-import { calculatePixelCamera } from '@/packages/presentation/src';
+import { calculatePixelCamera, creatureVisualLayout } from '@/packages/presentation/src';
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 
@@ -67,13 +67,18 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
         for (const [x, y] of [[2, 3], [camera.visibleColumns - 4, 3], [2, camera.visibleRows - 3], [camera.visibleColumns - 4, camera.visibleRows - 3]]) {
           const decor = new Sprite(loaded[decorUrl]); decor.position.set(x * TILE_SIZE, y * TILE_SIZE); decor.roundPixels = true; terrain.addChild(decor);
         }
-        const dummy = new Sprite(loaded[dummyUrl]); dummy.anchor.set(0.5, 0.78); dummy.position.set((centerX + 1.5) * TILE_SIZE, (centerY + 0.5) * TILE_SIZE); actors.addChild(dummy); dummyPoint = { x: dummy.x, y: dummy.y };
+        const dummy = new Sprite(loaded[dummyUrl]);
+        dummy.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
+        dummy.position.set((centerX + 1) * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, centerY * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
+        actors.addChild(dummy); dummyPoint = { x: dummy.x, y: dummy.y };
         const positions = [[centerX - 1, centerY], [centerX - 1, centerY - 1], [centerX - 2, centerY + 1], [centerX - 2, centerY - 1]];
         renderMembers.forEach(({ character, skill, progress }, index) => {
           const appearance = visualAssets.outfits[character.vocation];
           const east = appearance.frames.filter((frame) => frame.direction === 'east');
-          const sprite = new Sprite(loaded[(east[0] ?? appearance.frames[0]).publicUrl]); sprite.anchor.set(0.5, 0.78);
-          sprite.position.set((positions[index][0] + 0.5) * TILE_SIZE, (positions[index][1] + 0.5) * TILE_SIZE); actors.addChild(sprite);
+          const sprite = new Sprite(loaded[(east[0] ?? appearance.frames[0]).publicUrl]);
+          sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
+          sprite.position.set(positions[index][0] * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, positions[index][1] * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
+          actors.addChild(sprite);
           memberPoints.set(character.id, { x: sprite.x, y: sprite.y });
           const label = new Text({ text: `${character.name} · ${skill} ${character.skills[skill]}`, style: { fill: 0x69df82, stroke: { color: 0x071108, width: 3 }, fontSize: 9, fontWeight: '700', fontFamily: 'Arial' } });
           label.anchor.set(0.5); label.position.set(sprite.x, sprite.y - 28); actors.addChild(label);
