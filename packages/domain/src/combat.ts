@@ -246,6 +246,9 @@ function grantSharedExperience(state: GameState, rawExperience: number, content:
   for (const character of state.session.characters) {
     character.experience += share;
     levelUpCharacter(state, character.id, content);
+    if (share > 0) {
+      state.encounter.events.push({ type: 'experience-gained', characterId: character.id, amount: share });
+    }
   }
   addLog(state, `XP compartilhada: ${share} para cada membro.`);
 }

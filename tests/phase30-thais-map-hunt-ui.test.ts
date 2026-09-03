@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { createIdleGame, startGame, advanceCombat } from '../packages/domain/src';
+import { content } from './fixture';
 import thaisCityJson from '../content/generated/thais-city.json';
 
 describe('Phase 30: Global Tibia Thais Map, Hunt UI and Skills Theme', () => {
@@ -71,5 +73,24 @@ describe('Phase 30: Global Tibia Thais Map, Hunt UI and Skills Theme', () => {
 
     switchInHunt(false);
     expect(countdown).toBe(5);
+  });
+
+  it('emits experience-gained event when creatures are defeated so +XP text appears above the character', () => {
+    let game = createIdleGame('test-xp-floating-text', content);
+    game = startGame(game, content);
+
+    // Advance combat until an enemy is defeated and awards shared XP
+    let foundXpEvent = false;
+    for (let tick = 0; tick < 120; tick++) {
+      game = advanceCombat(game, content, 120);
+      const xpEvents = game.encounter.events.filter((e) => e.type === 'experience-gained');
+      if (xpEvents.length > 0) {
+        foundXpEvent = true;
+        expect(xpEvents[0].amount).toBeGreaterThan(0);
+        expect(xpEvents[0].characterId).toBe(game.session.characters[0].id);
+        break;
+      }
+    }
+    expect(foundXpEvent).toBe(true);
   });
 });

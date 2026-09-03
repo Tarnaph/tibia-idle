@@ -305,6 +305,26 @@ export function PixiArena({ game, debug, onSelectTarget }: PixiArenaProps) {
               timed.push({ root: speechText, startedAt: now, durationMs: 1200, kind: 'float' });
             }
           }
+          if (event.type === 'experience-gained') {
+            const charPos = actorPosition(state, event.characterId);
+            if (charPos && event.amount > 0) {
+              const point = worldPoint(charPos);
+              const xpText = new Text({
+                text: `+${event.amount} XP`,
+                style: {
+                  fill: 0xffffff,
+                  stroke: { color: 0x000000, width: 3 },
+                  fontSize: 10,
+                  fontFamily: 'Verdana, Arial, sans-serif',
+                  fontWeight: '700',
+                },
+              });
+              xpText.anchor.set(0.5, 1);
+              xpText.position.set(point.x, point.y - 24);
+              effects.addChild(xpText);
+              timed.push({ root: xpText, startedAt: now, durationMs: 1000, kind: 'float' });
+            }
+          }
           if (event.type !== 'player-attack' && event.type !== 'enemy-attack' && event.type !== 'spell-cast') continue;
           const targetId = event.targetId; const targetPosition = actorPosition(state, targetId); if (!targetPosition) continue;
           const amount = event.type === 'spell-cast' ? event.amount : event.damage;

@@ -179,6 +179,7 @@ export type CombatEvent =
   | { type: 'enemy-death'; enemyId: string; corpseId: number }
   | { type: 'loot'; itemName: string; amount: number }
   | { type: 'level-up'; characterId: string; level: number; previousLevel?: number; message?: string }
+  | { type: 'experience-gained'; characterId: string; amount: number }
   | { type: 'skill-up'; characterId: string; skill: TrainableSkill; level: number }
   | { type: 'wave-complete'; wave: number }
   | { type: 'movement'; actorId: string; from: GridPosition; to: GridPosition; durationMs: number }
