@@ -572,3 +572,20 @@ Plans:
 
 Plans:
 - [x] 36-01-PLAN: Separar visualmente os andares Z:7 e Z:6 em containers dedicados e implementar transições canônicas de escadas.
+
+---
+
+### Phase 37: Movimento Fluído na Cidade (+50% de Velocidade) e Mapa Completo do Segundo Andar (Z:6)
+
+**Goal:** Aumentar a velocidade urbana para 50% mais rápida que a base para locomoção ultra-dinâmica; suavizar a interpolação de movimento eliminando engasgos visuais; e completar 100% dos sprites do segundo andar (Z:6) mantendo o chão/mar do piso Z:7 como fundação visível para eliminar qualquer vazio preto.  
+**Depends on:** Phase 36  
+**Requirements:** `FIX.md`, `extract-tibia1098-thais.mjs`, `ThaisCityArena.tsx`, `GamePrototype.tsx`.  
+**Success Criteria:**
+1. Velocidade urbana configurada em 50% superior à base oficial (`cityStepDurationMs = Math.round(baseStepDurationMs / 1.5)`).
+2. Animação de caminhada e interpolação de pixels extremamente fluidas e contínuas sem travamentos.
+3. Extração completa dos 1.082 sprites de itens do Tibia 10.98 cobrindo todos os itens do segundo andar (Z:6).
+4. Piso Z:7 mantido como camada base sob o Z:6, eliminando qualquer tela preta ou vazio ao redor do barco, píer e telhados.
+5. 100% dos testes passando e 0 erros de tipagem.
+
+Plans:
+- [x] 37-01-PLAN: Implementar velocidade urbana de +50%, interpolação fluída e mapa completo sem tela preta no segundo andar.

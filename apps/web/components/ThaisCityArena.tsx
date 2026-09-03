@@ -399,8 +399,9 @@ export function ThaisCityArena({
         tickCount++;
         const now = performance.now();
 
-        // Floor isolation: only display the floor where the character currently stands
-        floor7Container.visible = curPos.z === 7;
+        // Floor rendering: Floor 7 is the base terrain (streets, water, nature),
+        // Floor 6 (roofs, upper pier, boat, walkways) is drawn on top when curPos.z === 6.
+        floor7Container.visible = true;
         floor6Container.visible = curPos.z === 6;
 
         // 1. Animate all animated map elements (mystic blue fire, teleports, torches, lamps, fountains, water)
@@ -412,7 +413,7 @@ export function ThaisCityArena({
           }
         }
 
-        // 2. Movement speed calibrated to official TFS level-based speed
+        // 2. High-fluidity movement interpolation with instant snap on large jumps
         const targetPixelX = curPos.x * TILE_SIZE + 16;
         const targetPixelY = curPos.y * TILE_SIZE + 16;
         const deltaX = targetPixelX - currentPixelX;
@@ -420,12 +421,15 @@ export function ThaisCityArena({
         const dist = Math.hypot(deltaX, deltaY);
 
         let isMoving = false;
-        if (dist > 0.5) {
+        if (dist > 96) {
+          // Large teleport or floor respawn: snap instantly
+          currentPixelX = targetPixelX;
+          currentPixelY = targetPixelY;
+        } else if (dist > 0.3) {
           isMoving = true;
           const deltaMs = app.ticker.deltaMS || 16.66;
-          // Step duration in ms determines pixels per ms
-          const targetPixelsPerFrame = (32 / Math.max(80, curStepDuration)) * deltaMs;
-          const stepSpeed = Math.max(targetPixelsPerFrame, dist * 0.24);
+          const targetPixelsPerFrame = (32 / Math.max(50, curStepDuration)) * deltaMs;
+          const stepSpeed = Math.max(targetPixelsPerFrame * 1.15, dist * 0.28);
 
           if (dist <= stepSpeed) {
             currentPixelX = targetPixelX;
@@ -453,10 +457,9 @@ export function ThaisCityArena({
           app.screen.height / 2 - currentPixelY * camera.scale
         );
 
-        // 4. Update party characters: walking animation frames, names, and authentic health bars
-        // Walk frame sequence: 0 -> 1 -> 0 -> 2
+        // 4. Update party characters: fluid walk frame sequence (0 -> 1 -> 0 -> 2)
         const walkCycle = [0, 1, 0, 2];
-        const stepRateMs = Math.max(100, Math.min(200, Math.floor(curStepDuration / 3)));
+        const stepRateMs = Math.max(60, Math.min(130, Math.floor(curStepDuration / 3.5)));
         const walkFrame = isMoving || curWalk ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
 
         curChars.forEach((char, idx) => {

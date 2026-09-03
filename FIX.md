@@ -1,2 +1,4 @@
 # RODADA DE AJUSTES
-Bugou o mapa da cidade, o que estava no segundo andar agora esta no primeiro, os mapas do jogo tem como descer e subir escadas, precisa entender isso nos arquivos do servidor e do tibia para utilizarmos essa funçao no jogo corrija esse bug, volte a cidade como estava, faça os outros andares e naquela parte perto do barco ele vai subir pela escada para ir ao barco e ai sim ir para caçada
+A animação do personagem andando na cidade esta meio travado, precisa ser mais fluído, vamos aumentar mais ainda  a velocidade pode aumentar 50% da velocidade na cidade, para ficar mais dinâmico
+
+O segundo andar na cidade esta bugado, esta tudo preto, precisa completar o mapa

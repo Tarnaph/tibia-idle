@@ -200,7 +200,10 @@ async function run() {
 
   // 3. Load thais-city.json
   const thaisCity = JSON.parse(await readFile('content/generated/thais-city.json', 'utf8'));
-  const allServerIds = new Set(thaisCity.tiles.flatMap(t => t.serverItemIds));
+  const allServerIds = new Set([
+    ...thaisCity.tiles.flatMap((t) => t.serverItemIds),
+    ...(thaisCity.upperTiles || []).flatMap((t) => t.serverItemIds),
+  ]);
   // Also add depot (2598, 3497, 3498) and dummies (5787)
   [2598, 3497, 3498, 5787, 405, 406, 407, 1448, 1515, 1481, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057].forEach(id => allServerIds.add(id));
 

@@ -129,8 +129,8 @@ function GamePrototypeContent() {
 
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level);
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
-  // In the city, 25% faster than base for smoother navigation
-  const cityStepDurationMs = Math.round(baseStepDurationMs / 1.25);
+  // In the city, 50% faster than base for fast, fluid navigation
+  const cityStepDurationMs = Math.round(baseStepDurationMs / 1.5);
   const lastKeyStepTimeRef = useRef(0);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
