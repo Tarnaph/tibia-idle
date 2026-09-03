@@ -1364,7 +1364,467 @@ h1, h2, h3, p { margin: 0; }
   transform: scale(1.05);
 }
 
-.action-card-top {
+/* Phase 19: Full Bottom Battle & Action Console HUD (Authentic Reference Style) */
+.bottom-dock-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  padding: 0 8px 4px 8px;
+  pointer-events: none;
+}
+
+.bottom-console-hud {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(180deg, #2c2f32 0%, #1e2022 35%, #151617 100%);
+  border-top: 2.5px solid #28547a;
+  border-bottom: 1.5px solid #0d0e10;
+  border-left: 1.5px solid #33363a;
+  border-right: 1.5px solid #33363a;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-radius: 4px 4px 0 0;
+  padding: 3px 6px;
+  gap: 6px;
+  user-select: none;
+  max-width: 100%;
+}
+
+/* 1. Vitality & Player Status Panel */
+.hud-status-panel {
+  width: 175px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-bar-wrapper {
+  position: relative;
+  height: 14px;
+  background: #0f1311;
+  border: 1px solid #3a413d;
+  box-shadow: inset 1px 1px 0 #181d1a, inset -1px -1px 0 #28302c;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hud-bar-fill.hp-fill {
+  background: linear-gradient(180deg, #3adb67 0%, #26a84c 50%, #197a34 100%);
+  height: 100%;
+  transition: width 150ms ease-out;
+}
+
+.hud-bar-fill.mp-fill {
+  background: linear-gradient(180deg, #448aff 0%, #2560e0 50%, #1745b0 100%);
+  height: 100%;
+  transition: width 150ms ease-out;
+}
+
+.hud-bar-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 900 9px Tahoma, Verdana, monospace;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  pointer-events: none;
+  letter-spacing: -0.2px;
+}
+
+.hud-regen-text {
+  position: absolute;
+  right: 3px;
+  font: 900 8px Tahoma, Verdana, monospace;
+  color: #72f78c;
+  text-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+}
+
+.hud-level-xp-row {
+  display: flex;
+  gap: 2px;
+  height: 13px;
+  align-items: center;
+}
+
+.hud-level-badge {
+  background: linear-gradient(180deg, #57411c 0%, #382910 100%);
+  border: 1px solid #dcae3a;
+  border-radius: 2px;
+  color: #fae498;
+  font: 900 8px Tahoma, Verdana, monospace;
+  padding: 0 4px;
+  line-height: 11px;
+  text-shadow: 1px 1px 0 #000;
+  white-space: nowrap;
+}
+
+.hud-xp-bar-container {
+  flex: 1;
+  height: 11px;
+  position: relative;
+  background: #141715;
+  border: 1px solid #333a35;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.hud-xp-fill {
+  height: 100%;
+  background: linear-gradient(180deg, #2f3631 0%, #1e2420 100%);
+}
+
+.hud-xp-text {
+  position: absolute;
+  right: 4px;
+  top: 0;
+  bottom: 0;
+  line-height: 11px;
+  font: 800 8px Tahoma, Verdana, monospace;
+  color: #dbe0dc;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.hud-stamina-container {
+  height: 12px;
+  background: #344d47;
+  border: 1px solid #243833;
+  border-radius: 1px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  overflow: hidden;
+}
+
+.hud-stamina-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  background: repeating-linear-gradient(45deg, #6ee6bd, #6ee6bd 2.5px, #3ba885 2.5px, #3ba885 5px);
+}
+
+.hud-stamina-info {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.hud-stamina-time {
+  font: 900 8px Tahoma, Verdana, monospace;
+  color: #101e19;
+  text-shadow: 0 0 1px #a4f0d6;
+}
+
+.hud-stamina-plus-btn {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f7ca3b;
+  border: 1px solid #6b4d00;
+  color: #382400;
+  font: 900 8px Arial, sans-serif;
+  line-height: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* 2. Quick Backpack Slot */
+.hud-backpack-col {
+  display: flex;
+  align-items: center;
+}
+
+.hud-backpack-slot {
+  width: 34px;
+  height: 48px;
+  background: repeating-linear-gradient(-45deg, #27292b, #27292b 2px, #202224 2px, #202224 4px);
+  border: 1px solid #181a1b;
+  box-shadow: inset 1px 1px 0 #3e4246, inset -1px -1px 0 #101112;
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 80ms ease;
+}
+
+.hud-backpack-slot:hover {
+  border-color: #ffd700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+/* 3. Dual Row Action Bar */
+.hud-dual-action-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-action-row {
+  display: flex;
+  gap: 2px;
+}
+
+.hud-action-slot {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  position: relative;
+  background: #151718;
+  border: 1.5px solid #2c3033;
+  box-shadow: inset 1px 1px 0 #383c3f, inset -1px -1px 0 #0f1011;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 2px;
+  overflow: hidden;
+  transition: transform 60ms ease;
+}
+
+.hud-action-slot:hover {
+  transform: scale(1.04);
+}
+
+.hud-action-slot.empty-plus-slot {
+  border-color: #2a2e31;
+}
+
+.hud-action-slot.empty-plus-slot .plus-char {
+  font-size: 13px;
+  color: #555e64;
+  font-weight: 700;
+}
+
+.hud-action-slot.empty-plus-slot:hover .plus-char {
+  color: #fce8a6;
+}
+
+/* Thematic Colored Borders Matching Reference */
+.hud-action-slot.border-gold {
+  border-color: #f7c031;
+  box-shadow: 0 0 3px rgba(247, 192, 49, 0.4);
+}
+
+.hud-action-slot.border-red {
+  border-color: #e63939;
+}
+
+.hud-action-slot.border-pink {
+  border-color: #e66885;
+}
+
+.hud-action-slot.border-orange {
+  border-color: #e67d26;
+}
+
+.hud-action-slot.border-white {
+  border-color: #e0e8e6;
+}
+
+.hud-action-slot.border-cyan {
+  border-color: #49c4ed;
+}
+
+.hud-action-slot.border-green {
+  border-color: #38c279;
+}
+
+.hud-stack-count {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-family: Tahoma, Verdana, monospace;
+  font-size: 8px;
+  font-weight: 900;
+  color: #ffe666;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hud-free-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: Tahoma, Verdana, monospace;
+  font-size: 7px;
+  font-weight: 900;
+  color: #f7c031;
+  text-shadow: 1px 1px 0 #000;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.hud-mana-cost {
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-family: Tahoma, Verdana, monospace;
+  font-size: 8px;
+  font-weight: 900;
+  color: #5ec0f7;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* 4. Tactical Selectors & Combat Stances */
+.hud-tactics-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: Tahoma, Verdana, sans-serif;
+  padding-left: 2px;
+}
+
+.hud-dropdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.hud-dropdown-label {
+  font: 900 8px Tahoma, Verdana, sans-serif;
+  color: #9ba4ab;
+  letter-spacing: 0.5px;
+}
+
+.hud-select {
+  height: 15px;
+  background: #11151a;
+  border: 1px solid #2b394a;
+  color: #dbe4eb;
+  font: 700 8.5px Tahoma, sans-serif;
+  border-radius: 2px;
+  padding: 0 2px;
+  cursor: pointer;
+  outline: none;
+}
+
+.hud-select:hover {
+  border-color: #3b526d;
+}
+
+.hud-stances-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 1px;
+}
+
+.hud-stance-btn {
+  width: 18px;
+  height: 18px;
+  background: #191d21;
+  border: 1px solid #30373d;
+  color: #79838c;
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 0;
+  transition: all 80ms ease;
+}
+
+.hud-stance-btn:hover {
+  color: #dbe4ec;
+  border-color: #4a545e;
+}
+
+.hud-stance-btn.active {
+  border-color: #52e043;
+  color: #52e043;
+  box-shadow: 0 0 5px rgba(82, 224, 67, 0.6);
+}
+
+.hud-target-reticle-btn {
+  width: 22px;
+  height: 18px;
+  background: #191d21;
+  border: 1px solid #30373d;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0;
+  transition: all 80ms ease;
+}
+
+.hud-target-reticle-btn:hover {
+  border-color: #e03838;
+}
+
+.hud-target-stepper {
+  display: flex;
+  align-items: center;
+  background: #121517;
+  border: 1px solid #272b2e;
+  border-radius: 2px;
+  height: 18px;
+}
+
+.hud-target-stepper .stepper-btn {
+  width: 12px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #8c979e;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.hud-target-stepper .stepper-btn:hover {
+  color: #ffffff;
+}
+
+.hud-target-stepper .stepper-val {
+  width: 12px;
+  text-align: center;
+  color: #ffffff;
+  font: 900 8.5px Tahoma, monospace;
+}
+
+.hud-log-toggle {
+  background: #1f2327;
+  border: 1px solid #363d44;
+  color: #9eb1c2;
+  font: 700 8.5px Tahoma, sans-serif;
+  border-radius: 2px;
+  padding: 2px 5px;
+  cursor: pointer;
+  height: 18px;
+  align-self: flex-start;
+}
+
+.hud-log-toggle:hover {
+  color: #ffffff;
+  border-color: #547596;
+}
   display: flex;
   align-items: center;
   gap: 10px;

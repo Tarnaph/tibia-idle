@@ -245,12 +245,27 @@ Plans:
 
 - [x] 18-01-PLAN: Action Bar F1-F12 com botões de scroll, cadeado, indicador de 4 pontos, badges no canto superior direito e ícones autênticos
 
+### Phase 19: Console Inferior Completo de Batalha e Acoes (HUD Estilo Tibia/Ravendawn Idle)
+
+**Goal:** Reestruturar todo o console inferior de combate e ações com base na referência visual enviada pelo usuário:
+1. **Painel Esquerdo de Status do Jogador:** Barra de Vida (Verde) com valor atual/máximo e taxa de regeneração (+15), Barra de Mana (Azul) com valor atual/máximo e taxa (+5), Badge de Nível com porcentagem de XP, e Barra de Stamina/Bônus listrada verde com tempo restante (+).
+2. **Botão de Mochila Rápida:** Slot quadrado de acesso rápido ao inventário/mochila.
+3. **Barra Central Dupla de Ações (2 fileiras):** Duas fileiras de slots de ações com suporte a contadores de poções, custos de mana em azul, bordas coloridas temáticas por categoria e slots vazios com `+`.
+4. **Painel Direito de Estratégia e Posturas:** Dropdowns "CONJUNTO" e "ALVO", botões de Postura de Combate (Defensiva, Equilibrada, Ofensiva com destaque ativo), Retículo de Alvo e controle numérico de alvos (- 1 +).
+**Requirements:** Screenshot do console inferior de batalha e ações (HUD de status do jogador, mochila rápida, hotbar dupla de 2 fileiras, seletores de conjunto/alvo e posturas de combate)
+**Depends on:** Phase 18
+**Plans:** 1/1 complete
+
+Plans:
+
+- [x] 19-01-PLAN: Console inferior completo com HUD de status, mochila rápida, hotbar dupla de 2 fileiras e painel tático
+
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -272,3 +287,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 16. Arraste de janelas, hotbar customizavel e XP 5000 | 1/1 | Complete | 2026-09-03 |
 | 17. Migracao para Tibia 11, Icones Oficiais e Action Bar | 1/1 | Complete | 2026-09-03 |
 | 18. Action Bar F1-F12 e Icones Identicos ao Tibia 11 Original | 1/1 | Complete | 2026-09-03 |
+| 19. Console Inferior Completo de Batalha e Acoes | 1/1 | Complete | 2026-09-03 |

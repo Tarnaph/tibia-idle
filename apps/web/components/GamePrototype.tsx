@@ -576,28 +576,40 @@ function GamePrototypeContent() {
         </div>
       </DraggableWindow>
 
-      {/* Window 6: Hotbar & Combat Log */}
+      {/* Window 6: Combat Log History */}
       <DraggableWindow id="logs" icon="📜">
-        <div className="window-hotbar-container">
-          <div style={{ fontSize: '9px', color: '#9ea49c', marginBottom: '2px' }}>
-            Rotação de Spells ({activeCharacter.name})
+        <div className="window-logs-content">
+          <div style={{ fontSize: '9px', color: '#9ea49c', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
+            <span>Histórico de Combate</span>
+            <small>{encounter.log.length} registros</small>
           </div>
-          <BottomDock
-            logs={encounter.log}
-            seed={seed}
-            status={encounter.status}
-            character={activeCharacter}
-            actor={currentActor}
-            spells={content.spells}
-            elapsedMs={encounter.elapsedMs}
-            onSeed={setSeed}
-            onBegin={beginOrRestart}
-            onReset={resetPrototype}
-            onReorderSpell={reorderSelectedHotbar}
-            onConfigureSlot={setHotbarConfigSlot}
-          />
+          <ol className="combat-log-list" style={{ maxHeight: '220px', overflowY: 'auto', padding: 0, margin: 0, listStyle: 'none' }}>
+            {encounter.log.slice(-30).map((entry) => (
+              <li key={entry.id} style={{ fontSize: '10px', padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '6px' }}>
+                <time style={{ color: '#889088' }}>#{entry.round.toString().padStart(2, '0')}</time>
+                <span style={{ color: '#d5ded6' }}>{entry.message}</span>
+              </li>
+            ))}
+          </ol>
         </div>
       </DraggableWindow>
+
+      {/* Persistent Bottom Battle & Action Console HUD matching reference screenshot */}
+      <BottomDock
+        logs={encounter.log}
+        seed={seed}
+        status={encounter.status}
+        character={activeCharacter}
+        actor={currentActor}
+        spells={content.spells}
+        elapsedMs={encounter.elapsedMs}
+        onSeed={setSeed}
+        onBegin={beginOrRestart}
+        onReset={resetPrototype}
+        onReorderSpell={reorderSelectedHotbar}
+        onConfigureSlot={setHotbarConfigSlot}
+        onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
+      />
 
       {/* Modals & Drawers */}
       <EquipmentPanel

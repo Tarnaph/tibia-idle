@@ -1,42 +1,37 @@
 import { useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
 import type { CharacterState, CombatLogEntry, HuntEncounterState, PartyActorState } from '@/packages/domain/src';
-import { Tibia11ActionBar } from './Tibia11ActionBar';
+import { BottomConsoleHUD } from './BottomConsoleHUD';
 
 interface BottomDockProps {
   logs: CombatLogEntry[];
-  seed: string;
-  status: HuntEncounterState['status'];
+  seed?: string;
+  status?: HuntEncounterState['status'];
   character: CharacterState;
   actor?: PartyActorState;
   spells: SpellDefinition[];
   elapsedMs: number;
-  onSeed(value: string): void;
-  onBegin(): void;
-  onReset(): void;
-  onReorderSpell(fromIndex: number, toIndex: number): void;
+  onSeed?(value: string): void;
+  onBegin?(): void;
+  onReset?(): void;
+  onReorderSpell?(fromIndex: number, toIndex: number): void;
   onConfigureSlot?: (slotIndex: number) => void;
+  onToggleBackpack?: () => void;
 }
 
 export function BottomDock({
   logs,
-  seed,
-  status,
   character,
   actor,
   spells,
   elapsedMs,
-  onSeed,
-  onBegin,
-  onReset,
-  onReorderSpell,
   onConfigureSlot,
+  onToggleBackpack,
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
-  const running = status === 'running';
 
   return (
-    <footer className="bottom-dock">
+    <footer className="bottom-dock-wrapper" aria-label="Console de Batalha e Ações">
       {logOpen && (
         <section className="combat-log-drawer">
           <header>
@@ -55,32 +50,18 @@ export function BottomDock({
         </section>
       )}
 
-      <div className="dock-tabs">
-        <button
-          type="button"
-          className={logOpen ? 'active' : ''}
-          onClick={() => setLogOpen((current) => !current)}
-        >
-          Combate <b>{logs.length}</b>
-        </button>
-        <button type="button" disabled title="Em breve">Geral</button>
-        <button type="button" disabled title="Em breve">Sistema</button>
-      </div>
-
-      {/* Official Tibia 11 Action Bar matching reference screenshot */}
-      <Tibia11ActionBar
+      {/* Full Bottom Console HUD matching user reference screenshot */}
+      <BottomConsoleHUD
         character={character}
         actor={actor}
         spells={spells}
         elapsedMs={elapsedMs}
         onConfigureSlot={onConfigureSlot}
-        onReorderSlot={onReorderSpell}
+        onToggleBackpack={onToggleBackpack}
+        onToggleCombatLog={() => setLogOpen((v) => !v)}
+        logCount={logs.length}
       />
-      <label className="seed-control"><span>Seed</span><input value={seed} onChange={(event) => onSeed(event.target.value)} disabled={running} /></label>
-      <div className="dock-actions">
-        <button type="button" className="reset-action" onClick={onReset} disabled={running}>Reset</button>
-        <button type="button" className="primary-action" onClick={onBegin} disabled={running}>Entrar na hunt</button>
-      </div>
     </footer>
   );
 }
+

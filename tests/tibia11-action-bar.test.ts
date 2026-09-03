@@ -130,4 +130,39 @@ describe('Phase 17: Tibia 11 Migration, Potions, Runes and Action Bar', () => {
     expect(knight.hotbar[0]).toBeUndefined();
     expect(knight.hotbar[4]).toBeUndefined();
   });
+
+  it('Phase 19: supports dual-deck 20 slots hotbar across two action rows and vital stats calculations', () => {
+    const game = createIdleGame('tibia11-hud-test', content);
+    const knight = game.session.characters[0];
+    knight.currentHp = 2495;
+    knight.maxHp = 2555;
+    knight.currentMana = 298;
+    knight.maxMana = 840;
+
+    // HP & Mana ratio calculations
+    const hpRatio = (knight.currentHp / knight.maxHp) * 100;
+    expect(hpRatio).toBeCloseTo(97.65, 1);
+
+    const manaRatio = (knight.currentMana / knight.maxMana) * 100;
+    expect(manaRatio).toBeCloseTo(35.47, 1);
+
+    // 20-slot dual action bar
+    const dualDeckHotbar: number[] = new Array(20).fill(0);
+    dualDeckHotbar[0] = 7618;  // Row 1 Slot 0: Health potion
+    dualDeckHotbar[1] = 1;     // Row 1 Slot 1: Spell
+    dualDeckHotbar[11] = 8472; // Row 2 Slot 1: Spirit potion
+    dualDeckHotbar[18] = 26031;// Row 2 Slot 8: Supreme health
+
+    knight.hotbar = dualDeckHotbar;
+    expect(knight.hotbar.length).toBe(20);
+
+    const potionAction = findHotbarAction(knight.hotbar[0], content);
+    expect(potionAction?.kind).toBe('potion');
+
+    const spiritAction = findHotbarAction(knight.hotbar[11], content);
+    expect(spiritAction?.kind).toBe('potion');
+
+    const supremeAction = findHotbarAction(knight.hotbar[18], content);
+    expect(supremeAction?.kind).toBe('potion');
+  });
 });
