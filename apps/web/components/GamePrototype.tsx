@@ -17,7 +17,7 @@ import {
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
-  triggerManualHotbarAction,
+  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack,
 } from '@/packages/domain/src';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -101,7 +101,7 @@ function GamePrototypeContent() {
   const [confirmSale, setConfirmSale] = useState(false);
   const [levelUpMessage, setLevelUpMessage] = useState<{ text: string; timestamp: number } | null>(null);
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
-  const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>({ x: 32342, y: 32231, z: 7 });
+  const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>(THAIS_TEMPLE_POSITION);
   const [walkingPath, setWalkingPath] = useState<{
     target: { x: number; y: number; z: number };
     destinationName: string;
@@ -136,6 +136,21 @@ function GamePrototypeContent() {
     const timer = window.setInterval(() => setGame((current) => advanceCombat(current, content, 120)), 120);
     return () => window.clearInterval(timer);
   }, [encounter.status, mode]);
+
+  // When defeated in hunt, resurrect and respawn in Thais Temple (32369, 32241, 7)
+  useEffect(() => {
+    if (mode === 'hunt' && encounter.status === 'defeated') {
+      const timer = window.setTimeout(() => {
+        setGame((current) => respawnInTemple(current));
+        setMode('training');
+        setIsTrainingAtDummy(false);
+        setCityPos(THAIS_TEMPLE_POSITION);
+        setWalkingPath(null);
+        setSaleMessage('Alas! Você morreu e renasceu no Templo de Thais (32369, 32241, 7).');
+      }, 1000);
+      return () => window.clearTimeout(timer);
+    }
+  }, [mode, encounter.status]);
 
   // Advance training at dummy using selected skill
   useEffect(() => {
@@ -227,21 +242,14 @@ function GamePrototypeContent() {
     setHuntSelectorOpen(false);
   };
   const exitHunt = () => {
-    setGame((current) => leaveHunt(current));
+    setGame((current) => respawnInTemple(current));
     setMode('training');
     setHuntSelectorOpen(false);
     setIsTrainingAtDummy(false);
-    // Transport player and characters to Thais (32369, 32241, 7)
-    const thaisStart = { x: 32369, y: 32241, z: 7 };
-    const depotTarget = { x: 32342, y: 32231, z: 7 };
-    setCityPos(thaisStart);
-    setWalkingPath({
-      target: depotTarget,
-      destinationName: 'Depot de Thais',
-      onArrive: () => {
-        setSaleMessage('Chegou ao Depot de Thais (32342, 32231, 7).');
-      },
-    });
+    // Transport player and characters directly to Temple of Thais (32369, 32241, 7)
+    setCityPos(THAIS_TEMPLE_POSITION);
+    setWalkingPath(null);
+    setSaleMessage('Você retornou ao Templo de Thais (32369, 32241, 7).');
   };
 
   const handleStartTraining = (skillName: string) => {
@@ -263,7 +271,12 @@ function GamePrototypeContent() {
   };
   const resetPrototype = () => {
     const nextSeed = seed.trim() || defaultSeed;
-    setGame(createIdleGame(nextSeed, content)); setMode('training'); setSaleMessage('Protótipo restaurado.'); setStatsDelta(null);
+    setGame(createIdleGame(nextSeed, content));
+    setMode('training');
+    setCityPos(THAIS_TEMPLE_POSITION);
+    setWalkingPath(null);
+    setSaleMessage('Protótipo restaurado no Templo de Thais (32369, 32241, 7).');
+    setStatsDelta(null);
   };
   const createMember = (name: string, vocation: BaseVocationName): string | null => {
     try { setGame((current) => synchronizePartyWithEncounter(addPartyMember(current, name, vocation, content), content)); return null; } catch (error) { return error instanceof Error ? error.message : 'Não foi possível criar o membro.'; }

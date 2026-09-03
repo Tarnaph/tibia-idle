@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createIdleGame, startGame, advanceCombat } from '../packages/domain/src';
+import { createIdleGame, startGame, advanceCombat, respawnInTemple, THAIS_TEMPLE_POSITION } from '../packages/domain/src';
 import { content } from './fixture';
 import thaisCityJson from '../content/generated/thais-city.json';
 
@@ -92,5 +92,28 @@ describe('Phase 30: Global Tibia Thais Map, Hunt UI and Skills Theme', () => {
       }
     }
     expect(foundXpEvent).toBe(true);
+  });
+
+  it('verifies canonical Temple of Thais respawn position (32369, 32241, 7) on death or hunt exit', () => {
+    expect(THAIS_TEMPLE_POSITION).toEqual({ x: 32369, y: 32241, z: 7 });
+
+    let game = createIdleGame('test-respawn-temple', content);
+    game = startGame(game, content);
+
+    // Simulate character damage / defeat
+    game.session.characters[0].currentHp = 0;
+    game.encounter.partyActors[0].hp = 0;
+    game.encounter.partyActors[0].alive = false;
+    game.encounter.status = 'defeated';
+
+    // Call respawnInTemple
+    const respawned = respawnInTemple(game);
+
+    expect(respawned.encounter.status).toBe('completed');
+    expect(respawned.session.characters[0].currentHp).toBe(respawned.session.characters[0].maxHp);
+    expect(respawned.session.characters[0].currentMana).toBe(respawned.session.characters[0].maxMana);
+    expect(respawned.session.characters[0].combatState.targetId).toBeNull();
+    expect(respawned.encounter.partyActors[0].alive).toBe(true);
+    expect(respawned.encounter.partyActors[0].hp).toBe(respawned.session.characters[0].maxHp);
   });
 });

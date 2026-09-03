@@ -1107,11 +1107,37 @@ export function runToEnd(seed: string, content: GameContent, maxRounds = 5_000, 
 export function lastCombatEvent(state: GameState): CombatEvent | undefined { return state.encounter.events.at(-1); }
 export function isCorpseVisible(): boolean { return true; }
 
+export const THAIS_TEMPLE_POSITION = { x: 32369, y: 32241, z: 7 } as const;
+
 export function leaveHunt(state: GameState): GameState {
   const next = cloneState(state);
   for (const actor of next.encounter.partyActors) syncCharacterResources(next, actor);
   next.encounter.status = 'completed'; next.encounter.events.push({ type: 'hunt-complete' });
   addLog(next, `${next.encounter.hunt.name}: sessão encerrada pelo jogador.`); return next;
+}
+
+export function respawnInTemple(state: GameState): GameState {
+  const next = cloneState(state);
+  const charMap = new Map(next.session.characters.map((c) => [c.id, c]));
+  for (const character of next.session.characters) {
+    character.currentHp = character.maxHp;
+    character.currentMana = character.maxMana;
+    character.combatState.targetId = null;
+    character.combatState.spellCooldowns = {};
+    character.combatState.groupCooldowns = {};
+  }
+  for (const actor of next.encounter.partyActors) {
+    const char = charMap.get(actor.characterId);
+    actor.alive = true;
+    actor.hp = char ? char.maxHp : actor.hp;
+    actor.mana = char ? char.maxMana : actor.mana;
+    actor.targetId = null;
+    actor.path = [];
+  }
+  next.encounter.status = 'completed';
+  next.encounter.events.push({ type: 'hunt-complete' });
+  addLog(next, 'Você renasceu no Templo de Thais (32369, 32241, 7).');
+  return next;
 }
 
 export function synchronizePartyWithEncounter(state: GameState, content: GameContent): GameState {
