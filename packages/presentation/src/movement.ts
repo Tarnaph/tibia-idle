@@ -17,8 +17,8 @@ export const visualMovementConfig: VisualMovementConfig = {
 export const creatureVisualLayout = {
   spriteAnchorX: 1,
   spriteAnchorY: 1,
-  spriteOffsetX: 16,
-  spriteOffsetY: 16,
+  spriteOffsetX: 14,
+  spriteOffsetY: 11,
   nameplateY: -28,
   hpBarY: -20,
   hpBarWidth: 28,

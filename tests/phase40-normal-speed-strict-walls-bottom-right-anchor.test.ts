@@ -55,8 +55,8 @@ describe('Phase 40: Velocidade Normal na Cidade, Bloqueio Estrito de Paredes e Ã
   it('Bug 3: validates that characters and dummies are anchored to the south-east / bottom-right corner of the tile/SQM', () => {
     expect(creatureVisualLayout.spriteAnchorX).toBe(1); // Right
     expect(creatureVisualLayout.spriteAnchorY).toBe(1); // Bottom
-    expect(creatureVisualLayout.spriteOffsetX).toBe(16);
-    expect(creatureVisualLayout.spriteOffsetY).toBe(16);
+    expect(creatureVisualLayout.spriteOffsetX).toBe(14);
+    expect(creatureVisualLayout.spriteOffsetY).toBe(11);
 
     const projectRoot = resolve(__dirname, '..');
     const thaisArenaSrc = readFileSync(resolve(projectRoot, 'apps/web/components/ThaisCityArena.tsx'), 'utf8');
