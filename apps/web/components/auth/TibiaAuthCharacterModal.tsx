@@ -62,39 +62,56 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
   const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
-    const playAudio = () => {
-      if (audioRef.current) {
-        audioRef.current.volume = 0.45;
-        audioRef.current.muted = false;
-        audioRef.current.play().then(() => {
-          setIsMuted(false);
-        }).catch(() => {
-          // Autoplay blocked until first click/keypress
-        });
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = 0.45;
+
+    const startAudio = async () => {
+      try {
+        audio.muted = false;
+        await audio.play();
+        setIsMuted(false);
+      } catch {
+        // Autoplay policy blocked unmuted audio; start muted immediately so audio loop runs
+        try {
+          audio.muted = true;
+          await audio.play();
+        } catch {
+          // Ignore
+        }
+
+        // Unmute on ANY user interaction (mousemove, pointermove, click, keydown, touch)
+        const unmuteAndPlay = () => {
+          if (audio) {
+            audio.muted = false;
+            audio.volume = 0.45;
+            audio.play().then(() => {
+              setIsMuted(false);
+            }).catch(() => {});
+          }
+          removeListeners();
+        };
+
+        const removeListeners = () => {
+          window.removeEventListener('mousemove', unmuteAndPlay);
+          window.removeEventListener('pointermove', unmuteAndPlay);
+          window.removeEventListener('mousedown', unmuteAndPlay);
+          window.removeEventListener('click', unmuteAndPlay);
+          window.removeEventListener('keydown', unmuteAndPlay);
+          window.removeEventListener('touchstart', unmuteAndPlay);
+        };
+
+        window.addEventListener('mousemove', unmuteAndPlay, { once: true });
+        window.addEventListener('pointermove', unmuteAndPlay, { once: true });
+        window.addEventListener('mousedown', unmuteAndPlay, { once: true });
+        window.addEventListener('click', unmuteAndPlay, { once: true });
+        window.addEventListener('keydown', unmuteAndPlay, { once: true });
+        window.addEventListener('touchstart', unmuteAndPlay, { once: true });
       }
     };
 
-    playAudio();
-
-    const handleFirstUserInteraction = () => {
-      if (audioRef.current) {
-        audioRef.current.volume = 0.45;
-        audioRef.current.muted = false;
-        audioRef.current.play().then(() => {
-          setIsMuted(false);
-        }).catch(() => {});
-      }
-    };
-
-    window.addEventListener('click', handleFirstUserInteraction, { once: true });
-    window.addEventListener('keydown', handleFirstUserInteraction, { once: true });
-    window.addEventListener('pointerdown', handleFirstUserInteraction, { once: true });
-
-    return () => {
-      window.removeEventListener('click', handleFirstUserInteraction);
-      window.removeEventListener('keydown', handleFirstUserInteraction);
-      window.removeEventListener('pointerdown', handleFirstUserInteraction);
-    };
+    void startAudio();
   }, []);
 
   const toggleMute = () => {
