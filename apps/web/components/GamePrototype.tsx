@@ -429,21 +429,21 @@ function GamePrototypeContent() {
       if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
       if ((charItem as any).outfit) userChar.outfit = (charItem as any).outfit;
 
-      const existingIdx = cur.session.characters.findIndex((c) => c.id === charItem.id || c.name.toLowerCase() === charItem.name.toLowerCase());
-      let updatedChars: CharacterState[];
-      if (existingIdx >= 0) {
-        updatedChars = [...cur.session.characters];
-        updatedChars[existingIdx] = { ...updatedChars[existingIdx], ...userChar };
-      } else {
-        // Replace default mock main character (index 0) with user's created character
-        updatedChars = [userChar, ...cur.session.characters.slice(1)].slice(0, 4);
-      }
+      // Filter out duplicate or mock characters sharing ID or case-insensitive name
+      const otherChars = cur.session.characters.filter(
+        (c) => c.id !== userChar.id && c.name.toLowerCase() !== userChar.name.toLowerCase()
+      );
+
+      // Always place the user's active character at index 0 as the party leader
+      const updatedChars: CharacterState[] = [userChar, ...otherChars].slice(0, 4);
 
       return {
         ...cur,
         session: {
           ...cur.session,
+          leaderId: userChar.id,
           selectedCharacterId: userChar.id,
+          cameraTargetCharacterId: userChar.id,
           characters: updatedChars,
         },
       };
@@ -470,7 +470,7 @@ function GamePrototypeContent() {
 
   // Periodic Auto-Save of active character progress to Database
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') : null;
+    const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
     if (!token || !activeCharacter) return;
 
     const saveProgress = async () => {

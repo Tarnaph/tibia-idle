@@ -57,7 +57,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
 }
 
 export function leaderOf(state: GameState): CharacterState {
-  const character = state.session.characters.find((candidate) => candidate.id === state.session.leaderId);
+  const character = state.session.characters.find((candidate) => candidate.id === state.session.leaderId) ?? state.session.characters[0];
   if (!character) throw new Error('Party leader is missing.');
   return character;
 }
