@@ -759,7 +759,9 @@ export function ThaisCityArena({
           const fallback = visualAssets.outfits['Knight']?.frames[0]?.publicUrl;
           if (fallback) tex = loaded[fallback];
         }
-        if (!tex) return null;
+        if (!tex) {
+          tex = Texture.WHITE;
+        }
 
         const root = new Container();
         const sprite = new Sprite(tex);

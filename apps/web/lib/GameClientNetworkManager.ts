@@ -3,6 +3,7 @@ import { joinGameRoom } from './colyseusClient';
 
 export interface RemotePlayerSnapshot {
   id: string;
+  characterId?: string;
   name: string;
   vocationId: number;
   level: number;
@@ -143,6 +144,7 @@ export class GameClientNetworkManager {
     if (!player) return;
     this.playersMap.set(key, {
       id: key,
+      characterId: player.characterId || player.id || key,
       name: player.name || 'Aventureiro',
       vocationId: player.vocationId || 1,
       level: player.level || 1,

@@ -473,7 +473,7 @@ function GamePrototypeContent() {
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
   ])), [game.session.characters]);
 
-  // Periodic Auto-Save of active character progress to Database
+  // Periodic & On-Unload Auto-Save of active character progress and position to Database
   useEffect(() => {
     const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
     if (!token || !activeCharacter) return;
@@ -493,6 +493,9 @@ function GamePrototypeContent() {
             maxHealth: activeCharacter.maxHp,
             mana: activeCharacter.currentMana,
             maxMana: activeCharacter.maxMana,
+            posX: cityPos.x,
+            posY: cityPos.y,
+            posZ: cityPos.z,
             skills: activeCharacter.skills,
           }),
         });
@@ -501,9 +504,16 @@ function GamePrototypeContent() {
       }
     };
 
-    const timer = setInterval(saveProgress, 30000);
-    return () => clearInterval(timer);
-  }, [activeCharacter]);
+    const timer = setInterval(saveProgress, 5000);
+    const handleUnload = () => { void saveProgress(); };
+    window.addEventListener('beforeunload', handleUnload);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('beforeunload', handleUnload);
+      void saveProgress();
+    };
+  }, [activeCharacter, cityPos]);
 
   const mountBonus = activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none' ? 20 : 0;
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus;

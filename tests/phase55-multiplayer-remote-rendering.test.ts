@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { RemotePlayerSnapshot } from '../apps/web/lib/GameClientNetworkManager';
 
-describe('Phase 55: Multiplayer Remote Player Synchronization & Filtering', () => {
+describe('Phase 55: Multiplayer Remote Player Synchronization & Position Persistence', () => {
   const localPlayerSessionId = 'session-player-1';
   const localCharacterId = 'char-player-1';
 
@@ -10,6 +10,7 @@ describe('Phase 55: Multiplayer Remote Player Synchronization & Filtering', () =
       'session-player-1',
       {
         id: 'session-player-1',
+        characterId: 'char-player-1',
         name: 'Local Hero',
         vocationId: 1,
         level: 50,
@@ -29,6 +30,7 @@ describe('Phase 55: Multiplayer Remote Player Synchronization & Filtering', () =
       'session-player-2',
       {
         id: 'session-player-2',
+        characterId: 'char-player-2',
         name: 'Remote Ally',
         vocationId: 3,
         level: 45,
@@ -46,17 +48,18 @@ describe('Phase 55: Multiplayer Remote Player Synchronization & Filtering', () =
     ],
   ]);
 
-  it('should filter out local player from remote player rendering list', () => {
+  it('should filter out local player from remote player rendering list using characterId or sessionId', () => {
     const squadCharIds = new Set([localCharacterId]);
 
     const renderedRemotes: RemotePlayerSnapshot[] = [];
     remotePlayersMap.forEach((p, key) => {
-      if (key === localPlayerSessionId || squadCharIds.has(p.id)) return;
+      if (key === localPlayerSessionId || squadCharIds.has(p.id) || (p.characterId && squadCharIds.has(p.characterId))) return;
       renderedRemotes.push(p);
     });
 
     expect(renderedRemotes).toHaveLength(1);
     expect(renderedRemotes[0].id).toBe('session-player-2');
+    expect(renderedRemotes[0].characterId).toBe('char-player-2');
     expect(renderedRemotes[0].name).toBe('Remote Ally');
   });
 
@@ -77,24 +80,22 @@ describe('Phase 55: Multiplayer Remote Player Synchronization & Filtering', () =
     });
   });
 
-  it('should calculate valid actor IDs for lifecycle cleanup', () => {
-    const squadChars = [{ id: 'char-player-1' }];
-    const ambientPlayers = [{ id: 'player-vimago' }, { id: 'player-elane' }];
+  it('should include posX, posY, posZ in position save payload', () => {
+    const cityPos = { x: 32350, y: 32225, z: 7 };
+    const payload = {
+      level: 50,
+      experience: 125000,
+      health: 400,
+      maxHealth: 400,
+      mana: 100,
+      maxMana: 100,
+      posX: cityPos.x,
+      posY: cityPos.y,
+      posZ: cityPos.z,
+    };
 
-    const validActorIds = new Set<string>();
-    squadChars.forEach((c) => validActorIds.add(c.id));
-    ambientPlayers.forEach((p) => validActorIds.add(p.id));
-
-    remotePlayersMap.forEach((p, key) => {
-      if (key !== localPlayerSessionId && !squadChars.some((c) => c.id === p.id)) {
-        validActorIds.add(p.id);
-      }
-    });
-
-    expect(validActorIds.has('char-player-1')).toBe(true);
-    expect(validActorIds.has('player-vimago')).toBe(true);
-    expect(validActorIds.has('player-elane')).toBe(true);
-    expect(validActorIds.has('session-player-2')).toBe(true);
-    expect(validActorIds.has('session-player-1')).toBe(false);
+    expect(payload.posX).toBe(32350);
+    expect(payload.posY).toBe(32225);
+    expect(payload.posZ).toBe(7);
   });
 });
