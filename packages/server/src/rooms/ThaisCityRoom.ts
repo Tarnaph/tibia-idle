@@ -2,12 +2,20 @@ import { Room, Client } from '@colyseus/core';
 import { WorldState } from '../schemas/WorldState';
 import { PlayerState } from '../schemas/PlayerState';
 import { MonsterState } from '../schemas/MonsterState';
+import { CombatEventSchema } from '../schemas/CombatEventSchema';
+import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
+import {
+  isInViewport,
+  isWithinDistance,
+  filterEntitiesByViewport,
+  LOCAL_CHAT_RADIUS,
+  YELL_CHAT_RADIUS,
+} from '../utils/spatialGrid';
 
 export interface JoinOptions {
   token?: string;
   characterId?: string;
-  // Fallback / Testing character mock
   mockCharacter?: {
     id: string;
     accountId: string;
@@ -47,16 +55,7 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
     });
 
     this.onMessage('chat', (client, data: { text: string; channel?: string }) => {
-      const player = this.state.players.get(client.sessionId);
-      if (player && data.text) {
-        this.broadcast('chat', {
-          senderId: client.sessionId,
-          senderName: player.name,
-          text: data.text,
-          channel: data.channel || 'say',
-          timestamp: Date.now(),
-        });
-      }
+      this.handleChatMessage(client, data.text, data.channel || 'say');
     });
   }
 
@@ -104,11 +103,41 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
     player.posZ = 7;
     player.direction = 'south';
 
+    if (!this.clients.includes(client)) {
+      (this.clients as any).push(client);
+    }
+
     this.state.players.set(client.sessionId, player);
   }
 
   onLeave(client: Client, code?: number) {
+    const idx = this.clients.indexOf(client);
+    if (idx !== -1) {
+      this.clients.splice(idx, 1);
+    }
     this.state.players.delete(client.sessionId);
+  }
+
+  /**
+   * Helper returning all player and monster entities inside the 15x11 viewport of the requested observer.
+   */
+  public getEntitiesInViewportForPlayer(sessionId: string) {
+    const observer = this.state.players.get(sessionId);
+    if (!observer) return { players: [], monsters: [] };
+
+    const playersInView = filterEntitiesByViewport(
+      Array.from(this.state.players.values()),
+      observer.posX,
+      observer.posY
+    );
+
+    const monstersInView = filterEntitiesByViewport(
+      Array.from(this.state.monsters.values()),
+      observer.posX,
+      observer.posY
+    );
+
+    return { players: playersInView, monsters: monstersInView };
   }
 
   private handlePlayerMove(client: Client, direction: 'north' | 'south' | 'east' | 'west') {
@@ -153,28 +182,23 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
         player.mp -= manaCost;
         const heal = 30 + Math.floor(Math.random() * 20);
         player.hp = Math.min(player.maxHp, player.hp + heal);
-        this.broadcast('combatEvent', {
-          type: 'heal',
-          targetId: player.id,
-          value: heal,
-          spellName: spellId,
-        });
+
+        this.pushCombatEvent('heal', player.id, player.id, heal, player.posX, player.posY, `+${heal}`, '#33ff33');
       }
     } else if (spellId === 'exori') {
       const manaCost = 115;
       if (player.mp >= manaCost) {
         player.mp -= manaCost;
+
+        this.pushCombatEvent('spell', player.id, '', 0, player.posX, player.posY, 'Exori!', '#ffff33');
+
         // Hit all adjacent monsters in 3x3
         this.state.monsters.forEach((monster: MonsterState) => {
           if (!monster.isDead && Math.abs(monster.posX - player.posX) <= 1 && Math.abs(monster.posY - player.posY) <= 1) {
             const damage = 40 + Math.floor(Math.random() * 35);
             monster.hp -= damage;
-            this.broadcast('combatEvent', {
-              type: 'damage',
-              targetId: monster.id,
-              value: damage,
-              spellName: 'exori',
-            });
+            this.pushCombatEvent('damage', player.id, monster.id, damage, monster.posX, monster.posY, `${damage}`, '#ff3333');
+
             if (monster.hp <= 0) {
               this.killMonster(monster, player);
             }
@@ -182,6 +206,102 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
         });
       }
     }
+  }
+
+  private handleChatMessage(client: Client, rawText: string, channel: string) {
+    const player = this.state.players.get(client.sessionId);
+    if (!player || !rawText.trim()) return;
+
+    const text = channel === 'yell' ? rawText.trim().toUpperCase() : rawText.trim();
+    const timestamp = Date.now();
+
+    const msg = new ChatMessageSchema();
+    msg.id = `msg-${timestamp}-${Math.random()}`;
+    msg.senderId = client.sessionId;
+    msg.senderName = player.name;
+    msg.text = text;
+    msg.channel = channel;
+    msg.timestamp = timestamp;
+
+    this.state.chatMessages.push(msg);
+
+    // Keep chat message history bounded (max 50 recent messages)
+    if (this.state.chatMessages.length > 50) {
+      this.state.chatMessages.shift();
+    }
+
+    // Distance routing for local and yell channels
+    this.clients.forEach((c) => {
+      const recipient = this.state.players.get(c.sessionId);
+      if (!recipient) return;
+
+      let canReceive = false;
+      if (channel === 'global') {
+        canReceive = true;
+      } else if (channel === 'say') {
+        canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, LOCAL_CHAT_RADIUS);
+      } else if (channel === 'yell') {
+        canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, YELL_CHAT_RADIUS);
+      } else {
+        canReceive = true;
+      }
+
+      if (canReceive && typeof c.send === 'function') {
+        c.send('chat', {
+          senderId: client.sessionId,
+          senderName: player.name,
+          text,
+          channel,
+          timestamp,
+        });
+      }
+    });
+  }
+
+  private pushCombatEvent(
+    type: string,
+    sourceId: string,
+    targetId: string,
+    value: number,
+    posX: number,
+    posY: number,
+    text: string,
+    color: string
+  ) {
+    const event = new CombatEventSchema();
+    event.id = `evt-${Date.now()}-${Math.random()}`;
+    event.type = type;
+    event.sourceId = sourceId;
+    event.targetId = targetId;
+    event.value = value;
+    event.posX = posX;
+    event.posY = posY;
+    event.text = text;
+    event.color = color;
+    event.timestamp = Date.now();
+
+    this.state.combatEvents.push(event);
+    if (this.state.combatEvents.length > 30) {
+      this.state.combatEvents.shift();
+    }
+
+    // Broadcast combat event only to players who see the event in their viewport
+    this.clients.forEach((c) => {
+      const recipient = this.state.players.get(c.sessionId);
+      if (recipient && isInViewport(posX, posY, recipient.posX, recipient.posY) && typeof c.send === 'function') {
+        c.send('combatEvent', {
+          type,
+          sourceId,
+          targetId,
+          value,
+          posX,
+          posY,
+          text,
+          color,
+          timestamp: event.timestamp,
+        });
+      }
+    });
   }
 
   private spawnInitialMonsters() {
@@ -215,16 +335,10 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
     monster.hp = 0;
     monster.respawnTimerMs = 0;
 
-    // Experience award
     const xpGain = 40;
-    killer.level += 1; // Simplify level advancement test
+    killer.level += 1;
 
-    this.broadcast('combatEvent', {
-      type: 'death',
-      targetId: monster.id,
-      killerId: killer.id,
-      xpGain,
-    });
+    this.pushCombatEvent('death', killer.id, monster.id, xpGain, monster.posX, monster.posY, `+${xpGain} XP`, '#ffffff');
   }
 
   private gameTick(deltaTimeMs: number) {
@@ -233,7 +347,6 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
 
     // Player auto-attack & mana regen
     this.state.players.forEach((player: PlayerState) => {
-      // Mana regen (1 MP per 3 ticks)
       if (this.state.serverTick % 3 === 0 && player.mp < player.maxMp) {
         player.mp = Math.min(player.maxMp, player.mp + 1);
       }
@@ -248,11 +361,7 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
             monster.hp -= damage;
             player.lastAttackTime = now;
 
-            this.broadcast('combatEvent', {
-              type: 'damage',
-              targetId: monster.id,
-              value: damage,
-            });
+            this.pushCombatEvent('damage', player.id, monster.id, damage, monster.posX, monster.posY, `${damage}`, '#ff3333');
 
             if (monster.hp <= 0) {
               this.killMonster(monster, player);

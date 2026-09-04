@@ -19,7 +19,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 41: Tooltip Global de Atributos de Itens e Inspeção de Jogadores na Cidade**
 - [x] **Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)** - Modelagem relacional para VPS padrão com Prisma, contas com hashing bcrypt, múltiplos personagens, inventário, skills, roles (admin/player) e endpoints REST de auth.
 - [x] **Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks** - Servidor Node.js com Colyseus Room (`ThaisCityRoom`, `HuntRoom`), engine de combate autoritativa (100ms ticks), colisão OTBM, IA de monstros e validação anti-cheat.
-- [ ] **Phase 44: Sincronização de Estado com Colyseus Schema, Interest Management e Chat** - State sync binário via `@colyseus/schema`, spatial interest management (visão 15x11), broadcast de combate e canais de chat multiplayer em tempo real.
+- [x] **Phase 44: Sincronização de Estado com Colyseus Schema, Interest Management e Chat** - State sync binário via `@colyseus/schema`, spatial interest management (visão 15x11), broadcast de combate e canais de chat multiplayer em tempo real.
 - [ ] **Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin** - Telas de Login, Cadastro, Seleção/Criação de Personagem, Painel de Admin (`@colyseus/monitor` + GM commands) e PixiJS consumindo delta-snapshots com interpolação suave.
 - [ ] **Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E** - Auto-save periódico via Prisma, grace period de reconexão após F5 (`allowReconnection`) e suíte de testes multiplayer automatizada no Vitest.
 
@@ -713,7 +713,7 @@ Plans:
 5. Teste automatizado com múltiplos clientes virtuais simulando concorrência e troca de mensagens em tempo real.
 
 Plans:
-- [ ] 44-01-PLAN: Desenvolver os Colyseus Schemas, Spatial Interest Management, broadcast de eventos de combate e sistema de chat multiplayer.
+- [x] 44-01-PLAN: Desenvolver os Colyseus Schemas, Spatial Interest Management, broadcast de eventos de combate e sistema de chat multiplayer.
 
 ---
 
