@@ -7116,6 +7116,298 @@
       "notes": [
         "Base layer only; addons and palette recoloring remain deferred."
       ]
+    },
+    "Sire": {
+      "key": "outfit-sire",
+      "kind": "creature",
+      "label": "Sire custom outfit",
+      "appearanceId": 999,
+      "sourceId": 999,
+      "sourceFile": "custom/sire.png",
+      "relationship": "selected-outfit",
+      "validation": "Custom Sire outfit provided by user, converted to standard 64x64 Tibia sprite frames.",
+      "appearance": {
+        "width": 2,
+        "height": 2,
+        "exactSize": 46,
+        "layers": 1,
+        "patternX": 4,
+        "patternY": 3,
+        "patternZ": 1,
+        "frames": 3,
+        "attributes": [
+          24
+        ],
+        "spriteIds": [
+          99900,
+          99901,
+          99902,
+          99903
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frames": [
+        {
+          "frame": 0,
+          "direction": "north",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99900,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-north-frame-0.png",
+          "sha256": "9206E5B7BC7E9B9116D824714A38275A6036AFC71A477EB565EC14415DF13FFE",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 1,
+          "direction": "north",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99901,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-north-frame-1.png",
+          "sha256": "6A77F61666776365D842D63D587A0FAE423670D0634882F452F70B57086590C2",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 2,
+          "direction": "north",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99902,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-north-frame-2.png",
+          "sha256": "6A77F61666776365D842D63D587A0FAE423670D0634882F452F70B57086590C2",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 0,
+          "direction": "east",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99900,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-east-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-east-frame-0.png",
+          "sha256": "117E9D9127B1FFEB4DA215A82F6B0E6B784C6E10802B5AD386D97C5E72683374",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 1,
+          "direction": "east",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99901,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-east-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-east-frame-1.png",
+          "sha256": "970FE4BFBB281A1B4DA80AECE2D63E5E8E8B9DFE6C3F7867B19B52901E15432A",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 2,
+          "direction": "east",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99902,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-east-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-east-frame-2.png",
+          "sha256": "970FE4BFBB281A1B4DA80AECE2D63E5E8E8B9DFE6C3F7867B19B52901E15432A",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 0,
+          "direction": "south",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99900,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-south-frame-0.png",
+          "sha256": "9470C064D695D390B8E01284F78CFFEA3C89A747B4019804664A8740B66D056D",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 1,
+          "direction": "south",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99901,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-south-frame-1.png",
+          "sha256": "C9CE367994D982B0FCA62033D2DE76A4B78C8DBF55170285D5534004ACBC8BDD",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 2,
+          "direction": "south",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99902,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-south-frame-2.png",
+          "sha256": "C9CE367994D982B0FCA62033D2DE76A4B78C8DBF55170285D5534004ACBC8BDD",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 0,
+          "direction": "west",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99900,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-west-frame-0.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-west-frame-0.png",
+          "sha256": "516511E94C393D00E8FA8D3764EF367628CF91806FA83790B3C267524D696640",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 1,
+          "direction": "west",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99901,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-west-frame-1.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-west-frame-1.png",
+          "sha256": "47FCEE696B917072B67A32D5B94EFCD7AFC5579382EC09996D5BA3133769AF6F",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "frame": 2,
+          "direction": "west",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            99902,
+            0,
+            0,
+            0
+          ],
+          "file": "public/generated/tibia860/outfit-sire-west-frame-2.png",
+          "publicUrl": "/generated/tibia860/outfit-sire-west-frame-2.png",
+          "sha256": "304F8D55F72FDDD37275ED99AE7888A9CDCED8A23848FD23531E9CE7CF5D5FCA",
+          "width": 64,
+          "height": 64
+        }
+      ],
+      "notes": [
+        "Custom Sire outfit converted from user PNG to standard 64x64 Tibia sprite frames with transparent background."
+      ]
     }
   },
   "corpses": {

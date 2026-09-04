@@ -8,6 +8,7 @@ import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
+import { getRecoloredCanvasSync, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
 
 export interface AmbientCityPlayer {
   id: string;
@@ -64,6 +65,19 @@ export const AMBIENT_THAIS_PLAYERS: AmbientCityPlayer[] = [
     maxHp: 1150,
   },
   {
+    id: 'player-sire',
+    name: 'Sire',
+    vocation: 'Sire',
+    level: 120,
+    isPremium: true,
+    x: 32350,
+    y: 32226,
+    z: 7,
+    direction: 'south',
+    currentHp: 2400,
+    maxHp: 2400,
+  },
+  {
     id: 'player-muriel',
     name: 'Muriel',
     vocation: 'Sorcerer',
@@ -111,6 +125,7 @@ interface Props {
   isTraining: boolean;
   stepDurationMs?: number;
   onTileClick?: (tile: { x: number; y: number; z: number }) => void;
+  onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
   visualEvents?: CombatVisualEvent[];
   debug?: boolean;
   remotePlayers?: Map<string, any>;
@@ -150,6 +165,7 @@ export function ThaisCityArena({
   isTraining,
   stepDurationMs = 500,
   onTileClick,
+  onCharacterContextMenu,
   visualEvents = [],
   debug = false,
   remotePlayers,
@@ -169,7 +185,7 @@ export function ThaisCityArena({
     let cleanup: (() => void) | undefined;
 
     void (async () => {
-      const { Application, Assets, Container, Graphics, Sprite, Text } = await import('pixi.js');
+      const { Application, Assets, Container, Graphics, Sprite, Text, Texture } = await import('pixi.js');
       const app = new Application();
       await app.init({
         resizeTo: hostRef.current ?? undefined,
@@ -194,6 +210,10 @@ export function ThaisCityArena({
       const rugUrl = visualAssets.assets.trainingRug.frames[0].publicUrl;
       const dummyUrl = visualAssets.assets.trainingDummy.frames[0].publicUrl;
       const decorUrl = visualAssets.assets.trainingDecor.frames[0].publicUrl;
+      const mountUrl = '/generated/mounts/donkey_rider_south.png';
+      const thumbUrls = [
+        'citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate', 'oriental', 'beggar'
+      ].map((id) => `/generated/outfit-thumbs/${id}.png`);
       const outfitUrls = Object.values(visualAssets.outfits).flatMap((outfit) =>
         outfit.frames.map((f) => f.publicUrl)
       );
@@ -208,7 +228,7 @@ export function ThaisCityArena({
       );
 
       const allUrls = [
-        ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, ...outfitUrls, ...mapItemUrls]),
+        ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl, ...thumbUrls, ...outfitUrls, ...mapItemUrls]),
       ];
       
       const loaded: Record<string, PixiTexture> = {};
@@ -540,9 +560,39 @@ export function ThaisCityArena({
         }
       };
 
+      const onContextMenu = (e: MouseEvent) => {
+        e.preventDefault();
+        const rect = app.canvas.getBoundingClientRect();
+        const clientX = e.clientX - rect.left;
+        const clientY = e.clientY - rect.top;
+
+        const worldX = (clientX - world.position.x) / world.scale.x;
+        const worldY = (clientY - world.position.y) / world.scale.y;
+
+        const curChars = latestRef.current.characters;
+        let matchedCharId = curChars[0]?.id;
+        for (let idx = 0; idx < curChars.length; idx++) {
+          const char = curChars[idx];
+          const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
+          const offsetY = idx === 0 ? 0 : idx === 3 ? 24 : 12;
+          const px = currentPixelX + offsetX;
+          const py = currentPixelY + offsetY;
+          const dx = worldX - px;
+          const dy = worldY - py;
+          if (dx >= -24 && dx <= 24 && dy >= -44 && dy <= 20) {
+            matchedCharId = char.id;
+            break;
+          }
+        }
+        if (matchedCharId) {
+          latestRef.current.onCharacterContextMenu?.(matchedCharId, e.clientX, e.clientY);
+        }
+      };
+
       app.canvas.addEventListener('pointermove', onPointerMove);
       app.canvas.addEventListener('pointerleave', onPointerLeave);
       app.canvas.addEventListener('pointerdown', onPointerDown);
+      app.canvas.addEventListener('contextmenu', onContextMenu);
 
       // Character actor containers with crisp nameplate and health bar
       interface CityActorView {
@@ -554,33 +604,58 @@ export function ThaisCityArena({
       }
       const actorViews = new Map<string, CityActorView>();
 
-      function getOutfitFrameUrl(vocation: string, direction: string, frame: number): string {
-        const normKey = vocation.includes('Sorcerer')
+      function getOutfitFrameUrl(vocationOrOutfit: string, direction: string, frame: number): string {
+        const normKey = vocationOrOutfit.includes('Sire')
+          ? 'Sire'
+          : vocationOrOutfit.includes('Sorcerer') || vocationOrOutfit.includes('Mage')
           ? 'Sorcerer'
-          : vocation.includes('Druid')
+          : vocationOrOutfit.includes('Druid')
           ? 'Druid'
-          : vocation.includes('Paladin')
+          : vocationOrOutfit.includes('Paladin') || vocationOrOutfit.includes('Hunter')
           ? 'Paladin'
-          : vocation.includes('Knight')
+          : vocationOrOutfit.includes('Knight')
           ? 'Knight'
-          : vocation;
-        const outfit = visualAssets.outfits[normKey] || Object.values(visualAssets.outfits)[0];
-        if (!outfit) return '';
-        const dirFrames = outfit.frames.filter((f) => f.direction === direction);
-        const candidates = dirFrames.length > 0 ? dirFrames : outfit.frames.filter((f) => f.direction === 'south');
-        const match = candidates.find((f) => f.frame === frame) ?? candidates[0];
-        return match?.publicUrl ?? outfit.frames[0]?.publicUrl ?? '';
+          : vocationOrOutfit;
+        const outfit = visualAssets.outfits[normKey];
+        if (outfit) {
+          const dirFrames = outfit.frames.filter((f) => f.direction === direction);
+          const candidates = dirFrames.length > 0 ? dirFrames : outfit.frames.filter((f) => f.direction === 'south');
+          const match = candidates.find((f) => f.frame === frame) ?? candidates[0];
+          return match?.publicUrl ?? outfit.frames[0]?.publicUrl ?? '';
+        }
+        const idLower = normalizeOutfitId(vocationOrOutfit);
+        return `/generated/outfit-thumbs/${idLower}.png`;
       }
 
-      function ensureActorView(char: { id: string; name: string; vocation: string }): CityActorView | null {
+      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number } }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) return view;
 
-        const initialUrl = getOutfitFrameUrl(char.vocation, 'south', 0);
-        if (!initialUrl || !loaded[initialUrl]) return null;
+        const isMounted = Boolean(char.mountActive && char.mount && char.mount !== 'none');
+        const mountUrl = (char.mount === 'donkey' || char.mount === 'Donkey')
+          ? '/generated/mounts/donkey_rider_south.png'
+          : `/generated/mounts/${char.mount}.png`;
+        const initialUrl = isMounted ? mountUrl : getOutfitFrameUrl(char.outfit || char.vocation, 'south', 0);
+        let tex = loaded[initialUrl];
+
+        if (!tex) {
+          const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+          const charGender = char.gender === 'female' ? 'female' : 'male';
+          const canvas = getRecoloredCanvasSync(char.outfit || char.vocation, charGender, 'south', 0, colors);
+          if (canvas) {
+            tex = Texture.from(canvas);
+            tex.source.style.scaleMode = 'nearest';
+          }
+        }
+
+        if (!tex) {
+          const fallback = visualAssets.outfits['Knight']?.frames[0]?.publicUrl;
+          if (fallback) tex = loaded[fallback];
+        }
+        if (!tex) return null;
 
         const root = new Container();
-        const sprite = new Sprite(loaded[initialUrl]);
+        const sprite = new Sprite(tex);
         sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
         sprite.position.set(creatureVisualLayout.spriteOffsetX, creatureVisualLayout.spriteOffsetY);
         sprite.roundPixels = true;
@@ -604,7 +679,7 @@ export function ThaisCityArena({
         root.addChild(sprite, label, bar);
         actorsLayer.addChild(root);
 
-        view = { root, sprite, label, bar, lastUrl: initialUrl };
+        view = { root, sprite, label, bar, lastUrl: initialUrl || 'canvas' };
         actorViews.set(char.id, view);
         return view;
       }
@@ -674,11 +749,32 @@ export function ThaisCityArena({
           const view = ensureActorView(char);
           if (!view) return;
 
-          // Texture based on direction and walking animation
-          const nextUrl = getOutfitFrameUrl(char.vocation, playerDirection, walkFrame);
-          if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
-            view.sprite.texture = loaded[nextUrl];
-            view.lastUrl = nextUrl;
+          const isMounted = Boolean(char.mountActive && char.mount && char.mount !== 'none');
+          const mountUrl = (char.mount === 'donkey' || char.mount === 'Donkey')
+            ? '/generated/mounts/donkey_rider_south.png'
+            : `/generated/mounts/${char.mount}.png`;
+          if (isMounted && loaded[mountUrl]) {
+            view.sprite.texture = loaded[mountUrl];
+            view.sprite.scale.x = (playerDirection === 'west' || playerDirection === 'north') ? -1 : 1;
+            view.lastUrl = mountUrl;
+          } else {
+            view.sprite.scale.x = 1;
+            const outfitKey = char.outfit || char.vocation || 'Knight';
+            const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+            const charGender = char.gender === 'female' ? 'female' : 'male';
+            const canvas = getRecoloredCanvasSync(outfitKey, charGender, playerDirection as any, walkFrame, colors);
+            if (canvas) {
+              const tex = Texture.from(canvas);
+              tex.source.style.scaleMode = 'nearest';
+              view.sprite.texture = tex;
+              view.lastUrl = 'canvas';
+            } else {
+              const nextUrl = getOutfitFrameUrl(outfitKey, playerDirection, walkFrame);
+              if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                view.sprite.texture = loaded[nextUrl];
+                view.lastUrl = nextUrl;
+              }
+            }
           }
 
           // Offset party members slightly around the leader
@@ -773,6 +869,7 @@ export function ThaisCityArena({
         app.canvas.removeEventListener('pointermove', onPointerMove);
         app.canvas.removeEventListener('pointerleave', onPointerLeave);
         app.canvas.removeEventListener('pointerdown', onPointerDown);
+        app.canvas.removeEventListener('contextmenu', onContextMenu);
         app.destroy(true, { children: true });
       };
     })();

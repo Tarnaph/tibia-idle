@@ -91,6 +91,8 @@ Progress: [██████████] 100%
 | 39. Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Dobrada | 1 | - | - | Complete |
 | 40. Velocidade Normal, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM | 1 | - | - | Complete |
 | 41. Tooltip Global de Itens no Topo e Inspeção de Jogadores na Cidade | 1 | - | - | Complete |
+| 42. Sistema de Outfits e Montarias para Todos os Personagens da Party | 1 | - | - | Complete |
+| 43. Layout Oficial Tibia 11 do Menu de Outfit & Montarias | 1 | - | - | Complete |
 
 ## Accumulated Context
 

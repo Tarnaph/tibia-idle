@@ -4683,6 +4683,659 @@ h1, h2, h3, p { margin: 0; }
   font-style: italic;
 }
 
+/* ==========================================================================
+   Phase 42: Outfit and Mount Selection Modal (Tibia 11 Dark-Slate & Gold)
+   ========================================================================== */
+
+.party-card-outfit-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  color: #f3c766;
+  font-size: 10px;
+  padding: 1px 4px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.party-card-outfit-btn:hover {
+  background: rgba(243, 199, 102, 0.2);
+  border-color: #f3c766;
+  transform: scale(1.08);
+}
+
+/* =========================================================================
+   TIBIA 11 AUTHENTIC OUTFIT & MOUNT CUSTOMIZATION WINDOW
+   Matches Official Client Layout: Personagem/Outfit, 19x7 Matrix, 4-Col Grid
+   ========================================================================= */
+
+.tibia-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 14, 0.78);
+  backdrop-filter: blur(4px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  animation: tibiaWindowFade 0.18s ease-out;
+}
+
+@keyframes tibiaWindowFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tibia-outfit-window {
+  width: 980px;
+  max-width: 96vw;
+  max-height: 94vh;
+  background: #171b26;
+  border: 2px solid #283347;
+  border-radius: 4px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #cad5e8;
+  font-family: inherit;
+  user-select: none;
+  animation: tibiaWindowZoom 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tibiaWindowZoom {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Title Bar */
+.tibia-window-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  background: linear-gradient(180deg, #1d2331 0%, #161a25 100%);
+  border-bottom: 1px solid #232d3f;
+}
+
+.tibia-titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tibia-titlebar-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.03em;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.tibia-titlebar-nav-btn {
+  background: #12151e;
+  border: 1px solid #2d384c;
+  color: #8c9eb5;
+  border-radius: 3px;
+  font-size: 9.5px;
+  padding: 1px 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.tibia-titlebar-nav-btn:hover {
+  background: #1c2436;
+  color: #ffffff;
+  border-color: #4a88e8;
+}
+
+.tibia-titlebar-hint {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tibia-window-close-btn {
+  width: 20px;
+  height: 20px;
+  background: #131722;
+  border: 1px solid #2a3548;
+  border-radius: 3px;
+  color: #8c9eb5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tibia-window-close-btn:hover {
+  background: #7f1d1d;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+/* Top Navigation Tabs: PERSONAGEM / OUTFIT */
+.tibia-top-nav-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 8px 12px 6px;
+  background: #12151e;
+  border-bottom: 1px solid #232d3f;
+}
+
+.tibia-top-nav-tab {
+  height: 32px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+  background: #141822;
+  border: 1px solid #232d3f;
+  color: #7d8ea6;
+}
+
+.tibia-top-nav-tab:hover:not(.active) {
+  background: #19202c;
+  color: #cad5e8;
+  border-color: #33435c;
+}
+
+.tibia-top-nav-tab.active {
+  background: linear-gradient(180deg, #1d2638 0%, #151b29 100%);
+  border: 1.5px solid #4a88e8;
+  color: #ffffff;
+  box-shadow: inset 0 0 8px rgba(74, 136, 232, 0.35), 0 0 6px rgba(74, 136, 232, 0.2);
+}
+
+/* Window Content Body */
+.tibia-outfit-content {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 14px;
+  padding: 12px;
+  background: #161a25;
+  overflow-y: auto;
+}
+
+/* Left Column */
+.tibia-outfit-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 360px;
+  min-width: 360px;
+  max-width: 360px;
+  overflow: hidden;
+}
+
+.tibia-beveled-check-box {
+  background: #10131c;
+  border: 1px solid #222a3a;
+  border-radius: 3px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.12s ease;
+}
+
+.tibia-beveled-check-box:hover {
+  border-color: #324058;
+}
+
+.tibia-check-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #8c9eb5;
+  cursor: pointer;
+  width: 100%;
+}
+
+.tibia-check-label:hover {
+  color: #e2e8f0;
+}
+
+.tibia-custom-checkbox {
+  width: 14px;
+  height: 14px;
+  accent-color: #4a88e8;
+  cursor: pointer;
+}
+
+/* Large Inset Preview Box */
+.tibia-preview-box {
+  height: 250px;
+  background: radial-gradient(circle at 50% 50%, #2f384d 0%, #151924 75%);
+  border: 1px solid #273347;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.65);
+}
+
+.tibia-preview-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.tibia-preview-sprite {
+  image-rendering: pixelated;
+  transform-origin: center center;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
+  transition: transform 0.12s ease;
+}
+
+.tibia-preview-sprite.mounted {
+  max-width: 82%;
+  max-height: 82%;
+  object-fit: contain;
+}
+
+.tibia-preview-sprite.on-foot {
+  transform: scale(2.4);
+  max-width: 64px;
+  max-height: 64px;
+  object-fit: contain;
+}
+
+.tibia-preview-empty {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.tibia-rotate-corner-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #171d29;
+  border: 1px solid #303f56;
+  color: #8c9eb5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+  transition: all 0.12s ease;
+}
+
+.tibia-rotate-corner-btn:hover {
+  background: #232c3d;
+  border-color: #4a88e8;
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(74, 136, 232, 0.5);
+}
+
+/* 4 Body Part Tabs */
+.tibia-body-part-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.tibia-body-part-tab {
+  background: #12151e;
+  border: 1px solid #232d3f;
+  color: #8c9eb5;
+  padding: 6px 0;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s ease;
+}
+
+.tibia-body-part-tab:hover:not(.active) {
+  background: #181d29;
+  color: #cbd5e1;
+  border-color: #313f56;
+}
+
+.tibia-body-part-tab.active {
+  background: #1c2436;
+  border: 1.5px solid #4a88e8;
+  color: #ffffff;
+  box-shadow: inset 0 0 6px rgba(74, 136, 232, 0.35);
+}
+
+/* 19x7 Color Palette Matrix */
+.tibia-palette-container {
+  display: flex;
+  gap: 7px;
+  background: #0f121a;
+  border: 1px solid #202736;
+  border-radius: 4px;
+  padding: 6px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.tibia-palette-active-indicator {
+  width: 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+  transition: background-color 0.12s ease;
+}
+
+.tibia-palette-matrix-19x7 {
+  display: grid;
+  grid-template-columns: repeat(19, 1fr);
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.tibia-color-swatch-19x7,
+.tibia-palette-cell {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+  aspect-ratio: 1;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.tibia-color-swatch-19x7:hover,
+.tibia-palette-cell:hover {
+  transform: scale(1.3);
+  z-index: 5;
+  border-color: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+}
+
+.tibia-color-swatch-19x7.active,
+.tibia-color-swatch-19x7.selected,
+.tibia-palette-cell.active {
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 8px #ffffff, inset 0 0 2px #000000;
+  transform: scale(1.2);
+  z-index: 6;
+}
+
+/* Right Column */
+.tibia-outfit-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow: hidden;
+}
+
+/* Sub-tabs: Outfits vs Montarias */
+.tibia-subnav-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.tibia-subnav-tab {
+  height: 29px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  background: #11141c;
+  border: 1px solid #202736;
+  color: #7d8ea6;
+}
+
+.tibia-subnav-tab:hover:not(.active) {
+  background: #171d29;
+  color: #cad5e8;
+  border-color: #313f56;
+}
+
+.tibia-subnav-tab.active {
+  background: #1a2233;
+  border: 1.5px solid #4a88e8;
+  color: #ffffff;
+  box-shadow: inset 0 0 8px rgba(74, 136, 232, 0.3);
+}
+
+/* Filter Bar: Checkbox + Male/Female Radio */
+.tibia-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #10131c;
+  border: 1px solid #202736;
+  border-radius: 3px;
+  padding: 5px 12px;
+}
+
+.tibia-filter-check-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: #8c9eb5;
+  cursor: pointer;
+}
+
+.tibia-filter-check-label:hover {
+  color: #cbd5e1;
+}
+
+.tibia-gender-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tibia-gender-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #8c9eb5;
+  cursor: pointer;
+}
+
+.tibia-gender-label:hover {
+  color: #e2e8f0;
+}
+
+.tibia-custom-radio {
+  width: 13px;
+  height: 13px;
+  accent-color: #4a88e8;
+  cursor: pointer;
+}
+
+/* 4-Column Card Grid */
+.tibia-cards-scroll-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  max-height: 385px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Custom Scrollbar */
+.tibia-cards-scroll-grid::-webkit-scrollbar {
+  width: 8px;
+}
+.tibia-cards-scroll-grid::-webkit-scrollbar-track {
+  background: #0f121a;
+  border: 1px solid #1c2433;
+  border-radius: 2px;
+}
+.tibia-cards-scroll-grid::-webkit-scrollbar-thumb {
+  background: #252f42;
+  border: 1px solid #374661;
+  border-radius: 2px;
+}
+.tibia-cards-scroll-grid::-webkit-scrollbar-thumb:hover {
+  background: #33425c;
+  border-color: #4a88e8;
+}
+
+/* Card Item */
+.tibia-card-item {
+  background: #12151f;
+  border: 1px solid #222b3d;
+  border-radius: 3px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  min-height: 110px;
+}
+
+.tibia-card-item:hover {
+  background: #161c29;
+  border-color: #364660;
+}
+
+.tibia-card-item.active {
+  background: #192233;
+  border: 1.5px solid #4a88e8;
+  box-shadow: 0 0 10px rgba(74, 136, 232, 0.45), inset 0 0 8px rgba(74, 136, 232, 0.25);
+}
+
+.tibia-card-sprite-wrap {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.tibia-card-sprite {
+  max-height: 54px;
+  max-width: 54px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.tibia-card-sprite.mount-sprite {
+  max-height: 50px;
+  max-width: 68px;
+}
+
+.tibia-card-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.tibia-card-item.active .tibia-card-name {
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(74, 136, 232, 0.7);
+}
+
+.tibia-card-badge-premium {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #ffd759;
+  margin-top: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.tibia-card-badge-custom {
+  font-size: 9px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tibia-card-badge-free {
+  font-size: 9.5px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Window Footer */
+.tibia-window-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #12151e;
+  border-top: 1px solid #232d3f;
+}
+
+.tibia-footer-btn-cancel {
+  background: #161c28;
+  border: 1px solid #2c394f;
+  color: #8c9eb5;
+  padding: 6px 18px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.tibia-footer-btn-cancel:hover {
+  background: #1e2638;
+  color: #cbd5e1;
+  border-color: #3c4d6a;
+}
+
+.tibia-footer-btn-save {
+  background: linear-gradient(180deg, #242e42 0%, #171d2b 100%);
+  border: 1px solid #3c4f72;
+  color: #ffffff;
+  padding: 6px 30px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: all 0.12s ease;
+}
+
+.tibia-footer-btn-save:hover {
+  background: linear-gradient(180deg, #2d3a54 0%, #1d2537 100%);
+  border-color: #4a88e8;
+  box-shadow: 0 0 10px rgba(74, 136, 232, 0.4);
+  transform: translateY(-1px);
+}
+
+
+
 
 
 

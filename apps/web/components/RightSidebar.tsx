@@ -16,6 +16,7 @@ interface RightSidebarProps {
   inventoryEquipment: EquipmentDefinition[]; loot: LootStack[]; economy: ItemEconomyCatalog;
   equipmentMessage: string; saleMessage: string; onEquipment(): void; onAddMember(): void; onSellAll(): void;
   selectedCharacterId: string; onSelectCharacter(characterId: string): void;
+  onOpenOutfitModal?: (characterId: string) => void;
   preferences: Record<string, ItemLootPreference>; onSellOne(itemId: number): void; onTogglePreference(itemId: number, key: 'autoLoot' | 'lockSell' | 'quickSell'): void;
   onTransfer(source: EquipmentTransferSource, target: EquipmentTransferTarget): void;
   onPointerDragStart(source: EquipmentTransferSource, event: ReactPointerEvent<HTMLElement>): void;
@@ -27,7 +28,7 @@ function equipmentTooltip(item: EquipmentDefinition): string[] {
 }
 
 export function RightSidebar(props: RightSidebarProps) {
-  const { characters, actors, statsById, xpProgressById, inventoryEquipment, loot, economy, preferences, equipmentMessage, saleMessage, onEquipment, onAddMember, onSellAll, onSellOne, onTogglePreference, selectedCharacterId, onSelectCharacter, onTransfer, onPointerDragStart, mobileOpen, onMobileClose } = props;
+  const { characters, actors, statsById, xpProgressById, inventoryEquipment, loot, economy, preferences, equipmentMessage, saleMessage, onEquipment, onAddMember, onSellAll, onSellOne, onTogglePreference, selectedCharacterId, onSelectCharacter, onOpenOutfitModal, onTransfer, onPointerDragStart, mobileOpen, onMobileClose } = props;
   const [confirmSale, setConfirmSale] = useState(false);
   const [menu, setMenu] = useState<{ x: number; y: number; stack: LootStack } | null>(null);
   const lootTotal = loot.reduce((total, stack) => total + stack.amount, 0);
@@ -44,7 +45,7 @@ export function RightSidebar(props: RightSidebarProps) {
             const hp = actor?.hp ?? character.currentHp;
             const mana = actor?.mana ?? character.currentMana;
             return (
-              <button type="button" className={`party-member ${selectedCharacterId === character.id ? 'selected' : ''}`} aria-pressed={selectedCharacterId === character.id} key={character.id} onClick={() => onSelectCharacter(character.id)}>
+              <button type="button" className={`party-member ${selectedCharacterId === character.id ? 'selected' : ''}`} aria-pressed={selectedCharacterId === character.id} key={character.id} onClick={() => onSelectCharacter(character.id)} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); onOpenOutfitModal?.(character.id); }} title="Clique esquerdo para selecionar · Clique direito para mudar Outfit / Montaria">
                 <span className={`role-badge role-${roleForVocation(character.vocation).toLowerCase()}`}>{roleForVocation(character.vocation)}</span>
                 <span className="party-member-name"><strong>{character.name}</strong><small>{character.vocation} · Lv {character.level}</small></span>
                 <div className="party-resource"><span>HP</span><div className="compact-meter"><i className="hp-fill" style={{ width: `${100 * hp / character.maxHp}%` }} /></div><b>{Math.round(100 * hp / character.maxHp)}%</b></div>

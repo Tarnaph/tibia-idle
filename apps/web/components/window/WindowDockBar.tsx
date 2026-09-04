@@ -10,6 +10,7 @@ interface WindowDockBarProps {
   onToggleDebug: () => void;
   onSelectHunt: () => void;
   onOpenSkills: () => void;
+  onOpenOutfit?: () => void;
 }
 
 const WINDOW_ITEMS: Array<{ id: WindowId; label: string; icon: string }> = [
@@ -25,6 +26,7 @@ export function WindowDockBar({
   onToggleDebug,
   onSelectHunt,
   onOpenSkills,
+  onOpenOutfit,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -50,10 +52,34 @@ export function WindowDockBar({
             type="button"
             className="player-name-btn"
             onClick={onOpenSkills}
-            title="Abrir janela de Skills"
+            onContextMenu={(e) => {
+              e.preventDefault();
+              onOpenOutfit?.();
+            }}
+            title="Abrir janela de Skills · Clique direito para mudar Outfit"
           >
             {characterName}
           </button>
+          {onOpenOutfit && (
+            <button
+              type="button"
+              className="player-outfit-quick-btn"
+              onClick={onOpenOutfit}
+              title="Mudar Outfit / Montaria (Set Outfit)"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '3px',
+                padding: '1px 5px',
+                fontSize: '11px',
+                cursor: 'pointer',
+                color: '#e0c77b',
+                marginLeft: '4px',
+              }}
+            >
+              🥋 Outfit
+            </button>
+          )}
           <span className="player-gold">💰 {gold.toLocaleString('pt-BR')} gp</span>
         </div>
       </div>
