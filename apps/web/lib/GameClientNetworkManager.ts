@@ -105,10 +105,14 @@ export class GameClientNetworkManager {
   private setupRoomListeners(): void {
     if (!this.room) return;
 
-    const syncPlayer = (player: any, key: string) => {
+    const monitoredPlayers = new Set<string>();
+
+    const bindPlayer = (player: any, key: string) => {
       if (!player) return;
       this.updatePlayerSnapshot(key, player);
-      if (typeof player.onChange === 'function') {
+
+      if (!monitoredPlayers.has(key) && typeof player.onChange === 'function') {
+        monitoredPlayers.add(key);
         player.onChange(() => {
           this.updatePlayerSnapshot(key, player);
           this.notifyStateChange();
@@ -119,34 +123,56 @@ export class GameClientNetworkManager {
     // 1. Synchronize all players ALREADY in the room state when connecting
     if (this.room.state && this.room.state.players) {
       this.room.state.players.forEach((player: any, key: string) => {
-        syncPlayer(player, key);
+        bindPlayer(player, key);
       });
       this.notifyStateChange();
 
-      // 2. Listen to new players added dynamically
-      this.room.state.players.onAdd = (player: any, key: string) => {
-        syncPlayer(player, key);
-        this.notifyStateChange();
-      };
+      // Listen to new players added or removed dynamically via Schema callbacks
+      if (typeof this.room.state.players.onAdd === 'function') {
+        this.room.state.players.onAdd((player: any, key: string) => {
+          bindPlayer(player, key);
+          this.notifyStateChange();
+        });
+      }
 
-      // 3. Listen to players leaving
-      this.room.state.players.onRemove = (_player: any, key: string) => {
-        this.playersMap.delete(key);
-        this.notifyStateChange();
-      };
+      if (typeof this.room.state.players.onRemove === 'function') {
+        this.room.state.players.onRemove((_player: any, key: string) => {
+          monitoredPlayers.delete(key);
+          this.playersMap.delete(key);
+          this.notifyStateChange();
+        });
+      }
     }
 
-    // 4. Listen to room-wide state updates for real-time player position sync
+    // 2. Room-wide state updates for real-time player updates without duplicate listeners
     this.room.onStateChange((state: any) => {
       if (state && state.players) {
+        let hasChanges = false;
         state.players.forEach((player: any, key: string) => {
-          syncPlayer(player, key);
+          if (!monitoredPlayers.has(key)) {
+            bindPlayer(player, key);
+            hasChanges = true;
+          } else {
+            this.updatePlayerSnapshot(key, player);
+            hasChanges = true;
+          }
         });
-        this.notifyStateChange();
+        if (hasChanges) {
+          this.notifyStateChange();
+        }
       }
     });
 
-    // Listen to messages from server
+    // 3. Handle room disconnection cleanly
+    this.room.onLeave((code) => {
+      console.warn('[GameClientNetworkManager] Room connection left, code:', code);
+      this.room = null;
+      monitoredPlayers.clear();
+      this.playersMap.clear();
+      this.notifyStateChange();
+    });
+
+    // 4. Listen to messages from server
     this.room.onMessage('combat_event', (event: NetworkCombatEvent) => {
       this.combatListeners.forEach((fn) => fn(event));
     });

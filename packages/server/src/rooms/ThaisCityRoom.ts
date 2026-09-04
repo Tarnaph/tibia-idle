@@ -294,7 +294,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     // If client provided matching nearby coordinates, reconcile directly
     if (typeof clientX === 'number' && typeof clientY === 'number') {
       const dist = Math.hypot(clientX - player.posX, clientY - player.posY);
-      if (dist <= 2.5) {
+      if (dist <= 8 || player.lastStepTime === 0) {
         targetX = clientX;
         targetY = clientY;
         if (typeof clientZ === 'number') targetZ = clientZ;
@@ -378,33 +378,40 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     // Distance routing for local and yell channels
     this.clients.forEach((c) => {
-      const recipient = this.state.players.get(c.sessionId);
-      if (!recipient) return;
+      try {
+        const recipient = this.state.players.get(c.sessionId);
+        if (!recipient) return;
 
-      let canReceive = false;
-      if (c.sessionId === client.sessionId) {
-        canReceive = true;
-      } else if (normalizedChannel === 'world') {
-        canReceive = true;
-      } else if (normalizedChannel === 'local') {
-        canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, LOCAL_CHAT_RADIUS);
-      } else if (normalizedChannel === 'yell') {
-        canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, YELL_CHAT_RADIUS);
-      } else {
-        canReceive = true;
-      }
+        let canReceive = false;
+        if (c.sessionId === client.sessionId) {
+          canReceive = true;
+        } else if (normalizedChannel === 'world') {
+          canReceive = true;
+        } else if (normalizedChannel === 'local') {
+          canReceive =
+            player.posZ === recipient.posZ &&
+            (isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, LOCAL_CHAT_RADIUS) ||
+             isInViewport(player.posX, player.posY, recipient.posX, recipient.posY));
+        } else if (normalizedChannel === 'yell') {
+          canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, YELL_CHAT_RADIUS);
+        } else {
+          canReceive = true;
+        }
 
-      if (canReceive && typeof c.send === 'function') {
-        const payload = {
-          id: msg.id,
-          senderId: client.sessionId,
-          senderName: player.name,
-          text,
-          channel: normalizedChannel,
-          timestamp,
-        };
-        c.send('chat', payload);
-        c.send('chat_message', payload);
+        if (canReceive && typeof c.send === 'function') {
+          const payload = {
+            id: msg.id,
+            senderId: client.sessionId,
+            senderName: player.name,
+            text,
+            channel: normalizedChannel,
+            timestamp,
+          };
+          c.send('chat', payload);
+          c.send('chat_message', payload);
+        }
+      } catch (err) {
+        // Safe ignore broken socket on stale client
       }
     });
   }
