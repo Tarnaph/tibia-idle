@@ -265,42 +265,47 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
 
         <div
           style={{
-            width: '520px',
-            maxWidth: '92vw',
-            backgroundColor: 'rgba(27, 34, 45, 0.95)',
-            border: '2px solid #5a4b32',
-            boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), inset 0 0 15px rgba(90, 75, 50, 0.35)',
-            borderRadius: '6px',
-            overflow: 'hidden',
+            width: '640px',
+            maxWidth: '94vw',
+            minHeight: '400px',
+            backgroundImage: "url('/auth-box-bg.png')",
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            padding: '44px 50px 40px',
+            boxSizing: 'border-box',
+            filter: 'drop-shadow(0 12px 35px rgba(0, 0, 0, 0.95))',
             color: '#d6d2c4',
-            backdropFilter: 'blur(8px)',
+            position: 'relative',
           }}
         >
           {/* Header Bar */}
           <div
             style={{
-              background: 'linear-gradient(180deg, #3d3121 0%, #251c11 100%)',
-              borderBottom: '1px solid #5a4b32',
-              padding: '10px 18px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              marginBottom: '16px',
+              paddingBottom: '10px',
+              borderBottom: '1px solid rgba(212, 168, 67, 0.25)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: '#d4a843', fontSize: '13px', fontWeight: 'bold', letterSpacing: '0.06em' }}>✦ SELEÇÃO DE PERSONAGEM</span>
-            </div>
+            <span style={{ color: '#f3e5ab', fontSize: '14px', fontWeight: 'bold', letterSpacing: '0.08em', textShadow: '1px 1px 2px #000' }}>
+              ✦ SELEÇÃO DE PERSONAGEM
+            </span>
             {account && (
               <button
                 onClick={handleLogout}
                 style={{
-                  background: 'none',
-                  border: '1px solid #5a4b32',
+                  background: 'linear-gradient(180deg, #3d3121 0%, #1c150c 100%)',
+                  border: '1px solid #7d5c2e',
                   color: '#ba8e54',
                   fontSize: '11px',
-                  padding: '3px 8px',
+                  padding: '4px 10px',
                   borderRadius: '3px',
                   cursor: 'pointer',
+                  fontWeight: 'bold',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.5)',
                 }}
               >
                 Desconectar ({account.displayName})
@@ -308,7 +313,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
             )}
           </div>
 
-        <div style={{ padding: '24px' }}>
+          <div>
           {errorMsg && (
             <div
               style={{
