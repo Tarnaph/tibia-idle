@@ -153,13 +153,11 @@ export function LandingPage({
         {/* HERO SECTION - DIABLO IV STYLE WITH BACKGROUND VIDEO */}
         <section className="hero-section diablo-hero" id="inicio">
           <div className="diablo-hero-video-container">
-            <video
-              className="diablo-hero-video"
-              src="/songtibia.webm"
-              autoPlay
-              loop
-              muted
-              playsInline
+            <iframe
+              className="diablo-hero-iframe"
+              src="https://www.youtube.com/embed/b3Q0iWCTuZI?autoplay=1&mute=1&loop=1&playlist=b3Q0iWCTuZI&controls=0&showinfo=0&autohide=1&modestbranding=1&rel=0&enablejsapi=1"
+              title="Background Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             />
             <div className="diablo-hero-video-overlay" />
           </div>
