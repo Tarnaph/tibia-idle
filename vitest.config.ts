@@ -6,5 +6,11 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     testTimeout: 90_000,
     coverage: { enabled: false },
+    server: {
+      deps: {
+        inline: [/colyseus/, /@colyseus/],
+      },
+    },
   },
 });
+
