@@ -176,9 +176,8 @@ export class CharacterService {
       throw new Error('Limite máximo de 6 personagens por conta atingido.');
     }
 
-    // Check unique name (case-insensitive check)
     const existingChar = await this.prisma.character.findFirst({
-      where: { name: { equals: trimmedName, mode: 'insensitive' } },
+      where: { name: { equals: trimmedName } },
     });
 
     if (existingChar) {
