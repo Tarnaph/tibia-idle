@@ -46,7 +46,7 @@ describe('Phase 48: 20s Auto-save, Trade System, Context Menu, Rarity Loot and F
     expect(friendsSrc).toContain('onPrivateMessage');
     expect(friendsSrc).toContain('onInviteParty');
 
-    expect(dockSrc).toContain("{ id: 'friends', label: 'Amigos', icon: '⭐' }");
+    expect(dockSrc).toContain("toggleWindow('friends')");
     expect(topNavSrc).toContain('Amigos');
     expect(protoSrc).toContain('FriendsWindow');
     expect(protoSrc).toContain('TradeWindow');

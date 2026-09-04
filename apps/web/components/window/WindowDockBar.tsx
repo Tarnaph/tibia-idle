@@ -6,6 +6,9 @@ import { useWindowManager, type WindowId } from './WindowManagerContext';
 interface WindowDockBarProps {
   gold: number;
   characterName: string;
+  vocationName?: string;
+  level?: number;
+  onlinePlayersCount?: number;
   debug: boolean;
   onToggleDebug: () => void;
   onSelectHunt: () => void;
@@ -14,17 +17,12 @@ interface WindowDockBarProps {
   onExitGame?: () => void;
 }
 
-const WINDOW_ITEMS: Array<{ id: WindowId; label: string; icon: string }> = [
-  { id: 'chat', label: 'Chat', icon: '💬' },
-  { id: 'party', label: 'Party', icon: '👥' },
-  { id: 'friends', label: 'Amigos', icon: '⭐' },
-  { id: 'metrics', label: 'Métricas', icon: '📊' },
-  { id: 'logs', label: 'Logs', icon: '📜' },
-];
-
 export function WindowDockBar({
   gold,
   characterName,
+  vocationName = 'ELITE KNIGHT',
+  level = 184,
+  onlinePlayersCount = 13315,
   debug,
   onToggleDebug,
   onSelectHunt,
@@ -33,16 +31,6 @@ export function WindowDockBar({
   onExitGame,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [lang, setLang] = useState<'pt' | 'en'>('pt');
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
-    } else {
-      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
-    }
-  };
 
   const handleExit = () => {
     if (onExitGame) {
@@ -53,129 +41,160 @@ export function WindowDockBar({
   };
 
   return (
-    <header className="window-dock-bar" aria-label="Barra de janelas do jogo">
-      <div className="dock-left">
-        <div className="game-brand" title="Exura Idle Adventures">
-          <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+    <header className="huntera-top-bar" aria-label="Barra de Navegação Huntera">
+      {/* Brand Logo */}
+      <div className="huntera-logo-wrap" title="Huntera / Exura Online">
+        <img src="/logo.png" alt="Huntera Logo" className="huntera-logo-img" />
+      </div>
+
+      {/* Character Profile Card */}
+      <div className="huntera-profile-card">
+        <div
+          className="huntera-avatar-box"
+          onClick={onOpenOutfit || onOpenSkills}
+          title="Clique para mudar Outfit"
+        >
+          <div className="avatar-sprite-placeholder" />
         </div>
-        <div className="player-summary">
-          <button
-            type="button"
-            className="player-name-btn"
-            onClick={onOpenSkills}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              onOpenOutfit?.();
-            }}
-            title="Abrir janela de Skills · Clique direito para mudar Outfit"
-          >
-            {characterName}
-          </button>
-          {onOpenOutfit && (
-            <button
-              type="button"
-              className="player-outfit-quick-btn"
-              onClick={onOpenOutfit}
-              title="Mudar Outfit / Montaria (Set Outfit)"
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: '3px',
-                padding: '1px 5px',
-                fontSize: '11px',
-                cursor: 'pointer',
-                color: '#e0c77b',
-                marginLeft: '4px',
-              }}
-            >
-              🥋 Outfit
-            </button>
-          )}
-          <span className="player-gold">💰 {gold.toLocaleString('pt-BR')} gp</span>
+        <div className="huntera-profile-info">
+          <div className="huntera-player-name">{characterName.toUpperCase()}</div>
+          <div className="huntera-vocation-level">
+            {vocationName.toUpperCase()} LV {level}
+          </div>
+          <div className="huntera-exp-badge">TAXA DE EXP +4%</div>
         </div>
       </div>
 
-      <nav className="dock-windows">
-        {WINDOW_ITEMS.map((item) => {
-          const state = windows[item.id];
-          const isActive = state?.isOpen;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              className={`dock-btn ${isActive ? 'is-active' : ''} ${state?.isMinimized ? 'is-min' : ''}`}
-              title={`${item.label} (${isActive ? (state.isMinimized ? 'Minimizada - clique para abrir' : 'Aberta - clique para fechar') : 'Fechada - clique para abrir'})`}
-              onClick={() => toggleWindow(item.id)}
-            >
-              <span className="dock-btn-icon">{item.icon}</span>
-              <span className="dock-btn-label">{item.label}</span>
-              {isActive && <span className="dock-status-dot" />}
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="dock-right">
-        {/* Language selector pill */}
-        <div className="dock-lang-pill" title="Alterar idioma">
-          <button
-            type="button"
-            className={`lang-btn ${lang === 'pt' ? 'active' : ''}`}
-            onClick={() => setLang('pt')}
-            title="Português (Brasil)"
-          >
-            🇧🇷
-          </button>
-          <button
-            type="button"
-            className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
-            onClick={() => setLang('en')}
-            title="English (US)"
-          >
-            🇺🇸
-          </button>
+      {/* Currency Badges */}
+      <div className="huntera-currency-group">
+        <div className="huntera-badge coins-badge" title="Huntera Coins">
+          <span className="coin-icon">🪙</span>
+          <span className="badge-value">0</span>
+          <button type="button" className="badge-plus-btn" title="Comprar Coins">+</button>
         </div>
 
-        {/* Diamond Buttons */}
-        <div className="diamond-btn-wrap" title="Stamina & Bônus de Energia">
-          <div className="diamond-btn-inner">
-            <span className="diamond-icon">🔋</span>
-          </div>
+        <div className="huntera-badge gold-badge" title="Gold Coins no inventário/banco">
+          <span className="gold-icon">✨</span>
+          <span className="badge-value">{gold.toLocaleString('pt-BR')}</span>
         </div>
+      </div>
 
-        <a href="https://discord.gg" target="_blank" rel="noreferrer" className="diamond-btn-wrap discord" title="Comunidade no Discord">
-          <div className="diamond-btn-inner">
-            <span className="diamond-icon">👾</span>
-          </div>
-        </a>
+      {/* Golden Shop Button */}
+      <button
+        type="button"
+        className="huntera-shop-btn"
+        onClick={() => toggleWindow('trade')}
+        title="Abrir Loja / Mercado"
+      >
+        <span className="shop-icon">🏯</span>
+        <span className="shop-label">Loja</span>
+      </button>
 
-        <button type="button" className="diamond-btn-wrap" title="Configurações / Organizar Janelas" onClick={resetLayout}>
-          <div className="diamond-btn-inner">
-            <span className="diamond-icon">⚙️</span>
-          </div>
-        </button>
+      {/* Online Players Status */}
+      <div className="huntera-online-status" title="Jogadores conectados no mundo online">
+        <span className="status-dot green" />
+        <span className="online-text">
+          <strong>{onlinePlayersCount.toLocaleString('pt-BR')}</strong> jogadores online
+        </span>
+      </div>
 
-        {/* Golden Diamond Exit Door Button */}
+      {/* Right Action Icons Grid */}
+      <div className="huntera-actions-grid">
         <button
           type="button"
-          className="diamond-btn-wrap exit-gold"
-          title="Voltar ao site (sua conta continua logada)"
-          onClick={handleExit}
+          className={`huntera-square-btn ${windows.equipment?.isOpen ? 'active' : ''}`}
+          onClick={() => toggleWindow('equipment')}
+          title="Equipamentos e Armadura"
         >
-          <div className="diamond-btn-inner exit-gold-inner">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              style={{ transform: 'rotate(-45deg)', display: 'block' }}
-            >
-              <path d="M4 3h16v18H4V3z" stroke="#e5c04b" strokeWidth="1.5" fill="none" />
-              <path d="M8 5v14l7-2V7l-7-2z" fill="#ffd700" stroke="#7a5c10" strokeWidth="1" />
-              <circle cx="13" cy="12" r="1" fill="#4a3500" />
-              <path d="M2 12h4m-2-2l-2 2 2 2" stroke="#ffe680" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M12 2L4 7v10l8 5 8-5V7l-8-5z" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className="huntera-square-btn"
+          onClick={onOpenSkills}
+          title="Skills e Atributos"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className={`huntera-square-btn ${windows.party?.isOpen ? 'active' : ''}`}
+          onClick={() => toggleWindow('party')}
+          title="Seu Squad / Party"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 00-3-3.87" />
+            <path d="M16 3.13a4 4 0 010 7.75" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className={`huntera-square-btn ${windows.friends?.isOpen ? 'active' : ''}`}
+          onClick={() => toggleWindow('friends')}
+          title="Lista de Amigos"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className={`huntera-square-btn ${windows.metrics?.isOpen ? 'active' : ''}`}
+          onClick={() => toggleWindow('metrics')}
+          title="Métricas e Analisadores"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className={`huntera-square-btn ${windows.chat?.isOpen ? 'active' : ''}`}
+          onClick={() => toggleWindow('chat')}
+          title="Chat do Jogo (World / Local / PM)"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className="huntera-square-btn"
+          onClick={resetLayout}
+          title="Organizar Janelas / Reset Layout"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className="huntera-square-btn exit-btn"
+          onClick={handleExit}
+          title="Sair do Jogo"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" strokeWidth="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
         </button>
       </div>
     </header>

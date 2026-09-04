@@ -45,6 +45,8 @@ import { WindowManagerProvider, useWindowManager } from './window/WindowManagerC
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
+import { AdvancedMetricsWindow } from './AdvancedMetricsWindow';
+import { PartyWindow } from './window/PartyWindow';
 import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
 import { TradeWindow, type TradeOfferItem } from './window/TradeWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
@@ -364,6 +366,38 @@ function GamePrototypeContent() {
   const statsById = useMemo(() => new Map(game.session.characters.map((character) => [
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
   ])), [game.session.characters]);
+
+  // Periodic Auto-Save of active character progress to Database
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') : null;
+    if (!token || !activeCharacter) return;
+
+    const saveProgress = async () => {
+      try {
+        await fetch(`/api/characters/${activeCharacter.id}/save`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            level: activeCharacter.level,
+            experience: Number(activeCharacter.experience),
+            health: activeCharacter.currentHp,
+            maxHealth: activeCharacter.maxHp,
+            mana: activeCharacter.currentMana,
+            maxMana: activeCharacter.maxMana,
+            skills: activeCharacter.skills,
+          }),
+        });
+      } catch (err) {
+        // Auto-save silent error handling
+      }
+    };
+
+    const timer = setInterval(saveProgress, 30000);
+    return () => clearInterval(timer);
+  }, [activeCharacter]);
 
   const mountBonus = activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none' ? 20 : 0;
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus;
@@ -986,115 +1020,18 @@ function GamePrototypeContent() {
         onClose={() => setSkillsModalOpen(false)}
       />
 
-      {/* Window 3: Party */}
+      {/* Window 3: Party & Squad */}
       <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{game.session.characters.length}/4</small>}>
-        <div className="party-cards-list">
-          {game.session.characters.map((character) => {
-            const actor = encounter.partyActors.find((candidate) => candidate.characterId === character.id);
-            const isLeader = character.id === game.session.leaderId;
-            const isSelected = character.id === activeCharacter.id;
-            const hp = actor?.hp ?? character.currentHp;
-            const mana = actor?.mana ?? character.currentMana;
-            const hpPct = Math.max(0, Math.min(100, (100 * hp) / character.maxHp));
-            const manaPct = character.maxMana > 0 ? Math.max(0, Math.min(100, (100 * mana) / character.maxMana)) : 0;
-
-            return (
-              <div
-                className={`party-card-item ${isSelected ? 'selected' : ''}`}
-                key={character.id}
-                onClick={() => selectPartyCharacter(character.id)}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setCharContextMenu({ x: e.clientX, y: e.clientY, characterId: character.id });
-                }}
-                title="Clique esquerdo para focar · Clique direito para Opções / Outfit"
-              >
-                <div className="party-card-header">
-                  <div className="party-card-name-row">
-                    <span className="party-card-name">{character.name}</span>
-                    {isLeader && <span className="party-card-star" title="Líder da Party">★</span>}
-                  </div>
-                  <div className="party-card-level-row">
-                    <span className="party-card-level">Lv. {character.level}</span>
-                    <button
-                      type="button"
-                      className="party-card-outfit-btn"
-                      title="Mudar Outfit / Montaria (Set Outfit)"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenOutfitModal(character.id);
-                      }}
-                    >
-                      🥋
-                    </button>
-                    {!isLeader && (
-                      <button
-                        type="button"
-                        className="party-card-remove-btn"
-                        title="Remover da party"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setGame((cur) => removePartyMember(cur, character.id));
-                        }}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* HP Bar */}
-                <div className="party-bar-container hp-bar-bg" title={`HP: ${hp}/${character.maxHp}`}>
-                  <div className="party-bar-fill hp-fill" style={{ width: `${hpPct}%` }} />
-                </div>
-
-                {/* MP Bar */}
-                <div className="party-bar-container mana-bar-bg" title={`MP: ${mana}/${character.maxMana}`}>
-                  <div className="party-bar-fill mana-fill" style={{ width: `${manaPct}%` }} />
-                </div>
-
-                {/* Stamina Bar */}
-                <div className="party-bar-container stamina-bar-bg" title="Stamina: 42:00h">
-                  <div className="party-bar-fill stamina-fill" style={{ width: '100%' }} />
-                  <span className="party-stamina-caption">42:00h</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="party-window-footer-actions">
-          <button
-            type="button"
-            className="party-add-member-btn"
-            onClick={() => setPartyModalOpen(true)}
-            disabled={game.session.characters.length >= 4}
-          >
-            Adicionar membro ({game.session.characters.length}/4)
-          </button>
-        </div>
+        <PartyWindow
+          squadMembers={game.session.characters}
+          onAddSquadMember={() => setPartyModalOpen(true)}
+          onInvitePlayer={(name) => handleInviteParty(name)}
+        />
       </DraggableWindow>
 
-      {/* Window 5: Metrics & Battle Stats */}
+      {/* Window 5: Advanced Metrics & Analyzers */}
       <DraggableWindow id="metrics" icon="📊">
-        <div className="metrics-window-content">
-          <div style={{ marginBottom: '8px' }}>
-            <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#c5a046', marginBottom: '4px' }}>DANO DE COMBATE</div>
-            <ValueRow label="DPS Médio" value={`${metrics.approximateDps.toFixed(1)}`} />
-            <ValueRow label="Dano Causado" value={metrics.damageDealt.toLocaleString('pt-BR')} />
-            <ValueRow label="Dano Recebido" value={metrics.damageTaken.toLocaleString('pt-BR')} />
-          </div>
-          <div style={{ paddingTop: '6px', borderTop: '1px solid #333a34' }}>
-            <div style={{ fontSize: '9px', fontWeight: 'bold', color: '#c5a046', marginBottom: '4px' }}>PROGRESSÃO DA SESSÃO</div>
-            <ValueRow label="Tempo" value={formatSessionDuration(metrics.elapsedMs)} />
-            <ValueRow label="XP Ganho" value={metrics.xpGained.toLocaleString('pt-BR')} />
-            <ValueRow label="Taxa de XP" value={`${metrics.xpPerHour.toLocaleString('pt-BR')}/h`} />
-            <ValueRow label="Abates" value={metrics.kills} />
-            <ValueRow label="Loot Coletado" value={metrics.lootGained} />
-            <ValueRow label="Salas Alcançadas" value={encounter.room.number} />
-          </div>
-        </div>
+        <AdvancedMetricsWindow metrics={metrics} gold={game.session.gold} />
       </DraggableWindow>
 
       {/* Window 6: Combat Log History */}

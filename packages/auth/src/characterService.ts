@@ -272,4 +272,71 @@ export class CharacterService {
       where: { id: characterId },
     });
   }
+
+  async saveCharacterProgress(
+    characterId: string,
+    data: {
+      level?: number;
+      experience?: bigint;
+      health?: number;
+      maxHealth?: number;
+      mana?: number;
+      maxMana?: number;
+      capacity?: number;
+      posX?: number;
+      posY?: number;
+      posZ?: number;
+      outfitLookType?: number;
+      skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }>;
+      inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
+    }
+  ) {
+    const updateData: any = {};
+    if (data.level !== undefined) updateData.level = data.level;
+    if (data.experience !== undefined) updateData.experience = data.experience;
+    if (data.health !== undefined) updateData.health = data.health;
+    if (data.maxHealth !== undefined) updateData.maxHealth = data.maxHealth;
+    if (data.mana !== undefined) updateData.mana = data.mana;
+    if (data.maxMana !== undefined) updateData.maxMana = data.maxMana;
+    if (data.capacity !== undefined) updateData.capacity = data.capacity;
+    if (data.posX !== undefined) updateData.posX = data.posX;
+    if (data.posY !== undefined) updateData.posY = data.posY;
+    if (data.posZ !== undefined) updateData.posZ = data.posZ;
+    if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
+
+    // Update skills if provided
+    if (data.skills && data.skills.length > 0) {
+      for (const sk of data.skills) {
+        await this.prisma.characterSkill.upsert({
+          where: {
+            characterId_skillId: {
+              characterId,
+              skillId: sk.skillId,
+            },
+          },
+          update: {
+            value: sk.value,
+            tries: sk.tries !== undefined ? sk.tries : undefined,
+          },
+          create: {
+            characterId,
+            skillId: sk.skillId,
+            skillName: sk.skillName,
+            value: sk.value,
+            tries: sk.tries !== undefined ? sk.tries : BigInt(0),
+          },
+        });
+      }
+    }
+
+    return this.prisma.character.update({
+      where: { id: characterId },
+      data: updateData,
+      include: {
+        skills: true,
+        inventory: true,
+        spells: true,
+      },
+    });
+  }
 }

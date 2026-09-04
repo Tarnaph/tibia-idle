@@ -42,3 +42,35 @@ export function reorderHotbar(character: CharacterState, fromIndex: number, toIn
   hotbar.splice(toIndex, 0, moved);
   return { ...character, hotbar };
 }
+
+export type FacingDirection = 'north' | 'east' | 'south' | 'west';
+
+export function getDirectionalSpellTiles(
+  casterPos: { x: number; y: number; z: number },
+  direction: FacingDirection,
+  spellName: string,
+  spellRangeVal = 1
+): Array<{ x: number; y: number; z: number }> {
+  const dirMap: Record<FacingDirection, { dx: number; dy: number }> = {
+    north: { dx: 0, dy: -1 },
+    east: { dx: 1, dy: 0 },
+    south: { dx: 0, dy: 1 },
+    west: { dx: -1, dy: 0 },
+  };
+
+  const { dx, dy } = dirMap[direction] || dirMap.south;
+  const tiles: Array<{ x: number; y: number; z: number }> = [];
+
+  const lowerName = spellName.toLowerCase();
+  if (lowerName.includes('lux') || lowerName.includes('wave') || lowerName.includes('gran vis')) {
+    const range = Math.max(3, spellRangeVal);
+    for (let r = 1; r <= range; r++) {
+      tiles.push({ x: casterPos.x + dx * r, y: casterPos.y + dy * r, z: casterPos.z });
+    }
+  } else {
+    tiles.push({ x: casterPos.x + dx, y: casterPos.y + dy, z: casterPos.z });
+  }
+
+  return tiles;
+}
+
