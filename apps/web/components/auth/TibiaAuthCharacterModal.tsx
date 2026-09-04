@@ -58,9 +58,10 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Video Audio State
+  // Video Audio & Playback State
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -71,6 +72,18 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
       } else {
         videoRef.current.muted = true;
         setIsMuted(true);
+      }
+    }
+  };
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => {});
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
       }
     }
   };
@@ -768,7 +781,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
             </div>
           </div>
 
-          {/* RIGHT: Frameless & Larger Bard Character Video */}
+          {/* RIGHT: Frameless & Larger Bard Character Video with Transparent Overlay Player */}
           <div
             style={{
               width: '560px',
@@ -785,7 +798,79 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
               zIndex: 1,
             }}
           >
-            <BardChromaVideo src="/songtibia.webm" videoRef={videoRef} setIsMuted={setIsMuted} />
+            <BardChromaVideo
+              src="/songtibia.webm"
+              videoRef={videoRef}
+              setIsMuted={setIsMuted}
+              setIsPlaying={setIsPlaying}
+              onTogglePlay={togglePlay}
+            />
+
+            {/* Floating Transparent Player Control Badge directly over Video */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '35px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '6px 16px',
+                backgroundColor: 'rgba(10, 14, 20, 0.45)',
+                border: '1px solid rgba(212, 168, 67, 0.5)',
+                borderRadius: '24px',
+                backdropFilter: 'blur(8px)',
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.75), inset 0 0 10px rgba(212, 168, 67, 0.12)',
+                pointerEvents: 'auto',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <button
+                type="button"
+                onClick={togglePlay}
+                title={isPlaying ? 'Pausar Vídeo' : 'Reproduzir Vídeo'}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#f3e5ab',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '2px 6px',
+                  textShadow: '0 0 8px rgba(212, 168, 67, 0.7)',
+                }}
+              >
+                <span>{isPlaying ? '❚❚' : '▶'}</span>
+                <span>{isPlaying ? 'PAUSAR' : 'PLAY'}</span>
+              </button>
+              <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(212, 168, 67, 0.35)' }} />
+              <button
+                type="button"
+                onClick={toggleMute}
+                title={isMuted ? 'Ativar Som do Bardo' : 'Mutar Som do Bardo'}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: isMuted ? '#8a8075' : '#f3e5ab',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '2px 6px',
+                  textShadow: isMuted ? 'none' : '0 0 8px rgba(212, 168, 67, 0.7)',
+                }}
+              >
+                <span>{isMuted ? '🔇' : '🔊'}</span>
+                <span>{isMuted ? 'MUTADO' : 'ÁUDIO'}</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -830,10 +915,14 @@ function BardChromaVideo({
   src,
   videoRef,
   setIsMuted,
+  setIsPlaying,
+  onTogglePlay,
 }: {
   src: string;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   setIsMuted: (muted: boolean) => void;
+  setIsPlaying?: (playing: boolean) => void;
+  onTogglePlay?: () => void;
 }) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
 
@@ -854,6 +943,11 @@ function BardChromaVideo({
     video.addEventListener('loadedmetadata', setInitialTime);
     video.addEventListener('timeupdate', setInitialTime);
 
+    const handlePlay = () => setIsPlaying?.(true);
+    const handlePause = () => setIsPlaying?.(false);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+
     const startAudio = async () => {
       try {
         video.muted = false;
@@ -861,6 +955,7 @@ function BardChromaVideo({
         setInitialTime();
         await video.play();
         setIsMuted(false);
+        setIsPlaying?.(true);
       } catch {
         // Autoplay policy blocked unmuted audio; start muted initially
         try {
@@ -868,6 +963,7 @@ function BardChromaVideo({
           setInitialTime();
           await video.play();
           setIsMuted(true);
+          setIsPlaying?.(true);
         } catch {
           // Ignore
         }
@@ -879,6 +975,7 @@ function BardChromaVideo({
             video.volume = 0.8;
             video.play().then(() => {
               setIsMuted(false);
+              setIsPlaying?.(true);
             }).catch(() => {});
           }
           removeListeners();
@@ -952,8 +1049,10 @@ function BardChromaVideo({
       cancelAnimationFrame(animId);
       video.removeEventListener('loadedmetadata', setInitialTime);
       video.removeEventListener('timeupdate', setInitialTime);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
     };
-  }, [src, videoRef, setIsMuted]);
+  }, [src, videoRef, setIsMuted, setIsPlaying]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -972,11 +1071,14 @@ function BardChromaVideo({
       />
       <canvas
         ref={canvasRef}
+        onClick={onTogglePlay}
+        title="Clique para Play / Pause no Vídeo"
         style={{
           width: '100%',
           height: '100%',
           objectFit: 'contain',
           filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.9))',
+          cursor: 'pointer',
         }}
       />
     </div>
