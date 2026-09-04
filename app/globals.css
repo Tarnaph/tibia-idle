@@ -299,10 +299,10 @@ h1, h2, h3, p { margin: 0; }
   grid-template-columns: minmax(350px, 1fr) auto minmax(220px, 1fr);
   align-items: stretch;
   min-width: 0;
-  border-bottom: 1px solid #5a5d5d;
+  border-bottom: 1px solid #2b2d2d;
   background:
-    repeating-linear-gradient(115deg, rgba(255,255,255,.018) 0 1px, transparent 1px 7px),
-    linear-gradient(180deg, #414343, #282a2a 80%);
+    repeating-linear-gradient(115deg, rgba(255,255,255,.015) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, #222424, #141515 80%);
   box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
 }
 .brand-cluster { display: flex; min-width: 0; align-items: center; gap: 9px; padding: 0 12px; }
@@ -321,7 +321,7 @@ h1, h2, h3, p { margin: 0; }
 .nav-shortcut.active span { color: var(--accent-bright); }
 .nav-shortcut.future { opacity: 0.38; cursor: not-allowed; }
 .topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 5px; padding: 0 10px; }
-.top-action { display: grid; min-width: 34px; height: 32px; place-items: center; border: 1px solid #555858; color: #afb2b0; background: #222424; font-size: 9px; font-weight: 800; cursor: pointer; }
+.top-action { display: grid; min-width: 34px; height: 32px; place-items: center; border: 1px solid #3d4040; color: #afb2b0; background: #181919; font-size: 9px; font-weight: 800; cursor: pointer; }
 .top-action:hover:not(:disabled), .top-action.active { border-color: #8b794f; color: var(--accent-bright); background: #24241b; }
 .top-action:disabled { opacity: 0.4; cursor: not-allowed; }
 .mobile-only { display: none; }
@@ -388,7 +388,7 @@ h1, h2, h3, p { margin: 0; }
 .promotion-card em { grid-column: 1 / -1; color: #8f978f; font-size: 7px; font-style: normal; }
 
 /* Hunt header and game viewport */
-.hunt-header { display: grid; min-width: 0; grid-template-columns: minmax(155px, 1fr) 58px auto minmax(120px, auto) auto; align-items: center; gap: 12px; padding: 0 10px; border-bottom: 1px solid #5a5d5d; background: repeating-linear-gradient(115deg, rgba(255,255,255,.014) 0 1px, transparent 1px 8px), linear-gradient(180deg, #3a3c3c, #242626); box-shadow: 0 3px 10px rgba(0,0,0,.35); }
+.hunt-header { display: grid; min-width: 0; grid-template-columns: minmax(155px, 1fr) 58px auto minmax(120px, auto) auto; align-items: center; gap: 12px; padding: 0 10px; border-bottom: 1px solid #2b2d2d; background: repeating-linear-gradient(115deg, rgba(255,255,255,.012) 0 1px, transparent 1px 8px), linear-gradient(180deg, #1f2020, #131414); box-shadow: 0 3px 10px rgba(0,0,0,.35); }
 .hunt-title-block { display: flex; min-width: 0; align-items: center; gap: 8px; }
 .hunt-title-block > span:last-child { display: grid; min-width: 0; gap: 1px; }
 .hunt-title-block small { color: #838d85; font-size: 7px; letter-spacing: .1em; text-transform: uppercase; }
