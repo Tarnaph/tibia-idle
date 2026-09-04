@@ -9,18 +9,19 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 41 of 41 (Tooltip Global de Atributos de Itens e Inspeção de Jogadores na Cidade)  
+Phase: 42 of 42 (Sistema de Outfits e Montarias para Todos os Personagens da Party)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Concluída Phase 41: Tooltip Global de Atributos de Itens (z-index 99999999, sem ficar atrás de janelas) e Inspeção de Jogadores na Cidade (Level, Vocação e Status Premium).
+Last activity: 2026-09-03 — Concluída Phase 42: Sistema de Outfits e Montarias para Todos os Personagens da Party com Menu de Contexto e Janela de Seleção Clássica (FIX.md).
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 41
-- Tests status: 36 test suites passando (Vitest - 235 testes aprovados, 100%)
+- Total phases completed: 42
+- Current active phase: none
+- Tests status: 38 test suites passando (Vitest - 243 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -69,6 +70,7 @@ Progress: [██████████] 100%
 | 39. Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Dobrada | 1 | - | - | Complete |
 | 40. Velocidade Normal, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM | 1 | - | - | Complete |
 | 41. Tooltip Global de Itens no Topo e Inspeção de Jogadores na Cidade | 1 | - | - | Complete |
+| 42. Sistema de Outfits e Montarias para Todos os Personagens da Party | 1 | - | - | Complete |
 
 ## Accumulated Context
 

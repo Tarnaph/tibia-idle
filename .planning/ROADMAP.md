@@ -18,6 +18,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 10: Câmera de Expedição e Controles em Tempo Real** - Câmera dinâmica suave, hot-swap de equipamentos e entrada ao vivo.
 - [x] **Phase 11: Economia de Party, Loot Pouch e UX Estrutural** - Preferências de loot, venda de stacks, capacidade e peso.
 - [x] **Phase 12: Fundação de Autenticação, Contas e Segurança (Supabase)** - Supabase Auth, RLS, painel de updates e rota preview dev.
+- [ ] **Phase 42: Sistema de Outfits e Montarias para Todos os Personagens da Party com Menu de Contexto e Janela de Seleção Clássica** - Menu de clique direito "Set Outfit", janela clássica de seleção de outfits e montarias com preview 360° e addons para os 4 membros da party.
 
 ---
 
@@ -657,6 +658,27 @@ Plans:
 
 Plans:
 - [x] 41-01-PLAN: Implementar tooltip global de atributos de itens e inspeção de jogadores na cidade.
+
+---
+
+### Phase 42: Sistema de Outfits e Montarias para Todos os Personagens da Party com Menu de Contexto e Janela de Seleção Clássica
+
+**Goal:** Implementar o menu de contexto ao clicar com o botão direito sobre si mesmo no jogo (e sobre qualquer membro da party no mapa ou barra lateral), exibindo a opção "Set Outfit" / "Outfit"; desenvolver a janela modal clássica de seleção de Outfits e Montarias ("Select Outfit") no padrão visual dark/ouro do Tibia 11, com suporte para os 4 personagens da party, seletor de outfits (incluindo o recém-integrado Sire e outfits clássicos), seletor de montarias com toggle ativa/inativa, live preview com rotação direcional 360° (`<` e `>`), seleção de addons e confirmação em tempo real que atualiza a renderização na cidade de Thais e na arena de caçada.  
+**Depends on:** Phase 41  
+**Requirements:** `FIX.md`, `GamePrototype.tsx`, `ThaisCityArena.tsx`, `PixiArena.tsx`, `RightSidebar.tsx`, `tibia860-assets.json`.  
+**Success Criteria:**
+1. Ao clicar com o botão direito sobre si mesmo (ou sobre qualquer um dos 4 personagens da party no mapa da cidade/caçada ou na lista da barra lateral), abre-se um menu de contexto elegante com a opção "Set Outfit".
+2. Ao clicar em "Set Outfit", abre-se a janela modal "Select Outfit" com design autêntico do Tibia 11 (fundo dark slate, bordas duplas douradas, cantoneiras ornamentais).
+3. A janela permite alternar facilmente entre qualquer um dos 4 personagens da party para personalizar cada um individualmente.
+4. Lista completa de Outfits disponíveis (Knight, Paladin, Sorcerer, Druid, Sire, Citizen, Hunter, Mage, Warrior, Assassin, Oriental, etc.) com preview animado instantâneo.
+5. Seção de Montarias com lista canônica (Widow Queen, War Horse, Midnight Panther, Draptor, Shadow Draptor, Ursagrodon, Crystal Wolf, etc.) e opção de ativar/desativar montaria.
+6. Caixa de Live Preview interativa com botões de rotação `<` e `>` para inspecionar os 4 sentidos (South, East, North, West) e opções de Addon 1 e Addon 2.
+7. Ao clicar em "Ok", o outfit/montaria escolhido é salvo no estado do personagem e imediatamente refletido na tela da cidade e na caçada.
+8. 100% dos testes passando e 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 42-01-PLAN: Desenvolver o menu de contexto de clique direito, modal clássico Select Outfit/Mounts, integração com CharacterState e atualização visual nas arenas.
+
 
 
 

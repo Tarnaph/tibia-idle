@@ -35,6 +35,8 @@ import { ItemSprite } from './ItemSprite';
 import { ItemTooltip } from './ItemTooltip';
 import { GlobalItemTooltip } from './GlobalItemTooltip';
 import { PartyMemberModal } from './PartyMemberModal';
+import { OutfitModal } from './OutfitModal';
+import { CharacterContextMenu } from './CharacterContextMenu';
 import { PixiArena } from './PixiArena';
 import { TrainingArena } from './TrainingArena';
 import { ThaisCityArena } from './ThaisCityArena';
@@ -119,6 +121,9 @@ function GamePrototypeContent() {
   } | null>(null);
   const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
+  const [outfitModalOpen, setOutfitModalOpen] = useState(false);
+  const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
+  const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
@@ -128,12 +133,60 @@ function GamePrototypeContent() {
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
   ])), [game.session.characters]);
 
-  const playerSpeed = calculatePlayerSpeed(activeCharacter.level);
+  const mountBonus = activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none' ? 20 : 0;
+  const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus;
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
   // Normal character speed based on level formula
   const cityStepDurationMs = baseStepDurationMs;
   const heldDirectionRef = useRef<{ dx: number; dy: number } | null>(null);
   const lastStepTimeRef = useRef(0);
+
+  const handleOpenOutfitModal = useCallback((characterId?: string) => {
+    setOutfitModalCharId(characterId || activeCharacter.id);
+    setOutfitModalOpen(true);
+    setCharContextMenu(null);
+  }, [activeCharacter.id]);
+
+  const handleSaveOutfit = useCallback((characterId: string, customization: {
+    outfit: string;
+    mount: string;
+    mountActive: boolean;
+    addons: number;
+    outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+  }) => {
+    setGame((cur) => ({
+      ...cur,
+      session: {
+        ...cur.session,
+        characters: cur.session.characters.map((char) =>
+          char.id === characterId
+            ? {
+                ...char,
+                outfit: customization.outfit,
+                mount: customization.mount,
+                mountActive: customization.mountActive,
+                addons: customization.addons,
+                outfitColors: customization.outfitColors,
+              }
+            : char
+        ),
+      },
+    }));
+  }, []);
+
+  const handleToggleMount = useCallback((characterId: string) => {
+    setGame((cur) => ({
+      ...cur,
+      session: {
+        ...cur.session,
+        characters: cur.session.characters.map((char) =>
+          char.id === characterId
+            ? { ...char, mountActive: !char.mountActive }
+            : char
+        ),
+      },
+    }));
+  }, []);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
     if (mode === 'hunt') return;
@@ -574,6 +627,7 @@ function GamePrototypeContent() {
             game={game}
             debug={debugGrid}
             onSelectTarget={(enemyId) => setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId))}
+            onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
           />
         ) : (
           <ThaisCityArena
@@ -583,6 +637,7 @@ function GamePrototypeContent() {
             isTraining={isTrainingAtDummy}
             stepDurationMs={cityStepDurationMs}
             onTileClick={handleTileClick}
+            onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
             visualEvents={encounter.visualEvents}
             debug={debugGrid}
           />
@@ -625,6 +680,7 @@ function GamePrototypeContent() {
         onToggleDebug={() => setDebugGrid((value) => !value)}
         onSelectHunt={() => setHuntSelectorOpen(true)}
         onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
+        onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
       />
 
       {/* Window 1: Classic Skills Window (acessada pelo nome do personagem) */}
@@ -653,6 +709,12 @@ function GamePrototypeContent() {
                 className={`party-card-item ${isSelected ? 'selected' : ''}`}
                 key={character.id}
                 onClick={() => selectPartyCharacter(character.id)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCharContextMenu({ x: e.clientX, y: e.clientY, characterId: character.id });
+                }}
+                title="Clique esquerdo para focar · Clique direito para Opções / Outfit"
               >
                 <div className="party-card-header">
                   <div className="party-card-name-row">
@@ -661,6 +723,17 @@ function GamePrototypeContent() {
                   </div>
                   <div className="party-card-level-row">
                     <span className="party-card-level">Lv. {character.level}</span>
+                    <button
+                      type="button"
+                      className="party-card-outfit-btn"
+                      title="Mudar Outfit / Montaria (Set Outfit)"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenOutfitModal(character.id);
+                      }}
+                    >
+                      🥋
+                    </button>
                     {!isLeader && (
                       <button
                         type="button"
@@ -844,6 +917,34 @@ function GamePrototypeContent() {
         onClose={() => setPartyModalOpen(false)}
         onCreate={createMember}
       />
+
+      {outfitModalOpen && (
+        <OutfitModal
+          open={outfitModalOpen}
+          characters={game.session.characters}
+          activeCharacterId={outfitModalCharId || activeCharacter.id}
+          onClose={() => setOutfitModalOpen(false)}
+          onSave={handleSaveOutfit}
+        />
+      )}
+
+      {charContextMenu && (() => {
+        const char = game.session.characters.find((c) => c.id === charContextMenu.characterId);
+        if (!char) return null;
+        return (
+          <CharacterContextMenu
+            x={charContextMenu.x}
+            y={charContextMenu.y}
+            character={char}
+            onSetOutfit={() => {
+              setOutfitModalCharId(char.id);
+              setOutfitModalOpen(true);
+            }}
+            onToggleMount={() => handleToggleMount(char.id)}
+            onClose={() => setCharContextMenu(null)}
+          />
+        );
+      })()}
 
       {pointerDrag && (
         <div className="pointer-drag-ghost" style={{ left: pointerDrag.x, top: pointerDrag.y }} aria-hidden="true">

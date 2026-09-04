@@ -4683,6 +4683,557 @@ h1, h2, h3, p { margin: 0; }
   font-style: italic;
 }
 
+/* ==========================================================================
+   Phase 42: Outfit and Mount Selection Modal (Tibia 11 Dark-Slate & Gold)
+   ========================================================================== */
+
+.party-card-outfit-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  color: #f3c766;
+  font-size: 10px;
+  padding: 1px 4px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.party-card-outfit-btn:hover {
+  background: rgba(243, 199, 102, 0.2);
+  border-color: #f3c766;
+  transform: scale(1.08);
+}
+
+.outfit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 11, 16, 0.82);
+  backdrop-filter: blur(4px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: outfitBackdropFade 0.2s ease-out;
+}
+
+@keyframes outfitBackdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.outfit-modal-card {
+  width: 760px;
+  max-width: 96vw;
+  max-height: 92vh;
+  background: #141822;
+  border: 2px solid #3d4a63;
+  border-radius: 6px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #d6ded8;
+  font-family: inherit;
+  animation: outfitCardScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes outfitCardScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.outfit-modal-header {
+  padding: 12px 16px 8px;
+  background: linear-gradient(180deg, #1c2230 0%, #161a25 100%);
+  border-bottom: 1.5px solid #2d384c;
+}
+
+.outfit-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.outfit-header-icon {
+  font-size: 16px;
+}
+
+.outfit-modal-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #f3c766;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  flex: 1;
+}
+
+.outfit-close-btn {
+  background: transparent;
+  border: none;
+  color: #8c98ad;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+}
+
+.outfit-close-btn:hover {
+  color: #ff5b4d;
+  background: rgba(255, 91, 77, 0.12);
+}
+
+.outfit-modal-subtitle {
+  margin: 4px 0 10px;
+  font-size: 11px;
+  color: #8f9bb0;
+}
+
+/* 4-Party Character Selector Tabs */
+.outfit-character-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.outfit-char-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px 10px;
+  background: #11151e;
+  border: 1px solid #263042;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.outfit-char-tab:hover {
+  background: #19202c;
+  border-color: #3b4961;
+}
+
+.outfit-char-tab.active {
+  background: #1c2433;
+  border-color: #f3c766;
+  box-shadow: 0 0 10px rgba(243, 199, 102, 0.18), inset 0 0 8px rgba(243, 199, 102, 0.08);
+}
+
+.char-tab-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e4ecf7;
+}
+
+.outfit-char-tab.active .char-tab-name {
+  color: #ffd875;
+}
+
+.char-tab-voc {
+  font-size: 9.5px;
+  color: #7b889e;
+  margin-top: 1px;
+}
+
+.char-tab-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 8px;
+  color: #55e683;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Tab Switcher: Outfits vs Montarias */
+.outfit-main-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px 0;
+  background: #12161f;
+  border-bottom: 1px solid #263042;
+}
+
+.outfit-tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 6px 16px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #8c98ad;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.outfit-tab-btn:hover {
+  color: #cad5e8;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.outfit-tab-btn.active {
+  background: #181d28;
+  border-color: #334057;
+  color: #f3c766;
+  border-bottom: 2px solid #f3c766;
+  margin-bottom: -1px;
+}
+
+/* Modal Body */
+.outfit-modal-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 14px;
+  padding: 14px 16px;
+  overflow-y: auto;
+  background: #161b25;
+}
+
+/* Left Column: Stage & Colors */
+.outfit-stage-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.outfit-preview-stage {
+  height: 160px;
+  background: radial-gradient(circle at 50% 60%, #1f2736 0%, #0d1117 75%);
+  border: 1.5px solid #2d384c;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.outfit-pedestal {
+  position: absolute;
+  bottom: 20px;
+  width: 100px;
+  height: 24px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(93, 114, 153, 0.35) 0%, rgba(13, 17, 23, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.outfit-preview-sprite {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+  position: relative;
+  z-index: 2;
+  transition: transform 0.1s ease;
+}
+
+.outfit-rotate-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #11141c;
+  border: 1px solid #273142;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.outfit-rotate-btn {
+  background: #1d2533;
+  border: 1px solid #3d4a63;
+  color: #f3c766;
+  font-size: 14px;
+  font-weight: bold;
+  width: 28px;
+  height: 24px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+}
+
+.outfit-rotate-btn:hover {
+  background: #273347;
+  border-color: #f3c766;
+}
+
+.outfit-rotate-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #cad5e8;
+}
+
+/* Addons Checkboxes */
+.outfit-addons-group {
+  display: flex;
+  gap: 12px;
+  background: #11141c;
+  border: 1px solid #273142;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+.outfit-addon-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: #cad5e8;
+  cursor: pointer;
+}
+
+.outfit-addon-checkbox input {
+  accent-color: #f3c766;
+  cursor: pointer;
+}
+
+/* Color Swatches */
+.outfit-colors-group {
+  background: #11141c;
+  border: 1px solid #273142;
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.outfit-part-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.outfit-part-btn {
+  background: #171c26;
+  border: 1px solid #293447;
+  border-radius: 3px;
+  padding: 3px 0;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #8c98ad;
+  cursor: pointer;
+}
+
+.outfit-part-btn.active {
+  background: #242e40;
+  border-color: #f3c766;
+  color: #f3c766;
+}
+
+.outfit-color-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+
+.outfit-color-swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.1s ease;
+}
+
+.outfit-color-swatch:hover {
+  transform: scale(1.15);
+  z-index: 2;
+}
+
+.outfit-color-swatch.active {
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  transform: scale(1.12);
+  z-index: 3;
+}
+
+/* Right Column: Outfits / Mounts List */
+.outfit-list-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.outfit-list-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f3c766;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #273142;
+}
+
+.outfit-list-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.outfit-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #12151d;
+  border: 1px solid #273142;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.outfit-item-card:hover {
+  background: #1a202c;
+  border-color: #3f4e6b;
+}
+
+.outfit-item-card.active {
+  background: #1c2433;
+  border-color: #f3c766;
+  box-shadow: 0 0 8px rgba(243, 199, 102, 0.15);
+}
+
+.outfit-card-info {
+  flex: 1;
+}
+
+.outfit-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.outfit-card-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e4ecf7;
+}
+
+.outfit-item-card.active .outfit-card-name {
+  color: #ffd875;
+}
+
+.outfit-custom-badge {
+  background: rgba(182, 108, 255, 0.2);
+  border: 1px solid #9e58e6;
+  color: #d69eff;
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+
+.outfit-speed-badge {
+  background: rgba(85, 230, 131, 0.15);
+  border: 1px solid #48c774;
+  color: #69df82;
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.outfit-card-desc {
+  font-size: 10px;
+  color: #8895ab;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.outfit-mount-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #11141c;
+  border: 1px solid #273142;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+}
+
+.outfit-mount-toggle-btn {
+  background: #242e40;
+  border: 1px solid #3d4a63;
+  color: #cad5e8;
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.outfit-mount-toggle-btn.active {
+  background: rgba(85, 230, 131, 0.2);
+  border-color: #48c774;
+  color: #69df82;
+}
+
+/* Modal Footer */
+.outfit-modal-footer {
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #161a25 0%, #12151e 100%);
+  border-top: 1.5px solid #2d384c;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.outfit-btn-cancel {
+  background: #1f2533;
+  border: 1px solid #374257;
+  color: #9eaabf;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.outfit-btn-cancel:hover {
+  background: #283042;
+  color: #cad5e8;
+}
+
+.outfit-btn-confirm {
+  background: linear-gradient(180deg, #b88d37 0%, #85611c 100%);
+  border: 1.5px solid #f3c766;
+  color: #ffffff;
+  padding: 6px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  transition: all 0.15s ease;
+}
+
+.outfit-btn-confirm:hover {
+  background: linear-gradient(180deg, #caa042 0%, #997223 100%);
+  box-shadow: 0 0 12px rgba(243, 199, 102, 0.35);
+  transform: translateY(-1px);
+}
+
+
 
 
 

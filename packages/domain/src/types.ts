@@ -56,6 +56,16 @@ export interface CharacterState {
   };
   stance?: CombatStance;
   targetDistance?: number;
+  outfit?: string;
+  mount?: string;
+  mountActive?: boolean;
+  addons?: number;
+  outfitColors?: {
+    head: number;
+    primary: number;
+    secondary: number;
+    detail: number;
+  };
   trainingState: {
     skillRemainderMs: number;
     shieldingRemainderMs: number;

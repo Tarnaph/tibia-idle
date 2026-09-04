@@ -1,5 +1,3 @@
 #IMPLEMENTAÇÕES
 
-Ao passar o mouse em cima de um item deve aparecer os atributos do item, alguns casos a janelinha que mostra os atributos fica atrás das outras janelas isso não pode acontecer, deve ficar acima de tudo.
-
-Ao passar o mouse em cima de outro player na cidade deve aparecer o level, vocação e se ele é Premium
+Sistema de outfits e montarias: Quando você aperta com o botão direito em cima de você mesmo no jogo tem a opção "Outfit" abre uma janelinha que mostra todos os outfits e montarias disponíveis para uso, faça igual na imagem de referência. Isso da pra fazer com os 4 personagens da party.

@@ -124,6 +124,7 @@ interface Props {
   isTraining: boolean;
   stepDurationMs?: number;
   onTileClick?: (tile: { x: number; y: number; z: number }) => void;
+  onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
   visualEvents?: CombatVisualEvent[];
   debug?: boolean;
 }
@@ -154,16 +155,17 @@ export function ThaisCityArena({
   isTraining,
   stepDurationMs = 500,
   onTileClick,
+  onCharacterContextMenu,
   visualEvents = [],
   debug = false,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
-  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick });
+  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu });
 
   useEffect(() => {
-    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick };
-  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick]);
+    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu };
+  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu]);
 
 
   useEffect(() => {
@@ -525,9 +527,39 @@ export function ThaisCityArena({
         }
       };
 
+      const onContextMenu = (e: MouseEvent) => {
+        e.preventDefault();
+        const rect = app.canvas.getBoundingClientRect();
+        const clientX = e.clientX - rect.left;
+        const clientY = e.clientY - rect.top;
+
+        const worldX = (clientX - world.position.x) / world.scale.x;
+        const worldY = (clientY - world.position.y) / world.scale.y;
+
+        const curChars = latestRef.current.characters;
+        let matchedCharId = curChars[0]?.id;
+        for (let idx = 0; idx < curChars.length; idx++) {
+          const char = curChars[idx];
+          const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
+          const offsetY = idx === 0 ? 0 : idx === 3 ? 24 : 12;
+          const px = currentPixelX + offsetX;
+          const py = currentPixelY + offsetY;
+          const dx = worldX - px;
+          const dy = worldY - py;
+          if (dx >= -24 && dx <= 24 && dy >= -44 && dy <= 20) {
+            matchedCharId = char.id;
+            break;
+          }
+        }
+        if (matchedCharId) {
+          latestRef.current.onCharacterContextMenu?.(matchedCharId, e.clientX, e.clientY);
+        }
+      };
+
       app.canvas.addEventListener('pointermove', onPointerMove);
       app.canvas.addEventListener('pointerleave', onPointerLeave);
       app.canvas.addEventListener('pointerdown', onPointerDown);
+      app.canvas.addEventListener('contextmenu', onContextMenu);
 
       // Character actor containers with crisp nameplate and health bar
       interface CityActorView {
@@ -539,19 +571,19 @@ export function ThaisCityArena({
       }
       const actorViews = new Map<string, CityActorView>();
 
-      function getOutfitFrameUrl(vocation: string, direction: string, frame: number): string {
-        const normKey = vocation.includes('Sire')
+      function getOutfitFrameUrl(vocationOrOutfit: string, direction: string, frame: number): string {
+        const normKey = vocationOrOutfit.includes('Sire')
           ? 'Sire'
-          : vocation.includes('Sorcerer')
+          : vocationOrOutfit.includes('Sorcerer') || vocationOrOutfit.includes('Mage')
           ? 'Sorcerer'
-          : vocation.includes('Druid')
+          : vocationOrOutfit.includes('Druid')
           ? 'Druid'
-          : vocation.includes('Paladin')
+          : vocationOrOutfit.includes('Paladin') || vocationOrOutfit.includes('Hunter')
           ? 'Paladin'
-          : vocation.includes('Knight')
+          : vocationOrOutfit.includes('Knight') || vocationOrOutfit.includes('Warrior') || vocationOrOutfit.includes('Citizen')
           ? 'Knight'
-          : vocation;
-        const outfit = visualAssets.outfits[normKey] || Object.values(visualAssets.outfits)[0];
+          : vocationOrOutfit;
+        const outfit = visualAssets.outfits[normKey] || visualAssets.outfits['Knight'] || Object.values(visualAssets.outfits)[0];
         if (!outfit) return '';
         const dirFrames = outfit.frames.filter((f) => f.direction === direction);
         const candidates = dirFrames.length > 0 ? dirFrames : outfit.frames.filter((f) => f.direction === 'south');
@@ -559,11 +591,11 @@ export function ThaisCityArena({
         return match?.publicUrl ?? outfit.frames[0]?.publicUrl ?? '';
       }
 
-      function ensureActorView(char: { id: string; name: string; vocation: string }): CityActorView | null {
+      function ensureActorView(char: { id: string; name: string; vocation: string; outfit?: string }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) return view;
 
-        const initialUrl = getOutfitFrameUrl(char.vocation, 'south', 0);
+        const initialUrl = getOutfitFrameUrl(char.outfit || char.vocation, 'south', 0);
         if (!initialUrl || !loaded[initialUrl]) return null;
 
         const root = new Container();
@@ -656,7 +688,7 @@ export function ThaisCityArena({
           if (!view) return;
 
           // Texture based on direction and walking animation
-          const nextUrl = getOutfitFrameUrl(char.vocation, playerDirection, walkFrame);
+          const nextUrl = getOutfitFrameUrl(char.outfit || char.vocation, playerDirection, walkFrame);
           if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
             view.sprite.texture = loaded[nextUrl];
             view.lastUrl = nextUrl;
@@ -717,6 +749,7 @@ export function ThaisCityArena({
         app.canvas.removeEventListener('pointermove', onPointerMove);
         app.canvas.removeEventListener('pointerleave', onPointerLeave);
         app.canvas.removeEventListener('pointerdown', onPointerDown);
+        app.canvas.removeEventListener('contextmenu', onContextMenu);
         app.destroy(true, { children: true });
       };
     })();
