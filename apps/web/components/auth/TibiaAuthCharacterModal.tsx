@@ -62,15 +62,39 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
   const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.45;
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Autoplay blocked until first click
+    const playAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.volume = 0.45;
+        audioRef.current.muted = false;
+        audioRef.current.play().then(() => {
+          setIsMuted(false);
+        }).catch(() => {
+          // Autoplay blocked until first click/keypress
         });
       }
-    }
+    };
+
+    playAudio();
+
+    const handleFirstUserInteraction = () => {
+      if (audioRef.current) {
+        audioRef.current.volume = 0.45;
+        audioRef.current.muted = false;
+        audioRef.current.play().then(() => {
+          setIsMuted(false);
+        }).catch(() => {});
+      }
+    };
+
+    window.addEventListener('click', handleFirstUserInteraction, { once: true });
+    window.addEventListener('keydown', handleFirstUserInteraction, { once: true });
+    window.addEventListener('pointerdown', handleFirstUserInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('click', handleFirstUserInteraction);
+      window.removeEventListener('keydown', handleFirstUserInteraction);
+      window.removeEventListener('pointerdown', handleFirstUserInteraction);
+    };
   }, []);
 
   const toggleMute = () => {
@@ -697,18 +721,18 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '12px 16px',
-                          backgroundColor: '#11161d',
-                          border: '1px solid #2b3442',
-                          borderRadius: '4px',
+                          padding: '10px 12px',
+                          backgroundColor: 'transparent',
+                          borderBottom: '1px solid rgba(212, 168, 67, 0.15)',
+                          borderRadius: '0px',
                           cursor: 'pointer',
                           pointerEvents: 'auto',
                           userSelect: 'none',
                         }}
                       >
                         <div>
-                          <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '14px' }}>{char.name}</div>
-                          <div style={{ fontSize: '11px', color: '#a09886', marginTop: '2px' }}>
+                          <div style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '15px', textShadow: '1px 1px 2px #000' }}>{char.name}</div>
+                          <div style={{ fontSize: '11px', color: '#ffffff', marginTop: '3px', textShadow: '1px 1px 2px #000', opacity: 0.95 }}>
                             Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
                           </div>
                         </div>
@@ -716,15 +740,24 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
                           type="button"
                           onClick={handleSelectThisChar}
                           style={{
-                            padding: '8px 16px',
-                            background: 'linear-gradient(180deg, #ba8e54 0%, #7d5c2e 100%)',
-                            border: '1px solid #d4a843',
-                            color: '#fff',
+                            width: '170px',
+                            height: '38px',
+                            backgroundImage: "url('/enter-game-btn.png')",
+                            backgroundSize: '100% 100%',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'center',
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            color: '#ffffff',
                             fontWeight: 'bold',
                             fontSize: '12px',
-                            borderRadius: '4px',
                             cursor: 'pointer',
                             pointerEvents: 'auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textShadow: '1px 1px 3px #000',
+                            filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
                           }}
                         >
                           ENTRAR NO JOGO ⚔️
