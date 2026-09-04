@@ -265,8 +265,8 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
 
         <div
           style={{
-            width: '640px',
-            maxWidth: '94vw',
+            width: '655px',
+            maxWidth: '95vw',
             minHeight: '400px',
             backgroundImage: "url('/auth-box-bg.png')",
             backgroundSize: '100% 100%',
