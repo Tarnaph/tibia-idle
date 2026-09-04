@@ -57,6 +57,35 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Background Audio State
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.45;
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay blocked until first click
+        });
+      }
+    }
+  }, []);
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      if (isMuted) {
+        audioRef.current.muted = false;
+        audioRef.current.play().catch(() => {});
+        setIsMuted(false);
+      } else {
+        audioRef.current.muted = true;
+        setIsMuted(true);
+      }
+    }
+  };
+
   // Check saved token on mount
   useEffect(() => {
     const savedToken = localStorage.getItem('colyseus_token');
@@ -203,6 +232,36 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
         overflow: 'hidden',
       }}
     >
+      {/* Background Audio */}
+      <audio ref={audioRef} src="/ferumbras-theme.mp3" loop autoPlay />
+
+      {/* Floating Audio Control Toggle Button in top-right corner */}
+      <button
+        type="button"
+        onClick={toggleMute}
+        title={isMuted ? 'Ativar Música de Fundo (Ferumbras Cometh Again)' : 'Mutar Música de Fundo'}
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 1000000000,
+          background: 'rgba(27, 34, 45, 0.9)',
+          border: '1px solid #7d5c2e',
+          borderRadius: '50%',
+          width: '46px',
+          height: '46px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: isMuted ? '#888' : '#f3e5ab',
+          fontSize: '20px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
+          backdropFilter: 'blur(6px)',
+        }}
+      >
+        {isMuted ? '🔇' : '🔊'}
+      </button>
       {/* Background Video Frame */}
       <div
         style={{
