@@ -198,6 +198,33 @@ function GamePrototypeContent() {
     setPartyModalOpen(true);
   }, []);
 
+  // Active Party Member IDs (subset of squad characters that are in the active party)
+  const [partyMemberIds, setPartyMemberIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setPartyMemberIds((prev) => {
+      if (prev.length === 0) return [game.session.leaderId];
+      if (!prev.includes(game.session.selectedCharacterId)) {
+        return [...prev, game.session.selectedCharacterId].slice(0, 4);
+      }
+      return prev;
+    });
+  }, [game.session.selectedCharacterId, game.session.leaderId]);
+
+  const handleAddToParty = useCallback((id: string) => {
+    setPartyMemberIds((prev) => {
+      if (prev.includes(id) || prev.length >= 4) return prev;
+      return [...prev, id];
+    });
+  }, []);
+
+  const handleRemoveFromParty = useCallback((id: string) => {
+    setPartyMemberIds((prev) => {
+      if (prev.length <= 1) return prev;
+      return prev.filter((itemId) => itemId !== id);
+    });
+  }, []);
+
   // Item Trade System State
   const [tradeSession, setTradeSession] = useState<{
     partnerName: string;
@@ -1006,6 +1033,7 @@ function GamePrototypeContent() {
       {/* Top HUD Dock Bar */}
       <WindowDockBar
         gold={game.session.gold}
+        accountUsername="ADMIN"
         characterName={activeCharacter.name}
         debug={debugGrid}
         onToggleDebug={() => setDebugGrid((value) => !value)}
@@ -1027,9 +1055,18 @@ function GamePrototypeContent() {
       />
 
       {/* Window 3: Party & Squad */}
-      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{game.session.characters.length}/4</small>}>
+      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{partyMemberIds.length}/4</small>}>
         <PartyWindow
           squadMembers={game.session.characters}
+          activeCharacterId={activeCharacter.id}
+          partyMemberIds={partyMemberIds}
+          onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
+          onAddToParty={handleAddToParty}
+          onRemoveFromParty={handleRemoveFromParty}
+          onDeleteSquadMember={(id) => {
+            handleRemoveFromParty(id);
+            setGame((cur) => removePartyMember(cur, id));
+          }}
           onAddSquadMember={() => setPartyModalOpen(true)}
           onInvitePlayer={(name) => handleInviteParty(name)}
         />

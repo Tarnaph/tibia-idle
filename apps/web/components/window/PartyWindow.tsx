@@ -5,6 +5,8 @@ import type { CharacterState } from '@/packages/domain/src';
 
 interface PartyWindowProps {
   squadMembers: CharacterState[];
+  activeCharacterId: string;
+  partyMemberIds: string[];
   partyOnlineMembers?: Array<{
     id: string;
     name: string;
@@ -14,6 +16,10 @@ interface PartyWindowProps {
     maxHp: number;
     isRealPlayer: boolean;
   }>;
+  onSelectActiveCharacter: (id: string) => void;
+  onAddToParty: (id: string) => void;
+  onRemoveFromParty: (id: string) => void;
+  onDeleteSquadMember?: (id: string) => void;
   onAddSquadMember?: () => void;
   onInvitePlayer?: (name: string) => void;
   onLeaveParty?: () => void;
@@ -21,7 +27,13 @@ interface PartyWindowProps {
 
 export function PartyWindow({
   squadMembers,
+  activeCharacterId,
+  partyMemberIds,
   partyOnlineMembers = [],
+  onSelectActiveCharacter,
+  onAddToParty,
+  onRemoveFromParty,
+  onDeleteSquadMember,
   onAddSquadMember,
   onInvitePlayer,
   onLeaveParty,
@@ -29,10 +41,11 @@ export function PartyWindow({
   const [tab, setTab] = useState<'squad' | 'party'>('squad');
   const [inviteName, setInviteName] = useState('');
 
-  // Total party count (max 4)
-  const totalPartyCount = squadMembers.length + partyOnlineMembers.length;
-  const realPlayersCount = partyOnlineMembers.filter((m) => m.isRealPlayer).length + 1; // including user
-  const expBonusPercent = (realPlayersCount - 1) * 10;
+  // Total members in active party
+  const partySquadMembers = squadMembers.filter((m) => partyMemberIds.includes(m.id));
+  const totalPartyCount = partySquadMembers.length + partyOnlineMembers.length;
+  const realPlayersCount = partyOnlineMembers.filter((m) => m.isRealPlayer).length + 1;
+  const expBonusPercent = Math.max(0, (realPlayersCount - 1) * 10);
 
   const handleInviteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +57,7 @@ export function PartyWindow({
 
   return (
     <div className="party-window-container gothic-window-panel">
-      {/* Sub tabs */}
+      {/* Tab Navigation */}
       <div className="party-tab-bar">
         <button
           type="button"
@@ -63,33 +76,93 @@ export function PartyWindow({
       </div>
 
       <div className="party-content-body">
+        {/* TAB 1: SEU SQUAD */}
         {tab === 'squad' && (
           <div className="squad-tab-panel">
             <div className="squad-header-info">
-              <span className="info-title">Personagens no seu Squad Local</span>
-              <small>Estes personagens caçam e treinam com você offline e online.</small>
+              <span className="info-title">Personagens no seu Squad</span>
+              <small className="info-desc">
+                Defina qual personagem você está controlando e quais integrantes entram na sua Party de caça.
+              </small>
             </div>
 
             <div className="squad-members-list">
-              {squadMembers.map((member) => (
-                <div key={member.id} className="squad-member-card">
-                  <div className="member-avatar">
-                    <span className="avatar-placeholder" />
-                  </div>
-                  <div className="member-details">
-                    <strong className="member-name">{member.name}</strong>
-                    <span className="member-vocation-level">
-                      {member.vocation} · Lv {member.level}
-                    </span>
-                    <div className="member-hp-bar">
-                      <div
-                        className="hp-fill"
-                        style={{ width: `${Math.round((100 * member.currentHp) / member.maxHp)}%` }}
-                      />
+              {squadMembers.map((member) => {
+                const isActiveMain = member.id === activeCharacterId;
+                const isInParty = partyMemberIds.includes(member.id);
+
+                return (
+                  <div key={member.id} className={`squad-member-card ${isActiveMain ? 'is-active-main' : ''}`}>
+                    <div className="member-avatar-box">
+                      <div className="avatar-placeholder" />
+                    </div>
+
+                    <div className="member-info-col">
+                      <div className="member-name-row">
+                        <strong className="member-name">{member.name}</strong>
+                        {isActiveMain && <span className="active-main-badge">⭐ PRINCIPAL</span>}
+                      </div>
+
+                      <div className="member-vocation-sub">
+                        {member.vocation} · Nível {member.level}
+                      </div>
+
+                      <div className="member-hp-bar-wrap">
+                        <div
+                          className="hp-fill"
+                          style={{ width: `${Math.round((100 * member.currentHp) / member.maxHp)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="member-actions-col">
+                      {!isActiveMain && (
+                        <button
+                          type="button"
+                          className="squad-btn set-main-btn"
+                          onClick={() => onSelectActiveCharacter(member.id)}
+                          title="Ativar este personagem como seu controlado no jogo"
+                        >
+                          Usar
+                        </button>
+                      )}
+
+                      {isInParty ? (
+                        <button
+                          type="button"
+                          className="squad-btn remove-party-btn"
+                          onClick={() => onRemoveFromParty(member.id)}
+                          disabled={isActiveMain && partySquadMembers.length === 1}
+                          title="Remover da Party (permanece no seu Squad)"
+                        >
+                          Sair da Party
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="squad-btn add-party-btn"
+                          onClick={() => onAddToParty(member.id)}
+                          disabled={totalPartyCount >= 4}
+                          title="Adicionar à Party de Caça"
+                        >
+                          + Entrar na Party
+                        </button>
+                      )}
+
+                      {!isActiveMain && onDeleteSquadMember && (
+                        <button
+                          type="button"
+                          className="squad-btn delete-squad-btn"
+                          onClick={() => onDeleteSquadMember(member.id)}
+                          title="Excluir personagem do Squad"
+                        >
+                          ✕
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {onAddSquadMember && (
@@ -97,17 +170,19 @@ export function PartyWindow({
                 type="button"
                 className="gothic-action-btn add-squad-btn"
                 onClick={onAddSquadMember}
+                disabled={squadMembers.length >= 4}
               >
-                + Adicionar Novo Personagem ao Squad
+                + Criar Novo Personagem no Squad ({squadMembers.length}/4)
               </button>
             )}
           </div>
         )}
 
+        {/* TAB 2: PARTY ONLINE */}
         {tab === 'party' && (
           <div className="party-tab-panel">
             <div className="party-bonus-banner">
-              <div className="bonus-title">BÔNUS DE PARTY MMORPG</div>
+              <div className="bonus-title">BÔNUS DE PARTY DE CAÇA</div>
               <div className="bonus-desc">
                 {realPlayersCount > 1 ? (
                   <span className="text-green">
@@ -115,7 +190,7 @@ export function PartyWindow({
                   </span>
                 ) : (
                   <span>
-                    Chame outros jogadores online para a Party! Cada jogador real extra garante <strong>+10% de EXP</strong> para o grupo (Máx 4 integrantes).
+                    Somente os integrantes listados aqui entram com você nas caças. Chame outros jogadores reais para ganhar <strong>+10% de EXP</strong> por jogador!
                   </span>
                 )}
               </div>
@@ -124,7 +199,7 @@ export function PartyWindow({
             <form onSubmit={handleInviteSubmit} className="party-invite-form">
               <input
                 type="text"
-                placeholder="Nome do jogador..."
+                placeholder="Nome do jogador online..."
                 value={inviteName}
                 onChange={(e) => setInviteName(e.target.value)}
                 className="gothic-input"
@@ -140,21 +215,33 @@ export function PartyWindow({
             </form>
 
             <div className="party-members-list">
-              <div className="party-section-label">Integrantes da Party ({totalPartyCount}/4)</div>
+              <div className="party-section-label">Integrantes da Party Ativa ({totalPartyCount}/4)</div>
 
-              {squadMembers.map((m) => (
+              {partySquadMembers.map((m) => (
                 <div key={m.id} className="party-member-row self">
-                  <span className="role-tag">SQUAD</span>
-                  <strong className="name">{m.name}</strong>
-                  <span className="vocation-lv">{m.vocation} (Lv {m.level})</span>
+                  <span className="role-tag squad">SQUAD</span>
+                  <div className="member-summary">
+                    <strong className="name">{m.name}</strong>
+                    <span className="vocation-lv">{m.vocation} · Lv {m.level}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="party-leave-btn"
+                    onClick={() => onRemoveFromParty(m.id)}
+                    title="Remover da Party"
+                  >
+                    Remover
+                  </button>
                 </div>
               ))}
 
               {partyOnlineMembers.map((pm) => (
                 <div key={pm.id} className="party-member-row online-player">
                   <span className="role-tag real">PLAYER</span>
-                  <strong className="name">{pm.name}</strong>
-                  <span className="vocation-lv">{pm.vocation} (Lv {pm.level})</span>
+                  <div className="member-summary">
+                    <strong className="name">{pm.name}</strong>
+                    <span className="vocation-lv">{pm.vocation} · Lv {pm.level}</span>
+                  </div>
                   <span className="hp-indicator">{pm.hp}/{pm.maxHp} HP</span>
                 </div>
               ))}
@@ -162,7 +249,7 @@ export function PartyWindow({
 
             {totalPartyCount > 1 && onLeaveParty && (
               <button type="button" className="gothic-action-btn danger-btn" onClick={onLeaveParty}>
-                Sair da Party
+                Sair de Toda a Party
               </button>
             )}
           </div>

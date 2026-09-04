@@ -5,9 +5,8 @@ import { useWindowManager, type WindowId } from './WindowManagerContext';
 
 interface WindowDockBarProps {
   gold: number;
-  characterName: string;
-  vocationName?: string;
-  level?: number;
+  accountUsername?: string;
+  characterName?: string;
   onlinePlayersCount?: number;
   debug: boolean;
   onToggleDebug: () => void;
@@ -19,9 +18,8 @@ interface WindowDockBarProps {
 
 export function WindowDockBar({
   gold,
-  characterName,
-  vocationName = 'ELITE KNIGHT',
-  level = 184,
+  accountUsername = 'ADMIN',
+  characterName = 'Hero',
   onlinePlayersCount = 13315,
   debug,
   onToggleDebug,
@@ -47,21 +45,16 @@ export function WindowDockBar({
         <img src="/logo.png" alt="Huntera Logo" className="huntera-logo-img" />
       </div>
 
-      {/* Character Profile Card */}
-      <div className="huntera-profile-card">
-        <div
-          className="huntera-avatar-box"
-          onClick={onOpenOutfit || onOpenSkills}
-          title="Clique para mudar Outfit"
-        >
+      {/* Account Profile Card */}
+      <div className="huntera-profile-card" title="Conta Conectada">
+        <div className="huntera-avatar-box">
           <div className="avatar-sprite-placeholder" />
         </div>
         <div className="huntera-profile-info">
-          <div className="huntera-player-name">{characterName.toUpperCase()}</div>
-          <div className="huntera-vocation-level">
-            {vocationName.toUpperCase()} LV {level}
-          </div>
-          <div className="huntera-exp-badge">TAXA DE EXP +4%</div>
+          <span className="huntera-account-tag">CONTA</span>
+          <strong className="huntera-account-username">
+            {accountUsername.toUpperCase()}
+          </strong>
         </div>
       </div>
 
