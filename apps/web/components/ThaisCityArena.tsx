@@ -1082,11 +1082,30 @@ export function ThaisCityArena({
         // 6. Update online players connected via Colyseus WebSocket
         const remotes = latestRef.current.remotePlayers;
         const myPlayerId = latestRef.current.localPlayerId;
+        const LOOKTYPE_MAP: Record<number, string> = {
+          128: 'Knight',
+          129: 'Paladin',
+          130: 'Sorcerer',
+          131: 'Druid',
+          136: 'Citizen',
+          137: 'Hunter',
+          138: 'Mage',
+          139: 'Knight',
+          140: 'Noble',
+          141: 'Summoner',
+          142: 'Warrior',
+          143: 'Barbarian',
+          144: 'Druid',
+          145: 'Sorcerer',
+          146: 'Paladin',
+        };
+
         if (remotes) {
           remotes.forEach((p, key) => {
             if (key === myPlayerId || curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) return; // Skip rendering local player as remote
 
             const vocName = VOCATION_NAMES[p.vocationId] || 'Knight';
+            const outfitKey = p.outfit?.lookType ? (LOOKTYPE_MAP[p.outfit.lookType] || vocName) : vocName;
             const colors = p.outfit
               ? {
                   head: p.outfit.lookHead || 0,
@@ -1099,7 +1118,7 @@ export function ThaisCityArena({
             const view = ensureActorView({
               id: p.id,
               name: p.name,
-              vocation: vocName,
+              vocation: outfitKey,
               outfitColors: colors,
               x: p.x,
               y: p.y,
@@ -1135,26 +1154,30 @@ export function ThaisCityArena({
 
             const walkFrame = isMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
             const textureKey = colors
-              ? `${vocName}_male_${dir}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`
-              : `${vocName}_male_${dir}_${walkFrame}`;
+              ? `${outfitKey}_male_${dir}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`
+              : `${outfitKey}_male_${dir}_${walkFrame}`;
 
             if (view.lastTextureKey !== textureKey) {
+              let updated = false;
               if (colors) {
-                const canvas = getRecoloredCanvasSync(vocName, 'male', dir as any, walkFrame, colors);
+                const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors);
                 if (canvas) {
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
                   view.sprite.texture = tex;
                   view.lastTextureKey = textureKey;
                   view.lastUrl = 'canvas';
+                  updated = true;
                 }
               }
-              if (view.lastTextureKey !== textureKey) {
-                const url = getOutfitFrameUrl(vocName, dir, walkFrame);
-                if (url && url !== view.lastUrl && loaded[url]) {
+              if (!updated) {
+                const url = getOutfitFrameUrl(outfitKey, dir, walkFrame);
+                if (url && loaded[url]) {
                   view.sprite.texture = loaded[url];
                   view.lastUrl = url;
-                  view.lastTextureKey = textureKey;
+                  if (!colors) {
+                    view.lastTextureKey = textureKey;
+                  }
                 }
               }
             }
