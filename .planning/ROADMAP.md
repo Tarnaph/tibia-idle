@@ -698,8 +698,25 @@ Plans:
 9. Botão `Salvar` no canto inferior direito que persiste todas as escolhas no personagem.
 10. 100% dos testes passando no Vitest e 0 erros de tipagem no TypeScript.
 
+
+---
+
+### Phase 44: Sistema Funcional de Outfits, Recoloring em Tempo Real e Aplicação no Jogo
+
+**Goal:** Tornar a seleção de outfits 100% responsiva e funcional: troca instantânea ao clicar em qualquer card, desativação de montaria forçada por padrão ao abrir o modal, live recoloring de 4 partes (Cabeça, Corpo, Pernas, Pés) usando as 133 cores oficiais do Tibia sobre as camadas extraídas de DAT/SPR, rotação 4 direções, alternância de gênero e sincronização imediata do sprite do personagem no mundo do jogo (Thais City e Hunt Arena).
+**Depends on:** Phase 43
+**Requirements:** `OutfitModal.tsx`, `outfitRecolor.ts`, `ThaisCityArena.tsx`, `PixiArena.tsx`, `FIX.md`.
+**Success Criteria:**
+1. Ao clicar em qualquer outfit na grade, o preview atualiza instantaneamente para o outfit selecionado.
+2. Ao abrir o menu de outfit, o personagem não fica forçadamente montado (inicia a pé por padrão).
+3. Sistema autêntico de 133 cores do Tibia em matriz 19x7 aplicando live recoloring no canvas de preview.
+4. Rotação (Sul, Leste, Norte, Oeste) e alternância de gênero (Masculino / Feminino) funcionais em tempo real.
+5. Ao salvar, o novo outfit e cores são refletidos imediatamente no personagem tanto em Thais quanto na arena de caça.
+6. 100% dos testes passando no Vitest (40 arquivos, 252 testes) e 0 erros no typecheck.
+
 Plans:
-- [x] 43-01-PLAN: Implementar o layout oficial de 2 colunas, grid 4xN de cards, paleta completa e controles idênticos à referência.
+- [x] 44-01-PLAN: Extrair camadas de base e máscara para todos os outfits, criar pipeline de recoloring canvas, refatorar OutfitModal e sincronizar renderizadores de arena.
+
 
 
 

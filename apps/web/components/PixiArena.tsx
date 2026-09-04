@@ -7,6 +7,7 @@ import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldC
 import type { Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
 import type { Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { resolveActionImagePath } from './Tibia11ActionIcon';
+import { getRecoloredCanvasSync, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
 
 interface PixiArenaProps {
   game: GameState;
@@ -112,6 +113,10 @@ export function PixiArena({ game, debug, onSelectTarget, onCharacterContextMenu 
       }
       for (const item of [...Object.values(visualAssets.corpses), ...Object.values(visualAssets.mapItems)]) if (item.frame) urls.add(item.frame.publicUrl);
       for (const url of ALL_SPELL_ICON_URLS) urls.add(url);
+      urls.add('/generated/mounts/donkey_rider_south.png');
+      for (const o of ['citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate', 'oriental', 'beggar']) {
+        urls.add(`/generated/outfit-thumbs/${o}.png`);
+      }
       const loaded = await Assets.load([...urls]) as Record<string, Texture>;
       if (disposed) { app.destroy(true, { children: true }); return; }
       for (const texture of Object.values(loaded)) texture.source.style.scaleMode = 'nearest';
@@ -463,12 +468,37 @@ export function PixiArena({ game, debug, onSelectTarget, onCharacterContextMenu 
           const sample = view.track.sample(now); const point = worldPoint(sample.renderPosition);
           view.root.position.set(snapWorldCoordinate(point.x), snapWorldCoordinate(point.y)); view.root.zIndex = sample.renderPosition.y * 100 + (state.encounter.enemies.some((enemy) => enemy.id === id) ? 10 : 20);
           const framePhase = sample.moving ? (now % (visualMovementConfig.walkingFrameMs * 2)) / (visualMovementConfig.walkingFrameMs * 2) : 0;
-          const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
-          if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
-          view.sprite.tint = view.attackUntil > now ? 0xffd0a0 : 0xffffff;
           const enemy = state.encounter.enemies.find((candidate) => candidate.id === id);
           const actor = state.encounter.partyActors.find((candidate) => candidate.characterId === id);
           const character = actor ? state.session.characters.find((candidate) => candidate.id === id) : undefined;
+
+          if (character) {
+            const isMounted = Boolean(character.mountActive && (character.mount === 'donkey' || character.mount === 'Donkey'));
+            if (isMounted && loaded['/generated/mounts/donkey_rider_south.png']) {
+              view.sprite.texture = loaded['/generated/mounts/donkey_rider_south.png'];
+              view.sprite.scale.x = (sample.direction === 'west' || sample.direction === 'north') ? -1 : 1;
+              view.lastFrameUrl = '/generated/mounts/donkey_rider_south.png';
+            } else {
+              view.sprite.scale.x = 1;
+              const outfitKey = character.outfit || character.vocation || 'Knight';
+              const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+              const walkFrame = sample.moving ? Math.floor(framePhase * 3) : 0;
+              const canvas = getRecoloredCanvasSync(outfitKey, 'male', sample.direction, walkFrame, colors);
+              if (canvas) {
+                const tex = Texture.from(canvas);
+                tex.source.style.scaleMode = 'nearest';
+                view.sprite.texture = tex;
+                view.lastFrameUrl = 'canvas';
+              } else {
+                const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
+                if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
+              }
+            }
+          } else {
+            const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
+            if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
+          }
+          view.sprite.tint = view.attackUntil > now ? 0xffd0a0 : 0xffffff;
           const hpRatio = enemy ? enemy.hp / enemy.maxHp : actor && character ? actor.hp / character.maxHp : 0;
           const variantColor = enemy?.variant?.visualModifier === 'rare-aura' ? 0xb66cff : 0xffb52e;
           view.label.position.set(0, creatureVisualLayout.nameplateY); view.bar.clear().rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3).fill({ color: 0x251010 }).rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3).fill({ color: enemy?.variant ? variantColor : enemy ? 0xd3564d : 0x4fc977 });

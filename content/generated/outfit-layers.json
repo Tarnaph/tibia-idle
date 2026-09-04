@@ -1,0 +1,114 @@
+{
+  "citizen": {
+    "id": "citizen",
+    "maleLooktype": 128,
+    "femaleLooktype": 136,
+    "layers": 2,
+    "frames": 3
+  },
+  "hunter": {
+    "id": "hunter",
+    "maleLooktype": 129,
+    "femaleLooktype": 137,
+    "layers": 2,
+    "frames": 3
+  },
+  "mage": {
+    "id": "mage",
+    "maleLooktype": 130,
+    "femaleLooktype": 138,
+    "layers": 2,
+    "frames": 3
+  },
+  "knight": {
+    "id": "knight",
+    "maleLooktype": 131,
+    "femaleLooktype": 139,
+    "layers": 2,
+    "frames": 3
+  },
+  "noble": {
+    "id": "noble",
+    "maleLooktype": 132,
+    "femaleLooktype": 140,
+    "layers": 2,
+    "frames": 3
+  },
+  "summoner": {
+    "id": "summoner",
+    "maleLooktype": 133,
+    "femaleLooktype": 141,
+    "layers": 2,
+    "frames": 3
+  },
+  "warrior": {
+    "id": "warrior",
+    "maleLooktype": 134,
+    "femaleLooktype": 142,
+    "layers": 2,
+    "frames": 3
+  },
+  "barbarian": {
+    "id": "barbarian",
+    "maleLooktype": 143,
+    "femaleLooktype": 147,
+    "layers": 2,
+    "frames": 3
+  },
+  "druid": {
+    "id": "druid",
+    "maleLooktype": 144,
+    "femaleLooktype": 148,
+    "layers": 2,
+    "frames": 3
+  },
+  "sorcerer": {
+    "id": "sorcerer",
+    "maleLooktype": 145,
+    "femaleLooktype": 149,
+    "layers": 2,
+    "frames": 3
+  },
+  "oriental": {
+    "id": "oriental",
+    "maleLooktype": 146,
+    "femaleLooktype": 150,
+    "layers": 2,
+    "frames": 3
+  },
+  "pirate": {
+    "id": "pirate",
+    "maleLooktype": 151,
+    "femaleLooktype": 155,
+    "layers": 2,
+    "frames": 3
+  },
+  "assassin": {
+    "id": "assassin",
+    "maleLooktype": 152,
+    "femaleLooktype": 156,
+    "layers": 2,
+    "frames": 3
+  },
+  "beggar": {
+    "id": "beggar",
+    "maleLooktype": 153,
+    "femaleLooktype": 157,
+    "layers": 2,
+    "frames": 3
+  },
+  "paladin": {
+    "id": "paladin",
+    "maleLooktype": 129,
+    "femaleLooktype": 137,
+    "layers": 2,
+    "frames": 3
+  },
+  "sire": {
+    "id": "sire",
+    "maleLooktype": 9999,
+    "femaleLooktype": 9999,
+    "layers": 1,
+    "frames": 3
+  }
+}

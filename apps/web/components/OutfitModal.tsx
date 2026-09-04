@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import visualAssetsJson from '@/content/generated/tibia860-assets.json';
-import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import React, { useState, useEffect, useRef } from 'react';
 import type { CharacterState } from '@/packages/domain/src/types';
+import {
+  TIBIA_133_COLORS,
+  normalizeOutfitId,
+  renderRecoloredOutfit,
+  type OutfitColors,
+} from '@/apps/web/lib/outfitRecolor';
 
-const visualAssets = visualAssetsJson as unknown as Tibia860AssetManifest;
+export { TIBIA_133_COLORS } from '@/apps/web/lib/outfitRecolor';
 
 export interface OutfitOption {
   id: string;
@@ -53,26 +57,6 @@ export const AVAILABLE_MOUNTS: MountOption[] = [
   { id: 'none', name: 'Sem Montaria', speedBonus: 0, description: 'Caminhe normalmente a pé pelo mapa.' },
 ];
 
-/**
- * Exact 19 columns x 7 rows (133 colors) official Tibia outfit palette matrix
- */
-export const TIBIA_133_COLORS: string[] = [
-  // Row 0: White and light pastel spectrum
-  '#ffffff', '#ffd5bf', '#ffeabf', '#ffffbf', '#eaffbf', '#d4ffbf', '#bfffbf', '#bfffd5', '#bfffea', '#bfffff', '#bfeaff', '#bfd4ff', '#bfbfff', '#d4bfff', '#eabfff', '#ffbfff', '#ffbfea', '#ffbfd5', '#ffbfbf',
-  // Row 1: Light gray and muted earth
-  '#dbdbdb', '#bf9f8f', '#bfaf8f', '#bfbf8f', '#afbf8f', '#9fbf8f', '#8fbf8f', '#8fbf9f', '#8fbfaf', '#8fbfbf', '#8fafbf', '#8f9fbf', '#8f8fbf', '#9f8fbf', '#af8fbf', '#bf8fbf', '#bf8faf', '#bf8f9f', '#bf8f8f',
-  // Row 2: Medium gray and medium muted spectrum
-  '#b6b6b6', '#bf8060', '#bf9f60', '#bfbf60', '#9fbf60', '#80bf60', '#60bf60', '#60bf80', '#60bf9f', '#60bfbf', '#609fbf', '#607fbf', '#6060bf', '#7f60bf', '#9f60bf', '#bf60bf', '#bf609f', '#bf6080', '#bf6060',
-  // Row 3: Dark gray and deep muted spectrum
-  '#929292', '#bf6a40', '#bf9540', '#bfbf40', '#95bf40', '#6abf40', '#40bf40', '#40bf6a', '#40bf95', '#40bfbf', '#4095bf', '#406abf', '#4040bf', '#6a40bf', '#9540bf', '#bf40bf', '#bf4095', '#bf406a', '#bf4040',
-  // Row 4: Charcoal and pure vivid spectrum
-  '#6d6d6d', '#ff5500', '#ffaa00', '#ffff00', '#aaff00', '#55ff00', '#00ff00', '#00ff55', '#00ffaa', '#00ffff', '#00aaff', '#0055ff', '#0000ff', '#5500ff', '#aa00ff', '#ff00ff', '#ff00aa', '#ff0055', '#ff0000',
-  // Row 5: Deep charcoal and dark saturated spectrum
-  '#494949', '#bf4000', '#bf8000', '#bfbf00', '#80bf00', '#40bf00', '#00bf00', '#00bf40', '#00bf7f', '#00bfbf', '#007fbf', '#0040bf', '#0000bf', '#4000bf', '#8000bf', '#bf00bf', '#bf0080', '#bf0040', '#bf0000',
-  // Row 6: Near black and deep shadow shades
-  '#242424', '#802b00', '#805500', '#808000', '#558000', '#2a8000', '#008000', '#00802b', '#008055', '#008080', '#005580', '#002a80', '#000080', '#2a0080', '#550080', '#800080', '#800055', '#80002b', '#800000',
-];
-
 // Backwards compatibility for tests that import TIBIA_PALETTE
 export const TIBIA_PALETTE = TIBIA_133_COLORS.slice(0, 16).map((color, id) => ({
   id,
@@ -106,29 +90,52 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
   const [selectedTab, setSelectedTab] = useState<'outfits' | 'mounts'>('outfits');
   const [selectedOutfit, setSelectedOutfit] = useState('Knight');
   const [selectedMount, setSelectedMount] = useState('donkey');
-  const [mountActive, setMountActive] = useState(true);
+  const [mountActive, setMountActive] = useState(false);
   const [addon1, setAddon1] = useState(false);
   const [addon2, setAddon2] = useState(false);
   const [directionIdx, setDirectionIdx] = useState(0);
   const [colorPart, setColorPart] = useState<'head' | 'primary' | 'secondary' | 'detail'>('head');
-  const [colors, setColors] = useState({ head: 0, primary: 86, secondary: 114, detail: 76 });
+  const [colors, setColors] = useState<OutfitColors>({ head: 0, primary: 86, secondary: 114, detail: 76 });
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [filterAcquired, setFilterAcquired] = useState(false);
 
-  // Sync state when active character changes
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Sync state when active character changes or modal opens
   useEffect(() => {
     if (!open) return;
     const char = characters.find((c) => c.id === selectedCharId) || characters[0];
     if (char) {
       setSelectedOutfit(char.outfit || char.baseVocation || 'Knight');
       setSelectedMount(char.mount || 'donkey');
-      setMountActive(char.mountActive !== undefined ? Boolean(char.mountActive) : true);
+      // Authentic requirement: Character opens ON FOOT by default unless saved mountActive is explicitly true
+      setMountActive(char.mountActive !== undefined ? Boolean(char.mountActive) : false);
       const addons = char.addons || 0;
       setAddon1((addons & 1) !== 0);
       setAddon2((addons & 2) !== 0);
       if (char.outfitColors) setColors(char.outfitColors);
     }
   }, [selectedCharId, open, characters]);
+
+  const isMountedDonkey = mountActive && (selectedMount === 'donkey' || selectedMount === 'Donkey');
+  const currentDir = DIRECTIONS[directionIdx];
+
+  // Live recolor preview on canvas whenever outfit, gender, direction or colors change
+  useEffect(() => {
+    if (!open) return;
+    if (isMountedDonkey) return;
+
+    if (previewCanvasRef.current) {
+      renderRecoloredOutfit(
+        previewCanvasRef.current,
+        selectedOutfit,
+        gender,
+        currentDir,
+        0,
+        colors
+      );
+    }
+  }, [open, selectedOutfit, gender, currentDir, colors, isMountedDonkey]);
 
   if (!open) return null;
 
@@ -149,17 +156,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
     setDirectionIdx((prev) => (prev + 1) % 4);
   };
 
-  const currentDir = DIRECTIONS[directionIdx];
-
-  // Resolve thumbnail for outfit cards (matching all 14 local extracted sprites)
+  // Resolve thumbnail for outfit cards
   const getOutfitThumbUrl = (outfitId: string): string => {
-    const idLower = outfitId.toLowerCase();
-    if (['citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate'].includes(idLower)) {
-      return `/generated/outfit-thumbs/${idLower}.png`;
-    }
-    if (idLower === 'oriental') return '/generated/outfit-thumbs/sorcerer.png';
-    if (idLower === 'beggar') return '/generated/outfit-thumbs/citizen.png';
-    return '/generated/outfit-thumbs/knight.png';
+    const idLower = normalizeOutfitId(outfitId);
+    return `/generated/outfit-thumbs/${idLower}.png`;
   };
 
   // Resolve thumbnail for mount cards
@@ -169,26 +169,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
     }
     return '/generated/outfit-thumbs/knight.png';
   };
-
-  // Resolve large preview image URL
-  const isMountedDonkey = mountActive && (selectedMount === 'donkey' || selectedMount === 'Donkey');
-
-  const normKey = selectedOutfit.includes('Sire')
-    ? 'Sire'
-    : selectedOutfit.includes('Sorcerer') || selectedOutfit.includes('Mage')
-    ? 'Sorcerer'
-    : selectedOutfit.includes('Druid')
-    ? 'Druid'
-    : selectedOutfit.includes('Paladin') || selectedOutfit.includes('Hunter')
-    ? 'Paladin'
-    : 'Knight';
-
-  const outfitAsset = visualAssets.outfits[normKey] || visualAssets.outfits['Knight'];
-  const dirFrames = outfitAsset?.frames.filter((f) => f.direction === currentDir) ?? [];
-  const candidateFrame = dirFrames[0] || outfitAsset?.frames[0];
-  const onFootPreviewUrl = candidateFrame?.publicUrl ?? getOutfitThumbUrl(selectedOutfit);
-
-  const previewSpriteUrl = isMountedDonkey ? '/generated/mounts/donkey_rider_south.png' : onFootPreviewUrl;
 
   const handleSave = () => {
     let addonsVal = 0;
@@ -331,18 +311,28 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
             {/* Large Preview Box */}
             <div className="tibia-preview-box">
               <div className="tibia-preview-inner">
-                {previewSpriteUrl ? (
+                {isMountedDonkey ? (
                   <img
-                    src={previewSpriteUrl}
-                    alt={selectedOutfit}
-                    className={`tibia-preview-sprite ${isMountedDonkey ? 'mounted' : 'on-foot'}`}
+                    src="/generated/mounts/donkey_rider_south.png"
+                    alt="Donkey Rider"
+                    className="tibia-preview-sprite mounted"
                     style={{
                       imageRendering: 'pixelated',
-                      transform: isMountedDonkey && (currentDir === 'west' || currentDir === 'north') ? 'scaleX(-1)' : undefined,
+                      transform: currentDir === 'west' || currentDir === 'north' ? 'scaleX(-1)' : undefined,
                     }}
                   />
                 ) : (
-                  <div className="tibia-preview-empty">Sem sprite</div>
+                  <canvas
+                    ref={previewCanvasRef}
+                    width={64}
+                    height={64}
+                    className="tibia-preview-sprite on-foot"
+                    style={{
+                      imageRendering: 'pixelated',
+                      width: '64px',
+                      height: '64px',
+                    }}
+                  />
                 )}
               </div>
               {/* Rotate Button in bottom-right corner */}
@@ -389,12 +379,12 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                   const isSelected = currentColorIdx === idx;
                   return (
                     <button
-                      type="button"
                       key={idx}
-                      className={`tibia-palette-cell ${isSelected ? 'active' : ''}`}
+                      type="button"
+                      className={`tibia-color-swatch-19x7 ${isSelected ? 'selected' : ''}`}
                       style={{ backgroundColor: hex }}
                       onClick={() => setColors((prev) => ({ ...prev, [colorPart]: idx }))}
-                      title={`Cor #${idx} (${hex})`}
+                      title={`Cor ${idx}: ${hex}`}
                     />
                   );
                 })}
@@ -469,7 +459,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                     <div
                       key={outfit.id}
                       className={`tibia-card-item ${isSelected ? 'active' : ''}`}
-                      onClick={() => setSelectedOutfit(outfit.id)}
+                      onClick={() => {
+                        setSelectedOutfit(outfit.id);
+                        if (mountActive) setMountActive(false);
+                      }}
                     >
                       <div className="tibia-card-sprite-wrap">
                         <img
