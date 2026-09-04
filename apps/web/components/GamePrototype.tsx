@@ -201,6 +201,40 @@ function GamePrototypeContent() {
   // Active Party Member IDs (subset of squad characters that are in the active party)
   const [isPartyCreated, setIsPartyCreated] = useState<boolean>(false);
   const [partyMemberIds, setPartyMemberIds] = useState<string[]>([]);
+  const [savedPool, setSavedPool] = useState<CharacterState[]>([]);
+
+  useEffect(() => {
+    if (game.session.characters.length > 0) {
+      setSavedPool((prev) => {
+        const map = new Map<string, CharacterState>();
+        prev.forEach((c) => map.set(c.id, c));
+        game.session.characters.forEach((c) => map.set(c.id, c));
+        return Array.from(map.values());
+      });
+    }
+  }, [game.session.characters]);
+
+  const handleToggleSavedCharacter = useCallback((id: string) => {
+    const targetChar = savedPool.find((c) => c.id === id);
+    if (!targetChar) return;
+
+    const isInSquad = game.session.characters.some((c) => c.id === id);
+    if (isInSquad) {
+      setPartyMemberIds((prev) => prev.filter((itemId) => itemId !== id));
+      setGame((cur) => removePartyMember(cur, id));
+    } else if (game.session.characters.length < 4) {
+      setGame((cur) => {
+        if (cur.session.characters.some((c) => c.id === id)) return cur;
+        return {
+          ...cur,
+          session: {
+            ...cur.session,
+            characters: [...cur.session.characters, targetChar],
+          },
+        };
+      });
+    }
+  }, [savedPool, game.session.characters]);
 
   const handleCreateParty = useCallback((selectedIds: string[]) => {
     setPartyMemberIds(selectedIds);
@@ -1078,6 +1112,7 @@ function GamePrototypeContent() {
       <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{isPartyCreated ? partyMemberIds.length : 0}/4</small>}>
         <PartyWindow
           squadMembers={game.session.characters}
+          savedCharacters={savedPool}
           activeCharacterId={activeCharacter.id}
           partyMemberIds={partyMemberIds}
           isPartyCreated={isPartyCreated}
@@ -1091,6 +1126,7 @@ function GamePrototypeContent() {
             setGame((cur) => removePartyMember(cur, id));
           }}
           onAddSquadMember={() => setPartyModalOpen(true)}
+          onToggleSavedCharacter={handleToggleSavedCharacter}
           onInvitePlayer={(name) => handleInviteParty(name)}
         />
       </DraggableWindow>
@@ -1148,6 +1184,7 @@ function GamePrototypeContent() {
         onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
         onOpenDepot={() => setDepotOpen(true)}
         onOpenQuickSell={() => setQuickSellOpen(true)}
+        onSelectHunt={() => setHuntSelectorOpen(true)}
         onChangeStance={(stance) => setGame((cur) => setCharacterStance(cur, activeCharacter.id, stance))}
         onChangeTargetDistance={(dist) => setGame((cur) => setCharacterTargetDistance(cur, activeCharacter.id, dist))}
       />

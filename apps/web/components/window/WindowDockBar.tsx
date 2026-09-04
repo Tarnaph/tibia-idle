@@ -95,6 +95,20 @@ export function WindowDockBar({
       <div className="huntera-actions-grid">
         <button
           type="button"
+          className="huntera-square-btn hunt-btn"
+          onClick={onSelectHunt}
+          title="Abrir Seleção de Caçadas / Hunts"
+          style={{ borderColor: '#f0d080', backgroundColor: 'rgba(240, 208, 128, 0.2)' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f0d080" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
           className={`huntera-square-btn ${windows.equipment?.isOpen ? 'active' : ''}`}
           onClick={() => toggleWindow('equipment')}
           title="Equipamentos e Armadura"

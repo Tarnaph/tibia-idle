@@ -871,6 +871,22 @@ export function ThaisCityArena({
           app.screen.height / 2 - currentPixelY * camera.scale
         );
 
+        // Clean up removed squad members with blue teleport particle effect
+        const activeSquadIds = new Set(curChars.map((c) => c.id));
+        actorViews.forEach((view, id) => {
+          if (followerVisualStates.has(id) && !activeSquadIds.has(id)) {
+            const fState = followerVisualStates.get(id);
+            if (fState) {
+              const px = fState.currentTile.x * TILE_SIZE + 16;
+              const py = fState.currentTile.y * TILE_SIZE + 16;
+              triggerTeleportEffect(px, py);
+            }
+            followerVisualStates.delete(id);
+            view.root.destroy({ children: true });
+            actorViews.delete(id);
+          }
+        });
+
         // 4. Update party characters: fluid walk frame sequence (0 -> 1 -> 0 -> 2)
         const walkCycle = [0, 1, 0, 2];
         const stepRateMs = Math.max(60, Math.min(130, Math.floor(curStepDuration / 3.5)));

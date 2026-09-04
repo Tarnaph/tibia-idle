@@ -5,6 +5,7 @@ import type { CharacterState } from '@/packages/domain/src';
 
 interface PartyWindowProps {
   squadMembers: CharacterState[];
+  savedCharacters?: CharacterState[];
   activeCharacterId: string;
   partyMemberIds: string[];
   isPartyCreated?: boolean;
@@ -15,6 +16,7 @@ interface PartyWindowProps {
   onRemoveFromParty: (id: string) => void;
   onDeleteSquadMember?: (id: string) => void;
   onAddSquadMember?: () => void;
+  onToggleSavedCharacter?: (id: string) => void;
   onInvitePlayer?: (name: string) => void;
   onLeaveParty?: () => void;
   partyOnlineMembers?: Array<{
@@ -28,8 +30,11 @@ interface PartyWindowProps {
   }>;
 }
 
+const ALL_VOCATIONS = ['Knight', 'Paladin', 'Sorcerer', 'Druid', 'Monk'] as const;
+
 export function PartyWindow({
   squadMembers,
+  savedCharacters,
   activeCharacterId,
   partyMemberIds,
   isPartyCreated = false,
@@ -40,6 +45,7 @@ export function PartyWindow({
   onRemoveFromParty,
   onDeleteSquadMember,
   onAddSquadMember,
+  onToggleSavedCharacter,
   onInvitePlayer,
   onLeaveParty,
   partyOnlineMembers = [],
@@ -47,6 +53,7 @@ export function PartyWindow({
   const [tab, setTab] = useState<'squad' | 'party'>('squad');
   const [inviteName, setInviteName] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showGearModal, setShowGearModal] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Total members in active party
@@ -55,15 +62,16 @@ export function PartyWindow({
   const realPlayersCount = partyOnlineMembers.filter((m) => m.isRealPlayer).length + 1;
   const expBonusPercent = Math.max(0, (realPlayersCount - 1) * 10);
 
+  // All saved characters pool (fallback to squadMembers if savedCharacters not passed)
+  const allSaved = savedCharacters && savedCharacters.length > 0 ? savedCharacters : squadMembers;
+
   const handleStartCreateParty = () => {
     if (squadMembers.length <= 1) {
-      // Se só tiver 1 personagem no squad, não tem pergunta e vai só ele
       const singleId = squadMembers[0]?.id || activeCharacterId;
       if (onCreateParty) onCreateParty([singleId]);
       return;
     }
 
-    // Se tiver mais de 1 personagem, abre o modal de seleção
     const initialSelection = Array.from(new Set([activeCharacterId, ...squadMembers.map((m) => m.id)])).slice(0, 4);
     setSelectedIds(initialSelection);
     setShowModal(true);
@@ -77,7 +85,7 @@ export function PartyWindow({
   };
 
   const toggleSelectMember = (id: string) => {
-    if (id === activeCharacterId) return; // O líder principal sempre participa
+    if (id === activeCharacterId) return;
     setSelectedIds((prev) => {
       if (prev.includes(id)) {
         return prev.filter((item) => item !== id);
@@ -95,6 +103,14 @@ export function PartyWindow({
     }
   };
 
+  // Build fixed 4 squad slots
+  const squadSlots: Array<CharacterState | null> = [
+    squadMembers[0] ?? null,
+    squadMembers[1] ?? null,
+    squadMembers[2] ?? null,
+    squadMembers[3] ?? null,
+  ];
+
   return (
     <div className="party-window-container gothic-window-panel">
       {/* Tab Navigation */}
@@ -104,7 +120,7 @@ export function PartyWindow({
           className={`party-tab-btn ${tab === 'squad' ? 'active' : ''}`}
           onClick={() => setTab('squad')}
         >
-          SEU SQUAD ({squadMembers.length})
+          SEU SQUAD ({squadMembers.length}/4)
         </button>
         <button
           type="button"
@@ -120,14 +136,86 @@ export function PartyWindow({
         {tab === 'squad' && (
           <div className="squad-tab-panel">
             <div className="squad-header-info">
-              <span className="info-title">Personagens no seu Squad</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="info-title">Personagens no seu Squad ({squadMembers.length}/4)</span>
+                <button
+                  type="button"
+                  className="squad-gear-btn"
+                  onClick={() => setShowGearModal(true)}
+                  title="Abrir Banco de Personagens Salvos (Engrenagem ⚙️)"
+                  style={{
+                    backgroundColor: 'rgba(240, 208, 128, 0.15)',
+                    border: '1px solid #f0d080',
+                    color: '#f0d080',
+                    borderRadius: '4px',
+                    padding: '4px 10px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  ⚙️ Salvos
+                </button>
+              </div>
               <small className="info-desc">
                 Defina o personagem principal. Os outros integrantes seguirão seu personagem e atacarão o mesmo alvo.
               </small>
             </div>
 
             <div className="squad-members-list">
-              {squadMembers.map((member) => {
+              {squadSlots.map((member, slotIndex) => {
+                if (!member) {
+                  return (
+                    <div
+                      key={`empty-slot-${slotIndex}`}
+                      className="squad-member-card empty-slot-card"
+                      style={{
+                        opacity: 0.75,
+                        borderStyle: 'dashed',
+                        borderColor: '#4a5042',
+                        backgroundColor: 'rgba(0,0,0,0.2)',
+                      }}
+                    >
+                      <div className="member-avatar-box">
+                        <div
+                          className="avatar-placeholder"
+                          style={{
+                            backgroundColor: 'transparent',
+                            border: '1px dashed #4a5042',
+                            color: '#6a7062',
+                            fontSize: '16px',
+                          }}
+                        >
+                          👤
+                        </div>
+                      </div>
+
+                      <div className="member-info-col">
+                        <strong className="member-name" style={{ color: '#7a8276', fontStyle: 'italic' }}>
+                          Slot Vazio
+                        </strong>
+                        <div className="member-vocation-sub" style={{ color: '#6a7266' }}>
+                          Nenhum integrante no slot {slotIndex + 1}
+                        </div>
+                      </div>
+
+                      <div className="member-actions-col">
+                        <button
+                          type="button"
+                          className="squad-btn add-party-btn"
+                          onClick={() => setShowGearModal(true)}
+                          title="Adicionar personagem salvo da engrenagem para este slot"
+                        >
+                          + Adicionar
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 const isActiveMain = member.id === activeCharacterId;
                 const isInParty = partyMemberIds.includes(member.id);
 
@@ -196,7 +284,7 @@ export function PartyWindow({
                           type="button"
                           className="squad-btn delete-squad-btn"
                           onClick={() => onDeleteSquadMember(member.id)}
-                          title="Excluir personagem do Squad"
+                          title="Remover personagem do Squad (continua salvo na engrenagem)"
                         >
                           ✕
                         </button>
@@ -211,10 +299,10 @@ export function PartyWindow({
               <button
                 type="button"
                 className="gothic-action-btn add-squad-btn"
-                onClick={onAddSquadMember}
-                disabled={squadMembers.length >= 4}
+                onClick={() => setShowGearModal(true)}
+                style={{ marginTop: '10px' }}
               >
-                + Criar Novo Personagem no Squad ({squadMembers.length}/4)
+                ⚙️ Gerenciar Banco de Personagens Salvos ({squadMembers.length}/4 no Squad)
               </button>
             )}
           </div>
@@ -419,6 +507,162 @@ export function PartyWindow({
                 style={{ fontSize: '10px', padding: '6px 12px' }}
               >
                 Confirmar ({selectedIds.length}/4)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Engrenagem: Banco de Personagens Salvos por Vocação */}
+      {showGearModal && (
+        <div
+          className="party-modal-backdrop"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 999,
+            padding: '16px',
+          }}
+        >
+          <div
+            className="party-modal-card gothic-window-panel"
+            style={{
+              width: '100%',
+              maxWidth: '360px',
+              backgroundColor: '#1b1d19',
+              border: '2px solid #f0d080',
+              borderRadius: '6px',
+              padding: '16px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.9)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h3 style={{ margin: 0, color: '#f0d080', fontSize: '13px' }}>
+                ⚙️ Banco de Personagens Salvos
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowGearModal(false)}
+                style={{ background: 'none', border: 'none', color: '#a0a8a0', cursor: 'pointer', fontSize: '14px' }}
+              >
+                ✕
+              </button>
+            </div>
+            <p style={{ fontSize: '11px', color: '#d0d8d0', margin: '0 0 12px 0' }}>
+              Você pode ter <strong>1 personagem de cada vocação</strong> salvo na conta e até <strong>4 integrantes ativos</strong> no seu squad simultaneamente.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+              {ALL_VOCATIONS.map((voc) => {
+                const savedChar = allSaved.find((c) => c.vocation === voc || c.baseVocation === voc);
+                const isInSquad = savedChar ? squadMembers.some((s) => s.id === savedChar.id) : false;
+                const isMain = savedChar ? savedChar.id === activeCharacterId : false;
+
+                return (
+                  <div
+                    key={voc}
+                    style={{
+                      padding: '8px 10px',
+                      backgroundColor: isInSquad ? 'rgba(80, 140, 60, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                      border: `1px solid ${isInSquad ? '#60b040' : '#3a4035'}`,
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '8px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <strong style={{ fontSize: '12px', color: '#ffffff' }}>{voc}</strong>
+                        {savedChar && (
+                          <span
+                            style={{
+                              fontSize: '9px',
+                              padding: '1px 5px',
+                              borderRadius: '3px',
+                              backgroundColor: isInSquad ? '#2d6020' : '#4a4830',
+                              color: isInSquad ? '#70f060' : '#d0d090',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {isMain ? '⭐ PRINCIPAL' : isInSquad ? 'NO SQUAD' : 'NA RESERVA'}
+                          </span>
+                        )}
+                      </div>
+                      {savedChar ? (
+                        <span style={{ fontSize: '10px', color: '#b0b8b0' }}>
+                          {savedChar.name} · Nível {savedChar.level}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '10px', color: '#808880', fontStyle: 'italic' }}>
+                          Nenhum personagem de {voc} salvo
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      {savedChar ? (
+                        isInSquad ? (
+                          <button
+                            type="button"
+                            className="squad-btn delete-squad-btn"
+                            disabled={isMain}
+                            onClick={() => {
+                              if (onDeleteSquadMember) onDeleteSquadMember(savedChar.id);
+                            }}
+                            title={isMain ? 'O personagem principal não pode ser removido' : 'Remover do squad para a reserva (efeito teleporte)'}
+                            style={{ fontSize: '10px', padding: '4px 8px' }}
+                          >
+                            {isMain ? 'Líder' : 'Remover'}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="squad-btn add-party-btn"
+                            disabled={squadMembers.length >= 4}
+                            onClick={() => {
+                              if (onToggleSavedCharacter) onToggleSavedCharacter(savedChar.id);
+                            }}
+                            title={squadMembers.length >= 4 ? 'Squad cheio (máx 4)' : 'Colocar no squad ativo'}
+                            style={{ fontSize: '10px', padding: '4px 8px' }}
+                          >
+                            + Entrar no Squad
+                          </button>
+                        )
+                      ) : (
+                        <button
+                          type="button"
+                          className="squad-btn set-main-btn"
+                          onClick={() => {
+                            setShowGearModal(false);
+                            if (onAddSquadMember) onAddSquadMember();
+                          }}
+                          style={{ fontSize: '10px', padding: '4px 8px' }}
+                        >
+                          + Criar {voc}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="gothic-action-btn"
+                onClick={() => setShowGearModal(false)}
+                style={{ fontSize: '11px', padding: '6px 14px' }}
+              >
+                Fechar
               </button>
             </div>
           </div>
