@@ -146,7 +146,7 @@ describe('Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em
     expect(player.mp).toBe(35);
   });
 
-  it('executes server simulation ticks, auto-attacks and monster respawns', () => {
+  it('executes server simulation ticks, auto-attacks and monster respawns', async () => {
     const room = new ThaisCityRoom();
     room.onCreate({});
 
@@ -178,8 +178,8 @@ describe('Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em
     expect(room.state.serverTick).toBe(1);
     expect(rotworm.hp).toBeLessThan(initialMonsterHp);
 
-    // Test player leave
-    room.onLeave(mockClient);
+    // Test player leave (consented logout code 1000)
+    await room.onLeave(mockClient, 1000);
     expect(room.state.players.size).toBe(0);
   });
 });

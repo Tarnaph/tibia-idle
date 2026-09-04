@@ -55,10 +55,46 @@ export class GameClientNetworkManager {
   private stateListeners: Set<StateChangeListener> = new Set();
   private playersMap: Map<string, RemotePlayerSnapshot> = new Map();
   private localPlayerId: string | null = null;
+  private reconnectionToken: string | null = null;
 
   async connect(token: string, characterId: string): Promise<Room<any>> {
     this.room = await joinGameRoom(token, characterId);
     this.localPlayerId = this.room.sessionId;
+    this.reconnectionToken = this.room.reconnectionToken || null;
+
+    if (typeof window !== 'undefined' && this.reconnectionToken) {
+      sessionStorage.setItem('colyseus_reconnect_token', this.reconnectionToken);
+    }
+
+    this.setupRoomListeners();
+    return this.room;
+  }
+
+  async tryReconnect(reconnectToken?: string): Promise<Room<any> | null> {
+    const targetToken =
+      reconnectToken ||
+      this.reconnectionToken ||
+      (typeof window !== 'undefined' ? sessionStorage.getItem('colyseus_reconnect_token') : null);
+
+    if (!targetToken) return null;
+
+    try {
+      const { reconnectGameRoom } = await import('./colyseusClient');
+      this.room = await reconnectGameRoom(targetToken);
+      this.localPlayerId = this.room.sessionId;
+      this.reconnectionToken = this.room.reconnectionToken || targetToken;
+      this.setupRoomListeners();
+      return this.room;
+    } catch (err) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('colyseus_reconnect_token');
+      }
+      return null;
+    }
+  }
+
+  private setupRoomListeners(): void {
+    if (!this.room) return;
 
     // Listen to players collection
     if (this.room.state && this.room.state.players) {
@@ -87,8 +123,6 @@ export class GameClientNetworkManager {
     this.room.onMessage('chat_message', (msg: NetworkChatMessage) => {
       this.chatListeners.forEach((fn) => fn(msg));
     });
-
-    return this.room;
   }
 
   disconnect(): void {

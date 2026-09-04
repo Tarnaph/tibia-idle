@@ -5,6 +5,7 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
+import { persistenceManager } from '../persistence/PrismaPersistenceManager';
 import {
   isInViewport,
   isWithinDistance,
@@ -34,6 +35,9 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
 
     // Set 100ms deterministic server simulation tick (10 ticks / sec)
     this.setSimulationInterval((dt) => this.gameTick(dt), 100);
+
+    // Start 30-second periodic auto-save to PostgreSQL
+    persistenceManager.startPeriodicSave(() => this.state.players.values(), 30000);
 
     // Initial server-side monster spawns
     this.spawnInitialMonsters();
@@ -110,12 +114,34 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
     this.state.players.set(client.sessionId, player);
   }
 
-  onLeave(client: Client, code?: number) {
+  async onLeave(client: Client, code?: number | boolean) {
+    const player = this.state.players.get(client.sessionId);
+    const consented = typeof code === 'boolean' ? code : (code === 1000 || code === 4000);
+
+    if (!consented) {
+      try {
+        // Allow 20s window for client reconnection upon F5 / connection loss
+        await this.allowReconnection(client, 20);
+        return;
+      } catch (err) {
+        // Reconnection window expired
+      }
+    }
+
+    if (player) {
+      await persistenceManager.saveCharacter(player);
+    }
+
     const idx = this.clients.indexOf(client);
     if (idx !== -1) {
       this.clients.splice(idx, 1);
     }
     this.state.players.delete(client.sessionId);
+  }
+
+  async onDispose() {
+    persistenceManager.stopPeriodicSave();
+    await persistenceManager.saveBatch(this.state.players.values());
   }
 
   /**

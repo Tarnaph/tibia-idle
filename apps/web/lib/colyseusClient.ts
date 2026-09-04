@@ -23,3 +23,9 @@ export async function joinGameRoom(token: string, characterId: string): Promise<
   });
   return room;
 }
+
+export async function reconnectGameRoom(reconnectionToken: string): Promise<Room<any>> {
+  const client = getColyseusClient();
+  const room = await client.reconnect(reconnectionToken);
+  return room;
+}
