@@ -113,6 +113,8 @@ interface Props {
   onTileClick?: (tile: { x: number; y: number; z: number }) => void;
   visualEvents?: CombatVisualEvent[];
   debug?: boolean;
+  remotePlayers?: Map<string, any>;
+  localPlayerId?: string | null;
 }
 
 const visualAssets = visualAssetsJson as Tibia860AssetManifest;
@@ -134,6 +136,13 @@ const thaisData = thaisCityJson as {
 
 const TILE_SIZE = 32;
 
+const VOCATION_NAMES: Record<number, string> = {
+  1: 'Knight',
+  2: 'Paladin',
+  3: 'Sorcerer',
+  4: 'Druid',
+};
+
 export function ThaisCityArena({
   characters,
   cityPos,
@@ -143,14 +152,16 @@ export function ThaisCityArena({
   onTileClick,
   visualEvents = [],
   debug = false,
+  remotePlayers,
+  localPlayerId,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
-  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick });
+  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, remotePlayers, localPlayerId });
 
   useEffect(() => {
-    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick };
-  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick]);
+    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, remotePlayers, localPlayerId };
+  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, remotePlayers, localPlayerId]);
 
 
   useEffect(() => {
@@ -694,6 +705,43 @@ export function ThaisCityArena({
             .fill({ color: 0x251010 })
             .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
             .fill({ color: 0x4fc977 });
+        }
+
+        // 6. Update online players connected via Colyseus WebSocket
+        const remotes = latestRef.current.remotePlayers;
+        const myPlayerId = latestRef.current.localPlayerId;
+        if (remotes) {
+          remotes.forEach((p, key) => {
+            if (key === myPlayerId) return; // Skip rendering local player as remote
+
+            const vocName = VOCATION_NAMES[p.vocationId] || 'Knight';
+            const view = ensureActorView({ id: p.id, name: p.name, vocation: vocName });
+            if (!view) return;
+
+            view.root.visible = (p.z ?? 7) === curPos.z;
+            if (!view.root.visible) return;
+
+            const walkFrame = p.isMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
+            const url = getOutfitFrameUrl(vocName, p.direction || 'south', walkFrame);
+            if (url && url !== view.lastUrl && loaded[url]) {
+              view.sprite.texture = loaded[url];
+              view.lastUrl = url;
+            }
+
+            const px = (p.x ?? 32369) * TILE_SIZE + 16;
+            const py = (p.y ?? 32241) * TILE_SIZE + 16;
+            view.root.position.set(px, py);
+            view.root.zIndex = py;
+            view.label.position.set(0, creatureVisualLayout.nameplateY);
+            const curHp = p.hp ?? 100;
+            const maxHp = p.maxHp ?? 100;
+            const hpRatio = maxHp > 0 ? Math.max(0, Math.min(1, curHp / maxHp)) : 1;
+            view.bar.clear()
+              .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
+              .fill({ color: 0x251010 })
+              .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
+              .fill({ color: 0x4fc977 });
+          });
         }
       });
 

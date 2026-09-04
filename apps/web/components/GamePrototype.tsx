@@ -125,6 +125,14 @@ function GamePrototypeContent() {
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   const [onlineCharacter, setOnlineCharacter] = useState<CharacterItem | null>(null);
   const [isConnectedServer, setIsConnectedServer] = useState(false);
+  const [remotePlayers, setRemotePlayers] = useState<Map<string, RemotePlayerSnapshot>>(new Map());
+
+  useEffect(() => {
+    const unsub = gameNetwork.onStateChange((players) => {
+      setRemotePlayers(players);
+    });
+    return unsub;
+  }, []);
 
   const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
     setOnlineAccount(acc);
@@ -479,6 +487,10 @@ function GamePrototypeContent() {
   const takeCityStep = useCallback((deltaX: number, deltaY: number) => {
     setWalkingPath(null);
     setIsTrainingAtDummy(false);
+
+    const dir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
+    gameNetwork.sendMove(dir);
+
     setCityPos((current) => {
       const stairTarget = resolveStairsTransition(current, deltaX, deltaY);
       if (stairTarget) return stairTarget;
@@ -608,6 +620,8 @@ function GamePrototypeContent() {
             onTileClick={handleTileClick}
             visualEvents={encounter.visualEvents}
             debug={debugGrid}
+            remotePlayers={remotePlayers}
+            localPlayerId={gameNetwork.LocalPlayerId}
           />
         )}
         {mode !== 'hunt' && (
