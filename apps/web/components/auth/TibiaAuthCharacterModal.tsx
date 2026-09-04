@@ -79,7 +79,10 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
       const charData = (await charRes.json()) as any;
 
       if (meData.success) {
-        setAccount(meData.data);
+        setAccount({
+          ...meData.data,
+          displayName: meData.data.displayName || meData.data.email?.split('@')[0] || 'Aventureiro',
+        });
       } else {
         localStorage.removeItem('colyseus_token');
         setToken(null);
@@ -554,7 +557,16 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
                         </div>
                       </div>
                       <button
-                        onClick={() => account && onSelectCharacter(token, char, account)}
+                        onClick={() => {
+                          const currentToken = token || localStorage.getItem('colyseus_token') || '';
+                          const currentAccount = account || {
+                            id: char.id,
+                            email: '',
+                            displayName: char.name,
+                            role: 'PLAYER' as const,
+                          };
+                          onSelectCharacter(currentToken, char, currentAccount);
+                        }}
                         style={{
                           padding: '8px 16px',
                           background: 'linear-gradient(180deg, #ba8e54 0%, #7d5c2e 100%)',
