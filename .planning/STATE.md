@@ -1,3 +1,18 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+last_updated: "2026-09-04T01:19:34.105Z"
+last_activity: "2026-09-03 — Concluída Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)."
+progress:
+  total_phases: 46
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 12
+  percent: 91
+---
+
 # Project State
 
 ## Project Reference
@@ -9,19 +24,19 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 43 of 46 (Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks)  
+Phase: 44 of 46 (Sincronização de Estado com Colyseus Schema, Interest Management e Chat)  
 Plan: 0 of 1 in current phase  
 Status: Ready to Plan  
-Last activity: 2026-09-03 — Concluída Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player).
+Last activity: 2026-09-03 — Concluída Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks.
 
-Progress: [█████████▏] 91%
+Progress: [█████████▎] 93%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 42
+- Total phases completed: 43
 - Total phases in roadmap: 46
-- Tests status: 37 test suites (227 testes aprovados)
+- Tests status: 38 test suites (233 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -31,8 +46,8 @@ Progress: [█████████▏] 91%
 |-------|-------|-------|----------|--------|
 | 1 a 41. (Milestone 1 - Singleplayer & Engine Vertical Slice) | 41 | - | - | Complete |
 | 42. Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role | 1 | - | - | Complete |
-| 43. Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks | 0 | - | - | Ready to Plan |
-| 44. Sincronização de Estado com Colyseus Schema, Interest Management e Chat | 0 | - | - | Pending |
+| 43. Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks | 1 | - | - | Complete |
+| 44. Sincronização de Estado com Colyseus Schema, Interest Management e Chat | 0 | - | - | Ready to Plan |
 | 45. Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin | 0 | - | - | Pending |
 | 46. Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E | 0 | - | - | Pending |
 | 1. Motor de Simulação e Combate Idle | 1 | - | - | Complete |
@@ -104,6 +119,3 @@ Progress: [█████████▏] 91%
 - Phase 14 added: Viewport em tela cheia e janelas de UI flutuantes e arrastáveis (solicitação do usuário).
 - Phase 15 added: Janela compacta de inventário, tooltips de atributos e iluminação de tocha estilo Tibia (FIX.md).
 - Phase 16 added: Correção de arraste de janelas, hotbar customizável (magias, runas, itens) e boost de XP dos ratos (FIX.md).
-
-
-
