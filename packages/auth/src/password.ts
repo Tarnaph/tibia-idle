@@ -30,11 +30,5 @@ export async function verifyPassword(plainText: string, hash: string): Promise<b
     return timingSafeEqual(derivedKey, keyBuffer);
   }
 
-  // Fallback for bcrypt hashes if any exist
-  try {
-    const bcrypt = await import('bcryptjs');
-    return await bcrypt.compare(plainText, hash);
-  } catch (err) {
-    return false;
-  }
+  return false;
 }
