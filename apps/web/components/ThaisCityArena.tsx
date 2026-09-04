@@ -32,6 +32,7 @@ export interface AmbientCityPlayer {
   maxHp: number;
 }
 
+// AMBIENT_THAIS_PLAYERS: Mock NPCs removed for live MMORPG world. Metadata preserved: name: 'Vimago', vocation: 'Master Sorcerer', isPremium: true, name: 'Elane', name: 'Harkath Bloodblade', name: 'Muriel', isPremium: false
 export const AMBIENT_THAIS_PLAYERS: AmbientCityPlayer[] = [];
 
 interface Props {
@@ -833,11 +834,12 @@ export function ThaisCityArena({
         const validActorIds = new Set<string>();
         curChars.forEach((c) => validActorIds.add(c.id));
         AMBIENT_THAIS_PLAYERS.forEach((p) => validActorIds.add(p.id));
-        const remotesMap = latestRef.current.remotePlayers;
-        const myPlayerIdVal = latestRef.current.localPlayerId;
-        if (remotesMap) {
-          remotesMap.forEach((p, key) => {
-            if (key !== myPlayerIdVal && !curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) {
+        const myCharIdVal = curChars[0]?.id;
+        const remotes = latestRef.current.remotePlayers;
+        const myPlayerId = latestRef.current.localPlayerId;
+        if (remotes) {
+          remotes.forEach((p, key) => {
+            if (key !== myPlayerId && p.id !== myPlayerId && (!myCharIdVal || (p.id !== myCharIdVal && (p as any).characterId !== myCharIdVal))) {
               validActorIds.add(p.id);
             }
           });
@@ -988,8 +990,7 @@ export function ThaisCityArena({
         }
 
         // 6. Update online players connected via Colyseus WebSocket
-        const remotes = latestRef.current.remotePlayers;
-        const myPlayerId = latestRef.current.localPlayerId;
+        // (remotes and myPlayerId already defined above in ticker)
         const LOOKTYPE_MAP: Record<number, string> = {
           128: 'Knight',
           129: 'Paladin',
@@ -1009,8 +1010,9 @@ export function ThaisCityArena({
         };
 
         if (remotes) {
+          const myCharId = curChars[0]?.id;
           remotes.forEach((p, key) => {
-            if (key === myPlayerId || curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) return; // Skip rendering local player as remote
+            if (key === myPlayerId || p.id === myPlayerId || (myCharId && (p.id === myCharId || p.characterId === myCharId))) return; // Skip rendering local player as remote
 
             const vocName = VOCATION_NAMES[p.vocationId] || 'Knight';
             const outfitKey = p.outfit?.lookType ? (LOOKTYPE_MAP[p.outfit.lookType] || vocName) : vocName;

@@ -314,7 +314,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           channel: normalizedChannel,
           timestamp,
         };
-        c.send('chat_message', payload);
+        c.send('chat', payload);
       }
     });
   }
