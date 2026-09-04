@@ -1,0 +1,128 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PLAYER
+  ADMIN
+}
+
+model Account {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  role         Role        @default(PLAYER)
+  coins        Int         @default(0)
+  isBanned     Boolean     @default(false)
+  isPremium    Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  characters   Character[]
+
+  @@map("accounts")
+}
+
+model Character {
+  id             String           @id @default(uuid())
+  accountId      String
+  name           String           @unique
+  vocationId     Int              @default(4) // 1: Sorcerer, 2: Druid, 3: Paladin, 4: Knight
+  vocationName   String           @default("Knight")
+  level          Int              @default(8)
+  experience     BigInt           @default(4200)
+  health         Int              @default(185)
+  maxHealth      Int              @default(185)
+  mana           Int              @default(35)
+  maxMana        Int              @default(35)
+  capacity       Int              @default(470)
+  staminaMinutes Int              @default(2520)
+  outfitLookType Int              @default(131)
+  outfitHead     Int              @default(0)
+  outfitBody     Int              @default(0)
+  outfitLegs     Int              @default(0)
+  outfitFeet     Int              @default(0)
+  posX           Int              @default(32369) // Thais Temple
+  posY           Int              @default(32241)
+  posZ           Int              @default(7)
+  direction      String           @default("south")
+  townId         Int              @default(1) // Thais
+  isOnline       Boolean          @default(false)
+  lastLogin      DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  account        Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  skills         CharacterSkill[]
+  inventory      InventoryItem[]
+  depot          DepotItem[]
+  spells         LearnedSpell[]
+
+  @@index([accountId])
+  @@map("characters")
+}
+
+model CharacterSkill {
+  id          String    @id @default(uuid())
+  characterId String
+  skillId     Int       // 0: Fist, 1: Club, 2: Sword, 3: Axe, 4: Distance, 5: Shielding, 6: Fishing, 7: MagicLevel
+  skillName   String
+  value       Int       @default(10)
+  tries       BigInt    @default(0)
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, skillId])
+  @@index([characterId])
+  @@map("character_skills")
+}
+
+model InventoryItem {
+  id             String    @id @default(uuid())
+  characterId    String
+  slot           String    // "head", "armor", "legs", "boots", "leftHand", "rightHand", "backpack", "backpack_0"...
+  serverId       Int
+  name           String
+  count          Int       @default(1)
+  tier           Int       @default(0)
+  attributesJson String?
+
+  character      Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@map("inventory_items")
+}
+
+model DepotItem {
+  id             String    @id @default(uuid())
+  characterId    String
+  depotBox       Int       @default(1)
+  slotIndex      Int
+  serverId       Int
+  name           String
+  count          Int       @default(1)
+  tier           Int       @default(0)
+  attributesJson String?
+
+  character      Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@map("depot_items")
+}
+
+model LearnedSpell {
+  id          String    @id @default(uuid())
+  characterId String
+  spellId     String    // "exura", "exori", "utani-hur", etc.
+  learnedAt   DateTime  @default(now())
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, spellId])
+  @@index([characterId])
+  @@map("learned_spells")
+}

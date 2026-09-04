@@ -17,7 +17,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 9: Rotas de Caça Contínuas (Continuous Hunt Routes)** - Caçada contínua em loop no OTBM com respawns e monstros raros.
 - [x] **Phase 10: Câmera de Expedição e Controles em Tempo Real** - Câmera dinâmica suave, hot-swap de equipamentos e entrada ao vivo.
 - [x] **Phase 41: Tooltip Global de Atributos de Itens e Inspeção de Jogadores na Cidade**
-- [ ] **Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)** - Modelagem relacional para VPS padrão com Prisma, contas com hashing bcrypt, múltiplos personagens, inventário, skills, roles (admin/player) e endpoints REST de auth.
+- [x] **Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)** - Modelagem relacional para VPS padrão com Prisma, contas com hashing bcrypt, múltiplos personagens, inventário, skills, roles (admin/player) e endpoints REST de auth.
 - [ ] **Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks** - Servidor Node.js com Colyseus Room (`ThaisCityRoom`, `HuntRoom`), engine de combate autoritativa (100ms ticks), colisão OTBM, IA de monstros e validação anti-cheat.
 - [ ] **Phase 44: Sincronização de Estado com Colyseus Schema, Interest Management e Chat** - State sync binário via `@colyseus/schema`, spatial interest management (visão 15x11), broadcast de combate e canais de chat multiplayer em tempo real.
 - [ ] **Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin** - Telas de Login, Cadastro, Seleção/Criação de Personagem, Painel de Admin (`@colyseus/monitor` + GM commands) e PixiJS consumindo delta-snapshots com interpolação suave.
@@ -679,7 +679,7 @@ Plans:
 5. 100% dos testes unitários e de integração de banco/auth passando com 0 erros de tipagem no TypeScript (`npm run typecheck`).
 
 Plans:
-- [ ] 42-01-PLAN: Implementar schema Prisma para PostgreSQL, migrações, serviços de autenticação multi-role (JWT/bcrypt) e endpoints de gestão de personagens.
+- [x] 42-01-PLAN: Implementar schema Prisma para PostgreSQL, migrações, serviços de autenticação multi-role (JWT/bcrypt) e endpoints de gestão de personagens.
 
 ---
 

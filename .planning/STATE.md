@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 42 of 46 (Arquitetura de Banco de Dados Relacional & Autenticação Multi-Role)  
+Phase: 43 of 46 (Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks)  
 Plan: 0 of 1 in current phase  
 Status: Ready to Plan  
-Last activity: 2026-09-03 — Inicializado Milestone 2: Separação Backend/Frontend, Arquitetura Autoritativa e Multiplayer em Tempo Real (Fases 42 a 46).
+Last activity: 2026-09-03 — Concluída Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player).
 
-Progress: [█████████░] 89%
+Progress: [█████████▏] 91%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 41
+- Total phases completed: 42
 - Total phases in roadmap: 46
-- Tests status: 36 test suites passando (Vitest - 235 testes aprovados, 100%)
+- Tests status: 37 test suites (227 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -30,8 +30,8 @@ Progress: [█████████░] 89%
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
 | 1 a 41. (Milestone 1 - Singleplayer & Engine Vertical Slice) | 41 | - | - | Complete |
-| 42. Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role | 0 | - | - | Ready to Plan |
-| 43. Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks | 0 | - | - | Pending |
+| 42. Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role | 1 | - | - | Complete |
+| 43. Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks | 0 | - | - | Ready to Plan |
 | 44. Sincronização de Estado com Colyseus Schema, Interest Management e Chat | 0 | - | - | Pending |
 | 45. Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin | 0 | - | - | Pending |
 | 46. Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E | 0 | - | - | Pending |
