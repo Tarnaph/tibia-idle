@@ -40,9 +40,8 @@ export function TopNavigation({
 
   return (
     <header className="client-topbar">
-      <div className="brand-cluster">
-        <span className="brand-mark">C</span>
-        <span className="brand-name">Cavebound<small>idle expeditions</small></span>
+      <div className="brand-cluster" style={{ alignItems: 'center' }}>
+        <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '30px', width: 'auto', objectFit: 'contain' }} />
         <span className="account-name">{characterName}</span>
         <span className="currency-chip"><i className="coin-dot" />{gold.toLocaleString('pt-BR')}</span>
       </div>

@@ -44,10 +44,8 @@ export function WindowDockBar({
   return (
     <header className="window-dock-bar" aria-label="Barra de janelas do jogo">
       <div className="dock-left">
-        <div className="game-brand">
-          <span className="brand-dot" />
-          <span className="brand-title">CAVEBOUND</span>
-          <span className="brand-sub">11</span>
+        <div className="game-brand" title="Exura Idle Adventures">
+          <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
         </div>
         <div className="player-summary">
           <button

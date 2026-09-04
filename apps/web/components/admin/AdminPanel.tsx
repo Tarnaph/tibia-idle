@@ -109,7 +109,9 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
   return (
     <main className="admin-shell">
       <header className="admin-header">
-        <Link className="public-brand" href="/"><span>C</span><strong>CAVEBOUND</strong></Link>
+        <Link className="public-brand" href="/">
+          <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+        </Link>
         <div><span>ADMINISTRAÇÃO</span><b>{auth.viewer?.displayName}</b><Link href="/game">JOGO</Link><Link href="/">SITE</Link><button type="button" onClick={() => void auth.signOut()}>SAIR</button></div>
       </header>
 

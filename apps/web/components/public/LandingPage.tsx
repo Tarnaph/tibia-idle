@@ -36,7 +36,9 @@ export function LandingPage({ updates, authRequired = false, accessDenied = fals
   return (
     <div className="public-site">
       <header className="public-header">
-        <a className="public-brand" href="#inicio" aria-label="Cavebound — início"><span>C</span><strong>CAVEBOUND</strong></a>
+        <a className="public-brand" href="#inicio" aria-label="Exura Idle Adventures — início">
+          <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+        </a>
         <nav aria-label="Navegação do site">
           <a href="#inicio">Início</a><a href="#jogo">O jogo</a><a href="#atualizacoes">Atualizações</a>
         </nav>
@@ -121,9 +123,11 @@ export function LandingPage({ updates, authRequired = false, accessDenied = fals
       </main>
 
       <footer className="public-footer">
-        <a className="public-brand" href="#inicio"><span>C</span><strong>CAVEBOUND</strong></a>
+        <a className="public-brand" href="#inicio">
+          <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+        </a>
         <p>MMORPG idle de navegador em desenvolvimento.</p>
-        <small>© 2026 Cavebound</small>
+        <small>© 2026 Exura Idle Adventures</small>
       </footer>
 
       {authModal.open && <AuthModal mode={authModal.mode} onMode={(mode) => dispatchAuth({ type: 'switch', mode })} onClose={() => dispatchAuth({ type: 'close' })} />}
