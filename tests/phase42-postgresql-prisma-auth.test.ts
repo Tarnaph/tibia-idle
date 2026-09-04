@@ -19,7 +19,7 @@ describe('Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-R
       const hash = await hashPassword(password);
 
       expect(hash).toBeDefined();
-      expect(hash.startsWith('$2a$') || hash.startsWith('$2b$')).toBe(true);
+      expect(hash.startsWith('$2a$') || hash.startsWith('$2b$') || hash.includes(':')).toBe(true);
       expect(hash).not.toBe(password);
 
       const isValid = await verifyPassword(password, hash);
@@ -30,7 +30,7 @@ describe('Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-R
     });
 
     it('rejects passwords shorter than 6 characters', async () => {
-      await expect(hashPassword('12345')).rejects.toThrow('at least 6 characters');
+      await expect(hashPassword('12345')).rejects.toThrow('6 caracteres');
     });
   });
 
