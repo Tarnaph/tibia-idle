@@ -807,22 +807,6 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
               isPlaying={isPlaying}
             />
 
-            {/* Dark Tint Overlay when Paused */}
-            <div
-              onClick={togglePlay}
-              title={isPlaying ? 'Clique no vídeo para pausar' : 'Clique no vídeo para reproduzir'}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundColor: isPlaying ? 'transparent' : 'rgba(0, 0, 0, 0.45)',
-                transition: 'background-color 0.3s ease',
-                pointerEvents: isPlaying ? 'none' : 'auto',
-                cursor: 'pointer',
-                borderRadius: '8px',
-                zIndex: 5,
-              }}
-            />
-
             {/* Centered Transparent Play Button when Paused */}
             {!isPlaying && (
               <button
