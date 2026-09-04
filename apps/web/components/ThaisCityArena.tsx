@@ -185,6 +185,9 @@ export function ThaisCityArena({
         return;
       }
 
+      appRef.current = app;
+      hostRef.current.appendChild(app.canvas);
+
       // Collect assets to load
       const floorUrl = visualAssets.assets.trainingFloor.frames[0].publicUrl;
       const wallUrl = visualAssets.assets.trainingWall.frames[0].publicUrl;
@@ -207,15 +210,29 @@ export function ThaisCityArena({
       const allUrls = [
         ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, ...outfitUrls, ...mapItemUrls]),
       ];
-      const loaded = (await Assets.load(allUrls)) as Record<string, PixiTexture>;
+      
+      const loaded: Record<string, PixiTexture> = {};
+      try {
+        await Promise.allSettled(
+          allUrls.map(async (url) => {
+            try {
+              const texture = await Assets.load<PixiTexture>(url);
+              if (texture) {
+                texture.source.style.scaleMode = 'nearest';
+                loaded[url] = texture;
+              }
+            } catch {
+              // Ignore single asset load failure
+            }
+          })
+        );
+      } catch (err) {
+        console.warn('Map asset loading error:', err);
+      }
 
       if (disposed) {
         app.destroy(true, { children: true });
         return;
-      }
-
-      for (const texture of Object.values(loaded)) {
-        texture.source.style.scaleMode = 'nearest';
       }
 
       const world = new Container();
@@ -237,8 +254,6 @@ export function ThaisCityArena({
 
       world.addChild(floor7Container, floor6Container, actorsLayer);
       app.stage.addChild(world, overlayLayer);
-      appRef.current = app;
-      hostRef.current.appendChild(app.canvas);
 
       // Fast tile lookups for ground (z:7) and upper floor / dock (z:6)
       const tileMapZ7 = new Map<string, typeof thaisData.tiles[0]>();
@@ -253,12 +268,14 @@ export function ThaisCityArena({
 
       // Training dummies placed in the training room on Z:7
       const dummyPos = thaisData.trainingDummy;
-      const dummySprite = new Sprite(loaded[dummyUrl]);
-      dummySprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
-      dummySprite.position.set(dummyPos.x * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, dummyPos.y * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
-      dummySprite.roundPixels = true;
-      dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
-      objectsLayerZ7.addChild(dummySprite);
+      if (loaded[dummyUrl]) {
+        const dummySprite = new Sprite(loaded[dummyUrl]);
+        dummySprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
+        dummySprite.position.set(dummyPos.x * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, dummyPos.y * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
+        dummySprite.roundPixels = true;
+        dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
+        objectsLayerZ7.addChild(dummySprite);
+      }
 
       // Pre-render world tiles in the Thais bounding box and collect animated items
       const minX = thaisData.bounds.minX;
