@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { BaseVocationName, VocationName } from '@/packages/content-schema/src';
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
@@ -38,6 +38,17 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
   const [selectedVocation, setSelectedVocation] = useState<SelectableVocation>('Knight');
   const [error, setError] = useState('');
 
+  // Auto-select first available non-used vocation when modal opens
+  useEffect(() => {
+    if (open) {
+      const firstAvailable = VOCATION_OPTIONS.find((v) => !used.includes(v.base));
+      if (firstAvailable) {
+        setSelectedVocation(firstAvailable.id);
+      }
+      setError('');
+    }
+  }, [open, used]);
+
   if (!open) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,6 +60,11 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
 
     const vocOption = VOCATION_OPTIONS.find((v) => v.id === selectedVocation);
     const targetBase = vocOption ? vocOption.base : 'Knight';
+
+    if (used.includes(targetBase)) {
+      setError(`A vocação ${vocOption?.name || targetBase} já está na sua party.`);
+      return;
+    }
 
     const result = onCreate(name.trim(), targetBase, gender);
     if (result) {
