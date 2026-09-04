@@ -123,17 +123,32 @@ function nearestEnemy(actor: PartyActorState, encounter: HuntEncounterState, ran
   })[0];
 }
 
-export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Map<string, number>, allowedEnemyIds?: Set<string>): void {
+export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Map<string, number>, allowedEnemyIds?: Set<string>, mainCharacterId?: string): void {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
-  const leader = encounter.partyActors.find((candidate) => candidate.alive);
+  const mainActor = (mainCharacterId ? encounter.partyActors.find((candidate) => candidate.alive && candidate.characterId === mainCharacterId) : undefined)
+    ?? encounter.partyActors.find((candidate) => candidate.alive);
+  
+  const mainTargetId = mainActor?.targetId;
+  const mainTargetEnemy = mainTargetId ? encounter.enemies.find((e) => e.id === mainTargetId && e.alive) : undefined;
+
   const ordered = encounter.partyActors.filter((candidate) => candidate.alive)
-    .sort((a, b) => Number(b.characterId === leader?.characterId) - Number(a.characterId === leader?.characterId) || a.characterId.localeCompare(b.characterId));
+    .sort((a, b) => Number(b.characterId === mainActor?.characterId) - Number(a.characterId === mainActor?.characterId) || a.characterId.localeCompare(b.characterId));
+
   for (const actor of ordered) {
     actor.previousPosition = clonePosition(actor.position);
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
     const range = ranges.get(actor.characterId) ?? 1;
-    const selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds);
+
+    // Target Focus: If main character is targeting a living enemy, secondary actors mirror that target!
+    let selected;
+    if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
+      selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]));
+    }
+    if (!selected) {
+      selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds);
+    }
+
     actor.targetId = selected?.enemy.id ?? null;
     actor.path = selected?.path.map(clonePosition) ?? [];
     if (!selected || selected.alreadyInRange) continue;
@@ -147,18 +162,21 @@ export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Ma
   }
 }
 
-export function movePartyTowardPoint(encounter: HuntEncounterState, target: GridPosition): boolean {
+export function movePartyTowardPoint(encounter: HuntEncounterState, target: GridPosition, mainCharacterId?: string): boolean {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
   const living = encounter.partyActors.filter((candidate) => candidate.alive);
-  const leader = living.find((actor) => actor.characterId === encounter.partyActors[0]?.characterId) ?? living[0];
+  const leader = (mainCharacterId ? living.find((actor) => actor.characterId === mainCharacterId) : undefined)
+    ?? living.find((actor) => actor.characterId === encounter.partyActors[0]?.characterId)
+    ?? living[0];
   if (!leader) return false;
-  for (const [index, actor] of living.entries()) {
+  for (const actor of living) {
+    const isLeader = actor.characterId === leader.characterId;
     actor.previousPosition = clonePosition(actor.position);
     actor.targetId = null;
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
-    const followTarget = index === 0 ? target : leader.position;
-    const desiredDistance = index === 0 ? 0 : Math.min(2, index);
+    const followTarget = isLeader ? target : leader.position;
+    const desiredDistance = isLeader ? 0 : 1;
     if (meleeDistance(actor.position, followTarget) <= desiredDistance) { actor.path = []; continue; }
     const blocked = new Set([...occupied, ...reserved]); blocked.delete(positionKey(actor.position));
     const targetBlocked = blocked.has(positionKey(followTarget));

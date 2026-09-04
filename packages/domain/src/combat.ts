@@ -936,7 +936,7 @@ function advanceSpatialCombat(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   encounter.room.reservations = new Map();
   const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-  movePartyTowardTargets(encounter, ranges); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
+  movePartyTowardTargets(encounter, ranges, undefined, state.session.selectedCharacterId); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
   castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content); unlockExit(state);
 }
 
@@ -947,12 +947,12 @@ function advanceExpedition(state: GameState, content: GameContent): void {
   const current = expedition.encounters[progress.activeEncounterIndex];
   if (encounter.enemies.some((enemy) => enemy.alive)) {
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    movePartyTowardTargets(encounter, ranges); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
+    movePartyTowardTargets(encounter, ranges, undefined, state.session.selectedCharacterId); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
     castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content);
     return;
   }
   if (current && !progress.activeEncounterSpawned) {
-    const reached = movePartyTowardPoint(encounter, current.anchor); recordMovementEvents(encounter);
+    const reached = movePartyTowardPoint(encounter, current.anchor, state.session.selectedCharacterId); recordMovementEvents(encounter);
     progress.explorationPercent = Math.max(progress.explorationPercent, Math.round(100 * progress.activeEncounterIndex / expedition.encounters.length));
     if (reached) spawnExpeditionEncounter(state, content);
     return;
@@ -966,7 +966,7 @@ function advanceExpedition(state: GameState, content: GameContent): void {
     progress.explorationPercent = Math.round(100 * progress.activeEncounterIndex / expedition.encounters.length);
     return;
   }
-  const reachedExit = movePartyTowardPoint(encounter, expedition.exitPoint); recordMovementEvents(encounter);
+  const reachedExit = movePartyTowardPoint(encounter, expedition.exitPoint, state.session.selectedCharacterId); recordMovementEvents(encounter);
   if (reachedExit) {
     progress.reachedExit = true; progress.explorationPercent = 100; encounter.status = 'completed';
     encounter.events.push({ type: 'hunt-complete' }); addLog(state, `${encounter.hunt.name} concluída.`);
@@ -1023,10 +1023,10 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   if (objective.kind === 'combat') {
     progress.currentZoneIndex = objective.zoneIndex;
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds));
+    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds), state.session.selectedCharacterId);
     const leader = encounter.partyActors.find((actor) => actor.characterId === state.session.leaderId && actor.alive) ?? encounter.partyActors.find((actor) => actor.alive);
     if (leader && leader.path.length === 0 && !encounter.enemies.some((e) => e.alive && meleeDistance(leader.position, e.position) <= (ranges.get(leader.characterId) ?? 1))) {
-      movePartyTowardPoint(encounter, objective.target);
+      movePartyTowardPoint(encounter, objective.target, state.session.selectedCharacterId);
     }
     moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
     castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content);
@@ -1037,7 +1037,7 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   const visibleEnemies = encounter.enemies.filter((enemy) => enemy.alive && encounter.partyActors.some((actor) => actor.alive && (actor.targetId === enemy.id || meleeDistance(actor.position, enemy.position) <= 7)));
   if (visibleEnemies.length > 0) {
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    movePartyTowardTargets(encounter, ranges, new Set(visibleEnemies.map((e) => e.id)));
+    movePartyTowardTargets(encounter, ranges, new Set(visibleEnemies.map((e) => e.id)), state.session.selectedCharacterId);
     moveEnemiesTowardParty(encounter);
     recordMovementEvents(encounter);
     castAutomaticSpells(state, content);
@@ -1050,7 +1050,7 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   const leader = encounter.partyActors.find((actor) => actor.characterId === state.session.leaderId && actor.alive) ?? encounter.partyActors.find((actor) => actor.alive);
   if (!leader) return;
   const before = `${leader.position.x},${leader.position.y}`;
-  const reached = movePartyTowardPoint(encounter, objective.target);
+  const reached = movePartyTowardPoint(encounter, objective.target, state.session.selectedCharacterId);
   moveEnemiesTowardParty(encounter);
   recordMovementEvents(encounter);
   castAutomaticSpells(state, content);

@@ -199,29 +199,32 @@ function GamePrototypeContent() {
   }, []);
 
   // Active Party Member IDs (subset of squad characters that are in the active party)
+  const [isPartyCreated, setIsPartyCreated] = useState<boolean>(false);
   const [partyMemberIds, setPartyMemberIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    setPartyMemberIds((prev) => {
-      if (prev.length === 0) return [game.session.leaderId];
-      if (!prev.includes(game.session.selectedCharacterId)) {
-        return [...prev, game.session.selectedCharacterId].slice(0, 4);
-      }
-      return prev;
-    });
-  }, [game.session.selectedCharacterId, game.session.leaderId]);
+  const handleCreateParty = useCallback((selectedIds: string[]) => {
+    setPartyMemberIds(selectedIds);
+    setIsPartyCreated(true);
+  }, []);
+
+  const handleDisbandParty = useCallback(() => {
+    setPartyMemberIds([]);
+    setIsPartyCreated(false);
+  }, []);
 
   const handleAddToParty = useCallback((id: string) => {
     setPartyMemberIds((prev) => {
       if (prev.includes(id) || prev.length >= 4) return prev;
       return [...prev, id];
     });
+    setIsPartyCreated(true);
   }, []);
 
   const handleRemoveFromParty = useCallback((id: string) => {
     setPartyMemberIds((prev) => {
-      if (prev.length <= 1) return prev;
-      return prev.filter((itemId) => itemId !== id);
+      const next = prev.filter((itemId) => itemId !== id);
+      if (next.length === 0) setIsPartyCreated(false);
+      return next;
     });
   }, []);
 
@@ -1055,11 +1058,14 @@ function GamePrototypeContent() {
       />
 
       {/* Window 3: Party & Squad */}
-      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{partyMemberIds.length}/4</small>}>
+      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{isPartyCreated ? partyMemberIds.length : 0}/4</small>}>
         <PartyWindow
           squadMembers={game.session.characters}
           activeCharacterId={activeCharacter.id}
           partyMemberIds={partyMemberIds}
+          isPartyCreated={isPartyCreated}
+          onCreateParty={handleCreateParty}
+          onDisbandParty={handleDisbandParty}
           onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
           onAddToParty={handleAddToParty}
           onRemoveFromParty={handleRemoveFromParty}
