@@ -259,33 +259,139 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
       {/* Background Audio */}
       <audio ref={audioRef} src="/ferumbras-theme.mp3" loop autoPlay />
 
-      {/* Floating Audio Control Toggle Button in top-right corner */}
-      <button
-        type="button"
-        onClick={toggleMute}
-        title={isMuted ? 'Ativar Música de Fundo (Ferumbras Cometh Again)' : 'Mutar Música de Fundo'}
+      {/* Online Players Counter in Top-Left Corner */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '20px',
+          left: '20px',
+          zIndex: 1000000000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '8px 14px',
+          background: 'rgba(27, 34, 45, 0.9)',
+          border: '1px solid #7d5c2e',
+          borderRadius: '20px',
+          color: '#62e58a',
+          fontSize: '13px',
+          fontWeight: 'bold',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
+          backdropFilter: 'blur(6px)',
+        }}
+      >
+        <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#62e58a', boxShadow: '0 0 8px #62e58a' }} />
+        <span>10 players online</span>
+      </div>
+
+      {/* Social Media Links & Audio Toggle in Top-Right Corner */}
+      <div
         style={{
           position: 'fixed',
           top: '20px',
           right: '20px',
           zIndex: 1000000000,
-          background: 'rgba(27, 34, 45, 0.9)',
-          border: '1px solid #7d5c2e',
-          borderRadius: '50%',
-          width: '46px',
-          height: '46px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: isMuted ? '#888' : '#f3e5ab',
-          fontSize: '20px',
-          cursor: 'pointer',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
-          backdropFilter: 'blur(6px)',
+          gap: '10px',
         }}
       >
-        {isMuted ? '🔇' : '🔊'}
-      </button>
+        {/* Instagram */}
+        <a
+          href="https://instagram.com"
+          target="_blank"
+          rel="noreferrer"
+          title="Instagram"
+          style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            background: 'rgba(27, 34, 45, 0.9)',
+            border: '1px solid #7d5c2e',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#f3e5ab',
+            fontSize: '18px',
+            textDecoration: 'none',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(6px)',
+          }}
+        >
+          📷
+        </a>
+        {/* TikTok */}
+        <a
+          href="https://tiktok.com"
+          target="_blank"
+          rel="noreferrer"
+          title="TikTok"
+          style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            background: 'rgba(27, 34, 45, 0.9)',
+            border: '1px solid #7d5c2e',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#f3e5ab',
+            fontSize: '18px',
+            textDecoration: 'none',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(6px)',
+          }}
+        >
+          🎵
+        </a>
+        {/* Facebook */}
+        <a
+          href="https://facebook.com"
+          target="_blank"
+          rel="noreferrer"
+          title="Facebook"
+          style={{
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            background: 'rgba(27, 34, 45, 0.9)',
+            border: '1px solid #7d5c2e',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#f3e5ab',
+            fontSize: '18px',
+            textDecoration: 'none',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(6px)',
+          }}
+        >
+          👤
+        </a>
+        {/* Audio Toggle */}
+        <button
+          type="button"
+          onClick={toggleMute}
+          title={isMuted ? 'Ativar Música de Fundo (Ferumbras Cometh Again)' : 'Mutar Música de Fundo'}
+          style={{
+            background: 'rgba(27, 34, 45, 0.9)',
+            border: '1px solid #7d5c2e',
+            borderRadius: '50%',
+            width: '42px',
+            height: '42px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: isMuted ? '#888' : '#f3e5ab',
+            fontSize: '18px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(6px)',
+          }}
+        >
+          {isMuted ? '🔇' : '🔊'}
+        </button>
+      </div>
       {/* Background Video Frame */}
       <div
         style={{
@@ -760,7 +866,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
                             filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
                           }}
                         >
-                          ENTRAR NO JOGO ⚔️
+                          ENTRAR NO JOGO
                         </button>
                       </div>
                     );
