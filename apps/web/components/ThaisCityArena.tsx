@@ -599,17 +599,21 @@ export function ThaisCityArena({
         return `/generated/outfit-thumbs/${idLower}.png`;
       }
 
-      function ensureActorView(char: { id: string; name: string; vocation: string; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number } }): CityActorView | null {
+      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number } }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) return view;
 
-        const isMounted = Boolean(char.mountActive && (char.mount === 'donkey' || char.mount === 'Donkey'));
-        const initialUrl = isMounted ? '/generated/mounts/donkey_rider_south.png' : getOutfitFrameUrl(char.outfit || char.vocation, 'south', 0);
+        const isMounted = Boolean(char.mountActive && char.mount && char.mount !== 'none');
+        const mountUrl = (char.mount === 'donkey' || char.mount === 'Donkey')
+          ? '/generated/mounts/donkey_rider_south.png'
+          : `/generated/mounts/${char.mount}.png`;
+        const initialUrl = isMounted ? mountUrl : getOutfitFrameUrl(char.outfit || char.vocation, 'south', 0);
         let tex = loaded[initialUrl];
 
         if (!tex) {
           const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-          const canvas = getRecoloredCanvasSync(char.outfit || char.vocation, 'male', 'south', 0, colors);
+          const charGender = char.gender === 'female' ? 'female' : 'male';
+          const canvas = getRecoloredCanvasSync(char.outfit || char.vocation, charGender, 'south', 0, colors);
           if (canvas) {
             tex = Texture.from(canvas);
             tex.source.style.scaleMode = 'nearest';
@@ -711,16 +715,20 @@ export function ThaisCityArena({
           const view = ensureActorView(char);
           if (!view) return;
 
-          const isMounted = Boolean(char.mountActive && (char.mount === 'donkey' || char.mount === 'Donkey'));
-          if (isMounted && loaded['/generated/mounts/donkey_rider_south.png']) {
-            view.sprite.texture = loaded['/generated/mounts/donkey_rider_south.png'];
+          const isMounted = Boolean(char.mountActive && char.mount && char.mount !== 'none');
+          const mountUrl = (char.mount === 'donkey' || char.mount === 'Donkey')
+            ? '/generated/mounts/donkey_rider_south.png'
+            : `/generated/mounts/${char.mount}.png`;
+          if (isMounted && loaded[mountUrl]) {
+            view.sprite.texture = loaded[mountUrl];
             view.sprite.scale.x = (playerDirection === 'west' || playerDirection === 'north') ? -1 : 1;
-            view.lastUrl = '/generated/mounts/donkey_rider_south.png';
+            view.lastUrl = mountUrl;
           } else {
             view.sprite.scale.x = 1;
             const outfitKey = char.outfit || char.vocation || 'Knight';
             const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-            const canvas = getRecoloredCanvasSync(outfitKey, 'male', playerDirection as any, walkFrame, colors);
+            const charGender = char.gender === 'female' ? 'female' : 'male';
+            const canvas = getRecoloredCanvasSync(outfitKey, charGender, playerDirection as any, walkFrame, colors);
             if (canvas) {
               const tex = Texture.from(canvas);
               tex.source.style.scaleMode = 'nearest';

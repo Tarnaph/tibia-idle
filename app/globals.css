@@ -4729,7 +4729,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .tibia-outfit-window {
-  width: 950px;
+  width: 980px;
   max-width: 96vw;
   max-height: 94vh;
   background: #171b26;
@@ -4858,8 +4858,8 @@ h1, h2, h3, p { margin: 0; }
 /* Window Content Body */
 .tibia-outfit-content {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 12px;
+  grid-template-columns: 360px 1fr;
+  gap: 14px;
   padding: 12px;
   background: #161a25;
   overflow-y: auto;
@@ -4870,6 +4870,10 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   flex-direction: column;
   gap: 7px;
+  width: 360px;
+  min-width: 360px;
+  max-width: 360px;
+  overflow: hidden;
 }
 
 .tibia-beveled-check-box {
@@ -5018,15 +5022,17 @@ h1, h2, h3, p { margin: 0; }
 /* 19x7 Color Palette Matrix */
 .tibia-palette-container {
   display: flex;
-  gap: 5px;
+  gap: 7px;
   background: #0f121a;
   border: 1px solid #202736;
-  border-radius: 3px;
+  border-radius: 4px;
   padding: 6px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .tibia-palette-active-indicator {
-  width: 9px;
+  width: 14px;
   border-radius: 2px;
   border: 1px solid rgba(0, 0, 0, 0.7);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
@@ -5039,30 +5045,41 @@ h1, h2, h3, p { margin: 0; }
   grid-template-columns: repeat(19, 1fr);
   gap: 2px;
   flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
+.tibia-color-swatch-19x7,
 .tibia-palette-cell {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
   aspect-ratio: 1;
-  min-width: 11px;
-  min-height: 11px;
-  border: 1px solid rgba(0, 0, 0, 0.45);
-  border-radius: 1px;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 2px;
   cursor: pointer;
   padding: 0;
-  transition: transform 0.08s ease;
+  margin: 0;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
+.tibia-color-swatch-19x7:hover,
 .tibia-palette-cell:hover {
-  transform: scale(1.25);
-  z-index: 2;
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+  transform: scale(1.3);
+  z-index: 5;
+  border-color: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
 }
 
+.tibia-color-swatch-19x7.active,
+.tibia-color-swatch-19x7.selected,
 .tibia-palette-cell.active {
-  border: 1.5px solid #ffffff;
-  box-shadow: 0 0 6px #ffffff, inset 0 0 2px #000000;
-  transform: scale(1.18);
-  z-index: 3;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 8px #ffffff, inset 0 0 2px #000000;
+  transform: scale(1.2);
+  z-index: 6;
 }
 
 /* Right Column */

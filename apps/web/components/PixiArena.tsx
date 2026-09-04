@@ -473,17 +473,21 @@ export function PixiArena({ game, debug, onSelectTarget, onCharacterContextMenu 
           const character = actor ? state.session.characters.find((candidate) => candidate.id === id) : undefined;
 
           if (character) {
-            const isMounted = Boolean(character.mountActive && (character.mount === 'donkey' || character.mount === 'Donkey'));
-            if (isMounted && loaded['/generated/mounts/donkey_rider_south.png']) {
-              view.sprite.texture = loaded['/generated/mounts/donkey_rider_south.png'];
+            const isMounted = Boolean(character.mountActive && character.mount && character.mount !== 'none');
+            const mountUrl = (character.mount === 'donkey' || character.mount === 'Donkey')
+              ? '/generated/mounts/donkey_rider_south.png'
+              : `/generated/mounts/${character.mount}.png`;
+            if (isMounted && loaded[mountUrl]) {
+              view.sprite.texture = loaded[mountUrl];
               view.sprite.scale.x = (sample.direction === 'west' || sample.direction === 'north') ? -1 : 1;
-              view.lastFrameUrl = '/generated/mounts/donkey_rider_south.png';
+              view.lastFrameUrl = mountUrl;
             } else {
               view.sprite.scale.x = 1;
               const outfitKey = character.outfit || character.vocation || 'Knight';
+              const charGender = character.gender === 'female' ? 'female' : 'male';
               const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
               const walkFrame = sample.moving ? Math.floor(framePhase * 3) : 0;
-              const canvas = getRecoloredCanvasSync(outfitKey, 'male', sample.direction, walkFrame, colors);
+              const canvas = getRecoloredCanvasSync(outfitKey, charGender, sample.direction, walkFrame, colors);
               if (canvas) {
                 const tex = Texture.from(canvas);
                 tex.source.style.scaleMode = 'nearest';

@@ -33,7 +33,7 @@ export function starterFor(content: GameContent, name: BaseVocationName): Starte
   return starter;
 }
 
-export function createCharacter(id: string, name: string, vocationName: BaseVocationName, content: GameContent): CharacterState {
+export function createCharacter(id: string, name: string, vocationName: BaseVocationName, content: GameContent, gender: 'male' | 'female' = 'male'): CharacterState {
   const vocation = vocationFor(content, vocationName);
   const starter = starterFor(content, vocationName);
   const importedForVocation = new Set(content.spells
@@ -43,6 +43,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
   const maxMana = vocation.gainMana === 30 ? 60 : vocation.gainMana === 15 ? 30 : vocation.gainMana === 5 ? 10 : 0;
   return {
     id, name, vocation: vocationName, baseVocation: vocationName, promotion: null, level: 1, experience: 0,
+    gender,
     isPremium: true,
     currentHp: 150, currentMana: maxMana,
     maxHp: 150, maxMana: vocation.gainMana === 30 ? 60 : vocation.gainMana === 15 ? 30 : vocation.gainMana === 5 ? 10 : 0,
@@ -79,7 +80,7 @@ export function roleForVocation(vocation: VocationName): 'TANK' | 'SUP' | 'DPS' 
   return 'DPS';
 }
 
-export function addPartyMember(state: GameState, name: string, vocation: BaseVocationName, content: GameContent): GameState {
+export function addPartyMember(state: GameState, name: string, vocation: BaseVocationName, content: GameContent, gender: 'male' | 'female' = 'male'): GameState {
   const cleanName = name.trim();
   if (!cleanName) throw new Error('Nome obrigatório.');
   if (state.session.characters.length >= 4) throw new Error('A party já possui 4 membros.');
@@ -89,7 +90,7 @@ export function addPartyMember(state: GameState, name: string, vocation: BaseVoc
   if (state.session.characters.some((character) => character.id === id)) throw new Error('Nome já utilizado.');
   return {
     ...state,
-    session: { ...state.session, characters: [...state.session.characters, createCharacter(id, cleanName, vocation, content)] },
+    session: { ...state.session, characters: [...state.session.characters, createCharacter(id, cleanName, vocation, content, gender)] },
   };
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { CharacterState } from '@/packages/domain/src/types';
+import rawMountsJson from '@/content/generated/mounts.json';
 import {
   TIBIA_133_COLORS,
   normalizeOutfitId,
@@ -45,15 +46,22 @@ export const AVAILABLE_OUTFITS: OutfitOption[] = [
   { id: 'Beggar', name: 'Beggar', description: 'Vestimenta humilde de andarilho aventureiro.', isPremium: true },
 ];
 
+const PARSED_MOUNTS: MountOption[] = (rawMountsJson as Array<{
+  id: string;
+  name: string;
+  speedBonus: number;
+  description: string;
+  isPremium?: boolean;
+}>).map((m) => ({
+  id: m.id,
+  name: m.name,
+  speedBonus: m.speedBonus,
+  description: m.description,
+  isPremium: m.isPremium,
+}));
+
 export const AVAILABLE_MOUNTS: MountOption[] = [
-  { id: 'donkey', name: 'Donkey', speedBonus: 20, description: 'Burrinho leal e teimoso para longas travessias.', isPremium: true },
-  { id: 'war-horse', name: 'War Horse', speedBonus: 20, description: 'Cavalo de batalha robusto com barda de aço.', isPremium: true },
-  { id: 'midnight-panther', name: 'Midnight Panther', speedBonus: 20, description: 'Pantera lendária de Tiquanda com passos silenciosos.', isPremium: true },
-  { id: 'widow-queen', name: 'Widow Queen', speedBonus: 20, description: 'Aranha gigante domesticada das profundezas de Venore.', isPremium: true },
-  { id: 'shadow-draptor', name: 'Shadow Draptor', speedBonus: 20, description: 'Réptil veloz das estepes corrompidas de Zao.', isPremium: true },
-  { id: 'ursagrodon', name: 'Ursagrodon', speedBonus: 20, description: 'Fera colossal de gelo blindada das ilhas de Svargrond.', isPremium: true },
-  { id: 'crystal-wolf', name: 'Crystal Wolf', speedBonus: 20, description: 'Lobo espiritual infundido com cristais incandescentes.', isPremium: true },
-  { id: 'blazebringer', name: 'Blazebringer', speedBonus: 20, description: 'Montaria ígnea com crina em chamas sagradas.', isPremium: true },
+  ...PARSED_MOUNTS,
   { id: 'none', name: 'Sem Montaria', speedBonus: 0, description: 'Caminhe normalmente a pé pelo mapa.' },
 ];
 
@@ -96,50 +104,64 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
   const [directionIdx, setDirectionIdx] = useState(0);
   const [colorPart, setColorPart] = useState<'head' | 'primary' | 'secondary' | 'detail'>('head');
   const [colors, setColors] = useState<OutfitColors>({ head: 0, primary: 86, secondary: 114, detail: 76 });
-  const [gender, setGender] = useState<'male' | 'female'>('male');
   const [filterAcquired, setFilterAcquired] = useState(false);
 
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const lastSyncedCharRef = useRef<string | null>(null);
+  const prevOpenRef = useRef<boolean>(false);
 
-  // Sync state when active character changes or modal opens
+  const activeChar = characters.find((c) => c.id === selectedCharId) || characters[0];
+  const charGender: 'male' | 'female' = activeChar?.gender === 'female' ? 'female' : 'male';
+
+  // Sync state ONLY when modal newly opens or when user explicitly changes selected character
   useEffect(() => {
-    if (!open) return;
-    const char = characters.find((c) => c.id === selectedCharId) || characters[0];
-    if (char) {
-      setSelectedOutfit(char.outfit || char.baseVocation || 'Knight');
-      setSelectedMount(char.mount || 'donkey');
-      // Authentic requirement: Character opens ON FOOT by default unless saved mountActive is explicitly true
-      setMountActive(char.mountActive !== undefined ? Boolean(char.mountActive) : false);
-      const addons = char.addons || 0;
-      setAddon1((addons & 1) !== 0);
-      setAddon2((addons & 2) !== 0);
-      if (char.outfitColors) setColors(char.outfitColors);
+    if (!open) {
+      lastSyncedCharRef.current = null;
+      prevOpenRef.current = false;
+      return;
     }
-  }, [selectedCharId, open, characters]);
 
-  const isMountedDonkey = mountActive && (selectedMount === 'donkey' || selectedMount === 'Donkey');
+    const isNewlyOpened = !prevOpenRef.current;
+    prevOpenRef.current = true;
+
+    if (isNewlyOpened || lastSyncedCharRef.current !== selectedCharId) {
+      lastSyncedCharRef.current = selectedCharId;
+      const char = characters.find((c) => c.id === selectedCharId) || characters[0];
+      if (char) {
+        setSelectedOutfit(char.outfit || char.baseVocation || 'Knight');
+        setSelectedMount(char.mount || 'donkey');
+        // Authentic requirement: Character opens ON FOOT by default unless saved mountActive is explicitly true
+        setMountActive(char.mountActive !== undefined ? Boolean(char.mountActive) : false);
+        const addons = char.addons || 0;
+        setAddon1((addons & 1) !== 0);
+        setAddon2((addons & 2) !== 0);
+        if (char.outfitColors) setColors(char.outfitColors);
+      }
+    }
+  }, [selectedCharId, open]);
+
+  const isMounted = mountActive && selectedMount !== 'none';
   const currentDir = DIRECTIONS[directionIdx];
 
-  // Live recolor preview on canvas whenever outfit, gender, direction or colors change
+  // Live recolor preview on canvas whenever outfit, direction or colors change
   useEffect(() => {
     if (!open) return;
-    if (isMountedDonkey) return;
+    if (isMounted) return;
 
     if (previewCanvasRef.current) {
       renderRecoloredOutfit(
         previewCanvasRef.current,
         selectedOutfit,
-        gender,
+        charGender,
         currentDir,
         0,
         colors
       );
     }
-  }, [open, selectedOutfit, gender, currentDir, colors, isMountedDonkey]);
+  }, [open, selectedOutfit, charGender, currentDir, colors, isMounted]);
 
   if (!open) return null;
 
-  const activeChar = characters.find((c) => c.id === selectedCharId) || characters[0];
   const charIdx = characters.findIndex((c) => c.id === selectedCharId);
 
   const prevPartyMember = () => {
@@ -167,7 +189,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
     if (mountId === 'donkey') {
       return '/generated/mounts/donkey_rider_south.png';
     }
-    return '/generated/outfit-thumbs/knight.png';
+    return `/generated/mounts/${mountId}.png`;
   };
 
   const handleSave = () => {
@@ -184,89 +206,74 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
     onClose();
   };
 
-  // Currently active color index and hex
   const currentColorIdx = colors[colorPart] ?? 0;
   const activePartHex = TIBIA_133_COLORS[currentColorIdx] || '#ffffff';
 
-  // Filter outfits if checkbox is checked
   const outfitsToDisplay = filterAcquired
     ? AVAILABLE_OUTFITS.filter((o) => !o.isPremium || o.id === activeChar.outfit)
     : AVAILABLE_OUTFITS;
 
   return (
     <div
-      className="tibia-modal-backdrop"
+      className="modal-backdrop tibia-outfit-backdrop"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div
-        className="tibia-outfit-window"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Personalização de Outfit e Montaria"
-      >
+      <div className="tibia-outfit-window" role="dialog" aria-modal="true" aria-label="Aparência do Personagem">
         {/* Title Bar */}
         <div className="tibia-window-titlebar">
           <div className="tibia-titlebar-left">
-            {characters.length > 1 && (
-              <button
-                type="button"
-                className="tibia-titlebar-nav-btn"
-                onClick={prevPartyMember}
-                title="Personagem Anterior"
-              >
-                ◀
-              </button>
-            )}
-            <span className="tibia-titlebar-title">{activeChar.name}</span>
-            {characters.length > 1 && (
-              <button
-                type="button"
-                className="tibia-titlebar-nav-btn"
-                onClick={nextPartyMember}
-                title="Próximo Personagem"
-              >
-                ▶
-              </button>
-            )}
-            {characters.length > 1 && (
-              <span className="tibia-titlebar-hint">
-                ({charIdx + 1}/{characters.length})
-              </span>
-            )}
+            <span className="tibia-titlebar-title">Customizar Aparência</span>
+            <button
+              type="button"
+              className="tibia-titlebar-nav-btn"
+              onClick={prevPartyMember}
+              title="Personagem anterior da party"
+            >
+              ◀
+            </button>
+            <span className="tibia-titlebar-hint">{activeChar.name}</span>
+            <button
+              type="button"
+              className="tibia-titlebar-nav-btn"
+              onClick={nextPartyMember}
+              title="Próximo personagem da party"
+            >
+              ▶
+            </button>
           </div>
           <button
             type="button"
             className="tibia-window-close-btn"
             onClick={onClose}
-            title="Fechar Janela"
+            aria-label="Fechar"
+            title="Fechar (Esc)"
           >
             ✕
           </button>
         </div>
 
-        {/* Top Navigation Tabs: PERSONAGEM / OUTFIT */}
+        {/* Top Nav: PERSONAGEM / OUTFIT */}
         <div className="tibia-top-nav-tabs">
           <button
             type="button"
             className={`tibia-top-nav-tab ${topTab === 'character' ? 'active' : ''}`}
             onClick={() => setTopTab('character')}
           >
-            PERSONAGEM
+            Personagem
           </button>
           <button
             type="button"
             className={`tibia-top-nav-tab ${topTab === 'outfit' ? 'active' : ''}`}
             onClick={() => setTopTab('outfit')}
           >
-            OUTFIT
+            Outfit
           </button>
         </div>
 
-        {/* Window Content Body */}
+        {/* Main Body: 2 Columns */}
         <div className="tibia-outfit-content">
           {/* Left Column */}
           <div className="tibia-outfit-left-col">
-            {/* Addon 1 Box */}
             <div className="tibia-beveled-check-box">
               <label className="tibia-check-label">
                 <input
@@ -279,7 +286,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
               </label>
             </div>
 
-            {/* Addon 2 Box */}
             <div className="tibia-beveled-check-box">
               <label className="tibia-check-label">
                 <input
@@ -292,7 +298,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
               </label>
             </div>
 
-            {/* Mount Toggle Box */}
             <div className="tibia-beveled-check-box">
               <label className="tibia-check-label">
                 <input
@@ -308,13 +313,12 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
               </label>
             </div>
 
-            {/* Large Preview Box */}
             <div className="tibia-preview-box">
               <div className="tibia-preview-inner">
-                {isMountedDonkey ? (
+                {isMounted ? (
                   <img
-                    src="/generated/mounts/donkey_rider_south.png"
-                    alt="Donkey Rider"
+                    src={getMountThumbUrl(selectedMount)}
+                    alt="Mounted"
                     className="tibia-preview-sprite mounted"
                     style={{
                       imageRendering: 'pixelated',
@@ -335,7 +339,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                   />
                 )}
               </div>
-              {/* Rotate Button in bottom-right corner */}
               <button
                 type="button"
                 className="tibia-rotate-corner-btn"
@@ -346,7 +349,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
               </button>
             </div>
 
-            {/* 4 Body Part Tabs */}
             <div className="tibia-body-part-tabs">
               {(
                 [
@@ -367,7 +369,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
               ))}
             </div>
 
-            {/* 19x7 Color Matrix with Active Indicator Swatch */}
             <div className="tibia-palette-container">
               <div
                 className="tibia-palette-active-indicator"
@@ -381,7 +382,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                     <button
                       key={idx}
                       type="button"
-                      className={`tibia-color-swatch-19x7 ${isSelected ? 'selected' : ''}`}
+                      className={`tibia-color-swatch-19x7 ${isSelected ? 'active' : ''}`}
                       style={{ backgroundColor: hex }}
                       onClick={() => setColors((prev) => ({ ...prev, [colorPart]: idx }))}
                       title={`Cor ${idx}: ${hex}`}
@@ -394,7 +395,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
 
           {/* Right Column */}
           <div className="tibia-outfit-right-col">
-            {/* Sub-tabs: Outfits vs Montarias */}
             <div className="tibia-subnav-tabs">
               <button
                 type="button"
@@ -412,7 +412,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
               </button>
             </div>
 
-            {/* Filter Bar: Checkbox + Male/Female Radio */}
             <div className="tibia-filter-bar">
               <label className="tibia-filter-check-label">
                 <input
@@ -423,34 +422,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                 />
                 <span>Mostrar só os adquiridos</span>
               </label>
-
-              <div className="tibia-gender-radio-group">
-                <label className="tibia-gender-label">
-                  <input
-                    type="radio"
-                    name="tibia-gender"
-                    value="male"
-                    checked={gender === 'male'}
-                    onChange={() => setGender('male')}
-                    className="tibia-custom-radio"
-                  />
-                  <span>Masculino</span>
-                </label>
-                <label className="tibia-gender-label">
-                  <input
-                    type="radio"
-                    name="tibia-gender"
-                    value="female"
-                    checked={gender === 'female'}
-                    onChange={() => setGender('female')}
-                    className="tibia-custom-radio"
-                  />
-                  <span>Feminino</span>
-                </label>
-              </div>
             </div>
 
-            {/* 4-Column Card Grid */}
             <div className="tibia-cards-scroll-grid">
               {selectedTab === 'outfits' ? (
                 outfitsToDisplay.map((outfit) => {

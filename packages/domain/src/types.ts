@@ -56,6 +56,7 @@ export interface CharacterState {
   };
   stance?: CombatStance;
   targetDistance?: number;
+  gender?: 'male' | 'female';
   outfit?: string;
   mount?: string;
   mountActive?: boolean;

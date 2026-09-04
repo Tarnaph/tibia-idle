@@ -444,8 +444,9 @@ function GamePrototypeContent() {
     setSaleMessage('Protótipo restaurado no Templo de Thais (32369, 32241, 7).');
     setStatsDelta(null);
   };
-  const createMember = (name: string, vocation: BaseVocationName): string | null => {
-    try { setGame((current) => synchronizePartyWithEncounter(addPartyMember(current, name, vocation, content), content)); return null; } catch (error) { return error instanceof Error ? error.message : 'Não foi possível criar o membro.'; }
+  const createMember = (name: string, vocation: BaseVocationName, gender?: 'Masculino' | 'Feminino'): string | null => {
+    const charGender = gender === 'Feminino' ? 'female' : 'male';
+    try { setGame((current) => synchronizePartyWithEncounter(addPartyMember(current, name, vocation, content, charGender), content)); return null; } catch (error) { return error instanceof Error ? error.message : 'Não foi possível criar o membro.'; }
   };
   const sellLoot = () => setGame((current) => { const result = sellAllLoot(current, content); setSaleMessage(result.goldEarned > 0 ? `Venda concluída: +${result.goldEarned} gold.` : 'Nenhum item vendável.'); return result.state; });
   const sellOneLoot = (itemId: number) => setGame((current) => { const result = sellLootStack(current, content, itemId); setSaleMessage(result.goldEarned > 0 ? `Venda concluída: +${result.goldEarned} gold.` : 'Item protegido ou sem preço comprovado.'); return result.state; });

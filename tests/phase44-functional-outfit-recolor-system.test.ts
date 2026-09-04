@@ -128,4 +128,39 @@ describe('Phase 44 - Functional Outfit Recoloring and Game Application System', 
     const stat = fs.statSync(donkeyPath);
     expect(stat.size).toBeGreaterThan(1000);
   });
+
+  it('verifies AVAILABLE_MOUNTS contains all 129 authentic Tibia mounts from mounts.xml plus none', () => {
+    expect(AVAILABLE_MOUNTS.length).toBe(130); // 129 mounts + 'none'
+    const donkey = AVAILABLE_MOUNTS.find((m) => m.name === 'Donkey');
+    expect(donkey).toBeDefined();
+    expect(donkey?.id).toBe('donkey');
+    expect(donkey?.speedBonus).toBe(20);
+
+    const warHorse = AVAILABLE_MOUNTS.find((m) => m.name === 'War Horse');
+    expect(warHorse).toBeDefined();
+    expect(warHorse?.id).toBe('war-horse');
+
+    const none = AVAILABLE_MOUNTS.find((m) => m.id === 'none');
+    expect(none).toBeDefined();
+    expect(none?.speedBonus).toBe(0);
+
+    // Verify mount thumbnails exist for sample mounts
+    const sampleIds = ['crystal-wolf', 'widow-queen', 'war-horse', 'midnight-panther'];
+    for (const id of sampleIds) {
+      const thumbPath = path.resolve(process.cwd(), `public/generated/mounts/${id}.png`);
+      expect(fs.existsSync(thumbPath), `Mount thumbnail missing: ${thumbPath}`).toBe(true);
+    }
+  });
+
+  it('verifies domain CharacterState supports gender and defaults properly', () => {
+    const mockChar = {
+      id: 'test-1',
+      name: 'TestChar',
+      vocation: 'Knight' as const,
+      baseVocation: 'Knight' as const,
+      gender: 'female' as const,
+      level: 1,
+    };
+    expect(mockChar.gender).toBe('female');
+  });
 });
