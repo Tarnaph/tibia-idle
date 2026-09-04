@@ -5334,6 +5334,574 @@ h1, h2, h3, p { margin: 0; }
   transform: translateY(-1px);
 }
 
+/* ==========================================================================
+   DIABLO IV STYLE LANDING PAGE THEME
+   ========================================================================== */
+.diablo-theme {
+  background: #080707 !important;
+  color: #d6cfc7;
+  font-family: Georgia, 'Times New Roman', serif;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(180, 30, 20, 0.18) 0%, transparent 60%),
+    radial-gradient(circle at 80% 50%, rgba(140, 90, 20, 0.08) 0%, transparent 50%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.008) 0 1px, transparent 1px 3px);
+}
+
+.diablo-header {
+  background: rgba(8, 7, 7, 0.94) !important;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.35) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.95) !important;
+  backdrop-filter: blur(8px);
+}
+
+.diablo-brand img {
+  filter: drop-shadow(0 0 8px rgba(212, 168, 67, 0.5));
+}
+
+.diablo-nav a {
+  color: #a69c92 !important;
+  font-family: Georgia, serif !important;
+  letter-spacing: 0.14em !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  transition: all 0.2s ease !important;
+}
+
+.diablo-nav a:hover {
+  color: #f3e5ab !important;
+  border-color: #d4a843 !important;
+  text-shadow: 0 0 10px rgba(212, 168, 67, 0.6);
+}
+
+.diablo-cta-btn {
+  position: relative;
+  background: linear-gradient(180deg, #8b1d1d 0%, #4a0d0d 100%) !important;
+  border: 1px solid #d4a843 !important;
+  color: #f3e5ab !important;
+  font-family: Georgia, serif !important;
+  letter-spacing: 0.12em !important;
+  font-weight: 700 !important;
+  padding: 8px 20px !important;
+  box-shadow: 0 4px 15px rgba(139, 29, 29, 0.6), inset 0 1px rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.2s ease !important;
+  border-radius: 2px !important;
+}
+
+.diablo-cta-btn:hover {
+  background: linear-gradient(180deg, #aa2424 0%, #631010 100%) !important;
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.7), inset 0 1px rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+.diablo-admin-link {
+  border-color: #4b694e !important;
+  color: #89c48f !important;
+  background: #172019 !important;
+}
+
+.diablo-logout-btn {
+  border-color: #3d352b !important;
+  color: #8a8277 !important;
+}
+
+.diablo-alert {
+  background: rgba(45, 12, 12, 0.9) !important;
+  border-bottom: 1px solid #d4a843 !important;
+  color: #f3e5ab !important;
+  font-size: 12px !important;
+}
+
+/* HERO SECTION */
+.diablo-hero {
+  background:
+    radial-gradient(circle at 60% 40%, rgba(160, 30, 20, 0.22) 0%, transparent 55%),
+    linear-gradient(180deg, #0d0a0a 0%, #060505 100%) !important;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.25) !important;
+  padding-top: 60px !important;
+  padding-bottom: 70px !important;
+}
+
+.diablo-eyebrow {
+  color: #d4a843 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.25em !important;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(212, 168, 67, 0.4);
+}
+
+.diablo-gem {
+  color: #aa2424;
+  margin: 0 6px;
+}
+
+.diablo-title {
+  font-family: Georgia, serif !important;
+  color: #f5f0eb !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em !important;
+  line-height: 1.05 !important;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+}
+
+.diablo-title-highlight {
+  background: linear-gradient(180deg, #f3e5ab 0%, #c49635 60%, #8b1d1d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  filter: drop-shadow(0 2px 8px rgba(139, 29, 29, 0.5));
+}
+
+.diablo-subtitle {
+  color: #b8afaa !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
+
+.diablo-btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #991f1f 0%, #520f0f 100%);
+  border: 1px solid #d4a843;
+  color: #f3e5ab;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  padding: 14px 32px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(153, 31, 31, 0.6), inset 0 1px rgba(255, 255, 255, 0.25);
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.diablo-btn-primary:hover {
+  background: linear-gradient(180deg, #bb2727 0%, #6e1414 100%);
+  box-shadow: 0 0 25px rgba(212, 168, 67, 0.7), inset 0 1px rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.diablo-btn-primary.large {
+  font-size: 14px;
+  padding: 18px 44px;
+}
+
+.diablo-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(22, 18, 16, 0.9);
+  border: 1px solid #7d5c2e;
+  color: #cbbba8;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 14px 26px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.diablo-btn-secondary:hover {
+  border-color: #d4a843;
+  color: #f3e5ab;
+  background: rgba(35, 28, 24, 0.95);
+  box-shadow: 0 0 15px rgba(212, 168, 67, 0.3);
+}
+
+.diablo-notice {
+  color: #7a7067 !important;
+  font-size: 10px !important;
+  letter-spacing: 0.05em;
+}
+
+/* HERO SCENE GOTHIC FRAME */
+.diablo-hero-scene-wrapper {
+  position: relative;
+  border: 2px solid #7d5c2e;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+.diablo-frame-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #d4a843;
+  z-index: 10;
+  pointer-events: none;
+}
+.diablo-frame-corner.top-left { top: -4px; left: -4px; border-right: none; border-bottom: none; }
+.diablo-frame-corner.top-right { top: -4px; right: -4px; border-left: none; border-bottom: none; }
+.diablo-frame-corner.bottom-left { bottom: -4px; left: -4px; border-right: none; border-top: none; }
+.diablo-frame-corner.bottom-right { bottom: -4px; right: -4px; border-left: none; border-top: none; }
+
+/* ABOUT & STATS SECTION */
+.diablo-about {
+  background: #0d0a0a !important;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.2) !important;
+}
+
+.diablo-heading h2 {
+  font-family: Georgia, serif !important;
+  color: #f3e5ab !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.diablo-heading.center {
+  text-align: center;
+}
+
+.diablo-stat-card {
+  background: linear-gradient(180deg, #181311 0%, #0d0a09 100%) !important;
+  border: 1px solid #4a3820;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+  transition: all 0.2s ease;
+}
+
+.diablo-stat-card:hover {
+  border-color: #d4a843;
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.25);
+}
+
+.diablo-stat-card strong {
+  color: #d4a843 !important;
+  text-shadow: 0 0 12px rgba(212, 168, 67, 0.4);
+}
+
+/* VOCATIONS SHOWCASE (CLASSES) */
+.diablo-classes-section {
+  background: #0a0808 !important;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.2) !important;
+  padding: 80px 5vw;
+}
+
+.diablo-class-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin: 35px 0 25px;
+  flex-wrap: wrap;
+}
+
+.diablo-class-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #14100e;
+  border: 1px solid #3d2f1c;
+  color: #a09587;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.diablo-class-tab:hover {
+  border-color: #8c6a32;
+  color: #d8cbb8;
+}
+
+.diablo-class-tab.active {
+  background: linear-gradient(180deg, #3d1212 0%, #1c0909 100%);
+  border-color: #d4a843;
+  color: #f3e5ab;
+  box-shadow: 0 0 15px rgba(212, 168, 67, 0.3);
+}
+
+.diablo-class-card {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 35px;
+  background: linear-gradient(180deg, #140f0d 0%, #0a0807 100%);
+  border: 1px solid #7d5c2e;
+  padding: 30px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(0,0,0,0.8);
+  max-width: 960px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.diablo-class-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(139, 29, 29, 0.2) 0%, transparent 70%);
+  padding: 20px;
+  border: 1px solid rgba(212, 168, 67, 0.2);
+}
+
+.class-sprite {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9));
+}
+
+.class-badge {
+  margin-top: 15px;
+  background: rgba(139, 29, 29, 0.4);
+  border: 1px solid #8b1d1d;
+  color: #f3e5ab;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 10px;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+}
+
+.diablo-class-info h3 {
+  font-size: 22px;
+  color: #f3e5ab;
+  margin-bottom: 10px;
+  font-family: Georgia, serif;
+}
+
+.class-desc {
+  color: #bfae9c;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.class-stats-bars {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 45px;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #998c7d;
+}
+
+.bar-bg {
+  height: 8px;
+  background: #181311;
+  border: 1px solid #3c2f1e;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.bar-fill.damage { background: linear-gradient(90deg, #aa2424, #ff4d4d); }
+.bar-fill.defense { background: linear-gradient(90deg, #ba8e54, #f3e5ab); }
+.bar-fill.support { background: linear-gradient(90deg, #3d8b54, #65bd7b); }
+.bar-fill.range { background: linear-gradient(90deg, #3d688b, #528fca); }
+
+.class-skills-list h4 {
+  font-size: 11px;
+  color: #d4a843;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  background: #191310;
+  border: 1px solid #4a3820;
+  color: #d8cbb8;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+
+/* HUNTS SECTION */
+.diablo-hunts-section {
+  background: #0d0a0a;
+  padding: 80px 5vw;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.2);
+}
+
+.diablo-hunts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.diablo-hunt-card {
+  background: linear-gradient(180deg, #171210 0%, #0d0a09 100%);
+  border: 1px solid #4a3922;
+  padding: 24px;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+}
+
+.diablo-hunt-card:hover {
+  border-color: #d4a843;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(212, 168, 67, 0.15);
+}
+
+.hunt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.hunt-number {
+  font-size: 20px;
+  font-weight: bold;
+  color: #7d5c2e;
+}
+
+.hunt-badge {
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+.hunt-badge.fácil { background: rgba(50, 120, 60, 0.3); border: 1px solid #3d8b54; color: #65bd7b; }
+.hunt-badge.moderado { background: rgba(180, 130, 40, 0.3); border: 1px solid #b88f34; color: #f3e5ab; }
+.hunt-badge.perigoso { background: rgba(180, 70, 30, 0.3); border: 1px solid #c95020; color: #ff8c53; }
+.hunt-badge.mortal, .hunt-badge.pessadelo { background: rgba(160, 20, 20, 0.4); border: 1px solid #aa2424; color: #ff5555; }
+
+.diablo-hunt-card h3 {
+  color: #f3e5ab;
+  font-size: 16px;
+  margin-bottom: 6px;
+  font-family: Georgia, serif;
+}
+
+.hunt-level {
+  color: #a09587;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.hunt-reward {
+  color: #8c8277;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* UPDATES SECTION */
+.diablo-updates-section {
+  background: #090707 !important;
+}
+
+.diablo-update-card {
+  background: #140f0e !important;
+  border: 1px solid #3d2f1d !important;
+  transition: all 0.2s ease;
+}
+
+.diablo-update-card:hover {
+  border-color: #d4a843 !important;
+}
+
+.diablo-read-more {
+  background: transparent !important;
+  border: 1px solid #7d5c2e !important;
+  color: #d4a843 !important;
+  font-family: Georgia, serif !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
+  letter-spacing: 0.08em !important;
+  padding: 6px 14px !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+}
+
+.diablo-read-more:hover {
+  background: rgba(212, 168, 67, 0.15) !important;
+  border-color: #f3e5ab !important;
+  color: #ffffff !important;
+}
+
+.diablo-updates-empty {
+  background: #120e0d !important;
+  border: 1px solid #3d2f1d !important;
+  color: #a09587 !important;
+}
+
+/* FINAL CTA & FOOTER */
+.diablo-final-cta {
+  background: linear-gradient(180deg, #140b0b 0%, #070505 100%) !important;
+  border-top: 1px solid rgba(212, 168, 67, 0.3) !important;
+  padding: 90px 20px !important;
+  text-align: center;
+}
+
+.diablo-cta-content h2 {
+  font-size: 32px !important;
+  color: #f3e5ab !important;
+  font-family: Georgia, serif !important;
+  margin: 14px 0;
+}
+
+.diablo-cta-content p {
+  color: #a09587;
+  font-size: 15px;
+  max-width: 550px;
+  margin: 0 auto 30px;
+}
+
+.diablo-footer {
+  background: #050404 !important;
+  border-top: 1px solid rgba(212, 168, 67, 0.2) !important;
+  text-align: center;
+  padding: 40px 20px !important;
+}
+
+.diablo-footer-text {
+  color: #8c8277;
+  font-size: 12px;
+  margin: 12px 0;
+}
+
+.diablo-social-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: #63584d;
+  font-size: 12px;
+}
+
+.diablo-social-links a {
+  color: #d4a843;
+  transition: color 0.2s ease;
+}
+
+.diablo-social-links a:hover {
+  color: #ffffff;
+}
+
+.diablo-update-dialog {
+  background: #120e0c !important;
+  border: 2px solid #7d5c2e !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.95) !important;
+  color: #d8cbb8 !important;
+}
+
+
 
 
 
