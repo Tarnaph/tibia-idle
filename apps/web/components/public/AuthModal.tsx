@@ -55,6 +55,7 @@ export function AuthModal({ mode, onMode, onClose }: AuthModalProps) {
         throw new Error(data.error || 'Falha ao autenticar.');
       }
       localStorage.setItem('colyseus_token', data.data.token);
+      document.cookie = `colyseus_token=${data.data.token}; path=/; max-age=604800; SameSite=Lax`;
       window.location.href = '/game';
     } catch (error) {
       setMessage(authErrorMessage(error));

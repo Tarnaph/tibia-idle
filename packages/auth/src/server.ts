@@ -43,7 +43,30 @@ function viewerFrom(user: User, profile: ProfileRow | null): AuthViewer {
   };
 }
 
+import { verifyAuthToken } from './jwt';
+
 export async function getCurrentViewer(): Promise<AuthViewer | null> {
+  try {
+    const cookieStore = await cookies();
+    const tokenCookie = cookieStore.get('colyseus_token')?.value;
+    if (tokenCookie) {
+      try {
+        const decoded = verifyAuthToken(tokenCookie);
+        return {
+          id: decoded.accountId,
+          email: decoded.email,
+          displayName: decoded.email.split('@')[0] || 'Aventureiro',
+          avatarUrl: null,
+          role: decoded.role,
+        };
+      } catch {
+        // Fallthrough if invalid token
+      }
+    }
+  } catch {
+    // Cookie store read fail
+  }
+
   const supabase = await createServerSupabase();
   if (!supabase) return null;
 
