@@ -16,8 +16,12 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 8: Multi-Personagem, Spells, Promoção e Caçadas OTBM** - Party de 4 vocações, magias, relógios individuais e bosses.
 - [x] **Phase 9: Rotas de Caça Contínuas (Continuous Hunt Routes)** - Caçada contínua em loop no OTBM com respawns e monstros raros.
 - [x] **Phase 10: Câmera de Expedição e Controles em Tempo Real** - Câmera dinâmica suave, hot-swap de equipamentos e entrada ao vivo.
-- [x] **Phase 11: Economia de Party, Loot Pouch e UX Estrutural** - Preferências de loot, venda de stacks, capacidade e peso.
-- [x] **Phase 12: Fundação de Autenticação, Contas e Segurança (Supabase)** - Supabase Auth, RLS, painel de updates e rota preview dev.
+- [x] **Phase 41: Tooltip Global de Atributos de Itens e Inspeção de Jogadores na Cidade**
+- [ ] **Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)** - Modelagem relacional para VPS padrão com Prisma, contas com hashing bcrypt, múltiplos personagens, inventário, skills, roles (admin/player) e endpoints REST de auth.
+- [ ] **Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks** - Servidor Node.js com Colyseus Room (`ThaisCityRoom`, `HuntRoom`), engine de combate autoritativa (100ms ticks), colisão OTBM, IA de monstros e validação anti-cheat.
+- [ ] **Phase 44: Sincronização de Estado com Colyseus Schema, Interest Management e Chat** - State sync binário via `@colyseus/schema`, spatial interest management (visão 15x11), broadcast de combate e canais de chat multiplayer em tempo real.
+- [ ] **Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin** - Telas de Login, Cadastro, Seleção/Criação de Personagem, Painel de Admin (`@colyseus/monitor` + GM commands) e PixiJS consumindo delta-snapshots com interpolação suave.
+- [ ] **Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E** - Auto-save periódico via Prisma, grace period de reconexão após F5 (`allowReconnection`) e suíte de testes multiplayer automatizada no Vitest.
 
 ---
 
@@ -657,6 +661,93 @@ Plans:
 
 Plans:
 - [x] 41-01-PLAN: Implementar tooltip global de atributos de itens e inspeção de jogadores na cidade.
+
+---
+
+## Milestone 2: Backend Autoritativo (Colyseus.js), Banco de Dados (PostgreSQL + Prisma) e Multiplayer em Tempo Real
+
+### Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)
+
+**Goal:** Estruturar o banco de dados relacional leve e robusto para qualquer VPS padrão usando PostgreSQL e Prisma ORM, contemplando contas de usuário (`Account`), papéis de acesso (`role: 'ADMIN' | 'PLAYER'`), múltiplos personagens por conta (`Character`), inventário (`InventoryItem`), skills (`CharacterSkill`), depot (`DepotItem`) e magias conhecidas (`LearnedSpell`), acompanhado de API REST com JWT, bcrypt e validação de regras de criação de personagens (vocações, loadouts de `firstitems.lua` e spawn no templo de Thais).  
+**Depends on:** Phase 41  
+**Requirements:** `schema.prisma`, migrações SQL para PostgreSQL (compatível com SQLite em testes de CI), hashing seguro de senhas com `bcryptjs`, endpoints de Auth (`/api/auth/register`, `/api/auth/login`, `/api/auth/me`), endpoints de Personagem (`/api/characters/create`, `/api/characters/list`, `/api/characters/delete`).  
+**Success Criteria:**
+1. Schema Prisma define com integridade referencial: `Account` (email, password_hash, role, coins, is_banned), `Character` (account_id, name, vocation_id, level, xp, hp, max_hp, mp, max_mp, cap, pos_x, pos_y, pos_z, outfit), `CharacterSkill`, `InventoryItem`, `DepotItem` e `LearnedSpell`.
+2. Compatibilidade total com VPS padrão: funciona com PostgreSQL nativo via conexão padrão `DATABASE_URL=postgresql://user:pass@localhost:5432/tibia_idle`.
+3. API de autenticação permite registro e login, retornando JWT com claims tipadas e verificação de role `ADMIN` vs `PLAYER`.
+4. Criação de novo personagem aplica regras estritas do Styller/TFS: nome único, vocação válida (Knight, Paladin, Sorcerer, Druid), atribuição de itens iniciais de `firstitems.lua` e coordenadas no templo de Thais (32369, 32241, 7).
+5. 100% dos testes unitários e de integração de banco/auth passando com 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+Plans:
+- [ ] 42-01-PLAN: Implementar schema Prisma para PostgreSQL, migrações, serviços de autenticação multi-role (JWT/bcrypt) e endpoints de gestão de personagens.
+
+---
+
+### Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks
+
+**Goal:** Implementar o servidor de simulação de jogo autoritativo utilizando **Colyseus.js (`colyseus`)**, criando as salas de jogo (`ThaisCityRoom`, `HuntDungeonRoom`, `TrainingRoom`) com game loop em ticks determinísticos de 100ms (`setSimulationInterval`), extraindo toda a física, colisão de tiles OTBM, IA de monstros, perseguição (chase), fórmulas de combate TFS e resolução de cooldowns para o backend.  
+**Depends on:** Phase 42  
+**Requirements:** Servidor dedicado Node.js com `@colyseus/core` e `@colyseus/ws-transport`, classes de Room (`ThaisCityRoom`, `HuntDungeonRoom`), importadores de dados e mapas OTBM reaproveitados server-side, validação estrita anti-cheat de passos baseada em `baseStepDurationMs`.  
+**Success Criteria:**
+1. Servidor Colyseus roda em processo Node.js dedicado com game loop de 100ms (10 ticks/segundo) autoritativo e contínuo.
+2. Entrada no mundo: o jogador autenticado entra na sala `ThaisCityRoom` enviando o `token` JWT e o `characterId`; o servidor valida a posse do personagem e injeta a entidade no estado da sala.
+3. Movimentação validada no backend: intenções de passo (`move`) são validadas contra o mapa OTBM e tempo mínimo entre passos, rejeitando atravessamento de paredes (anti-noclip) e teletransporte (anti-speedhack).
+4. Combate autoritativo: ataques, magias (`exori`, `exura`), poções, cálculo de armor/defesa e morte/respawn de monstros são resolvidos 100% no servidor.
+5. 100% dos testes de lógica do motor server-side passando no Vitest.
+
+Plans:
+- [ ] 43-01-PLAN: Construir o servidor Colyseus.js com salas dedicadas, ciclo de vida de entidades, validação de movimento e combate centralizado.
+
+---
+
+### Phase 44: Sincronização de Estado com Colyseus Schema, Interest Management e Chat
+
+**Goal:** Implementar a sincronização de estado em tempo real com **Colyseus Schema (`@colyseus/schema`)** utilizando compressão binária de deltas, sistema de Spatial Interest Management (transmissão de entidades em raio de visão de 15x11 tiles), broadcasting de eventos visuais de combate (dano, curas, feitiços) e canais de chat multiplayer em tempo real.  
+**Depends on:** Phase 43  
+**Requirements:** Schemas Colyseus (`PlayerSchema`, `MonsterSchema`, `CombatEventSchema`, `WorldRoomState`), Spatial Grid para filtragem de visibilidade, canais de chat (Local, Global, Party).  
+**Success Criteria:**
+1. Todos os jogadores conectados na mesma região visualizam a movimentação, direção e animação de passos uns dos outros em tempo real com sincronização de deltas binários do Colyseus.
+2. Spatial Interest Management: Clientes só recebem atualizações de monstros e outros jogadores que estejam dentro ou próximos do seu viewport (15x11 tiles), otimizando a banda de rede e performance.
+3. Eventos de combate efêmeros (danos numéricos flutuantes, animação de cura, projéteis e magias de área) são despachados de forma síncrona para todos os jogadores na área afetada.
+4. Chat multiplayer funcional com suporte a `/say` (raio local de 8 tiles), `/yell` (raio de 30 tiles), canal Global e canal de Party.
+5. Teste automatizado com múltiplos clientes virtuais simulando concorrência e troca de mensagens em tempo real.
+
+Plans:
+- [ ] 44-01-PLAN: Desenvolver os Colyseus Schemas, Spatial Interest Management, broadcast de eventos de combate e sistema de chat multiplayer.
+
+---
+
+### Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin
+
+**Goal:** Refatorar a aplicação web frontend para atuar como um cliente fino conectado via **`colyseus.js`**, implementando telas estilizadas de Login, Cadastro, Seleção e Criação de Personagens (com prévias visuais), integrando o painel administrativo (`@colyseus/monitor` + comandos de GM) e conectando o canvas PixiJS para renderizar os schemas do Colyseus com interpolação `VisualMotionTrack`.  
+**Depends on:** Phase 44  
+**Requirements:** `colyseus.js` SDK no frontend, Telas de Login/Registro e Seleção de Personagens no design autêntico do Tibia 11, integração do `@colyseus/monitor` acessível em rota protegida `/admin`, refatoração de `ThaisCityArena.tsx` e `PixiArena.tsx` para consumir o `room.state`.  
+**Success Criteria:**
+1. Fluxo de entrada do usuário: Tela inicial de Login / Cadastro -> Tela de Seleção de Personagens (com botão de criar novo personagem escolhendo vocação e nome) -> Conexão à sala do Colyseus -> Transição suave para o jogo.
+2. O frontend despacha apenas intenções (`room.send('move', { dir })`, `room.send('castSpell', { spellId })`, `room.send('attack', { targetId })`), eliminando simulação de física no cliente.
+3. Renderização PixiJS se conecta aos listeners do Colyseus (`room.state.players.onAdd`, `onRemove`, `onChange`) interpolando coordenadas com `VisualMotionTrack` a 60 FPS estáveis.
+4. Administradores autenticados (`role === 'ADMIN'`) têm acesso ao painel `@colyseus/monitor` para inspecionar salas, jogadores online, consumo de RAM e comandos de GM (`/kick`, `/ban`, `/teleport`).
+5. 100% dos testes de componentes de UI e integração frontend-colyseus passando.
+
+Plans:
+- [ ] 45-01-PLAN: Criar telas de Auth/Personagem, painel de administração e converter componentes PixiJS para o SDK `colyseus.js`.
+
+---
+
+### Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E
+
+**Goal:** Implementar persistência otimizada no PostgreSQL via Prisma (auto-save periódico a cada 30 segundos e flush imediato no logout), retenção de sessão com reconexão nativa do Colyseus (`allowReconnection`) para proteção contra refresh de página ou perda transitória de rede, e suíte completa de testes E2E para validação de estabilidade do ecossistema cliente-servidor.  
+**Depends on:** Phase 45  
+**Requirements:** Serviço de persistência assíncrona em lote (`PrismaPersistenceManager`), `room.allowReconnection(client, 20)` no Colyseus, suíte de testes E2E com Vitest simulando o ciclo completo de múltiplos jogadores.  
+**Success Criteria:**
+1. O estado dos personagens (XP, level, skills, HP/MP, inventário, equipamentos e coordenadas no mundo) é persistido no PostgreSQL periodicamente em lote e salvo imediatamente no logout.
+2. Reconexão sem perda: Se o jogador recarregar a página (F5) ou sofrer instabilidade de rede por até 20 segundos, ele reconecta à mesma sala e mesmo personagem sem ser removido do mundo.
+3. Proteção transacional: Nenhuma duplicação de itens ou perda de progresso ocorre em casos de encerramento inesperado do servidor.
+4. Suíte de testes E2E executando o fluxo completo: Cadastro -> Criação de Personagem -> Login no Colyseus -> Movimento e Combate Multiplayer -> Flush no PostgreSQL -> Reconexão.
+5. `npm run typecheck` e `npm run test` passando com 100% de aprovação e 0 erros em todo o repositório.
+
+Plans:
+- [ ] 46-01-PLAN: Implementar persistência periódica com Prisma, reconexão nativa do Colyseus e suíte de testes E2E multiplayer.
 
 
 

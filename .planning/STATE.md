@@ -9,17 +9,18 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 41 of 41 (Tooltip Global de Atributos de Itens e Inspeção de Jogadores na Cidade)  
-Plan: 1 of 1 in current phase  
-Status: Complete  
-Last activity: 2026-09-03 — Concluída Phase 41: Tooltip Global de Atributos de Itens (z-index 99999999, sem ficar atrás de janelas) e Inspeção de Jogadores na Cidade (Level, Vocação e Status Premium).
+Phase: 42 of 46 (Arquitetura de Banco de Dados Relacional & Autenticação Multi-Role)  
+Plan: 0 of 1 in current phase  
+Status: Ready to Plan  
+Last activity: 2026-09-03 — Inicializado Milestone 2: Separação Backend/Frontend, Arquitetura Autoritativa e Multiplayer em Tempo Real (Fases 42 a 46).
 
-Progress: [██████████] 100%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total phases completed: 41
+- Total phases in roadmap: 46
 - Tests status: 36 test suites passando (Vitest - 235 testes aprovados, 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
@@ -28,6 +29,12 @@ Progress: [██████████] 100%
 
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
+| 1 a 41. (Milestone 1 - Singleplayer & Engine Vertical Slice) | 41 | - | - | Complete |
+| 42. Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role | 0 | - | - | Ready to Plan |
+| 43. Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks | 0 | - | - | Pending |
+| 44. Sincronização de Estado com Colyseus Schema, Interest Management e Chat | 0 | - | - | Pending |
+| 45. Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin | 0 | - | - | Pending |
+| 46. Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E | 0 | - | - | Pending |
 | 1. Motor de Simulação e Combate Idle | 1 | - | - | Complete |
 | 2. Sistema de Equipamento e Atributos Derivados | 1 | - | - | Complete |
 | 3. Espacialidade 2D, Grid e Pathfinding A\* | 1 | - | - | Complete |
