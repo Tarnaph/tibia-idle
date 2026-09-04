@@ -47,3 +47,6 @@ next-env.d.ts
 *.rar
 *.z01
 *.z02
+*.webm
+*.mp3
+

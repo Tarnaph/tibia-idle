@@ -342,6 +342,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
         />
       </div>
 
+      {/* Main Wrapper */}
       <div
         style={{
           position: 'relative',
@@ -349,477 +350,606 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '12px',
+          gap: '16px',
+          maxHeight: '98vh',
         }}
       >
-        {/* Exura Logo above character selection modal box */}
+        {/* Exura Logo above character selection modal */}
         <img
           src="/logo.png"
           alt="Exura Idle Adventures"
           style={{
-            height: '110px',
+            height: '100px',
             maxWidth: '90vw',
             objectFit: 'contain',
             filter: 'drop-shadow(0 6px 24px rgba(0,0,0,0.85))',
           }}
         />
 
-        {/* Info Strip directly above the modal box (Matching Reference Screenshot) */}
+        {/* Side-by-side Row: LEFT Selection Box & RIGHT Bard Video Card */}
         <div
           style={{
-            width: '655px',
-            maxWidth: '95vw',
             display: 'flex',
+            flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '-4px',
-            padding: '0 6px',
-            zIndex: 2,
-            boxSizing: 'border-box',
+            justifyContent: 'center',
+            gap: '24px',
+            maxWidth: '98vw',
           }}
         >
-          <div style={{ color: '#ffffff', fontSize: '12px', fontWeight: 'bold', textShadow: '1px 1px 3px #000' }}>
-            10 players online
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" title="Facebook" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
-              <img src="/social/facebook.png" alt="Facebook" style={{ height: '14px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" title="Instagram" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
-              <img src="/social/instagram.png" alt="Instagram" style={{ height: '14px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
-            </a>
-            <a href="https://tiktok.com" target="_blank" rel="noreferrer" title="TikTok" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
-              <img src="/social/tiktok.png" alt="TikTok" style={{ height: '14px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
-            </a>
-          </div>
-        </div>
-
-        <div
-          style={{
-            width: '655px',
-            maxWidth: '95vw',
-            minHeight: '400px',
-            backgroundImage: "url('/auth-box-bg.png')",
-            backgroundSize: '100% 100%',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            backgroundColor: 'transparent',
-            padding: '44px 50px 40px',
-            boxSizing: 'border-box',
-            filter: 'drop-shadow(0 12px 35px rgba(0, 0, 0, 0.95))',
-            color: '#d6d2c4',
-            position: 'relative',
-          }}
-        >
-          {/* Header Bar */}
+          {/* LEFT: Character Selection Modal Box */}
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '16px',
-              paddingBottom: '10px',
-              borderBottom: '1px solid rgba(212, 168, 67, 0.25)',
+              width: '655px',
+              maxWidth: '90vw',
+              minHeight: '400px',
+              backgroundImage: "url('/auth-box-bg.png')",
+              backgroundSize: '100% 100%',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              backgroundColor: 'transparent',
+              padding: '44px 50px 40px',
+              boxSizing: 'border-box',
+              filter: 'drop-shadow(0 12px 35px rgba(0, 0, 0, 0.95))',
+              color: '#d6d2c4',
+              position: 'relative',
             }}
           >
-            <span style={{ color: '#f3e5ab', fontSize: '14px', fontWeight: 'bold', letterSpacing: '0.08em', textShadow: '1px 1px 2px #000' }}>
-              ✦ SELEÇÃO DE PERSONAGEM
-            </span>
-            {account && (
-              <button
-                onClick={handleLogout}
-                style={{
-                  background: 'linear-gradient(180deg, #3d3121 0%, #1c150c 100%)',
-                  border: '1px solid #7d5c2e',
-                  color: '#ba8e54',
-                  fontSize: '11px',
-                  padding: '4px 10px',
-                  borderRadius: '3px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.5)',
-                }}
-              >
-                Desconectar ({account.displayName})
-              </button>
-            )}
-          </div>
-
-          <div>
-          {errorMsg && (
+            {/* Header Bar */}
             <div
               style={{
-                backgroundColor: 'rgba(180, 40, 40, 0.25)',
-                border: '1px solid #933',
-                color: '#ff9999',
-                padding: '10px 14px',
-                borderRadius: '4px',
-                fontSize: '13px',
-                marginBottom: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '16px',
+                paddingBottom: '10px',
+                borderBottom: '1px solid rgba(212, 168, 67, 0.25)',
               }}
             >
-              ⚠️ {errorMsg}
+              <span style={{ color: '#f3e5ab', fontSize: '14px', fontWeight: 'bold', letterSpacing: '0.08em', textShadow: '1px 1px 2px #000' }}>
+                ✦ SELEÇÃO DE PERSONAGEM
+              </span>
+              {account && (
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    background: 'linear-gradient(180deg, #3d3121 0%, #1c150c 100%)',
+                    border: '1px solid #7d5c2e',
+                    color: '#ba8e54',
+                    fontSize: '11px',
+                    padding: '4px 10px',
+                    borderRadius: '3px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  Desconectar ({account.displayName})
+                </button>
+              )}
             </div>
-          )}
 
-          {!token ? (
-            /* LOGIN OR REGISTER FORM */
-            isRegistering ? (
-              <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Criar Nova Conta</h2>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Nome da Conta / Display Name</label>
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      backgroundColor: '#11161d',
-                      border: '1px solid #3c4656',
-                      color: '#fff',
-                      borderRadius: '4px',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>E-mail</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      backgroundColor: '#11161d',
-                      border: '1px solid #3c4656',
-                      color: '#fff',
-                      borderRadius: '4px',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Senha</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      backgroundColor: '#11161d',
-                      border: '1px solid #3c4656',
-                      color: '#fff',
-                      borderRadius: '4px',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                      flex: 1,
-                      padding: '10px',
-                      background: 'linear-gradient(180deg, #4a7c36 0%, #2a4c1e 100%)',
-                      border: '1px solid #629d49',
-                      color: '#fff',
-                      fontWeight: 'bold',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {loading ? 'Cadastrando...' : 'Confirmar Cadastro'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsRegistering(false)}
-                    style={{
-                      padding: '10px 16px',
-                      background: '#2b3442',
-                      border: '1px solid #48566b',
-                      color: '#bbb',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Voltar
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Entrar no Servidor</h2>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>E-mail da Conta</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      backgroundColor: '#11161d',
-                      border: '1px solid #3c4656',
-                      color: '#fff',
-                      borderRadius: '4px',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Senha</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      backgroundColor: '#11161d',
-                      border: '1px solid #3c4656',
-                      color: '#fff',
-                      borderRadius: '4px',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                      flex: 1,
-                      padding: '10px',
-                      background: 'linear-gradient(180deg, #ba8e54 0%, #7d5c2e 100%)',
-                      border: '1px solid #d4a843',
-                      color: '#fff',
-                      fontWeight: 'bold',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {loading ? 'Autenticando...' : 'ENTRAR NO JOGO'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsRegistering(true)}
-                    style={{
-                      padding: '10px 16px',
-                      background: '#2b3442',
-                      border: '1px solid #48566b',
-                      color: '#d4a843',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Criar Conta
-                  </button>
-                </div>
-              </form>
-            )
-          ) : isCreatingChar ? (
-            /* CREATE CHARACTER FORM */
-            <form onSubmit={handleCreateCharacter} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Criar Novo Personagem</h2>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Nome do Personagem</label>
-                <input
-                  type="text"
-                  value={charName}
-                  onChange={(e) => setCharName(e.target.value)}
-                  placeholder="Ex: Sir Lancelot"
-                  required
+            <div>
+              {errorMsg && (
+                <div
                   style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    backgroundColor: '#11161d',
-                    border: '1px solid #3c4656',
-                    color: '#fff',
+                    backgroundColor: 'rgba(180, 40, 40, 0.25)',
+                    border: '1px solid #933',
+                    color: '#ff9999',
+                    padding: '10px 14px',
                     borderRadius: '4px',
-                    boxSizing: 'border-box',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '8px' }}>Escolha a Vocação</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  {[1, 2, 3, 4].map((vocId) => (
-                    <button
-                      key={vocId}
-                      type="button"
-                      onClick={() => setSelectedVocation(vocId)}
-                      style={{
-                        padding: '10px',
-                        backgroundColor: selectedVocation === vocId ? '#3d3121' : '#11161d',
-                        border: selectedVocation === vocId ? '2px solid #d4a843' : '1px solid #2b3442',
-                        borderRadius: '4px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        color: selectedVocation === vocId ? '#f3e5ab' : '#aaa',
-                      }}
-                    >
-                      <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{VOCATION_NAMES[vocId]}</div>
-                      <div style={{ fontSize: '10px', color: '#888', marginTop: '3px' }}>{VOCATION_DESCRIPTIONS[vocId]}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    background: 'linear-gradient(180deg, #4a7c36 0%, #2a4c1e 100%)',
-                    border: '1px solid #629d49',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
+                    fontSize: '13px',
+                    marginBottom: '18px',
                   }}
                 >
-                  {loading ? 'Criando...' : 'Criar Personagem'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsCreatingChar(false)}
-                  style={{
-                    padding: '10px 16px',
-                    background: '#2b3442',
-                    border: '1px solid #48566b',
-                    color: '#bbb',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          ) : (
-            /* CHARACTER SELECTION LIST */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Seus Personagens</h2>
-                <button
-                  onClick={() => setIsCreatingChar(true)}
-                  style={{
-                    width: '180px',
-                    height: '38px',
-                    backgroundImage: "url('/create-char-btn.png')",
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    color: '#f3e5ab',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textShadow: '1px 1px 3px #000',
-                    filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
-                  }}
-                >
-                  + Criar Personagem
-                </button>
-              </div>
-
-              {characters.length === 0 ? (
-                <div style={{ padding: '24px', textAlign: 'center', color: '#888', background: '#11161d', borderRadius: '4px' }}>
-                  Você ainda não possui personagens nesta conta. Clique em &quot;Criar Personagem&quot; acima para começar!
+                  ⚠️ {errorMsg}
                 </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '280px', overflowY: 'auto' }}>
-                  {characters.map((char) => {
-                    const handleSelectThisChar = (e: React.MouseEvent) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('[TibiaAuthCharacterModal] Entrar no jogo clicado para:', char.name);
-                      const currentToken = token || localStorage.getItem('colyseus_token') || '';
-                      const currentAccount = account || {
-                        id: char.id,
-                        email: '',
-                        displayName: char.name,
-                        role: 'PLAYER' as const,
-                      };
-                      onSelectCharacter(currentToken, char, currentAccount);
-                    };
+              )}
 
-                    return (
-                      <div
-                        key={char.id}
-                        onClick={handleSelectThisChar}
+              {!token ? (
+                /* LOGIN OR REGISTER FORM */
+                isRegistering ? (
+                  <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Criar Nova Conta</h2>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Nome da Conta / Display Name</label>
+                      <input
+                        type="text"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        required
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '10px 12px',
-                          backgroundColor: 'transparent',
-                          borderBottom: '1px solid rgba(212, 168, 67, 0.15)',
-                          borderRadius: '0px',
+                          width: '100%',
+                          padding: '8px 12px',
+                          backgroundColor: '#11161d',
+                          border: '1px solid #3c4656',
+                          color: '#fff',
+                          borderRadius: '4px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>E-mail</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          backgroundColor: '#11161d',
+                          border: '1px solid #3c4656',
+                          color: '#fff',
+                          borderRadius: '4px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Senha</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          backgroundColor: '#11161d',
+                          border: '1px solid #3c4656',
+                          color: '#fff',
+                          borderRadius: '4px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          background: 'linear-gradient(180deg, #4a7c36 0%, #2a4c1e 100%)',
+                          border: '1px solid #629d49',
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          borderRadius: '4px',
                           cursor: 'pointer',
-                          pointerEvents: 'auto',
-                          userSelect: 'none',
                         }}
                       >
-                        <div>
-                          <div style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '15px', textShadow: '1px 1px 2px #000' }}>{char.name}</div>
-                          <div style={{ fontSize: '11px', color: '#ffffff', marginTop: '3px', textShadow: '1px 1px 2px #000', opacity: 0.95 }}>
-                            Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
-                          </div>
-                        </div>
+                        {loading ? 'Cadastrando...' : 'Confirmar Cadastro'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsRegistering(false)}
+                        style={{
+                          padding: '10px 16px',
+                          background: '#2b3442',
+                          border: '1px solid #48566b',
+                          color: '#bbb',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Voltar
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Entrar no Servidor</h2>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>E-mail da Conta</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          backgroundColor: '#11161d',
+                          border: '1px solid #3c4656',
+                          color: '#fff',
+                          borderRadius: '4px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Senha</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          backgroundColor: '#11161d',
+                          border: '1px solid #3c4656',
+                          color: '#fff',
+                          borderRadius: '4px',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          background: 'linear-gradient(180deg, #ba8e54 0%, #7d5c2e 100%)',
+                          border: '1px solid #d4a843',
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {loading ? 'Autenticando...' : 'ENTRAR NO JOGO'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsRegistering(true)}
+                        style={{
+                          padding: '10px 16px',
+                          background: '#2b3442',
+                          border: '1px solid #48566b',
+                          color: '#d4a843',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Criar Conta
+                      </button>
+                    </div>
+                  </form>
+                )
+              ) : isCreatingChar ? (
+                /* CREATE CHARACTER FORM */
+                <form onSubmit={handleCreateCharacter} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Criar Novo Personagem</h2>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '4px' }}>Nome do Personagem</label>
+                    <input
+                      type="text"
+                      value={charName}
+                      onChange={(e) => setCharName(e.target.value)}
+                      placeholder="Ex: Sir Lancelot"
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        backgroundColor: '#11161d',
+                        border: '1px solid #3c4656',
+                        color: '#fff',
+                        borderRadius: '4px',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '8px' }}>Escolha a Vocação</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      {[1, 2, 3, 4].map((vocId) => (
                         <button
+                          key={vocId}
                           type="button"
-                          onClick={handleSelectThisChar}
+                          onClick={() => setSelectedVocation(vocId)}
                           style={{
-                            width: '170px',
-                            height: '38px',
-                            backgroundImage: "url('/enter-game-btn.png')",
-                            backgroundSize: '100% 100%',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center',
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            color: '#ffffff',
-                            fontWeight: 'bold',
-                            fontSize: '12px',
+                            padding: '10px',
+                            backgroundColor: selectedVocation === vocId ? '#3d3121' : '#11161d',
+                            border: selectedVocation === vocId ? '2px solid #d4a843' : '1px solid #2b3442',
+                            borderRadius: '4px',
+                            textAlign: 'left',
                             cursor: 'pointer',
-                            pointerEvents: 'auto',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            textShadow: '1px 1px 3px #000',
-                            filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
+                            color: selectedVocation === vocId ? '#f3e5ab' : '#aaa',
                           }}
                         >
-                          ENTRAR NO JOGO
+                          <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{VOCATION_NAMES[vocId]}</div>
+                          <div style={{ fontSize: '10px', color: '#888', marginTop: '3px' }}>{VOCATION_DESCRIPTIONS[vocId]}</div>
                         </button>
-                      </div>
-                    );
-                  })}
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        background: 'linear-gradient(180deg, #4a7c36 0%, #2a4c1e 100%)',
+                        border: '1px solid #629d49',
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {loading ? 'Criando...' : 'Criar Personagem'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsCreatingChar(false)}
+                      style={{
+                        padding: '10px 16px',
+                        background: '#2b3442',
+                        border: '1px solid #48566b',
+                        color: '#bbb',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* CHARACTER SELECTION LIST */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Seus Personagens</h2>
+                    <button
+                      onClick={() => setIsCreatingChar(true)}
+                      style={{
+                        width: '180px',
+                        height: '38px',
+                        backgroundImage: "url('/create-char-btn.png')",
+                        backgroundSize: '100% 100%',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: '#f3e5ab',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textShadow: '1px 1px 3px #000',
+                        filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
+                      }}
+                    >
+                      + Criar Personagem
+                    </button>
+                  </div>
+
+                  {characters.length === 0 ? (
+                    <div style={{ padding: '24px', textAlign: 'center', color: '#888', background: '#11161d', borderRadius: '4px' }}>
+                      Você ainda não possui personagens nesta conta. Clique em &quot;Criar Personagem&quot; acima para começar!
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '280px', overflowY: 'auto' }}>
+                      {characters.map((char) => {
+                        const handleSelectThisChar = (e: React.MouseEvent) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('[TibiaAuthCharacterModal] Entrar no jogo clicado para:', char.name);
+                          const currentToken = token || localStorage.getItem('colyseus_token') || '';
+                          const currentAccount = account || {
+                            id: char.id,
+                            email: '',
+                            displayName: char.name,
+                            role: 'PLAYER' as const,
+                          };
+                          onSelectCharacter(currentToken, char, currentAccount);
+                        };
+
+                        return (
+                          <div
+                            key={char.id}
+                            onClick={handleSelectThisChar}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '10px 12px',
+                              backgroundColor: 'transparent',
+                              borderBottom: '1px solid rgba(212, 168, 67, 0.15)',
+                              borderRadius: '0px',
+                              cursor: 'pointer',
+                              pointerEvents: 'auto',
+                              userSelect: 'none',
+                            }}
+                          >
+                            <div>
+                              <div style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '15px', textShadow: '1px 1px 2px #000' }}>{char.name}</div>
+                              <div style={{ fontSize: '11px', color: '#ffffff', marginTop: '3px', textShadow: '1px 1px 2px #000', opacity: 0.95 }}>
+                                Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleSelectThisChar}
+                              style={{
+                                width: '170px',
+                                height: '38px',
+                                backgroundImage: "url('/enter-game-btn.png')",
+                                backgroundSize: '100% 100%',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundPosition: 'center',
+                                backgroundColor: 'transparent',
+                                border: 'none',
+                                color: '#ffffff',
+                                fontWeight: 'bold',
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                pointerEvents: 'auto',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                textShadow: '1px 1px 3px #000',
+                                filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
+                              }}
+                            >
+                              ENTRAR NO JOGO
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
+          </div>
+
+          {/* RIGHT: Bard Video Portrait Card */}
+          <div
+            style={{
+              width: '320px',
+              height: '400px',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(180deg, rgba(20, 15, 12, 0.95) 0%, rgba(10, 8, 6, 0.98) 100%)',
+              border: '2px solid #7d5c2e',
+              borderRadius: '12px',
+              boxShadow: '0 12px 35px rgba(0, 0, 0, 0.95), inset 0 0 20px rgba(0,0,0,0.8)',
+              overflow: 'hidden',
+              padding: '6px',
+              boxSizing: 'border-box',
+            }}
+          >
+            {/* Ornate Gold Border Inner Frame */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: '4px',
+                border: '1px solid rgba(212, 168, 67, 0.4)',
+                borderRadius: '8px',
+                pointerEvents: 'none',
+                zIndex: 3,
+              }}
+            />
+
+            <BardChromaVideo src="/songtibia.webm" />
+          </div>
+        </div>
+
+        {/* BOTTOM FOOTER STRIP: Players Online & Social Icons */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '16px',
+            marginTop: '4px',
+            backgroundColor: 'rgba(12, 16, 22, 0.85)',
+            border: '1px solid rgba(212, 168, 67, 0.3)',
+            borderRadius: '6px',
+            padding: '6px 18px',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div style={{ color: '#ffffff', fontSize: '13px', fontWeight: 'bold', textShadow: '1px 1px 3px #000' }}>
+            10 players online
+          </div>
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(212, 168, 67, 0.4)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <a href="https://facebook.com" target="_blank" rel="noreferrer" title="Facebook" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
+              <img src="/social/facebook.png" alt="Facebook" style={{ height: '16px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" title="Instagram" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
+              <img src="/social/instagram.png" alt="Instagram" style={{ height: '16px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noreferrer" title="TikTok" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
+              <img src="/social/tiktok.png" alt="TikTok" style={{ height: '16px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   );
 }
+
+function BardChromaVideo({ src }: { src: string }) {
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    let animId: number;
+
+    const renderFrame = () => {
+      if (video.paused || video.ended) {
+        animId = requestAnimationFrame(renderFrame);
+        return;
+      }
+
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (ctx && video.videoWidth > 0 && video.videoHeight > 0) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const l = frame.data.length / 4;
+
+        for (let i = 0; i < l; i++) {
+          const r = frame.data[i * 4 + 0];
+          const g = frame.data[i * 4 + 1];
+          const b = frame.data[i * 4 + 2];
+
+          // Key out green background if green screen is present
+          if (g > 90 && g > r * 1.25 && g > b * 1.25) {
+            frame.data[i * 4 + 3] = 0; // Set Alpha to 0
+          }
+        }
+
+        ctx.putImageData(frame, 0, 0);
+      }
+
+      animId = requestAnimationFrame(renderFrame);
+    };
+
+    video.play().catch(() => {});
+    animId = requestAnimationFrame(renderFrame);
+
+    return () => {
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <video
+        ref={videoRef}
+        src={src}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{ display: 'none' }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+          filter: 'drop-shadow(0 8px 25px rgba(0,0,0,0.85))',
+        }}
+      />
+    </div>
+  );
+}
+
