@@ -1,6 +1,6 @@
 # Cavebound — MMORPG 2D Idle no Navegador
 
-Vertical slice de um **MMORPG 2D idle no navegador**, baseado em mecânicas, fórmulas e dados autênticos do **Tibia 8.60 (TFS / Styller)**. O projeto combina lógica de jogo determinística em ticks separada da interface, renderização interpolada em PixiJS, importação direta de dados do OpenTibia Server (`styller-master/`) e extração determinística de sprites do cliente binário (`tibia-860-client/`).
+Vertical slice de um **MMORPG 2D idle no navegador**, baseado em mecânicas, fórmulas e dados autênticos do **Tibia 8.60 (TFS / Styller)**. O projeto combina lógica de jogo determinística em ticks separada da interface, servidor de jogo multiplayer em tempo real via **Colyseus.js**, persistência relacional com **Prisma / SQLite**, renderização interpolada em PixiJS, importação direta de dados do OpenTibia Server (`styller-master/`) e extração determinística de sprites do cliente binário (`tibia-860-client/`).
 
 ---
 
@@ -17,7 +17,10 @@ Vertical slice de um **MMORPG 2D idle no navegador**, baseado em mecânicas, fó
 # 1. Instalar dependências
 npm install
 
-# 2. Iniciar o servidor de desenvolvimento
+# 2. Iniciar o servidor de jogo Colyseus (Multiplayer) em um terminal
+npm run server
+
+# 3. Iniciar o cliente web (Next.js / Vite) em outro terminal
 npm run dev
 ```
 
