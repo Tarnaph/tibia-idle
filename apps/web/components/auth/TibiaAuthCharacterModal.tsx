@@ -192,26 +192,68 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(5, 7, 10, 0.88)',
-        backdropFilter: 'blur(6px)',
+        backgroundColor: 'rgba(5, 7, 10, 0.75)',
+        backdropFilter: 'blur(3px)',
         zIndex: 999999999,
         pointerEvents: 'auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'sans-serif',
+        overflow: 'hidden',
       }}
     >
+      {/* Background Video Frame */}
       <div
         style={{
+          position: 'absolute',
+          inset: 0,
+          overflow: 'hidden',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      >
+        <iframe
+          src="https://www.youtube.com/embed/b3Q0iWCTuZI?autoplay=1&mute=1&controls=0&loop=1&playlist=b3Q0iWCTuZI&playsinline=1"
+          title="Vídeo de Fundo - Seleção de Personagem"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: '100vw',
+            height: '56.25vw',
+            minHeight: '100vh',
+            minWidth: '177.77vh',
+            transform: 'translate(-50%, -50%) scale(1.08)',
+            border: 'none',
+            pointerEvents: 'none',
+          }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(5, 7, 10, 0.55)',
+            backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 100%)',
+          }}
+        />
+      </div>
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
           width: '520px',
           maxWidth: '92vw',
-          backgroundColor: '#1b222d',
+          backgroundColor: 'rgba(27, 34, 45, 0.95)',
           border: '2px solid #5a4b32',
-          boxShadow: '0 0 25px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(90, 75, 50, 0.3)',
+          boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), inset 0 0 15px rgba(90, 75, 50, 0.35)',
           borderRadius: '6px',
           overflow: 'hidden',
           color: '#d6d2c4',
+          backdropFilter: 'blur(8px)',
         }}
       >
         {/* Tibia Header Bar */}
