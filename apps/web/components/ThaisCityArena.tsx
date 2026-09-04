@@ -64,6 +64,19 @@ export const AMBIENT_THAIS_PLAYERS: AmbientCityPlayer[] = [
     maxHp: 1150,
   },
   {
+    id: 'player-sire',
+    name: 'Sire',
+    vocation: 'Sire',
+    level: 120,
+    isPremium: true,
+    x: 32350,
+    y: 32226,
+    z: 7,
+    direction: 'south',
+    currentHp: 2400,
+    maxHp: 2400,
+  },
+  {
     id: 'player-muriel',
     name: 'Muriel',
     vocation: 'Sorcerer',
@@ -527,7 +540,9 @@ export function ThaisCityArena({
       const actorViews = new Map<string, CityActorView>();
 
       function getOutfitFrameUrl(vocation: string, direction: string, frame: number): string {
-        const normKey = vocation.includes('Sorcerer')
+        const normKey = vocation.includes('Sire')
+          ? 'Sire'
+          : vocation.includes('Sorcerer')
           ? 'Sorcerer'
           : vocation.includes('Druid')
           ? 'Druid'

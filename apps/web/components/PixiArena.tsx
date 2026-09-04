@@ -66,7 +66,8 @@ interface TimedVisual { root: Container | Sprite | Text; startedAt: number; dura
 const visualAssets = visualAssetsJson as unknown as Tibia860AssetManifest;
 const TILE_SIZE = 32;
 
-function baseVocation(vocation: string): 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid' {
+function baseVocation(vocation: string): 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid' | 'Sire' {
+  if (vocation.includes('Sire')) return 'Sire';
   if (vocation.includes('Knight')) return 'Knight';
   if (vocation.includes('Paladin')) return 'Paladin';
   if (vocation.includes('Sorcerer')) return 'Sorcerer';
