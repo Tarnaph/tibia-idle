@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-04T20:06:00.000Z"
-last_activity: "2026-09-04 — Concluída Phase 54: Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM)."
+last_updated: "2026-09-04T20:11:00.000Z"
+last_activity: "2026-09-04 — Concluída Phase 55: Renderização Multiplayer de Jogadores Remotos na Cidade (ThaisCityArena)."
 progress:
-  total_phases: 54
-  completed_phases: 54
-  total_plans: 54
-  completed_plans: 54
+  total_phases: 55
+  completed_phases: 55
+  total_plans: 55
+  completed_plans: 55
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 54 concluída (Inicialização Solo do Squad & Desbloqueio de Slots por Nível).
+**Current focus:** Phase 55 concluída (Renderização Multiplayer de Jogadores Remotos na Cidade).
 
 ## Current Position
 
-Phase: 54 of 54 (Inicialização Solo do Squad & Desbloqueio de Slots por Nível)  
+Phase: 55 of 55 (Renderização Multiplayer de Jogadores Remotos na Cidade)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-04 — Concluída Phase 54: Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM).
+Last activity: 2026-09-04 — Concluída Phase 55: Renderização Multiplayer de Jogadores Remotos na Cidade (ThaisCityArena).
 
 Progress: [██████████] 100%
 

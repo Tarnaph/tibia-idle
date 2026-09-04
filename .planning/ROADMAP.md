@@ -785,7 +785,7 @@ Plans:
 
 ### Phase 54: Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM)
 
-**Goal:** Garantir que todo personagem novo/recém-criado inicie sozinho no squad sem carregar personagens mock automaticamente, e implementar travas de nível para os slots adicionais do squad (Slot 2 no Lv 50, Slot 3 no Lv 90 e Slot 4 no Lv 120), isentando contas ADMIN e GM.  
+**Goal:** Garantir que todo personagem novo/recém-criado inicie sozinho no squad sem carregar personagens mock automaticamente, e implementar travas de nível para os slots adicionais do squad (Slot 2 no Lv 50, Slot 3 no Lv 90 e Slot 4 no Lv 120), isentando contas ADMIN and GM.  
 **Depends on:** Phase 53  
 **Requirements:** Inicialização do squad contendo apenas o personagem ativo (`characters: [userChar]`), visualização de slots bloqueados com cadeado 🔒 e nível requerido, travamento na janela do squad e engrenagem, bypass irrestrito para contas ADMIN e GM.  
 **Success Criteria:**
@@ -797,6 +797,24 @@ Plans:
 
 Plans:
 - [x] 54-01-PLAN: Inicialização solo do squad, travas de nível para slots 2, 3 e 4 (Lv 50/90/120) e bypass de permissão Admin/GM.
+
+---
+
+### Phase 55: Renderização Multiplayer de Jogadores Remotos na Cidade (ThaisCityArena)
+
+**Goal:** Garantir a perfeita visualização em tempo real de múltiplos jogadores no mesmo mapa (`ThaisCityArena.tsx`), sincronizando posições, animações de caminhada suave, cores de outfits, tooltips e falas sobre a cabeça.  
+**Depends on:** Phase 54  
+**Requirements:** Filtro do próprio personagem local para evitar duplicidade (`key === myPlayerId || curChars.some(...)`), interpolação suave de passos via `VisualMotionTrack`, recolorização de outfits pelas cores do Colyseus snapshot (`lookHead`, `lookBody`, `lookLegs`, `lookFeet`), tooltips ao passar o mouse (`showGlobalPlayerTooltip`), suporte ao menu de contexto e limpeza automática de atores desconectados.  
+**Success Criteria:**
+1. Jogadores logados simultaneamente em diferentes navegadores/contas veem uns aos outros em tempo real no mapa de Thais.
+2. Movimentação dos jogadores remotos é interpolada suavemente a 60fps sem sobressaltos.
+3. Cores de outfit customizadas dos jogadores remotos são renderizadas fielmente.
+4. Passar o mouse sobre um jogador remoto exibe o tooltip com Nome, Nível, Vocação e Barra de Vida.
+5. 100% de aprovação nos testes (`tests/phase55-multiplayer-remote-rendering.test.ts`) e 0 erros no `npm run typecheck`.
+
+Plans:
+- [x] 55-01-PLAN: Sincronização e renderização multiplayer de jogadores remotos no PixiJS (`ThaisCityArena.tsx`).
+
 
 
 

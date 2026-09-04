@@ -474,6 +474,7 @@ export function ThaisCityArena({
       }
 
       const followerVisualStates = new Map<string, FollowerVisualState>();
+      const remoteMotionTracks = new Map<string, { track: VisualMotionTrack; lastTile: { x: number; y: number; z: number } }>();
 
       let playerDirection: 'north' | 'south' | 'east' | 'west' = 'south';
       const initialPos = latestRef.current.cityPos;
@@ -554,6 +555,32 @@ export function ThaisCityArena({
           });
         }
 
+        // 3. Check online remote players on active Z floor
+        if (!matchedPlayer && latestRef.current.remotePlayers) {
+          const myId = latestRef.current.localPlayerId;
+          latestRef.current.remotePlayers.forEach((p, key) => {
+            if (matchedPlayer) return;
+            if (key === myId || curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) return;
+            if ((p.z ?? 7) !== activeZ) return;
+            const px = (p.x ?? 32369) * TILE_SIZE + 16;
+            const py = (p.y ?? 32241) * TILE_SIZE + 16;
+            const dx = worldX - px;
+            const dy = worldY - py;
+            if (dx >= -18 && dx <= 18 && dy >= -38 && dy <= 16) {
+              const vocName = VOCATION_NAMES[p.vocationId] || 'Knight';
+              matchedPlayer = {
+                id: p.id,
+                name: p.name,
+                level: p.level,
+                vocation: vocName,
+                isPremium: true,
+                currentHp: p.hp,
+                maxHp: p.maxHp,
+              };
+            }
+          });
+        }
+
         if (matchedPlayer) {
           hoveredPlayerId = matchedPlayer.id;
           app.canvas.style.cursor = 'pointer';
@@ -615,7 +642,7 @@ export function ThaisCityArena({
         const worldY = (clientY - world.position.y) / world.scale.y;
 
         const curChars = latestRef.current.characters;
-        let matchedCharId = curChars[0]?.id;
+        let matchedCharId: string | undefined;
         for (let idx = 0; idx < curChars.length; idx++) {
           const char = curChars[idx];
           const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
@@ -628,6 +655,23 @@ export function ThaisCityArena({
             matchedCharId = char.id;
             break;
           }
+        }
+        if (!matchedCharId && latestRef.current.remotePlayers) {
+          const myId = latestRef.current.localPlayerId;
+          latestRef.current.remotePlayers.forEach((p, key) => {
+            if (matchedCharId) return;
+            if (key === myId || curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) return;
+            const px = (p.x ?? 32369) * TILE_SIZE + 16;
+            const py = (p.y ?? 32241) * TILE_SIZE + 16;
+            const dx = worldX - px;
+            const dy = worldY - py;
+            if (dx >= -24 && dx <= 24 && dy >= -44 && dy <= 20) {
+              matchedCharId = p.id;
+            }
+          });
+        }
+        if (!matchedCharId) {
+          matchedCharId = curChars[0]?.id;
         }
         if (matchedCharId) {
           latestRef.current.onCharacterContextMenu?.(matchedCharId, e.clientX, e.clientY);
@@ -677,14 +721,18 @@ export function ThaisCityArena({
         return `/generated/outfit-thumbs/${idLower}.png`;
       }
 
-      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number } }): CityActorView | null {
+      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number }; x?: number; y?: number }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) return view;
 
         const idx = characters.findIndex((c) => c.id === char.id);
-        const offsetX = idx === 0 ? 0 : idx === 1 ? -32 : idx === 2 ? 32 : 0;
-        const offsetY = idx === 0 ? 0 : idx === 3 ? 32 : 0;
-        triggerTeleportEffect(currentPixelX + offsetX, currentPixelY + offsetY);
+        if (idx >= 0) {
+          const offsetX = idx === 0 ? 0 : idx === 1 ? -32 : idx === 2 ? 32 : 0;
+          const offsetY = idx === 0 ? 0 : idx === 3 ? 32 : 0;
+          triggerTeleportEffect(currentPixelX + offsetX, currentPixelY + offsetY);
+        } else if (char.x !== undefined && char.y !== undefined) {
+          triggerTeleportEffect(char.x * TILE_SIZE + 16, char.y * TILE_SIZE + 16);
+        }
 
         if (char.outfitColors) {
           preloadOutfitAllFrames(char.outfit || char.vocation, char.gender || 'male', char.outfitColors).catch(() => {});
@@ -871,17 +919,34 @@ export function ThaisCityArena({
           app.screen.height / 2 - currentPixelY * camera.scale
         );
 
-        // Clean up removed squad members with blue teleport particle effect
-        const activeSquadIds = new Set(curChars.map((c) => c.id));
-        actorViews.forEach((view, id) => {
-          if (followerVisualStates.has(id) && !activeSquadIds.has(id)) {
-            const fState = followerVisualStates.get(id);
-            if (fState) {
-              const px = fState.currentTile.x * TILE_SIZE + 16;
-              const py = fState.currentTile.y * TILE_SIZE + 16;
-              triggerTeleportEffect(px, py);
+        // Clean up removed actor views (squad, ambient, and remote players)
+        const validActorIds = new Set<string>();
+        curChars.forEach((c) => validActorIds.add(c.id));
+        AMBIENT_THAIS_PLAYERS.forEach((p) => validActorIds.add(p.id));
+        const remotesMap = latestRef.current.remotePlayers;
+        const myPlayerIdVal = latestRef.current.localPlayerId;
+        if (remotesMap) {
+          remotesMap.forEach((p, key) => {
+            if (key !== myPlayerIdVal && !curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) {
+              validActorIds.add(p.id);
             }
-            followerVisualStates.delete(id);
+          });
+        }
+
+        actorViews.forEach((view, id) => {
+          if (!validActorIds.has(id)) {
+            if (followerVisualStates.has(id)) {
+              const fState = followerVisualStates.get(id);
+              if (fState) {
+                const px = fState.currentTile.x * TILE_SIZE + 16;
+                const py = fState.currentTile.y * TILE_SIZE + 16;
+                triggerTeleportEffect(px, py);
+              }
+              followerVisualStates.delete(id);
+            }
+            if (remoteMotionTracks.has(id)) {
+              remoteMotionTracks.delete(id);
+            }
             view.root.destroy({ children: true });
             actorViews.delete(id);
           }
@@ -1017,24 +1082,81 @@ export function ThaisCityArena({
         const myPlayerId = latestRef.current.localPlayerId;
         if (remotes) {
           remotes.forEach((p, key) => {
-            if (key === myPlayerId) return; // Skip rendering local player as remote
+            if (key === myPlayerId || curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) return; // Skip rendering local player as remote
 
             const vocName = VOCATION_NAMES[p.vocationId] || 'Knight';
-            const view = ensureActorView({ id: p.id, name: p.name, vocation: vocName });
+            const colors = p.outfit
+              ? {
+                  head: p.outfit.lookHead || 0,
+                  primary: p.outfit.lookBody || 0,
+                  secondary: p.outfit.lookLegs || 0,
+                  detail: p.outfit.lookFeet || 0,
+                }
+              : undefined;
+
+            const view = ensureActorView({
+              id: p.id,
+              name: p.name,
+              vocation: vocName,
+              outfitColors: colors,
+              x: p.x,
+              y: p.y,
+            });
             if (!view) return;
+
+            const targetTile = { x: p.x ?? 32369, y: p.y ?? 32241, z: p.z ?? 7 };
+            let rState = remoteMotionTracks.get(p.id);
+            if (!rState) {
+              rState = {
+                track: new VisualMotionTrack(targetTile, p.direction || 'south'),
+                lastTile: { ...targetTile },
+              };
+              remoteMotionTracks.set(p.id, rState);
+            } else if (targetTile.x !== rState.lastTile.x || targetTile.y !== rState.lastTile.y || targetTile.z !== rState.lastTile.z) {
+              const distJump = Math.hypot(targetTile.x - rState.lastTile.x, targetTile.y - rState.lastTile.y);
+              if (distJump > 2.5 || targetTile.z !== rState.lastTile.z) {
+                rState.track.reset(targetTile);
+              } else {
+                rState.track.commit(rState.lastTile, targetTile, now, curStepDuration);
+              }
+              rState.lastTile = { ...targetTile };
+            }
+
+            const sample = rState.track.sample(now);
+            const px = sample.renderPosition.x * TILE_SIZE + 16;
+            const py = sample.renderPosition.y * TILE_SIZE + 16;
+            const dir = sample.direction || p.direction || 'south';
+            const isMoving = sample.moving || p.isMoving;
 
             view.root.visible = (p.z ?? 7) === curPos.z;
             if (!view.root.visible) return;
 
-            const walkFrame = p.isMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
-            const url = getOutfitFrameUrl(vocName, p.direction || 'south', walkFrame);
-            if (url && url !== view.lastUrl && loaded[url]) {
-              view.sprite.texture = loaded[url];
-              view.lastUrl = url;
+            const walkFrame = isMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
+            const textureKey = colors
+              ? `${vocName}_male_${dir}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`
+              : `${vocName}_male_${dir}_${walkFrame}`;
+
+            if (view.lastTextureKey !== textureKey) {
+              if (colors) {
+                const canvas = getRecoloredCanvasSync(vocName, 'male', dir as any, walkFrame, colors);
+                if (canvas) {
+                  const tex = Texture.from(canvas);
+                  tex.source.style.scaleMode = 'nearest';
+                  view.sprite.texture = tex;
+                  view.lastTextureKey = textureKey;
+                  view.lastUrl = 'canvas';
+                }
+              }
+              if (view.lastTextureKey !== textureKey) {
+                const url = getOutfitFrameUrl(vocName, dir, walkFrame);
+                if (url && url !== view.lastUrl && loaded[url]) {
+                  view.sprite.texture = loaded[url];
+                  view.lastUrl = url;
+                  view.lastTextureKey = textureKey;
+                }
+              }
             }
 
-            const px = (p.x ?? 32369) * TILE_SIZE + 16;
-            const py = (p.y ?? 32241) * TILE_SIZE + 16;
             view.root.position.set(px, py);
             view.root.zIndex = py;
             view.label.position.set(0, creatureVisualLayout.nameplateY);
