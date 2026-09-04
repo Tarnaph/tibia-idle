@@ -585,13 +585,22 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
                 <button
                   onClick={() => setIsCreatingChar(true)}
                   style={{
-                    padding: '6px 12px',
-                    background: '#2b3442',
-                    border: '1px solid #d4a843',
+                    width: '180px',
+                    height: '38px',
+                    backgroundImage: "url('/create-char-btn.png')",
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    border: 'none',
                     color: '#f3e5ab',
                     fontSize: '12px',
-                    borderRadius: '4px',
+                    fontWeight: 'bold',
                     cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textShadow: '1px 1px 3px #000',
+                    filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
                   }}
                 >
                   + Criar Personagem
