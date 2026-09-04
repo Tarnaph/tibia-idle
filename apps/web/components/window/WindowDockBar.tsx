@@ -11,6 +11,7 @@ interface WindowDockBarProps {
   onSelectHunt: () => void;
   onOpenSkills: () => void;
   onOpenOutfit?: () => void;
+  onExitGame?: () => void;
 }
 
 const WINDOW_ITEMS: Array<{ id: WindowId; label: string; icon: string }> = [
@@ -29,15 +30,25 @@ export function WindowDockBar({
   onSelectHunt,
   onOpenSkills,
   onOpenOutfit,
+  onExitGame,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [lang, setLang] = useState<'pt' | 'en'>('pt');
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
     } else {
       document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
+
+  const handleExit = () => {
+    if (onExitGame) {
+      onExitGame();
+    } else {
+      window.location.href = '/';
     }
   };
 
@@ -105,37 +116,66 @@ export function WindowDockBar({
       </nav>
 
       <div className="dock-right">
-        <button
-          type="button"
-          className="dock-action-btn"
-          title="Selecionar local de caça"
-          onClick={onSelectHunt}
-        >
-          🏹 Caçadas
+        {/* Language selector pill */}
+        <div className="dock-lang-pill" title="Alterar idioma">
+          <button
+            type="button"
+            className={`lang-btn ${lang === 'pt' ? 'active' : ''}`}
+            onClick={() => setLang('pt')}
+            title="Português (Brasil)"
+          >
+            🇧🇷
+          </button>
+          <button
+            type="button"
+            className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
+            onClick={() => setLang('en')}
+            title="English (US)"
+          >
+            🇺🇸
+          </button>
+        </div>
+
+        {/* Diamond Buttons */}
+        <div className="diamond-btn-wrap" title="Stamina & Bônus de Energia">
+          <div className="diamond-btn-inner">
+            <span className="diamond-icon">🔋</span>
+          </div>
+        </div>
+
+        <a href="https://discord.gg" target="_blank" rel="noreferrer" className="diamond-btn-wrap discord" title="Comunidade no Discord">
+          <div className="diamond-btn-inner">
+            <span className="diamond-icon">👾</span>
+          </div>
+        </a>
+
+        <button type="button" className="diamond-btn-wrap" title="Configurações / Organizar Janelas" onClick={resetLayout}>
+          <div className="diamond-btn-inner">
+            <span className="diamond-icon">⚙️</span>
+          </div>
         </button>
+
+        {/* Golden Diamond Exit Door Button */}
         <button
           type="button"
-          className={`dock-action-btn ${debug ? 'is-active' : ''}`}
-          title="Alternar Grid de Debug"
-          onClick={onToggleDebug}
+          className="diamond-btn-wrap exit-gold"
+          title="Voltar ao site (sua conta continua logada)"
+          onClick={handleExit}
         >
-          {debug ? 'Grid ON' : 'Grid'}
-        </button>
-        <button
-          type="button"
-          className="dock-action-btn"
-          title="Organizar todas as janelas nas posições iniciais"
-          onClick={resetLayout}
-        >
-          🔄 Organizar
-        </button>
-        <button
-          type="button"
-          className="dock-action-btn"
-          title={isFullscreen ? 'Sair da Tela Cheia' : 'Entrar em Tela Cheia'}
-          onClick={toggleFullscreen}
-        >
-          {isFullscreen ? '⛶ Normal' : '⛶ Tela Cheia'}
+          <div className="diamond-btn-inner exit-gold-inner">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              style={{ transform: 'rotate(-45deg)', display: 'block' }}
+            >
+              <path d="M4 3h16v18H4V3z" stroke="#e5c04b" strokeWidth="1.5" fill="none" />
+              <path d="M8 5v14l7-2V7l-7-2z" fill="#ffd700" stroke="#7a5c10" strokeWidth="1" />
+              <circle cx="13" cy="12" r="1" fill="#4a3500" />
+              <path d="M2 12h4m-2-2l-2 2 2 2" stroke="#ffe680" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
         </button>
       </div>
     </header>

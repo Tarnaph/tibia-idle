@@ -972,6 +972,9 @@ function GamePrototypeContent() {
         onSelectHunt={() => setHuntSelectorOpen(true)}
         onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
         onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
+        onExitGame={() => {
+          window.location.href = '/';
+        }}
       />
 
       {/* Window 1: Classic Skills Window (acessada pelo nome do personagem) */}
