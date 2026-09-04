@@ -223,6 +223,18 @@ function GamePrototypeContent() {
       setPartyMemberIds((prev) => prev.filter((itemId) => itemId !== id));
       setGame((cur) => removePartyMember(cur, id));
     } else if (game.session.characters.length < 4) {
+      const currentCount = game.session.characters.length;
+      const roleUpper = onlineAccount?.role?.toUpperCase() || '';
+      const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
+      const mainChar = game.session.characters[0];
+      const mainLevel = mainChar?.level || 1;
+
+      if (!isAdminOrGm) {
+        if (currentCount === 1 && mainLevel < 50) return;
+        if (currentCount === 2 && mainLevel < 90) return;
+        if (currentCount === 3 && mainLevel < 120) return;
+      }
+
       setGame((cur) => {
         if (cur.session.characters.some((c) => c.id === id)) return cur;
         return {
@@ -234,7 +246,7 @@ function GamePrototypeContent() {
         };
       });
     }
-  }, [savedPool, game.session.characters]);
+  }, [savedPool, game.session.characters, onlineAccount]);
 
   const handleCreateParty = useCallback((selectedIds: string[]) => {
     setPartyMemberIds(selectedIds);
@@ -429,14 +441,7 @@ function GamePrototypeContent() {
       if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
       if ((charItem as any).outfit) userChar.outfit = (charItem as any).outfit;
 
-      // Filter out duplicate or mock characters sharing ID or case-insensitive name
-      const otherChars = cur.session.characters.filter(
-        (c) => c.id !== userChar.id && c.name.toLowerCase() !== userChar.name.toLowerCase()
-      );
-
-      // Always place the user's active character at index 0 as the party leader
-      const updatedChars: CharacterState[] = [userChar, ...otherChars].slice(0, 4);
-
+      // Newly created or selected character starts ALONE as sole main character in squad
       return {
         ...cur,
         session: {
@@ -444,7 +449,7 @@ function GamePrototypeContent() {
           leaderId: userChar.id,
           selectedCharacterId: userChar.id,
           cameraTargetCharacterId: userChar.id,
-          characters: updatedChars,
+          characters: [userChar],
         },
       };
     });
@@ -863,6 +868,27 @@ function GamePrototypeContent() {
     setStatsDelta(null);
   };
   const createMember = (name: string, vocation: BaseVocationName, gender?: 'Masculino' | 'Feminino'): string | null => {
+    const currentMemberCount = game.session.characters.length;
+    const roleUpper = onlineAccount?.role?.toUpperCase() || '';
+    const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
+    const mainChar = game.session.characters[0];
+    const mainLevel = mainChar?.level || 1;
+
+    if (!isAdminOrGm) {
+      if (currentMemberCount === 1 && mainLevel < 50) {
+        return 'Nível 50 necessário para desbloquear o 2º slot do squad.';
+      }
+      if (currentMemberCount === 2 && mainLevel < 90) {
+        return 'Nível 90 necessário para desbloquear o 3º slot do squad.';
+      }
+      if (currentMemberCount === 3 && mainLevel < 120) {
+        return 'Nível 120 necessário para desbloquear o 4º slot do squad.';
+      }
+      if (currentMemberCount >= 4) {
+        return 'O squad já atingiu o limite máximo de 4 membros.';
+      }
+    }
+
     const charGender = gender === 'Feminino' ? 'female' : 'male';
     try {
       const nextState = synchronizePartyWithEncounter(addPartyMember(game, name, vocation, content, charGender), content);
@@ -1151,6 +1177,8 @@ function GamePrototypeContent() {
           squadMembers={game.session.characters}
           savedCharacters={savedPool}
           activeCharacterId={activeCharacter.id}
+          userLevel={activeCharacter.level}
+          userRole={onlineAccount?.role}
           partyMemberIds={partyMemberIds}
           isPartyCreated={isPartyCreated}
           onCreateParty={handleCreateParty}

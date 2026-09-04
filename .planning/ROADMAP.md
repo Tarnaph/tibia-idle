@@ -781,6 +781,24 @@ Plans:
 Plans:
 - [x] 53-01-PLAN: Implementar exclusão de personagem na UI com modal de confirmação e integração com API DELETE PostgreSQL.
 
+---
+
+### Phase 54: Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM)
+
+**Goal:** Garantir que todo personagem novo/recém-criado inicie sozinho no squad sem carregar personagens mock automaticamente, e implementar travas de nível para os slots adicionais do squad (Slot 2 no Lv 50, Slot 3 no Lv 90 e Slot 4 no Lv 120), isentando contas ADMIN e GM.  
+**Depends on:** Phase 53  
+**Requirements:** Inicialização do squad contendo apenas o personagem ativo (`characters: [userChar]`), visualização de slots bloqueados com cadeado 🔒 e nível requerido, travamento na janela do squad e engrenagem, bypass irrestrito para contas ADMIN e GM.  
+**Success Criteria:**
+1. Novos personagens iniciam 100% sozinhos no squad ao entrar no jogo.
+2. Slot 2 bloqueado até o Nível 50, Slot 3 bloqueado até o Nível 90 e Slot 4 bloqueado até o Nível 120 para contas comuns.
+3. Indicadores visuais de travamento (`🔒 Slot Bloqueado · Requer Nível X`) na janela de Squad e Engrenagem.
+4. Contas ADMIN e GM possuem todos os 4 slots do squad desbloqueados imediatamente no Nível 1.
+5. 100% dos testes aprovados e 0 erros de TypeScript.
+
+Plans:
+- [x] 54-01-PLAN: Inicialização solo do squad, travas de nível para slots 2, 3 e 4 (Lv 50/90/120) e bypass de permissão Admin/GM.
+
+
 
 
 

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-04T19:55:00.000Z"
-last_activity: "2026-09-04 — Concluída Phase 53: Deletar Personagem na Seleção de Personagem & Banco de Dados."
+last_updated: "2026-09-04T20:06:00.000Z"
+last_activity: "2026-09-04 — Concluída Phase 54: Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM)."
 progress:
-  total_phases: 53
-  completed_phases: 53
-  total_plans: 53
-  completed_plans: 53
+  total_phases: 54
+  completed_phases: 54
+  total_plans: 54
+  completed_plans: 54
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 53 concluída (Deletar Personagem na Seleção de Personagem & Banco de Dados).
+**Current focus:** Phase 54 concluída (Inicialização Solo do Squad & Desbloqueio de Slots por Nível).
 
 ## Current Position
 
-Phase: 53 of 53 (Deletar Personagem na Seleção de Personagem & Banco de Dados)  
+Phase: 54 of 54 (Inicialização Solo do Squad & Desbloqueio de Slots por Nível)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-04 — Concluída Phase 53: Deletar Personagem na Seleção de Personagem & Banco de Dados.
+Last activity: 2026-09-04 — Concluída Phase 54: Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM).
 
 Progress: [██████████] 100%
 

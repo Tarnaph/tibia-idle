@@ -7,6 +7,8 @@ interface PartyWindowProps {
   squadMembers: CharacterState[];
   savedCharacters?: CharacterState[];
   activeCharacterId: string;
+  userLevel?: number;
+  userRole?: string;
   partyMemberIds: string[];
   isPartyCreated?: boolean;
   onCreateParty?: (selectedIds: string[]) => void;
@@ -36,6 +38,8 @@ export function PartyWindow({
   squadMembers,
   savedCharacters,
   activeCharacterId,
+  userLevel = 1,
+  userRole,
   partyMemberIds,
   isPartyCreated = false,
   onCreateParty,
@@ -55,6 +59,23 @@ export function PartyWindow({
   const [showModal, setShowModal] = useState(false);
   const [showGearModal, setShowGearModal] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const isSlotUnlocked = (slotIndex: number): boolean => {
+    const roleUpper = userRole?.toUpperCase() || '';
+    if (roleUpper === 'ADMIN' || roleUpper === 'GM') return true;
+    if (slotIndex === 0) return true; // Slot 1: Level 1+
+    if (slotIndex === 1) return userLevel >= 50; // Slot 2: Level 50+
+    if (slotIndex === 2) return userLevel >= 90; // Slot 3: Level 90+
+    if (slotIndex === 3) return userLevel >= 120; // Slot 4: Level 120+
+    return false;
+  };
+
+  const getSlotRequiredLevel = (slotIndex: number): number => {
+    if (slotIndex === 1) return 50;
+    if (slotIndex === 2) return 90;
+    if (slotIndex === 3) return 120;
+    return 1;
+  };
 
   // Total members in active party
   const partySquadMembers = squadMembers.filter((m) => partyMemberIds.includes(m.id));
@@ -167,7 +188,68 @@ export function PartyWindow({
 
             <div className="squad-members-list">
               {squadSlots.map((member, slotIndex) => {
+                const unlocked = isSlotUnlocked(slotIndex);
+                const reqLevel = getSlotRequiredLevel(slotIndex);
+
                 if (!member) {
+                  if (!unlocked) {
+                    return (
+                      <div
+                        key={`locked-slot-${slotIndex}`}
+                        className="squad-member-card empty-slot-card locked-slot-card"
+                        style={{
+                          opacity: 0.65,
+                          borderStyle: 'solid',
+                          borderColor: 'rgba(180, 40, 40, 0.4)',
+                          backgroundColor: 'rgba(30, 10, 10, 0.4)',
+                        }}
+                      >
+                        <div className="member-avatar-box">
+                          <div
+                            className="avatar-placeholder"
+                            style={{
+                              backgroundColor: 'transparent',
+                              border: '1px solid rgba(180, 40, 40, 0.5)',
+                              color: '#ff6666',
+                              fontSize: '16px',
+                            }}
+                          >
+                            🔒
+                          </div>
+                        </div>
+
+                        <div className="member-info-col">
+                          <strong className="member-name" style={{ color: '#ff9999' }}>
+                            Slot {slotIndex + 1} Bloqueado
+                          </strong>
+                          <div className="member-vocation-sub" style={{ color: '#ff8888', fontSize: '10px' }}>
+                            🔒 Requer Nível {reqLevel} para desbloquear
+                          </div>
+                        </div>
+
+                        <div className="member-actions-col">
+                          <button
+                            type="button"
+                            disabled
+                            className="squad-btn delete-squad-btn"
+                            style={{
+                              opacity: 0.7,
+                              cursor: 'not-allowed',
+                              background: 'linear-gradient(180deg, #4a1e1e 0%, #2a0e0e 100%)',
+                              borderColor: '#7a3535',
+                              color: '#ffaaaa',
+                              fontSize: '10px',
+                              padding: '4px 8px',
+                            }}
+                            title={`Atinga o Nível ${reqLevel} para desbloquear o slot ${slotIndex + 1} do squad`}
+                          >
+                            🔒 Lv {reqLevel}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div
                       key={`empty-slot-${slotIndex}`}
@@ -622,20 +704,40 @@ export function PartyWindow({
                           >
                             {isMain ? 'Líder' : 'Remover'}
                           </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="squad-btn add-party-btn"
-                            disabled={squadMembers.length >= 4}
-                            onClick={() => {
-                              if (onToggleSavedCharacter) onToggleSavedCharacter(savedChar.id);
-                            }}
-                            title={squadMembers.length >= 4 ? 'Squad cheio (máx 4)' : 'Colocar no squad ativo'}
-                            style={{ fontSize: '10px', padding: '4px 8px' }}
-                          >
-                            + Entrar no Squad
-                          </button>
-                        )
+                        ) : (() => {
+                          const nextSlotIndex = squadMembers.length;
+                          const nextSlotUnlocked = isSlotUnlocked(nextSlotIndex);
+                          const nextReqLevel = getSlotRequiredLevel(nextSlotIndex);
+
+                          if (!nextSlotUnlocked) {
+                            return (
+                              <button
+                                type="button"
+                                disabled
+                                className="squad-btn delete-squad-btn"
+                                style={{ fontSize: '10px', padding: '4px 8px', opacity: 0.6, cursor: 'not-allowed', backgroundColor: '#3a1e1e', borderColor: '#6a2e2e', color: '#ffaaaa' }}
+                                title={`🔒 Atinga o Nível ${nextReqLevel} para adicionar este integrante ao squad`}
+                              >
+                                🔒 Lv {nextReqLevel}
+                              </button>
+                            );
+                          }
+
+                          return (
+                            <button
+                              type="button"
+                              className="squad-btn add-party-btn"
+                              disabled={squadMembers.length >= 4}
+                              onClick={() => {
+                                if (onToggleSavedCharacter) onToggleSavedCharacter(savedChar.id);
+                              }}
+                              title={squadMembers.length >= 4 ? 'Squad cheio (máx 4)' : 'Colocar no squad ativo'}
+                              style={{ fontSize: '10px', padding: '4px 8px' }}
+                            >
+                              + Entrar no Squad
+                            </button>
+                          );
+                        })()
                       ) : (
                         <button
                           type="button"
