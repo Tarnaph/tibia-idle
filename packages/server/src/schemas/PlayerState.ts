@@ -29,4 +29,15 @@ export class PlayerState extends Schema {
   @type('number') armorPower: number = 10;
   @type('number') attackCooldownMs: number = 2000;
   @type('number') lastAttackTime: number = 0;
+
+  // Real-time Outfit and Mount synchronization
+  @type('string') outfit: string = 'Knight';
+  @type('number') outfitLookType: number = 128;
+  @type('number') outfitHead: number = 0;
+  @type('number') outfitBody: number = 0;
+  @type('number') outfitLegs: number = 0;
+  @type('number') outfitFeet: number = 0;
+  @type('number') outfitAddons: number = 0;
+  @type('string') mount: string = 'none';
+  @type('boolean') mountActive: boolean = false;
 }

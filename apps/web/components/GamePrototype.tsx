@@ -425,22 +425,23 @@ function GamePrototypeContent() {
     setCityPos({ x: targetX, y: targetY, z: targetZ });
 
     // Update game state with the real user character created or selected in Auth Modal!
-    setGame((cur) => {
-      const VOCATION_MAP: Record<number, BaseVocationName> = {
-        1: 'Knight',
-        2: 'Paladin',
-        3: 'Sorcerer',
-        4: 'Druid',
-      };
-      const vocName = ((charItem as any).vocation as BaseVocationName) || VOCATION_MAP[charItem.vocationId] || 'Knight';
-      const userChar = createCharacter(charItem.id, charItem.name, vocName, content, 'male');
-      if (charItem.level) userChar.level = charItem.level;
-      if (charItem.health) userChar.currentHp = charItem.health;
-      if (charItem.maxHealth) userChar.maxHp = charItem.maxHealth;
-      if (charItem.mana) userChar.currentMana = charItem.mana;
-      if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
-      if ((charItem as any).outfit) userChar.outfit = (charItem as any).outfit;
+    const VOCATION_MAP: Record<number, BaseVocationName> = {
+      1: 'Knight',
+      2: 'Paladin',
+      3: 'Sorcerer',
+      4: 'Druid',
+    };
+    const vocName = ((charItem as any).vocation as BaseVocationName) || VOCATION_MAP[charItem.vocationId] || 'Knight';
+    const userChar = createCharacter(charItem.id, charItem.name, vocName, content, 'male');
+    if (charItem.level) userChar.level = charItem.level;
+    if (charItem.health) userChar.currentHp = charItem.health;
+    if (charItem.maxHealth) userChar.maxHp = charItem.maxHealth;
+    if (charItem.mana) userChar.currentMana = charItem.mana;
+    if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
+    if ((charItem as any).outfit) userChar.outfit = (charItem as any).outfit;
+    if ((charItem as any).outfitColors) userChar.outfitColors = (charItem as any).outfitColors;
 
+    setGame((cur) => {
       // Newly created or selected character starts ALONE as sole main character in squad
       return {
         ...cur,
@@ -456,7 +457,12 @@ function GamePrototypeContent() {
 
     // Connect to live Colyseus Server room
     gameNetwork
-      .connect(authToken, charItem.id)
+      .connect(authToken, charItem.id, {
+        outfit: userChar.outfit,
+        outfitColors: userChar.outfitColors,
+        mount: userChar.mount,
+        mountActive: userChar.mountActive,
+      })
       .then(() => {
         setIsConnectedServer(true);
       })
@@ -585,20 +591,30 @@ function GamePrototypeContent() {
         ),
       },
     }));
+
+    // Broadcast outfit change to live Colyseus server so all remote players update instantly
+    gameNetwork.sendChangeOutfit(customization);
   }, []);
 
   const handleToggleMount = useCallback((characterId: string) => {
-    setGame((cur) => ({
-      ...cur,
-      session: {
-        ...cur.session,
-        characters: cur.session.characters.map((char) =>
-          char.id === characterId
-            ? { ...char, mountActive: !char.mountActive }
-            : char
-        ),
-      },
-    }));
+    let nextMountActive = false;
+    setGame((cur) => {
+      const target = cur.session.characters.find((c) => c.id === characterId);
+      if (target) nextMountActive = !target.mountActive;
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          characters: cur.session.characters.map((char) =>
+            char.id === characterId
+              ? { ...char, mountActive: !char.mountActive }
+              : char
+          ),
+        },
+      };
+    });
+
+    gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
   }, []);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
@@ -715,11 +731,13 @@ function GamePrototypeContent() {
       const dir = stepY < 0 ? 'north' : stepY > 0 ? 'south' : stepX < 0 ? 'west' : 'east';
 
       lastStepTimeRef.current = now;
-      gameNetwork.sendMove(dir);
 
       setCityPos((pos) => {
         const stairTarget = resolveStairsTransition(pos, stepX, stepY);
-        if (stairTarget) return stairTarget;
+        if (stairTarget) {
+          gameNetwork.sendMove(dir, { x: stairTarget.x, y: stairTarget.y, z: stairTarget.z });
+          return stairTarget;
+        }
 
         const nextX = pos.x + stepX;
         const nextY = pos.y + stepY;
@@ -729,6 +747,8 @@ function GamePrototypeContent() {
           setWalkingPath(null);
           return pos;
         }
+
+        gameNetwork.sendMove(dir, { x: nextX, y: nextY, z: pos.z });
 
         const isAtTarget = nextX === currentTarget.x && nextY === currentTarget.y;
         if (isAtTarget) {
@@ -991,16 +1011,20 @@ function GamePrototypeContent() {
     setIsTrainingAtDummy(false);
 
     const dir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
-    gameNetwork.sendMove(dir);
 
     setCityPos((current) => {
       const stairTarget = resolveStairsTransition(current, deltaX, deltaY);
-      if (stairTarget) return stairTarget;
+      if (stairTarget) {
+        gameNetwork.sendMove(dir, { x: stairTarget.x, y: stairTarget.y, z: stairTarget.z });
+        return stairTarget;
+      }
       const nextX = current.x + deltaX;
       const nextY = current.y + deltaY;
       const activeTileMap = current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
       const tile = activeTileMap.get(`${nextX},${nextY}`);
       if (!tile || !tile.walkable) return current;
+
+      gameNetwork.sendMove(dir, { x: nextX, y: nextY, z: current.z });
       return { x: nextX, y: nextY, z: current.z };
     });
   }, [thaisTileMapZ6, thaisTileMapZ7]);

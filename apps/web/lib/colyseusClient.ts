@@ -32,13 +32,18 @@ export function getColyseusClient(): Client {
   return colyseusClientInstance;
 }
 
-export async function joinGameRoom(token: string, characterId: string): Promise<Room<WorldState>> {
+export async function joinGameRoom(
+  token: string,
+  characterId: string,
+  options?: Record<string, any>
+): Promise<Room<WorldState>> {
   const client = getColyseusClient();
   const room = await client.joinOrCreate<WorldState>(
     'thais_city',
     {
       token,
       characterId,
+      ...options,
     },
     WorldState
   );

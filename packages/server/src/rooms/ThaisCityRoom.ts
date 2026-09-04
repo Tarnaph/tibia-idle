@@ -17,6 +17,10 @@ import {
 export interface JoinOptions {
   token?: string;
   characterId?: string;
+  outfit?: string;
+  outfitColors?: { head?: number; primary?: number; secondary?: number; detail?: number };
+  mount?: string;
+  mountActive?: boolean;
   mockCharacter?: {
     id: string;
     accountId: string;
@@ -43,8 +47,43 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.spawnInitialMonsters();
 
     // Message handlers
-    this.onMessage('move', (client, data: { direction: 'north' | 'south' | 'east' | 'west' }) => {
-      this.handlePlayerMove(client, data.direction);
+    this.onMessage('move', (client, data: { direction?: 'north' | 'south' | 'east' | 'west'; dir?: 'north' | 'south' | 'east' | 'west'; x?: number; y?: number; z?: number }) => {
+      const dir = data?.direction || data?.dir;
+      if (dir) {
+        this.handlePlayerMove(client, dir, data.x, data.y, data.z);
+      }
+    });
+
+    this.onMessage('changeOutfit', (client, data: {
+      outfit?: string;
+      lookType?: number;
+      outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+      head?: number;
+      body?: number;
+      legs?: number;
+      feet?: number;
+      addons?: number;
+      mount?: string;
+      mountActive?: boolean;
+    }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+      if (data.outfit) player.outfit = data.outfit;
+      if (data.lookType !== undefined) player.outfitLookType = data.lookType;
+      if (data.outfitColors) {
+        player.outfitHead = data.outfitColors.head;
+        player.outfitBody = data.outfitColors.primary;
+        player.outfitLegs = data.outfitColors.secondary;
+        player.outfitFeet = data.outfitColors.detail;
+      } else {
+        if (data.head !== undefined) player.outfitHead = data.head;
+        if (data.body !== undefined) player.outfitBody = data.body;
+        if (data.legs !== undefined) player.outfitLegs = data.legs;
+        if (data.feet !== undefined) player.outfitFeet = data.feet;
+      }
+      if (data.addons !== undefined) player.outfitAddons = data.addons;
+      if (data.mount !== undefined) player.mount = data.mount;
+      if (data.mountActive !== undefined) player.mountActive = data.mountActive;
     });
 
     this.onMessage('attack', (client, data: { targetId: string }) => {
@@ -86,6 +125,16 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     }
 
+    let outfitName = (options as any).outfit || 'Knight';
+    let outfitLookType = 128;
+    let outfitHead = 0;
+    let outfitBody = 0;
+    let outfitLegs = 0;
+    let outfitFeet = 0;
+    let outfitAddons = 0;
+    let mount = (options as any).mount || 'none';
+    let mountActive = Boolean((options as any).mountActive);
+
     if (options.characterId) {
       const dbChar = await persistenceManager.loadCharacter(options.characterId);
       if (dbChar) {
@@ -101,6 +150,11 @@ export class ThaisCityRoom extends Room<WorldState> {
         posX = dbChar.posX;
         posY = dbChar.posY;
         posZ = dbChar.posZ;
+        outfitLookType = dbChar.outfitLookType ?? 128;
+        outfitHead = dbChar.outfitHead ?? 0;
+        outfitBody = dbChar.outfitBody ?? 0;
+        outfitLegs = dbChar.outfitLegs ?? 0;
+        outfitFeet = dbChar.outfitFeet ?? 0;
       }
     } else if (options.mockCharacter) {
       charId = options.mockCharacter.id;
@@ -108,6 +162,16 @@ export class ThaisCityRoom extends Room<WorldState> {
       charName = options.mockCharacter.name;
       vocationId = options.mockCharacter.vocationId;
       level = options.mockCharacter.level;
+    }
+
+    if ((options as any).outfit) {
+      outfitName = (options as any).outfit;
+    }
+    if ((options as any).outfitColors) {
+      outfitHead = (options as any).outfitColors.head ?? outfitHead;
+      outfitBody = (options as any).outfitColors.primary ?? outfitBody;
+      outfitLegs = (options as any).outfitColors.secondary ?? outfitLegs;
+      outfitFeet = (options as any).outfitColors.detail ?? outfitFeet;
     }
 
     const safeVocationId = Number(vocationId) || 4;
@@ -135,6 +199,17 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.posY = posY ?? 32241;
     player.posZ = posZ ?? 7;
     player.direction = 'south';
+
+    // Set outfit state
+    player.outfit = outfitName;
+    player.outfitLookType = outfitLookType;
+    player.outfitHead = outfitHead;
+    player.outfitBody = outfitBody;
+    player.outfitLegs = outfitLegs;
+    player.outfitFeet = outfitFeet;
+    player.outfitAddons = outfitAddons;
+    player.mount = mount;
+    player.mountActive = mountActive;
 
     if (!this.clients.includes(client)) {
       (this.clients as any).push(client);
@@ -195,7 +270,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     return { players: playersInView, monsters: monstersInView };
   }
 
-  private handlePlayerMove(client: Client, direction: 'north' | 'south' | 'east' | 'west') {
+  private handlePlayerMove(client: Client, direction: 'north' | 'south' | 'east' | 'west', clientX?: number, clientY?: number, clientZ?: number) {
     const player = this.state.players.get(client.sessionId);
     if (!player) return;
 
@@ -212,8 +287,19 @@ export class ThaisCityRoom extends Room<WorldState> {
     if (direction === 'west') dx = -1;
     if (direction === 'east') dx = 1;
 
-    const targetX = player.posX + dx;
-    const targetY = player.posY + dy;
+    let targetX = player.posX + dx;
+    let targetY = player.posY + dy;
+    let targetZ = player.posZ;
+
+    // If client provided matching nearby coordinates, reconcile directly
+    if (typeof clientX === 'number' && typeof clientY === 'number') {
+      const dist = Math.hypot(clientX - player.posX, clientY - player.posY);
+      if (dist <= 2.5) {
+        targetX = clientX;
+        targetY = clientY;
+        if (typeof clientZ === 'number') targetZ = clientZ;
+      }
+    }
 
     // Boundary & Basic Wall Check for Thais Bounding Box
     if (targetX < 32280 || targetX > 32430 || targetY < 32170 || targetY > 32290) {
@@ -223,6 +309,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.direction = direction;
     player.posX = targetX;
     player.posY = targetY;
+    player.posZ = targetZ;
     player.isWalking = true;
     player.lastStepTime = now;
   }
@@ -406,8 +493,12 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.state.serverTick += 1;
     const now = Date.now();
 
-    // Player auto-attack & mana regen
+    // Player auto-attack & mana regen & movement idle reset
     this.state.players.forEach((player: PlayerState) => {
+      if (player.isWalking && now - player.lastStepTime > 350) {
+        player.isWalking = false;
+      }
+
       if (this.state.serverTick % 3 === 0 && player.mp < player.maxMp) {
         player.mp = Math.min(player.maxMp, player.mp + 1);
       }

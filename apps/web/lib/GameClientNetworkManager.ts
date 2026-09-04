@@ -17,12 +17,16 @@ export interface RemotePlayerSnapshot {
   direction: 'north' | 'south' | 'east' | 'west';
   isMoving: boolean;
   outfit: {
+    outfit?: string;
     lookType: number;
     lookHead: number;
     lookBody: number;
     lookLegs: number;
     lookFeet: number;
+    addons?: number;
   };
+  mount?: string;
+  mountActive?: boolean;
 }
 
 export interface NetworkCombatEvent {
@@ -62,8 +66,8 @@ export class GameClientNetworkManager {
     return this.room !== null;
   }
 
-  async connect(token: string, characterId: string): Promise<Room<any>> {
-    this.room = await joinGameRoom(token, characterId);
+  async connect(token: string, characterId: string, options?: Record<string, any>): Promise<Room<any>> {
+    this.room = await joinGameRoom(token, characterId, options);
     this.localPlayerId = this.room.sessionId;
     this.reconnectionToken = this.room.reconnectionToken || null;
 
@@ -163,6 +167,16 @@ export class GameClientNetworkManager {
 
   private updatePlayerSnapshot(key: string, player: any): void {
     if (!player) return;
+    const outfit = player.outfit || undefined;
+    const lookType = Number(player.outfitLookType ?? player.lookType ?? 128);
+    const head = Number(player.outfitHead ?? player.lookHead ?? 0);
+    const body = Number(player.outfitBody ?? player.lookBody ?? 0);
+    const legs = Number(player.outfitLegs ?? player.lookLegs ?? 0);
+    const feet = Number(player.outfitFeet ?? player.lookFeet ?? 0);
+    const addons = Number(player.outfitAddons ?? player.addons ?? 0);
+    const mount = player.mount || 'none';
+    const mountActive = Boolean(player.mountActive);
+
     this.playersMap.set(key, {
       id: key,
       characterId: player.characterId || player.id || key,
@@ -179,12 +193,16 @@ export class GameClientNetworkManager {
       direction: player.direction || 'south',
       isMoving: Boolean(player.isWalking ?? player.isMoving),
       outfit: {
-        lookType: player.lookType || 128,
-        lookHead: player.lookHead || 0,
-        lookBody: player.lookBody || 0,
-        lookLegs: player.lookLegs || 0,
-        lookFeet: player.lookFeet || 0,
+        outfit,
+        lookType,
+        lookHead: head,
+        lookBody: body,
+        lookLegs: legs,
+        lookFeet: feet,
+        addons,
       },
+      mount,
+      mountActive,
     });
   }
 
@@ -192,9 +210,27 @@ export class GameClientNetworkManager {
     this.stateListeners.forEach((fn) => fn(new Map(this.playersMap)));
   }
 
-  sendMove(direction: 'north' | 'south' | 'east' | 'west'): void {
+  sendMove(direction: 'north' | 'south' | 'east' | 'west', coords?: { x: number; y: number; z?: number }): void {
     if (!this.room) return;
-    this.room.send('move', { dir: direction });
+    this.room.send('move', {
+      direction,
+      dir: direction,
+      x: coords?.x,
+      y: coords?.y,
+      z: coords?.z,
+    });
+  }
+
+  sendChangeOutfit(customization: {
+    outfit?: string;
+    lookType?: number;
+    outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+    addons?: number;
+    mount?: string;
+    mountActive?: boolean;
+  }): void {
+    if (!this.room) return;
+    this.room.send('changeOutfit', customization);
   }
 
   sendCastSpell(spellId: string, targetId?: string): void {

@@ -600,6 +600,8 @@ export function ThaisCityArena({
         bar: InstanceType<typeof Graphics>;
         lastUrl: string;
         lastTextureKey?: string;
+        lastOutfitKey?: string;
+        lastColorsKey?: string;
         overheadSpeech?: InstanceType<typeof Container>;
         overheadSpeechText?: InstanceType<typeof Text>;
         speechExpiresAt?: number;
@@ -632,7 +634,10 @@ export function ThaisCityArena({
 
       function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number }; x?: number; y?: number }): CityActorView | null {
         let view = actorViews.get(char.id);
-        if (view) return view;
+        if (view) {
+          view.label.text = char.name;
+          return view;
+        }
 
         const idx = characters.findIndex((c) => c.id === char.id);
         if (idx >= 0) {
@@ -1015,7 +1020,7 @@ export function ThaisCityArena({
             if (key === myPlayerId || p.id === myPlayerId || (myCharId && (p.id === myCharId || p.characterId === myCharId))) return; // Skip rendering local player as remote
 
             const vocName = VOCATION_NAMES[p.vocationId] || 'Knight';
-            const outfitKey = p.outfit?.lookType ? (LOOKTYPE_MAP[p.outfit.lookType] || vocName) : vocName;
+            const outfitKey = p.outfit?.outfit || (p.outfit?.lookType ? (LOOKTYPE_MAP[p.outfit.lookType] || vocName) : vocName);
             const colors = p.outfit
               ? {
                   head: p.outfit.lookHead || 0,
@@ -1029,11 +1034,23 @@ export function ThaisCityArena({
               id: p.id,
               name: p.name,
               vocation: outfitKey,
+              outfit: outfitKey,
               outfitColors: colors,
+              mount: p.mount,
+              mountActive: p.mountActive,
               x: p.x,
               y: p.y,
             });
             if (!view) return;
+
+            const colorsKey = colors ? `${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}` : 'none';
+            if (view.lastOutfitKey !== outfitKey || view.lastColorsKey !== colorsKey) {
+              view.lastOutfitKey = outfitKey;
+              view.lastColorsKey = colorsKey;
+              if (colors) {
+                preloadOutfitAllFrames(outfitKey, 'male', colors).catch(() => {});
+              }
+            }
 
             const targetTile = { x: p.x ?? 32369, y: p.y ?? 32241, z: p.z ?? 7 };
             let rState = remoteMotionTracks.get(p.id);
@@ -1078,6 +1095,17 @@ export function ThaisCityArena({
                   view.lastTextureKey = textureKey;
                   view.lastUrl = 'canvas';
                   updated = true;
+                } else {
+                  preloadOutfitAllFrames(outfitKey, 'male', colors).then(() => {
+                    const readyCanvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors);
+                    if (readyCanvas && view.root && !view.root.destroyed) {
+                      const tex = Texture.from(readyCanvas);
+                      tex.source.style.scaleMode = 'nearest';
+                      view.sprite.texture = tex;
+                      view.lastTextureKey = textureKey;
+                      view.lastUrl = 'canvas';
+                    }
+                  }).catch(() => {});
                 }
               }
               if (!updated) {

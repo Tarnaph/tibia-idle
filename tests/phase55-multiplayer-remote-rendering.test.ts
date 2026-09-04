@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { RemotePlayerSnapshot } from '../apps/web/lib/GameClientNetworkManager';
+import { ThaisCityRoom } from '../packages/server/src';
 
 describe('Phase 55: Multiplayer Remote Player Synchronization & Position Persistence', () => {
   const localPlayerSessionId = 'session-player-1';
@@ -97,5 +98,59 @@ describe('Phase 55: Multiplayer Remote Player Synchronization & Position Persist
     expect(payload.posX).toBe(32350);
     expect(payload.posY).toBe(32225);
     expect(payload.posZ).toBe(7);
+  });
+
+  it('should update player position and direction in ThaisCityRoom when move packet is received', () => {
+    const room = new ThaisCityRoom();
+    room.onCreate({});
+
+    const client1: any = { sessionId: 'session-p1', send: () => {} };
+    room.onJoin(client1, { mockCharacter: { id: 'c1', accountId: 'a1', name: 'Astronis', vocationId: 1, level: 10 } });
+
+    const player = room.state.players.get('session-p1')!;
+    player.posX = 32369;
+    player.posY = 32241;
+    player.lastStepTime = 0;
+
+    // Simulate move north
+    (room as any).handlePlayerMove(client1, 'north', 32369, 32240, 7);
+
+    expect(player.posX).toBe(32369);
+    expect(player.posY).toBe(32240);
+    expect(player.direction).toBe('north');
+    expect(player.isWalking).toBe(true);
+  });
+
+  it('should synchronize outfit changes across players in ThaisCityRoom', () => {
+    const room = new ThaisCityRoom();
+    room.onCreate({});
+
+    const client1: any = { sessionId: 'session-p1', send: () => {} };
+    room.onJoin(client1, {
+      mockCharacter: { id: 'c1', accountId: 'a1', name: 'Sir Laron', vocationId: 4, level: 20 },
+      outfit: 'Knight',
+      outfitColors: { head: 10, primary: 20, secondary: 30, detail: 40 },
+    });
+
+    const player = room.state.players.get('session-p1')!;
+    expect(player.outfit).toBe('Knight');
+    expect(player.outfitHead).toBe(10);
+    expect(player.outfitBody).toBe(20);
+
+    // Now change outfit
+    const changeOutfitHandler = (room as any).onMessageHandlers['changeOutfit'];
+    expect(changeOutfitHandler).toBeDefined();
+    changeOutfitHandler(client1, {
+      outfit: 'Sire',
+      outfitColors: { head: 95, primary: 114, secondary: 86, detail: 0 },
+      mount: 'donkey',
+      mountActive: true,
+    });
+
+    expect(player.outfit).toBe('Sire');
+    expect(player.outfitHead).toBe(95);
+    expect(player.outfitBody).toBe(114);
+    expect(player.mount).toBe('donkey');
+    expect(player.mountActive).toBe(true);
   });
 });
