@@ -43,10 +43,19 @@ export function AuthModal({ mode, onMode, onClose }: AuthModalProps) {
 
     setSubmitting(true);
     try {
-      const result = isSignup
-        ? await auth.signUp(displayName.trim(), email.trim(), password)
-        : await auth.signIn(email.trim(), password);
-      if (result.message) setMessage(result.message);
+      const endpoint = isSignup ? '/api/auth/register' : '/api/auth/login';
+      const body = isSignup ? { email: email.trim(), password, name: displayName.trim() } : { email: email.trim(), password };
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = (await res.json()) as any;
+      if (!data.success) {
+        throw new Error(data.error || 'Falha ao autenticar.');
+      }
+      localStorage.setItem('colyseus_token', data.data.token);
+      window.location.href = '/game';
     } catch (error) {
       setMessage(authErrorMessage(error));
     } finally {
@@ -76,12 +85,6 @@ export function AuthModal({ mode, onMode, onClose }: AuthModalProps) {
         <h2 id="auth-title">{isSignup ? 'Criar conta' : 'Entrar no jogo'}</h2>
         <p className="auth-intro">{isSignup ? 'Crie sua conta para iniciar a expedição.' : 'Sua party está esperando por você.'}</p>
 
-        {!auth.configured && (
-          <div className="auth-notice" role="status">
-            Supabase ainda não está configurado neste ambiente. Preencha o arquivo <code>.env.local</code> para habilitar entradas reais.
-          </div>
-        )}
-
         <form className="auth-form" onSubmit={submit}>
           {isSignup && (
             <label>Nome<input name="displayName" autoComplete="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} required minLength={2} maxLength={40} /></label>
@@ -92,7 +95,7 @@ export function AuthModal({ mode, onMode, onClose }: AuthModalProps) {
             <label>Confirmar senha<input name="confirmPassword" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={6} /></label>
           )}
           {message && <p className="auth-message" role="alert">{message}</p>}
-          <button className="primary-button auth-submit" type="submit" disabled={submitting || !auth.configured}>
+          <button className="primary-button auth-submit" type="submit" disabled={submitting}>
             {submitting ? 'AGUARDE…' : isSignup ? 'CRIAR CONTA' : 'ENTRAR'}
           </button>
         </form>

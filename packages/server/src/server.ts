@@ -6,7 +6,7 @@ import { Server } from 'colyseus';
 import { createNodeMatchmakingMiddleware } from '@colyseus/core';
 import { monitor } from '@colyseus/monitor';
 import { WebSocketTransport } from '@colyseus/ws-transport';
-import { ThaisCityRoom } from './rooms/ThaisCityRoom';
+import { ThaisCityRoom } from './rooms/ThaisCityRoom.ts';
 
 export interface CreateGameServerOptions {
   port?: number;
