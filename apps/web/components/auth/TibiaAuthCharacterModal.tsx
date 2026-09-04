@@ -194,7 +194,8 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
         inset: 0,
         backgroundColor: 'rgba(5, 7, 10, 0.88)',
         backdropFilter: 'blur(6px)',
-        zIndex: 99999,
+        zIndex: 999999999,
+        pointerEvents: 'auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -537,51 +538,64 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '280px', overflowY: 'auto' }}>
-                  {characters.map((char) => (
-                    <div
-                      key={char.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '12px 16px',
-                        backgroundColor: '#11161d',
-                        border: '1px solid #2b3442',
-                        borderRadius: '4px',
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '14px' }}>{char.name}</div>
-                        <div style={{ fontSize: '11px', color: '#a09886', marginTop: '2px' }}>
-                          Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const currentToken = token || localStorage.getItem('colyseus_token') || '';
-                          const currentAccount = account || {
-                            id: char.id,
-                            email: '',
-                            displayName: char.name,
-                            role: 'PLAYER' as const,
-                          };
-                          onSelectCharacter(currentToken, char, currentAccount);
-                        }}
+                  {characters.map((char) => {
+                    const handleSelectThisChar = (e: React.MouseEvent) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('[TibiaAuthCharacterModal] Entrar no jogo clicado para:', char.name);
+                      const currentToken = token || localStorage.getItem('colyseus_token') || '';
+                      const currentAccount = account || {
+                        id: char.id,
+                        email: '',
+                        displayName: char.name,
+                        role: 'PLAYER' as const,
+                      };
+                      onSelectCharacter(currentToken, char, currentAccount);
+                    };
+
+                    return (
+                      <div
+                        key={char.id}
+                        onClick={handleSelectThisChar}
                         style={{
-                          padding: '8px 16px',
-                          background: 'linear-gradient(180deg, #ba8e54 0%, #7d5c2e 100%)',
-                          border: '1px solid #d4a843',
-                          color: '#fff',
-                          fontWeight: 'bold',
-                          fontSize: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px 16px',
+                          backgroundColor: '#11161d',
+                          border: '1px solid #2b3442',
                           borderRadius: '4px',
                           cursor: 'pointer',
+                          pointerEvents: 'auto',
+                          userSelect: 'none',
                         }}
                       >
-                        ENTRAR NO JOGO ⚔️
-                      </button>
-                    </div>
-                  ))}
+                        <div>
+                          <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '14px' }}>{char.name}</div>
+                          <div style={{ fontSize: '11px', color: '#a09886', marginTop: '2px' }}>
+                            Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSelectThisChar}
+                          style={{
+                            padding: '8px 16px',
+                            background: 'linear-gradient(180deg, #ba8e54 0%, #7d5c2e 100%)',
+                            border: '1px solid #d4a843',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            fontSize: '12px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            pointerEvents: 'auto',
+                          }}
+                        >
+                          ENTRAR NO JOGO ⚔️
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
