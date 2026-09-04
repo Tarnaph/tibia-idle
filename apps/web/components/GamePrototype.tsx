@@ -407,32 +407,54 @@ function GamePrototypeContent() {
     return () => window.clearInterval(timer);
   }, [mode, activeTrainingSkill]);
 
-  // Autonomous walking loop across coordinates in city
+  // Autonomous walking loop across coordinates in city with instant start cadence & network sync
   useEffect(() => {
     if (!walkingPath || walkingPath.waypoints.length === 0 || mode === 'hunt') return;
     const timer = window.setInterval(() => {
-      setCityPos((current) => {
-        if (!walkingPath || walkingPath.waypoints.length === 0) return current;
-        const index = walkingPath.currentIndex ?? 0;
-        const currentTarget = walkingPath.waypoints[index];
-        const dx = currentTarget.x - current.x;
-        const dy = currentTarget.y - current.y;
-        if (dx === 0 && dy === 0) {
-          if (index < walkingPath.waypoints.length - 1) {
-            setWalkingPath({
-              ...walkingPath,
-              currentIndex: index + 1,
-            });
-          } else {
-            walkingPath.onArrive?.();
-            setWalkingPath(null);
-          }
-          return { x: current.x, y: current.y, z: currentTarget.z ?? current.z };
+      const now = performance.now();
+      if (now - lastStepTimeRef.current < cityStepDurationMs) return;
+
+      const index = walkingPath.currentIndex ?? 0;
+      const currentTarget = walkingPath.waypoints[index];
+      if (!currentTarget) return;
+
+      const current = cityPos;
+      const dx = currentTarget.x - current.x;
+      const dy = currentTarget.y - current.y;
+
+      if (dx === 0 && dy === 0) {
+        if (index < walkingPath.waypoints.length - 1) {
+          setWalkingPath({
+            ...walkingPath,
+            currentIndex: index + 1,
+          });
+        } else {
+          walkingPath.onArrive?.();
+          setWalkingPath(null);
         }
-        const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
-        const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
-        const nextX = current.x + stepX;
-        const nextY = current.y + stepY;
+        return;
+      }
+
+      const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
+      const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
+      const dir = stepY < 0 ? 'north' : stepY > 0 ? 'south' : stepX < 0 ? 'west' : 'east';
+
+      lastStepTimeRef.current = now;
+      gameNetwork.sendMove(dir);
+
+      setCityPos((pos) => {
+        const stairTarget = resolveStairsTransition(pos, stepX, stepY);
+        if (stairTarget) return stairTarget;
+
+        const nextX = pos.x + stepX;
+        const nextY = pos.y + stepY;
+        const activeTileMap = pos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+        const tile = activeTileMap.get(`${nextX},${nextY}`);
+        if (!tile || !tile.walkable) {
+          setWalkingPath(null);
+          return pos;
+        }
+
         const isAtTarget = nextX === currentTarget.x && nextY === currentTarget.y;
         if (isAtTarget) {
           if (index < walkingPath.waypoints.length - 1) {
@@ -445,11 +467,11 @@ function GamePrototypeContent() {
             setWalkingPath(null);
           }
         }
-        return { x: nextX, y: nextY, z: isAtTarget ? currentTarget.z : current.z };
+        return { x: nextX, y: nextY, z: isAtTarget ? currentTarget.z : pos.z };
       });
-    }, cityStepDurationMs);
+    }, 16);
     return () => window.clearInterval(timer);
-  }, [walkingPath, mode, cityStepDurationMs]);
+  }, [walkingPath, mode, cityStepDurationMs, cityPos, thaisTileMapZ6, thaisTileMapZ7]);
 
   useEffect(() => {
     if (!statsDelta) return;
