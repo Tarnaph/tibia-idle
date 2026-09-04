@@ -58,6 +58,10 @@ export class GameClientNetworkManager {
   private localPlayerId: string | null = null;
   private reconnectionToken: string | null = null;
 
+  get IsConnected(): boolean {
+    return this.room !== null;
+  }
+
   async connect(token: string, characterId: string): Promise<Room<any>> {
     this.room = await joinGameRoom(token, characterId);
     this.localPlayerId = this.room.sessionId;
@@ -123,10 +127,6 @@ export class GameClientNetworkManager {
     });
 
     this.room.onMessage('chat_message', (msg: NetworkChatMessage) => {
-      this.chatListeners.forEach((fn) => fn(msg));
-    });
-
-    this.room.onMessage('chat', (msg: NetworkChatMessage) => {
       this.chatListeners.forEach((fn) => fn(msg));
     });
   }

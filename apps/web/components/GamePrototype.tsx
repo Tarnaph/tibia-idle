@@ -526,29 +526,31 @@ function GamePrototypeContent() {
   const lastStepTimeRef = useRef(0);
 
   const handleSendChatMessage = useCallback((text: string, channel: 'local' | 'world') => {
-    const msgId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const newMsg: ChatMessageItem = {
-      id: msgId,
-      senderName: activeCharacter.name,
-      channel,
-      text,
-      timestamp: Date.now(),
-    };
+    if (!gameNetwork.IsConnected) {
+      const msgId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const newMsg: ChatMessageItem = {
+        id: msgId,
+        senderName: activeCharacter.name,
+        channel,
+        text,
+        timestamp: Date.now(),
+      };
 
-    setChatMessages((prev) => [...prev.slice(-99), newMsg]);
-    gameNetwork.sendChat(text, channel);
-
-    if (mode !== 'hunt') {
-      setOverheadMessages((prev) => [
-        ...prev.slice(-20),
-        {
-          id: msgId,
-          senderName: activeCharacter.name,
-          text,
-          channel,
-          timestamp: Date.now(),
-        },
-      ]);
+      setChatMessages((prev) => [...prev.slice(-99), newMsg]);
+      if (mode !== 'hunt') {
+        setOverheadMessages((prev) => [
+          ...prev.slice(-20),
+          {
+            id: msgId,
+            senderName: activeCharacter.name,
+            text,
+            channel,
+            timestamp: Date.now(),
+          },
+        ]);
+      }
+    } else {
+      gameNetwork.sendChat(text, channel);
     }
   }, [activeCharacter.name, mode]);
 

@@ -315,7 +315,6 @@ export class ThaisCityRoom extends Room<WorldState> {
           timestamp,
         };
         c.send('chat_message', payload);
-        c.send('chat', payload);
       }
     });
   }
