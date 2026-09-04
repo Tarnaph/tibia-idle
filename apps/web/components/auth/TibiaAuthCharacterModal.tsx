@@ -892,9 +892,17 @@ function BardChromaVideo({
           const g = frame.data[i * 4 + 1];
           const b = frame.data[i * 4 + 2];
 
-          // Key out green background if green screen is present
-          if (g > 90 && g > r * 1.25 && g > b * 1.25) {
-            frame.data[i * 4 + 3] = 0; // Set Alpha to 0
+          const maxC = Math.max(r, g, b);
+
+          // Key out black / dark background around frame
+          if (maxC < 14) {
+            frame.data[i * 4 + 3] = 0;
+          } else if (maxC < 25) {
+            // Anti-aliased soft edge transition
+            frame.data[i * 4 + 3] = Math.floor(((maxC - 14) / 11) * 255);
+          } else if (g > 90 && g > r * 1.25 && g > b * 1.25) {
+            // Key out green background if green screen is present
+            frame.data[i * 4 + 3] = 0;
           }
         }
 
