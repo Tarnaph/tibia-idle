@@ -679,6 +679,28 @@ Plans:
 Plans:
 - [x] 42-01-PLAN: Desenvolver o menu de contexto de clique direito, modal clássico Select Outfit/Mounts, integração com CharacterState e atualização visual nas arenas.
 
+---
+
+### Phase 43: Layout Oficial Tibia 11 do Menu de Outfit & Montarias (Paridade com a Referência Visual)
+
+**Goal:** Redesenhar a janela modal `OutfitModal.tsx` para ter paridade pixel-perfect e estrutural com a imagem de referência oficial do Tibia 11: abas superiores `[ PERSONAGEM ]` e `[ OUTFIT ]`, coluna esquerda com checkboxes `[ ] Addon 1`, `[ ] Addon 2`, `[x] <Montaria>`, grande viewport de preview com botão circular de rotação `⟳`, 4 abas de partes do corpo (`[ Cabeça ]`, `[ Corpo ]`, `[ Pernas ]`, `[ Pés ]`), paleta oficial completa de cores em grade retangular (19x7), coluna direita com abas `[ Outfits ]` / `[ Montarias ]`, filtros `[ ] Mostrar só os adquiridos` e `Masculino / Feminino`, grid 4xN de cards com ícone de cada outfit/montaria, badge `Premium`, seleção com borda azul brilhante, seletor de herói da party integrado no título e botão `Salvar` no rodapé.  
+**Depends on:** Phase 42  
+**Requirements:** Imagem de referência fornecida pelo usuário, `OutfitModal.tsx`, `globals.css`, `types.ts`, `GamePrototype.tsx`.  
+**Success Criteria:**
+1. Janela modal idêntica à referência: estrutura em 2 colunas com proporção exata, borda steel-blue beveled e abas superiores `[ PERSONAGEM ]` e `[ OUTFIT ]`.
+2. Coluna esquerda contendo caixas estilizadas de Addon 1, Addon 2 e toggle da montaria (ex: `[x] Donkey` ou montaria selecionada).
+3. Caixa de preview ampla com botão circular `⟳` no canto inferior direito que rotaciona o personagem nos 4 sentidos (sul, leste, norte, oeste) a cada clique.
+4. Botões de partes do corpo `[ Cabeça ]`, `[ Corpo ]`, `[ Pernas ]`, `[ Pés ]` com a parte ativa destacada.
+5. Paleta autêntica do Tibia com matriz completa de cores (tons de cinza, arco-íris, terrosos e escuros), permitindo colorir cada parte do corpo individualmente.
+6. Coluna direita com abas `[ Outfits ]` e `[ Montarias ]`, filtro de adquiridos e seletor Masculino/Feminino.
+7. Grid de 4 colunas com todos os outfits (Citizen, Hunter, Mage, Knight, Noble, Summoner, Warrior, Barbarian, Druid, Sorcerer, Paladin, Sire, etc.) mostrando o sprite, nome e badge `Premium`.
+8. Seletor de personagem da party integrado para customizar qualquer um dos 4 membros do grupo.
+9. Botão `Salvar` no canto inferior direito que persiste todas as escolhas no personagem.
+10. 100% dos testes passando no Vitest e 0 erros de tipagem no TypeScript.
+
+Plans:
+- [x] 43-01-PLAN: Implementar o layout oficial de 2 colunas, grid 4xN de cards, paleta completa e controles idênticos à referência.
+
 
 
 

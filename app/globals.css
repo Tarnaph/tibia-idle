@@ -4705,533 +4705,613 @@ h1, h2, h3, p { margin: 0; }
   transform: scale(1.08);
 }
 
-.outfit-modal-backdrop {
+/* =========================================================================
+   TIBIA 11 AUTHENTIC OUTFIT & MOUNT CUSTOMIZATION WINDOW
+   Matches Official Client Layout: Personagem/Outfit, 19x7 Matrix, 4-Col Grid
+   ========================================================================= */
+
+.tibia-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(8, 11, 16, 0.82);
+  background: rgba(5, 8, 14, 0.78);
   backdrop-filter: blur(4px);
   z-index: 999999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  animation: outfitBackdropFade 0.2s ease-out;
+  padding: 12px;
+  animation: tibiaWindowFade 0.18s ease-out;
 }
 
-@keyframes outfitBackdropFade {
+@keyframes tibiaWindowFade {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-.outfit-modal-card {
-  width: 760px;
+.tibia-outfit-window {
+  width: 950px;
   max-width: 96vw;
-  max-height: 92vh;
-  background: #141822;
-  border: 2px solid #3d4a63;
-  border-radius: 6px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  max-height: 94vh;
+  background: #171b26;
+  border: 2px solid #283347;
+  border-radius: 4px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #d6ded8;
+  color: #cad5e8;
   font-family: inherit;
-  animation: outfitCardScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  animation: tibiaWindowZoom 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes outfitCardScale {
-  from { opacity: 0; transform: scale(0.96); }
+@keyframes tibiaWindowZoom {
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
 
-.outfit-modal-header {
-  padding: 12px 16px 8px;
-  background: linear-gradient(180deg, #1c2230 0%, #161a25 100%);
-  border-bottom: 1.5px solid #2d384c;
-}
-
-.outfit-header-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.outfit-header-icon {
-  font-size: 16px;
-}
-
-.outfit-modal-title {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #f3c766;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  flex: 1;
-}
-
-.outfit-close-btn {
-  background: transparent;
-  border: none;
-  color: #8c98ad;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 3px;
-  transition: all 0.15s ease;
-}
-
-.outfit-close-btn:hover {
-  color: #ff5b4d;
-  background: rgba(255, 91, 77, 0.12);
-}
-
-.outfit-modal-subtitle {
-  margin: 4px 0 10px;
-  font-size: 11px;
-  color: #8f9bb0;
-}
-
-/* 4-Party Character Selector Tabs */
-.outfit-character-tabs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.outfit-char-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 6px 10px;
-  background: #11151e;
-  border: 1px solid #263042;
-  border-radius: 4px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-  position: relative;
-}
-
-.outfit-char-tab:hover {
-  background: #19202c;
-  border-color: #3b4961;
-}
-
-.outfit-char-tab.active {
-  background: #1c2433;
-  border-color: #f3c766;
-  box-shadow: 0 0 10px rgba(243, 199, 102, 0.18), inset 0 0 8px rgba(243, 199, 102, 0.08);
-}
-
-.char-tab-name {
-  font-size: 11px;
-  font-weight: 700;
-  color: #e4ecf7;
-}
-
-.outfit-char-tab.active .char-tab-name {
-  color: #ffd875;
-}
-
-.char-tab-voc {
-  font-size: 9.5px;
-  color: #7b889e;
-  margin-top: 1px;
-}
-
-.char-tab-badge {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  font-size: 8px;
-  color: #55e683;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-/* Tab Switcher: Outfits vs Montarias */
-.outfit-main-tabs {
-  display: flex;
-  gap: 4px;
-  padding: 8px 16px 0;
-  background: #12161f;
-  border-bottom: 1px solid #263042;
-}
-
-.outfit-tab-btn {
-  background: transparent;
-  border: 1px solid transparent;
-  border-bottom: none;
-  border-radius: 4px 4px 0 0;
-  padding: 6px 16px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #8c98ad;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.outfit-tab-btn:hover {
-  color: #cad5e8;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.outfit-tab-btn.active {
-  background: #181d28;
-  border-color: #334057;
-  color: #f3c766;
-  border-bottom: 2px solid #f3c766;
-  margin-bottom: -1px;
-}
-
-/* Modal Body */
-.outfit-modal-body {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 14px;
-  padding: 14px 16px;
-  overflow-y: auto;
-  background: #161b25;
-}
-
-/* Left Column: Stage & Colors */
-.outfit-stage-column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.outfit-preview-stage {
-  height: 160px;
-  background: radial-gradient(circle at 50% 60%, #1f2736 0%, #0d1117 75%);
-  border: 1.5px solid #2d384c;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
-}
-
-.outfit-pedestal {
-  position: absolute;
-  bottom: 20px;
-  width: 100px;
-  height: 24px;
-  background: radial-gradient(ellipse at 50% 50%, rgba(93, 114, 153, 0.35) 0%, rgba(13, 17, 23, 0) 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.outfit-preview-sprite {
-  width: 64px;
-  height: 64px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
-  position: relative;
-  z-index: 2;
-  transition: transform 0.1s ease;
-}
-
-.outfit-rotate-controls {
+/* Title Bar */
+.tibia-window-titlebar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #11141c;
-  border: 1px solid #273142;
-  border-radius: 4px;
-  padding: 4px 8px;
+  padding: 7px 12px;
+  background: linear-gradient(180deg, #1d2331 0%, #161a25 100%);
+  border-bottom: 1px solid #232d3f;
 }
 
-.outfit-rotate-btn {
-  background: #1d2533;
-  border: 1px solid #3d4a63;
-  color: #f3c766;
-  font-size: 14px;
-  font-weight: bold;
-  width: 28px;
-  height: 24px;
-  border-radius: 3px;
-  cursor: pointer;
+.tibia-titlebar-left {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.12s ease;
-}
-
-.outfit-rotate-btn:hover {
-  background: #273347;
-  border-color: #f3c766;
-}
-
-.outfit-rotate-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #cad5e8;
-}
-
-/* Addons Checkboxes */
-.outfit-addons-group {
-  display: flex;
-  gap: 12px;
-  background: #11141c;
-  border: 1px solid #273142;
-  border-radius: 4px;
-  padding: 6px 10px;
-}
-
-.outfit-addon-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
-  color: #cad5e8;
-  cursor: pointer;
-}
-
-.outfit-addon-checkbox input {
-  accent-color: #f3c766;
-  cursor: pointer;
-}
-
-/* Color Swatches */
-.outfit-colors-group {
-  background: #11141c;
-  border: 1px solid #273142;
-  border-radius: 4px;
-  padding: 8px 10px;
-}
-
-.outfit-part-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 3px;
-  margin-bottom: 8px;
-}
-
-.outfit-part-btn {
-  background: #171c26;
-  border: 1px solid #293447;
-  border-radius: 3px;
-  padding: 3px 0;
-  font-size: 9.5px;
-  font-weight: 600;
-  color: #8c98ad;
-  cursor: pointer;
-}
-
-.outfit-part-btn.active {
-  background: #242e40;
-  border-color: #f3c766;
-  color: #f3c766;
-}
-
-.outfit-color-palette {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
-}
-
-.outfit-color-swatch {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  position: relative;
-  transition: transform 0.1s ease;
-}
-
-.outfit-color-swatch:hover {
-  transform: scale(1.15);
-  z-index: 2;
-}
-
-.outfit-color-swatch.active {
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
-  transform: scale(1.12);
-  z-index: 3;
-}
-
-/* Right Column: Outfits / Mounts List */
-.outfit-list-column {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
-.outfit-list-header {
-  font-size: 11px;
+.tibia-titlebar-title {
+  font-size: 13.5px;
   font-weight: 700;
-  color: #f3c766;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding-bottom: 2px;
-  border-bottom: 1px solid #273142;
+  color: #ffffff;
+  letter-spacing: 0.03em;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
-.outfit-list-scroll {
+.tibia-titlebar-nav-btn {
+  background: #12151e;
+  border: 1px solid #2d384c;
+  color: #8c9eb5;
+  border-radius: 3px;
+  font-size: 9.5px;
+  padding: 1px 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.tibia-titlebar-nav-btn:hover {
+  background: #1c2436;
+  color: #ffffff;
+  border-color: #4a88e8;
+}
+
+.tibia-titlebar-hint {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tibia-window-close-btn {
+  width: 20px;
+  height: 20px;
+  background: #131722;
+  border: 1px solid #2a3548;
+  border-radius: 3px;
+  color: #8c9eb5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tibia-window-close-btn:hover {
+  background: #7f1d1d;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+/* Top Navigation Tabs: PERSONAGEM / OUTFIT */
+.tibia-top-nav-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 8px 12px 6px;
+  background: #12151e;
+  border-bottom: 1px solid #232d3f;
+}
+
+.tibia-top-nav-tab {
+  height: 32px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+  background: #141822;
+  border: 1px solid #232d3f;
+  color: #7d8ea6;
+}
+
+.tibia-top-nav-tab:hover:not(.active) {
+  background: #19202c;
+  color: #cad5e8;
+  border-color: #33435c;
+}
+
+.tibia-top-nav-tab.active {
+  background: linear-gradient(180deg, #1d2638 0%, #151b29 100%);
+  border: 1.5px solid #4a88e8;
+  color: #ffffff;
+  box-shadow: inset 0 0 8px rgba(74, 136, 232, 0.35), 0 0 6px rgba(74, 136, 232, 0.2);
+}
+
+/* Window Content Body */
+.tibia-outfit-content {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 12px;
+  padding: 12px;
+  background: #161a25;
+  overflow-y: auto;
+}
+
+/* Left Column */
+.tibia-outfit-left-col {
   display: flex;
   flex-direction: column;
+  gap: 7px;
+}
+
+.tibia-beveled-check-box {
+  background: #10131c;
+  border: 1px solid #222a3a;
+  border-radius: 3px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.12s ease;
+}
+
+.tibia-beveled-check-box:hover {
+  border-color: #324058;
+}
+
+.tibia-check-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #8c9eb5;
+  cursor: pointer;
+  width: 100%;
+}
+
+.tibia-check-label:hover {
+  color: #e2e8f0;
+}
+
+.tibia-custom-checkbox {
+  width: 14px;
+  height: 14px;
+  accent-color: #4a88e8;
+  cursor: pointer;
+}
+
+/* Large Inset Preview Box */
+.tibia-preview-box {
+  height: 250px;
+  background: radial-gradient(circle at 50% 50%, #2f384d 0%, #151924 75%);
+  border: 1px solid #273347;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.65);
+}
+
+.tibia-preview-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.tibia-preview-sprite {
+  image-rendering: pixelated;
+  transform: scale(2.4);
+  transform-origin: center center;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
+  transition: transform 0.12s ease;
+}
+
+.tibia-preview-sprite.mounted {
+  transform: scale(1.0);
+  max-width: 88%;
+  max-height: 88%;
+  object-fit: contain;
+}
+
+.tibia-preview-empty {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.tibia-rotate-corner-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #171d29;
+  border: 1px solid #303f56;
+  color: #8c9eb5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+  transition: all 0.12s ease;
+}
+
+.tibia-rotate-corner-btn:hover {
+  background: #232c3d;
+  border-color: #4a88e8;
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(74, 136, 232, 0.5);
+}
+
+/* 4 Body Part Tabs */
+.tibia-body-part-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.tibia-body-part-tab {
+  background: #12151e;
+  border: 1px solid #232d3f;
+  color: #8c9eb5;
+  padding: 6px 0;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s ease;
+}
+
+.tibia-body-part-tab:hover:not(.active) {
+  background: #181d29;
+  color: #cbd5e1;
+  border-color: #313f56;
+}
+
+.tibia-body-part-tab.active {
+  background: #1c2436;
+  border: 1.5px solid #4a88e8;
+  color: #ffffff;
+  box-shadow: inset 0 0 6px rgba(74, 136, 232, 0.35);
+}
+
+/* 19x7 Color Palette Matrix */
+.tibia-palette-container {
+  display: flex;
+  gap: 5px;
+  background: #0f121a;
+  border: 1px solid #202736;
+  border-radius: 3px;
+  padding: 6px;
+}
+
+.tibia-palette-active-indicator {
+  width: 9px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+  transition: background-color 0.12s ease;
+}
+
+.tibia-palette-matrix-19x7 {
+  display: grid;
+  grid-template-columns: repeat(19, 1fr);
+  gap: 2px;
+  flex: 1;
+}
+
+.tibia-palette-cell {
+  aspect-ratio: 1;
+  min-width: 11px;
+  min-height: 11px;
+  border: 1px solid rgba(0, 0, 0, 0.45);
+  border-radius: 1px;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.08s ease;
+}
+
+.tibia-palette-cell:hover {
+  transform: scale(1.25);
+  z-index: 2;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+}
+
+.tibia-palette-cell.active {
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 6px #ffffff, inset 0 0 2px #000000;
+  transform: scale(1.18);
+  z-index: 3;
+}
+
+/* Right Column */
+.tibia-outfit-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow: hidden;
+}
+
+/* Sub-tabs: Outfits vs Montarias */
+.tibia-subnav-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.tibia-subnav-tab {
+  height: 29px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  background: #11141c;
+  border: 1px solid #202736;
+  color: #7d8ea6;
+}
+
+.tibia-subnav-tab:hover:not(.active) {
+  background: #171d29;
+  color: #cad5e8;
+  border-color: #313f56;
+}
+
+.tibia-subnav-tab.active {
+  background: #1a2233;
+  border: 1.5px solid #4a88e8;
+  color: #ffffff;
+  box-shadow: inset 0 0 8px rgba(74, 136, 232, 0.3);
+}
+
+/* Filter Bar: Checkbox + Male/Female Radio */
+.tibia-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #10131c;
+  border: 1px solid #202736;
+  border-radius: 3px;
+  padding: 5px 12px;
+}
+
+.tibia-filter-check-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: #8c9eb5;
+  cursor: pointer;
+}
+
+.tibia-filter-check-label:hover {
+  color: #cbd5e1;
+}
+
+.tibia-gender-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tibia-gender-label {
+  display: flex;
+  align-items: center;
   gap: 6px;
-  max-height: 320px;
+  font-size: 11px;
+  color: #8c9eb5;
+  cursor: pointer;
+}
+
+.tibia-gender-label:hover {
+  color: #e2e8f0;
+}
+
+.tibia-custom-radio {
+  width: 13px;
+  height: 13px;
+  accent-color: #4a88e8;
+  cursor: pointer;
+}
+
+/* 4-Column Card Grid */
+.tibia-cards-scroll-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  max-height: 385px;
   overflow-y: auto;
   padding-right: 4px;
 }
 
-.outfit-item-card {
+/* Custom Scrollbar */
+.tibia-cards-scroll-grid::-webkit-scrollbar {
+  width: 8px;
+}
+.tibia-cards-scroll-grid::-webkit-scrollbar-track {
+  background: #0f121a;
+  border: 1px solid #1c2433;
+  border-radius: 2px;
+}
+.tibia-cards-scroll-grid::-webkit-scrollbar-thumb {
+  background: #252f42;
+  border: 1px solid #374661;
+  border-radius: 2px;
+}
+.tibia-cards-scroll-grid::-webkit-scrollbar-thumb:hover {
+  background: #33425c;
+  border-color: #4a88e8;
+}
+
+/* Card Item */
+.tibia-card-item {
+  background: #12151f;
+  border: 1px solid #222b3d;
+  border-radius: 3px;
+  padding: 8px 6px;
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 12px;
-  background: #12151d;
-  border: 1px solid #273142;
-  border-radius: 4px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
+  min-height: 110px;
 }
 
-.outfit-item-card:hover {
-  background: #1a202c;
-  border-color: #3f4e6b;
+.tibia-card-item:hover {
+  background: #161c29;
+  border-color: #364660;
 }
 
-.outfit-item-card.active {
-  background: #1c2433;
-  border-color: #f3c766;
-  box-shadow: 0 0 8px rgba(243, 199, 102, 0.15);
+.tibia-card-item.active {
+  background: #192233;
+  border: 1.5px solid #4a88e8;
+  box-shadow: 0 0 10px rgba(74, 136, 232, 0.45), inset 0 0 8px rgba(74, 136, 232, 0.25);
 }
 
-.outfit-card-info {
-  flex: 1;
-}
-
-.outfit-card-name-row {
+.tibia-card-sprite-wrap {
+  height: 58px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 4px;
 }
 
-.outfit-card-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: #e4ecf7;
+.tibia-card-sprite {
+  max-height: 54px;
+  max-width: 54px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 
-.outfit-item-card.active .outfit-card-name {
-  color: #ffd875;
+.tibia-card-sprite.mount-sprite {
+  max-height: 50px;
+  max-width: 68px;
 }
 
-.outfit-custom-badge {
-  background: rgba(182, 108, 255, 0.2);
-  border: 1px solid #9e58e6;
-  color: #d69eff;
-  font-size: 8.5px;
-  font-weight: 700;
-  padding: 1px 4px;
-  border-radius: 3px;
-  letter-spacing: 0.04em;
-}
-
-.outfit-speed-badge {
-  background: rgba(85, 230, 131, 0.15);
-  border: 1px solid #48c774;
-  color: #69df82;
-  font-size: 8.5px;
-  font-weight: 700;
-  padding: 1px 4px;
-  border-radius: 3px;
-}
-
-.outfit-card-desc {
-  font-size: 10px;
-  color: #8895ab;
-  margin-top: 2px;
-  line-height: 1.3;
-}
-
-.outfit-mount-toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #11141c;
-  border: 1px solid #273142;
-  border-radius: 4px;
-  padding: 8px 12px;
-  margin-bottom: 6px;
-}
-
-.outfit-mount-toggle-btn {
-  background: #242e40;
-  border: 1px solid #3d4a63;
-  color: #cad5e8;
-  padding: 4px 10px;
-  font-size: 10.5px;
+.tibia-card-name {
+  font-size: 11px;
   font-weight: 600;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  color: #e2e8f0;
+  text-align: center;
+  margin-top: 2px;
 }
 
-.outfit-mount-toggle-btn.active {
-  background: rgba(85, 230, 131, 0.2);
-  border-color: #48c774;
-  color: #69df82;
+.tibia-card-item.active .tibia-card-name {
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(74, 136, 232, 0.7);
 }
 
-/* Modal Footer */
-.outfit-modal-footer {
-  padding: 10px 16px;
-  background: linear-gradient(180deg, #161a25 0%, #12151e 100%);
-  border-top: 1.5px solid #2d384c;
+.tibia-card-badge-premium {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #ffd759;
+  margin-top: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.tibia-card-badge-custom {
+  font-size: 9px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tibia-card-badge-free {
+  font-size: 9.5px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Window Footer */
+.tibia-window-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  padding: 8px 14px;
+  background: #12151e;
+  border-top: 1px solid #232d3f;
 }
 
-.outfit-btn-cancel {
-  background: #1f2533;
-  border: 1px solid #374257;
-  color: #9eaabf;
-  padding: 6px 16px;
-  font-size: 11px;
+.tibia-footer-btn-cancel {
+  background: #161c28;
+  border: 1px solid #2c394f;
+  color: #8c9eb5;
+  padding: 6px 18px;
+  font-size: 11.5px;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
-.outfit-btn-cancel:hover {
-  background: #283042;
-  color: #cad5e8;
+.tibia-footer-btn-cancel:hover {
+  background: #1e2638;
+  color: #cbd5e1;
+  border-color: #3c4d6a;
 }
 
-.outfit-btn-confirm {
-  background: linear-gradient(180deg, #b88d37 0%, #85611c 100%);
-  border: 1.5px solid #f3c766;
+.tibia-footer-btn-save {
+  background: linear-gradient(180deg, #242e42 0%, #171d2b 100%);
+  border: 1px solid #3c4f72;
   color: #ffffff;
-  padding: 6px 20px;
-  font-size: 11px;
+  padding: 6px 30px;
+  font-size: 11.5px;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: all 0.12s ease;
 }
 
-.outfit-btn-confirm:hover {
-  background: linear-gradient(180deg, #caa042 0%, #997223 100%);
-  box-shadow: 0 0 12px rgba(243, 199, 102, 0.35);
+.tibia-footer-btn-save:hover {
+  background: linear-gradient(180deg, #2d3a54 0%, #1d2537 100%);
+  border-color: #4a88e8;
+  box-shadow: 0 0 10px rgba(74, 136, 232, 0.4);
   transform: translateY(-1px);
 }
+
 
 
 
