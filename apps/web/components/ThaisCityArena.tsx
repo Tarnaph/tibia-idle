@@ -8,7 +8,15 @@ import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@
 import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
-import { getRecoloredCanvasSync, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
+import { getRecoloredCanvasSync, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
+
+export interface CityOverheadMessage {
+  id: string;
+  senderName: string;
+  text: string;
+  channel: 'local' | 'world';
+  timestamp: number;
+}
 
 export interface AmbientCityPlayer {
   id: string;
@@ -130,6 +138,7 @@ interface Props {
   debug?: boolean;
   remotePlayers?: Map<string, any>;
   localPlayerId?: string | null;
+  overheadMessages?: CityOverheadMessage[];
 }
 
 const visualAssets = visualAssetsJson as Tibia860AssetManifest;
@@ -170,14 +179,15 @@ export function ThaisCityArena({
   debug = false,
   remotePlayers,
   localPlayerId,
+  overheadMessages,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
-  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId });
+  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId, overheadMessages });
 
   useEffect(() => {
-    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId };
-  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId]);
+    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId, overheadMessages };
+  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId, overheadMessages]);
 
 
   useEffect(() => {
@@ -601,8 +611,13 @@ export function ThaisCityArena({
         label: InstanceType<typeof Text>;
         bar: InstanceType<typeof Graphics>;
         lastUrl: string;
+        lastTextureKey?: string;
+        overheadSpeech?: InstanceType<typeof Container>;
+        overheadSpeechText?: InstanceType<typeof Text>;
+        speechExpiresAt?: number;
       }
       const actorViews = new Map<string, CityActorView>();
+      const processedSpeechIds = new Set<string>();
 
       function getOutfitFrameUrl(vocationOrOutfit: string, direction: string, frame: number): string {
         const normKey = vocationOrOutfit.includes('Sire')
@@ -630,6 +645,10 @@ export function ThaisCityArena({
       function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number } }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) return view;
+
+        if (char.outfitColors) {
+          preloadOutfitAllFrames(char.outfit || char.vocation, char.gender || 'male', char.outfitColors).catch(() => {});
+        }
 
         const isMounted = Boolean(char.mountActive && char.mount && char.mount !== 'none');
         const mountUrl = (char.mount === 'donkey' || char.mount === 'Donkey')
@@ -762,17 +781,22 @@ export function ThaisCityArena({
             const outfitKey = char.outfit || char.vocation || 'Knight';
             const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
             const charGender = char.gender === 'female' ? 'female' : 'male';
-            const canvas = getRecoloredCanvasSync(outfitKey, charGender, playerDirection as any, walkFrame, colors);
-            if (canvas) {
-              const tex = Texture.from(canvas);
-              tex.source.style.scaleMode = 'nearest';
-              view.sprite.texture = tex;
-              view.lastUrl = 'canvas';
-            } else {
-              const nextUrl = getOutfitFrameUrl(outfitKey, playerDirection, walkFrame);
-              if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
-                view.sprite.texture = loaded[nextUrl];
-                view.lastUrl = nextUrl;
+            const textureKey = `${outfitKey}_${charGender}_${playerDirection}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+            if (view.lastTextureKey !== textureKey) {
+              const canvas = getRecoloredCanvasSync(outfitKey, charGender, playerDirection as any, walkFrame, colors);
+              if (canvas) {
+                const tex = Texture.from(canvas);
+                tex.source.style.scaleMode = 'nearest';
+                view.sprite.texture = tex;
+                view.lastTextureKey = textureKey;
+                view.lastUrl = 'canvas';
+              } else if (!char.outfitColors) {
+                const nextUrl = getOutfitFrameUrl(outfitKey, playerDirection, walkFrame);
+                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                  view.sprite.texture = loaded[nextUrl];
+                  view.lastUrl = nextUrl;
+                  view.lastTextureKey = nextUrl;
+                }
               }
             }
           }
@@ -862,6 +886,91 @@ export function ThaisCityArena({
               .fill({ color: 0x4fc977 });
           });
         }
+
+        // 7. Update overhead speech messages in city (Yellow for local, Blue for world)
+        const speeches = latestRef.current.overheadMessages;
+        if (speeches && speeches.length > 0) {
+          for (const sp of speeches) {
+            if (processedSpeechIds.has(sp.id)) continue;
+            processedSpeechIds.add(sp.id);
+
+            let targetView: CityActorView | null = null;
+            const myLeader = curChars[0];
+            if (myLeader && (sp.senderName === myLeader.name || sp.senderName === 'Você' || sp.senderName === '')) {
+              targetView = ensureActorView(myLeader);
+            } else {
+              const matchedChar = curChars.find((c) => c.name.toLowerCase() === sp.senderName.toLowerCase());
+              if (matchedChar) {
+                targetView = ensureActorView(matchedChar);
+              } else {
+                const matchedAmbient = AMBIENT_THAIS_PLAYERS.find((a) => a.name.toLowerCase() === sp.senderName.toLowerCase());
+                if (matchedAmbient) {
+                  targetView = ensureActorView(matchedAmbient);
+                } else if (remotes) {
+                  for (const [, rp] of remotes.entries()) {
+                    if (rp.name?.toLowerCase() === sp.senderName.toLowerCase()) {
+                      const vocName = VOCATION_NAMES[rp.vocationId] || 'Knight';
+                      targetView = ensureActorView({ id: rp.id, name: rp.name, vocation: vocName });
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+
+            if (targetView) {
+              if (!targetView.overheadSpeech) {
+                const speechContainer = new Container();
+                const speechText = new Text({
+                  text: '',
+                  resolution: 2,
+                  style: {
+                    fill: 0xffff00,
+                    stroke: { color: 0x08120a, width: 2.5 },
+                    fontSize: 8.5,
+                    fontFamily: 'Arial',
+                    fontWeight: '700',
+                    align: 'center',
+                    wordWrap: true,
+                    wordWrapWidth: 160,
+                  },
+                });
+                speechText.anchor.set(0.5, 1);
+                speechText.roundPixels = true;
+                speechText.position.set(0, creatureVisualLayout.nameplateY - 6);
+                speechContainer.addChild(speechText);
+                targetView.root.addChild(speechContainer);
+                targetView.overheadSpeech = speechContainer;
+                targetView.overheadSpeechText = speechText;
+              }
+
+              const isLocal = sp.channel === 'local';
+              if (targetView.overheadSpeechText && targetView.overheadSpeech) {
+                targetView.overheadSpeechText.text = sp.text;
+                // Yellow for local, Blue for world
+                targetView.overheadSpeechText.style.fill = isLocal ? 0xffff00 : 0x55ffff;
+                targetView.overheadSpeech.visible = true;
+                targetView.overheadSpeech.alpha = 1;
+                targetView.speechExpiresAt = now + 4800;
+              }
+            }
+          }
+        }
+
+        // Manage speech fadeout & expiration
+        actorViews.forEach((v) => {
+          if (v.overheadSpeech && v.speechExpiresAt) {
+            const remaining = v.speechExpiresAt - now;
+            if (remaining <= 0) {
+              v.overheadSpeech.visible = false;
+              v.speechExpiresAt = undefined;
+            } else if (remaining < 600) {
+              v.overheadSpeech.alpha = remaining / 600;
+            } else {
+              v.overheadSpeech.alpha = 1;
+            }
+          }
+        });
       });
 
       cleanup = () => {

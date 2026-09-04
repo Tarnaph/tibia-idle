@@ -22,8 +22,9 @@ describe('Phase 40: Velocidade Normal na Cidade, Bloqueio Estrito de Paredes e Ã
     const projectRoot = resolve(__dirname, '..');
     const protoSrc = readFileSync(resolve(projectRoot, 'apps/web/components/GamePrototype.tsx'), 'utf8');
 
-    // cityStepDurationMs is set to baseStepDurationMs
-    expect(protoSrc).toContain('const cityStepDurationMs = baseStepDurationMs;');
+    // cityStepDurationMs includes the +100 city speed bonus requested in FIX.md
+    expect(protoSrc).toContain('const cityStepDurationMs = calculateStepDurationMs(cityPlayerSpeed);');
+    expect(protoSrc).toContain('const citySpeedBonus = 100;');
     expect(protoSrc).toContain('lastStepTimeRef');
     expect(protoSrc).toContain('now - lastStepTimeRef.current >= cityStepDurationMs');
   });

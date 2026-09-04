@@ -200,8 +200,8 @@ export class ThaisCityRoom extends Room<WorldState> {
     if (!player) return;
 
     const now = Date.now();
-    // Validate step cooldown (minimum 150ms between steps)
-    if (now - player.lastStepTime < 150) {
+    // Validate step cooldown (minimum 100ms between steps for city speed bonus)
+    if (now - player.lastStepTime < 100) {
       return; // Anti-speedhack
     }
 
@@ -267,7 +267,11 @@ export class ThaisCityRoom extends Room<WorldState> {
     const player = this.state.players.get(client.sessionId);
     if (!player || !rawText.trim()) return;
 
-    const text = channel === 'yell' ? rawText.trim().toUpperCase() : rawText.trim();
+    const normalizedChannel =
+      channel === 'world' || channel === 'global' ? 'world' :
+      channel === 'yell' ? 'yell' : 'local';
+
+    const text = normalizedChannel === 'yell' ? rawText.trim().toUpperCase() : rawText.trim();
     const timestamp = Date.now();
 
     const msg = new ChatMessageSchema();
@@ -275,7 +279,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     msg.senderId = client.sessionId;
     msg.senderName = player.name;
     msg.text = text;
-    msg.channel = channel;
+    msg.channel = normalizedChannel;
     msg.timestamp = timestamp;
 
     this.state.chatMessages.push(msg);
@@ -291,24 +295,27 @@ export class ThaisCityRoom extends Room<WorldState> {
       if (!recipient) return;
 
       let canReceive = false;
-      if (channel === 'global') {
+      if (normalizedChannel === 'world') {
         canReceive = true;
-      } else if (channel === 'say') {
+      } else if (normalizedChannel === 'local') {
         canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, LOCAL_CHAT_RADIUS);
-      } else if (channel === 'yell') {
+      } else if (normalizedChannel === 'yell') {
         canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, YELL_CHAT_RADIUS);
       } else {
         canReceive = true;
       }
 
       if (canReceive && typeof c.send === 'function') {
-        c.send('chat', {
+        const payload = {
+          id: msg.id,
           senderId: client.sessionId,
           senderName: player.name,
           text,
-          channel,
+          channel: normalizedChannel,
           timestamp,
-        });
+        };
+        c.send('chat_message', payload);
+        c.send('chat', payload);
       }
     });
   }

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-export type WindowId = 'character' | 'equipment' | 'party' | 'hunt' | 'metrics' | 'logs';
+export type WindowId = 'character' | 'equipment' | 'party' | 'hunt' | 'metrics' | 'logs' | 'chat';
 
 export interface WindowState {
   id: WindowId;
@@ -93,6 +93,16 @@ function getDefaultWindows(viewportWidth = 1280, viewportHeight = 720): Record<W
       isOpen: true,
       isMinimized: false,
       zIndex: 15,
+    },
+    chat: {
+      id: 'chat',
+      title: 'Chat',
+      x: 20,
+      y: Math.max(100, h - 340),
+      width: 380,
+      isOpen: true,
+      isMinimized: false,
+      zIndex: 16,
     },
   };
 }

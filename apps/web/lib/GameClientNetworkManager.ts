@@ -124,6 +124,10 @@ export class GameClientNetworkManager {
     this.room.onMessage('chat_message', (msg: NetworkChatMessage) => {
       this.chatListeners.forEach((fn) => fn(msg));
     });
+
+    this.room.onMessage('chat', (msg: NetworkChatMessage) => {
+      this.chatListeners.forEach((fn) => fn(msg));
+    });
   }
 
   disconnect(): void {

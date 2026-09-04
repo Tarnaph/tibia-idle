@@ -487,15 +487,18 @@ export function PixiArena({ game, debug, onSelectTarget, onCharacterContextMenu 
               const charGender = character.gender === 'female' ? 'female' : 'male';
               const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
               const walkFrame = sample.moving ? Math.floor(framePhase * 3) : 0;
-              const canvas = getRecoloredCanvasSync(outfitKey, charGender, sample.direction, walkFrame, colors);
-              if (canvas) {
-                const tex = Texture.from(canvas);
-                tex.source.style.scaleMode = 'nearest';
-                view.sprite.texture = tex;
-                view.lastFrameUrl = 'canvas';
-              } else {
-                const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
-                if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
+              const textureKey = `${outfitKey}_${charGender}_${sample.direction}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+              if (view.lastFrameUrl !== textureKey) {
+                const canvas = getRecoloredCanvasSync(outfitKey, charGender, sample.direction, walkFrame, colors);
+                if (canvas) {
+                  const tex = Texture.from(canvas);
+                  tex.source.style.scaleMode = 'nearest';
+                  view.sprite.texture = tex;
+                  view.lastFrameUrl = textureKey;
+                } else if (!character.outfitColors) {
+                  const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
+                  if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
+                }
               }
             }
           } else {

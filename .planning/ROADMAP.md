@@ -19,9 +19,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 41: Tooltip Global de Atributos de Itens e Inspeção de Jogadores na Cidade**
 - [x] **Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)** - Modelagem relacional para VPS padrão com Prisma, contas com hashing bcrypt, múltiplos personagens, inventário, skills, roles (admin/player) e endpoints REST de auth.
 - [x] **Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks** - Servidor Node.js com Colyseus Room (`ThaisCityRoom`, `HuntRoom`), engine de combate autoritativa (100ms ticks), colisão OTBM, IA de monstros e validação anti-cheat.
-- [x] **Phase 44: Sincronização de Estado com Colyseus Schema, Interest Management e Chat** - State sync binário via `@colyseus/schema`, spatial interest management (visão 15x11), broadcast de combate e canais de chat multiplayer em tempo real.
-- [ ] **Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin** - Telas de Login, Cadastro, Seleção/Criação de Personagem, Painel de Admin (`@colyseus/monitor` + GM commands) e PixiJS consumindo delta-snapshots com interpolação suave.
-- [ ] **Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E** - Auto-save periódico via Prisma, grace period de reconexão após F5 (`allowReconnection`) e suíte de testes multiplayer automatizada no Vitest.
+- [x] **Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin** - Telas de Login, Cadastro, Seleção/Criação de Personagem, Painel de Admin (`@colyseus/monitor` + GM commands) e PixiJS consumindo delta-snapshots com interpolação suave.
+- [x] **Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E** - Auto-save periódico via Prisma, grace period de reconexão após F5 (`allowReconnection`) e suíte de testes multiplayer automatizada no Vitest.
+- [x] **Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante** - Preload de frames de caminhada e fallback seguro de recolor, bônus de +100 pontos de velocidade na cidade, janela de Chat com abas Local/World, atalho Enter para foco imediato e falas flutuantes em amarelo (local) e azul (world).
 
 ---
 
@@ -746,8 +746,23 @@ Plans:
 4. Suíte de testes E2E executando o fluxo completo: Cadastro -> Criação de Personagem -> Login no Colyseus -> Movimento e Combate Multiplayer -> Flush no PostgreSQL -> Reconexão.
 5. `npm run typecheck` e `npm run test` passando com 100% de aprovação e 0 erros em todo o repositório.
 
+---
+
+### Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante
+
+**Goal:** Resolver a alternância de cores ao andar após alterar outfit, adicionar bônus de +100 pontos de velocidade na cidade, e implementar a Janela de Chat no estilo autêntico do Tibia 11 com abas Local e World, atalho Enter para foco imediato e falas flutuantes em amarelo (local) e azul (world).  
+**Depends on:** Phase 46  
+**Requirements:** Preload de frames de caminhada e fallback seguro de recolor em `outfitRecolor.ts`, cálculo de velocidade na cidade com +100 pontos, Janela de Chat com abas Local e World, foco imediato ao pressionar Enter na cidade, textos flutuantes acima dos personagens em amarelo (`#ffff00`) para Local e azul (`#55ffff`) para World.  
+**Success Criteria:**
+1. A cor customizada do outfit é preservada continuamente durante todo o ciclo de caminhada (0 -> 1 -> 0 -> 2) e em todas as direções (north, south, east, west), eliminando qualquer alternância para o sprite base descolorido.
+2. A velocidade dos jogadores na cidade é incrementada em +100 pontos (`calculateStepDurationMs(playerSpeed + 100)`), tornando a movimentação sensivelmente mais ágil.
+3. Janela de Chat autêntica do Tibia 11 com abas 'Local Chat' e 'World Chat', rolagem automática e atalho no dock bar.
+4. Ao pressionar `Enter` na cidade, o cursor foca diretamente no campo de texto do chat local.
+5. Mensagens enviadas no chat local geram texto flutuante em amarelo (`#ffff00`) com contorno preto acima da cabeça do personagem; mensagens enviadas no chat world geram texto flutuante em azul (`#55ffff`) com contorno preto.
+6. 100% dos testes passando (`46/46` arquivos de teste e `289/289` testes) e 0 erros de TypeScript.
+
 Plans:
-- [x] 46-01-PLAN: Implementar persistência periódica com Prisma, reconexão nativa do Colyseus e suíte de testes E2E multiplayer.
+- [x] 47-01-PLAN: Implementar preload de walk frames, bônus de velocidade na cidade, janela de chat com abas Local/World e textos flutuantes.
 
 
 

@@ -39,12 +39,13 @@ import { OutfitModal } from './OutfitModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { PixiArena } from './PixiArena';
 import { TrainingArena } from './TrainingArena';
-import { ThaisCityArena } from './ThaisCityArena';
+import { ThaisCityArena, type CityOverheadMessage } from './ThaisCityArena';
 import { WorldNavigation } from './WorldNavigation';
-import { WindowManagerProvider } from './window/WindowManagerContext';
+import { WindowManagerProvider, useWindowManager } from './window/WindowManagerContext';
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
+import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot } from '../lib/GameClientNetworkManager';
 import thaisCityJson from '@/content/generated/thais-city.json';
@@ -132,12 +133,86 @@ function GamePrototypeContent() {
   const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
 
+  const { openWindow, bringToFront } = useWindowManager();
+  const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
+    {
+      id: 'welcome-local',
+      senderName: 'Templo',
+      channel: 'local',
+      text: 'Bem-vindo a Thais. Pressione Enter para falar no chat local.',
+      timestamp: Date.now() - 20000,
+    },
+    {
+      id: 'welcome-world',
+      senderName: 'Servidor',
+      channel: 'world',
+      text: 'Canal World Chat ativo. Mensagens visíveis globalmente para todos os jogadores.',
+      timestamp: Date.now() - 20000,
+    },
+  ]);
+  const [overheadMessages, setOverheadMessages] = useState<CityOverheadMessage[]>([]);
+  const chatWindowRef = useRef<ChatWindowHandle>(null);
+
   useEffect(() => {
     const unsub = gameNetwork.onStateChange((players) => {
       setRemotePlayers(players);
     });
-    return unsub;
-  }, []);
+
+    const unsubChat = gameNetwork.onChatMessage((netMsg) => {
+      const ch: 'local' | 'world' = netMsg.channel === 'world' || netMsg.channel === 'global' ? 'world' : 'local';
+      setChatMessages((prev) => {
+        if (prev.some((m) => m.id === netMsg.id)) return prev;
+        return [
+          ...prev.slice(-99),
+          {
+            id: netMsg.id || `net-${Date.now()}-${Math.random()}`,
+            senderId: netMsg.senderId,
+            senderName: netMsg.senderName,
+            channel: ch,
+            text: netMsg.text,
+            timestamp: netMsg.timestamp || Date.now(),
+          },
+        ];
+      });
+
+      if (mode !== 'hunt') {
+        setOverheadMessages((prev) => [
+          ...prev.slice(-20),
+          {
+            id: netMsg.id || `net-${Date.now()}-${Math.random()}`,
+            senderName: netMsg.senderName,
+            text: netMsg.text,
+            channel: ch,
+            timestamp: netMsg.timestamp || Date.now(),
+          },
+        ]);
+      }
+    });
+
+    return () => {
+      unsub();
+      unsubChat();
+    };
+  }, [mode]);
+
+  // Pressing Enter in city opens and focuses directly into Local Chat
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (mode === 'hunt') return;
+      if (e.key === 'Enter') {
+        const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+        if (activeTag === 'input' || activeTag === 'textarea') return;
+
+        e.preventDefault();
+        openWindow('chat');
+        bringToFront('chat');
+        chatWindowRef.current?.focusInput('local');
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [mode, openWindow, bringToFront]);
 
   const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
     setOnlineAccount(acc);
@@ -170,10 +245,39 @@ function GamePrototypeContent() {
   const mountBonus = activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none' ? 20 : 0;
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus;
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
-  // Normal character speed based on level formula
-  const cityStepDurationMs = baseStepDurationMs;
+  // +100 points of speed for players when in the city
+  const citySpeedBonus = 100;
+  const cityPlayerSpeed = playerSpeed + citySpeedBonus;
+  const cityStepDurationMs = calculateStepDurationMs(cityPlayerSpeed);
   const heldDirectionRef = useRef<{ dx: number; dy: number } | null>(null);
   const lastStepTimeRef = useRef(0);
+
+  const handleSendChatMessage = useCallback((text: string, channel: 'local' | 'world') => {
+    const msgId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const newMsg: ChatMessageItem = {
+      id: msgId,
+      senderName: activeCharacter.name,
+      channel,
+      text,
+      timestamp: Date.now(),
+    };
+
+    setChatMessages((prev) => [...prev.slice(-99), newMsg]);
+    gameNetwork.sendChat(text, channel);
+
+    if (mode !== 'hunt') {
+      setOverheadMessages((prev) => [
+        ...prev.slice(-20),
+        {
+          id: msgId,
+          senderName: activeCharacter.name,
+          text,
+          channel,
+          timestamp: Date.now(),
+        },
+      ]);
+    }
+  }, [activeCharacter.name, mode]);
 
   const handleOpenOutfitModal = useCallback((characterId?: string) => {
     setOutfitModalCharId(characterId || activeCharacter.id);
@@ -681,6 +785,7 @@ function GamePrototypeContent() {
             debug={debugGrid}
             remotePlayers={remotePlayers}
             localPlayerId={gameNetwork.LocalPlayerId}
+            overheadMessages={overheadMessages}
           />
         )}
         {mode !== 'hunt' && (
@@ -860,6 +965,16 @@ function GamePrototypeContent() {
             ))}
           </ol>
         </div>
+      </DraggableWindow>
+
+      {/* Window 7: Tibia 11 Chat Window */}
+      <DraggableWindow id="chat" icon="💬">
+        <ChatWindow
+          ref={chatWindowRef}
+          messages={chatMessages}
+          onSendMessage={handleSendChatMessage}
+          characterName={activeCharacter.name}
+        />
       </DraggableWindow>
 
       {/* Persistent Bottom Battle & Action Console HUD matching reference screenshot */}

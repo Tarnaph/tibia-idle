@@ -5,6 +5,7 @@ import {
   TIBIA_133_COLORS,
   normalizeOutfitId,
   renderRecoloredOutfit,
+  preloadOutfitAllFrames,
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
 
@@ -203,6 +204,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
       addons: addonsVal,
       outfitColors: colors,
     });
+    preloadOutfitAllFrames(selectedOutfit, activeChar.gender || 'male', colors).catch(() => {});
     onClose();
   };
 

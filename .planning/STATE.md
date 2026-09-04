@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-04T01:19:34.105Z"
-last_activity: "2026-09-03 — Concluída Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role (Admin / Player)."
+status: complete
+last_updated: "2026-09-04T04:18:00.000Z"
+last_activity: "2026-09-04 — Concluída Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante."
 progress:
-  total_phases: 46
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 12
-  percent: 91
+  total_phases: 47
+  completed_phases: 47
+  total_plans: 47
+  completed_plans: 47
+  percent: 100
 ---
 
 # Project State
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 32 concluída (Vida, Nome do Personagem, Animação de Caminhada e Elementos Animados em Thais).
+**Current focus:** Phase 47 concluída (Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante).
 
 ## Current Position
 
-Phase: 46 of 46 (Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E)  
+Phase: 47 of 47 (Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-03 — Concluída Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E.
+Last activity: 2026-09-04 — Concluída Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 46
-- Total phases in roadmap: 46
-- Tests status: 41 test suites (247 testes aprovados)
+- Total phases completed: 47
+- Total phases in roadmap: 47
+- Tests status: 46 test suites (289 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

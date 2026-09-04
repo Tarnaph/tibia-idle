@@ -215,6 +215,36 @@ export async function renderRecoloredOutfit(
 // In-memory cache for recolored canvas textures (e.g. for PixiJS and game loop)
 const recoloredCanvasCache = new Map<string, HTMLCanvasElement>();
 
+export async function preloadOutfitAllFrames(
+  outfitId: string,
+  gender: 'male' | 'female' = 'male',
+  colors?: OutfitColors
+): Promise<void> {
+  if (typeof window === 'undefined') return;
+  const norm = normalizeOutfitId(outfitId);
+  const directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'];
+  const frames = [0, 1, 2];
+
+  const loadPromises: Promise<HTMLImageElement>[] = [];
+  for (const dir of directions) {
+    for (const f of frames) {
+      const { base, mask } = getOutfitLayerUrls(norm, gender, dir, f);
+      loadPromises.push(loadImage(base));
+      loadPromises.push(loadImage(mask));
+    }
+  }
+
+  await Promise.allSettled(loadPromises);
+
+  if (colors) {
+    for (const dir of directions) {
+      for (const f of frames) {
+        getRecoloredCanvasSync(norm, gender, dir, f, colors);
+      }
+    }
+  }
+}
+
 export function getRecoloredCanvasSync(
   outfitId: string,
   gender: 'male' | 'female',
@@ -235,6 +265,17 @@ export function getRecoloredCanvasSync(
     // Pre-trigger async load for upcoming frames
     loadImage(base).catch(() => {});
     loadImage(mask).catch(() => {});
+
+    // Fallback: If walk frame is not loaded yet, return frame 0 or standing frame with identical colors
+    // to PREVENT reverting to uncolored base outfit frames while walking
+    const dirFallbackKey = `${norm}_${gender}_${direction}_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+    const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
+    if (dirFallback) return dirFallback;
+
+    const southFallbackKey = `${norm}_${gender}_south_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+    const southFallback = recoloredCanvasCache.get(southFallbackKey);
+    if (southFallback) return southFallback;
+
     return null;
   }
 
