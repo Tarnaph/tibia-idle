@@ -466,7 +466,14 @@ export function ThaisCityArena({
       hoverCursor.moveTo(0, 32).lineTo(32, 32).stroke({ color: 0xf5d547, width: 1.5 });
       hoverCursor.zIndex = 999999;
       world.addChild(hoverCursor);
-      hoverCursor.visible = false;
+      interface FollowerVisualState {
+        currentTile: { x: number; y: number; z: number };
+        lastCommittedTile: { x: number; y: number; z: number };
+        motionTrack: VisualMotionTrack;
+        direction: 'north' | 'south' | 'east' | 'west';
+      }
+
+      const followerVisualStates = new Map<string, FollowerVisualState>();
 
       let playerDirection: 'north' | 'south' | 'east' | 'west' = 'south';
       const initialPos = latestRef.current.cityPos;
@@ -780,13 +787,71 @@ export function ThaisCityArena({
         }
 
         // 2. High-fluidity linear movement interpolation via VisualMotionTrack (identical to hunt mode)
-        if (curPos.x !== lastCommittedPos.x || curPos.y !== lastCommittedPos.y || curPos.z !== lastCommittedPos.z) {
+        const leaderPosChanged = (curPos.x !== lastCommittedPos.x || curPos.y !== lastCommittedPos.y || curPos.z !== lastCommittedPos.z);
+        const prevLeaderTile = { ...lastCommittedPos };
+
+        if (leaderPosChanged) {
           const distJump = Math.hypot(curPos.x - lastCommittedPos.x, curPos.y - lastCommittedPos.y);
-          if (distJump > 2.5 || curPos.z !== lastCommittedPos.z) {
+          const isTeleportOrFloorChange = distJump > 2.5 || curPos.z !== lastCommittedPos.z;
+
+          if (isTeleportOrFloorChange) {
             motionTrack.reset({ x: curPos.x, y: curPos.y, z: curPos.z });
           } else {
             motionTrack.commit(lastCommittedPos, curPos, now, curStepDuration);
           }
+
+          // Tibia Follow: Update squad followers' step targets when leader moves
+          const reservedTiles = new Set<string>();
+          reservedTiles.add(`${curPos.x},${curPos.y}`);
+
+          curChars.forEach((char, idx) => {
+            if (idx === 0) return;
+            const getSpawnTile = (i: number) => {
+              const offsetX = i === 1 ? -1 : i === 2 ? 1 : 0;
+              const offsetY = i === 3 ? 1 : 0;
+              return { x: curPos.x + offsetX, y: curPos.y + offsetY, z: curPos.z };
+            };
+
+            let fState = followerVisualStates.get(char.id);
+            if (!fState || isTeleportOrFloorChange) {
+              const spawnTile = getSpawnTile(idx);
+              fState = {
+                currentTile: spawnTile,
+                lastCommittedTile: spawnTile,
+                motionTrack: new VisualMotionTrack(spawnTile, 'south'),
+                direction: 'south',
+              };
+              followerVisualStates.set(char.id, fState);
+              triggerTeleportEffect(spawnTile.x * TILE_SIZE + 16, spawnTile.y * TILE_SIZE + 16);
+            } else {
+              const distToLeader = Math.max(
+                Math.abs(fState.currentTile.x - curPos.x),
+                Math.abs(fState.currentTile.y - curPos.y)
+              );
+
+              if (distToLeader > 1) {
+                const targetTile = prevLeaderTile;
+                const tileKey = `${targetTile.x},${targetTile.y}`;
+                if (!reservedTiles.has(tileKey) && (targetTile.x !== fState.currentTile.x || targetTile.y !== fState.currentTile.y)) {
+                  const dx = targetTile.x - fState.lastCommittedTile.x;
+                  const dy = targetTile.y - fState.lastCommittedTile.y;
+                  let stepDir: 'north' | 'south' | 'east' | 'west' = fState.direction;
+                  if (Math.abs(dx) >= Math.abs(dy)) {
+                    stepDir = dx >= 0 ? 'east' : 'west';
+                  } else {
+                    stepDir = dy >= 0 ? 'south' : 'north';
+                  }
+
+                  fState.direction = stepDir;
+                  fState.motionTrack.commit(fState.lastCommittedTile, targetTile, now, curStepDuration);
+                  fState.lastCommittedTile = { ...targetTile };
+                  fState.currentTile = { ...targetTile };
+                  reservedTiles.add(tileKey);
+                }
+              }
+            }
+          });
+
           lastCommittedPos = { ...curPos };
         }
 
@@ -809,11 +874,49 @@ export function ThaisCityArena({
         // 4. Update party characters: fluid walk frame sequence (0 -> 1 -> 0 -> 2)
         const walkCycle = [0, 1, 0, 2];
         const stepRateMs = Math.max(60, Math.min(130, Math.floor(curStepDuration / 3.5)));
-        const walkFrame = isMoving || curWalk ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
 
         curChars.forEach((char, idx) => {
           const view = ensureActorView(char);
           if (!view) return;
+
+          let charPixelX: number;
+          let charPixelY: number;
+          let charDirection: 'north' | 'south' | 'east' | 'west';
+          let charIsMoving: boolean;
+
+          if (idx === 0) {
+            charPixelX = currentPixelX;
+            charPixelY = currentPixelY;
+            charDirection = playerDirection;
+            charIsMoving = isMoving;
+          } else {
+            const getSpawnTile = (i: number) => {
+              const offsetX = i === 1 ? -1 : i === 2 ? 1 : 0;
+              const offsetY = i === 3 ? 1 : 0;
+              return { x: curPos.x + offsetX, y: curPos.y + offsetY, z: curPos.z };
+            };
+
+            let fState = followerVisualStates.get(char.id);
+            if (!fState) {
+              const spawnTile = getSpawnTile(idx);
+              fState = {
+                currentTile: spawnTile,
+                lastCommittedTile: spawnTile,
+                motionTrack: new VisualMotionTrack(spawnTile, 'south'),
+                direction: 'south',
+              };
+              followerVisualStates.set(char.id, fState);
+              triggerTeleportEffect(spawnTile.x * TILE_SIZE + 16, spawnTile.y * TILE_SIZE + 16);
+            }
+
+            const fSample = fState.motionTrack.sample(now);
+            charPixelX = fSample.renderPosition.x * TILE_SIZE + 16;
+            charPixelY = fSample.renderPosition.y * TILE_SIZE + 16;
+            charDirection = fSample.direction || fState.direction;
+            charIsMoving = fSample.moving;
+          }
+
+          const charWalkFrame = charIsMoving || (idx === 0 && curWalk) ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
 
           const isMounted = Boolean(char.mountActive && char.mount && char.mount !== 'none');
           const mountUrl = (char.mount === 'donkey' || char.mount === 'Donkey')
@@ -821,16 +924,16 @@ export function ThaisCityArena({
             : `/generated/mounts/${char.mount}.png`;
           if (isMounted && loaded[mountUrl]) {
             view.sprite.texture = loaded[mountUrl];
-            view.sprite.scale.x = (playerDirection === 'west' || playerDirection === 'north') ? -1 : 1;
+            view.sprite.scale.x = (charDirection === 'west' || charDirection === 'north') ? -1 : 1;
             view.lastUrl = mountUrl;
           } else {
             view.sprite.scale.x = 1;
             const outfitKey = char.outfit || char.vocation || 'Knight';
             const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
             const charGender = char.gender === 'female' ? 'female' : 'male';
-            const textureKey = `${outfitKey}_${charGender}_${playerDirection}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+            const textureKey = `${outfitKey}_${charGender}_${charDirection}_${charWalkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
             if (view.lastTextureKey !== textureKey) {
-              const canvas = getRecoloredCanvasSync(outfitKey, charGender, playerDirection as any, walkFrame, colors);
+              const canvas = getRecoloredCanvasSync(outfitKey, charGender, charDirection as any, charWalkFrame, colors);
               if (canvas) {
                 const tex = Texture.from(canvas);
                 tex.source.style.scaleMode = 'nearest';
@@ -838,7 +941,7 @@ export function ThaisCityArena({
                 view.lastTextureKey = textureKey;
                 view.lastUrl = 'canvas';
               } else if (!char.outfitColors) {
-                const nextUrl = getOutfitFrameUrl(outfitKey, playerDirection, walkFrame);
+                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
                 if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
                   view.sprite.texture = loaded[nextUrl];
                   view.lastUrl = nextUrl;
@@ -848,12 +951,8 @@ export function ThaisCityArena({
             }
           }
 
-          // Position party members cleanly on adjacent floor tiles (32px = 1 full tile step)
-          const offsetX = idx === 0 ? 0 : idx === 1 ? -32 : idx === 2 ? 32 : 0;
-          const offsetY = idx === 0 ? 0 : idx === 3 ? 32 : 0;
-
-          view.root.position.set(currentPixelX + offsetX, currentPixelY + offsetY);
-          view.root.zIndex = currentPixelY + offsetY;
+          view.root.position.set(charPixelX, charPixelY);
+          view.root.zIndex = charPixelY;
           view.label.position.set(0, creatureVisualLayout.nameplateY);
           const hpRatio = char.maxHp > 0 ? Math.max(0, Math.min(1, char.currentHp / char.maxHp)) : 1;
           view.bar.clear()
