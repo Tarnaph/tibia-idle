@@ -317,7 +317,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '24px',
+            gap: '0px',
             maxWidth: '98vw',
           }}
         >
@@ -337,6 +337,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
               filter: 'drop-shadow(0 12px 35px rgba(0, 0, 0, 0.95))',
               color: '#d6d2c4',
               position: 'relative',
+              zIndex: 2,
             }}
           >
             {/* Header Bar */}
@@ -751,8 +752,8 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
           {/* RIGHT: Frameless & Larger Bard Character Video */}
           <div
             style={{
-              width: '420px',
-              height: '480px',
+              width: '560px',
+              height: '600px',
               position: 'relative',
               display: 'flex',
               alignItems: 'center',
@@ -761,6 +762,8 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
               border: 'none',
               boxShadow: 'none',
               overflow: 'visible',
+              marginLeft: '-45px',
+              zIndex: 1,
             }}
           >
             <BardChromaVideo src="/songtibia.webm" videoRef={videoRef} setIsMuted={setIsMuted} />
