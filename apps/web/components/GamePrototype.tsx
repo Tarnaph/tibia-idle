@@ -412,6 +412,43 @@ function GamePrototypeContent() {
     const targetZ = (charItem as any).posZ ?? charItem.positionZ ?? 7;
     setCityPos({ x: targetX, y: targetY, z: targetZ });
 
+    // Update game state with the real user character created or selected in Auth Modal!
+    setGame((cur) => {
+      const VOCATION_MAP: Record<number, BaseVocationName> = {
+        1: 'Knight',
+        2: 'Paladin',
+        3: 'Sorcerer',
+        4: 'Druid',
+      };
+      const vocName = ((charItem as any).vocation as BaseVocationName) || VOCATION_MAP[charItem.vocationId] || 'Knight';
+      const userChar = createCharacter(charItem.id, charItem.name, vocName, content, 'male');
+      if (charItem.level) userChar.level = charItem.level;
+      if (charItem.health) userChar.currentHp = charItem.health;
+      if (charItem.maxHealth) userChar.maxHp = charItem.maxHealth;
+      if (charItem.mana) userChar.currentMana = charItem.mana;
+      if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
+      if ((charItem as any).outfit) userChar.outfit = (charItem as any).outfit;
+
+      const existingIdx = cur.session.characters.findIndex((c) => c.id === charItem.id || c.name.toLowerCase() === charItem.name.toLowerCase());
+      let updatedChars: CharacterState[];
+      if (existingIdx >= 0) {
+        updatedChars = [...cur.session.characters];
+        updatedChars[existingIdx] = { ...updatedChars[existingIdx], ...userChar };
+      } else {
+        // Replace default mock main character (index 0) with user's created character
+        updatedChars = [userChar, ...cur.session.characters.slice(1)].slice(0, 4);
+      }
+
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          selectedCharacterId: userChar.id,
+          characters: updatedChars,
+        },
+      };
+    });
+
     // Connect to live Colyseus Server room
     gameNetwork
       .connect(authToken, charItem.id)
@@ -421,7 +458,7 @@ function GamePrototypeContent() {
       .catch((err) => {
         console.error('Falha ao conectar ao servidor Colyseus:', err);
       });
-  }, []);
+  }, [content]);
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
