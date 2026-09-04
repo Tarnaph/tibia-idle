@@ -8,7 +8,6 @@ import { useAuth } from '@/apps/web/auth/AuthProvider';
 import { authModalReducer } from '@/packages/auth/src/authActions';
 import type { GameUpdateRow } from '@/packages/auth/src/types';
 import { AuthModal } from './AuthModal';
-import { HeroScene } from './HeroScene';
 
 const VOCATION_SHOWCASE = [
   {
@@ -151,10 +150,28 @@ export function LandingPage({
           </div>
         )}
 
-        {/* HERO SECTION - DIABLO IV STYLE */}
+        {/* HERO SECTION - DIABLO IV STYLE WITH BACKGROUND VIDEO */}
         <section className="hero-section diablo-hero" id="inicio">
-          <div className="diablo-hero-overlay" />
-          <div className="hero-copy diablo-hero-copy">
+          <div className="diablo-hero-video-container">
+            <video
+              className="diablo-hero-video"
+              src="/songtibia.webm"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+            <div className="diablo-hero-video-overlay" />
+          </div>
+
+          <div className="diablo-hero-content-centered">
+            <div className="diablo-hero-logo-wrap">
+              <img
+                src="/logo.png"
+                alt="Exura Idle Adventures"
+                className="diablo-hero-logo"
+              />
+            </div>
             <div className="diablo-eyebrow">
               <span className="diablo-gem">❖</span> MMORPG IDLE DE NAVEGADOR <span className="diablo-gem">❖</span>
             </div>
@@ -166,7 +183,7 @@ export function LandingPage({
               Reúna sua party de Knights, Paladins, Sorcerers e Druids. Treine suas habilidades, conquiste loots lendários e evolua sem parar em uma jornada épica nas profundezas.
             </p>
             <div className="hero-actions diablo-hero-actions">
-              <button className="diablo-btn-primary" type="button" onClick={play}>
+              <button className="diablo-btn-primary large" type="button" onClick={play}>
                 <span className="diablo-btn-glow" />
                 <span className="diablo-btn-text">⚔ JOGAR AGORA</span>
               </button>
@@ -175,14 +192,6 @@ export function LandingPage({
               </a>
             </div>
             <small className="diablo-notice">✦ Gratuito para jogar no navegador · Sem necessidade de download ✦</small>
-          </div>
-
-          <div className="diablo-hero-scene-wrapper">
-            <div className="diablo-frame-corner top-left" />
-            <div className="diablo-frame-corner top-right" />
-            <div className="diablo-frame-corner bottom-left" />
-            <div className="diablo-frame-corner bottom-right" />
-            <HeroScene />
           </div>
         </section>
 

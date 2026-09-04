@@ -5413,12 +5413,79 @@ h1, h2, h3, p { margin: 0; }
 
 /* HERO SECTION */
 .diablo-hero {
-  background:
-    radial-gradient(circle at 60% 40%, rgba(160, 30, 20, 0.22) 0%, transparent 55%),
-    linear-gradient(180deg, #0d0a0a 0%, #060505 100%) !important;
-  border-bottom: 1px solid rgba(212, 168, 67, 0.25) !important;
-  padding-top: 60px !important;
-  padding-bottom: 70px !important;
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.35) !important;
+  padding: 100px 20px 80px !important;
+  text-align: center;
+  background: #080707 !important;
+}
+
+.diablo-hero-video-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.diablo-hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.6) contrast(1.15) saturate(1.1);
+  transform: scale(1.03);
+}
+
+.diablo-hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at center, rgba(13, 10, 10, 0.35) 0%, rgba(5, 3, 3, 0.88) 85%),
+    linear-gradient(180deg, rgba(8, 7, 7, 0.85) 0%, transparent 20%, transparent 75%, #080707 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.diablo-hero-content-centered {
+  position: relative;
+  z-index: 5;
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.diablo-hero-logo-wrap {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.diablo-hero-logo {
+  max-width: 480px;
+  width: 85vw;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 35px rgba(212, 168, 67, 0.5)) drop-shadow(0 10px 25px rgba(0, 0, 0, 0.95));
+  animation: heroLogoPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes heroLogoPulse {
+  0% {
+    filter: drop-shadow(0 0 25px rgba(212, 168, 67, 0.35)) drop-shadow(0 10px 25px rgba(0, 0, 0, 0.95));
+  }
+  100% {
+    filter: drop-shadow(0 0 45px rgba(220, 50, 40, 0.6)) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.98));
+  }
 }
 
 .diablo-eyebrow {
