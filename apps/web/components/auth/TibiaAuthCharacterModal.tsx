@@ -781,7 +781,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
             </div>
           </div>
 
-          {/* RIGHT: Frameless & Larger Bard Character Video with Transparent Overlay Player */}
+          {/* RIGHT: Frameless & Larger Bard Character Video with Centered Play Button */}
           <div
             style={{
               width: '560px',
@@ -804,73 +804,57 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
               setIsMuted={setIsMuted}
               setIsPlaying={setIsPlaying}
               onTogglePlay={togglePlay}
+              isPlaying={isPlaying}
             />
 
-            {/* Floating Transparent Player Control Badge directly over Video */}
+            {/* Dark Tint Overlay when Paused */}
             <div
+              onClick={togglePlay}
+              title={isPlaying ? 'Clique no vídeo para pausar' : 'Clique no vídeo para reproduzir'}
               style={{
                 position: 'absolute',
-                bottom: '35px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 10,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '6px 16px',
-                backgroundColor: 'rgba(10, 14, 20, 0.45)',
-                border: '1px solid rgba(212, 168, 67, 0.5)',
-                borderRadius: '24px',
-                backdropFilter: 'blur(8px)',
-                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.75), inset 0 0 10px rgba(212, 168, 67, 0.12)',
-                pointerEvents: 'auto',
-                transition: 'all 0.2s ease',
+                inset: 0,
+                backgroundColor: isPlaying ? 'transparent' : 'rgba(0, 0, 0, 0.45)',
+                transition: 'background-color 0.3s ease',
+                pointerEvents: isPlaying ? 'none' : 'auto',
+                cursor: 'pointer',
+                borderRadius: '8px',
+                zIndex: 5,
               }}
-            >
+            />
+
+            {/* Centered Transparent Play Button when Paused */}
+            {!isPlaying && (
               <button
                 type="button"
                 onClick={togglePlay}
-                title={isPlaying ? 'Pausar Vídeo' : 'Reproduzir Vídeo'}
+                title="Reproduzir Vídeo"
                 style={{
-                  background: 'transparent',
-                  border: 'none',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 10,
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: 'rgba(10, 14, 20, 0.55)',
+                  border: '2px solid rgba(212, 168, 67, 0.85)',
+                  boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), inset 0 0 15px rgba(212, 168, 67, 0.35)',
+                  backdropFilter: 'blur(6px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   color: '#f3e5ab',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
+                  fontSize: '34px',
                   cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '2px 6px',
-                  textShadow: '0 0 8px rgba(212, 168, 67, 0.7)',
+                  transition: 'transform 0.2s ease, background 0.2s ease',
+                  paddingLeft: '6px', // center the triangle play icon
                 }}
               >
-                <span>{isPlaying ? '❚❚' : '▶'}</span>
-                <span>{isPlaying ? 'PAUSAR' : 'PLAY'}</span>
+                ▶
               </button>
-              <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(212, 168, 67, 0.35)' }} />
-              <button
-                type="button"
-                onClick={toggleMute}
-                title={isMuted ? 'Ativar Som do Bardo' : 'Mutar Som do Bardo'}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: isMuted ? '#8a8075' : '#f3e5ab',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '2px 6px',
-                  textShadow: isMuted ? 'none' : '0 0 8px rgba(212, 168, 67, 0.7)',
-                }}
-              >
-                <span>{isMuted ? '🔇' : '🔊'}</span>
-                <span>{isMuted ? 'MUTADO' : 'ÁUDIO'}</span>
-              </button>
-            </div>
+            )}
           </div>
         </div>
 
@@ -917,12 +901,14 @@ function BardChromaVideo({
   setIsMuted,
   setIsPlaying,
   onTogglePlay,
+  isPlaying = true,
 }: {
   src: string;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   setIsMuted: (muted: boolean) => void;
   setIsPlaying?: (playing: boolean) => void;
   onTogglePlay?: () => void;
+  isPlaying?: boolean;
 }) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
 
@@ -1072,12 +1058,15 @@ function BardChromaVideo({
       <canvas
         ref={canvasRef}
         onClick={onTogglePlay}
-        title="Clique para Play / Pause no Vídeo"
+        title={isPlaying ? 'Clique para Pausar' : 'Clique para Reproduzir'}
         style={{
           width: '100%',
           height: '100%',
           objectFit: 'contain',
-          filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.9))',
+          filter: isPlaying
+            ? 'drop-shadow(0 10px 30px rgba(0,0,0,0.9))'
+            : 'drop-shadow(0 10px 30px rgba(0,0,0,0.9)) brightness(0.45)',
+          transition: 'filter 0.3s ease',
           cursor: 'pointer',
         }}
       />
