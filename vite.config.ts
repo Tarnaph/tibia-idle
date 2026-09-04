@@ -52,7 +52,7 @@ export default defineConfig(async () => {
       exclude: ['@prisma/client'],
     },
     ssr: {
-      external: ['@prisma/client'],
+      external: ['@prisma/client', 'ws'],
     },
     server: {
       hmr: { overlay: false },
