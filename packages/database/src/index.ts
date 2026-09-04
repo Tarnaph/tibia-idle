@@ -12,6 +12,9 @@ export function getPrismaClient(): PrismaClient {
   }
 
   if (!prismaGlobal) {
+    if (!process.env.DATABASE_URL) {
+      process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/cavebound?schema=public';
+    }
     prismaGlobal = new PrismaClient();
   }
 
