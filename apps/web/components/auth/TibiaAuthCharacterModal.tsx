@@ -218,6 +218,51 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
     setCharacters([]);
   };
 
+  const [isEnteringGame, setIsEnteringGame] = useState(false);
+
+  const startFadeOutAndEnter = (char: CharacterItem) => {
+    if (isEnteringGame) return;
+    setIsEnteringGame(true);
+
+    const currentToken = token || localStorage.getItem('colyseus_token') || '';
+    const currentAccount = account || {
+      id: char.id,
+      email: '',
+      displayName: char.name,
+      role: 'PLAYER' as const,
+    };
+
+    const video = videoRef.current;
+    const fadeDuration = 750;
+    const startTime = performance.now();
+    const initialVolume = video ? video.volume : 0.8;
+
+    const fadeInterval = setInterval(() => {
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(elapsed / fadeDuration, 1);
+
+      if (video) {
+        try {
+          video.volume = Math.max(0, initialVolume * (1 - progress));
+        } catch {
+          // Ignore
+        }
+      }
+
+      if (progress >= 1) {
+        clearInterval(fadeInterval);
+        if (video) {
+          try {
+            video.pause();
+          } catch {
+            // Ignore
+          }
+        }
+        onSelectCharacter(currentToken, char, currentAccount);
+      }
+    }, 30);
+  };
+
   return (
     <div
       style={{
@@ -226,12 +271,14 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
         backgroundColor: 'rgba(5, 7, 10, 0.75)',
         backdropFilter: 'blur(3px)',
         zIndex: 999999999,
-        pointerEvents: 'auto',
+        pointerEvents: isEnteringGame ? 'none' : 'auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'sans-serif',
         overflow: 'hidden',
+        opacity: isEnteringGame ? 0 : 1,
+        transition: 'opacity 0.75s ease-out',
       }}
     >
       {/* Floating Audio Control Toggle Button in top-right corner */}
@@ -711,15 +758,8 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
                         const handleSelectThisChar = (e: React.MouseEvent) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          console.log('[TibiaAuthCharacterModal] Entrar no jogo clicado para:', char.name);
-                          const currentToken = token || localStorage.getItem('colyseus_token') || '';
-                          const currentAccount = account || {
-                            id: char.id,
-                            email: '',
-                            displayName: char.name,
-                            role: 'PLAYER' as const,
-                          };
-                          onSelectCharacter(currentToken, char, currentAccount);
+                          console.log('[TibiaAuthCharacterModal] Entrar no jogo clicado com fadeout para:', char.name);
+                          startFadeOutAndEnter(char);
                         };
 
                         return (
