@@ -121,7 +121,7 @@ function GamePrototypeContent() {
   } | null>(null);
   const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(true);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   const [onlineCharacter, setOnlineCharacter] = useState<CharacterItem | null>(null);
   const [isConnectedServer, setIsConnectedServer] = useState(false);
