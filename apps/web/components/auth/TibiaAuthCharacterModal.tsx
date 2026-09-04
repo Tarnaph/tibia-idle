@@ -245,49 +245,68 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
         style={{
           position: 'relative',
           zIndex: 1,
-          width: '520px',
-          maxWidth: '92vw',
-          backgroundColor: 'rgba(27, 34, 45, 0.95)',
-          border: '2px solid #5a4b32',
-          boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), inset 0 0 15px rgba(90, 75, 50, 0.35)',
-          borderRadius: '6px',
-          overflow: 'hidden',
-          color: '#d6d2c4',
-          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px',
         }}
       >
-        {/* Tibia Header Bar */}
+        {/* Exura Logo above character selection modal box */}
+        <img
+          src="/logo.png"
+          alt="Exura Idle Adventures"
+          style={{
+            height: '110px',
+            maxWidth: '90vw',
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 6px 24px rgba(0,0,0,0.85))',
+          }}
+        />
+
         <div
           style={{
-            background: 'linear-[#32281a], linear-gradient(180deg, #3d3121 0%, #251c11 100%)',
-            borderBottom: '1px solid #5a4b32',
-            padding: '12px 18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            width: '520px',
+            maxWidth: '92vw',
+            backgroundColor: 'rgba(27, 34, 45, 0.95)',
+            border: '2px solid #5a4b32',
+            boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), inset 0 0 15px rgba(90, 75, 50, 0.35)',
+            borderRadius: '6px',
+            overflow: 'hidden',
+            color: '#d6d2c4',
+            backdropFilter: 'blur(8px)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#d4a843', fontSize: '18px', fontWeight: 'bold' }}>✦ CAVEBOUND</span>
-            <span style={{ fontSize: '12px', color: '#8c8273' }}>| Tibia Online Server</span>
+          {/* Header Bar */}
+          <div
+            style={{
+              background: 'linear-gradient(180deg, #3d3121 0%, #251c11 100%)',
+              borderBottom: '1px solid #5a4b32',
+              padding: '10px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#d4a843', fontSize: '13px', fontWeight: 'bold', letterSpacing: '0.06em' }}>✦ SELEÇÃO DE PERSONAGEM</span>
+            </div>
+            {account && (
+              <button
+                onClick={handleLogout}
+                style={{
+                  background: 'none',
+                  border: '1px solid #5a4b32',
+                  color: '#ba8e54',
+                  fontSize: '11px',
+                  padding: '3px 8px',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                }}
+              >
+                Desconectar ({account.displayName})
+              </button>
+            )}
           </div>
-          {account && (
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'none',
-                border: '1px solid #5a4b32',
-                color: '#ba8e54',
-                fontSize: '11px',
-                padding: '3px 8px',
-                borderRadius: '3px',
-                cursor: 'pointer',
-              }}
-            >
-              Desconectar ({account.displayName})
-            </button>
-          )}
-        </div>
 
         <div style={{ padding: '24px' }}>
           {errorMsg && (
@@ -645,5 +664,6 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
         </div>
       </div>
     </div>
+  </div>
   );
 }
