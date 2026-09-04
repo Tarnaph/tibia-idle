@@ -259,139 +259,34 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
       {/* Background Audio */}
       <audio ref={audioRef} src="/ferumbras-theme.mp3" loop autoPlay />
 
-      {/* Online Players Counter in Top-Left Corner */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '20px',
-          left: '20px',
-          zIndex: 1000000000,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '8px 14px',
-          background: 'rgba(27, 34, 45, 0.9)',
-          border: '1px solid #7d5c2e',
-          borderRadius: '20px',
-          color: '#62e58a',
-          fontSize: '13px',
-          fontWeight: 'bold',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
-          backdropFilter: 'blur(6px)',
-        }}
-      >
-        <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#62e58a', boxShadow: '0 0 8px #62e58a' }} />
-        <span>10 players online</span>
-      </div>
-
-      {/* Social Media Links & Audio Toggle in Top-Right Corner */}
-      <div
+      {/* Floating Audio Control Toggle Button in top-right corner */}
+      <button
+        type="button"
+        onClick={toggleMute}
+        title={isMuted ? 'Ativar Música de Fundo (Ferumbras Cometh Again)' : 'Mutar Música de Fundo'}
         style={{
           position: 'fixed',
           top: '20px',
           right: '20px',
           zIndex: 1000000000,
+          background: 'rgba(27, 34, 45, 0.9)',
+          border: '1px solid #7d5c2e',
+          borderRadius: '50%',
+          width: '42px',
+          height: '42px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          justifyContent: 'center',
+          color: isMuted ? '#888' : '#f3e5ab',
+          fontSize: '18px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
+          backdropFilter: 'blur(6px)',
         }}
       >
-        {/* Instagram */}
-        <a
-          href="https://instagram.com"
-          target="_blank"
-          rel="noreferrer"
-          title="Instagram"
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: 'rgba(27, 34, 45, 0.9)',
-            border: '1px solid #7d5c2e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#f3e5ab',
-            fontSize: '18px',
-            textDecoration: 'none',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(6px)',
-          }}
-        >
-          📷
-        </a>
-        {/* TikTok */}
-        <a
-          href="https://tiktok.com"
-          target="_blank"
-          rel="noreferrer"
-          title="TikTok"
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: 'rgba(27, 34, 45, 0.9)',
-            border: '1px solid #7d5c2e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#f3e5ab',
-            fontSize: '18px',
-            textDecoration: 'none',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(6px)',
-          }}
-        >
-          🎵
-        </a>
-        {/* Facebook */}
-        <a
-          href="https://facebook.com"
-          target="_blank"
-          rel="noreferrer"
-          title="Facebook"
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: 'rgba(27, 34, 45, 0.9)',
-            border: '1px solid #7d5c2e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#f3e5ab',
-            fontSize: '18px',
-            textDecoration: 'none',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(6px)',
-          }}
-        >
-          👤
-        </a>
-        {/* Audio Toggle */}
-        <button
-          type="button"
-          onClick={toggleMute}
-          title={isMuted ? 'Ativar Música de Fundo (Ferumbras Cometh Again)' : 'Mutar Música de Fundo'}
-          style={{
-            background: 'rgba(27, 34, 45, 0.9)',
-            border: '1px solid #7d5c2e',
-            borderRadius: '50%',
-            width: '42px',
-            height: '42px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: isMuted ? '#888' : '#f3e5ab',
-            fontSize: '18px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(6px)',
-          }}
-        >
-          {isMuted ? '🔇' : '🔊'}
-        </button>
-      </div>
+        {isMuted ? '🔇' : '🔊'}
+      </button>
+
       {/* Background Video Frame */}
       <div
         style={{
@@ -437,7 +332,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '16px',
+          gap: '12px',
         }}
       >
         {/* Exura Logo above character selection modal box */}
@@ -451,6 +346,36 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
             filter: 'drop-shadow(0 6px 24px rgba(0,0,0,0.85))',
           }}
         />
+
+        {/* Info Strip directly above the modal box (Matching Reference Screenshot) */}
+        <div
+          style={{
+            width: '655px',
+            maxWidth: '95vw',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '-4px',
+            padding: '0 6px',
+            zIndex: 2,
+            boxSizing: 'border-box',
+          }}
+        >
+          <div style={{ color: '#ffffff', fontSize: '12px', fontWeight: 'bold', textShadow: '1px 1px 3px #000' }}>
+            10 players online
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <a href="https://facebook.com" target="_blank" rel="noreferrer" title="Facebook" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
+              <img src="/social/facebook.png" alt="Facebook" style={{ height: '14px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" title="Instagram" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
+              <img src="/social/instagram.png" alt="Instagram" style={{ height: '14px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noreferrer" title="TikTok" style={{ opacity: 0.9, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
+              <img src="/social/tiktok.png" alt="TikTok" style={{ height: '14px', width: 'auto', display: 'block', filter: 'drop-shadow(0 1px 3px #000)' }} />
+            </a>
+          </div>
+        </div>
 
         <div
           style={{
