@@ -50,15 +50,21 @@ import { PartyWindow } from './window/PartyWindow';
 import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
 import { TradeWindow, type TradeOfferItem } from './window/TradeWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
+import { PartyInvitationModal } from './party/PartyInvitationModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
-import { gameNetwork, type RemotePlayerSnapshot } from '../lib/GameClientNetworkManager';
+import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation } from '../lib/GameClientNetworkManager';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
 const thaisTilesZ7 = thaisCityJson.tiles;
 const thaisTilesZ6 = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];
 const thaisTileMapZ7 = new Map(thaisTilesZ7.map((t) => [`${t.x},${t.y}`, t]));
 const thaisTileMapZ6 = new Map(thaisTilesZ6.map((t) => [`${t.x},${t.y}`, t]));
-const thaisTileMap = new Map([...thaisTilesZ7, ...thaisTilesZ6].map((t) => [`${t.x},${t.y},${t.z}`, t]));
+const VOCATION_MAP: Record<number, BaseVocationName> = {
+  1: 'Sorcerer',
+  2: 'Druid',
+  3: 'Paladin',
+  4: 'Knight',
+};
 
 const equipmentCatalog = equipmentJson as EquipmentCatalog;
 const monsterCatalog = monstersJson as MonsterCatalog;
@@ -136,6 +142,13 @@ function GamePrototypeContent() {
   const [outfitModalOpen, setOutfitModalOpen] = useState(false);
   const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
+  const [receivedPartyInvitation, setReceivedPartyInvitation] = useState<PartyInvitation | null>(null);
+  const [multiplayerParty, setMultiplayerParty] = useState<PartySnapshot | null>(null);
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+  const cityPosRef = useRef(cityPos);
+  cityPosRef.current = cityPos;
+  const startSelectedHuntRef = useRef<(huntId: string) => void>(() => {});
 
   const { openWindow, closeWindow, bringToFront } = useWindowManager();
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
@@ -195,7 +208,8 @@ function GamePrototypeContent() {
   }, [openWindow, bringToFront]);
 
   const handleInviteParty = useCallback((name: string) => {
-    setPartyModalOpen(true);
+    gameNetwork.sendPartyInvite(name);
+    setSaleMessage(`Convite de party enviado para ${name}!`);
   }, []);
 
   // Active Party Member IDs (subset of squad characters that are in the active party)
@@ -391,11 +405,110 @@ function GamePrototypeContent() {
       }
     });
 
+    const unsubInvitation = gameNetwork.onPartyInvitation((invitation) => {
+      setReceivedPartyInvitation(invitation);
+    });
+
+    const unsubPartySync = gameNetwork.onPartySync((party) => {
+      setMultiplayerParty(party);
+      if (party) {
+        setIsPartyCreated(true);
+        setGame((cur) => {
+          const updatedChars = [...cur.session.characters];
+          const localSessionId = gameNetwork.LocalPlayerId;
+          for (const m of party.members) {
+            if (m.sessionId !== localSessionId) {
+              const existing = updatedChars.find((c) => c.name.toLowerCase() === m.name.toLowerCase() || c.id === m.characterId);
+              if (!existing) {
+                const vocName = VOCATION_MAP[m.vocationId] || 'Knight';
+                const newChar = createCharacter(m.characterId, m.name, vocName as any, content);
+                newChar.level = m.level;
+                newChar.currentHp = m.hp;
+                newChar.maxHp = m.maxHp;
+                newChar.currentMana = m.mp;
+                newChar.maxMana = m.maxMp;
+                updatedChars.push(newChar);
+              } else {
+                existing.level = m.level;
+                existing.currentHp = m.hp;
+                existing.maxHp = m.maxHp;
+              }
+            }
+          }
+          return {
+            ...cur,
+            session: {
+              ...cur.session,
+              characters: updatedChars,
+            },
+          };
+        });
+        setPartyMemberIds(party.members.map((m) => m.characterId));
+      } else {
+        setPartyMemberIds((prev) => (prev[0] ? [prev[0]] : []));
+        setGame((cur) => {
+          const mainId = cur.session.selectedCharacterId || cur.session.characters[0]?.id;
+          return {
+            ...cur,
+            session: {
+              ...cur.session,
+              characters: mainId ? cur.session.characters.filter((c) => c.id === mainId) : cur.session.characters,
+            },
+          };
+        });
+      }
+    });
+
+    const unsubPartyNotification = gameNetwork.onPartyNotification((notif) => {
+      setSaleMessage(notif.message);
+    });
+
+    const unsubHuntStart = gameNetwork.onPartyHuntStart((data) => {
+      if (data.leaderSessionId !== gameNetwork.LocalPlayerId) {
+        setSaleMessage(`⚔️ O líder ${data.leaderName} iniciou a caçada! Entrando em ${data.huntId}...`);
+        startSelectedHuntRef.current(data.huntId);
+      }
+    });
+
+    const unsubTargetSync = gameNetwork.onPartyTargetSync((targetId) => {
+      setGame((cur) => {
+        let next = cur;
+        for (const c of cur.session.characters) {
+          next = setActorTarget(next, c.id, targetId);
+        }
+        return next;
+      });
+    });
+
+    const unsubLeaderMoved = gameNetwork.onPartyLeaderMoved((data) => {
+      if (modeRef.current !== 'hunt' && data.leaderSessionId !== gameNetwork.LocalPlayerId) {
+        const activeTileMap = cityPosRef.current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+        const dist = Math.hypot(cityPosRef.current.x - data.x, cityPosRef.current.y - data.y);
+        if (dist > 1.2) {
+          const path = findCityPath(activeTileMap, cityPosRef.current, { x: data.x, y: data.y, z: data.z });
+          if (path.length > 1) {
+            const followPath = path.slice(0, Math.max(1, path.length - 1));
+            setWalkingPath({
+              waypoints: followPath,
+              destinationName: `Seguindo líder`,
+              currentIndex: 0,
+            });
+          }
+        }
+      }
+    });
+
     return () => {
       unsub();
       unsubChat();
+      unsubInvitation();
+      unsubPartySync();
+      unsubPartyNotification();
+      unsubHuntStart();
+      unsubTargetSync();
+      unsubLeaderMoved();
     };
-  }, [mode]);
+  }, [mode, content]);
 
   // Pressing Enter in city opens and focuses directly into Local Chat
   useEffect(() => {
@@ -426,12 +539,6 @@ function GamePrototypeContent() {
     setCityPos({ x: targetX, y: targetY, z: targetZ });
 
     // Update game state with the real user character created or selected in Auth Modal!
-    const VOCATION_MAP: Record<number, BaseVocationName> = {
-      1: 'Sorcerer',
-      2: 'Druid',
-      3: 'Paladin',
-      4: 'Knight',
-    };
     const vocName =
       ((charItem as any).vocationName as BaseVocationName) ||
       ((charItem as any).vocation as BaseVocationName) ||
@@ -852,6 +959,11 @@ function GamePrototypeContent() {
     const targetHunt = content.hunts.find((h) => h.id === huntId) ?? encounter.hunt;
     setHuntSelectorOpen(false);
 
+    // If local player is party leader in multiplayer, broadcast to party members
+    if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+      gameNetwork.sendPartyHuntSync(huntId);
+    }
+
     // If already in hunt mode, switch directly
     if (mode === 'hunt') {
       const nextSeed = seed.trim() || defaultSeed;
@@ -884,6 +996,7 @@ function GamePrototypeContent() {
 
     setSaleMessage(`Caminhando até as escadas do cais para viajar para ${targetHunt.name}...`);
   };
+  startSelectedHuntRef.current = startSelectedHunt;
   const exitHunt = () => {
     setGame((current) => respawnInTemple(current));
     setMode('training');
@@ -1170,7 +1283,12 @@ function GamePrototypeContent() {
           <PixiArena
             game={game}
             debug={debugGrid}
-            onSelectTarget={(enemyId) => setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId))}
+            onSelectTarget={(enemyId) => {
+              setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
+              if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+                gameNetwork.sendPartyTargetSync(enemyId);
+              }
+            }}
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
           />
         ) : (
@@ -1244,7 +1362,7 @@ function GamePrototypeContent() {
       />
 
       {/* Window 3: Party & Squad */}
-      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{isPartyCreated ? partyMemberIds.length : 0}/4</small>}>
+      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{isPartyCreated || multiplayerParty ? (multiplayerParty ? multiplayerParty.members.length : partyMemberIds.length) : 0}/4</small>}>
         <PartyWindow
           squadMembers={game.session.characters}
           savedCharacters={savedPool}
@@ -1252,7 +1370,7 @@ function GamePrototypeContent() {
           userLevel={activeCharacter.level}
           userRole={onlineAccount?.role}
           partyMemberIds={partyMemberIds}
-          isPartyCreated={isPartyCreated}
+          isPartyCreated={isPartyCreated || multiplayerParty !== null}
           onCreateParty={handleCreateParty}
           onDisbandParty={handleDisbandParty}
           onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
@@ -1265,6 +1383,27 @@ function GamePrototypeContent() {
           onAddSquadMember={() => setPartyModalOpen(true)}
           onToggleSavedCharacter={handleToggleSavedCharacter}
           onInvitePlayer={(name) => handleInviteParty(name)}
+          onLeaveParty={() => {
+            gameNetwork.sendPartyLeave();
+            setMultiplayerParty(null);
+            setPartyMemberIds([activeCharacter.id]);
+            setSaleMessage('Você saiu da party multiplayer.');
+          }}
+          partyOnlineMembers={
+            multiplayerParty
+              ? multiplayerParty.members
+                  .filter((m) => m.sessionId !== gameNetwork.LocalPlayerId)
+                  .map((m) => ({
+                    id: m.sessionId,
+                    name: m.name + (m.isLeader ? ' ⭐' : ''),
+                    vocation: VOCATION_MAP[m.vocationId] || 'Knight',
+                    level: m.level,
+                    hp: m.hp,
+                    maxHp: m.maxHp,
+                    isRealPlayer: true,
+                  }))
+              : []
+          }
         />
       </DraggableWindow>
 
@@ -1411,12 +1550,37 @@ function GamePrototypeContent() {
 
       <FriendsWindow
         friends={friendsList}
-        allKnownCharacters={game.session.characters.map((c) => ({ name: c.name, level: c.level, vocation: c.vocation }))}
+        allKnownCharacters={[
+          ...game.session.characters.map((c) => ({ name: c.name, level: c.level, vocation: c.vocation })),
+          ...(remotePlayers
+            ? Array.from(remotePlayers.values()).map((r) => ({
+                name: r.name,
+                level: r.level,
+                vocation: VOCATION_MAP[r.vocationId] || 'Knight',
+              }))
+            : []),
+        ]}
         onAddFriend={handleAddFriend}
         onRemoveFriend={handleRemoveFriend}
         onPrivateMessage={handlePrivateMessage}
         onInviteParty={handleInviteParty}
       />
+
+      {receivedPartyInvitation && (
+        <PartyInvitationModal
+          invitation={receivedPartyInvitation}
+          onAccept={() => {
+            gameNetwork.sendPartyAccept(receivedPartyInvitation.inviterSessionId);
+            setReceivedPartyInvitation(null);
+            setSaleMessage(`Você aceitou o convite de party de ${receivedPartyInvitation.inviterName}!`);
+          }}
+          onReject={() => {
+            gameNetwork.sendPartyReject(receivedPartyInvitation.inviterSessionId);
+            setReceivedPartyInvitation(null);
+            setSaleMessage(`Você recusou o convite de party de ${receivedPartyInvitation.inviterName}.`);
+          }}
+        />
+      )}
 
       {tradeSession && (
         <TradeWindow

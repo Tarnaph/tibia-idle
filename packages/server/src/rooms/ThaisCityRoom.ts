@@ -100,7 +100,125 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.onMessage('chat', (client, data: { text: string; channel?: string }) => {
       this.handleChatMessage(client, data.text, data.channel || 'say');
     });
+
+    // Party multiplayer messages
+    this.onMessage('party:invite', (client, data: { targetName?: string; targetSessionId?: string }) => {
+      const inviter = this.state.players.get(client.sessionId);
+      if (!inviter) return;
+
+      let targetClient: Client | undefined;
+      let targetPlayer: any | undefined;
+
+      if (data.targetSessionId) {
+        targetClient = this.clients.find((c) => c.sessionId === data.targetSessionId);
+        targetPlayer = this.state.players.get(data.targetSessionId);
+      } else if (data.targetName) {
+        const query = data.targetName.trim().toLowerCase();
+        for (const [sId, p] of this.state.players.entries()) {
+          if (p.name.trim().toLowerCase() === query && sId !== client.sessionId) {
+            targetClient = this.clients.find((c) => c.sessionId === sId);
+            targetPlayer = p;
+            break;
+          }
+        }
+      }
+
+      if (targetClient && targetPlayer) {
+        targetClient.send('party:invitationReceived', {
+          inviterSessionId: client.sessionId,
+          inviterName: inviter.name,
+          inviterLevel: inviter.level,
+          inviterVocationId: inviter.vocationId,
+        });
+        client.send('party:inviteSent', {
+          targetName: targetPlayer.name,
+        });
+      } else {
+        client.send('party:error', {
+          message: `Jogador "${data.targetName || 'alvo'}" não encontrado na cidade de Thais.`,
+        });
+      }
+    });
+
+    this.onMessage('party:acceptInvite', (client, data: { inviterSessionId: string }) => {
+      const inviterClient = this.clients.find((c) => c.sessionId === data.inviterSessionId);
+      const inviterPlayer = this.state.players.get(data.inviterSessionId);
+      const memberPlayer = this.state.players.get(client.sessionId);
+      if (!inviterClient || !inviterPlayer || !memberPlayer) return;
+
+      let leaderId = this.playerPartyLeader.get(data.inviterSessionId) || data.inviterSessionId;
+      let party = this.parties.get(leaderId);
+      if (!party) {
+        party = {
+          leaderSessionId: leaderId,
+          leaderName: inviterPlayer.name,
+          memberSessionIds: [leaderId],
+        };
+        this.parties.set(leaderId, party);
+        this.playerPartyLeader.set(leaderId, leaderId);
+      }
+
+      if (!party.memberSessionIds.includes(client.sessionId)) {
+        party.memberSessionIds.push(client.sessionId);
+      }
+      this.playerPartyLeader.set(client.sessionId, leaderId);
+
+      this.broadcastPartySync(leaderId);
+    });
+
+    this.onMessage('party:rejectInvite', (client, data: { inviterSessionId: string }) => {
+      const inviterClient = this.clients.find((c) => c.sessionId === data.inviterSessionId);
+      const memberPlayer = this.state.players.get(client.sessionId);
+      if (inviterClient && memberPlayer) {
+        inviterClient.send('party:inviteRejected', {
+          memberName: memberPlayer.name,
+        });
+      }
+    });
+
+    this.onMessage('party:leave', (client) => {
+      this.handlePlayerLeaveParty(client.sessionId);
+    });
+
+    this.onMessage('party:huntSync', (client, data: { huntId: string }) => {
+      const leaderId = this.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.parties.get(leaderId);
+      if (!party || party.leaderSessionId !== client.sessionId) return;
+
+      for (const memberId of party.memberSessionIds) {
+        const memberClient = this.clients.find((c) => c.sessionId === memberId);
+        if (memberClient) {
+          memberClient.send('party:huntStarted', {
+            huntId: data.huntId,
+            leaderName: party.leaderName,
+            leaderSessionId: party.leaderSessionId,
+          });
+        }
+      }
+    });
+
+    this.onMessage('party:targetSync', (client, data: { targetId: string | null }) => {
+      const leaderId = this.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.parties.get(leaderId);
+      if (!party || party.leaderSessionId !== client.sessionId) return;
+
+      for (const memberId of party.memberSessionIds) {
+        if (memberId !== client.sessionId) {
+          const memberClient = this.clients.find((c) => c.sessionId === memberId);
+          if (memberClient) {
+            memberClient.send('party:targetUpdated', {
+              targetId: data.targetId,
+            });
+          }
+        }
+      }
+    });
   }
+
+  public parties: Map<string, { leaderSessionId: string; leaderName: string; memberSessionIds: string[] }> = new Map();
+  public playerPartyLeader: Map<string, string> = new Map();
 
   async onJoin(client: Client, options: JoinOptions) {
     let accountId = 'acc-guest';
@@ -245,6 +363,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     if (idx !== -1) {
       this.clients.splice(idx, 1);
     }
+    this.handlePlayerLeaveParty(client.sessionId);
     this.state.players.delete(client.sessionId);
   }
 
@@ -317,6 +436,28 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.posZ = targetZ;
     player.isWalking = true;
     player.lastStepTime = now;
+
+    // If this player is a party leader, broadcast position to party members for follow mechanic
+    const partyLeaderId = this.playerPartyLeader.get(client.sessionId);
+    if (partyLeaderId === client.sessionId) {
+      const party = this.parties.get(partyLeaderId);
+      if (party) {
+        for (const memberId of party.memberSessionIds) {
+          if (memberId !== client.sessionId) {
+            const memberClient = this.clients.find((c) => c.sessionId === memberId);
+            if (memberClient) {
+              memberClient.send('party:leaderMoved', {
+                leaderSessionId: client.sessionId,
+                x: targetX,
+                y: targetY,
+                z: targetZ,
+                direction,
+              });
+            }
+          }
+        }
+      }
+    }
   }
 
   private handleCastSpell(client: Client, spellId: string) {
@@ -549,5 +690,73 @@ export class ThaisCityRoom extends Room<WorldState> {
         }
       }
     });
+  }
+
+  public broadcastPartySync(leaderId: string) {
+    const party = this.parties.get(leaderId);
+    if (!party) return;
+
+    const membersInfo = party.memberSessionIds.map((sessionId) => {
+      const p = this.state.players.get(sessionId);
+      return {
+        sessionId,
+        characterId: p?.characterId || sessionId,
+        name: p?.name || 'Jogador',
+        vocationId: p?.vocationId || 1,
+        level: p?.level || 1,
+        hp: p?.hp || 100,
+        maxHp: p?.maxHp || 100,
+        mp: p?.mp || 35,
+        maxMp: p?.maxMp || 35,
+        x: p?.posX || 32369,
+        y: p?.posY || 32241,
+        z: p?.posZ || 7,
+        isLeader: sessionId === party.leaderSessionId,
+      };
+    });
+
+    for (const memberId of party.memberSessionIds) {
+      const memberClient = this.clients.find((c) => c.sessionId === memberId);
+      if (memberClient) {
+        memberClient.send('party:sync', {
+          leaderSessionId: party.leaderSessionId,
+          leaderName: party.leaderName,
+          members: membersInfo,
+        });
+      }
+    }
+  }
+
+  public handlePlayerLeaveParty(sessionId: string) {
+    const leaderId = this.playerPartyLeader.get(sessionId);
+    if (!leaderId) return;
+
+    const party = this.parties.get(leaderId);
+    this.playerPartyLeader.delete(sessionId);
+
+    const leavingClient = this.clients.find((c) => c.sessionId === sessionId);
+    if (leavingClient) {
+      leavingClient.send('party:left', {});
+    }
+
+    if (party) {
+      if (party.leaderSessionId === sessionId) {
+        // Leader left, disband party for all members
+        for (const memberId of party.memberSessionIds) {
+          if (memberId !== sessionId) {
+            this.playerPartyLeader.delete(memberId);
+            const memberClient = this.clients.find((c) => c.sessionId === memberId);
+            if (memberClient) {
+              memberClient.send('party:disbanded', { reason: 'O líder da party se desconectou ou saiu do grupo.' });
+            }
+          }
+        }
+        this.parties.delete(leaderId);
+      } else {
+        // Regular member left
+        party.memberSessionIds = party.memberSessionIds.filter((id) => id !== sessionId);
+        this.broadcastPartySync(leaderId);
+      }
+    }
   }
 }

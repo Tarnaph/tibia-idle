@@ -22,6 +22,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin** - Telas de Login, Cadastro, Seleção/Criação de Personagem, Painel de Admin (`@colyseus/monitor` + GM commands) e PixiJS consumindo delta-snapshots com interpolação suave.
 - [x] **Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E** - Auto-save periódico via Prisma, grace period de reconexão após F5 (`allowReconnection`) e suíte de testes multiplayer automatizada no Vitest.
 - [x] **Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante** - Preload de frames de caminhada e fallback seguro de recolor, bônus de +100 pontos de velocidade na cidade, janela de Chat com abas Local/World, atalho Enter para foco imediato e falas flutuantes em amarelo (local) e azul (world).
+- [x] **Phase 56: Sistema Multiplayer de Party (Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo)** - Convites de party via lista de amigos ou botão direito, modal de aceite/recusa no cliente receptor, sistema de follow do dono da party na cidade e caçada, transição sincronizada de caçada em grupo e foco coletivo de ataque nos monstros.
 
 ---
 
@@ -389,6 +390,12 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 28. Nova UI de Caçadas (Bestiary, Loots e Countdown de Troca) e Nova UI da Party com Modal Novo Membro | 1/1 | Complete | 2026-09-03 |
 | 29. Saída de Caçada a Thais Depot, Sistema de Treino no Dummy, e Nova Janela Skills | 1/1 | Complete | 2026-09-03 |
 | 30. Mapa Global de Thais, Início Imediato de Hunt, Skills Escuro e Botão Sair no Dock | 1/1 | Complete | 2026-09-03 |
+| 47. Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante | 1/1 | Complete | 2026-09-04 |
+| 53. Deletar Personagem na Seleção de Personagem & Banco de Dados | 1/1 | Complete | 2026-09-04 |
+| 54. Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM) | 1/1 | Complete | 2026-09-04 |
+| 55. Renderização Multiplayer de Jogadores Remotos na Cidade (ThaisCityArena) | 1/1 | Complete | 2026-09-04 |
+| 56. Sistema Multiplayer de Party (Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo) | 1/1 | Complete | 2026-09-04 |
+
 
 ---
 
@@ -814,6 +821,40 @@ Plans:
 
 Plans:
 - [x] 55-01-PLAN: Sincronização e renderização multiplayer de jogadores remotos no PixiJS (`ThaisCityArena.tsx`).
+
+---
+
+### Phase 56: Sistema Multiplayer de Party (Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo)
+
+**Goal:** Implementar o sistema completo de Party multiplayer: convidar jogadores através do botão "Party" na lista de amigos ou pelo clique com botão direito ("Convidar para a party"), exibição de modal de convite estilizado com botões de Aceitar e Recusar no jogador convidado, mecânica de seguir o dono da party (follow leader) na cidade de Thais e na caçada, transição sincronizada de caçada para todos os membros da party quando o líder iniciar uma caçada, e mira/ataque coordenado no mesmo monstro que o dono da caçada alvejar.  
+**Depends on:** Phase 55  
+**Requirements:**
+1. **Convites de Party:**
+   - Ao clicar no botão `👥 Party` na lista de amigos (`FriendsWindow.tsx`) ou na opção "👥 Convidar para Party" no menu de contexto do jogador (`CharacterContextMenu`), o cliente emite `party:invite` via WebSocket com `targetName`.
+   - O servidor Colyseus (`ThaisCityRoom.ts`) roteia o convite para o jogador destinatário.
+   - O jogador convidado recebe o evento e exibe modal visual: `"[Nome] convidou você para entrar na Party. Deseja aceitar?"` com botões estilizados `[ Aceitar ]` e `[ Recusar ]`.
+2. **Formação da Party & Sincronização:**
+   - Ao aceitar, o servidor define o dono da party (`partyLeaderId`) e os membros (`partyMembers`), notificando ambos os clientes com `party:sync`.
+   - A janela de Party (`PartyWindow.tsx`) e a interface do jogo exibem todos os membros conectados com barras de HP/MP e ícone de líder/membro.
+3. **Mecânica de Seguir o Líder (Follow Leader):**
+   - O jogador que aceitou a party entra no modo de seguir o dono da party (`followLeader = true`).
+   - Na cidade de Thais: quando o líder anda, o personagem do membro calcula rota e caminha mantendo-se próximo (1 SQM ou na trilha de passos do líder).
+4. **Caçada Cooperativa Sincronizada:**
+   - Quando o dono da party puxar uma caçada (no cais ou pela seleção de caçada), o evento `party:startHunt` é transmitido para todos os membros da party.
+   - Todos os membros da party são transportados juntos para a mesma caçada em tempo real.
+5. **Combate e Target Coletivo:**
+   - Na caçada, os membros acompanham o líder e, quando o líder ataca ou foca um monstro (retângulo vermelho), todos os membros da party focam e atacam aquele mesmo monstro em conjunto.
+**Success Criteria:**
+1. Convite de party enviado com sucesso via lista de amigos e botão direito em jogador.
+2. Modal de aceite/recusa renderizado no jogador convidado com feedback imediato para ambos.
+3. Membro da party segue o líder na cidade de Thais de forma fluida.
+4. Ao iniciar caçada, todos os membros da party entram juntos na caçada.
+5. Todos os membros da party atacam o mesmo bicho alvejado pelo líder.
+6. 100% de testes passando (`npm test`) e 0 erros de TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 56-01-PLAN: Sistema Multiplayer de Party (Convite, Modal de Aceite, Follow Leader, Caçada Cooperativa e Target Coletivo)
+
 
 
 

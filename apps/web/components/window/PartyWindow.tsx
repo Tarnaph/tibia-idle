@@ -487,6 +487,12 @@ export function PartyWindow({
                   ))}
                 </div>
 
+                {partyOnlineMembers.length > 0 && onLeaveParty && (
+                  <button type="button" className="gothic-action-btn danger-btn" onClick={onLeaveParty} style={{ marginTop: '8px', width: '100%', backgroundColor: '#8b2626' }}>
+                    🚪 Sair da Party Multiplayer
+                  </button>
+                )}
+
                 {onDisbandParty && (
                   <button type="button" className="gothic-action-btn danger-btn" onClick={onDisbandParty} style={{ marginTop: '12px' }}>
                     Desfazer Party

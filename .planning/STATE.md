@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-04T20:11:00.000Z"
-last_activity: "2026-09-04 — Concluída Phase 55: Renderização Multiplayer de Jogadores Remotos na Cidade (ThaisCityArena)."
+last_updated: "2026-09-04T21:32:00.000Z"
+last_activity: "2026-09-04 — Concluída Phase 56: Sistema Multiplayer de Party (Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo)."
 progress:
-  total_phases: 55
-  completed_phases: 55
-  total_plans: 55
-  completed_plans: 55
+  total_phases: 56
+  completed_phases: 56
+  total_plans: 56
+  completed_plans: 56
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 55 concluída (Renderização Multiplayer de Jogadores Remotos na Cidade).
+**Current focus:** Phase 56 concluída (Sistema Multiplayer de Party: Convites, Follow Leader, Caçada Compartilhada e Target Coletivo).
 
 ## Current Position
 
-Phase: 55 of 55 (Renderização Multiplayer de Jogadores Remotos na Cidade)  
+Phase: 56 of 56 (Sistema Multiplayer de Party: Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-04 — Concluída Phase 55: Renderização Multiplayer de Jogadores Remotos na Cidade (ThaisCityArena).
+Last activity: 2026-09-04 — Concluída Phase 56: Sistema Multiplayer de Party.
 
 Progress: [██████████] 100%
 
