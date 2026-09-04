@@ -13,6 +13,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: result }, { status: 200 });
   } catch (error: any) {
+    console.error('[Login Error Details]:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Erro ao realizar login.' },
       { status: 401 }

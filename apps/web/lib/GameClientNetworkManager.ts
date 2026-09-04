@@ -99,8 +99,9 @@ export class GameClientNetworkManager {
     // Listen to players collection
     if (this.room.state && this.room.state.players) {
       this.room.state.players.onAdd = (player: any, key: string) => {
+        if (!player) return;
         this.updatePlayerSnapshot(key, player);
-        if (player.onChange) {
+        if (typeof player.onChange === 'function') {
           player.onChange(() => {
             this.updatePlayerSnapshot(key, player);
             this.notifyStateChange();
@@ -135,6 +136,7 @@ export class GameClientNetworkManager {
   }
 
   private updatePlayerSnapshot(key: string, player: any): void {
+    if (!player) return;
     this.playersMap.set(key, {
       id: key,
       name: player.name || 'Aventureiro',
@@ -144,11 +146,11 @@ export class GameClientNetworkManager {
       maxHp: player.maxHp || 100,
       mp: player.mp || 35,
       maxMp: player.maxMp || 35,
-      x: player.x || 32369,
-      y: player.y || 32241,
-      z: player.z || 7,
+      x: player.posX ?? player.x ?? 32369,
+      y: player.posY ?? player.y ?? 32241,
+      z: player.posZ ?? player.z ?? 7,
       direction: player.direction || 'south',
-      isMoving: Boolean(player.isMoving),
+      isMoving: Boolean(player.isWalking ?? player.isMoving),
       outfit: {
         lookType: player.lookType || 128,
         lookHead: player.lookHead || 0,

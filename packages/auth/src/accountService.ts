@@ -87,9 +87,11 @@ export class AccountService {
 
   async login(input: LoginAccountInput): Promise<AuthResult> {
     const trimmedEmail = input.email.trim().toLowerCase();
+    console.log('[AccountService.login] Step 1: findUnique account for', trimmedEmail);
     const account = await this.prisma.account.findUnique({
       where: { email: trimmedEmail },
     });
+    console.log('[AccountService.login] Step 2: account found:', !!account);
 
     if (!account) {
       throw new Error('E-mail ou senha incorretos.');

@@ -2,8 +2,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
 import cors from 'cors';
-import { Server } from 'colyseus';
-import { createNodeMatchmakingMiddleware } from '@colyseus/core';
+import { Server } from '@colyseus/core';
 import { monitor } from '@colyseus/monitor';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { ThaisCityRoom } from './rooms/ThaisCityRoom.ts';
@@ -18,7 +17,6 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
   app.use(cors());
   app.use(express.json());
 
-  app.use(createNodeMatchmakingMiddleware());
   app.use('/colyseus', monitor());
 
   app.get('/health', (req, res) => {

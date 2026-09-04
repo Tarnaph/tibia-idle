@@ -39,6 +39,21 @@ export class PrismaPersistenceManager {
   }
 
   /**
+   * Fetches character record from database by ID.
+   */
+  async loadCharacter(characterId: string) {
+    if (!characterId || characterId.startsWith('char-guest')) return null;
+    try {
+      return await this.db.character.findUnique({
+        where: { id: characterId },
+      });
+    } catch (err: any) {
+      console.warn(`[PrismaPersistenceManager] Failed to load character ${characterId}:`, err.message);
+      return null;
+    }
+  }
+
+  /**
    * Persists a batch of online players to database in parallel.
    */
   async saveBatch(players: Iterable<PlayerState>): Promise<void> {

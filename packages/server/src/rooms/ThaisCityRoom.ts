@@ -26,7 +26,7 @@ export interface JoinOptions {
   };
 }
 
-export class ThaisCityRoom extends Room<{ state: WorldState }> {
+export class ThaisCityRoom extends Room<WorldState> {
   maxClients = 100;
 
   onCreate(options: any) {
@@ -63,12 +63,19 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
     });
   }
 
-  onJoin(client: Client, options: JoinOptions) {
+  async onJoin(client: Client, options: JoinOptions) {
     let accountId = 'acc-guest';
     let charId = `char-${client.sessionId}`;
     let charName = `Hero ${client.sessionId.slice(0, 4)}`;
     let vocationId = 4;
     let level = 8;
+    let hp: number | undefined;
+    let maxHp: number | undefined;
+    let mp: number | undefined;
+    let maxMp: number | undefined;
+    let posX: number | undefined;
+    let posY: number | undefined;
+    let posZ: number | undefined;
 
     if (options.token) {
       try {
@@ -79,7 +86,23 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
       }
     }
 
-    if (options.mockCharacter) {
+    if (options.characterId) {
+      const dbChar = await persistenceManager.loadCharacter(options.characterId);
+      if (dbChar) {
+        charId = dbChar.id;
+        accountId = dbChar.accountId || accountId;
+        charName = dbChar.name;
+        vocationId = dbChar.vocationId;
+        level = dbChar.level;
+        hp = dbChar.health;
+        maxHp = dbChar.maxHealth;
+        mp = dbChar.mana;
+        maxMp = dbChar.maxMana;
+        posX = dbChar.posX;
+        posY = dbChar.posY;
+        posZ = dbChar.posZ;
+      }
+    } else if (options.mockCharacter) {
       charId = options.mockCharacter.id;
       accountId = options.mockCharacter.accountId || accountId;
       charName = options.mockCharacter.name;
@@ -87,24 +110,30 @@ export class ThaisCityRoom extends Room<{ state: WorldState }> {
       level = options.mockCharacter.level;
     }
 
-    const vocation = VOCATION_CONFIGS[vocationId] || VOCATION_CONFIGS[4];
+    const safeVocationId = Number(vocationId) || 4;
+    const vocation = VOCATION_CONFIGS[safeVocationId] || VOCATION_CONFIGS[4] || {
+      name: 'Knight',
+      baseHp: 185,
+      baseMp: 35,
+      capacity: 470,
+    };
 
     const player = new PlayerState();
     player.id = client.sessionId;
     player.characterId = charId;
     player.accountId = accountId;
-    player.name = charName;
-    player.vocationId = vocationId;
-    player.vocationName = vocation.name;
+    player.name = charName || 'Hero';
+    player.vocationId = safeVocationId;
+    player.vocationName = vocation.name || 'Knight';
     player.level = level;
-    player.hp = vocation.baseHp;
-    player.maxHp = vocation.baseHp;
-    player.mp = vocation.baseMp;
-    player.maxMp = vocation.baseMp;
+    player.hp = hp ?? vocation.baseHp;
+    player.maxHp = maxHp ?? vocation.baseHp;
+    player.mp = mp ?? vocation.baseMp;
+    player.maxMp = maxMp ?? vocation.baseMp;
     player.capacity = vocation.capacity;
-    player.posX = 32369;
-    player.posY = 32241;
-    player.posZ = 7;
+    player.posX = posX ?? 32369;
+    player.posY = posY ?? 32241;
+    player.posZ = posZ ?? 7;
     player.direction = 'south';
 
     if (!this.clients.includes(client)) {
