@@ -12,6 +12,7 @@ import { getRecoloredCanvasSync, normalizeOutfitId, preloadOutfitAllFrames } fro
 
 export interface CityOverheadMessage {
   id: string;
+  senderId?: string;
   senderName: string;
   text: string;
   channel: 'local' | 'world';
@@ -1143,19 +1144,37 @@ export function ThaisCityArena({
 
             let targetView: CityActorView | null = null;
             const myLeader = curChars[0];
-            if (myLeader && (sp.senderName === myLeader.name || sp.senderName === 'Você' || sp.senderName === '')) {
+            const isMe =
+              myLeader &&
+              (sp.senderName === myLeader.name ||
+                sp.senderName === 'Você' ||
+                sp.senderName === '' ||
+                (sp.senderId && latestRef.current.localPlayerId && sp.senderId === latestRef.current.localPlayerId));
+
+            if (isMe && myLeader) {
               targetView = ensureActorView(myLeader);
             } else {
-              const matchedChar = curChars.find((c) => c.name.toLowerCase() === sp.senderName.toLowerCase());
+              const matchedChar = curChars.find(
+                (c) =>
+                  (sp.senderName && c.name.toLowerCase() === sp.senderName.toLowerCase()) ||
+                  (sp.senderId && c.id === sp.senderId)
+              );
               if (matchedChar) {
                 targetView = ensureActorView(matchedChar);
               } else {
-                const matchedAmbient = AMBIENT_THAIS_PLAYERS.find((a) => a.name.toLowerCase() === sp.senderName.toLowerCase());
+                const matchedAmbient = AMBIENT_THAIS_PLAYERS.find(
+                  (a) =>
+                    (sp.senderName && a.name.toLowerCase() === sp.senderName.toLowerCase()) ||
+                    (sp.senderId && a.id === sp.senderId)
+                );
                 if (matchedAmbient) {
                   targetView = ensureActorView(matchedAmbient);
                 } else if (remotes) {
                   for (const [, rp] of remotes.entries()) {
-                    if (rp.name?.toLowerCase() === sp.senderName.toLowerCase()) {
+                    const matchRemote =
+                      (sp.senderId && (rp.id === sp.senderId || rp.characterId === sp.senderId)) ||
+                      (sp.senderName && rp.name && rp.name.toLowerCase() === sp.senderName.toLowerCase());
+                    if (matchRemote) {
                       const vocName = VOCATION_NAMES[rp.vocationId] || 'Knight';
                       targetView = ensureActorView({ id: rp.id, name: rp.name, vocation: vocName });
                       break;

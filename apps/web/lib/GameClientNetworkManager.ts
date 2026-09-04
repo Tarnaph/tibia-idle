@@ -151,9 +151,11 @@ export class GameClientNetworkManager {
       this.combatListeners.forEach((fn) => fn(event));
     });
 
-    this.room.onMessage('chat_message', (msg: NetworkChatMessage) => {
+    const onChat = (msg: NetworkChatMessage) => {
       this.chatListeners.forEach((fn) => fn(msg));
-    });
+    };
+    this.room.onMessage('chat', onChat);
+    this.room.onMessage('chat_message', onChat);
   }
 
   disconnect(): void {

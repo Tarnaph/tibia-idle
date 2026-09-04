@@ -382,7 +382,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       if (!recipient) return;
 
       let canReceive = false;
-      if (normalizedChannel === 'world') {
+      if (c.sessionId === client.sessionId) {
+        canReceive = true;
+      } else if (normalizedChannel === 'world') {
         canReceive = true;
       } else if (normalizedChannel === 'local') {
         canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, LOCAL_CHAT_RADIUS);
@@ -402,6 +404,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           timestamp,
         };
         c.send('chat', payload);
+        c.send('chat_message', payload);
       }
     });
   }

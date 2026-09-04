@@ -381,6 +381,7 @@ function GamePrototypeContent() {
           ...prev.slice(-20),
           {
             id: netMsg.id || `net-${Date.now()}-${Math.random()}`,
+            senderId: netMsg.senderId,
             senderName: netMsg.senderName,
             text: netMsg.text,
             channel: ch,
@@ -548,6 +549,7 @@ function GamePrototypeContent() {
           ...prev.slice(-20),
           {
             id: msgId,
+            senderId: activeCharacter.id,
             senderName: activeCharacter.name,
             text,
             channel,
