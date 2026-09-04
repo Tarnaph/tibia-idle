@@ -4932,16 +4932,21 @@ h1, h2, h3, p { margin: 0; }
 
 .tibia-preview-sprite {
   image-rendering: pixelated;
-  transform: scale(2.4);
   transform-origin: center center;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
   transition: transform 0.12s ease;
 }
 
 .tibia-preview-sprite.mounted {
-  transform: scale(1.0);
-  max-width: 88%;
-  max-height: 88%;
+  max-width: 82%;
+  max-height: 82%;
+  object-fit: contain;
+}
+
+.tibia-preview-sprite.on-foot {
+  transform: scale(2.4);
+  max-width: 64px;
+  max-height: 64px;
   object-fit: contain;
 }
 

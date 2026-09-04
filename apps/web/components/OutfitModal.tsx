@@ -151,24 +151,15 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
 
   const currentDir = DIRECTIONS[directionIdx];
 
-  // Resolve thumbnail for outfit cards
+  // Resolve thumbnail for outfit cards (matching all 14 local extracted sprites)
   const getOutfitThumbUrl = (outfitId: string): string => {
     const idLower = outfitId.toLowerCase();
-    if (['citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian'].includes(idLower)) {
+    if (['citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate'].includes(idLower)) {
       return `/generated/outfit-thumbs/${idLower}.png`;
     }
-    if (outfitId === 'Sire') {
-      return '/generated/tibia860/sire-south-frame-0.png';
-    }
-    const normKey = outfitId.includes('Sorcerer')
-      ? 'Sorcerer'
-      : outfitId.includes('Druid')
-      ? 'Druid'
-      : outfitId.includes('Paladin')
-      ? 'Paladin'
-      : 'Knight';
-    const frame = visualAssets.outfits[normKey]?.frames.find((f) => f.direction === 'south');
-    return frame?.publicUrl || '/generated/outfit-thumbs/knight.png';
+    if (idLower === 'oriental') return '/generated/outfit-thumbs/sorcerer.png';
+    if (idLower === 'beggar') return '/generated/outfit-thumbs/citizen.png';
+    return '/generated/outfit-thumbs/knight.png';
   };
 
   // Resolve thumbnail for mount cards
@@ -195,7 +186,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
   const outfitAsset = visualAssets.outfits[normKey] || visualAssets.outfits['Knight'];
   const dirFrames = outfitAsset?.frames.filter((f) => f.direction === currentDir) ?? [];
   const candidateFrame = dirFrames[0] || outfitAsset?.frames[0];
-  const onFootPreviewUrl = candidateFrame?.publicUrl ?? '/generated/outfit-thumbs/knight.png';
+  const onFootPreviewUrl = candidateFrame?.publicUrl ?? getOutfitThumbUrl(selectedOutfit);
 
   const previewSpriteUrl = isMountedDonkey ? '/generated/mounts/donkey_rider_south.png' : onFootPreviewUrl;
 
@@ -344,9 +335,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                   <img
                     src={previewSpriteUrl}
                     alt={selectedOutfit}
-                    className={`tibia-preview-sprite ${isMountedDonkey ? 'mounted' : ''}`}
+                    className={`tibia-preview-sprite ${isMountedDonkey ? 'mounted' : 'on-foot'}`}
                     style={{
                       imageRendering: 'pixelated',
+                      transform: isMountedDonkey && (currentDir === 'west' || currentDir === 'north') ? 'scaleX(-1)' : undefined,
                     }}
                   />
                 ) : (
