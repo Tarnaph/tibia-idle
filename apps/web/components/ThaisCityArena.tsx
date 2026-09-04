@@ -614,7 +614,13 @@ export function ThaisCityArena({
 
       // Ticker to smoothly follow player with VisualMotionTrack (matching hunt fluidity), animate characters & animate map elements
       app.ticker.add(() => {
-        const { characters: curChars, cityPos: curPos, isWalking: curWalk, isTraining: curTrain, stepDurationMs: curStepDuration } = latestRef.current;
+        const { characters: curChars, isWalking: curWalk, isTraining: curTrain, stepDurationMs: curStepDuration } = latestRef.current;
+        const rawPos = latestRef.current.cityPos;
+        const curPos = {
+          x: typeof rawPos?.x === 'number' && !isNaN(rawPos.x) ? rawPos.x : 32369,
+          y: typeof rawPos?.y === 'number' && !isNaN(rawPos.y) ? rawPos.y : 32241,
+          z: typeof rawPos?.z === 'number' && !isNaN(rawPos.z) ? rawPos.z : 7,
+        };
         tickCount++;
         const now = performance.now();
 

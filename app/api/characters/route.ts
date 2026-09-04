@@ -21,6 +21,9 @@ export async function GET(request: Request) {
     // Format characters ensuring bigints are serialized properly
     const formatted = characters.map((c) => ({
       ...c,
+      positionX: c.posX,
+      positionY: c.posY,
+      positionZ: c.posZ,
       experience: Number(c.experience),
       skills: c.skills.map((s) => ({ ...s, tries: Number(s.tries) })),
     }));

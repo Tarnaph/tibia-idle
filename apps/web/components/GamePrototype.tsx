@@ -137,8 +137,10 @@ function GamePrototypeContent() {
   const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
     setOnlineAccount(acc);
     setOnlineCharacter(charItem);
-    setShowAuthModal(false);
-    setCityPos({ x: charItem.positionX, y: charItem.positionY, z: charItem.positionZ });
+    const targetX = (charItem as any).posX ?? charItem.positionX ?? 32369;
+    const targetY = (charItem as any).posY ?? charItem.positionY ?? 32241;
+    const targetZ = (charItem as any).posZ ?? charItem.positionZ ?? 7;
+    setCityPos({ x: targetX, y: targetY, z: targetZ });
 
     // Connect to live Colyseus Server room
     gameNetwork
