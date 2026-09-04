@@ -119,24 +119,11 @@ export function PartyWindow({
         {/* TAB 1: SEU SQUAD */}
         {tab === 'squad' && (
           <div className="squad-tab-panel">
-            <div className="squad-header-info" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span className="info-title">Personagens no seu Squad</span>
-                <small className="info-desc">
-                  Defina o personagem principal. Os outros integrantes seguirão seu personagem e atacarão o mesmo alvo.
-                </small>
-              </div>
-
-              {!isPartyCreated && (
-                <button
-                  type="button"
-                  className="gothic-action-btn"
-                  onClick={handleStartCreateParty}
-                  style={{ whiteSpace: 'nowrap', padding: '6px 12px', fontSize: '11px' }}
-                >
-                  ⚔️ Criar Party
-                </button>
-              )}
+            <div className="squad-header-info">
+              <span className="info-title">Personagens no seu Squad</span>
+              <small className="info-desc">
+                Defina o personagem principal. Os outros integrantes seguirão seu personagem e atacarão o mesmo alvo.
+              </small>
             </div>
 
             <div className="squad-members-list">

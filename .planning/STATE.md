@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-04T04:18:00.000Z"
-last_activity: "2026-09-04 — Concluída Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante."
+last_updated: "2026-09-04T19:30:00.000Z"
+last_activity: "2026-09-04 — Concluída Phase 52: Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI."
 progress:
-  total_phases: 47
-  completed_phases: 47
-  total_plans: 47
-  completed_plans: 47
+  total_phases: 52
+  completed_phases: 52
+  total_plans: 52
+  completed_plans: 52
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 47 concluída (Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante).
+**Current focus:** Phase 52 concluída (Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI).
 
 ## Current Position
 
-Phase: 47 of 47 (Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante)  
+Phase: 52 of 52 (Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-04 — Concluída Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante.
+Last activity: 2026-09-04 — Concluída Phase 52: Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI.
 
 Progress: [██████████] 100%
 

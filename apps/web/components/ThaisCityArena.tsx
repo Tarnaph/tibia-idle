@@ -227,6 +227,7 @@ export function ThaisCityArena({
       const outfitUrls = Object.values(visualAssets.outfits).flatMap((outfit) =>
         outfit.frames.map((f) => f.publicUrl)
       );
+      const teleportEffectUrls = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
       const mapItemUrls = thaisData.tiles.flatMap((t) =>
         t.serverItemIds.flatMap((id) => {
           const mapping = visualAssets.mapItems[String(id)];
@@ -238,7 +239,7 @@ export function ThaisCityArena({
       );
 
       const allUrls = [
-        ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl, ...thumbUrls, ...outfitUrls, ...mapItemUrls]),
+        ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl, ...thumbUrls, ...outfitUrls, ...teleportEffectUrls, ...mapItemUrls]),
       ];
       
       const loaded: Record<string, PixiTexture> = {};
@@ -280,10 +281,37 @@ export function ThaisCityArena({
 
       const actorsLayer = new Container();
       actorsLayer.sortableChildren = true;
+      const effectsLayer = new Container();
+      effectsLayer.sortableChildren = true;
       const overlayLayer = new Container();
 
-      world.addChild(floor7Container, floor6Container, actorsLayer);
+      world.addChild(floor7Container, floor6Container, actorsLayer, effectsLayer);
       app.stage.addChild(world, overlayLayer);
+
+      const teleportFrames = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
+      const teleportEffects: Array<{
+        sprite: InstanceType<typeof Sprite>;
+        frames: string[];
+        startedAt: number;
+        durationMs: number;
+      }> = [];
+
+      const triggerTeleportEffect = (px: number, py: number) => {
+        if (teleportFrames.length === 0) return;
+        const firstFrame = teleportFrames[0];
+        if (!firstFrame || !loaded[firstFrame]) return;
+        const sp = new Sprite(loaded[firstFrame]);
+        sp.anchor.set(0.5, 0.5);
+        sp.position.set(px, py - 6);
+        sp.zIndex = py + 999;
+        effectsLayer.addChild(sp);
+        teleportEffects.push({
+          sprite: sp,
+          frames: teleportFrames,
+          startedAt: performance.now(),
+          durationMs: 500,
+        });
+      };
 
       // Fast tile lookups for ground (z:7) and upper floor / dock (z:6)
       const tileMapZ7 = new Map<string, typeof thaisData.tiles[0]>();
@@ -646,6 +674,11 @@ export function ThaisCityArena({
         let view = actorViews.get(char.id);
         if (view) return view;
 
+        const idx = characters.findIndex((c) => c.id === char.id);
+        const offsetX = idx === 0 ? 0 : idx === 1 ? -32 : idx === 2 ? 32 : 0;
+        const offsetY = idx === 0 ? 0 : idx === 3 ? 32 : 0;
+        triggerTeleportEffect(currentPixelX + offsetX, currentPixelY + offsetY);
+
         if (char.outfitColors) {
           preloadOutfitAllFrames(char.outfit || char.vocation, char.gender || 'male', char.outfitColors).catch(() => {});
         }
@@ -717,6 +750,20 @@ export function ThaisCityArena({
         };
         tickCount++;
         const now = performance.now();
+
+        // 0. Update teleport blue particle effects
+        for (let i = teleportEffects.length - 1; i >= 0; i--) {
+          const fx = teleportEffects[i];
+          const elapsed = now - fx.startedAt;
+          if (elapsed >= fx.durationMs) {
+            fx.sprite.destroy();
+            teleportEffects.splice(i, 1);
+          } else {
+            const frameIdx = Math.floor((elapsed / fx.durationMs) * fx.frames.length);
+            const url = fx.frames[Math.min(frameIdx, fx.frames.length - 1)];
+            if (url && loaded[url]) fx.sprite.texture = loaded[url];
+          }
+        }
 
         // Floor rendering: Floor 7 is the base terrain (streets, water, nature),
         // Floor 6 (roofs, upper pier, boat, walkways) is drawn on top when curPos.z === 6.
@@ -801,9 +848,9 @@ export function ThaisCityArena({
             }
           }
 
-          // Offset party members slightly around the leader
-          const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
-          const offsetY = idx === 0 ? 0 : idx === 3 ? 24 : 12;
+          // Position party members cleanly on adjacent floor tiles (32px = 1 full tile step)
+          const offsetX = idx === 0 ? 0 : idx === 1 ? -32 : idx === 2 ? 32 : 0;
+          const offsetY = idx === 0 ? 0 : idx === 3 ? 32 : 0;
 
           view.root.position.set(currentPixelX + offsetX, currentPixelY + offsetY);
           view.root.zIndex = currentPixelY + offsetY;

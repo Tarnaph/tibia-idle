@@ -15,9 +15,8 @@ describe('party creation', () => {
     expect(() => addPartyMember(state, 'Extra', 'Paladin', content)).toThrow('4 membros');
   });
 
-  it('rejects duplicate vocations and creates independent state', () => {
+  it('allows adding party members and creates independent state', () => {
     const base = createIdleGame('party-unique', content);
-    expect(() => addPartyMember(base, 'Other Knight', 'Knight', content)).toThrow('já está');
     const added = addPartyMember(base, 'Pala', 'Paladin', content);
     expect(added.session.characters[1]).not.toBe(added.session.characters[0]);
     expect(added.session.characters[1].vocation).toBe('Paladin');

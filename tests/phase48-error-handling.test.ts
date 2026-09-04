@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addPartyMember, createIdleGame, createCharacter, initialHunts } from '../packages/domain/src';
+import { addPartyMember, createIdleGame, initialHunts } from '../packages/domain/src';
 import equipmentJson from '../content/generated/equipment.json';
 import monstersJson from '../content/generated/monsters.json';
 import startersJson from '../content/generated/starter-loadouts.json';
@@ -24,8 +24,8 @@ const content: GameContent = {
 };
 
 describe('Phase 48: Party Creation Error Handling', () => {
-  it('prevents adding a duplicate vocation to party and throws clean error message', () => {
-    const game = createIdleGame('test-seed', content); // initial leader is Knight
-    expect(() => addPartyMember(game, 'SecondKnight', 'Knight', content)).toThrow('Knight já está na party.');
+  it('prevents adding a duplicate character name to party and throws clean error message', () => {
+    const game = createIdleGame('test-seed', content); // initial leader is Aldric
+    expect(() => addPartyMember(game, 'Aldric', 'Knight', content)).toThrow('Nome já utilizado.');
   });
 });

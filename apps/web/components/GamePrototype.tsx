@@ -796,6 +796,23 @@ function GamePrototypeContent() {
     try {
       const nextState = synchronizePartyWithEncounter(addPartyMember(game, name, vocation, content, charGender), content);
       setGame(nextState);
+
+      // Persist newly created character to PostgreSQL Database under account
+      const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') : null;
+      if (token) {
+        const vocIdMap: Record<string, number> = { Sorcerer: 1, Druid: 2, Paladin: 3, Knight: 4, Monk: 4 };
+        fetch('/api/characters', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: name.trim(), vocationId: vocIdMap[vocation] || 4 }),
+        }).catch((err) => {
+          console.warn('Erro ao salvar personagem no banco:', err);
+        });
+      }
+
       return null;
     } catch (error) {
       return error instanceof Error ? error.message : 'Não foi possível criar o membro.';

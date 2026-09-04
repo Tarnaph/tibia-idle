@@ -38,16 +38,11 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
   const [selectedVocation, setSelectedVocation] = useState<SelectableVocation>('Knight');
   const [error, setError] = useState('');
 
-  // Auto-select first available non-used vocation when modal opens
   useEffect(() => {
     if (open) {
-      const firstAvailable = VOCATION_OPTIONS.find((v) => !used.includes(v.base));
-      if (firstAvailable) {
-        setSelectedVocation(firstAvailable.id);
-      }
       setError('');
     }
-  }, [open, used]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -60,11 +55,6 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
 
     const vocOption = VOCATION_OPTIONS.find((v) => v.id === selectedVocation);
     const targetBase = vocOption ? vocOption.base : 'Knight';
-
-    if (used.includes(targetBase)) {
-      setError(`A vocação ${vocOption?.name || targetBase} já está na sua party.`);
-      return;
-    }
 
     const result = onCreate(name.trim(), targetBase, gender);
     if (result) {
@@ -126,7 +116,6 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
           <div className="new-member-vocations-grid">
             {VOCATION_OPTIONS.map((option) => {
               const isSelected = selectedVocation === option.id;
-              const isUsed = used.includes(option.base) && option.id !== 'Monk';
               const outfitFrame =
                 assets.outfits[option.base]?.frames.find((f) => f.direction === 'south') ??
                 assets.outfits[option.base]?.frames[0];
@@ -134,12 +123,8 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
               return (
                 <div
                   key={option.id}
-                  className={`new-member-voc-card ${isSelected ? 'selected' : ''} ${
-                    isUsed ? 'disabled' : ''
-                  }`}
-                  onClick={() => {
-                    if (!isUsed) setSelectedVocation(option.id);
-                  }}
+                  className={`new-member-voc-card ${isSelected ? 'selected' : ''}`}
+                  onClick={() => setSelectedVocation(option.id)}
                 >
                   <div className="voc-card-sprite">
                     {outfitFrame ? (

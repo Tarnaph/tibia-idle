@@ -1,11 +1,10 @@
 # LISTA DE MUDANÇAS
 
-Está cortado a janela de métrica e combate, precisa arrumar para ter melhor visulização
+Correção de bugs,na hora que você aperta criar novo personagem eu tentei mudar a vocação ali ele ficou travada em uma só, deve ter algum bug impedindo de mexer melhor nesse menu, lembrando que quando se cria um personagem aqui, ele precisa salvar isso no databse do jogo para não perdermos, por que esse character começa a participar de tudo no jogo, mensagens, ranking etc então quando eu sair e entrar na conta tem que estar lá o personagem
 
-A janela de party ficou bem ruim, escrita ta grudada uma na outra e ta desorganizado precisa dar uma atenção a isso
+remover criar party da aba seu squad
 
-A aba party online também está mal organizada e tudo muito junto, está aparecendo 2 personagem meu na party, lembrando que eu preciso ter controle da party, posso excluir personagem meu da party ele vai ficar la no meu squad, se eu entrar em alguma hunt com a party ativa e outros jogadores, só entra na hunt comigo quem estiver na party nao o squad inteiro.
+O personagem quando aparece, aparece em uma posição errada grudada no personagem principal, vamos melhorar isso, vai aparecer o efeito de teleport que é aquela bola azul, veja nos arquivos do jogo você vai encontrar la o efeito de spawn ai o personagem vai nascer no quadrado ao lado e ja vai estar follow no principal, sempre follow.
 
-Essa box que fica no canto superior esquerdo, vai ser o nome do username da conta e não dos personagens, então ali pode retirar o elite knight, level 184 taxa de xp essas coisas ali vai ficar só username, nome dos personagens vão ficar no squad, ali na box de squad você pode apertar quem é o personagem principal ativado
 
 
