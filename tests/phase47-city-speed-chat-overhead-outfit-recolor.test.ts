@@ -98,10 +98,11 @@ describe('Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Ch
     expect(protoSrc).toContain("chatWindowRef.current?.focusInput('local')");
     expect(protoSrc).toContain('<ChatWindow');
 
-    // ThaisCityArena renders overhead floating text: Yellow (0xffff00) for local, Blue (0x55ffff) for world
+    // ThaisCityArena renders overhead floating text: Yellow (0xffff00) for local, Blue (0x55ffff) for world with "[Player] says:\n[text]" format
     expect(cityArenaSrc).toContain('overheadSpeech');
     expect(cityArenaSrc).toContain('0xffff00 : 0x55ffff');
     expect(cityArenaSrc).toContain('speechExpiresAt');
+    expect(cityArenaSrc).toContain('says:');
 
     // Server routes local chat spatially and world chat globally
     expect(serverRoomSrc).toContain("normalizedChannel === 'world'");

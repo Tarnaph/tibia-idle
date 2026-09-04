@@ -926,11 +926,12 @@ export function ThaisCityArena({
                   resolution: 2,
                   style: {
                     fill: 0xffff00,
-                    stroke: { color: 0x08120a, width: 2.5 },
+                    stroke: { color: 0x000000, width: 2.5 },
                     fontSize: 8.5,
-                    fontFamily: 'Arial',
+                    fontFamily: 'Verdana, Tahoma, Arial, sans-serif',
                     fontWeight: '700',
                     align: 'center',
+                    lineHeight: 11,
                     wordWrap: true,
                     wordWrapWidth: 160,
                   },
@@ -946,7 +947,8 @@ export function ThaisCityArena({
 
               const isLocal = sp.channel === 'local';
               if (targetView.overheadSpeechText && targetView.overheadSpeech) {
-                targetView.overheadSpeechText.text = sp.text;
+                const speakerLabel = sp.senderName && sp.senderName !== 'Você' ? sp.senderName : (myLeader?.name || 'Player');
+                targetView.overheadSpeechText.text = `${speakerLabel} says:\n${sp.text}`;
                 // Yellow for local, Blue for world
                 targetView.overheadSpeechText.style.fill = isLocal ? 0xffff00 : 0x55ffff;
                 targetView.overheadSpeech.visible = true;
