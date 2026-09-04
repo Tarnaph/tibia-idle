@@ -57,71 +57,18 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Background Audio State
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  // Video Audio State
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [isMuted, setIsMuted] = useState(false);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.volume = 0.45;
-
-    const startAudio = async () => {
-      try {
-        audio.muted = false;
-        await audio.play();
-        setIsMuted(false);
-      } catch {
-        // Autoplay policy blocked unmuted audio; start muted immediately so audio loop runs
-        try {
-          audio.muted = true;
-          await audio.play();
-        } catch {
-          // Ignore
-        }
-
-        // Unmute on ANY user interaction (mousemove, pointermove, click, keydown, touch)
-        const unmuteAndPlay = () => {
-          if (audio) {
-            audio.muted = false;
-            audio.volume = 0.45;
-            audio.play().then(() => {
-              setIsMuted(false);
-            }).catch(() => {});
-          }
-          removeListeners();
-        };
-
-        const removeListeners = () => {
-          window.removeEventListener('mousemove', unmuteAndPlay);
-          window.removeEventListener('pointermove', unmuteAndPlay);
-          window.removeEventListener('mousedown', unmuteAndPlay);
-          window.removeEventListener('click', unmuteAndPlay);
-          window.removeEventListener('keydown', unmuteAndPlay);
-          window.removeEventListener('touchstart', unmuteAndPlay);
-        };
-
-        window.addEventListener('mousemove', unmuteAndPlay, { once: true });
-        window.addEventListener('pointermove', unmuteAndPlay, { once: true });
-        window.addEventListener('mousedown', unmuteAndPlay, { once: true });
-        window.addEventListener('click', unmuteAndPlay, { once: true });
-        window.addEventListener('keydown', unmuteAndPlay, { once: true });
-        window.addEventListener('touchstart', unmuteAndPlay, { once: true });
-      }
-    };
-
-    void startAudio();
-  }, []);
-
   const toggleMute = () => {
-    if (audioRef.current) {
+    if (videoRef.current) {
       if (isMuted) {
-        audioRef.current.muted = false;
-        audioRef.current.play().catch(() => {});
+        videoRef.current.muted = false;
+        videoRef.current.play().catch(() => {});
         setIsMuted(false);
       } else {
-        audioRef.current.muted = true;
+        videoRef.current.muted = true;
         setIsMuted(true);
       }
     }
@@ -273,14 +220,11 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
         overflow: 'hidden',
       }}
     >
-      {/* Background Audio */}
-      <audio ref={audioRef} src="/ferumbras-theme.mp3" loop autoPlay />
-
       {/* Floating Audio Control Toggle Button in top-right corner */}
       <button
         type="button"
         onClick={toggleMute}
-        title={isMuted ? 'Ativar Música de Fundo (Ferumbras Cometh Again)' : 'Mutar Música de Fundo'}
+        title={isMuted ? 'Ativar Áudio do Bardo (SongTibia)' : 'Mutar Áudio'}
         style={{
           position: 'fixed',
           top: '20px',
@@ -366,7 +310,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
           }}
         />
 
-        {/* Side-by-side Row: LEFT Selection Box & RIGHT Bard Video Card */}
+        {/* Side-by-side Row: LEFT Selection Box & RIGHT Frameless Bard Video */}
         <div
           style={{
             display: 'flex',
@@ -804,38 +748,22 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
             </div>
           </div>
 
-          {/* RIGHT: Bard Video Portrait Card */}
+          {/* RIGHT: Frameless & Larger Bard Character Video */}
           <div
             style={{
-              width: '320px',
-              height: '400px',
+              width: '420px',
+              height: '480px',
               position: 'relative',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(180deg, rgba(20, 15, 12, 0.95) 0%, rgba(10, 8, 6, 0.98) 100%)',
-              border: '2px solid #7d5c2e',
-              borderRadius: '12px',
-              boxShadow: '0 12px 35px rgba(0, 0, 0, 0.95), inset 0 0 20px rgba(0,0,0,0.8)',
-              overflow: 'hidden',
-              padding: '6px',
-              boxSizing: 'border-box',
+              background: 'transparent',
+              border: 'none',
+              boxShadow: 'none',
+              overflow: 'visible',
             }}
           >
-            {/* Ornate Gold Border Inner Frame */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: '4px',
-                border: '1px solid rgba(212, 168, 67, 0.4)',
-                borderRadius: '8px',
-                pointerEvents: 'none',
-                zIndex: 3,
-              }}
-            />
-
-            <BardChromaVideo src="/songtibia.webm" />
+            <BardChromaVideo src="/songtibia.webm" videoRef={videoRef} setIsMuted={setIsMuted} />
           </div>
         </div>
 
@@ -876,8 +804,15 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
   );
 }
 
-function BardChromaVideo({ src }: { src: string }) {
-  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+function BardChromaVideo({
+  src,
+  videoRef,
+  setIsMuted,
+}: {
+  src: string;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  setIsMuted: (muted: boolean) => void;
+}) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -886,6 +821,54 @@ function BardChromaVideo({ src }: { src: string }) {
     if (!video || !canvas) return;
 
     let animId: number;
+
+    const startAudio = async () => {
+      try {
+        video.muted = false;
+        video.volume = 0.8;
+        await video.play();
+        setIsMuted(false);
+      } catch {
+        // Autoplay policy blocked unmuted audio; start muted initially
+        try {
+          video.muted = true;
+          await video.play();
+          setIsMuted(true);
+        } catch {
+          // Ignore
+        }
+
+        // Unmute on user interaction
+        const unmuteAndPlay = () => {
+          if (video) {
+            video.muted = false;
+            video.volume = 0.8;
+            video.play().then(() => {
+              setIsMuted(false);
+            }).catch(() => {});
+          }
+          removeListeners();
+        };
+
+        const removeListeners = () => {
+          window.removeEventListener('mousemove', unmuteAndPlay);
+          window.removeEventListener('pointermove', unmuteAndPlay);
+          window.removeEventListener('mousedown', unmuteAndPlay);
+          window.removeEventListener('click', unmuteAndPlay);
+          window.removeEventListener('keydown', unmuteAndPlay);
+          window.removeEventListener('touchstart', unmuteAndPlay);
+        };
+
+        window.addEventListener('mousemove', unmuteAndPlay, { once: true });
+        window.addEventListener('pointermove', unmuteAndPlay, { once: true });
+        window.addEventListener('mousedown', unmuteAndPlay, { once: true });
+        window.addEventListener('click', unmuteAndPlay, { once: true });
+        window.addEventListener('keydown', unmuteAndPlay, { once: true });
+        window.addEventListener('touchstart', unmuteAndPlay, { once: true });
+      }
+    };
+
+    void startAudio();
 
     const renderFrame = () => {
       if (video.paused || video.ended) {
@@ -921,13 +904,12 @@ function BardChromaVideo({ src }: { src: string }) {
       animId = requestAnimationFrame(renderFrame);
     };
 
-    video.play().catch(() => {});
     animId = requestAnimationFrame(renderFrame);
 
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, []);
+  }, [src, videoRef, setIsMuted]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -936,7 +918,6 @@ function BardChromaVideo({ src }: { src: string }) {
         src={src}
         autoPlay
         loop
-        muted
         playsInline
         style={{ display: 'none' }}
       />
@@ -946,10 +927,11 @@ function BardChromaVideo({ src }: { src: string }) {
           width: '100%',
           height: '100%',
           objectFit: 'contain',
-          filter: 'drop-shadow(0 8px 25px rgba(0,0,0,0.85))',
+          filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.9))',
         }}
       />
     </div>
   );
 }
+
 
