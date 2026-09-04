@@ -844,16 +844,28 @@ function BardChromaVideo({
 
     let animId: number;
 
+    const setInitialTime = () => {
+      if (video.currentTime < 14) {
+        video.currentTime = 14;
+      }
+    };
+
+    setInitialTime();
+    video.addEventListener('loadedmetadata', setInitialTime);
+    video.addEventListener('timeupdate', setInitialTime);
+
     const startAudio = async () => {
       try {
         video.muted = false;
         video.volume = 0.8;
+        setInitialTime();
         await video.play();
         setIsMuted(false);
       } catch {
         // Autoplay policy blocked unmuted audio; start muted initially
         try {
           video.muted = true;
+          setInitialTime();
           await video.play();
           setIsMuted(true);
         } catch {
@@ -938,6 +950,8 @@ function BardChromaVideo({
 
     return () => {
       cancelAnimationFrame(animId);
+      video.removeEventListener('loadedmetadata', setInitialTime);
+      video.removeEventListener('timeupdate', setInitialTime);
     };
   }, [src, videoRef, setIsMuted]);
 
@@ -949,6 +963,11 @@ function BardChromaVideo({
         autoPlay
         loop
         playsInline
+        onLoadedMetadata={(e) => {
+          if (e.currentTarget.currentTime < 14) {
+            e.currentTarget.currentTime = 14;
+          }
+        }}
         style={{ display: 'none' }}
       />
       <canvas
