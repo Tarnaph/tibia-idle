@@ -43,7 +43,7 @@ export function WindowDockBar({
         <div className="game-brand">
           <span className="brand-dot" />
           <span className="brand-title">CAVEBOUND</span>
-          <span className="brand-sub">8.60</span>
+          <span className="brand-sub">11</span>
         </div>
         <div className="player-summary">
           <button

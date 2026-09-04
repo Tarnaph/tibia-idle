@@ -6,7 +6,6 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "predev": "npm run prepare:game",
     "dev": "vinext dev",
     "prebuild": "npm run prepare:game",
     "build": "vinext build",
