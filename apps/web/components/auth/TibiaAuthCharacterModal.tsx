@@ -29,17 +29,17 @@ interface TibiaAuthCharacterModalProps {
 }
 
 const VOCATION_NAMES: Record<number, string> = {
-  1: 'Knight',
-  2: 'Paladin',
-  3: 'Sorcerer',
-  4: 'Druid',
+  1: 'Sorcerer',
+  2: 'Druid',
+  3: 'Paladin',
+  4: 'Knight',
 };
 
 const VOCATION_DESCRIPTIONS: Record<number, string> = {
-  1: 'Guerreiro de elite treinado em combate corpo a corpo e alta defesa com escudos.',
-  2: 'Atirador de precisão especialista em armas de distância, lanças e arco e flecha.',
-  3: 'Mago mestre em magias ofensivas de alto dano elemental e feitiços devastadores.',
-  4: 'Guardião da natureza mestre em artes de cura profunda e magias de gelo/terra.',
+  1: 'Mago mestre em magias ofensivas de alto dano elemental e feitiços devastadores.',
+  2: 'Guardião da natureza mestre em artes de cura profunda e magias de gelo/terra.',
+  3: 'Atirador de precisão especialista em armas de distância, lanças e arco e flecha.',
+  4: 'Guerreiro de elite treinado em combate corpo a corpo e alta defesa com escudos.',
 };
 
 export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAuthCharacterModalProps) {
@@ -54,7 +54,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [charName, setCharName] = useState('');
-  const [selectedVocation, setSelectedVocation] = useState<number>(1);
+  const [selectedVocation, setSelectedVocation] = useState<number>(4);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [charToDelete, setCharToDelete] = useState<CharacterItem | null>(null);

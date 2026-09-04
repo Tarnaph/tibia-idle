@@ -126,11 +126,11 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     let outfitName = (options as any).outfit || 'Knight';
-    let outfitLookType = 128;
-    let outfitHead = 0;
-    let outfitBody = 0;
-    let outfitLegs = 0;
-    let outfitFeet = 0;
+    let outfitLookType = (options as any).outfitLookType ?? 128;
+    let outfitHead = (options as any).outfitColors?.head ?? 0;
+    let outfitBody = (options as any).outfitColors?.primary ?? 86;
+    let outfitLegs = (options as any).outfitColors?.secondary ?? 114;
+    let outfitFeet = (options as any).outfitColors?.detail ?? 76;
     let outfitAddons = 0;
     let mount = (options as any).mount || 'none';
     let mountActive = Boolean((options as any).mountActive);
@@ -150,11 +150,16 @@ export class ThaisCityRoom extends Room<WorldState> {
         posX = dbChar.posX;
         posY = dbChar.posY;
         posZ = dbChar.posZ;
-        outfitLookType = dbChar.outfitLookType ?? 128;
-        outfitHead = dbChar.outfitHead ?? 0;
-        outfitBody = dbChar.outfitBody ?? 0;
-        outfitLegs = dbChar.outfitLegs ?? 0;
-        outfitFeet = dbChar.outfitFeet ?? 0;
+        outfitLookType = (options as any).outfitLookType ?? dbChar.outfitLookType ?? 128;
+        if (dbChar.vocationName && !(options as any).outfit) {
+          outfitName = dbChar.vocationName;
+        }
+        if (typeof dbChar.outfitBody === 'number' && (dbChar.outfitBody > 0 || dbChar.outfitLegs > 0)) {
+          outfitHead = dbChar.outfitHead;
+          outfitBody = dbChar.outfitBody;
+          outfitLegs = dbChar.outfitLegs;
+          outfitFeet = dbChar.outfitFeet;
+        }
       }
     } else if (options.mockCharacter) {
       charId = options.mockCharacter.id;

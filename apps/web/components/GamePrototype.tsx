@@ -427,20 +427,53 @@ function GamePrototypeContent() {
 
     // Update game state with the real user character created or selected in Auth Modal!
     const VOCATION_MAP: Record<number, BaseVocationName> = {
-      1: 'Knight',
-      2: 'Paladin',
-      3: 'Sorcerer',
-      4: 'Druid',
+      1: 'Sorcerer',
+      2: 'Druid',
+      3: 'Paladin',
+      4: 'Knight',
     };
-    const vocName = ((charItem as any).vocation as BaseVocationName) || VOCATION_MAP[charItem.vocationId] || 'Knight';
+    const vocName =
+      ((charItem as any).vocationName as BaseVocationName) ||
+      ((charItem as any).vocation as BaseVocationName) ||
+      VOCATION_MAP[charItem.vocationId] ||
+      'Knight';
     const userChar = createCharacter(charItem.id, charItem.name, vocName, content, 'male');
     if (charItem.level) userChar.level = charItem.level;
     if (charItem.health) userChar.currentHp = charItem.health;
     if (charItem.maxHealth) userChar.maxHp = charItem.maxHealth;
     if (charItem.mana) userChar.currentMana = charItem.mana;
     if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
-    if ((charItem as any).outfit) userChar.outfit = (charItem as any).outfit;
-    if ((charItem as any).outfitColors) userChar.outfitColors = (charItem as any).outfitColors;
+
+    const hasDbColors =
+      typeof (charItem as any).outfitBody === 'number' &&
+      ((charItem as any).outfitBody > 0 || (charItem as any).outfitLegs > 0 || (charItem as any).outfitFeet > 0);
+
+    const defaultColors = { head: 0, primary: 86, secondary: 114, detail: 76 };
+    userChar.outfitColors = (charItem as any).outfitColors || (hasDbColors ? {
+      head: (charItem as any).outfitHead ?? 0,
+      primary: (charItem as any).outfitBody ?? 86,
+      secondary: (charItem as any).outfitLegs ?? 114,
+      detail: (charItem as any).outfitFeet ?? 76,
+    } : defaultColors);
+
+    const charLookType = (charItem as any).outfitLookType;
+    const LOOKTYPE_NAME_MAP: Record<number, string> = {
+      128: 'Citizen',
+      129: 'Paladin',
+      130: 'Sorcerer',
+      131: 'Knight',
+      132: 'Noble',
+      133: 'Summoner',
+      134: 'Warrior',
+      143: 'Barbarian',
+      144: 'Druid',
+      999: 'Sire',
+    };
+
+    userChar.outfit =
+      (charItem as any).outfit ||
+      (charLookType && LOOKTYPE_NAME_MAP[charLookType]) ||
+      vocName;
 
     setGame((cur) => {
       // Newly created or selected character starts ALONE as sole main character in squad
@@ -456,10 +489,11 @@ function GamePrototypeContent() {
       };
     });
 
-    // Connect to live Colyseus Server room
+    // Connect to live Colyseus Server room with full outfit info
     gameNetwork
       .connect(authToken, charItem.id, {
         outfit: userChar.outfit,
+        outfitLookType: charLookType || 128,
         outfitColors: userChar.outfitColors,
         mount: userChar.mount,
         mountActive: userChar.mountActive,

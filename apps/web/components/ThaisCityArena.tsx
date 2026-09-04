@@ -71,10 +71,10 @@ const thaisData = thaisCityJson as {
 const TILE_SIZE = 32;
 
 const VOCATION_NAMES: Record<number, string> = {
-  1: 'Knight',
-  2: 'Paladin',
-  3: 'Sorcerer',
-  4: 'Druid',
+  1: 'Sorcerer',
+  2: 'Druid',
+  3: 'Paladin',
+  4: 'Knight',
 };
 
 export function ThaisCityArena({
@@ -998,10 +998,13 @@ export function ThaisCityArena({
         // 6. Update online players connected via Colyseus WebSocket
         // (remotes and myPlayerId already defined above in ticker)
         const LOOKTYPE_MAP: Record<number, string> = {
-          128: 'Knight',
+          128: 'Citizen',
           129: 'Paladin',
           130: 'Sorcerer',
-          131: 'Druid',
+          131: 'Knight',
+          132: 'Noble',
+          133: 'Summoner',
+          134: 'Warrior',
           136: 'Citizen',
           137: 'Hunter',
           138: 'Mage',
@@ -1013,6 +1016,10 @@ export function ThaisCityArena({
           144: 'Druid',
           145: 'Sorcerer',
           146: 'Paladin',
+          151: 'Pirate',
+          152: 'Assassin',
+          153: 'Beggar',
+          999: 'Sire',
         };
 
         if (remotes) {
@@ -1020,16 +1027,25 @@ export function ThaisCityArena({
           remotes.forEach((p, key) => {
             if (key === myPlayerId || p.id === myPlayerId || (myCharId && (p.id === myCharId || p.characterId === myCharId))) return; // Skip rendering local player as remote
 
-            const vocName = VOCATION_NAMES[p.vocationId] || 'Knight';
-            const outfitKey = p.outfit?.outfit || (p.outfit?.lookType ? (LOOKTYPE_MAP[p.outfit.lookType] || vocName) : vocName);
-            const colors = p.outfit
+            const vocName = (p.vocationName as string) || VOCATION_NAMES[p.vocationId] || 'Knight';
+            const rawOutfitName = typeof p.outfit === 'string' ? p.outfit : p.outfit?.outfit;
+            const outfitKey =
+              (rawOutfitName && rawOutfitName !== 'Hero' && rawOutfitName !== 'Desconhecido' ? rawOutfitName : null) ||
+              (p.outfit?.lookType ? LOOKTYPE_MAP[p.outfit.lookType] : null) ||
+              vocName;
+
+            const hasCustomColors =
+              p.outfit &&
+              ((p.outfit.lookBody ?? 0) > 0 || (p.outfit.lookLegs ?? 0) > 0 || (p.outfit.lookFeet ?? 0) > 0);
+
+            const colors = hasCustomColors
               ? {
-                  head: p.outfit.lookHead || 0,
-                  primary: p.outfit.lookBody || 0,
-                  secondary: p.outfit.lookLegs || 0,
-                  detail: p.outfit.lookFeet || 0,
+                  head: p.outfit.lookHead ?? 0,
+                  primary: p.outfit.lookBody ?? 86,
+                  secondary: p.outfit.lookLegs ?? 114,
+                  detail: p.outfit.lookFeet ?? 76,
                 }
-              : undefined;
+              : { head: 0, primary: 86, secondary: 114, detail: 76 };
 
             const view = ensureActorView({
               id: p.id,
