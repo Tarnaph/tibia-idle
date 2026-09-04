@@ -25,6 +25,7 @@ export interface CharacterItem {
 
 interface TibiaAuthCharacterModalProps {
   onSelectCharacter(token: string, character: CharacterItem, account: AuthAccount): void;
+  onGoHome?(): void;
 }
 
 const VOCATION_NAMES: Record<number, string> = {
@@ -41,7 +42,7 @@ const VOCATION_DESCRIPTIONS: Record<number, string> = {
   4: 'Guardião da natureza mestre em artes de cura profunda e magias de gelo/terra.',
 };
 
-export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacterModalProps) {
+export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAuthCharacterModalProps) {
   const [token, setToken] = useState<string | null>(null);
   const [account, setAccount] = useState<AuthAccount | null>(null);
   const [characters, setCharacters] = useState<CharacterItem[]>([]);
@@ -298,17 +299,35 @@ export function TibiaAuthCharacterModal({ onSelectCharacter }: TibiaAuthCharacte
           maxHeight: '98vh',
         }}
       >
-        {/* Exura Logo above character selection modal */}
-        <img
-          src="/logo.png"
-          alt="Exura Idle Adventures"
-          style={{
-            height: '100px',
-            maxWidth: '90vw',
-            objectFit: 'contain',
-            filter: 'drop-shadow(0 6px 24px rgba(0,0,0,0.85))',
+        {/* Exura Logo above character selection modal (Clicking returns to home page) */}
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            if (onGoHome) {
+              onGoHome();
+            } else {
+              window.location.href = '/';
+            }
           }}
-        />
+          title="Voltar para a Página Inicial"
+          style={{
+            cursor: 'pointer',
+            display: 'inline-block',
+            transition: 'transform 0.2s ease',
+          }}
+        >
+          <img
+            src="/logo.png"
+            alt="Exura Idle Adventures"
+            style={{
+              height: '100px',
+              maxWidth: '90vw',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 6px 24px rgba(0,0,0,0.85))',
+            }}
+          />
+        </a>
 
         {/* Side-by-side Row: LEFT Selection Box & RIGHT Frameless Bard Video */}
         <div

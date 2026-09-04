@@ -1290,7 +1290,12 @@ function GamePrototypeContent() {
 
       {/* Tibia Auth & Character Selection Modal */}
       {showAuthModal && (
-        <TibiaAuthCharacterModal onSelectCharacter={handleSelectCharacter} />
+        <TibiaAuthCharacterModal
+          onSelectCharacter={handleSelectCharacter}
+          onGoHome={() => {
+            window.location.href = '/';
+          }}
+        />
       )}
     </main>
   );
