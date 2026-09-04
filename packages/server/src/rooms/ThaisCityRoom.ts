@@ -36,8 +36,8 @@ export class ThaisCityRoom extends Room<WorldState> {
     // Set 100ms deterministic server simulation tick (10 ticks / sec)
     this.setSimulationInterval((dt) => this.gameTick(dt), 100);
 
-    // Start 30-second periodic auto-save to PostgreSQL
-    persistenceManager.startPeriodicSave(() => this.state.players.values(), 30000);
+    // Start 20-second periodic auto-save to PostgreSQL
+    persistenceManager.startPeriodicSave(() => this.state.players.values(), 20000);
 
     // Initial server-side monster spawns
     this.spawnInitialMonsters();

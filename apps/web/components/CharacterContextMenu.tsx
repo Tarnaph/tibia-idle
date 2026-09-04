@@ -9,6 +9,10 @@ export interface CharacterContextMenuProps {
   character: CharacterState;
   onSetOutfit: () => void;
   onToggleMount?: () => void;
+  onTrade?: () => void;
+  onInviteParty?: () => void;
+  onPrivateMessage?: () => void;
+  onAddFriend?: () => void;
   onClose: () => void;
 }
 
@@ -18,6 +22,10 @@ export function CharacterContextMenu({
   character,
   onSetOutfit,
   onToggleMount,
+  onTrade,
+  onInviteParty,
+  onPrivateMessage,
+  onAddFriend,
   onClose,
 }: CharacterContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -41,7 +49,7 @@ export function CharacterContextMenu({
   }, [onClose]);
 
   const adjustedLeft = Math.min(x, typeof window !== 'undefined' ? window.innerWidth - 200 : x);
-  const adjustedTop = Math.min(y, typeof window !== 'undefined' ? window.innerHeight - 220 : y);
+  const adjustedTop = Math.min(y, typeof window !== 'undefined' ? window.innerHeight - 260 : y);
 
   return (
     <div
@@ -82,6 +90,52 @@ export function CharacterContextMenu({
           🐎 {character.mountActive ? 'Desmontar' : 'Montar'}
         </button>
       )}
+
+      <div className="context-menu-divider" />
+
+      <button
+        type="button"
+        className="context-menu-item"
+        onClick={() => {
+          onTrade?.();
+          onClose();
+        }}
+      >
+        🤝 Trade (Trocar Itens)
+      </button>
+
+      <button
+        type="button"
+        className="context-menu-item"
+        onClick={() => {
+          onInviteParty?.();
+          onClose();
+        }}
+      >
+        👥 Convidar para Party
+      </button>
+
+      <button
+        type="button"
+        className="context-menu-item"
+        onClick={() => {
+          onPrivateMessage?.();
+          onClose();
+        }}
+      >
+        💬 Mandar Mensagem Privada
+      </button>
+
+      <button
+        type="button"
+        className="context-menu-item"
+        onClick={() => {
+          onAddFriend?.();
+          onClose();
+        }}
+      >
+        ⭐ Adicionar como Amigo
+      </button>
 
       <div className="context-menu-divider" />
 

@@ -8,9 +8,9 @@ import startersJson from '@/content/generated/starter-loadouts.json';
 import vocationsJson from '@/content/generated/vocations.json';
 import spellsJson from '@/content/generated/spells.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
-import type { BaseVocationName, EquipmentCatalog, HuntRegionCatalog, ItemEconomyCatalog, MonsterCatalog, SpellCatalog, StarterLoadoutCatalog, VocationCatalog } from '@/packages/content-schema/src';
+import type { BaseVocationName, EquipmentCatalog, EquipmentDefinition, HuntRegionCatalog, ItemEconomyCatalog, MonsterCatalog, SpellCatalog, StarterLoadoutCatalog, VocationCatalog } from '@/packages/content-schema/src';
 import {
-  addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame,
+  addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   transferItemBetweenContainers, destroyContainerItem, executeQuickSell,
   setCharacterStance, setCharacterTargetDistance,
@@ -19,7 +19,7 @@ import {
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
-  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack,
+  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
 } from '@/packages/domain/src';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
 import { BottomDock } from './BottomDock';
@@ -45,6 +45,8 @@ import { WindowManagerProvider, useWindowManager } from './window/WindowManagerC
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
+import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
+import { TradeWindow, type TradeOfferItem } from './window/TradeWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot } from '../lib/GameClientNetworkManager';
@@ -133,7 +135,7 @@ function GamePrototypeContent() {
   const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
 
-  const { openWindow, bringToFront } = useWindowManager();
+  const { openWindow, closeWindow, bringToFront } = useWindowManager();
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
     {
       id: 'welcome-local',
@@ -152,6 +154,127 @@ function GamePrototypeContent() {
   ]);
   const [overheadMessages, setOverheadMessages] = useState<CityOverheadMessage[]>([]);
   const chatWindowRef = useRef<ChatWindowHandle>(null);
+
+  // Friends System State
+  const [friendsList, setFriendsList] = useState<FriendItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem('cavebound_friends_v1');
+      return saved ? JSON.parse(saved) : [
+        { id: 'f-1', name: 'Laron', level: 15, vocation: 'Knight', isOnline: true },
+        { id: 'f-2', name: 'Sirius', level: 22, vocation: 'Sorcerer', isOnline: true },
+      ];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cavebound_friends_v1', JSON.stringify(friendsList));
+    } catch {}
+  }, [friendsList]);
+
+  const handleAddFriend = useCallback((name: string) => {
+    setFriendsList((prev) => {
+      if (prev.some((f) => f.name.toLowerCase() === name.toLowerCase())) return prev;
+      return [...prev, { id: `friend-${Date.now()}`, name, level: 1, vocation: 'Player', isOnline: true }];
+    });
+  }, []);
+
+  const handleRemoveFriend = useCallback((name: string) => {
+    setFriendsList((prev) => prev.filter((f) => f.name.toLowerCase() !== name.toLowerCase()));
+  }, []);
+
+  const handlePrivateMessage = useCallback((name: string) => {
+    openWindow('chat');
+    bringToFront('chat');
+    chatWindowRef.current?.focusInput('local');
+  }, [openWindow, bringToFront]);
+
+  const handleInviteParty = useCallback((name: string) => {
+    setPartyModalOpen(true);
+  }, []);
+
+  // Item Trade System State
+  const [tradeSession, setTradeSession] = useState<{
+    partnerName: string;
+    myOffers: TradeOfferItem[];
+    partnerOffers: TradeOfferItem[];
+    myAccepted: boolean;
+    partnerAccepted: boolean;
+  } | null>(null);
+
+  const handleStartTrade = useCallback((partnerName: string) => {
+    openWindow('trade');
+    bringToFront('trade');
+    setTradeSession({
+      partnerName,
+      myOffers: [],
+      partnerOffers: [],
+      myAccepted: false,
+      partnerAccepted: false,
+    });
+  }, [openWindow, bringToFront]);
+
+  const handleOfferItem = useCallback((item: EquipmentDefinition) => {
+    setTradeSession((prev) => {
+      if (!prev) return null;
+      const offerId = `offer-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      return {
+        ...prev,
+        myOffers: [...prev.myOffers, { id: offerId, item, amount: 1 }],
+        myAccepted: false,
+      };
+    });
+  }, []);
+
+  const handleRemoveOffer = useCallback((offerId: string) => {
+    setTradeSession((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        myOffers: prev.myOffers.filter((o) => o.id !== offerId),
+        myAccepted: false,
+      };
+    });
+  }, []);
+
+  const handleAcceptTrade = useCallback(() => {
+    setTradeSession((prev) => {
+      if (!prev) return null;
+      const nextMyAccepted = !prev.myAccepted;
+      if (nextMyAccepted) {
+        setGame((cur) => {
+          let updatedLoot = [...cur.session.loot];
+          for (const offer of prev.myOffers) {
+            const idx = updatedLoot.findIndex((s) => s.itemId === offer.item.id);
+            if (idx !== -1) {
+              if (updatedLoot[idx].amount > 1) {
+                updatedLoot[idx] = { ...updatedLoot[idx], amount: updatedLoot[idx].amount - 1 };
+              } else {
+                updatedLoot.splice(idx, 1);
+              }
+            }
+          }
+          for (const offer of prev.partnerOffers) {
+            const existing = updatedLoot.find((s) => s.itemId === offer.item.id);
+            if (existing) existing.amount += 1;
+            else updatedLoot.push({ itemId: offer.item.id, name: offer.item.name, amount: 1 });
+          }
+          return { ...cur, session: { ...cur.session, loot: updatedLoot } };
+        });
+        closeWindow('trade');
+        return null;
+      }
+      return { ...prev, myAccepted: nextMyAccepted };
+    });
+  }, [closeWindow]);
+
+  const handleCancelTrade = useCallback(() => {
+    closeWindow('trade');
+    setTradeSession(null);
+  }, [closeWindow]);
 
   useEffect(() => {
     const unsub = gameNetwork.onStateChange((players) => {
@@ -1106,19 +1229,50 @@ function GamePrototypeContent() {
         />
       )}
 
+      <FriendsWindow
+        friends={friendsList}
+        allKnownCharacters={game.session.characters.map((c) => ({ name: c.name, level: c.level, vocation: c.vocation }))}
+        onAddFriend={handleAddFriend}
+        onRemoveFriend={handleRemoveFriend}
+        onPrivateMessage={handlePrivateMessage}
+        onInviteParty={handleInviteParty}
+      />
+
+      {tradeSession && (
+        <TradeWindow
+          partnerName={tradeSession.partnerName}
+          myOffers={tradeSession.myOffers}
+          partnerOffers={tradeSession.partnerOffers}
+          availableInventoryItems={availableOwnedEquipmentIds(game).flatMap((id) => { const item = findEquipment(content.equipment, id); return item ? [item] : []; })}
+          myAccepted={tradeSession.myAccepted}
+          partnerAccepted={tradeSession.partnerAccepted}
+          onOfferItem={handleOfferItem}
+          onRemoveOffer={handleRemoveOffer}
+          onAcceptTrade={handleAcceptTrade}
+          onCancelTrade={handleCancelTrade}
+        />
+      )}
+
       {charContextMenu && (() => {
         const char = game.session.characters.find((c) => c.id === charContextMenu.characterId);
-        if (!char) return null;
+        const remote = !char && remotePlayers ? Array.from(remotePlayers.values()).find((r) => r.id === charContextMenu.characterId) : null;
+        const targetName = char?.name || remote?.name || 'Jogador';
+        const dummyChar: CharacterState = char || createCharacter(charContextMenu.characterId, targetName, 'Knight', content);
+
         return (
           <CharacterContextMenu
             x={charContextMenu.x}
             y={charContextMenu.y}
-            character={char}
+            character={dummyChar}
             onSetOutfit={() => {
-              setOutfitModalCharId(char.id);
+              setOutfitModalCharId(dummyChar.id);
               setOutfitModalOpen(true);
             }}
-            onToggleMount={() => handleToggleMount(char.id)}
+            onToggleMount={() => handleToggleMount(dummyChar.id)}
+            onTrade={() => handleStartTrade(dummyChar.name)}
+            onInviteParty={() => handleInviteParty(dummyChar.name)}
+            onPrivateMessage={() => handlePrivateMessage(dummyChar.name)}
+            onAddFriend={() => handleAddFriend(dummyChar.name)}
             onClose={() => setCharContextMenu(null)}
           />
         );

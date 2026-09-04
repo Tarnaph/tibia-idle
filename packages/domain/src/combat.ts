@@ -256,13 +256,40 @@ function grantSharedExperience(state: GameState, rawExperience: number, content:
 function rollLoot(state: GameState, monsterId: string, content: GameContent, multiplier = 1): void {
   const monster = monsterFor(content, monsterId);
   const rng = createSeededRng(state.encounter.rngState);
-  for (let roll = 0; roll < Math.max(1, Math.floor(multiplier)); roll += 1) for (const loot of monster.loot) {
-    if (rollInteger(rng, 0, 99_999) >= loot.chance) continue;
-    const amount = rollInteger(rng, 1, Math.max(1, loot.maxCount));
-    if (loot.itemId === 2148) state.session.gold += amount;
-    else if (loot.itemId === undefined || (state.session.itemLootPreferences[String(loot.itemId)]?.autoLoot ?? true)) addLoot(state.session.loot, { itemId: loot.itemId, name: loot.name, amount });
-    state.encounter.events.push({ type: 'loot', itemName: loot.name, amount });
-    addLog(state, `Loot: ${amount}x ${loot.name}.`);
+  const partyMembers = state.session.characters;
+
+  for (let roll = 0; roll < Math.max(1, Math.floor(multiplier)); roll += 1) {
+    for (const loot of monster.loot) {
+      if (rollInteger(rng, 0, 99_999) >= loot.chance) continue;
+      const amount = rollInteger(rng, 1, Math.max(1, loot.maxCount));
+
+      // Party mode: allocate loot to a party member according to rarity roll
+      if (partyMembers.length > 1) {
+        const memberIdx = rollInteger(rng, 0, partyMembers.length - 1);
+        const luckyMember = partyMembers[memberIdx];
+
+        if (loot.itemId === 2148) {
+          state.session.gold += amount;
+          const goldShare = Math.max(1, Math.floor(amount / partyMembers.length));
+          addLog(state, `Loot (Gold): ${amount} gold divididos na party (${goldShare} para cada).`);
+        } else {
+          if (loot.itemId === undefined || (state.session.itemLootPreferences[String(loot.itemId)]?.autoLoot ?? true)) {
+            addLoot(state.session.loot, { itemId: loot.itemId, name: loot.name, amount });
+          }
+          state.encounter.events.push({ type: 'loot', itemName: loot.name, amount });
+          addLog(state, `Loot (${loot.name}): ${luckyMember.name} recebeu ${amount}x ${loot.name}!`);
+        }
+      } else {
+        // Solo mode
+        if (loot.itemId === 2148) {
+          state.session.gold += amount;
+        } else if (loot.itemId === undefined || (state.session.itemLootPreferences[String(loot.itemId)]?.autoLoot ?? true)) {
+          addLoot(state.session.loot, { itemId: loot.itemId, name: loot.name, amount });
+        }
+        state.encounter.events.push({ type: 'loot', itemName: loot.name, amount });
+        addLog(state, `Loot: ${amount}x ${loot.name}.`);
+      }
+    }
   }
   state.encounter.rngState = rng.state;
 }

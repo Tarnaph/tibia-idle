@@ -1,7 +1,11 @@
 # Correções Concluídas
 
-- [x] A estética de quando o personagem fala agora é idêntica ao print do Tibia 11:
-  - Formato com quebra de linha: `[PlayerName] says:\n[mensagem]` (ex: `Laron says:\nteste`).
-  - Fonte com kerning e tipografia autêntica (`Verdana, Tahoma, Arial, sans-serif`, `fontSize: 8.5`, `lineHeight: 11`, `fontWeight: 700`).
-  - Contorno preto sólido (`stroke: 0x000000, width: 2.5`) e preenchimento amarelo autêntico (`0xffff00`) para Local Chat e ciano/azul (`0x55ffff`) para World Chat.
-  - Alinhamento centralizado com âncora vertical na base superior do nameplate do personagem (`anchor(0.5, 1)`), mantendo a mensagem sempre acima do nome sem sobreposição.
+Salve o jogo de 20 em 20 segundos para que não se perca a evolução dos personagens
+
+Quando você clica com o botão direito em outro player, tem a opção "Trade" que é um sistema de trocas que você pode colocar itens e o outro também coloca, depois vocês dois confirmam e os itens são trocados
+
+Ao apertar com o botão direito em outro personagem, você pode chamar ele para a Party, mandar uma private message e adicionar como amigo
+
+O loot em party funciona assim cada personagem tem uma porcentagem de chance de pegar o loot, de acordo com raridade, esse funcionamento do loot deve ser assim quando se joga sem party também, veja os arquivos do jogo para saber a raridade e chance de cada item
+
+Criar um botão de amigos no menu la em cima, esse sistema é simples você tem uma barra de buscar, quando você coloca o nome e aperta pesquisar ele acha, tem a opção de adicionar ele, quando adicionado ele fica na sua barra de amigos, da pra mandar mensagem privada para ele e também convidar para a party

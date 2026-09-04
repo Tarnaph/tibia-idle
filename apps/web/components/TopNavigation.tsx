@@ -7,18 +7,20 @@ interface TopNavigationProps {
   gold: number;
   debug: boolean;
   onEquipment(): void;
+  onOpenFriends?(): void;
   onToggleDebug(): void;
   onToggleLeftSidebar(): void;
   onToggleRightSidebar(): void;
 }
 
-const futureNavigation = ['Progress', 'Daily', 'Storage', 'Trade', 'Social'];
+const futureNavigation = ['Progress', 'Daily', 'Storage', 'Trade'];
 
 export function TopNavigation({
   characterName,
   gold,
   debug,
   onEquipment,
+  onOpenFriends,
   onToggleDebug,
   onToggleLeftSidebar,
   onToggleRightSidebar,
@@ -48,6 +50,7 @@ export function TopNavigation({
       <nav className="client-navigation" aria-label="Navegação principal">
         <button type="button" className="nav-shortcut active"><span>⌖</span><small>Hunt</small></button>
         <button type="button" className="nav-shortcut" onClick={onEquipment}><span>♜</span><small>Character</small></button>
+        <button type="button" className="nav-shortcut" onClick={onOpenFriends} title="Lista de Amigos (Buscar, Mensagens, Party)"><span>⭐</span><small>Amigos</small></button>
         {futureNavigation.map((label) => (
           <button type="button" className="nav-shortcut future" key={label} disabled title="Em breve">
             <span>◇</span><small>{label}</small>
