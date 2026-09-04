@@ -48,7 +48,12 @@ export default defineConfig(async () => {
     define: {
       __dirname: JSON.stringify(process.cwd()),
     },
-    css: { postcss: { plugins: [tailwindcss()] } },
+    optimizeDeps: {
+      exclude: ['@prisma/client'],
+    },
+    ssr: {
+      external: ['@prisma/client'],
+    },
     server: {
       hmr: { overlay: false },
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
@@ -56,10 +61,12 @@ export default defineConfig(async () => {
     plugins: [
       vinext(),
       sites(),
-      cloudflare({
-        viteEnvironment: { name: 'rsc', childEnvironments: ['ssr'] },
-        config: localBindingConfig,
-      }),
-    ],
+      process.env.USE_CLOUDFLARE === 'true'
+        ? cloudflare({
+            viteEnvironment: { name: 'rsc', childEnvironments: ['ssr'] },
+            config: localBindingConfig,
+          })
+        : null,
+    ].filter(Boolean),
   };
 });
