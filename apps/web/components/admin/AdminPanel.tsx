@@ -121,7 +121,52 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
 
         {message && <div className="admin-message" role="status">{message}</div>}
 
-        <div className="admin-list">
+        {/* COLYSEUS GAME SERVER GM MONITOR SECTION */}
+        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#1b222d', border: '1px solid #5a4b32', borderRadius: '6px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div>
+              <span className="eyebrow" style={{ color: '#d4a843' }}>COLLESEUS GAME SERVER</span>
+              <h2 style={{ fontSize: '18px', color: '#fff', margin: '4px 0' }}>Painel do Game Server & GM Tools</h2>
+              <p style={{ fontSize: '13px', color: '#8c8273', margin: 0 }}>
+                Inspecione salas online, métricas de rede e envie comandos administrativos (GM).
+              </p>
+            </div>
+            <a
+              href="http://localhost:2567/colyseus"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: '8px 16px',
+                background: 'linear-gradient(180deg, #ba8e54 0%, #7d5c2e 100%)',
+                border: '1px solid #d4a843',
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: '12px',
+                borderRadius: '4px',
+                textDecoration: 'none',
+              }}
+            >
+              Abrir @colyseus/monitor ↗
+            </a>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '16px' }}>
+            <div style={{ padding: '12px', background: '#11161d', border: '1px solid #2b3442', borderRadius: '4px' }}>
+              <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#f3e5ab' }}>⚡ Teleportar GM (`/teleport`)</div>
+              <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>Mover GM para coordenadas (x, y, z) ou player específico.</div>
+            </div>
+            <div style={{ padding: '12px', background: '#11161d', border: '1px solid #2b3442', borderRadius: '4px' }}>
+              <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#ff9999' }}>🚫 Expulsar / Kick (`/kick`)</div>
+              <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>Desconectar instantaneamente jogador da sala.</div>
+            </div>
+            <div style={{ padding: '12px', background: '#11161d', border: '1px solid #2b3442', borderRadius: '4px' }}>
+              <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#ff6666' }}>🔨 Banir Conta (`/ban`)</div>
+              <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>Marcar is_banned = true no PostgreSQL via Prisma.</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-list" style={{ marginTop: '24px' }}>
           {updates.length === 0 && <div className="admin-empty">Nenhuma atualização cadastrada.</div>}
           {updates.map((update) => (
             <article key={update.id}>

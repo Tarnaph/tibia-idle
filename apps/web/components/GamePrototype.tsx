@@ -43,6 +43,8 @@ import { WindowManagerProvider } from './window/WindowManagerContext';
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
+import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
+import { gameNetwork, type RemotePlayerSnapshot } from '../lib/GameClientNetworkManager';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
 const thaisTilesZ7 = thaisCityJson.tiles;
@@ -119,6 +121,27 @@ function GamePrototypeContent() {
   } | null>(null);
   const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
+  const [onlineCharacter, setOnlineCharacter] = useState<CharacterItem | null>(null);
+  const [isConnectedServer, setIsConnectedServer] = useState(false);
+
+  const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
+    setOnlineAccount(acc);
+    setOnlineCharacter(charItem);
+    setShowAuthModal(false);
+    setCityPos({ x: charItem.positionX, y: charItem.positionY, z: charItem.positionZ });
+
+    // Connect to live Colyseus Server room
+    gameNetwork
+      .connect(authToken, charItem.id)
+      .then(() => {
+        setIsConnectedServer(true);
+      })
+      .catch((err) => {
+        console.error('Falha ao conectar ao servidor Colyseus:', err);
+      });
+  }, []);
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
@@ -854,6 +877,11 @@ function GamePrototypeContent() {
 
       {/* Global Item Tooltip & Player Inspection (Highest z-index, always on top) */}
       <GlobalItemTooltip />
+
+      {/* Tibia Auth & Character Selection Modal */}
+      {showAuthModal && (
+        <TibiaAuthCharacterModal onSelectCharacter={handleSelectCharacter} />
+      )}
     </main>
   );
 }

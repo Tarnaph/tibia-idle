@@ -730,7 +730,7 @@ Plans:
 5. 100% dos testes de componentes de UI e integração frontend-colyseus passando.
 
 Plans:
-- [ ] 45-01-PLAN: Criar telas de Auth/Personagem, painel de administração e converter componentes PixiJS para o SDK `colyseus.js`.
+- [x] 45-01-PLAN: Criar telas de Auth/Personagem, painel de administração e converter componentes PixiJS para o SDK `colyseus.js`.
 
 ---
 
