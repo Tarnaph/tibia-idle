@@ -173,11 +173,11 @@ export function ThaisCityArena({
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
-  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, remotePlayers, localPlayerId });
+  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId });
 
   useEffect(() => {
-    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, remotePlayers, localPlayerId };
-  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, remotePlayers, localPlayerId]);
+    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId };
+  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId]);
 
 
   useEffect(() => {

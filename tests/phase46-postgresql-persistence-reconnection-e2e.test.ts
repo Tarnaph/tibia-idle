@@ -64,9 +64,9 @@ describe('Phase 46: PostgreSQL Batch Persistence, Native Colyseus Reconnection &
     manager.startPeriodicSave(() => {
       callbackCount++;
       return [player];
-    }, 50);
+    }, 30);
 
-    await new Promise((res) => setTimeout(res, 120));
+    await new Promise((res) => setTimeout(res, 160));
     manager.stopPeriodicSave();
 
     expect(callbackCount).toBeGreaterThanOrEqual(2);

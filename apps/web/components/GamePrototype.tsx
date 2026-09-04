@@ -128,6 +128,9 @@ function GamePrototypeContent() {
   const [onlineCharacter, setOnlineCharacter] = useState<CharacterItem | null>(null);
   const [isConnectedServer, setIsConnectedServer] = useState(false);
   const [remotePlayers, setRemotePlayers] = useState<Map<string, RemotePlayerSnapshot>>(new Map());
+  const [outfitModalOpen, setOutfitModalOpen] = useState(false);
+  const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
+  const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
 
   useEffect(() => {
     const unsub = gameNetwork.onStateChange((players) => {
