@@ -1,3 +1,7 @@
+if (typeof (globalThis as any).__dirname === 'undefined') {
+  (globalThis as any).__dirname = '/';
+}
+
 import { PrismaClient } from '@prisma/client';
 
 let prismaGlobal: PrismaClient | undefined;
