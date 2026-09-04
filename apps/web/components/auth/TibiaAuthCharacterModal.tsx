@@ -57,6 +57,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
   const [selectedVocation, setSelectedVocation] = useState<number>(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [charToDelete, setCharToDelete] = useState<CharacterItem | null>(null);
 
   // Video Audio & Playback State
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -203,6 +204,30 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
       }
       setIsCreatingChar(false);
       setCharName('');
+      await fetchAccountAndCharacters(token);
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCharacter = async (characterId: string) => {
+    if (!token) return;
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`/api/characters/${characterId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = (await res.json()) as any;
+      if (!data.success) {
+        throw new Error(data.error || 'Falha ao deletar personagem.');
+      }
+      setCharToDelete(null);
       await fetchAccountAndCharacters(token);
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -785,32 +810,60 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
                                 Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={handleSelectThisChar}
-                              style={{
-                                width: '170px',
-                                height: '38px',
-                                backgroundImage: "url('/enter-game-btn.png')",
-                                backgroundSize: '100% 100%',
-                                backgroundRepeat: 'no-repeat',
-                                backgroundPosition: 'center',
-                                backgroundColor: 'transparent',
-                                border: 'none',
-                                color: '#ffffff',
-                                fontWeight: 'bold',
-                                fontSize: '12px',
-                                cursor: 'pointer',
-                                pointerEvents: 'auto',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                textShadow: '1px 1px 3px #000',
-                                filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
-                              }}
-                            >
-                              ENTRAR NO JOGO
-                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setCharToDelete(char);
+                                }}
+                                title="Deletar Personagem da Conta"
+                                style={{
+                                  padding: '6px 10px',
+                                  background: 'linear-gradient(180deg, #8b1e1e 0%, #521010 100%)',
+                                  border: '1px solid #b83232',
+                                  color: '#ffcccc',
+                                  fontWeight: 'bold',
+                                  fontSize: '11px',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                              >
+                                🗑️ Deletar
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={handleSelectThisChar}
+                                style={{
+                                  width: '150px',
+                                  height: '38px',
+                                  backgroundImage: "url('/enter-game-btn.png')",
+                                  backgroundSize: '100% 100%',
+                                  backgroundRepeat: 'no-repeat',
+                                  backgroundPosition: 'center',
+                                  backgroundColor: 'transparent',
+                                  border: 'none',
+                                  color: '#ffffff',
+                                  fontWeight: 'bold',
+                                  fontSize: '12px',
+                                  cursor: 'pointer',
+                                  pointerEvents: 'auto',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  textShadow: '1px 1px 3px #000',
+                                  filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
+                                }}
+                              >
+                                ENTRAR NO JOGO
+                              </button>
+                            </div>
                           </div>
                         );
                       })}
@@ -915,6 +968,87 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
           </div>
         </div>
       </div>
+
+      {/* DELETE CHARACTER CONFIRMATION MODAL OVERLAY */}
+      {charToDelete && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.82)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 1000000005,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              width: '440px',
+              maxWidth: '90vw',
+              backgroundColor: '#161c24',
+              border: '2px solid #b83232',
+              borderRadius: '6px',
+              padding: '24px',
+              boxShadow: '0 12px 35px rgba(0,0,0,0.95)',
+              color: '#e2d9c8',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
+            <h3 style={{ margin: 0, color: '#ff6b6b', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              ⚠️ Deletar Personagem
+            </h3>
+            <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5', color: '#c5bdad' }}>
+              Tem certeza que deseja deletar permanentemente o personagem <strong style={{ color: '#ffffff' }}>{charToDelete.name}</strong> (Level {charToDelete.level})?
+              <br /><br />
+              <span style={{ color: '#ff8888', fontSize: '12px' }}>
+                Esta ação é irreversível e removerá todos os itens, habilidades e dados do personagem do banco de dados PostgreSQL.
+              </span>
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => setCharToDelete(null)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#2c3545',
+                  border: '1px solid #48566b',
+                  color: '#bbb',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '12px',
+                }}
+              >
+                CANCELAR
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleDeleteCharacter(charToDelete.id)}
+                style={{
+                  padding: '8px 16px',
+                  background: 'linear-gradient(180deg, #c02b2b 0%, #7a1515 100%)',
+                  border: '1px solid #e74c3c',
+                  color: '#ffffff',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '12px',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                }}
+              >
+                {loading ? 'Deletando...' : 'SIM, DELETAR'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

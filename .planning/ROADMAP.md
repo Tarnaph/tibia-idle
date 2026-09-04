@@ -764,6 +764,24 @@ Plans:
 Plans:
 - [x] 47-01-PLAN: Implementar preload de walk frames, bônus de velocidade na cidade, janela de chat com abas Local/World e textos flutuantes.
 
+---
+
+### Phase 53: Deletar Personagem na Seleção de Personagem & Banco de Dados
+
+**Goal:** Permitir a exclusão de personagens na tela de seleção de personagem (`TibiaAuthCharacterModal.tsx`) com confirmação prévia, apagando o personagem e todas as suas dependências do banco de dados PostgreSQL (`DELETE /api/characters/:id`).  
+**Depends on:** Phase 52  
+**Requirements:** Botão "Deletar" 🗑️ em cada item de personagem, modal de confirmação estilizado, chamada à API `DELETE /api/characters/:id`, atualização imediata da listagem de personagens e persistência relacional.  
+**Success Criteria:**
+1. Botão de exclusão 🗑️ presente em cada personagem da lista na tela de seleção de personagens.
+2. Ao clicar, exibe modal de confirmação com detalhes do personagem.
+3. Ao confirmar, envia requisição `DELETE /api/characters/:id` e remove o personagem do banco de dados PostgreSQL.
+4. Atualiza em tempo real a listagem sem necessidade de atualizar a página.
+5. 100% de aprovação nos testes e 0 erros de TypeScript (`npm run typecheck` e `npm run test`).
+
+Plans:
+- [x] 53-01-PLAN: Implementar exclusão de personagem na UI com modal de confirmação e integração com API DELETE PostgreSQL.
+
+
 
 
 

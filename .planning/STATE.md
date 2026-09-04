@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-04T19:30:00.000Z"
-last_activity: "2026-09-04 — Concluída Phase 52: Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI."
+last_updated: "2026-09-04T19:55:00.000Z"
+last_activity: "2026-09-04 — Concluída Phase 53: Deletar Personagem na Seleção de Personagem & Banco de Dados."
 progress:
-  total_phases: 52
-  completed_phases: 52
-  total_plans: 52
-  completed_plans: 52
+  total_phases: 53
+  completed_phases: 53
+  total_plans: 53
+  completed_plans: 53
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 52 concluída (Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI).
+**Current focus:** Phase 53 concluída (Deletar Personagem na Seleção de Personagem & Banco de Dados).
 
 ## Current Position
 
-Phase: 52 of 52 (Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI)  
+Phase: 53 of 53 (Deletar Personagem na Seleção de Personagem & Banco de Dados)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-04 — Concluída Phase 52: Criação de Squad Multi-Vocação, Persistência no BD, Efeito de Teleporte e Ajustes de UI.
+Last activity: 2026-09-04 — Concluída Phase 53: Deletar Personagem na Seleção de Personagem & Banco de Dados.
 
 Progress: [██████████] 100%
 
