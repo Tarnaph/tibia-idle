@@ -76,7 +76,7 @@ export function WindowDockBar({
       <button
         type="button"
         className="huntera-shop-btn"
-        onClick={() => toggleWindow('trade')}
+        onClick={() => toggleWindow('equipment')}
         title="Abrir Loja / Mercado"
       >
         <span className="shop-icon">🏯</span>

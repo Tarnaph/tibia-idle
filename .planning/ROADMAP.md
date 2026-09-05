@@ -24,6 +24,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante** - Preload de frames de caminhada e fallback seguro de recolor, bônus de +100 pontos de velocidade na cidade, janela de Chat com abas Local/World, atalho Enter para foco imediato e falas flutuantes em amarelo (local) e azul (world).
 - [x] **Phase 60: Painel de Administração Completo (Controle de Variáveis do Servidor, Tabela de Players Online, Logs do Sistema e Métricas)** - Painel administrativo em /admin com controle dinâmico de variáveis do servidor, tabela pesquisável de players com comandos GM, logs do sistema e saúde do servidor.
 - [x] **Phase 61: Desativação Temporária do Convite de Party de Outros Jogadores Reais** - Ocultação da opção no menu de contexto, desativação do modal de convite e desativação dos handlers WebSocket mantendo intacto o Squad individual de 4 heróis do jogador.
+- [x] **Phase 62: Remoção do Sistema de Trade entre Personagens** - Remoção da opção no menu de contexto, da janela de Trade, do registro no WindowManagerContext e do gerenciamento de estado de troca no frontend.
 
 ---
 
@@ -401,6 +402,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 59. Transição Síncrona de Caçada em Grupo ("Iniciar com o Time"), Ocultação em Hunt e Fim da Duplicação de Personagens | 1/1 | Complete | 2026-09-05 |
 | 60. Painel de Administração Completo (Controle de Variáveis do Servidor, Tabela de Players Online, Logs do Sistema e Métricas) | 1/1 | Complete | 2026-09-05 |
 | 61. Desativação Temporária do Convite de Party de Outros Jogadores Reais | 1/1 | Complete | 2026-09-05 |
+| 62. Remoção do Sistema de Trade entre Personagens | 1/1 | Complete | 2026-09-05 |
 
 -----
 
@@ -965,7 +967,24 @@ Plans:
 5. 0 erros de TypeScript (`npm run typecheck`) e suíte de testes Vitest passando.
 
 Plans:
-- [ ] 61-01-PLAN: Desativação Temporária do Convite de Party de Outros Jogadores Reais.
+- [x] 61-01-PLAN: Desativação Temporária do Convite de Party de Outros Jogadores Reais Concluída.
+
+---
+
+### Phase 62: Remoção do Sistema de Trade entre Personagens
+
+**Goal:** Remover o sistema de trocas diretas (Trade) entre personagens na cidade, simplificando o fluxo do jogo e removendo a opção do menu de contexto e o componente de janela de trade.  
+**Depends on:** Phase 61  
+**Requirements:** Solicitado pelo usuário (`/gsd-phase` remover trade entre os personagens).  
+**Success Criteria:**
+1. Remoção da opção `🤝 Trade (Trocar Itens)` no menu contextual de outros personagens (`CharacterContextMenu.tsx`).
+2. Remoção do ID de janela `'trade'` em `WindowManagerContext.tsx`.
+3. Remoção do estado de sessão de trocas e handlers de trade em `GamePrototype.tsx`.
+4. 0 erros de TypeScript (`npm run typecheck`) e 100% dos testes Vitest passando.
+
+Plans:
+- [ ] 62-01-PLAN: Remoção do Sistema de Trade entre Personagens.
+
 
 
 

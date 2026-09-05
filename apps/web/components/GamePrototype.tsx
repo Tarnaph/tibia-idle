@@ -48,7 +48,6 @@ import { SkillsWindow } from './SkillsWindow';
 import { AdvancedMetricsWindow } from './AdvancedMetricsWindow';
 import { PartyWindow } from './window/PartyWindow';
 import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
-import { TradeWindow, type TradeOfferItem } from './window/TradeWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { PartyInvitationModal } from './party/PartyInvitationModal';
 import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
@@ -349,85 +348,7 @@ function GamePrototypeContent() {
     });
   }, []);
 
-  // Item Trade System State
-  const [tradeSession, setTradeSession] = useState<{
-    partnerName: string;
-    myOffers: TradeOfferItem[];
-    partnerOffers: TradeOfferItem[];
-    myAccepted: boolean;
-    partnerAccepted: boolean;
-  } | null>(null);
-
-  const handleStartTrade = useCallback((partnerName: string) => {
-    openWindow('trade');
-    bringToFront('trade');
-    setTradeSession({
-      partnerName,
-      myOffers: [],
-      partnerOffers: [],
-      myAccepted: false,
-      partnerAccepted: false,
-    });
-  }, [openWindow, bringToFront]);
-
-  const handleOfferItem = useCallback((item: EquipmentDefinition) => {
-    setTradeSession((prev) => {
-      if (!prev) return null;
-      const offerId = `offer-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-      return {
-        ...prev,
-        myOffers: [...prev.myOffers, { id: offerId, item, amount: 1 }],
-        myAccepted: false,
-      };
-    });
-  }, []);
-
-  const handleRemoveOffer = useCallback((offerId: string) => {
-    setTradeSession((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        myOffers: prev.myOffers.filter((o) => o.id !== offerId),
-        myAccepted: false,
-      };
-    });
-  }, []);
-
-  const handleAcceptTrade = useCallback(() => {
-    setTradeSession((prev) => {
-      if (!prev) return null;
-      const nextMyAccepted = !prev.myAccepted;
-      if (nextMyAccepted) {
-        setGame((cur) => {
-          let updatedLoot = [...cur.session.loot];
-          for (const offer of prev.myOffers) {
-            const idx = updatedLoot.findIndex((s) => s.itemId === offer.item.id);
-            if (idx !== -1) {
-              if (updatedLoot[idx].amount > 1) {
-                updatedLoot[idx] = { ...updatedLoot[idx], amount: updatedLoot[idx].amount - 1 };
-              } else {
-                updatedLoot.splice(idx, 1);
-              }
-            }
-          }
-          for (const offer of prev.partnerOffers) {
-            const existing = updatedLoot.find((s) => s.itemId === offer.item.id);
-            if (existing) existing.amount += 1;
-            else updatedLoot.push({ itemId: offer.item.id, name: offer.item.name, amount: 1 });
-          }
-          return { ...cur, session: { ...cur.session, loot: updatedLoot } };
-        });
-        closeWindow('trade');
-        return null;
-      }
-      return { ...prev, myAccepted: nextMyAccepted };
-    });
-  }, [closeWindow]);
-
-  const handleCancelTrade = useCallback(() => {
-    closeWindow('trade');
-    setTradeSession(null);
-  }, [closeWindow]);
+  // Trade removido
 
   const prepareHuntCharacters = useCallback((cur: any) => {
     if (!multiplayerParty || multiplayerParty.members.length === 0) return cur;
@@ -1849,21 +1770,6 @@ function GamePrototypeContent() {
         />
       )}
 
-      {tradeSession && (
-        <TradeWindow
-          partnerName={tradeSession.partnerName}
-          myOffers={tradeSession.myOffers}
-          partnerOffers={tradeSession.partnerOffers}
-          availableInventoryItems={availableOwnedEquipmentIds(game).flatMap((id) => { const item = findEquipment(content.equipment, id); return item ? [item] : []; })}
-          myAccepted={tradeSession.myAccepted}
-          partnerAccepted={tradeSession.partnerAccepted}
-          onOfferItem={handleOfferItem}
-          onRemoveOffer={handleRemoveOffer}
-          onAcceptTrade={handleAcceptTrade}
-          onCancelTrade={handleCancelTrade}
-        />
-      )}
-
       {charContextMenu && (() => {
         const char = game.session.characters.find((c) => c.id === charContextMenu.characterId);
         const remote = !char && remotePlayers ? Array.from(remotePlayers.values()).find((r) => r.id === charContextMenu.characterId) : null;
@@ -1880,7 +1786,6 @@ function GamePrototypeContent() {
               setOutfitModalOpen(true);
             }}
             onToggleMount={() => handleToggleMount(dummyChar.id)}
-            onTrade={() => handleStartTrade(dummyChar.name)}
             onInviteParty={() => handleInviteParty(dummyChar.name)}
             onPrivateMessage={() => handlePrivateMessage(dummyChar.name)}
             onAddFriend={() => handleAddFriend(dummyChar.name)}

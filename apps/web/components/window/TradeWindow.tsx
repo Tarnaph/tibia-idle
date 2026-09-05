@@ -39,7 +39,7 @@ export function TradeWindow({
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<EquipmentDefinition | null>(null);
 
   return (
-    <DraggableWindow id="trade" icon="🤝" defaultWidth={440}>
+    <DraggableWindow id={"trade" as any} icon="🤝" defaultWidth={440}>
       <div className="trade-window-container" style={{ padding: '10px', color: '#e0e6ed', fontSize: '11px' }}>
         <div style={{ textAlign: 'center', marginBottom: '8px', fontWeight: 700, color: '#f3c766' }}>
           SISTEMA DE TROCAS (TRADE COM {partnerName.toUpperCase()})

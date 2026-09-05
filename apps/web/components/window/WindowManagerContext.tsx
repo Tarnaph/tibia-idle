@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-export type WindowId = 'character' | 'equipment' | 'party' | 'hunt' | 'metrics' | 'logs' | 'chat' | 'trade' | 'friends';
+export type WindowId = 'character' | 'equipment' | 'party' | 'hunt' | 'metrics' | 'logs' | 'chat' | 'friends';
 
 export interface WindowState {
   id: WindowId;
@@ -104,16 +104,7 @@ function getDefaultWindows(viewportWidth = 1280, viewportHeight = 720): Record<W
       isMinimized: false,
       zIndex: 16,
     },
-    trade: {
-      id: 'trade',
-      title: 'Sistema de Trocas (Trade)',
-      x: Math.max(100, Math.floor(w / 2 - 220)),
-      y: Math.max(80, Math.floor(h / 2 - 180)),
-      width: 440,
-      isOpen: false,
-      isMinimized: false,
-      zIndex: 20,
-    },
+
     friends: {
       id: 'friends',
       title: 'Lista de Amigos',

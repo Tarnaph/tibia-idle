@@ -9,7 +9,6 @@ export interface CharacterContextMenuProps {
   character: CharacterState;
   onSetOutfit: () => void;
   onToggleMount?: () => void;
-  onTrade?: () => void;
   onInviteParty?: () => void;
   onPrivateMessage?: () => void;
   onAddFriend?: () => void;
@@ -22,7 +21,6 @@ export function CharacterContextMenu({
   character,
   onSetOutfit,
   onToggleMount,
-  onTrade,
   onInviteParty,
   onPrivateMessage,
   onAddFriend,
@@ -93,16 +91,7 @@ export function CharacterContextMenu({
 
       <div className="context-menu-divider" />
 
-      <button
-        type="button"
-        className="context-menu-item"
-        onClick={() => {
-          onTrade?.();
-          onClose();
-        }}
-      >
-        🤝 Trade (Trocar Itens)
-      </button>
+{/* Trade desativado */}
 
       {/* Convite de party entre players desativado temporariamente */}
 

@@ -19,10 +19,8 @@ describe('Phase 48: 20s Auto-save, Trade System, Context Menu, Rarity Loot and F
     expect(tradeSrc).toContain('TradeOfferItem');
   });
 
-  it('Requirement 3: Character Context Menu contains Trade, Party Invite, Private Message and Add Friend options', () => {
+  it('Requirement 3: Character Context Menu contains Private Message and Add Friend options', () => {
     const menuSrc = readFileSync(resolve(projectRoot, 'apps/web/components/CharacterContextMenu.tsx'), 'utf8');
-    expect(menuSrc).toContain('🤝 Trade (Trocar Itens)');
-    expect(menuSrc).toContain('👥 Convidar para Party');
     expect(menuSrc).toContain('💬 Mandar Mensagem Privada');
     expect(menuSrc).toContain('⭐ Adicionar como Amigo');
   });
@@ -49,6 +47,5 @@ describe('Phase 48: 20s Auto-save, Trade System, Context Menu, Rarity Loot and F
     expect(dockSrc).toContain("toggleWindow('friends')");
     expect(topNavSrc).toContain('Amigos');
     expect(protoSrc).toContain('FriendsWindow');
-    expect(protoSrc).toContain('TradeWindow');
   });
 });
