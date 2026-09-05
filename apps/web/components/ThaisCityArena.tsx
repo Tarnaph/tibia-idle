@@ -708,7 +708,7 @@ export function ThaisCityArena({
         return view;
       }
 
-      characters.forEach(ensureActorView);
+      if (characters[0]) ensureActorView(characters[0]);
       AMBIENT_THAIS_PLAYERS.forEach(ensureActorView);
 
       // Ticker to smoothly follow player with VisualMotionTrack (matching hunt fluidity), animate characters & animate map elements
@@ -765,58 +765,6 @@ export function ThaisCityArena({
             motionTrack.commit(lastCommittedPos, curPos, now, curStepDuration);
           }
 
-          // Tibia Follow: Update squad followers' step targets when leader moves
-          const reservedTiles = new Set<string>();
-          reservedTiles.add(`${curPos.x},${curPos.y}`);
-
-          curChars.forEach((char, idx) => {
-            if (idx === 0) return;
-            const getSpawnTile = (i: number) => {
-              const offsetX = i === 1 ? -1 : i === 2 ? 1 : 0;
-              const offsetY = i === 3 ? 1 : 0;
-              return { x: curPos.x + offsetX, y: curPos.y + offsetY, z: curPos.z };
-            };
-
-            let fState = followerVisualStates.get(char.id);
-            if (!fState || isTeleportOrFloorChange) {
-              const spawnTile = getSpawnTile(idx);
-              fState = {
-                currentTile: spawnTile,
-                lastCommittedTile: spawnTile,
-                motionTrack: new VisualMotionTrack(spawnTile, 'south'),
-                direction: 'south',
-              };
-              followerVisualStates.set(char.id, fState);
-              triggerTeleportEffect(spawnTile.x * TILE_SIZE + 16, spawnTile.y * TILE_SIZE + 16);
-            } else {
-              const distToLeader = Math.max(
-                Math.abs(fState.currentTile.x - curPos.x),
-                Math.abs(fState.currentTile.y - curPos.y)
-              );
-
-              if (distToLeader > 1) {
-                const targetTile = prevLeaderTile;
-                const tileKey = `${targetTile.x},${targetTile.y}`;
-                if (!reservedTiles.has(tileKey) && (targetTile.x !== fState.currentTile.x || targetTile.y !== fState.currentTile.y)) {
-                  const dx = targetTile.x - fState.lastCommittedTile.x;
-                  const dy = targetTile.y - fState.lastCommittedTile.y;
-                  let stepDir: 'north' | 'south' | 'east' | 'west' = fState.direction;
-                  if (Math.abs(dx) >= Math.abs(dy)) {
-                    stepDir = dx >= 0 ? 'east' : 'west';
-                  } else {
-                    stepDir = dy >= 0 ? 'south' : 'north';
-                  }
-
-                  fState.direction = stepDir;
-                  fState.motionTrack.commit(fState.lastCommittedTile, targetTile, now, curStepDuration);
-                  fState.lastCommittedTile = { ...targetTile };
-                  fState.currentTile = { ...targetTile };
-                  reservedTiles.add(tileKey);
-                }
-              }
-            }
-          });
-
           lastCommittedPos = { ...curPos };
         }
 
@@ -836,18 +784,29 @@ export function ThaisCityArena({
           app.screen.height / 2 - currentPixelY * camera.scale
         );
 
-        // Clean up removed actor views (squad, ambient, and remote players)
+        // Clean up removed actor views (local player, ambient, and remote players)
         const validActorIds = new Set<string>();
-        curChars.forEach((c) => validActorIds.add(c.id));
+        if (curChars[0]) {
+          validActorIds.add(curChars[0].id);
+        }
         AMBIENT_THAIS_PLAYERS.forEach((p) => validActorIds.add(p.id));
+
         const myCharIdVal = curChars[0]?.id;
+        const myCharNameVal = curChars[0]?.name?.toLowerCase();
         const remotes = latestRef.current.remotePlayers;
         const myPlayerId = latestRef.current.localPlayerId;
+        const seenRemoteKeys = new Set<string>();
+
         if (remotes) {
           remotes.forEach((p, key) => {
-            if (key !== myPlayerId && p.id !== myPlayerId && (!myCharIdVal || (p.id !== myCharIdVal && (p as any).characterId !== myCharIdVal))) {
-              validActorIds.add(p.id);
-            }
+            if (key === myPlayerId || p.id === myPlayerId) return;
+            const pCharId = p.characterId || p.id;
+            const pName = p.name?.toLowerCase();
+            if (pCharId === myCharIdVal || (myCharNameVal && pName === myCharNameVal)) return;
+            if (seenRemoteKeys.has(pCharId) || (pName && seenRemoteKeys.has(pName))) return;
+            seenRemoteKeys.add(pCharId);
+            if (pName) seenRemoteKeys.add(pName);
+            validActorIds.add(p.id);
           });
         }
 
@@ -870,104 +829,72 @@ export function ThaisCityArena({
           }
         });
 
-        // 4. Update party characters: fluid walk frame sequence (0 -> 1 -> 0 -> 2)
+        // 4. Update local player character: fluid walk frame sequence (0 -> 1 -> 0 -> 2)
         const walkCycle = [0, 1, 0, 2];
         const stepRateMs = Math.max(60, Math.min(130, Math.floor(curStepDuration / 3.5)));
+        const localChar = curChars[0];
 
-        curChars.forEach((char, idx) => {
-          const view = ensureActorView(char);
-          if (!view) return;
+        if (localChar) {
+          const view = ensureActorView(localChar);
+          if (view) {
+            const charPixelX = currentPixelX;
+            const charPixelY = currentPixelY;
+            const charDirection = playerDirection;
+            const charIsMoving = isMoving;
+            const charWalkFrame = charIsMoving || curWalk ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
 
-          let charPixelX: number;
-          let charPixelY: number;
-          let charDirection: 'north' | 'south' | 'east' | 'west';
-          let charIsMoving: boolean;
-
-          if (idx === 0) {
-            charPixelX = currentPixelX;
-            charPixelY = currentPixelY;
-            charDirection = playerDirection;
-            charIsMoving = isMoving;
-          } else {
-            const getSpawnTile = (i: number) => {
-              const offsetX = i === 1 ? -1 : i === 2 ? 1 : 0;
-              const offsetY = i === 3 ? 1 : 0;
-              return { x: curPos.x + offsetX, y: curPos.y + offsetY, z: curPos.z };
-            };
-
-            let fState = followerVisualStates.get(char.id);
-            if (!fState) {
-              const spawnTile = getSpawnTile(idx);
-              fState = {
-                currentTile: spawnTile,
-                lastCommittedTile: spawnTile,
-                motionTrack: new VisualMotionTrack(spawnTile, 'south'),
-                direction: 'south',
-              };
-              followerVisualStates.set(char.id, fState);
-              triggerTeleportEffect(spawnTile.x * TILE_SIZE + 16, spawnTile.y * TILE_SIZE + 16);
-            }
-
-            const fSample = fState.motionTrack.sample(now);
-            charPixelX = fSample.renderPosition.x * TILE_SIZE + 16;
-            charPixelY = fSample.renderPosition.y * TILE_SIZE + 16;
-            charDirection = fSample.direction || fState.direction;
-            charIsMoving = fSample.moving;
-          }
-
-          const charWalkFrame = charIsMoving || (idx === 0 && curWalk) ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
-
-          const isMounted = Boolean(char.mountActive && char.mount && char.mount !== 'none');
-          const mountUrl = (char.mount === 'donkey' || char.mount === 'Donkey')
-            ? '/generated/mounts/donkey_rider_south.png'
-            : `/generated/mounts/${char.mount}.png`;
-          if (isMounted && loaded[mountUrl]) {
-            view.sprite.texture = loaded[mountUrl];
-            view.sprite.scale.x = (charDirection === 'west' || charDirection === 'north') ? -1 : 1;
-            view.lastUrl = mountUrl;
-          } else {
-            view.sprite.scale.x = 1;
-            const outfitKey = char.outfit || char.vocation || 'Knight';
-            const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-            const charGender = char.gender === 'female' ? 'female' : 'male';
-            const textureKey = `${outfitKey}_${charGender}_${charDirection}_${charWalkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
-            if (view.lastTextureKey !== textureKey) {
-              const canvas = getRecoloredCanvasSync(outfitKey, charGender, charDirection as any, charWalkFrame, colors);
-              if (canvas) {
-                const tex = Texture.from(canvas);
-                tex.source.style.scaleMode = 'nearest';
-                view.sprite.texture = tex;
-                view.lastTextureKey = textureKey;
-                view.lastUrl = 'canvas';
-              } else if (!char.outfitColors) {
-                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
-                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
-                  view.sprite.texture = loaded[nextUrl];
-                  view.lastUrl = nextUrl;
-                  view.lastTextureKey = nextUrl;
+            const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
+            const mountUrl = (localChar.mount === 'donkey' || localChar.mount === 'Donkey')
+              ? '/generated/mounts/donkey_rider_south.png'
+              : `/generated/mounts/${localChar.mount}.png`;
+            if (isMounted && loaded[mountUrl]) {
+              view.sprite.texture = loaded[mountUrl];
+              view.sprite.scale.x = (charDirection === 'west' || charDirection === 'north') ? -1 : 1;
+              view.lastUrl = mountUrl;
+            } else {
+              view.sprite.scale.x = 1;
+              const outfitKey = localChar.outfit || localChar.vocation || 'Knight';
+              const colors = localChar.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+              const charGender = localChar.gender === 'female' ? 'female' : 'male';
+              const textureKey = `${outfitKey}_${charGender}_${charDirection}_${charWalkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+              if (view.lastTextureKey !== textureKey) {
+                const canvas = getRecoloredCanvasSync(outfitKey, charGender, charDirection as any, charWalkFrame, colors);
+                if (canvas) {
+                  const tex = Texture.from(canvas);
+                  tex.source.style.scaleMode = 'nearest';
+                  view.sprite.texture = tex;
+                  view.lastTextureKey = textureKey;
+                  view.lastUrl = 'canvas';
+                } else if (!localChar.outfitColors) {
+                  const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
+                  if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                    view.sprite.texture = loaded[nextUrl];
+                    view.lastUrl = nextUrl;
+                    view.lastTextureKey = nextUrl;
+                  }
                 }
               }
             }
-          }
 
-          view.root.position.set(charPixelX, charPixelY);
-          view.root.zIndex = charPixelY;
-          view.label.position.set(0, creatureVisualLayout.nameplateY);
-          const hpRatio = char.maxHp > 0 ? Math.max(0, Math.min(1, char.currentHp / char.maxHp)) : 1;
-          view.bar.clear()
-            .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
-            .fill({ color: 0x251010 })
-            .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
-            .fill({ color: 0x4fc977 });
+            view.root.position.set(charPixelX, charPixelY);
+            view.root.zIndex = charPixelY;
+            view.label.position.set(0, creatureVisualLayout.nameplateY);
+            const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
+            view.bar.clear()
+              .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
+              .fill({ color: 0x251010 })
+              .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
+              .fill({ color: 0x4fc977 });
 
-          // Animate attack if training at dummy
-          if (curTrain && idx === 0 && tickCount % 30 < 10) {
-            view.sprite.x = creatureVisualLayout.spriteOffsetX + 4;
-          } else {
-            view.sprite.x = creatureVisualLayout.spriteOffsetX;
+            // Animate attack if training at dummy
+            if (curTrain && tickCount % 30 < 10) {
+              view.sprite.x = creatureVisualLayout.spriteOffsetX + 4;
+            } else {
+              view.sprite.x = creatureVisualLayout.spriteOffsetX;
+            }
+            view.sprite.y = creatureVisualLayout.spriteOffsetY;
           }
-          view.sprite.y = creatureVisualLayout.spriteOffsetY;
-        });
+        }
 
         // 5. Update ambient city players stationed across Thais
         for (const p of AMBIENT_THAIS_PLAYERS) {
@@ -1024,8 +951,17 @@ export function ThaisCityArena({
 
         if (remotes) {
           const myCharId = curChars[0]?.id;
+          const myCharName = curChars[0]?.name?.toLowerCase();
+          const renderedRemotes = new Set<string>();
+
           remotes.forEach((p, key) => {
-            if (key === myPlayerId || p.id === myPlayerId || (myCharId && (p.id === myCharId || p.characterId === myCharId))) return; // Skip rendering local player as remote
+            if (key === myPlayerId || p.id === myPlayerId) return; // Skip rendering local player as remote
+            const pCharId = p.characterId || p.id;
+            const pName = p.name?.toLowerCase();
+            if (pCharId === myCharId || (myCharName && pName === myCharName)) return;
+            if (renderedRemotes.has(pCharId) || (pName && renderedRemotes.has(pName))) return;
+            renderedRemotes.add(pCharId);
+            if (pName) renderedRemotes.add(pName);
 
             const vocName = (p.vocationName as string) || VOCATION_NAMES[p.vocationId] || 'Knight';
             const rawOutfitName = typeof p.outfit === 'string' ? p.outfit : p.outfit?.outfit;

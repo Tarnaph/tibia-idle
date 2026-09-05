@@ -338,6 +338,25 @@ export class ThaisCityRoom extends Room<WorldState> {
       (this.clients as any).push(client);
     }
 
+    // Evict any stale or duplicate session with the same characterId or character name
+    for (const [existingSessionId, existingPlayer] of this.state.players.entries()) {
+      if (
+        existingSessionId !== client.sessionId &&
+        (
+          (charId && existingPlayer.characterId === charId) ||
+          (charName && existingPlayer.name.toLowerCase() === charName.toLowerCase()) ||
+          (accountId !== 'acc-guest' && existingPlayer.accountId === accountId)
+        )
+      ) {
+        const oldClient = this.clients.find((c) => c.sessionId === existingSessionId);
+        if (oldClient) {
+          try { oldClient.leave(4001); } catch {}
+        }
+        this.handlePlayerLeaveParty(existingSessionId);
+        this.state.players.delete(existingSessionId);
+      }
+    }
+
     this.state.players.set(client.sessionId, player);
   }
 
