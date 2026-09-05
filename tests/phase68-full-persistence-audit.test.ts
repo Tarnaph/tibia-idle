@@ -46,6 +46,13 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
         },
       },
       character: {
+        findFirst: async ({ where }: any) => {
+          const searchName = (where?.name?.equals || where?.name || '').toLowerCase();
+          for (const char of mockCharacters.values()) {
+            if (char.name.toLowerCase() === searchName) return char;
+          }
+          return null;
+        },
         findUnique: async ({ where }: any) => {
           const char = mockCharacters.get(where.id);
           if (!char) return null;
@@ -170,7 +177,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
 
   it('Requirement 1: Persists character Level, Experience, HP, MP, and Map Coordinates across sessions', async () => {
     const acc = await accountService.register({ email: 'persistence.hero@tibia.test', password: 'password123!' });
-    const char = await characterService.createCharacter(acc.account.id, 'Knight Legend', 4);
+    const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Knight Legend', vocationId: 4 });
 
     expect(char.level).toBe(8);
     expect(Number(char.experience)).toBe(4200);
@@ -207,20 +214,20 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     const loaded = await characterService.getCharacterById(char.id);
 
     expect(loaded).not.toBeNull();
-    expect(loaded?.level).toBe(50);
-    expect(Number(loaded?.experience)).toBe(125000);
-    expect(loaded?.health).toBe(450);
-    expect(loaded?.maxHealth).toBe(450);
-    expect(loaded?.mana).toBe(600);
-    expect(loaded?.maxMana).toBe(600);
-    expect(loaded?.posX).toBe(32369);
-    expect(loaded?.posY).toBe(32241);
-    expect(loaded?.posZ).toBe(7);
+    expect(loaded!.level).toBe(50);
+    expect(Number(loaded!.experience)).toBe(125000);
+    expect(loaded!.health).toBe(450);
+    expect(loaded!.maxHealth).toBe(450);
+    expect(loaded!.mana).toBe(600);
+    expect(loaded!.maxMana).toBe(600);
+    expect(loaded!.posX).toBe(32369);
+    expect(loaded!.posY).toBe(32241);
+    expect(loaded!.posZ).toBe(7);
   });
 
   it('Requirement 2: Persists full Equipment slots and Backpack Container items with exact counts and tiers', async () => {
     const acc = await accountService.register({ email: 'inventory.hero@tibia.test', password: 'password123!' });
-    const char = await characterService.createCharacter(acc.account.id, 'Paladin Master', 3);
+    const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Paladin Master', vocationId: 3 });
 
     const fullInventory = [
       { slot: 'head', serverId: 2493, name: 'Demon Helmet', count: 1 },
@@ -242,24 +249,24 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     const loaded = await characterService.getCharacterById(char.id);
 
     expect(loaded).not.toBeNull();
-    expect(loaded?.inventory.length).toBe(10);
+    expect(loaded!.inventory.length).toBe(10);
 
-    const demonHelmet = loaded?.inventory.find((i: any) => i.slot === 'head');
+    const demonHelmet = loaded!.inventory.find((i: any) => i.slot === 'head');
     expect(demonHelmet?.name).toBe('Demon Helmet');
     expect(demonHelmet?.serverId).toBe(2493);
 
-    const healthPotions = loaded?.inventory.find((i: any) => i.slot === 'backpack_0');
+    const healthPotions = loaded!.inventory.find((i: any) => i.slot === 'backpack_0');
     expect(healthPotions?.name).toBe('Health Potion');
     expect(healthPotions?.count).toBe(50);
 
-    const sdRunes = loaded?.inventory.find((i: any) => i.slot === 'backpack_2');
+    const sdRunes = loaded!.inventory.find((i: any) => i.slot === 'backpack_2');
     expect(sdRunes?.name).toBe('Sudden Death Rune');
     expect(sdRunes?.count).toBe(100);
   });
 
   it('Requirement 3: Persists Gold Coins, Platinum Coins, and Monster Drop Loot across sessions', async () => {
     const acc = await accountService.register({ email: 'loot.hero@tibia.test', password: 'password123!' });
-    const char = await characterService.createCharacter(acc.account.id, 'Loot Collector', 1);
+    const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Loot Collector', vocationId: 1 });
 
     const lootInventory = [
       { slot: 'backpack_0', serverId: 2148, name: 'Gold Coin', count: 8500 },
@@ -274,19 +281,19 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
 
     const loaded = await characterService.getCharacterById(char.id);
 
-    const goldCoins = loaded?.inventory.find((i: any) => i.name === 'Gold Coin');
+    const goldCoins = loaded!.inventory.find((i: any) => i.name === 'Gold Coin');
     expect(goldCoins?.count).toBe(8500);
 
-    const platinumCoins = loaded?.inventory.find((i: any) => i.name === 'Platinum Coin');
+    const platinumCoins = loaded!.inventory.find((i: any) => i.name === 'Platinum Coin');
     expect(platinumCoins?.count).toBe(42);
 
-    const royalHelmet = loaded?.inventory.find((i: any) => i.name === 'Royal Helmet');
+    const royalHelmet = loaded!.inventory.find((i: any) => i.name === 'Royal Helmet');
     expect(royalHelmet?.count).toBe(1);
   });
 
   it('Requirement 4: Recovers 100% of character state after a Simulated Server Crash and Cold Restart', async () => {
     const acc = await accountService.register({ email: 'crash.hero@tibia.test', password: 'password123!' });
-    const char = await characterService.createCharacter(acc.account.id, 'Crash Survivor', 2);
+    const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Crash Survivor', vocationId: 2 });
 
     // Initial server room state before crash
     const room1 = new ThaisCityRoom();
