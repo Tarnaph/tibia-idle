@@ -22,12 +22,36 @@ export function visiblePublicUpdates(updates: readonly GameUpdateRow[]): GameUpd
     .sort((left, right) => Date.parse(right.published_at ?? '') - Date.parse(left.published_at ?? ''));
 }
 
+function parseCookies(cookieHeader: string | null): Record<string, string> {
+  if (!cookieHeader) return {};
+  const cookies: Record<string, string> = {};
+  cookieHeader.split(';').forEach((cookie) => {
+    const parts = cookie.split('=');
+    const key = parts.shift()?.trim();
+    if (key) {
+      cookies[key] = parts.join('=').trim();
+    }
+  });
+  return cookies;
+}
+
 export function requireAdminAuth(request: Request): TokenPayload {
+  let token: string | null = null;
   const authHeader = request.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.replace('Bearer ', '');
+  } else {
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      const cookiesMap = parseCookies(cookieHeader);
+      token = cookiesMap.colyseus_token || null;
+    }
+  }
+
+  if (!token) {
     throw new Error('UNAUTHORIZED');
   }
-  const token = authHeader.replace('Bearer ', '');
   const decoded = verifyAuthToken(token);
   const roleUpper = String(decoded.role || '').toUpperCase();
   if (roleUpper !== 'ADMIN' && roleUpper !== 'GM') {

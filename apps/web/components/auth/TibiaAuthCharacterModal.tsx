@@ -147,6 +147,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
       }
       const authToken = data.data.token;
       localStorage.setItem('colyseus_token', authToken);
+      document.cookie = `colyseus_token=${authToken}; path=/; max-age=604800; SameSite=Lax`;
       setToken(authToken);
       setAccount(data.data.account);
       await fetchAccountAndCharacters(authToken);
@@ -173,6 +174,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
       }
       const authToken = data.data.token;
       localStorage.setItem('colyseus_token', authToken);
+      document.cookie = `colyseus_token=${authToken}; path=/; max-age=604800; SameSite=Lax`;
       setToken(authToken);
       setAccount(data.data.account);
       setIsRegistering(false);

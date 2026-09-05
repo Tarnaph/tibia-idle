@@ -77,10 +77,15 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
   const [logLevelFilter, setLogLevelFilter] = useState<LogLevel | 'ALL'>('ALL');
   const [logQuery, setLogQuery] = useState('');
 
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('colyseus_token') : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   // Load server config
   const fetchConfig = async () => {
     try {
-      const res = await fetch('/api/admin/config');
+      const res = await fetch('/api/admin/config', { headers: getAuthHeaders() });
       const data = (await res.json()) as any;
       if (data.success && data.config) {
         setServerConfig(data.config);
@@ -91,7 +96,7 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
   // Load players
   const fetchPlayers = async () => {
     try {
-      const res = await fetch('/api/admin/players');
+      const res = await fetch('/api/admin/players', { headers: getAuthHeaders() });
       const data = (await res.json()) as any;
       if (data.success && Array.isArray(data.players)) {
         setPlayers(data.players);
@@ -105,7 +110,7 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
       const params = new URLSearchParams();
       if (logLevelFilter !== 'ALL') params.append('level', logLevelFilter);
       if (logQuery) params.append('query', logQuery);
-      const res = await fetch(`/api/admin/logs?${params.toString()}`);
+      const res = await fetch(`/api/admin/logs?${params.toString()}`, { headers: getAuthHeaders() });
       const data = (await res.json()) as any;
       if (data.success && Array.isArray(data.logs)) {
         setLogs(data.logs);
@@ -132,7 +137,7 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
     try {
       const res = await fetch('/api/admin/config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(serverConfig),
       });
       const data = (await res.json()) as any;
@@ -155,7 +160,7 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
     try {
       const res = await fetch('/api/admin/players', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({
           action,
           characterId: player.id,
