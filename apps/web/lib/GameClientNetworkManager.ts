@@ -27,6 +27,7 @@ export interface RemotePlayerSnapshot {
   };
   mount?: string;
   mountActive?: boolean;
+  inHunt?: boolean;
 }
 
 export interface NetworkCombatEvent {
@@ -54,11 +55,18 @@ export interface PartyMemberSnapshot {
   characterId: string;
   name: string;
   vocationId: number;
+  vocationName?: string;
   level: number;
   hp: number;
   maxHp: number;
   mp: number;
   maxMp: number;
+  outfit?: string;
+  outfitLookType?: number;
+  outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+  mount?: string;
+  mountActive?: boolean;
+  inHunt?: boolean;
   x: number;
   y: number;
   z: number;
@@ -352,11 +360,17 @@ export class GameClientNetworkManager {
       },
       mount,
       mountActive,
+      inHunt: Boolean(player.inHunt),
     });
   }
 
   private notifyStateChange(): void {
     this.stateListeners.forEach((fn) => fn(new Map(this.playersMap)));
+  }
+
+  sendSetInHunt(inHunt: boolean): void {
+    if (!this.room) return;
+    this.room.send('player:setInHunt', { inHunt });
   }
 
   sendMove(direction: 'north' | 'south' | 'east' | 'west', coords?: { x: number; y: number; z?: number }): void {

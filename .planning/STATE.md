@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-05T06:45:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 58: Viewport Fullscreen de Caçada, Ataque Único sem Duplicação e Lógica Estrita de Party Target."
+last_updated: "2026-09-05T07:15:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 59: Transição Síncrona de Caçada em Grupo, Ocultação em Hunt e Fim da Duplicação de Personagens."
 progress:
-  total_phases: 58
-  completed_phases: 58
-  total_plans: 58
-  completed_plans: 58
+  total_phases: 59
+  completed_phases: 59
+  total_plans: 59
+  completed_plans: 59
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 58 Concluída com Sucesso (58/58 suítes de teste passando, 332 testes).
+**Current focus:** Fase 59 Concluída com Sucesso (59/59 suítes de teste passando, 337 testes).
 
 ## Current Position
 
-Phase: 58 of 58 (Correção da Tela de Hunt, Ataque Único e Lógica de Party Target)  
+Phase: 59 of 59 (Transição Síncrona de Caçada em Grupo, Ocultação em Hunt e Fim da Duplicação de Personagens)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 58.
+Last activity: 2026-09-05 — Concluída Phase 59.
 
 Progress: [██████████] 100%
 

@@ -395,6 +395,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 54. Inicialização Solo do Squad & Desbloqueio de Slots por Nível (Lv 50, 90, 120 + Isenção Admin/GM) | 1/1 | Complete | 2026-09-04 |
 | 55. Renderização Multiplayer de Jogadores Remotos na Cidade (ThaisCityArena) | 1/1 | Complete | 2026-09-04 |
 | 56. Sistema Multiplayer de Party (Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo) | 1/1 | Complete | 2026-09-04 |
+| 57. Correções Críticas de Combate/Rede e Fidelidade Visual (FIX.md) | 1/1 | Complete | 2026-09-05 |
+| 58. Correção da Tela de Hunt (Fullscreen/Viewport), Ataque Único sem Duplicação e Lógica Estrita de Party Target | 1/1 | Complete | 2026-09-05 |
+| 59. Transição Síncrona de Caçada em Grupo ("Iniciar com o Time"), Ocultação em Hunt e Fim da Duplicação de Personagens | 1/1 | Complete | 2026-09-05 |
 
 
 ---
@@ -909,6 +912,25 @@ Plans:
 
 Plans:
 - [x] 58-01-PLAN: Correção de Viewport, Ataque Único e Lógica Estrita de Party Target Concluída.
+
+---
+
+### Phase 59: Transição Síncrona de Caçada em Grupo ("Iniciar com o Time"), Ocultação em Hunt e Fim da Duplicação de Personagens
+
+**Goal:** Resolver os bugs críticos descritos em FIX.md: garantir que líder e membros entrem juntos de forma síncrona na caçada ao aprovar a proposta ("Iniciar com o time"), suprimir a exibição de jogadores em caçada na cidade de Thais para evitar avatares congelados/parados, e aplicar deduplicação estrita garantindo que cada player tenha apenas uma versão única no jogo com posicionamento do líder no índice 0 e sincronização fiel de outfits e montarias.  
+**Depends on:** Phase 58  
+**Requirements:** `FIX.md`
+**Success Criteria:**
+1. Ao aprovar a caçada em grupo, o líder e todos os membros entram juntos na hunt (`restartHunt` e `mode = 'hunt'`).
+2. Jogadores em caçada têm `inHunt = true` no servidor e não são renderizados congelados na cidade de Thais.
+3. Líder da party é deterministicamente o índice 0 (`characters[0]`) em todos os clientes.
+4. Deduplicação estrita por ID e Nome impede que qualquer personagem exista duplicado.
+5. Outfits, cores e montarias reais dos membros da party são sincronizados fielmente no combate.
+6. 100% dos testes passando (`npm test` - 59/59 suítes, 337 testes) e 0 erros no TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 59-01-PLAN: Transição Síncrona de Caçada em Grupo, Ocultação em Hunt e Fim da Duplicação de Personagens Concluída.
+
 
 
 

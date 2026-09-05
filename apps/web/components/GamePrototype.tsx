@@ -430,22 +430,56 @@ function GamePrototypeContent() {
   }, [closeWindow]);
 
   const prepareHuntCharacters = useCallback((cur: any) => {
-    if (!multiplayerParty) return cur;
+    if (!multiplayerParty || multiplayerParty.members.length === 0) return cur;
     const localSessionId = gameNetwork.LocalPlayerId;
-    const localChar = cur.session.characters.find((c: CharacterState) => c.id === cur.session.selectedCharacterId) || cur.session.characters[0] || selectedCharacterOf(cur);
-    const updatedChars = [localChar];
-    const seenIds = new Set<string>([localChar.id]);
+    const leaderMember = multiplayerParty.members.find((m) => m.isLeader || m.sessionId === multiplayerParty.leaderSessionId) || multiplayerParty.members[0];
+    const otherMembers = multiplayerParty.members.filter((m) => m.sessionId !== leaderMember.sessionId);
+    const orderedPartyMembers = [leaderMember, ...otherMembers];
 
-    for (const m of multiplayerParty.members) {
-      if (m.sessionId !== localSessionId && !seenIds.has(m.characterId)) {
-        seenIds.add(m.characterId);
-        const vocName = (VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
-        const newChar = createCharacter(m.characterId, m.name, vocName, content);
+    const localChar = cur.session.characters.find((c: CharacterState) => c.id === cur.session.selectedCharacterId) || cur.session.characters[0] || selectedCharacterOf(cur);
+
+    const updatedChars: CharacterState[] = [];
+    const seenIds = new Set<string>();
+    const seenNames = new Set<string>();
+
+    for (const m of orderedPartyMembers) {
+      const charId = m.characterId || m.sessionId;
+      const nameKey = (m.name || '').trim().toLowerCase();
+      if (seenIds.has(charId) || (nameKey && seenNames.has(nameKey))) continue;
+      seenIds.add(charId);
+      if (nameKey) seenNames.add(nameKey);
+
+      if (m.sessionId === localSessionId) {
+        // Local character instance
+        const charObj: CharacterState = {
+          ...localChar,
+          id: charId,
+          name: m.name || localChar.name,
+          level: Math.max(m.level || localChar.level, 1),
+          currentHp: m.hp ?? localChar.currentHp,
+          maxHp: m.maxHp ?? localChar.maxHp,
+          currentMana: m.mp ?? localChar.currentMana,
+          maxMana: m.maxMp ?? localChar.maxMana,
+          outfit: m.outfit || localChar.outfit,
+          outfitColors: m.outfitColors || localChar.outfitColors,
+          mount: m.mount || localChar.mount,
+          mountActive: m.mountActive !== undefined ? Boolean(m.mountActive) : localChar.mountActive,
+        };
+        updatedChars.push(charObj);
+      } else {
+        // Remote party member
+        const existingChar = cur.session.characters.find((c: CharacterState) => c.id === charId || c.name.toLowerCase() === nameKey);
+        const vocName = ((m.vocationName as BaseVocationName) || VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
+        const newChar = createCharacter(charId, m.name, vocName, content);
         newChar.level = Math.max(m.level, 1);
         newChar.currentHp = m.hp || newChar.maxHp;
         newChar.maxHp = m.maxHp || newChar.maxHp;
         newChar.currentMana = m.mp || newChar.maxMana;
         newChar.maxMana = m.maxMp || newChar.maxMana;
+        newChar.outfit = m.outfit || vocName;
+        newChar.outfitColors = m.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+        newChar.mount = m.mount || 'none';
+        newChar.mountActive = Boolean(m.mountActive);
 
         // Scale skills according to level
         const mainSkill: TrainableSkill = vocName === 'Knight' ? 'sword' : vocName === 'Paladin' ? 'distance' : 'magicLevel';
@@ -453,18 +487,24 @@ function GamePrototypeContent() {
         newChar.skills.shielding = Math.max(newChar.skills.shielding, 10 + Math.floor(newChar.level * 0.8));
 
         // Characters only use spells configured in their hotbars; never force auto spells
-        const existingChar = cur.session.characters.find((c: CharacterState) => c.id === m.characterId);
         newChar.hotbar = existingChar ? [...existingChar.hotbar] : [];
         newChar.targetDistance = vocName === 'Knight' ? 1 : 3;
 
         updatedChars.push(newChar);
       }
     }
+
+    const leaderId = leaderMember.characterId || leaderMember.sessionId;
+    const selectedCharId = localChar.id;
+
     return {
       ...cur,
       session: {
         ...cur.session,
         characters: updatedChars,
+        leaderId,
+        selectedCharacterId: selectedCharId,
+        cameraTargetCharacterId: selectedCharId,
         isMultiplayerParty: true,
       },
     };
@@ -545,14 +585,13 @@ function GamePrototypeContent() {
 
     const unsubHuntStart = gameNetwork.onPartyHuntStart((data) => {
       setActiveHuntProposal(null);
-      if (data.leaderSessionId !== gameNetwork.LocalPlayerId) {
-        setSaleMessage(`⚔️ Teletransportando para a caçada com o líder ${data.leaderName} em ${data.huntId}...`);
-        setWalkingPath(null);
-        setIsTrainingAtDummy(false);
-        const huntSeed = data.seed || seedRef.current.trim() || defaultSeed;
-        setGame((current) => restartHunt(prepareHuntCharactersRef.current(current), huntSeed, content, data.huntId));
-        setMode('hunt');
-      }
+      setSaleMessage(`⚔️ Entrando na caçada com a party em ${data.huntId}...`);
+      setWalkingPath(null);
+      setIsTrainingAtDummy(false);
+      const huntSeed = data.seed || seedRef.current.trim() || defaultSeed;
+      setGame((current) => restartHunt(prepareHuntCharactersRef.current(current), huntSeed, content, data.huntId));
+      setMode('hunt');
+      gameNetwork.sendSetInHunt(true);
     });
 
     const unsubHuntExit = gameNetwork.onPartyHuntExit((coords) => {
@@ -1107,6 +1146,7 @@ function GamePrototypeContent() {
       const nextSeed = seed.trim() || defaultSeed;
       setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
       setMode('hunt');
+      gameNetwork.sendSetInHunt(true);
       if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
         gameNetwork.sendPartyHuntSync(huntId, nextSeed);
       }
@@ -1121,6 +1161,7 @@ function GamePrototypeContent() {
         const nextSeed = seed.trim() || defaultSeed;
         setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
         setMode('hunt');
+        gameNetwork.sendSetInHunt(true);
         if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
           gameNetwork.sendPartyHuntSync(huntId, nextSeed);
         }
@@ -1139,6 +1180,7 @@ function GamePrototypeContent() {
       gameNetwork.sendPartyHuntExit();
     }
     gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
+    gameNetwork.sendSetInHunt(false);
     setGame((current) => {
       const respawned = respawnInTemple(current);
       const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
@@ -1148,6 +1190,7 @@ function GamePrototypeContent() {
         session: {
           ...respawned.session,
           characters: localOnly,
+          isMultiplayerParty: false,
         },
       };
     });

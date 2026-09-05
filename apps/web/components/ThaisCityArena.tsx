@@ -845,7 +845,7 @@ export function ThaisCityArena({
 
         if (remotes) {
           remotes.forEach((p, key) => {
-            if (key === myPlayerId || p.id === myPlayerId) return;
+            if (key === myPlayerId || p.id === myPlayerId || p.inHunt) return;
             const pCharId = p.characterId || p.id;
             const pName = p.name?.toLowerCase();
             if (pCharId === myCharIdVal || (myCharNameVal && pName === myCharNameVal)) return;
@@ -1001,7 +1001,7 @@ export function ThaisCityArena({
           const renderedRemotes = new Set<string>();
 
           remotes.forEach((p, key) => {
-            if (key === myPlayerId || p.id === myPlayerId) return; // Skip rendering local player as remote
+            if (key === myPlayerId || p.id === myPlayerId || p.inHunt) return; // Skip rendering local player or players in hunt
             const pCharId = p.characterId || p.id;
             const pName = p.name?.toLowerCase();
             if (pCharId === myCharId || (myCharName && pName === myCharName)) return;

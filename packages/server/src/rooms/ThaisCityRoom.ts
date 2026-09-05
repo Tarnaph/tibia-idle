@@ -198,6 +198,10 @@ export class ThaisCityRoom extends Room<WorldState> {
       if (!party || party.leaderSessionId !== client.sessionId) return;
 
       for (const memberId of party.memberSessionIds) {
+        const memberPlayer = this.state.players.get(memberId);
+        if (memberPlayer) {
+          memberPlayer.inHunt = true;
+        }
         const memberClient = this.clients.find((c) => c.sessionId === memberId);
         if (memberClient) {
           memberClient.send('party:huntStarted', {
@@ -266,6 +270,10 @@ export class ThaisCityRoom extends Room<WorldState> {
       if (proposal.approvals.size >= party.memberSessionIds.length) {
         this.activeHuntProposals.delete(leaderId);
         for (const memberId of party.memberSessionIds) {
+          const memberPlayer = this.state.players.get(memberId);
+          if (memberPlayer) {
+            memberPlayer.inHunt = true;
+          }
           const memberClient = this.clients.find((c) => c.sessionId === memberId);
           if (memberClient) {
             memberClient.send('party:huntStarted', {
@@ -316,6 +324,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           memberPlayer.direction = 'south';
           memberPlayer.isWalking = false;
           memberPlayer.lastStepTime = 0;
+          memberPlayer.inHunt = false;
         }
         if (memberId !== client.sessionId) {
           const memberClient = this.clients.find((c) => c.sessionId === memberId);
@@ -327,6 +336,13 @@ export class ThaisCityRoom extends Room<WorldState> {
             });
           }
         }
+      }
+    });
+
+    this.onMessage('player:setInHunt', (client, data: { inHunt: boolean }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player) {
+        player.inHunt = Boolean(data.inHunt);
       }
     });
 
@@ -854,11 +870,23 @@ export class ThaisCityRoom extends Room<WorldState> {
         characterId: p?.characterId || sessionId,
         name: p?.name || 'Jogador',
         vocationId: p?.vocationId || 1,
+        vocationName: p?.vocationName || 'Knight',
         level: p?.level || 1,
         hp: p?.hp || 100,
         maxHp: p?.maxHp || 100,
         mp: p?.mp || 35,
         maxMp: p?.maxMp || 35,
+        outfit: p?.outfit || 'Knight',
+        outfitLookType: p?.outfitLookType || 128,
+        outfitColors: {
+          head: p?.outfitHead ?? 0,
+          primary: p?.outfitBody ?? 86,
+          secondary: p?.outfitLegs ?? 114,
+          detail: p?.outfitFeet ?? 76,
+        },
+        mount: p?.mount || 'none',
+        mountActive: Boolean(p?.mountActive),
+        inHunt: Boolean(p?.inHunt),
         x: p?.posX || 32369,
         y: p?.posY || 32241,
         z: p?.posZ || 7,

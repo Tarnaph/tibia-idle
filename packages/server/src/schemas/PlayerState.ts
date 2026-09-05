@@ -40,4 +40,5 @@ export class PlayerState extends Schema {
   @type('number') outfitAddons: number = 0;
   @type('string') mount: string = 'none';
   @type('boolean') mountActive: boolean = false;
+  @type('boolean') inHunt: boolean = false;
 }
