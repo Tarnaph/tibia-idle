@@ -60,6 +60,7 @@ O desenvolvimento do Cavebound foi estruturado e documentado em 12 fases increme
 | **10** | **Câmera de Expedição e Controles em Tempo Real** | `presentation-camera` | Câmera dinâmica de mundo (`smoothWorldCamera`) com zoom e tracking, desacoplada da UI de seleção, hot-swap de equipamentos em combate e entrada ao vivo na party. | [`expedition-camera.test.ts`](tests/expedition-camera.test.ts) |
 | **11** | **Economia de Party, Loot Pouch e UX Estrutural** | `economy-and-ux` | Loot Pouch com travas de venda (`lockSell`), preferências (`autoLoot`, `quickSell`), preços de NPCs do Styller, capacidade de carga, peso e divisão de XP com bônus. | [`structural-ux.test.ts`](tests/structural-ux.test.ts) |
 | **12** | **Fundação de Autenticação, Contas e Segurança (Supabase)** | `auth-and-security` | Supabase Auth (Email/Senha e Google OAuth), schema PostgreSQL com Row Level Security (RLS) anti-escalonamento, painel `/admin` e rota `/game-preview`. | [`auth-foundation.test.ts`](tests/auth-foundation.test.ts) |
+| **67** | **Loja da Cidade (NPC Item Shop)** | `shop-window` | Loja de itens com filtros por categoria (Armas, Escudos, Armaduras, Consumíveis, Acessórios), filtro por vocação, busca por nome e compra por Gold Coins. | [`phase67-shop-purchases.test.ts`](tests/phase67-shop-purchases.test.ts) |
 
 ---
 
