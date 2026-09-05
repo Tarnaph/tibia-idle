@@ -104,16 +104,7 @@ export function CharacterContextMenu({
         🤝 Trade (Trocar Itens)
       </button>
 
-      <button
-        type="button"
-        className="context-menu-item"
-        onClick={() => {
-          onInviteParty?.();
-          onClose();
-        }}
-      >
-        👥 Convidar para Party
-      </button>
+      {/* Convite de party entre players desativado temporariamente */}
 
       <button
         type="button"

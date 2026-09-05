@@ -102,42 +102,10 @@ export class ThaisCityRoom extends Room<WorldState> {
     });
 
     // Party multiplayer messages
-    this.onMessage('party:invite', (client, data: { targetName?: string; targetSessionId?: string }) => {
-      const inviter = this.state.players.get(client.sessionId);
-      if (!inviter) return;
-
-      let targetClient: Client | undefined;
-      let targetPlayer: any | undefined;
-
-      if (data.targetSessionId) {
-        targetClient = this.clients.find((c) => c.sessionId === data.targetSessionId);
-        targetPlayer = this.state.players.get(data.targetSessionId);
-      } else if (data.targetName) {
-        const query = data.targetName.trim().toLowerCase();
-        for (const [sId, p] of this.state.players.entries()) {
-          if (p.name.trim().toLowerCase() === query && sId !== client.sessionId) {
-            targetClient = this.clients.find((c) => c.sessionId === sId);
-            targetPlayer = p;
-            break;
-          }
-        }
-      }
-
-      if (targetClient && targetPlayer) {
-        targetClient.send('party:invitationReceived', {
-          inviterSessionId: client.sessionId,
-          inviterName: inviter.name,
-          inviterLevel: inviter.level,
-          inviterVocationId: inviter.vocationId,
-        });
-        client.send('party:inviteSent', {
-          targetName: targetPlayer.name,
-        });
-      } else {
-        client.send('party:error', {
-          message: `Jogador "${data.targetName || 'alvo'}" não encontrado na cidade de Thais.`,
-        });
-      }
+    this.onMessage('party:invite', (client) => {
+      client.send('party:error', {
+        message: 'O sistema de convites de party entre jogadores reais está temporariamente desativado.',
+      });
     });
 
     this.onMessage('party:acceptInvite', (client, data: { inviterSessionId: string }) => {

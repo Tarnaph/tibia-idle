@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-05T14:59:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 60: Painel de Administração Completo (Controle de Variáveis, Tabela de Players, GM Tools e Logs)."
+last_updated: "2026-09-05T15:09:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 61: Desativação Temporária do Convite de Party de Outros Jogadores Reais."
 progress:
-  total_phases: 60
-  completed_phases: 60
-  total_plans: 60
-  completed_plans: 60
+  total_phases: 61
+  completed_phases: 61
+  total_plans: 61
+  completed_plans: 61
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 60 Concluída com Sucesso (0 erros no typecheck, 60/60 fases concluídas no roadmap).
+**Current focus:** Fase 61 Concluída com Sucesso (0 erros no typecheck, 61/61 fases concluídas no roadmap).
 
 ## Current Position
 
-Phase: 60 of 60 (Painel de Administração Completo)  
+Phase: 61 of 61 (Desativação Temporária do Convite de Party de Outros Jogadores Reais)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 60.
+Last activity: 2026-09-05 — Concluída Phase 61.
 
 Progress: [██████████] 100%
 

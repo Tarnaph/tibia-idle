@@ -22,7 +22,8 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 45: Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin** - Telas de Login, Cadastro, Seleção/Criação de Personagem, Painel de Admin (`@colyseus/monitor` + GM commands) e PixiJS consumindo delta-snapshots com interpolação suave.
 - [x] **Phase 46: Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E** - Auto-save periódico via Prisma, grace period de reconexão após F5 (`allowReconnection`) e suíte de testes multiplayer automatizada no Vitest.
 - [x] **Phase 47: Correção de Cores ao Andar, +100 Velocidade na Cidade e Chat Local/World com Texto Flutuante** - Preload de frames de caminhada e fallback seguro de recolor, bônus de +100 pontos de velocidade na cidade, janela de Chat com abas Local/World, atalho Enter para foco imediato e falas flutuantes em amarelo (local) e azul (world).
-- [x] **Phase 56: Sistema Multiplayer de Party (Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo)** - Convites de party via lista de amigos ou botão direito, modal de aceite/recusa no cliente receptor, sistema de follow do dono da party na cidade e caçada, transição sincronizada de caçada em grupo e foco coletivo de ataque nos monstros.
+- [x] **Phase 60: Painel de Administração Completo (Controle de Variáveis do Servidor, Tabela de Players Online, Logs do Sistema e Métricas)** - Painel administrativo em /admin com controle dinâmico de variáveis do servidor, tabela pesquisável de players com comandos GM, logs do sistema e saúde do servidor.
+- [x] **Phase 61: Desativação Temporária do Convite de Party de Outros Jogadores Reais** - Ocultação da opção no menu de contexto, desativação do modal de convite e desativação dos handlers WebSocket mantendo intacto o Squad individual de 4 heróis do jogador.
 
 ---
 
@@ -399,6 +400,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 58. Correção da Tela de Hunt (Fullscreen/Viewport), Ataque Único sem Duplicação e Lógica Estrita de Party Target | 1/1 | Complete | 2026-09-05 |
 | 59. Transição Síncrona de Caçada em Grupo ("Iniciar com o Time"), Ocultação em Hunt e Fim da Duplicação de Personagens | 1/1 | Complete | 2026-09-05 |
 | 60. Painel de Administração Completo (Controle de Variáveis do Servidor, Tabela de Players Online, Logs do Sistema e Métricas) | 1/1 | Complete | 2026-09-05 |
+| 61. Desativação Temporária do Convite de Party de Outros Jogadores Reais | 1/1 | Complete | 2026-09-05 |
 
 -----
 
@@ -946,7 +948,25 @@ Plans:
 5. 0 erros de TypeScript (`npm run typecheck`) e 100% de testes aprovados no Vitest (`npm test`).
 
 Plans:
-- [ ] 60-01-PLAN: Implementação do Painel de Administração Completo (/admin) com Controle de Variáveis, Tabela de Players, GM Tools e Sistema de Logs.
+- [x] 60-01-PLAN: Implementação do Painel de Administração Completo (/admin) com Controle de Variáveis, Tabela de Players, GM Tools e Sistema de Logs Concluída.
+
+---
+
+### Phase 61: Desativação Temporária do Convite de Party de Outros Jogadores Reais
+
+**Goal:** Ocultar e desativar temporariamente o sistema de convites de party para outros jogadores reais (multiplayer real), mantendo o Squad individual de 4 heróis do próprio usuário perfeitamente funcional.  
+**Depends on:** Phase 60  
+**Requirements:** Solicitado pelo usuário (`/gsd-phase` desativar temporariamente convite de party entre players).  
+**Success Criteria:**
+1. Botão `👥 Convidar para Party` oculto/desativado no menu de contexto de outros personagens (`CharacterContextMenu.tsx`).
+2. Listener de convite de party no cliente não exibe o modal flutuante (`PartyInvitationModal.tsx` desativado).
+3. Servidor WebSocket recusa amigavelmente qualquer tentativa direta de mensagem `party:invite` informando que a funcionalidade está em manutenção.
+4. O sistema de Party do próprio Squad de 4 heróis do jogador permanece 100% funcional.
+5. 0 erros de TypeScript (`npm run typecheck`) e suíte de testes Vitest passando.
+
+Plans:
+- [ ] 61-01-PLAN: Desativação Temporária do Convite de Party de Outros Jogadores Reais.
+
 
 
 
