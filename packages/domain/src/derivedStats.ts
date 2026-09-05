@@ -65,14 +65,20 @@ export function deriveStats(
     .sort((left, right) => right.defense - left.defense)[0];
   const activeSkill = skillForWeapon(character, weapon);
   const activeSkillLevel = skills[activeSkill];
-  const weaponAttack = weapon?.weaponType === 'wand' ? 0 : weapon?.attack ?? 7;
+  const weaponAttack = weapon?.weaponType === 'wand'
+    ? Math.max(13, weapon?.attack || 13)
+    : weapon?.attack ?? 7;
   const attackFactor = 1;
 
   const baseMaxDamage = Math.round(
     character.level / 5 + ((((activeSkillLevel / 4) + 1) * (weaponAttack / 3)) * 1.03) / attackFactor,
   );
-  const damageMultiplier = weapon?.weaponType === 'distance' ? vocation.distanceDamageMultiplier : vocation.meleeDamageMultiplier;
-  const attack = weapon?.weaponType === 'wand' ? 0 : Math.trunc(baseMaxDamage * damageMultiplier);
+  const damageMultiplier = weapon?.weaponType === 'distance'
+    ? vocation.distanceDamageMultiplier
+    : weapon?.weaponType === 'wand'
+    ? 1.0
+    : vocation.meleeDamageMultiplier;
+  const attack = Math.trunc(baseMaxDamage * damageMultiplier);
 
   let defenseSkill = activeSkill === 'magicLevel' ? skills.shielding : activeSkillLevel;
   let defenseValue = weapon ? weapon.defense + weapon.extraDefense : 7;

@@ -321,7 +321,7 @@ function attackRange(characterId: string, state: GameState, content: GameContent
   if (typeof character.targetDistance === 'number' && character.targetDistance >= 1) {
     return character.targetDistance;
   }
-  const weapon = getEquippedItems(character, content.equipment).find((item) => item.weaponType === 'distance');
+  const weapon = getEquippedItems(character, content.equipment).find((item) => item.weaponType === 'distance' || item.weaponType === 'wand');
   return weapon ? Math.max(2, weapon.range) : 1;
 }
 
@@ -839,15 +839,18 @@ function playerAttacks(state: GameState, content: GameContent): void {
     const range = attackRange(character.id, state, content);
     const lockedTarget = encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive);
     let target = lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range ? lockedTarget : undefined;
-    if (!target && !lockedTarget) {
+    if (!target) {
       target = encounter.enemies.find((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
-      if (target) actor.targetId = target.id;
+      if (target && !lockedTarget) actor.targetId = target.id;
     }
     if (!target) continue;
     const ranged = range > 1;
     actor.pendingAttack = { targetId: target.id, impactAt: encounter.elapsedMs + 180, attack: effectiveAttack, weaponName: stats.weaponName, activeSkill: stats.activeSkill, activeSkillLevel: stats.activeSkillLevel, ranged };
     encounter.visualEvents.push({ type: 'basic-attack-started', sourceId: character.id, targetId: target.id, ranged });
-    if (ranged) encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId: 28 });
+    if (ranged) {
+      const isMagic = stats.weaponName.toLowerCase().includes('wand') || stats.weaponName.toLowerCase().includes('rod');
+      encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId: isMagic ? 4 : 28 });
+    }
     actor.nextAttackAt = encounter.elapsedMs + actor.attackIntervalMs;
   }
 }

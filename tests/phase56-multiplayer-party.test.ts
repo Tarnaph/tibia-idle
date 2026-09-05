@@ -222,4 +222,104 @@ describe('Phase 56: Multiplayer Party System (Invites, Follow Leader, Shared Hun
     expect(room.parties.has('client-1')).toBe(false);
     expect(room.playerPartyLeader.has('client-2')).toBe(false);
   });
+
+  it('synchronizes hunt start with deterministic seed so party members enter identical hunt instance', () => {
+    const room = new ThaisCityRoom();
+    room.onCreate({});
+
+    const client1: any = { sessionId: 'client-1', send: vi.fn() };
+    const client2: any = { sessionId: 'client-2', send: vi.fn() };
+
+    room.state.players.set('client-1', new PlayerState());
+    room.state.players.set('client-2', new PlayerState());
+    (room as any).clients = [client1, client2];
+
+    room.parties.set('client-1', {
+      leaderSessionId: 'client-1',
+      leaderName: 'Knight Leader',
+      memberSessionIds: ['client-1', 'client-2'],
+    });
+    room.playerPartyLeader.set('client-1', 'client-1');
+    room.playerPartyLeader.set('client-2', 'client-1');
+
+    // Leader sends party:huntSync with huntId and deterministic seed
+    (room as any).onMessageHandlers['party:huntSync'](client1, {
+      huntId: 'rotworm-caves',
+      seed: 'shared-hunt-seed-999',
+    });
+
+    expect(client1.send).toHaveBeenCalledWith('party:huntStarted', {
+      huntId: 'rotworm-caves',
+      seed: 'shared-hunt-seed-999',
+      leaderName: 'Knight Leader',
+      leaderSessionId: 'client-1',
+    });
+    expect(client2.send).toHaveBeenCalledWith('party:huntStarted', {
+      huntId: 'rotworm-caves',
+      seed: 'shared-hunt-seed-999',
+      leaderName: 'Knight Leader',
+      leaderSessionId: 'client-1',
+    });
+  });
+
+  it('broadcasts party:huntExited to members when leader exits hunt so whole party returns together', () => {
+    const room = new ThaisCityRoom();
+    room.onCreate({});
+
+    const client1: any = { sessionId: 'client-1', send: vi.fn() };
+    const client2: any = { sessionId: 'client-2', send: vi.fn() };
+
+    room.state.players.set('client-1', new PlayerState());
+    room.state.players.set('client-2', new PlayerState());
+    (room as any).clients = [client1, client2];
+
+    room.parties.set('client-1', {
+      leaderSessionId: 'client-1',
+      leaderName: 'Knight Leader',
+      memberSessionIds: ['client-1', 'client-2'],
+    });
+    room.playerPartyLeader.set('client-1', 'client-1');
+    room.playerPartyLeader.set('client-2', 'client-1');
+
+    // Leader exits hunt
+    (room as any).onMessageHandlers['party:huntExit'](client1);
+
+    // Member client 2 receives party:huntExited
+    expect(client2.send).toHaveBeenCalledWith('party:huntExited', {});
+  });
+
+  it('calculates positive attack values for wands so Sorcerer and Druid auto-attack in hunt', async () => {
+    const { deriveStats, vocationFor } = await import('../packages/domain/src');
+    const { content } = await import('./fixture');
+
+    const wand = content.equipment.find((item) => item.weaponType === 'wand');
+    expect(wand).toBeDefined();
+
+    const sorcererVocation = vocationFor(content, 'Sorcerer');
+    const dummyMage: any = {
+      id: 'char-mage-test',
+      name: 'Mage Tester',
+      level: 25,
+      skills: { magicLevel: 30, shielding: 15, club: 10, sword: 10, axe: 10, distance: 10, fishing: 10 },
+      equipment: {
+        helmet: null,
+        armor: null,
+        legs: null,
+        boots: null,
+        shield: null,
+        weapon: wand!.id,
+        leftHand: wand!.id,
+        rightHand: null,
+        backpack: null,
+        necklace: null,
+        ring: null,
+        arrow: null,
+      },
+    };
+
+    const stats = deriveStats(dummyMage, content.equipment, sorcererVocation);
+    expect(stats.attack).toBeGreaterThan(0);
+    expect(stats.weaponName).toBe(wand!.name);
+  });
 });
+

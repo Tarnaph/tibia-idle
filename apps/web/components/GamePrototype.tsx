@@ -107,6 +107,53 @@ const MINI_SLOTS: Array<{ slot: CharacterEquipmentSlot; label: string; icon: str
   { slot: 'boots', label: 'Botas', icon: '👢', gridArea: '4 / 2 / 5 / 3' },
 ];
 
+/**
+ * High-precision game ticker using an inline Web Worker.
+ * Chrome throttles window.setInterval to 1000ms (1Hz) when tabs are backgrounded or minimized.
+ * Web Workers run in an isolated thread and are NOT throttled to 1000ms by Chromium browsers.
+ */
+function useGameTicker(callback: () => void, intervalMs: number, active: boolean) {
+  const cbRef = useRef(callback);
+  cbRef.current = callback;
+
+  useEffect(() => {
+    if (!active || typeof window === 'undefined') return;
+
+    let worker: Worker | null = null;
+    let fallbackTimer: number | null = null;
+
+    try {
+      const blob = new Blob([
+        `let id = null;
+        self.onmessage = function(e) {
+          if (e.data === 'start') {
+            if (!id) id = setInterval(function() { self.postMessage('tick'); }, ${intervalMs});
+          } else if (e.data === 'stop') {
+            if (id) { clearInterval(id); id = null; }
+          }
+        };`
+      ], { type: 'application/javascript' });
+      const url = URL.createObjectURL(blob);
+      worker = new Worker(url);
+      worker.onmessage = () => {
+        cbRef.current();
+      };
+      worker.postMessage('start');
+
+      return () => {
+        worker?.postMessage('stop');
+        worker?.terminate();
+        URL.revokeObjectURL(url);
+      };
+    } catch {
+      fallbackTimer = window.setInterval(() => cbRef.current(), intervalMs);
+      return () => {
+        if (fallbackTimer) window.clearInterval(fallbackTimer);
+      };
+    }
+  }, [active, intervalMs]);
+}
+
 function GamePrototypeContent() {
   const [seed, setSeed] = useState(defaultSeed);
   const [game, setGame] = useState(() => createIdleGame(defaultSeed, content));
@@ -154,6 +201,10 @@ function GamePrototypeContent() {
   const cityPosRef = useRef(cityPos);
   cityPosRef.current = cityPos;
   const startSelectedHuntRef = useRef<(huntId: string) => void>(() => {});
+  const seedRef = useRef(seed);
+  seedRef.current = seed;
+  const prepareHuntCharactersRef = useRef<(cur: any) => any>((cur) => cur);
+  const exitHuntRef = useRef<() => void>(() => {});
 
   const { openWindow, closeWindow, bringToFront } = useWindowManager();
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
@@ -373,6 +424,55 @@ function GamePrototypeContent() {
     setTradeSession(null);
   }, [closeWindow]);
 
+  const prepareHuntCharacters = useCallback((cur: any) => {
+    if (!multiplayerParty) return cur;
+    const localSessionId = gameNetwork.LocalPlayerId;
+    const localChar = cur.session.characters.find((c: CharacterState) => c.id === cur.session.selectedCharacterId) || cur.session.characters[0] || selectedCharacterOf(cur);
+    const updatedChars = [localChar];
+
+    for (const m of multiplayerParty.members) {
+      if (m.sessionId !== localSessionId) {
+        const vocName = (VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
+        const newChar = createCharacter(m.characterId, m.name, vocName, content);
+        newChar.level = Math.max(m.level, 1);
+        newChar.currentHp = m.hp || newChar.maxHp;
+        newChar.maxHp = m.maxHp || newChar.maxHp;
+        newChar.currentMana = m.mp || newChar.maxMana;
+        newChar.maxMana = m.maxMp || newChar.maxMana;
+
+        // Scale skills according to level
+        const mainSkill: TrainableSkill = vocName === 'Knight' ? 'sword' : vocName === 'Paladin' ? 'distance' : 'magicLevel';
+        newChar.skills[mainSkill] = Math.max(newChar.skills[mainSkill], 10 + Math.floor(newChar.level * 1.2));
+        newChar.skills.shielding = Math.max(newChar.skills.shielding, 10 + Math.floor(newChar.level * 0.8));
+
+        // Set default hotbar spells so auto-combat can cast spells
+        if (vocName === 'Knight') {
+          newChar.hotbar = [1, 6];
+          newChar.targetDistance = 1;
+        } else if (vocName === 'Paladin') {
+          newChar.hotbar = [1, 2];
+          newChar.targetDistance = 3;
+        } else if (vocName === 'Sorcerer') {
+          newChar.hotbar = [1, 88];
+          newChar.targetDistance = 3;
+        } else if (vocName === 'Druid') {
+          newChar.hotbar = [1, 113];
+          newChar.targetDistance = 3;
+        }
+
+        updatedChars.push(newChar);
+      }
+    }
+    return {
+      ...cur,
+      session: {
+        ...cur.session,
+        characters: updatedChars,
+      },
+    };
+  }, [multiplayerParty, content]);
+  prepareHuntCharactersRef.current = prepareHuntCharacters;
+
   useEffect(() => {
     const unsub = gameNetwork.onStateChange((players) => {
       setRemotePlayers(players);
@@ -444,9 +544,18 @@ function GamePrototypeContent() {
 
     const unsubHuntStart = gameNetwork.onPartyHuntStart((data) => {
       if (data.leaderSessionId !== gameNetwork.LocalPlayerId) {
-        setSaleMessage(`⚔️ O líder ${data.leaderName} iniciou a caçada! Entrando em ${data.huntId}...`);
-        startSelectedHuntRef.current(data.huntId);
+        setSaleMessage(`⚔️ Teletransportando para a caçada com o líder ${data.leaderName} em ${data.huntId}...`);
+        setWalkingPath(null);
+        setIsTrainingAtDummy(false);
+        const huntSeed = data.seed || seedRef.current.trim() || defaultSeed;
+        setGame((current) => restartHunt(prepareHuntCharactersRef.current(current), huntSeed, content, data.huntId));
+        setMode('hunt');
       }
+    });
+
+    const unsubHuntExit = gameNetwork.onPartyHuntExit(() => {
+      setSaleMessage('O líder encerrou a caçada. Retornando ao Templo de Thais...');
+      exitHuntRef.current();
     });
 
     const unsubTargetSync = gameNetwork.onPartyTargetSync((targetId) => {
@@ -491,6 +600,7 @@ function GamePrototypeContent() {
       unsubPartySync();
       unsubPartyNotification();
       unsubHuntStart();
+      unsubHuntExit();
       unsubTargetSync();
       unsubLeaderMoved();
     };
@@ -777,20 +887,16 @@ function GamePrototypeContent() {
     return () => window.clearTimeout(timer);
   }, [levelUpMessage]);
 
-  useEffect(() => {
+  const lastCombatTimeRef = useRef(performance.now());
+  const tickCombat = useCallback(() => {
     if (mode !== 'hunt' || encounter.status !== 'running') return;
-    const timer = window.setInterval(() => setGame((current) => advanceCombat(current, content, 120)), 120);
-    return () => window.clearInterval(timer);
-  }, [encounter.status, mode, content]);
-
-  useEffect(() => {
-    if (mode === 'hunt' && encounter.status === 'running') {
-      const timer = window.setTimeout(() => {
-        setGame((current) => advanceCombat(current, content, 100));
-      }, 50);
-      return () => window.clearTimeout(timer);
-    }
+    const now = performance.now();
+    const delta = Math.min(now - lastCombatTimeRef.current, 500);
+    lastCombatTimeRef.current = now;
+    setGame((current) => advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120));
   }, [mode, encounter.status, content]);
+
+  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running');
 
   // When defeated in hunt, resurrect and respawn in Thais Temple (32369, 32241, 7) and walk to plaza
   useEffect(() => {
@@ -829,35 +935,73 @@ function GamePrototypeContent() {
     }
   }, [mode, encounter.status]);
 
-  // Advance training at dummy using selected skill
-  useEffect(() => {
-    if (mode !== 'training') return;
+  // Advance training at dummy using selected skill with Web Worker ticker
+  const tickTraining = useCallback(() => {
+    if (mode !== 'training' || !isTrainingAtDummy) return;
     const skillKey: TrainableSkill =
       activeTrainingSkill === 'Club Fighting' ? 'club' :
       activeTrainingSkill === 'Axe Fighting' ? 'axe' :
       activeTrainingSkill === 'Distance Fighting' ? 'distance' :
       activeTrainingSkill === 'Shielding' ? 'shielding' :
       activeTrainingSkill === 'Magic Level' ? 'magicLevel' : 'sword';
-    const timer = window.setInterval(() => setGame((current) => advanceTraining(current, content, 500, skillKey)), 500);
-    return () => window.clearInterval(timer);
-  }, [mode, activeTrainingSkill]);
+    setGame((current) => advanceTraining(current, content, 500, skillKey));
+  }, [mode, isTrainingAtDummy, activeTrainingSkill, content]);
 
-  // Autonomous walking loop across coordinates in city with instant start cadence & network sync
-  useEffect(() => {
+  useGameTicker(tickTraining, 500, mode === 'training' && isTrainingAtDummy);
+
+  // Autonomous walking loop across coordinates in city with Web Worker ticker (runs at full speed even when minimized)
+  const tickWalking = useCallback(() => {
     if (!walkingPath || walkingPath.waypoints.length === 0 || mode === 'hunt') return;
-    const timer = window.setInterval(() => {
-      const now = performance.now();
-      if (now - lastStepTimeRef.current < cityStepDurationMs) return;
+    const now = performance.now();
+    if (now - lastStepTimeRef.current < cityStepDurationMs) return;
 
-      const index = walkingPath.currentIndex ?? 0;
-      const currentTarget = walkingPath.waypoints[index];
-      if (!currentTarget) return;
+    const index = walkingPath.currentIndex ?? 0;
+    const currentTarget = walkingPath.waypoints[index];
+    if (!currentTarget) return;
 
-      const current = cityPos;
-      const dx = currentTarget.x - current.x;
-      const dy = currentTarget.y - current.y;
+    const current = cityPos;
+    const dx = currentTarget.x - current.x;
+    const dy = currentTarget.y - current.y;
 
-      if (dx === 0 && dy === 0) {
+    if (dx === 0 && dy === 0) {
+      if (index < walkingPath.waypoints.length - 1) {
+        setWalkingPath({
+          ...walkingPath,
+          currentIndex: index + 1,
+        });
+      } else {
+        walkingPath.onArrive?.();
+        setWalkingPath(null);
+      }
+      return;
+    }
+
+    const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
+    const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
+    const dir = stepY < 0 ? 'north' : stepY > 0 ? 'south' : stepX < 0 ? 'west' : 'east';
+
+    lastStepTimeRef.current = now;
+
+    setCityPos((pos) => {
+      const stairTarget = resolveStairsTransition(pos, stepX, stepY);
+      if (stairTarget) {
+        gameNetwork.sendMove(dir, { x: stairTarget.x, y: stairTarget.y, z: stairTarget.z });
+        return stairTarget;
+      }
+
+      const nextX = pos.x + stepX;
+      const nextY = pos.y + stepY;
+      const activeTileMap = pos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+      const tile = activeTileMap.get(`${nextX},${nextY}`);
+      if (!tile || !tile.walkable) {
+        setWalkingPath(null);
+        return pos;
+      }
+
+      gameNetwork.sendMove(dir, { x: nextX, y: nextY, z: pos.z });
+
+      const isAtTarget = nextX === currentTarget.x && nextY === currentTarget.y;
+      if (isAtTarget) {
         if (index < walkingPath.waypoints.length - 1) {
           setWalkingPath({
             ...walkingPath,
@@ -867,50 +1011,12 @@ function GamePrototypeContent() {
           walkingPath.onArrive?.();
           setWalkingPath(null);
         }
-        return;
       }
-
-      const stepX = dx === 0 ? 0 : dx > 0 ? 1 : -1;
-      const stepY = dy === 0 ? 0 : dy > 0 ? 1 : -1;
-      const dir = stepY < 0 ? 'north' : stepY > 0 ? 'south' : stepX < 0 ? 'west' : 'east';
-
-      lastStepTimeRef.current = now;
-
-      setCityPos((pos) => {
-        const stairTarget = resolveStairsTransition(pos, stepX, stepY);
-        if (stairTarget) {
-          gameNetwork.sendMove(dir, { x: stairTarget.x, y: stairTarget.y, z: stairTarget.z });
-          return stairTarget;
-        }
-
-        const nextX = pos.x + stepX;
-        const nextY = pos.y + stepY;
-        const activeTileMap = pos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
-        const tile = activeTileMap.get(`${nextX},${nextY}`);
-        if (!tile || !tile.walkable) {
-          setWalkingPath(null);
-          return pos;
-        }
-
-        gameNetwork.sendMove(dir, { x: nextX, y: nextY, z: pos.z });
-
-        const isAtTarget = nextX === currentTarget.x && nextY === currentTarget.y;
-        if (isAtTarget) {
-          if (index < walkingPath.waypoints.length - 1) {
-            setWalkingPath({
-              ...walkingPath,
-              currentIndex: index + 1,
-            });
-          } else {
-            walkingPath.onArrive?.();
-            setWalkingPath(null);
-          }
-        }
-        return { x: nextX, y: nextY, z: isAtTarget ? currentTarget.z : pos.z };
-      });
-    }, 16);
-    return () => window.clearInterval(timer);
+      return { x: nextX, y: nextY, z: isAtTarget ? currentTarget.z : pos.z };
+    });
   }, [walkingPath, mode, cityStepDurationMs, cityPos, thaisTileMapZ6, thaisTileMapZ7]);
+
+  useGameTicker(tickWalking, 16, Boolean(walkingPath && walkingPath.waypoints.length > 0 && mode !== 'hunt'));
 
   useEffect(() => {
     if (!statsDelta) return;
@@ -960,40 +1066,13 @@ function GamePrototypeContent() {
     const targetHunt = content.hunts.find((h) => h.id === huntId) ?? encounter.hunt;
     setHuntSelectorOpen(false);
 
-    // If local player is party leader in multiplayer, broadcast to party members
-    if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
-      gameNetwork.sendPartyHuntSync(huntId);
-    }
-
-    const prepareHuntCharacters = (cur: any) => {
-      if (!multiplayerParty) return cur;
-      const localSessionId = gameNetwork.LocalPlayerId;
-      const updatedChars = [cur.session.characters[0] || activeCharacter];
-      for (const m of multiplayerParty.members) {
-        if (m.sessionId !== localSessionId) {
-          const vocName = VOCATION_MAP[m.vocationId] || 'Knight';
-          const newChar = createCharacter(m.characterId, m.name, vocName as any, content);
-          newChar.level = m.level;
-          newChar.currentHp = m.hp;
-          newChar.maxHp = m.maxHp;
-          newChar.currentMana = m.mp;
-          newChar.maxMana = m.maxMp;
-          updatedChars.push(newChar);
-        }
-      }
-      return {
-        ...cur,
-        session: {
-          ...cur.session,
-          characters: updatedChars,
-        },
-      };
-    };
-
     // If already in hunt mode, switch directly
     if (mode === 'hunt') {
       const nextSeed = seed.trim() || defaultSeed;
       setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
+      if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+        gameNetwork.sendPartyHuntSync(huntId, nextSeed);
+      }
       return;
     }
 
@@ -1005,6 +1084,9 @@ function GamePrototypeContent() {
       const nextSeed = seed.trim() || defaultSeed;
       setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
       setMode('hunt');
+      if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+        gameNetwork.sendPartyHuntSync(huntId, nextSeed);
+      }
       return;
     }
 
@@ -1016,6 +1098,9 @@ function GamePrototypeContent() {
         const nextSeed = seed.trim() || defaultSeed;
         setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
         setMode('hunt');
+        if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+          gameNetwork.sendPartyHuntSync(huntId, nextSeed);
+        }
         setSaleMessage(`Você embarcou no navio em Thais e chegou em ${targetHunt.name}!`);
       },
     });
@@ -1023,7 +1108,11 @@ function GamePrototypeContent() {
     setSaleMessage(`Caminhando até as escadas do cais para viajar para ${targetHunt.name}...`);
   };
   startSelectedHuntRef.current = startSelectedHunt;
+
   const exitHunt = () => {
+    if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+      gameNetwork.sendPartyHuntExit();
+    }
     setGame((current) => {
       const respawned = respawnInTemple(current);
       const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
@@ -1058,6 +1147,7 @@ function GamePrototypeContent() {
     });
     setSaleMessage('Renasceu no Templo de Thais e caminhando pela cidade...');
   };
+  exitHuntRef.current = exitHunt;
 
   const handleStartTraining = (skillName: string) => {
     setActiveTrainingSkill(skillName);
@@ -1250,24 +1340,23 @@ function GamePrototypeContent() {
     });
   }, [thaisTileMapZ6, thaisTileMapZ7, isFollowingLeader]);
 
-  // Continuous movement loop while arrow keys or WASD are held, strictly paced at normal speed
-  useEffect(() => {
+  // Continuous movement loop while arrow keys or WASD are held, strictly paced at normal speed with Web Worker ticker
+  const tickHeldKeyboardMove = useCallback(() => {
     if (mode === 'hunt') return;
-    const interval = window.setInterval(() => {
-      if (isFollowingLeader) {
-        heldDirectionRef.current = null;
-        return;
+    if (isFollowingLeader) {
+      heldDirectionRef.current = null;
+      return;
+    }
+    if (heldDirectionRef.current) {
+      const now = performance.now();
+      if (now - lastStepTimeRef.current >= cityStepDurationMs) {
+        lastStepTimeRef.current = now;
+        takeCityStep(heldDirectionRef.current.dx, heldDirectionRef.current.dy);
       }
-      if (heldDirectionRef.current) {
-        const now = performance.now();
-        if (now - lastStepTimeRef.current >= cityStepDurationMs) {
-          lastStepTimeRef.current = now;
-          takeCityStep(heldDirectionRef.current.dx, heldDirectionRef.current.dy);
-        }
-      }
-    }, 16);
-    return () => window.clearInterval(interval);
-  }, [mode, cityStepDurationMs, takeCityStep, isFollowingLeader]);
+    }
+  }, [mode, isFollowingLeader, cityStepDurationMs, takeCityStep]);
+
+  useGameTicker(tickHeldKeyboardMove, 16, mode !== 'hunt' && !isFollowingLeader);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

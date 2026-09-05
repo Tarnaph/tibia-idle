@@ -180,7 +180,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       this.handlePlayerLeaveParty(client.sessionId);
     });
 
-    this.onMessage('party:huntSync', (client, data: { huntId: string }) => {
+    this.onMessage('party:huntSync', (client, data: { huntId: string; seed?: string }) => {
       const leaderId = this.playerPartyLeader.get(client.sessionId);
       if (!leaderId) return;
       const party = this.parties.get(leaderId);
@@ -191,9 +191,26 @@ export class ThaisCityRoom extends Room<WorldState> {
         if (memberClient) {
           memberClient.send('party:huntStarted', {
             huntId: data.huntId,
+            seed: data.seed,
             leaderName: party.leaderName,
             leaderSessionId: party.leaderSessionId,
           });
+        }
+      }
+    });
+
+    this.onMessage('party:huntExit', (client) => {
+      const leaderId = this.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.parties.get(leaderId);
+      if (!party || party.leaderSessionId !== client.sessionId) return;
+
+      for (const memberId of party.memberSessionIds) {
+        if (memberId !== client.sessionId) {
+          const memberClient = this.clients.find((c) => c.sessionId === memberId);
+          if (memberClient) {
+            memberClient.send('party:huntExited', {});
+          }
         }
       }
     });

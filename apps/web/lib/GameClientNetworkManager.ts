@@ -83,7 +83,8 @@ type ChatMessageListener = (msg: NetworkChatMessage) => void;
 type StateChangeListener = (players: Map<string, RemotePlayerSnapshot>) => void;
 type PartyInvitationListener = (invitation: PartyInvitation) => void;
 type PartySyncListener = (party: PartySnapshot | null) => void;
-type PartyHuntStartListener = (data: { huntId: string; leaderName: string; leaderSessionId: string }) => void;
+type PartyHuntStartListener = (data: { huntId: string; seed?: string; leaderName: string; leaderSessionId: string }) => void;
+type PartyHuntExitListener = () => void;
 type PartyTargetSyncListener = (targetId: string | null) => void;
 type PartyLeaderMovedListener = (data: { leaderSessionId: string; x: number; y: number; z: number; direction: string }) => void;
 type PartyNotificationListener = (data: { type: 'error' | 'rejected' | 'disbanded' | 'sent'; message: string }) => void;
@@ -96,6 +97,7 @@ export class GameClientNetworkManager {
   private partyInvitationListeners: Set<PartyInvitationListener> = new Set();
   private partySyncListeners: Set<PartySyncListener> = new Set();
   private partyHuntStartListeners: Set<PartyHuntStartListener> = new Set();
+  private partyHuntExitListeners: Set<PartyHuntExitListener> = new Set();
   private partyTargetSyncListeners: Set<PartyTargetSyncListener> = new Set();
   private partyLeaderMovedListeners: Set<PartyLeaderMovedListener> = new Set();
   private partyNotificationListeners: Set<PartyNotificationListener> = new Set();
@@ -259,8 +261,12 @@ export class GameClientNetworkManager {
       this.partyNotificationListeners.forEach((fn) => fn({ type: 'error', message: data.message }));
     });
 
-    this.room.onMessage('party:huntStarted', (data: { huntId: string; leaderName: string; leaderSessionId: string }) => {
+    this.room.onMessage('party:huntStarted', (data: { huntId: string; seed?: string; leaderName: string; leaderSessionId: string }) => {
       this.partyHuntStartListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('party:huntExited', () => {
+      this.partyHuntExitListeners.forEach((fn) => fn());
     });
 
     this.room.onMessage('party:targetUpdated', (data: { targetId: string | null }) => {
@@ -400,9 +406,14 @@ export class GameClientNetworkManager {
     this.room.send('party:leave', {});
   }
 
-  sendPartyHuntSync(huntId: string): void {
+  sendPartyHuntSync(huntId: string, seed?: string): void {
     if (!this.room) return;
-    this.room.send('party:huntSync', { huntId });
+    this.room.send('party:huntSync', { huntId, seed });
+  }
+
+  sendPartyHuntExit(): void {
+    if (!this.room) return;
+    this.room.send('party:huntExit', {});
   }
 
   sendPartyTargetSync(targetId: string | null): void {
@@ -423,6 +434,11 @@ export class GameClientNetworkManager {
   onPartyHuntStart(listener: PartyHuntStartListener): () => void {
     this.partyHuntStartListeners.add(listener);
     return () => this.partyHuntStartListeners.delete(listener);
+  }
+
+  onPartyHuntExit(listener: PartyHuntExitListener): () => void {
+    this.partyHuntExitListeners.add(listener);
+    return () => this.partyHuntExitListeners.delete(listener);
   }
 
   onPartyTargetSync(listener: PartyTargetSyncListener): () => void {
