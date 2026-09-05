@@ -494,7 +494,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     this.state.players.set(client.sessionId, player);
-    client.send('server:config', serverConfigManager.getConfig());
+    if (typeof client.send === 'function') {
+      client.send('server:config', serverConfigManager.getConfig());
+    }
   }
 
   async onLeave(client: Client, code?: number | boolean) {
