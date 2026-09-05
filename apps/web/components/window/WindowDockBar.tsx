@@ -13,6 +13,7 @@ interface WindowDockBarProps {
   onToggleDebug: () => void;
   onSelectHunt: () => void;
   onOpenSkills: () => void;
+  onOpenShop?: () => void;
   onOpenOutfit?: () => void;
   onExitGame?: () => void;
 }
@@ -27,6 +28,7 @@ export function WindowDockBar({
   onToggleDebug,
   onSelectHunt,
   onOpenSkills,
+  onOpenShop,
   onOpenOutfit,
   onExitGame,
 }: WindowDockBarProps) {
@@ -78,8 +80,11 @@ export function WindowDockBar({
       <button
         type="button"
         className="huntera-shop-btn"
-        onClick={() => toggleWindow('equipment')}
-        title="Abrir Loja / Mercado"
+        onClick={() => {
+          if (onOpenShop) onOpenShop();
+          else toggleWindow('equipment');
+        }}
+        title="Abrir Loja de Itens da Cidade"
       >
         <span className="shop-icon">🏯</span>
         <span className="shop-label">Loja</span>

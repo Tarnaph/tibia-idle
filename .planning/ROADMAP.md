@@ -1023,18 +1023,22 @@ Plans:
 Plans:
 - [x] 66-01-PLAN: Experiência Autêntica de Monstros e Progressão de Nível Concluída.
 
+---
 
+### Phase 67: Loja da Cidade (NPC Item Shop) com Filtros por Categoria, Vocação e Compra por Gold Coins
 
+**Goal:** Implementar a Loja de Itens (Item Shop/Store) acessível pelo menu superior do jogo (`TopNavigation.tsx`), permitindo que jogadores comprem equipamentos melhores, poções e runas utilizando Gold Coins acumulados, organizados por categorias e filtráveis pela vocação do personagem.  
+**Depends on:** Phase 66  
+**Requirements:** Solicitado pelo usuário (`/gsd-plan-phase` criar loja no menu do jogo com compra de itens por categoria e vocação).  
+**Success Criteria:**
+1. Botão `🛍️ Loja` ativo no menu superior (`TopNavigation.tsx`) e atalhos de ações rápidas.
+2. Componente `ShopWindow.tsx` funcional com abas de categorias (Armas, Escudos, Armaduras/Defesa, Consumíveis, Acessórios) e filtro por vocação (Knight, Paladin, Sorcerer, Druid, Todas).
+3. Campo de busca por nome de item em tempo real.
+4. Exibição de atributos do item (Ataque, Defesa, Armor, Peso), nível mínimo e destaque de compatibilidade com a vocação ativa.
+5. Botão "Comprar" verifica o saldo de `game.session.gold`, deduz o valor em moedas de ouro e entrega o item na Bolsa (`bag`) ou equipamentos do personagem.
+6. 0 erros de TypeScript (`npm run typecheck`) e 100% de testes Vitest aprovados (`tests/phase67-shop-purchases.test.ts`).
 
-
-
-
-
-
-
-
-
-
-
+Plans:
+- [x] 67-01-PLAN: Implementação da Loja de Itens da Cidade (ShopWindow) com Filtros por Categoria/Vocação, Validação de Gold Coins e Entrega de Itens.
 
 

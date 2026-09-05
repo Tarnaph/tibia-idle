@@ -152,3 +152,79 @@ export function executeQuickSell(
   };
 }
 
+export interface BuyShopItemResult {
+  ok: boolean;
+  state: GameState;
+  error?: string;
+  item?: LootStack;
+}
+
+export function buyShopItem(
+  state: GameState,
+  itemId: number,
+  itemName: string,
+  price: number,
+  quantity: number = 1,
+  content: GameContent,
+): BuyShopItemResult {
+  const totalPrice = price * quantity;
+  if (state.session.gold < totalPrice) {
+    return { ok: false, state, error: `Gold insuficiente. Você precisa de ${totalPrice} gold.` };
+  }
+
+  const activeChar = state.session.characters.find((c) => c.id === state.session.selectedCharacterId) ?? state.session.characters[0];
+  const isEquipment = content.equipment.some((e) => e.id === itemId);
+
+  let nextState = {
+    ...state,
+    session: {
+      ...state.session,
+      gold: state.session.gold - totalPrice,
+    },
+  };
+
+  if (isEquipment && activeChar) {
+    if (!activeChar.inventory.equipmentIds.includes(itemId)) {
+      const updatedChar = {
+        ...activeChar,
+        inventory: {
+          ...activeChar.inventory,
+          equipmentIds: [...activeChar.inventory.equipmentIds, itemId],
+        },
+      };
+      nextState = {
+        ...nextState,
+        session: {
+          ...nextState.session,
+          characters: nextState.session.characters.map((c) => (c.id === activeChar.id ? updatedChar : c)),
+        },
+      };
+    }
+  }
+
+  const bag = [...(nextState.session.bag ?? [])];
+  const loot = [...nextState.session.loot];
+  const newItemStack: LootStack = { itemId, name: itemName, amount: quantity };
+
+  if (bag.length < 12) {
+    const existingIndex = bag.findIndex((b) => b.itemId === itemId);
+    if (existingIndex !== -1) {
+      bag[existingIndex] = { ...bag[existingIndex], amount: bag[existingIndex].amount + quantity };
+    } else {
+      bag.push(newItemStack);
+    }
+    nextState = { ...nextState, session: { ...nextState.session, bag } };
+  } else {
+    const existingIndex = loot.findIndex((l) => l.itemId === itemId);
+    if (existingIndex !== -1) {
+      loot[existingIndex] = { ...loot[existingIndex], amount: loot[existingIndex].amount + quantity };
+    } else {
+      loot.push(newItemStack);
+    }
+    nextState = { ...nextState, session: { ...nextState.session, loot } };
+  }
+
+  return { ok: true, state: nextState, item: newItemStack };
+}
+
+

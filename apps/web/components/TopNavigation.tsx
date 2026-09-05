@@ -8,6 +8,7 @@ interface TopNavigationProps {
   debug: boolean;
   onEquipment(): void;
   onOpenFriends?(): void;
+  onOpenShop?(): void;
   onToggleDebug(): void;
   onToggleLeftSidebar(): void;
   onToggleRightSidebar(): void;
@@ -21,6 +22,7 @@ export function TopNavigation({
   debug,
   onEquipment,
   onOpenFriends,
+  onOpenShop,
   onToggleDebug,
   onToggleLeftSidebar,
   onToggleRightSidebar,
@@ -50,6 +52,7 @@ export function TopNavigation({
         <button type="button" className="nav-shortcut active"><span>⌖</span><small>Hunt</small></button>
         <button type="button" className="nav-shortcut" onClick={onEquipment}><span>♜</span><small>Character</small></button>
         <button type="button" className="nav-shortcut" onClick={onOpenFriends} title="Lista de Amigos (Buscar, Mensagens, Party)"><span>⭐</span><small>Amigos</small></button>
+        <button type="button" className="nav-shortcut shop-btn" onClick={onOpenShop} title="Abrir Loja de Itens (NPC Store)"><span>🛍️</span><small>Loja</small></button>
         {futureNavigation.map((label) => (
           <button type="button" className="nav-shortcut future" key={label} disabled title="Em breve">
             <span>◇</span><small>{label}</small>

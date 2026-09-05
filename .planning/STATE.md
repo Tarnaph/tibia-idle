@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-05T15:58:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 64: Unificação da Engine Server-Side, Persistência Relacional Completa, Validação de Posse de Personagem e Progressão Offline Real."
+last_updated: "2026-09-05T18:21:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 67: Loja da Cidade (NPC Item Shop) com Filtros por Categoria, Vocação e Compra por Gold Coins."
 progress:
   total_phases: 67
   completed_phases: 67
@@ -20,11 +20,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 67 concluída com sucesso.
+**Current focus:** Loja de Itens (NPC Store) implementada e validada com 100% de testes e 0 erros de TypeScript.
 
 ## Current Position
 
-Phase: 67 of 67 (Restrição Estrita de Acesso ao Painel /admin e Botões da UI)  
+Phase: 67 of 67 (Loja da Cidade / NPC Item Shop)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
 Last activity: 2026-09-05 — Concluída Phase 67.

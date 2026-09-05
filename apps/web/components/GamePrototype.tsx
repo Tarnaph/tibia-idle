@@ -12,7 +12,7 @@ import type { BaseVocationName, EquipmentCatalog, EquipmentDefinition, HuntRegio
 import {
   addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
-  transferItemBetweenContainers, destroyContainerItem, executeQuickSell,
+  transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem,
   setCharacterStance, setCharacterTargetDistance,
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
@@ -28,6 +28,7 @@ import { EquipmentPanel, type StatsDelta } from './EquipmentPanel';
 import { InventoryWindow } from './InventoryWindow';
 import { DepotWindow } from './DepotWindow';
 import { QuickSellWindow } from './QuickSellWindow';
+import { ShopWindow } from './ShopWindow';
 import { HotbarConfigModal } from './HotbarConfigModal';
 import { HuntHeader } from './HuntHeader';
 import { HuntSelector } from './HuntSelector';
@@ -166,6 +167,7 @@ function GamePrototypeContent() {
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [depotOpen, setDepotOpen] = useState(false);
   const [quickSellOpen, setQuickSellOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
   const [equipmentMessage, setEquipmentMessage] = useState('Arraste ou clique em um item para alterar o loadout.');
   const [saleMessage, setSaleMessage] = useState('Itens sem preço comprovado permanecem no pouch.');
   const [promotionMessage, setPromotionMessage] = useState('');
@@ -1391,6 +1393,15 @@ function GamePrototypeContent() {
   const sellLoot = () => setGame((current) => { const result = sellAllLoot(current, content); setSaleMessage(result.goldEarned > 0 ? `Venda concluída: +${result.goldEarned} gold.` : 'Nenhum item vendável.'); return result.state; });
   const sellOneLoot = (itemId: number) => setGame((current) => { const result = sellLootStack(current, content, itemId); setSaleMessage(result.goldEarned > 0 ? `Venda concluída: +${result.goldEarned} gold.` : 'Item protegido ou sem preço comprovado.'); return result.state; });
   const toggleLootPreference = (itemId: number, key: 'autoLoot' | 'lockSell' | 'quickSell') => setGame((current) => updateItemLootPreference(current, itemId, { [key]: !itemLootPreference(current, itemId)[key] }));
+  const handleBuyShopItem = (itemId: number, itemName: string, price: number, quantity: number) => {
+    let res = { ok: false, error: 'Erro desconhecido' };
+    setGame((current) => {
+      const result = buyShopItem(current, itemId, itemName, price, quantity, content);
+      res = { ok: result.ok, error: result.error ?? 'Erro desconhecido' };
+      return result.ok ? result.state : current;
+    });
+    return res;
+  };
   const selectPartyCharacter = (characterId: string) => {
     setGame((current) => selectCharacter(current, characterId));
     setStatsDelta(null); setPromotionMessage('');
@@ -1688,6 +1699,7 @@ function GamePrototypeContent() {
         onToggleDebug={() => setDebugGrid((value) => !value)}
         onSelectHunt={() => setHuntSelectorOpen(true)}
         onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
+        onOpenShop={() => setShopOpen((prev) => !prev)}
         onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
         onExitGame={() => {
           window.location.href = '/';
@@ -1833,6 +1845,15 @@ function GamePrototypeContent() {
         onClose={() => setDepotOpen(false)}
         onTransferToDepot={(from, index) => setGame((cur) => transferItemBetweenContainers(cur, from, 'depot', index))}
         onTransferFromDepot={(to, depotIndex) => setGame((cur) => transferItemBetweenContainers(cur, 'depot', to, depotIndex))}
+      />
+
+      <ShopWindow
+        open={shopOpen}
+        character={activeCharacter}
+        equipmentCatalog={content.equipment}
+        totalGold={game.session.gold}
+        onClose={() => setShopOpen(false)}
+        onBuyItem={handleBuyShopItem}
       />
 
       <QuickSellWindow
