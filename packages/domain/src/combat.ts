@@ -387,7 +387,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
 
     let usedPotionThisTick = false;
     let usedSpellThisTick = false;
-    let usedRuneThisTick = false;
+    let usedOffensiveActionThisTick = false;
 
     for (const actionId of character.hotbar) {
       if (typeof actionId !== 'number' || actionId === 0) continue;
@@ -453,9 +453,10 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
       }
 
       // 2. RUNES AUTO-TRIGGER
-      if (action.kind === 'rune' && !usedRuneThisTick) {
+      if (action.kind === 'rune' && !usedOffensiveActionThisTick) {
         const rune = action.rune;
-        if ((actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs) {
+        const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns['attack'] ?? 0) <= encounter.elapsedMs;
+        if (runeReady) {
           const inRange = encounter.enemies
             .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
             .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
@@ -481,6 +482,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
             const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
             encounter.rngState = rng.state;
             actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
+            actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
 
             for (const target of targets) {
               const damage = resistedDamage(rawDamage, target, rune.combatType, content);
@@ -492,7 +494,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
             }
 
             syncCharacterResources(state, actor);
-            usedRuneThisTick = true;
+            usedOffensiveActionThisTick = true;
           }
         }
       }
@@ -500,7 +502,15 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
       // 3. SPELLS AUTO-TRIGGER
       if (action.kind === 'spell' && !usedSpellThisTick) {
         const spell = action.spell;
-        if (actor.mana >= spell.mana && (actor.spellCooldowns[String(spell.spellId)] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns[spell.group] ?? 0) <= encounter.elapsedMs) {
+        const isOffensive = spell.group === 'attack';
+        if (isOffensive && usedOffensiveActionThisTick) continue;
+
+        const spellReady = actor.mana >= spell.mana &&
+          (actor.spellCooldowns[String(spell.spellId)] ?? 0) <= encounter.elapsedMs &&
+          (actor.groupCooldowns[spell.group] ?? 0) <= encounter.elapsedMs &&
+          (!isOffensive || (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs);
+
+        if (spellReady) {
           let targetActor: PartyActorState | undefined;
           let targets: EnemyState[] = [];
           const tookRecentHit = (encounter.elapsedMs - actor.lastHitTakenAt) < 3000 && actor.hp < character.maxHp;
@@ -546,6 +556,10 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
           actor.mana -= spell.mana;
           actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
           actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
+          if (isOffensive) {
+            actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;
+            usedOffensiveActionThisTick = true;
+          }
 
           const spellSpeech = formatSpellWords(spell.words);
           const projectileId = spell.visual.projectileId === 'weapon-type' ? resolveWeaponProjectile(character, content) : spell.visual.projectileId;
@@ -679,7 +693,7 @@ export function triggerManualHotbarAction(
   // 2. Rune manual trigger
   if (action.kind === 'rune') {
     const rune = action.rune;
-    if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs) return false;
+    if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs) return false;
     const inRange = encounter.enemies
       .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
       .sort((left, right) => {
@@ -703,6 +717,7 @@ export function triggerManualHotbarAction(
     const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
     encounter.rngState = rng.state;
     actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
+    actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
 
     for (const target of targets) {
       const damage = resistedDamage(rawDamage, target, rune.combatType, content);
@@ -721,6 +736,8 @@ export function triggerManualHotbarAction(
   if (actor.mana < spell.mana) return false;
   if ((actor.spellCooldowns[String(spell.spellId)] ?? 0) > encounter.elapsedMs) return false;
   if ((actor.groupCooldowns[spell.group] ?? 0) > encounter.elapsedMs) return false;
+  const isOffensive = spell.group === 'attack';
+  if (isOffensive && (actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs) return false;
 
   const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
   const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
@@ -731,6 +748,7 @@ export function triggerManualHotbarAction(
   actor.mana -= spell.mana;
   actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
   actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
+  if (isOffensive) actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;
 
   const spellSpeech = formatSpellWords(spell.words);
   const projectileId = spell.visual.projectileId === 'weapon-type' ? resolveWeaponProjectile(character, content) : spell.visual.projectileId;
@@ -821,8 +839,29 @@ function playerAttacks(state: GameState, content: GameContent): void {
         const damage = Math.max(1, raw - armor); encounter.rngState = rng.state;
         target.hp = Math.max(0, target.hp - damage);
         encounter.events.push({ type: 'player-attack', sourceId: actor.characterId, targetId: target.id, damage });
-        if (pending.ranged) encounter.visualEvents.push({ type: 'projectile-hit', sourceId: actor.characterId, targetId: target.id, effectId: 10 });
-        else encounter.visualEvents.push({ type: 'melee-hit', sourceId: actor.characterId, targetId: target.id, effectId: 10, blocked: damage <= 0 });
+        if (pending.ranged) {
+          const nameLower = pending.weaponName.toLowerCase();
+          const isMagic = nameLower.includes('wand') || nameLower.includes('rod');
+          let effectId = 10;
+          if (isMagic) {
+            if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) {
+              effectId = 11; // CONST_ME_ENERGYHIT
+            } else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire')) {
+              effectId = 15; // CONST_ME_HITBYFIRE
+            } else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) {
+              effectId = 17; // CONST_ME_MORTAREA
+            } else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) {
+              effectId = 8; // CONST_ME_POISONRINGS
+            } else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice')) {
+              effectId = 43; // CONST_ME_ICEATTACK
+            } else {
+              effectId = 11;
+            }
+          }
+          encounter.visualEvents.push({ type: 'projectile-hit', sourceId: actor.characterId, targetId: target.id, effectId });
+        } else {
+          encounter.visualEvents.push({ type: 'melee-hit', sourceId: actor.characterId, targetId: target.id, effectId: 10, blocked: damage <= 0 });
+        }
         const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
         addLog(state, `${character.name} atingiu ${target.name} por ${damage} com ${pending.weaponName}.`);
         if (target.hp <= 0) defeatEnemy(state, target, content);
@@ -848,8 +887,18 @@ function playerAttacks(state: GameState, content: GameContent): void {
     actor.pendingAttack = { targetId: target.id, impactAt: encounter.elapsedMs + 180, attack: effectiveAttack, weaponName: stats.weaponName, activeSkill: stats.activeSkill, activeSkillLevel: stats.activeSkillLevel, ranged };
     encounter.visualEvents.push({ type: 'basic-attack-started', sourceId: character.id, targetId: target.id, ranged });
     if (ranged) {
-      const isMagic = stats.weaponName.toLowerCase().includes('wand') || stats.weaponName.toLowerCase().includes('rod');
-      encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId: isMagic ? 4 : 28 });
+      const nameLower = stats.weaponName.toLowerCase();
+      const isMagic = nameLower.includes('wand') || nameLower.includes('rod');
+      let projectileId = 28;
+      if (isMagic) {
+        if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) projectileId = 4; // Energy spark
+        else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire')) projectileId = 3; // Fire
+        else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) projectileId = 31; // Death
+        else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) projectileId = 14; // Poison
+        else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice')) projectileId = 28; // Ice / magic
+        else projectileId = 4;
+      }
+      encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId });
     }
     actor.nextAttackAt = encounter.elapsedMs + actor.attackIntervalMs;
   }

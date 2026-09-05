@@ -180,6 +180,17 @@ export class ThaisCityRoom extends Room<WorldState> {
       this.handlePlayerLeaveParty(client.sessionId);
     });
 
+    this.onMessage('player:teleport', (client, data: { x: number; y: number; z?: number }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player && typeof data.x === 'number' && typeof data.y === 'number') {
+        player.posX = data.x;
+        player.posY = data.y;
+        player.posZ = data.z ?? player.posZ;
+        player.isWalking = false;
+        player.lastStepTime = 0;
+      }
+    });
+
     this.onMessage('party:huntSync', (client, data: { huntId: string; seed?: string }) => {
       const leaderId = this.playerPartyLeader.get(client.sessionId);
       if (!leaderId) return;
@@ -199,17 +210,121 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     });
 
+    this.onMessage('party:proposeHunt', (client, data: { huntId: string; huntName: string; seed?: string }) => {
+      const leaderId = this.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.parties.get(leaderId);
+      if (!party || party.leaderSessionId !== client.sessionId) return;
+
+      const proposal = {
+        huntId: data.huntId,
+        huntName: data.huntName,
+        seed: data.seed || `seed-${Date.now()}`,
+        leaderSessionId: client.sessionId,
+        approvals: new Set<string>([client.sessionId]),
+      };
+      this.activeHuntProposals.set(leaderId, proposal);
+
+      for (const memberId of party.memberSessionIds) {
+        const memberClient = this.clients.find((c) => c.sessionId === memberId);
+        if (memberClient) {
+          memberClient.send('party:huntProposed', {
+            huntId: data.huntId,
+            huntName: data.huntName,
+            leaderName: party.leaderName,
+            leaderSessionId: party.leaderSessionId,
+            acceptedSessionIds: Array.from(proposal.approvals),
+            totalMembers: party.memberSessionIds.length,
+          });
+        }
+      }
+    });
+
+    this.onMessage('party:acceptHuntProposal', (client) => {
+      const leaderId = this.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.parties.get(leaderId);
+      const proposal = this.activeHuntProposals.get(leaderId);
+      if (!party || !proposal) return;
+
+      proposal.approvals.add(client.sessionId);
+
+      const acceptedList = Array.from(proposal.approvals);
+      for (const memberId of party.memberSessionIds) {
+        const memberClient = this.clients.find((c) => c.sessionId === memberId);
+        if (memberClient) {
+          memberClient.send('party:huntProposalSync', {
+            huntId: proposal.huntId,
+            huntName: proposal.huntName,
+            acceptedSessionIds: acceptedList,
+            totalMembers: party.memberSessionIds.length,
+          });
+        }
+      }
+
+      // If all members approved, automatically start the hunt!
+      if (proposal.approvals.size >= party.memberSessionIds.length) {
+        this.activeHuntProposals.delete(leaderId);
+        for (const memberId of party.memberSessionIds) {
+          const memberClient = this.clients.find((c) => c.sessionId === memberId);
+          if (memberClient) {
+            memberClient.send('party:huntStarted', {
+              huntId: proposal.huntId,
+              seed: proposal.seed,
+              leaderName: party.leaderName,
+              leaderSessionId: party.leaderSessionId,
+            });
+          }
+        }
+      }
+    });
+
+    this.onMessage('party:rejectHuntProposal', (client) => {
+      const leaderId = this.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.parties.get(leaderId);
+      const proposal = this.activeHuntProposals.get(leaderId);
+      if (!party || !proposal) return;
+
+      const rejector = this.state.players.get(client.sessionId);
+      this.activeHuntProposals.delete(leaderId);
+
+      for (const memberId of party.memberSessionIds) {
+        const memberClient = this.clients.find((c) => c.sessionId === memberId);
+        if (memberClient) {
+          memberClient.send('party:huntProposalRejected', {
+            rejectedByName: rejector?.name || 'Um membro',
+            huntName: proposal.huntName,
+          });
+        }
+      }
+    });
+
     this.onMessage('party:huntExit', (client) => {
       const leaderId = this.playerPartyLeader.get(client.sessionId);
       if (!leaderId) return;
       const party = this.parties.get(leaderId);
       if (!party || party.leaderSessionId !== client.sessionId) return;
 
+      // Teleport all party members and leader directly to Thais Temple
       for (const memberId of party.memberSessionIds) {
+        const memberPlayer = this.state.players.get(memberId);
+        if (memberPlayer) {
+          memberPlayer.posX = 32369;
+          memberPlayer.posY = 32241;
+          memberPlayer.posZ = 7;
+          memberPlayer.direction = 'south';
+          memberPlayer.isWalking = false;
+          memberPlayer.lastStepTime = 0;
+        }
         if (memberId !== client.sessionId) {
           const memberClient = this.clients.find((c) => c.sessionId === memberId);
           if (memberClient) {
-            memberClient.send('party:huntExited', {});
+            memberClient.send('party:huntExited', {
+              x: 32369,
+              y: 32241,
+              z: 7,
+            });
           }
         }
       }
@@ -236,6 +351,7 @@ export class ThaisCityRoom extends Room<WorldState> {
 
   public parties: Map<string, { leaderSessionId: string; leaderName: string; memberSessionIds: string[] }> = new Map();
   public playerPartyLeader: Map<string, string> = new Map();
+  public activeHuntProposals: Map<string, { huntId: string; huntName: string; seed: string; leaderSessionId: string; approvals: Set<string> }> = new Map();
 
   async onJoin(client: Client, options: JoinOptions) {
     let accountId = 'acc-guest';

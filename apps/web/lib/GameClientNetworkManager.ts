@@ -78,16 +78,28 @@ export interface PartyInvitation {
   inviterVocationId?: number;
 }
 
+export interface PartyHuntProposal {
+  huntId: string;
+  huntName: string;
+  leaderSessionId: string;
+  leaderName: string;
+  acceptedSessionIds: string[];
+  totalMembers: number;
+}
+
 type CombatEventListener = (event: NetworkCombatEvent) => void;
 type ChatMessageListener = (msg: NetworkChatMessage) => void;
 type StateChangeListener = (players: Map<string, RemotePlayerSnapshot>) => void;
 type PartyInvitationListener = (invitation: PartyInvitation) => void;
 type PartySyncListener = (party: PartySnapshot | null) => void;
 type PartyHuntStartListener = (data: { huntId: string; seed?: string; leaderName: string; leaderSessionId: string }) => void;
-type PartyHuntExitListener = () => void;
+type PartyHuntExitListener = (data?: { x?: number; y?: number; z?: number }) => void;
 type PartyTargetSyncListener = (targetId: string | null) => void;
 type PartyLeaderMovedListener = (data: { leaderSessionId: string; x: number; y: number; z: number; direction: string }) => void;
 type PartyNotificationListener = (data: { type: 'error' | 'rejected' | 'disbanded' | 'sent'; message: string }) => void;
+type PartyHuntProposalListener = (proposal: PartyHuntProposal) => void;
+type PartyHuntProposalSyncListener = (data: { huntId: string; huntName: string; acceptedSessionIds: string[]; totalMembers: number }) => void;
+type PartyHuntProposalRejectedListener = (data: { rejectedByName: string; huntName: string }) => void;
 
 export class GameClientNetworkManager {
   private room: Room<any> | null = null;
@@ -101,6 +113,9 @@ export class GameClientNetworkManager {
   private partyTargetSyncListeners: Set<PartyTargetSyncListener> = new Set();
   private partyLeaderMovedListeners: Set<PartyLeaderMovedListener> = new Set();
   private partyNotificationListeners: Set<PartyNotificationListener> = new Set();
+  private partyHuntProposalListeners: Set<PartyHuntProposalListener> = new Set();
+  private partyHuntProposalSyncListeners: Set<PartyHuntProposalSyncListener> = new Set();
+  private partyHuntProposalRejectedListeners: Set<PartyHuntProposalRejectedListener> = new Set();
 
   private playersMap: Map<string, RemotePlayerSnapshot> = new Map();
   private localPlayerId: string | null = null;
@@ -265,8 +280,20 @@ export class GameClientNetworkManager {
       this.partyHuntStartListeners.forEach((fn) => fn(data));
     });
 
-    this.room.onMessage('party:huntExited', () => {
-      this.partyHuntExitListeners.forEach((fn) => fn());
+    this.room.onMessage('party:huntProposed', (data: PartyHuntProposal) => {
+      this.partyHuntProposalListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('party:huntProposalSync', (data: { huntId: string; huntName: string; acceptedSessionIds: string[]; totalMembers: number }) => {
+      this.partyHuntProposalSyncListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('party:huntProposalRejected', (data: { rejectedByName: string; huntName: string }) => {
+      this.partyHuntProposalRejectedListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('party:huntExited', (data?: { x?: number; y?: number; z?: number }) => {
+      this.partyHuntExitListeners.forEach((fn) => fn(data));
     });
 
     this.room.onMessage('party:targetUpdated', (data: { targetId: string | null }) => {
@@ -454,6 +481,41 @@ export class GameClientNetworkManager {
   onPartyNotification(listener: PartyNotificationListener): () => void {
     this.partyNotificationListeners.add(listener);
     return () => this.partyNotificationListeners.delete(listener);
+  }
+
+  sendTeleport(x: number, y: number, z?: number): void {
+    if (!this.room) return;
+    this.room.send('player:teleport', { x, y, z });
+  }
+
+  sendPartyHuntPropose(huntId: string, huntName: string, seed?: string): void {
+    if (!this.room) return;
+    this.room.send('party:proposeHunt', { huntId, huntName, seed });
+  }
+
+  sendPartyAcceptHuntProposal(): void {
+    if (!this.room) return;
+    this.room.send('party:acceptHuntProposal', {});
+  }
+
+  sendPartyRejectHuntProposal(): void {
+    if (!this.room) return;
+    this.room.send('party:rejectHuntProposal', {});
+  }
+
+  onPartyHuntProposal(listener: PartyHuntProposalListener): () => void {
+    this.partyHuntProposalListeners.add(listener);
+    return () => this.partyHuntProposalListeners.delete(listener);
+  }
+
+  onPartyHuntProposalSync(listener: PartyHuntProposalSyncListener): () => void {
+    this.partyHuntProposalSyncListeners.add(listener);
+    return () => this.partyHuntProposalSyncListeners.delete(listener);
+  }
+
+  onPartyHuntProposalRejected(listener: PartyHuntProposalRejectedListener): () => void {
+    this.partyHuntProposalRejectedListeners.add(listener);
+    return () => this.partyHuntProposalRejectedListeners.delete(listener);
   }
 
   get CurrentParty(): PartySnapshot | null {

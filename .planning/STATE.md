@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-04T21:32:00.000Z"
-last_activity: "2026-09-04 — Concluída Phase 56: Sistema Multiplayer de Party (Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo)."
+last_updated: "2026-09-05T06:17:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 57: Correções Críticas de Combate/Rede (Teletransporte Templo, Dano Duplicado, VFX Wands) e Fidelidade Visual Imagens 1-5."
 progress:
-  total_phases: 56
-  completed_phases: 56
-  total_plans: 56
-  completed_plans: 56
+  total_phases: 57
+  completed_phases: 57
+  total_plans: 57
+  completed_plans: 57
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 56 concluída (Sistema Multiplayer de Party: Convites, Follow Leader, Caçada Compartilhada e Target Coletivo).
+**Current focus:** Phase 57 concluída (Correções Críticas de Combate/Rede e Fidelidade Visual Imagens 1-5).
 
 ## Current Position
 
-Phase: 56 of 56 (Sistema Multiplayer de Party: Convite Amigos/ContextMenu, Seguir Líder, Caçada Cooperativa e Target Coletivo)  
+Phase: 57 of 57 (Correções Críticas de Combate/Rede e Fidelidade Visual)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-04 — Concluída Phase 56: Sistema Multiplayer de Party.
+Last activity: 2026-09-05 — Concluída Phase 57: Correções Críticas de Combate/Rede e Fidelidade Visual.
 
 Progress: [██████████] 100%
 

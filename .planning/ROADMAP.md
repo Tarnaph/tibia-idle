@@ -855,6 +855,36 @@ Plans:
 Plans:
 - [x] 56-01-PLAN: Sistema Multiplayer de Party (Convite, Modal de Aceite, Follow Leader, Caçada Cooperativa e Target Coletivo)
 
+---
+
+### Phase 57: Correções Críticas de Combate/Rede e Fidelidade Visual (FIX.md)
+
+**Goal:** Solucionar os três problemas centrais descritos no FIX.md (deslocamento para a água/clone no retorno da caçada, dano duplicado com 2 magias por tick, ausência de efeito visual das wands de mago) e atingir paridade visual estrita com as Imagens 1 a 5 fornecidas pelo usuário.  
+**Depends on:** Phase 56  
+**Requirements:**
+1. **Bug 1: Coordenada de Retorno da Caçada & Prevenção de Andar na Água:**
+   - No encerramento da caçada (`party:huntExit` e `exitHunt`), teletransportar instantaneamente o líder e todos os membros para o Templo de Thais (`32369, 32241, 7`).
+   - Sincronizar as posições via `player:teleport` e suprimir pacotes de follow leader por 2.5 segundos para evitar que seguidores sigam o avatar do líder na água antes do spawn no templo.
+2. **Bug 2: Eliminação de Dano Duplicado / 2 Magias por Tick:**
+   - Unificar o cooldown de ofensivas (`'attack'` e `'rune'`) para 2000ms compartilhados e instituir a trava `usedOffensiveActionThisTick` por personagem para garantir que no máximo 1 magia/runa ofensiva seja executada por tick.
+3. **Bug 3: Efeitos Visuais Autênticos de Wands & Rods:**
+   - Mapear projéteis e efeitos de impacto de wands e rods aos efeitos autênticos do Tibia (Wand of Vortex / Cosmic / Starfall -> projétil 4 Energy e impacto 11 CONST_ME_ENERGYHIT; Draconia / Dragonbreath -> projétil 3 e impacto 15; Decay / Voodoo / Necrotic -> projétil 31 e impacto 17; Terra / Snakebite -> projétil 14 e impacto 8; Hailstorm / Moonlight -> projétil 28 e impacto 43).
+4. **Fidelidade Visual às Imagens 1 a 5:**
+   - **Imagem 1 (`FriendsWindow.tsx`):** Header "Lista de amigos", subtítulo "Veja quem está online e mantenha sua party por perto.", barra de busca com botão `[Adicionar]`, seção `🟢 ONLINE (N)`, menu de contexto com 3 ações ("Mandar mensagem para [Name]", "Convidar para a party", "Remover dos amigos"), e rodapé "Amigos: X | Online: Y" com botão `[Fechar]`.
+   - **Imagem 2 (`PartyInvitationModal.tsx`):** Card flutuante superior com brasão azul, título dourado "CONVITE DE PARTY", detalhe "[Nome] convidou você para a party", vocação/nível e botões `[ ENTRAR ]` e `[ RECUSAR ]`.
+   - **Imagem 3 (`HuntSelector.tsx`):** Botão `[ Iniciar com o time ]` em destaque azul no rodapé da seleção de caçadas quando o jogador for líder da party.
+   - **Imagens 4 & 5 (`GroupHuntApprovalModal.tsx`):** Card de aprovação de caçada em grupo "CONVITE DE CAÇADA EM GRUPO", "Juntando o time na chama mística para [HuntName].", "X DE Y ACEITARAM", badges de função (`TANK`, `HEALER`, `DPS`), indicador de líder, status de confirmação e rodapé "Esperando os outros...".
+**Success Criteria:**
+1. Zero teletransporte ou caminhada sobre a água ao sair da hunt.
+2. No máximo 1 magia ofensiva lançada por tick sem duplicação de dano.
+3. Wand of Vortex e varinhas mágicas exibindo seus efeitos elementais nos monstros.
+4. Componentes visuais fiéis às Imagens 1 a 5.
+5. 100% dos testes passando (`npm test` - 57/57 suites, 327 testes) e 0 erros de TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 57-01-PLAN: Correções Críticas de Combate/Rede e Fidelidade Visual Concluída.
+
+
 
 
 

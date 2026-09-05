@@ -51,8 +51,9 @@ import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
 import { TradeWindow, type TradeOfferItem } from './window/TradeWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { PartyInvitationModal } from './party/PartyInvitationModal';
+import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
-import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation } from '../lib/GameClientNetworkManager';
+import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
 const thaisTilesZ7 = thaisCityJson.tiles;
@@ -190,9 +191,11 @@ function GamePrototypeContent() {
   const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
   const [receivedPartyInvitation, setReceivedPartyInvitation] = useState<PartyInvitation | null>(null);
+  const [activeHuntProposal, setActiveHuntProposal] = useState<PartyHuntProposal | null>(null);
   const [multiplayerParty, setMultiplayerParty] = useState<PartySnapshot | null>(null);
   const multiplayerPartyRef = useRef(multiplayerParty);
   multiplayerPartyRef.current = multiplayerParty;
+  const followSuppressedUntilRef = useRef<number>(0);
   const isFollowingLeader = Boolean(
     multiplayerParty &&
     gameNetwork.LocalPlayerId &&
@@ -431,9 +434,11 @@ function GamePrototypeContent() {
     const localSessionId = gameNetwork.LocalPlayerId;
     const localChar = cur.session.characters.find((c: CharacterState) => c.id === cur.session.selectedCharacterId) || cur.session.characters[0] || selectedCharacterOf(cur);
     const updatedChars = [localChar];
+    const seenIds = new Set<string>([localChar.id]);
 
     for (const m of multiplayerParty.members) {
-      if (m.sessionId !== localSessionId) {
+      if (m.sessionId !== localSessionId && !seenIds.has(m.characterId)) {
+        seenIds.add(m.characterId);
         const vocName = (VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
         const newChar = createCharacter(m.characterId, m.name, vocName, content);
         newChar.level = Math.max(m.level, 1);
@@ -538,6 +543,7 @@ function GamePrototypeContent() {
     });
 
     const unsubHuntStart = gameNetwork.onPartyHuntStart((data) => {
+      setActiveHuntProposal(null);
       if (data.leaderSessionId !== gameNetwork.LocalPlayerId) {
         setSaleMessage(`⚔️ Teletransportando para a caçada com o líder ${data.leaderName} em ${data.huntId}...`);
         setWalkingPath(null);
@@ -548,9 +554,26 @@ function GamePrototypeContent() {
       }
     });
 
-    const unsubHuntExit = gameNetwork.onPartyHuntExit(() => {
+    const unsubHuntExit = gameNetwork.onPartyHuntExit((coords) => {
       setSaleMessage('O líder encerrou a caçada. Retornando ao Templo de Thais...');
+      followSuppressedUntilRef.current = Date.now() + 2500;
+      const temple = coords?.x && coords?.y ? { x: coords.x, y: coords.y, z: coords.z ?? 7 } : THAIS_TEMPLE_POSITION;
+      setCityPos(temple);
+      gameNetwork.sendTeleport(temple.x, temple.y, temple.z);
       exitHuntRef.current();
+    });
+
+    const unsubProposal = gameNetwork.onPartyHuntProposal((proposal) => {
+      setActiveHuntProposal(proposal);
+    });
+
+    const unsubProposalSync = gameNetwork.onPartyHuntProposalSync((syncData) => {
+      setActiveHuntProposal((prev) => (prev ? { ...prev, ...syncData } : null));
+    });
+
+    const unsubProposalRejected = gameNetwork.onPartyHuntProposalRejected((data) => {
+      setActiveHuntProposal(null);
+      setSaleMessage(`${data.rejectedByName} recusou a caçada em grupo.`);
     });
 
     const unsubTargetSync = gameNetwork.onPartyTargetSync((targetId) => {
@@ -564,6 +587,7 @@ function GamePrototypeContent() {
     });
 
     const unsubLeaderMoved = gameNetwork.onPartyLeaderMoved((data) => {
+      if (Date.now() < followSuppressedUntilRef.current) return;
       if (modeRef.current !== 'hunt' && data.leaderSessionId !== gameNetwork.LocalPlayerId) {
         const dist = Math.hypot(cityPosRef.current.x - data.x, cityPosRef.current.y - data.y);
         if (dist > 12 || cityPosRef.current.z !== data.z) {
@@ -598,6 +622,9 @@ function GamePrototypeContent() {
       unsubHuntExit();
       unsubTargetSync();
       unsubLeaderMoved();
+      unsubProposal();
+      unsubProposalSync();
+      unsubProposalRejected();
     };
   }, [mode, content]);
 
@@ -1105,10 +1132,12 @@ function GamePrototypeContent() {
   startSelectedHuntRef.current = startSelectedHunt;
 
   const exitHunt = () => {
+    followSuppressedUntilRef.current = Date.now() + 2500;
     const party = multiplayerPartyRef.current;
     if (party && party.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntExit();
     }
+    gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
     setGame((current) => {
       const respawned = respawnInTemple(current);
       const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
@@ -1692,6 +1721,13 @@ function GamePrototypeContent() {
         onSelect={startSelectedHunt}
         onOpenPartyModal={() => setPartyModalOpen(true)}
         onStartTraining={handleStartTraining}
+        isPartyLeader={Boolean(multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId && multiplayerParty.members.length > 1)}
+        onSelectWithTeam={(huntId, huntName) => {
+          setHuntSelectorOpen(false);
+          const nextSeed = seed.trim() || defaultSeed;
+          gameNetwork.sendPartyHuntPropose(huntId, huntName, nextSeed);
+          setSaleMessage(`Proposta de caçada em grupo enviada para o time: ${huntName}!`);
+        }}
       />
       {hotbarConfigSlot !== null && (
         <HotbarConfigModal
@@ -1750,6 +1786,21 @@ function GamePrototypeContent() {
             gameNetwork.sendPartyReject(receivedPartyInvitation.inviterSessionId);
             setReceivedPartyInvitation(null);
             setSaleMessage(`Você recusou o convite de party de ${receivedPartyInvitation.inviterName}.`);
+          }}
+        />
+      )}
+
+      {activeHuntProposal && (
+        <GroupHuntApprovalModal
+          proposal={activeHuntProposal}
+          party={multiplayerParty}
+          localSessionId={gameNetwork.LocalPlayerId}
+          onAccept={() => {
+            gameNetwork.sendPartyAcceptHuntProposal();
+          }}
+          onReject={() => {
+            gameNetwork.sendPartyRejectHuntProposal();
+            setActiveHuntProposal(null);
           }}
         />
       )}

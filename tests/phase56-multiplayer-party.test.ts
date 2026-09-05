@@ -284,8 +284,8 @@ describe('Phase 56: Multiplayer Party System (Invites, Follow Leader, Shared Hun
     // Leader exits hunt
     (room as any).onMessageHandlers['party:huntExit'](client1);
 
-    // Member client 2 receives party:huntExited
-    expect(client2.send).toHaveBeenCalledWith('party:huntExited', {});
+    // Member client 2 receives party:huntExited with Thais Temple coordinates
+    expect(client2.send).toHaveBeenCalledWith('party:huntExited', { x: 32369, y: 32241, z: 7 });
   });
 
   it('calculates positive attack values for wands so Sorcerer and Druid auto-attack in hunt', async () => {

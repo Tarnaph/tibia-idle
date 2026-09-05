@@ -16,8 +16,10 @@ interface Props {
   level: number;
   currentHuntId?: string;
   isInCity?: boolean;
+  isPartyLeader?: boolean;
   onClose(): void;
   onSelect(huntId: string): void;
+  onSelectWithTeam?(huntId: string, huntName: string): void;
   onOpenPartyModal?: () => void;
   onStartTraining?: (skill: string) => void;
 }
@@ -48,8 +50,10 @@ export function HuntSelector({
   level,
   currentHuntId,
   isInCity = false,
+  isPartyLeader = false,
   onClose,
   onSelect,
+  onSelectWithTeam,
   onOpenPartyModal,
   onStartTraining,
 }: Props) {
@@ -531,9 +535,44 @@ export function HuntSelector({
                 {countdown !== null
                   ? `Trocando em ${countdown}s (cancelar)`
                   : isInCity
-                  ? 'Começar caçada'
+                  ? 'Iniciar caçada'
                   : 'Trocar de caçada'}
               </button>
+
+              {isPartyLeader && onSelectWithTeam && (
+                <button
+                  type="button"
+                  className="hunt-btn-team"
+                  style={{
+                    backgroundColor: '#172033',
+                    border: '1px solid #3b82f6',
+                    boxShadow: '0 0 8px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                    color: '#93c5fd',
+                    fontWeight: 700,
+                    padding: '6px 16px',
+                    borderRadius: '3px',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1e2c47';
+                    e.currentTarget.style.borderColor = '#60a5fa';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#172033';
+                    e.currentTarget.style.borderColor = '#3b82f6';
+                  }}
+                  onClick={() => {
+                    if (selectedHunt) {
+                      onSelectWithTeam(selectedHunt.id, selectedHunt.name);
+                      onClose();
+                    }
+                  }}
+                >
+                  Iniciar com o time
+                </button>
+              )}
 
               <button
                 type="button"

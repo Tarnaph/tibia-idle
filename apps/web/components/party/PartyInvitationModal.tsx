@@ -10,147 +10,166 @@ interface PartyInvitationModalProps {
 }
 
 export function PartyInvitationModal({ invitation, onAccept, onReject }: PartyInvitationModalProps) {
+  const vocName =
+    invitation.inviterVocationId === 1
+      ? 'Sorcerer'
+      : invitation.inviterVocationId === 2
+      ? 'Druid'
+      : invitation.inviterVocationId === 3
+      ? 'Paladin'
+      : 'Knight';
+
   return (
     <div
       style={{
         position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.65)',
-        backdropFilter: 'blur(3px)',
-        zIndex: 99999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        animation: 'fadeIn 0.2s ease-out',
+        top: '28px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 999999,
+        animation: 'slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
     >
       <div
         style={{
           width: '380px',
           maxWidth: '92vw',
-          backgroundColor: '#16191f',
-          backgroundImage: 'linear-gradient(180deg, rgba(35, 42, 54, 0.95) 0%, rgba(18, 22, 28, 0.98) 100%)',
-          border: '2px solid #b38842',
-          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(179, 136, 66, 0.3)',
+          backgroundColor: '#131622',
+          border: '1px solid #283044',
           borderRadius: '6px',
-          overflow: 'hidden',
-          color: '#e2e8f0',
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.1)',
+          padding: '14px 16px',
+          display: 'flex',
+          gap: '14px',
           fontFamily: 'Verdana, Arial, sans-serif',
+          color: '#e2e8f0',
         }}
       >
-        {/* Header */}
+        {/* Blue Crest Shield Icon (Image 2) */}
         <div
           style={{
-            backgroundColor: 'rgba(10, 14, 20, 0.9)',
-            borderBottom: '1px solid #b38842',
-            padding: '10px 14px',
+            flexShrink: 0,
+            width: '54px',
+            height: '54px',
+            borderRadius: '4px',
+            backgroundColor: '#1b2234',
+            border: '1px solid #33415e',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
+            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.1)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '18px' }}>👥</span>
-            <span style={{ fontWeight: 700, fontSize: '13px', color: '#ffd700', letterSpacing: '0.5px' }}>
-              CONVITE DE PARTY
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={onReject}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#a0aec0',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 700,
-              padding: '2px 6px',
-            }}
-            title="Fechar / Recusar"
-          >
-            ✕
-          </button>
+          <svg width="38" height="38" viewBox="0 0 48 48" fill="none">
+            {/* Crest Shield with Blue & Gold accents */}
+            <path
+              d="M24 4L8 10V22C8 32 15 40 24 44C33 40 40 32 40 22V10L24 4Z"
+              fill="url(#crest_grad)"
+              stroke="#eab308"
+              strokeWidth="2"
+            />
+            <path
+              d="M24 8L12 13V22C12 29.5 17 36 24 39.5C31 36 36 29.5 36 22V13L24 8Z"
+              fill="#1e3a8a"
+              stroke="#38bdf8"
+              strokeWidth="1.5"
+            />
+            {/* Inner Knight Icon */}
+            <circle cx="24" cy="20" r="5" fill="#fde047" />
+            <path d="M18 31C18 26 21 24 24 24C27 24 30 26 30 31H18Z" fill="#f8fafc" />
+            <defs>
+              <linearGradient id="crest_grad" x1="24" y1="4" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#2563eb" />
+                <stop offset="1" stopColor="#0f172a" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
 
-        {/* Content Body */}
-        <div style={{ padding: '16px 18px', textAlign: 'center' }}>
-          <div style={{ fontSize: '28px', marginBottom: '8px' }}>🛡️</div>
-
-          <div style={{ fontSize: '14px', marginBottom: '10px', lineHeight: '1.4' }}>
-            <strong style={{ color: '#68d391', fontSize: '15px' }}>{invitation.inviterName}</strong>
-            {invitation.inviterLevel ? (
-              <span style={{ fontSize: '12px', color: '#a0aec0' }}> (Lv. {invitation.inviterLevel})</span>
-            ) : null}
-            <div style={{ marginTop: '4px' }}>convidou você para se juntar à Party!</div>
-          </div>
-
+        {/* Content & Details */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div
             style={{
               fontSize: '11px',
-              color: '#94a3b8',
-              backgroundColor: 'rgba(0, 0, 0, 0.35)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '4px',
-              padding: '10px',
-              marginBottom: '18px',
-              lineHeight: '1.5',
-              textAlign: 'left',
+              fontWeight: 700,
+              color: '#f59e0b',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              marginBottom: '4px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginBottom: '4px' }}>
-              <span style={{ color: '#68d391' }}>✔</span>
-              <span>Você começará a <strong>seguir o líder</strong> na cidade.</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', marginBottom: '4px' }}>
-              <span style={{ color: '#68d391' }}>✔</span>
-              <span>Se o líder puxar uma caçada, você <strong>viajará e caçará junto</strong>.</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-              <span style={{ color: '#68d391' }}>✔</span>
-              <span>Em combate, todos atacam coordenadamente o mesmo monstro.</span>
-            </div>
+            CONVITE DE PARTY
           </div>
 
-          {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <div style={{ fontSize: '13px', color: '#f8fafc', fontWeight: 500, marginBottom: '6px' }}>
+            {invitation.inviterName} convidou você para a party
+          </div>
+
+          <div style={{ fontSize: '11.5px', color: '#94a3b8', marginBottom: '12px' }}>
+            <span style={{ color: '#cbd5e1', fontWeight: 600 }}>{invitation.inviterName}</span>
+            <span style={{ marginLeft: '14px' }}>
+              Lv. {invitation.inviterLevel ?? 188} · {vocName}
+            </span>
+          </div>
+
+          {/* Buttons: ENTRAR / RECUSAR */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: 'auto' }}>
             <button
               type="button"
               onClick={onAccept}
               style={{
-                flex: 1,
-                padding: '9px 16px',
-                fontSize: '12px',
+                padding: '6px 18px',
+                fontSize: '11px',
                 fontWeight: 700,
-                color: '#fff',
-                backgroundColor: '#2e7d32',
-                border: '1px solid #4caf50',
-                borderRadius: '4px',
+                color: '#e2e8f0',
+                backgroundColor: '#1b2230',
+                border: '1px solid #3b4861',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.5)',
+                borderRadius: '3px',
                 cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
-                transition: 'background-color 0.15s',
+                letterSpacing: '0.5px',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#243048';
+                e.currentTarget.style.borderColor = '#60a5fa';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#1b2230';
+                e.currentTarget.style.borderColor = '#3b4861';
+                e.currentTarget.style.color = '#e2e8f0';
               }}
             >
-              ✔ Aceitar Convite
+              ENTRAR
             </button>
+
             <button
               type="button"
               onClick={onReject}
               style={{
-                flex: 1,
-                padding: '9px 16px',
-                fontSize: '12px',
+                padding: '6px 18px',
+                fontSize: '11px',
                 fontWeight: 700,
-                color: '#e2e8f0',
-                backgroundColor: '#334155',
-                border: '1px solid #475569',
-                borderRadius: '4px',
+                color: '#cbd5e1',
+                backgroundColor: '#161a24',
+                border: '1px solid #2e3748',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+                borderRadius: '3px',
                 cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
-                transition: 'background-color 0.15s',
+                letterSpacing: '0.5px',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#1f2533';
+                e.currentTarget.style.borderColor = '#475569';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#161a24';
+                e.currentTarget.style.borderColor = '#2e3748';
               }}
             >
-              ✕ Recusar
+              RECUSAR
             </button>
           </div>
         </div>
