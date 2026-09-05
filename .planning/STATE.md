@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-05T15:42:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 63: Correção de Vulnerabilidades de Segurança & Blindagem Server-Side."
+last_updated: "2026-09-05T15:58:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 64: Unificação da Engine Server-Side, Persistência Relacional Completa, Validação de Posse de Personagem e Progressão Offline Real."
 progress:
-  total_phases: 63
-  completed_phases: 63
-  total_plans: 63
-  completed_plans: 63
+  total_phases: 64
+  completed_phases: 64
+  total_plans: 64
+  completed_plans: 64
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 63 concluída com sucesso.
+**Current focus:** Phase 64 concluída com sucesso.
 
 ## Current Position
 
-Phase: 63 of 63 (Correção de Vulnerabilidades de Segurança & Blindagem Server-Side)  
+Phase: 64 of 64 (Unificação da Engine Server-Side, Persistência Relacional Completa, Validação de Posse de Personagem e Progressão Offline Real)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 63.
+Last activity: 2026-09-05 — Concluída Phase 64.
 
 Progress: [██████████] 100%
 

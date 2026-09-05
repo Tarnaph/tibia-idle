@@ -26,6 +26,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 61: Desativação Temporária do Convite de Party de Outros Jogadores Reais** - Ocultação da opção no menu de contexto, desativação do modal de convite e desativação dos handlers WebSocket mantendo intacto o Squad individual de 4 heróis do jogador.
 - [x] **Phase 62: Remoção do Sistema de Trade entre Personagens** - Remoção da opção no menu de contexto, da janela de Trade, do registro no WindowManagerContext e do gerenciamento de estado de troca no frontend.
 - [x] **Phase 63: Correção de Vulnerabilidades de Segurança & Blindagem Server-Side (Anti-Cheat, Autenticação de APIs Admin e Autenticidade WebSocket)** - Autenticação JWT estrita com verificação de role `ADMIN` em todas as rotas `/api/admin/*`, restrição de teleporte (`player:teleport`) apenas para GMs, eliminação de noclip em `handlePlayerMove`, remoção de personificação via `mockCharacter` em produção e validação estrita no servidor.
+- [x] **Phase 64: Unificação da Engine Server-Side, Persistência Relacional Completa (Inventário/Gold/Depot), Validação de Posse de Personagem e Progressão Offline Real** - Validação estrita `dbChar.accountId === accountId` no `onJoin`, persistência relacional de inventário/skills/gold/depot no Prisma, visualização real-time de todos os players online na Thais City e cálculo de progresso offline.
 
 ---
 
@@ -405,6 +406,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 61. Desativação Temporária do Convite de Party de Outros Jogadores Reais | 1/1 | Complete | 2026-09-05 |
 | 62. Remoção do Sistema de Trade entre Personagens | 1/1 | Complete | 2026-09-05 |
 | 63. Correção de Vulnerabilidades de Segurança & Blindagem Server-Side | 1/1 | Complete | 2026-09-05 |
+| 64. Unificação da Engine Server-Side, Persistência Relacional e Progressão Offline | 1/1 | Complete | 2026-09-05 |
 
 -----
 

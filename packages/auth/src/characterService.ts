@@ -329,6 +329,23 @@ export class CharacterService {
       }
     }
 
+    // Update inventory items if provided
+    if (data.inventory && data.inventory.length > 0) {
+      await this.prisma.inventoryItem.deleteMany({
+        where: { characterId },
+      });
+      await this.prisma.inventoryItem.createMany({
+        data: data.inventory.map((eq) => ({
+          characterId,
+          slot: eq.slot,
+          serverId: eq.serverId,
+          name: eq.name,
+          count: eq.count,
+          tier: 0,
+        })),
+      });
+    }
+
     return this.prisma.character.update({
       where: { id: characterId },
       data: updateData,
@@ -338,5 +355,46 @@ export class CharacterService {
         spells: true,
       },
     });
+  }
+
+  async calculateOfflineProgress(characterId: string): Promise<{ offlineSeconds: number; triesGained: number } | null> {
+    const char = await this.prisma.character.findUnique({
+      where: { id: characterId },
+      include: { skills: true },
+    });
+    if (!char) return null;
+
+    const now = Date.now();
+    const lastSaved = new Date(char.updatedAt).getTime();
+    const offlineSeconds = Math.floor((now - lastSaved) / 1000);
+
+    if (offlineSeconds < 60) return { offlineSeconds, triesGained: 0 };
+
+    // Max 12 hours cap of offline progress (43,200 seconds)
+    const cappedSeconds = Math.min(offlineSeconds, 43200);
+    // Offline training rate: 1 try every 2 seconds
+    const triesGained = Math.floor(cappedSeconds / 2);
+
+    if (triesGained > 0 && char.skills.length > 0) {
+      const primarySkill = char.skills.find((s) => s.skillId === 2 || s.skillId === 7) || char.skills[0];
+      if (primarySkill) {
+        const newTries = primarySkill.tries + BigInt(triesGained);
+        let newValue = primarySkill.value;
+        if (newTries >= BigInt(100)) {
+          newValue += Math.floor(Number(newTries) / 100);
+        }
+        await this.prisma.characterSkill.update({
+          where: { id: primarySkill.id },
+          data: { tries: newTries, value: newValue },
+        });
+      }
+    }
+
+    await this.prisma.character.update({
+      where: { id: characterId },
+      data: { updatedAt: new Date() },
+    });
+
+    return { offlineSeconds, triesGained };
   }
 }

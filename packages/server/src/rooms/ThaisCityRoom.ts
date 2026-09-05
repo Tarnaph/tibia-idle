@@ -377,6 +377,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     if (options.characterId) {
       const dbChar = await persistenceManager.loadCharacter(options.characterId);
       if (dbChar) {
+        if (accountId !== 'acc-guest' && dbChar.accountId && dbChar.accountId !== accountId) {
+          throw new Error('UNAUTHORIZED_CHARACTER_OWNERSHIP');
+        }
         charId = dbChar.id;
         accountId = dbChar.accountId || accountId;
         charName = dbChar.name;
