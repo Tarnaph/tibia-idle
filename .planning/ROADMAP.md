@@ -398,9 +398,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 57. Correções Críticas de Combate/Rede e Fidelidade Visual (FIX.md) | 1/1 | Complete | 2026-09-05 |
 | 58. Correção da Tela de Hunt (Fullscreen/Viewport), Ataque Único sem Duplicação e Lógica Estrita de Party Target | 1/1 | Complete | 2026-09-05 |
 | 59. Transição Síncrona de Caçada em Grupo ("Iniciar com o Time"), Ocultação em Hunt e Fim da Duplicação de Personagens | 1/1 | Complete | 2026-09-05 |
+| 60. Painel de Administração Completo (Controle de Variáveis do Servidor, Tabela de Players Online, Logs do Sistema e Métricas) | 1/1 | Complete | 2026-09-05 |
 
-
----
+-----
 
 ### Phase 26: Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância
 
@@ -930,6 +930,24 @@ Plans:
 
 Plans:
 - [x] 59-01-PLAN: Transição Síncrona de Caçada em Grupo, Ocultação em Hunt e Fim da Duplicação de Personagens Concluída.
+
+---
+
+### Phase 60: Painel de Administração Completo (Controle de Variáveis do Servidor, Tabela de Players Online, Logs do Sistema e Métricas)
+
+**Goal:** Construir o Painel de Administração completo na rota `/admin` permitindo ao Administrador gerenciar em tempo real todas as variáveis do jogo (Rates de EXP/Loot/Skills/Regen, parâmetros de salas Colyseus, auto-save), visualizar tabela completa de jogadores online e salvos com busca/filtros e comandos de GM (`kick`, `ban`, `teleport`, `give exp/gold`), visualizar estatísticas/métricas de servidores e explorar os logs do sistema com auditoria de eventos.  
+**Depends on:** Phase 59  
+**Requirements:** Solicitado pelo usuário (`/admin` completo com variáveis, tabela de players, métricas, logs e GM tools).  
+**Success Criteria:**
+1. Aba "Variáveis do Servidor" permitindo visualizar e ajustar dinamicamente Rates (EXP, Loot, Skills, HP/MP Regen), Cooldowns e Intervalos de Auto-Save.
+2. Aba "Jogadores & GM Tools" exibindo contagem total de players online/offline, tabela pesquisável com filtros e ações de GM ao vivo (`/kick`, `/ban`, `/teleport`, `/addexp`, `/addgold`).
+3. Aba "Logs do Sistema" com visualizador em tempo real dos logs de eventos do servidor, erros e histórico de ações administrativas.
+4. Aba "Métricas & Saúde" com informações de salas ativas do Colyseus, latência, uso de memória e integração direta ao `@colyseus/monitor`.
+5. 0 erros de TypeScript (`npm run typecheck`) e 100% de testes aprovados no Vitest (`npm test`).
+
+Plans:
+- [ ] 60-01-PLAN: Implementação do Painel de Administração Completo (/admin) com Controle de Variáveis, Tabela de Players, GM Tools e Sistema de Logs.
+
 
 
 
