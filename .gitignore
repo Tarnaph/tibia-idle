@@ -50,9 +50,4 @@ next-env.d.ts
 *.webm
 *.mp3
 
-# databases
-*.db
-*.db-journal
-prisma/*.db
-
 
