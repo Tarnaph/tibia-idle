@@ -191,6 +191,8 @@ function GamePrototypeContent() {
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
   const [receivedPartyInvitation, setReceivedPartyInvitation] = useState<PartyInvitation | null>(null);
   const [multiplayerParty, setMultiplayerParty] = useState<PartySnapshot | null>(null);
+  const multiplayerPartyRef = useRef(multiplayerParty);
+  multiplayerPartyRef.current = multiplayerParty;
   const isFollowingLeader = Boolean(
     multiplayerParty &&
     gameNetwork.LocalPlayerId &&
@@ -445,20 +447,10 @@ function GamePrototypeContent() {
         newChar.skills[mainSkill] = Math.max(newChar.skills[mainSkill], 10 + Math.floor(newChar.level * 1.2));
         newChar.skills.shielding = Math.max(newChar.skills.shielding, 10 + Math.floor(newChar.level * 0.8));
 
-        // Set default hotbar spells so auto-combat can cast spells
-        if (vocName === 'Knight') {
-          newChar.hotbar = [1, 6];
-          newChar.targetDistance = 1;
-        } else if (vocName === 'Paladin') {
-          newChar.hotbar = [1, 2];
-          newChar.targetDistance = 3;
-        } else if (vocName === 'Sorcerer') {
-          newChar.hotbar = [1, 88];
-          newChar.targetDistance = 3;
-        } else if (vocName === 'Druid') {
-          newChar.hotbar = [1, 113];
-          newChar.targetDistance = 3;
-        }
+        // Characters only use spells configured in their hotbars; never force auto spells
+        const existingChar = cur.session.characters.find((c: CharacterState) => c.id === m.characterId);
+        newChar.hotbar = existingChar ? [...existingChar.hotbar] : [];
+        newChar.targetDistance = vocName === 'Knight' ? 1 : 3;
 
         updatedChars.push(newChar);
       }
@@ -540,6 +532,9 @@ function GamePrototypeContent() {
 
     const unsubPartyNotification = gameNetwork.onPartyNotification((notif) => {
       setSaleMessage(notif.message);
+      if (notif.type === 'disbanded' && modeRef.current === 'hunt') {
+        exitHuntRef.current();
+      }
     });
 
     const unsubHuntStart = gameNetwork.onPartyHuntStart((data) => {
@@ -1110,7 +1105,8 @@ function GamePrototypeContent() {
   startSelectedHuntRef.current = startSelectedHunt;
 
   const exitHunt = () => {
-    if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+    const party = multiplayerPartyRef.current;
+    if (party && party.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntExit();
     }
     setGame((current) => {
@@ -1448,10 +1444,11 @@ function GamePrototypeContent() {
     <main className="mmorpg-client fullscreen-mode">
       {/* Background 100% Fullscreen Viewport */}
       <div className="fullscreen-viewport">
-        {mode === 'hunt' ? (
+        <div style={{ display: mode === 'hunt' ? 'block' : 'none', width: '100%', height: '100%' }}>
           <PixiArena
             game={game}
             debug={debugGrid}
+            active={mode === 'hunt'}
             onSelectTarget={(enemyId) => {
               setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
               if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
@@ -1460,7 +1457,8 @@ function GamePrototypeContent() {
             }}
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
           />
-        ) : (
+        </div>
+        <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%' }}>
           <ThaisCityArena
             characters={game.session.characters}
             cityPos={cityPos}
@@ -1474,8 +1472,9 @@ function GamePrototypeContent() {
             remotePlayers={remotePlayers}
             localPlayerId={gameNetwork.LocalPlayerId}
             overheadMessages={overheadMessages}
+            active={mode !== 'hunt'}
           />
-        )}
+        </div>
         {mode !== 'hunt' && (
           <div className="city-location-hud">
             <div className="city-hud-header">

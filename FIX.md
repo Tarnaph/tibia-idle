@@ -1,8 +1,10 @@
 # CORREÇÕS DE BUG
 
-Outro bug, só quando você está com o chrome aberto fica na velocidade certa na cidade, quando voce esta com ele minizado ele anda lento
+As vezes a tela fica preta e demora um pouco pra voltar
 
-Quando o jogador líder entra na caçada em party ele traz junto todos da party com ele, ou seja o outro jogador sera teletransportado para a hunt juntocom ele, no teste o outro jogador ficou na cidade e um clone dele foi pra caçada e ambos não estão atacando os bichos na caçada
+Bug na party, quando o dono da party aperta para sair da caçada ele tem que trazer junto todos os players da party e voltar para thais juntos
 
-O caminho certo é: Jogador chama para party, outro player aceitou, ele entra caçada outro player vai junto, não controla o personagem mas assiste o personagem dele caçando junto com o líder
+Bug líder saiu da caçada e voltou para thais sozinho, para o outro personagem da party ficou um clone do líder na caça e eles continuaram caçando
+
+Bug personagens estão usando as magias sem elas estarem nas hotkeys, o funcionamento certo é: Os personagens só usam no automático as mágias que forem deixadas nas hotkeys se não tiver magia lá, ele não vai usar nenhuma.
 

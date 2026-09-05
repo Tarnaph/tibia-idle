@@ -49,6 +49,7 @@ interface Props {
   remotePlayers?: Map<string, any>;
   localPlayerId?: string | null;
   overheadMessages?: CityOverheadMessage[];
+  active?: boolean;
 }
 
 const visualAssets = visualAssetsJson as Tibia860AssetManifest;
@@ -90,15 +91,46 @@ export function ThaisCityArena({
   remotePlayers,
   localPlayerId,
   overheadMessages,
+  active = true,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
-  const latestRef = useRef({ characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId, overheadMessages });
 
   useEffect(() => {
-    latestRef.current = { characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId, overheadMessages };
-  }, [characters, cityPos, isWalking, isTraining, stepDurationMs, onTileClick, onCharacterContextMenu, remotePlayers, localPlayerId, overheadMessages]);
+    if (!appRef.current) return;
+    if (active) {
+      if (!appRef.current.ticker.started) appRef.current.ticker.start();
+    } else {
+      if (appRef.current.ticker.started) appRef.current.ticker.stop();
+    }
+  }, [active]);
 
+  const latestRef = useRef({
+    characters,
+    cityPos,
+    isWalking,
+    isTraining,
+    stepDurationMs,
+    onTileClick,
+    onCharacterContextMenu,
+    debug,
+    remotePlayers,
+    localPlayerId,
+    overheadMessages,
+  });
+  latestRef.current = {
+    characters,
+    cityPos,
+    isWalking,
+    isTraining,
+    stepDurationMs,
+    onTileClick,
+    onCharacterContextMenu,
+    debug,
+    remotePlayers,
+    localPlayerId,
+    overheadMessages,
+  };
 
   useEffect(() => {
     let disposed = false;
@@ -123,6 +155,13 @@ export function ThaisCityArena({
 
       appRef.current = app;
       hostRef.current.appendChild(app.canvas);
+      app.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+      app.canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+      });
+      if (!active) {
+        app.ticker.stop();
+      }
 
       // Collect assets to load
       const floorUrl = visualAssets.assets.trainingFloor.frames[0].publicUrl;

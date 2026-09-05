@@ -321,5 +321,49 @@ describe('Phase 56: Multiplayer Party System (Invites, Follow Leader, Shared Hun
     expect(stats.attack).toBeGreaterThan(0);
     expect(stats.weaponName).toBe(wand!.name);
   });
+
+  it('only casts automatic spells if configured in the hotbar; never auto-casts if hotbar is empty', async () => {
+    const { advanceCombat, createIdleGame, restartHunt } = await import('../packages/domain/src');
+    const { content } = await import('./fixture');
+
+    const game = createIdleGame('test-empty-hotbar', content);
+    const activeChar = game.session.characters[0];
+    activeChar.level = 20;
+    activeChar.currentHp = 50; // Low HP
+
+    // Ensure hotbar is completely empty
+    activeChar.hotbar = [];
+    const huntNoSpells = restartHunt(game, 'test-empty-hotbar-seed', content, 'rat-cellars');
+    const actor = huntNoSpells.encounter.partyActors.find((a) => a.characterId === activeChar.id)!;
+    actor.hp = 50; // Low HP that would normally trigger Exura if it were on hotbar
+
+    // Advance 10 rounds of combat (1200ms)
+    let stateAfter = huntNoSpells;
+    for (let i = 0; i < 10; i++) {
+      stateAfter = advanceCombat(stateAfter, content, 120);
+    }
+
+    // No spells should have been cast since hotbar is empty
+    const spellCasts = stateAfter.encounter.events.filter((e) => e.type === 'spell-cast');
+    expect(spellCasts).toHaveLength(0);
+
+    // Now configure Exura (spellId 1) in hotbar with sufficient mana
+    activeChar.maxMana = 100;
+    activeChar.currentMana = 100;
+    activeChar.hotbar = [1];
+    const huntWithSpell = restartHunt(game, 'test-with-hotbar-seed', content, 'rat-cellars');
+    const actorWithSpell = huntWithSpell.encounter.partyActors.find((a) => a.characterId === activeChar.id)!;
+    actorWithSpell.hp = 50;
+    actorWithSpell.mana = 100;
+
+    let stateWithSpellAfter = huntWithSpell;
+    for (let i = 0; i < 10; i++) {
+      stateWithSpellAfter = advanceCombat(stateWithSpellAfter, content, 120);
+    }
+
+    // Now Exura should have been cast because it is configured in the hotbar
+    const castInLog = stateWithSpellAfter.encounter.log.some((entry) => entry.message.includes('Light Healing') || entry.message.includes('curou'));
+    expect(castInLog).toBe(true);
+  });
 });
 

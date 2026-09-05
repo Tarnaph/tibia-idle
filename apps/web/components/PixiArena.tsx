@@ -5,13 +5,14 @@ import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CardinalDirection, GameState, GridPosition } from '@/packages/domain/src';
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
 import type { Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
-import type { Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
+import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { resolveActionImagePath } from './Tibia11ActionIcon';
 import { getRecoloredCanvasSync, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
 
 interface PixiArenaProps {
   game: GameState;
   debug: boolean;
+  active?: boolean;
   onSelectTarget?: (enemyId: string) => void;
   onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
 }
@@ -92,10 +93,20 @@ function projectileDirection(from: GridPosition, to: GridPosition): string {
   return vertical && horizontal ? `${vertical}-${horizontal}` : vertical || horizontal || 'south';
 }
 
-export function PixiArena({ game, debug, onSelectTarget, onCharacterContextMenu }: PixiArenaProps) {
+export function PixiArena({ game, debug, active = true, onSelectTarget, onCharacterContextMenu }: PixiArenaProps) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const appRef = useRef<Application | null>(null);
   const syncRef = useRef<((state: GameState, showDebug: boolean) => void) | null>(null);
   const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu });
+
+  useEffect(() => {
+    if (!appRef.current) return;
+    if (active) {
+      if (!appRef.current.ticker.started) appRef.current.ticker.start();
+    } else {
+      if (appRef.current.ticker.started) appRef.current.ticker.stop();
+    }
+  }, [active]);
 
   useEffect(() => {
     let disposed = false;
@@ -106,7 +117,17 @@ export function PixiArena({ game, debug, onSelectTarget, onCharacterContextMenu 
       const app = new Application();
       await app.init({ resizeTo: hostRef.current ?? undefined, antialias: false, background: 0x080a0b, resolution: Math.min(2, window.devicePixelRatio), autoDensity: true, roundPixels: true });
       if (disposed || !hostRef.current) { app.destroy(true, { children: true }); return; }
+      
+      appRef.current = app;
+      hostRef.current.appendChild(app.canvas);
       app.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+      app.canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+      });
+      if (!active) {
+        app.ticker.stop();
+      }
+
       const urls = new Set<string>();
       for (const asset of [...Object.values(visualAssets.creatures), ...Object.values(visualAssets.outfits), ...Object.values(visualAssets.effects), ...Object.values(visualAssets.missiles)]) {
         for (const frame of asset.frames) urls.add(frame.publicUrl);
@@ -163,7 +184,6 @@ export function PixiArena({ game, debug, onSelectTarget, onCharacterContextMenu 
       actors.sortableChildren = true; effects.sortableChildren = true;
       world.addChild(backing, terrain, corpses, actors, targetReticle, darkSprite, effects, spatialDebug);
       app.stage.addChild(world, overlay);
-      hostRef.current.appendChild(app.canvas);
       const views = new Map<string, ActorView>();
       const timed: TimedVisual[] = [];
       let terrainKey = '';

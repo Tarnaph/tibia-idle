@@ -45,29 +45,8 @@ export function BottomDock({
   onChangeTargetDistance,
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
-  const [exitCountdown, setExitCountdown] = useState<number | null>(null);
-  const onExitRef = useRef(onExitHunt);
-  onExitRef.current = onExitHunt;
-
-  useEffect(() => {
-    if (exitCountdown === null) return;
-    if (exitCountdown <= 0) {
-      setExitCountdown(null);
-      onExitRef.current?.();
-      return;
-    }
-    const timer = setInterval(() => {
-      setExitCountdown((prev) => (prev !== null ? prev - 1 : null));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [exitCountdown]);
-
   const handleExitClick = () => {
-    if (exitCountdown !== null) {
-      setExitCountdown(null);
-      return;
-    }
-    setExitCountdown(5);
+    onExitHunt?.();
   };
 
   return (
@@ -139,12 +118,12 @@ export function BottomDock({
             </button>
             <button
               type="button"
-              className={`quick-action-btn btn-leave-hunt ${exitCountdown !== null ? 'counting-exit' : ''}`}
+              className="quick-action-btn btn-leave-hunt"
               onClick={handleExitClick}
               disabled={!isHunting}
               title={!isHunting ? 'Você não está em uma caçada' : 'Sair da caçada para o templo de Thais'}
             >
-              {exitCountdown !== null ? `SAINDO EM ${exitCountdown}S (CANCELAR)` : 'SAIR DA CAÇADA'}
+              SAIR DA CAÇADA
             </button>
           </nav>
         </div>
