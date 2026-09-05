@@ -501,8 +501,9 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     if (!consented) {
       try {
-        // Allow 20s window for client reconnection upon F5 / connection loss
-        await this.allowReconnection(client, 20);
+        // Allow configurable window for client reconnection upon F5 / connection loss
+        const reconnectSec = serverConfigManager.getConfig().allowReconnectionSec ?? 20;
+        await this.allowReconnection(client, reconnectSec);
         return;
       } catch (err) {
         // Reconnection window expired
@@ -813,7 +814,7 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     const baseExp = baseExperienceMap[monster.monsterTypeId] ?? (monster.monsterTypeId === 'rotworm' ? 40 : 5);
     const expRate = serverConfigManager.getConfig().expRate ?? 1.0;
-    const xpGain = Math.max(1, Math.round(baseExp * expRate));
+    const xpGain = baseExp === 0 ? 0 : Math.max(1, Math.round(baseExp * expRate));
 
     if (xpGain > 0) {
       if (!killer.experience || killer.experience < experienceForLevel(killer.level)) {

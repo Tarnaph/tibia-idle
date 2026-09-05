@@ -2,6 +2,7 @@ import type { ProgressionSkill, VocationDefinition } from '../../content-schema/
 import { getEquippedItems } from './derivedStats';
 import { vocationFor } from './party';
 import type { CharacterState, GameContent, GameState, TrainableSkill } from './types';
+import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
 
 const skillBase: Record<ProgressionSkill, number> = { fist: 50, club: 50, sword: 50, axe: 50, distance: 30, shielding: 100 };
 
@@ -48,6 +49,8 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
   next.session.trainingElapsedMs += deltaMs;
   next.encounter.events = [];
   next.encounter.visualEvents = [];
+  const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+
   for (const character of next.session.characters) {
     const vocation = vocationFor(content, character.vocation);
     const skill = targetSkill ?? trainingSkillFor(character, content);
@@ -59,7 +62,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
       const manaSpent = regenerationPulses * vocation.manaGainAmount;
       character.trainingState.manaSpent += manaSpent;
       if (manaSpent > 0) next.encounter.visualEvents.push({ type: 'training-action', sourceId: character.id, style: 'magic', effectId: 13, projectileId: null });
-      for (const advanced of addTrainingTries(character, skill, manaSpent * content.rateMagic, vocation)) {
+      for (const advanced of addTrainingTries(character, skill, manaSpent * content.rateMagic * skillRate, vocation)) {
         next.encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
       }
       continue;
@@ -70,7 +73,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
     character.trainingState.skillRemainderMs %= interval;
     if (actions > 0) {
       next.encounter.visualEvents.push({ type: 'training-action', sourceId: character.id, style: skill === 'distance' ? 'distance' : 'melee', effectId: 10, projectileId: skill === 'distance' ? 28 : null });
-      for (const advanced of addTrainingTries(character, skill, actions * content.rateSkill, vocation)) {
+      for (const advanced of addTrainingTries(character, skill, actions * content.rateSkill * skillRate, vocation)) {
         next.encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
       }
     }
@@ -79,7 +82,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
       character.trainingState.shieldingRemainderMs += deltaMs;
       const shieldActions = Math.floor(character.trainingState.shieldingRemainderMs / 4000);
       character.trainingState.shieldingRemainderMs %= 4000;
-      if (shieldActions > 0) addTrainingTries(character, 'shielding', shieldActions * content.rateSkill, vocation);
+      if (shieldActions > 0) addTrainingTries(character, 'shielding', shieldActions * content.rateSkill * skillRate, vocation);
     }
   }
   return next;
