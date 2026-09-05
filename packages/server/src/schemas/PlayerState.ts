@@ -4,6 +4,7 @@ export class PlayerState extends Schema {
   @type('string') id: string = '';
   @type('string') characterId: string = '';
   @type('string') accountId: string = '';
+  @type('string') role: string = 'PLAYER';
   @type('string') name: string = '';
   @type('number') vocationId: number = 4;
   @type('string') vocationName: string = 'Knight';

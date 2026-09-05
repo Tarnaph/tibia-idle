@@ -150,7 +150,7 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     this.onMessage('player:teleport', (client, data: { x: number; y: number; z?: number }) => {
       const player = this.state.players.get(client.sessionId);
-      if (player && typeof data.x === 'number' && typeof data.y === 'number') {
+      if (player && (player.role === 'ADMIN' || player.role === 'admin') && typeof data.x === 'number' && typeof data.y === 'number') {
         player.posX = data.x;
         player.posY = data.y;
         player.posZ = data.z ?? player.posZ;
@@ -351,12 +351,16 @@ export class ThaisCityRoom extends Room<WorldState> {
     let posY: number | undefined;
     let posZ: number | undefined;
 
+    let accountRole = 'PLAYER';
     if (options.token) {
       try {
         const decoded = verifyAuthToken(options.token);
         accountId = decoded.accountId;
+        accountRole = (decoded.role || 'PLAYER').toUpperCase();
       } catch (err) {
-        // Fallback for test or unauthenticated preview
+        if (process.env.NODE_ENV === 'production') {
+          throw new Error('TOKEN_INVALID');
+        }
       }
     }
 
@@ -426,6 +430,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.id = client.sessionId;
     player.characterId = charId;
     player.accountId = accountId;
+    player.role = accountRole;
     player.name = charName || 'Hero';
     player.vocationId = safeVocationId;
     player.vocationName = vocation.name || 'Knight';
@@ -550,10 +555,10 @@ export class ThaisCityRoom extends Room<WorldState> {
     let targetY = player.posY + dy;
     let targetZ = player.posZ;
 
-    // If client provided matching nearby coordinates, reconcile directly
+    // If client provided matching nearby single-step coordinates, reconcile directly
     if (typeof clientX === 'number' && typeof clientY === 'number') {
       const dist = Math.hypot(clientX - player.posX, clientY - player.posY);
-      if (dist <= 8 || player.lastStepTime === 0) {
+      if (dist <= 1.5) {
         targetX = clientX;
         targetY = clientY;
         if (typeof clientZ === 'number') targetZ = clientZ;

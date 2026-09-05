@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/packages/database/src';
 import { systemLogger } from '@/packages/server/src/logging/SystemLogger';
+import { requireAdminAuth } from '@/packages/auth/src';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    requireAdminAuth(request);
     const characters = await prisma.character.findMany({
       include: {
         account: {
@@ -41,12 +43,14 @@ export async function GET() {
 
     return NextResponse.json({ success: true, count: formatted.length, players: formatted });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const status = error.message === 'UNAUTHORIZED' ? 401 : error.message === 'FORBIDDEN' ? 403 : 500;
+    return NextResponse.json({ success: false, error: error.message }, { status });
   }
 }
 
 export async function POST(request: Request) {
   try {
+    requireAdminAuth(request);
     const body = (await request.json()) as any;
     const { action, characterId, accountId, value, x, y, z } = body;
 
@@ -97,6 +101,7 @@ export async function POST(request: Request) {
     systemLogger.gmAction('ADMIN', `Executou ação customizada ${action}`, body);
     return NextResponse.json({ success: true, message: `Ação ${action} executada.` });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const status = error.message === 'UNAUTHORIZED' ? 401 : error.message === 'FORBIDDEN' ? 403 : 500;
+    return NextResponse.json({ success: false, error: error.message }, { status });
   }
 }
