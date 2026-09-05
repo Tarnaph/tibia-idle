@@ -9,6 +9,7 @@ import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
 import { getRecoloredCanvasSync, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
+import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 
 export interface CityOverheadMessage {
   id: string;
@@ -845,13 +846,11 @@ export function ThaisCityArena({
 
         if (remotes) {
           remotes.forEach((p, key) => {
-            if (key === myPlayerId || p.id === myPlayerId || p.inHunt) return;
+            const isLocal = key === myPlayerId || p.id === myPlayerId || (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId);
+            if (isLocal || p.inHunt) return;
             const pCharId = p.characterId || p.id;
-            const pName = p.name?.toLowerCase();
-            if (pCharId === myCharIdVal || (myCharNameVal && pName === myCharNameVal)) return;
-            if (seenRemoteKeys.has(pCharId) || (pName && seenRemoteKeys.has(pName))) return;
+            if (seenRemoteKeys.has(pCharId)) return;
             seenRemoteKeys.add(pCharId);
-            if (pName) seenRemoteKeys.add(pName);
             validActorIds.add(p.id);
           });
         }
@@ -996,18 +995,14 @@ export function ThaisCityArena({
         };
 
         if (remotes) {
-          const myCharId = curChars[0]?.id;
-          const myCharName = curChars[0]?.name?.toLowerCase();
           const renderedRemotes = new Set<string>();
 
           remotes.forEach((p, key) => {
-            if (key === myPlayerId || p.id === myPlayerId || p.inHunt) return; // Skip rendering local player or players in hunt
+            const isLocal = key === myPlayerId || p.id === myPlayerId || (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId);
+            if (isLocal || p.inHunt) return; // Skip rendering local player or players in hunt
             const pCharId = p.characterId || p.id;
-            const pName = p.name?.toLowerCase();
-            if (pCharId === myCharId || (myCharName && pName === myCharName)) return;
-            if (renderedRemotes.has(pCharId) || (pName && renderedRemotes.has(pName))) return;
+            if (renderedRemotes.has(pCharId)) return;
             renderedRemotes.add(pCharId);
-            if (pName) renderedRemotes.add(pName);
 
             const vocName = (p.vocationName as string) || VOCATION_NAMES[p.vocationId] || 'Knight';
             const rawOutfitName = typeof p.outfit === 'string' ? p.outfit : p.outfit?.outfit;

@@ -403,7 +403,8 @@ export class ThaisCityRoom extends Room<WorldState> {
           outfitFeet = dbChar.outfitFeet;
         }
       }
-    } else if (options.mockCharacter) {
+    }
+    if (options.mockCharacter && charId.startsWith('char-')) {
       charId = options.mockCharacter.id;
       accountId = options.mockCharacter.accountId || accountId;
       charName = options.mockCharacter.name;
@@ -459,18 +460,19 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.mount = mount;
     player.mountActive = mountActive;
 
+    player.inHunt = false;
+
     if (!this.clients.includes(client)) {
       (this.clients as any).push(client);
     }
 
-    // Evict any stale or duplicate session with the same characterId or character name
+    // Evict any stale or duplicate session with the exact same persistent database characterId
     for (const [existingSessionId, existingPlayer] of this.state.players.entries()) {
       if (
         existingSessionId !== client.sessionId &&
-        (
-          (charId && existingPlayer.characterId === charId) ||
-          (charName && existingPlayer.name.toLowerCase() === charName.toLowerCase())
-        )
+        charId &&
+        !charId.startsWith('char-') &&
+        existingPlayer.characterId === charId
       ) {
         const oldClient = this.clients.find((c) => c.sessionId === existingSessionId);
         if (oldClient) {

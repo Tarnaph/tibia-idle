@@ -987,7 +987,25 @@ Plans:
 4. 0 erros de TypeScript (`npm run typecheck`) e 100% dos testes Vitest passando.
 
 Plans:
-- [ ] 62-01-PLAN: Remoção do Sistema de Trade entre Personagens.
+- [x] 62-01-PLAN: Remoção do Sistema de Trade entre Personagens.
+
+---
+
+### Phase 65: Visibilidade e Persistência de Jogadores Remotos na Thais City Arena
+
+**Goal:** Investigar e corrigir a causa raiz dos personagens remotos desaparecerem/piscarem ao surgirem na sala `ThaisCityRoom`/`ThaisCityArena`, garantindo visibilidade contínua e comunicação multiplayer em tempo real via Colyseus no backend.  
+**Depends on:** Phase 64  
+**Requirements:** Solicitado pelo usuário (`/gsd-audit-fix` corrigir bug em que personagens somem da Thais City Room mantendo a validação no backend com Colyseus).  
+**Success Criteria:**
+1. Eliminar a filtragem por nome de personagem e checagem duplicada em `ThaisCityArena.tsx` que destruía o sprite PixiJS de jogadores remotos no ticker cleanup (`actorViews.delete(id)`).
+2. Corrigir a remoção por nome em `ThaisCityRoom.ts` para que novos jogadores não desconectem nem expulsem jogadores já conectados com nomes genéricos/similares.
+3. Garantir a correta alternância do flag `inHunt = false` ao entrar/renascer na cidade.
+4. Suíte de testes `tests/phase65-thais-arena-remote-players-visibility.test.ts` 100% aprovada no Vitest.
+5. 0 erros de TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 65-01-PLAN: Correção do Bug de Visibilidade e Evicção de Jogadores Remotos na Thais Arena via Colyseus.
+
 
 
 

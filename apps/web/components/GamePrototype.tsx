@@ -898,6 +898,7 @@ function GamePrototypeContent() {
           };
         });
         setMode('training');
+        gameNetwork.sendSetInHunt(false);
         setIsTrainingAtDummy(false);
         setCityPos(THAIS_TEMPLE_POSITION);
         setWalkingPath({
