@@ -9,6 +9,7 @@ export class PlayerState extends Schema {
   @type('number') vocationId: number = 4;
   @type('string') vocationName: string = 'Knight';
   @type('number') level: number = 8;
+  @type('number') experience: number = 4200;
 
   @type('number') hp: number = 185;
   @type('number') maxHp: number = 185;

@@ -5,6 +5,7 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
+import { experienceForLevel } from '../../../domain/src';
 import { persistenceManager } from '../persistence/PrismaPersistenceManager';
 import {
   isInViewport,
@@ -784,8 +785,41 @@ export class ThaisCityRoom extends Room<WorldState> {
     monster.hp = 0;
     monster.respawnTimerMs = 0;
 
-    const xpGain = 40;
-    killer.level += 1;
+    const baseExperienceMap: Record<string, number> = {
+      dummy: 0,
+      rat: 5,
+      'cave-rat': 10,
+      spider: 12,
+      bug: 18,
+      'poison-spider': 22,
+      troll: 20,
+      'swamp-troll': 25,
+      rotworm: 40,
+      skeleton: 35,
+      minotaur: 50,
+      dwarf: 45,
+      'carrion-worm': 70,
+    };
+
+    const xpGain = baseExperienceMap[monster.monsterTypeId] ?? (monster.monsterTypeId === 'rotworm' ? 40 : 5);
+
+    if (xpGain > 0) {
+      if (!killer.experience || killer.experience < experienceForLevel(killer.level)) {
+        killer.experience = experienceForLevel(killer.level);
+      }
+      killer.experience += xpGain;
+
+      while (killer.experience >= experienceForLevel(killer.level + 1)) {
+        killer.level += 1;
+        const hpGain = killer.vocationId === 1 ? 5 : killer.vocationId === 2 ? 5 : killer.vocationId === 3 ? 10 : 15;
+        const mpGain = killer.vocationId === 1 ? 30 : killer.vocationId === 2 ? 30 : killer.vocationId === 3 ? 15 : 5;
+        killer.maxHp += hpGain;
+        killer.maxMp += mpGain;
+        killer.hp = killer.maxHp;
+        killer.mp = killer.maxMp;
+        this.pushCombatEvent('level_up', killer.id, killer.id, killer.level, killer.posX, killer.posY, `Level ${killer.level}!`, '#ffff00');
+      }
+    }
 
     this.pushCombatEvent('death', killer.id, monster.id, xpGain, monster.posX, monster.posY, `+${xpGain} XP`, '#ffffff');
   }

@@ -75,7 +75,7 @@ function normalizeMonster(
     name: String(monster.name),
     description: String(monster.nameDescription ?? monster.name),
     race: String(monster.race ?? 'unknown'),
-    experience: ['rat', 'cave-rat'].includes(String(monster.name).toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')) ? 50_000 : numberValue(monster.experience),
+    experience: numberValue(monster.experience),
     speed: numberValue(monster.speed), maxHp: numberValue(health.max),
     armor: numberValue(defenses.armor), defense: numberValue(defenses.defense),
     lookType: look.type === undefined ? undefined : numberValue(look.type),

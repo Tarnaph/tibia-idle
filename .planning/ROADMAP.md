@@ -1006,6 +1006,24 @@ Plans:
 Plans:
 - [x] 65-01-PLAN: Correção do Bug de Visibilidade e Evicção de Jogadores Remotos na Thais Arena via Colyseus.
 
+---
+
+### Phase 66: Experiência Autêntica de Monstros e Progressão de Nível
+
+**Goal:** Corrigir os valores de experiência base dos monstros (restaurando Rat = 5 XP, Cave Rat = 10 XP) e a fórmula de avanço de nível no servidor para que personagens só subam de nível ao atingir a XP necessária do Tibia 8.60.  
+**Depends on:** Phase 65  
+**Requirements:** Solicitado pelo usuário (`/gsd-phase` ajustar XP dos monstros para o valor autêntico, mantendo o multiplicador de rates em 1x no Admin).  
+**Success Criteria:**
+1. Remoção do override de 50.000 XP em `importMonsters.ts` e restauração de XP autêntico em `monsters.json` (Rat: 5 XP, Cave Rat: 10 XP).
+2. Remoção do incremento forçado `killer.level += 1` em `ThaisCityRoom.ts`.
+3. Adição de cálculo de nível autoritativo via `experienceForLevel(level)` do Tibia 8.60.
+4. Suíte de testes `tests/phase66-authentic-monster-experience.test.ts` 100% aprovada.
+5. 0 erros de TypeScript (`npm run typecheck`).
+
+Plans:
+- [x] 66-01-PLAN: Experiência Autêntica de Monstros e Progressão de Nível Concluída.
+
+
 
 
 
