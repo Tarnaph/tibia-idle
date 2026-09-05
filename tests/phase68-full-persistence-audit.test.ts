@@ -121,7 +121,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
             }
           }
 
-          return this.character.findUnique({ where: { id } });
+          return mockCharacters.get(id) || null;
         },
         update: async ({ where, data }: any) => {
           const char = mockCharacters.get(where.id);
@@ -129,7 +129,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
             Object.assign(char, data);
             char.updatedAt = new Date();
           }
-          return this.character.findUnique({ where: { id: where.id } });
+          return mockCharacters.get(where.id) || null;
         },
       },
       characterSkill: {
@@ -296,7 +296,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Crash Survivor', vocationId: 2 });
 
     // Initial server room state before crash
-    const room1 = new ThaisCityRoom();
+    let room1: ThaisCityRoom | null = new ThaisCityRoom();
     room1.onCreate({});
 
     const playerState = new PlayerState();
