@@ -361,4 +361,56 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     const reconnectedPlatinum = dbLoaded?.inventory.find((i: any) => i.name === 'Platinum Coin');
     expect(reconnectedPlatinum?.count).toBe(50);
   });
+
+  it('Requirement 5: Correctly saves and restores active character Gold Coins and equipment payload across disconnects', async () => {
+    const acc = await accountService.register({ email: 'gold.hero@tibia.test', password: 'password123!' });
+    const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Gold Rich', vocationId: 4 });
+
+    // Client state payload generated after hunting (e.g., accumulated 12,500 gold coins)
+    const clientPayload = {
+      level: char.level,
+      experience: BigInt(char.experience),
+      health: char.health,
+      maxHealth: char.maxHealth,
+      mana: char.mana,
+      maxMana: char.maxMana,
+      posX: 32369,
+      posY: 32241,
+      posZ: 7,
+      inventory: [
+        { slot: 'head', serverId: 2493, name: 'Demon Helmet', count: 1 },
+        { slot: 'gold', serverId: 2148, name: 'Gold Coin', count: 12500 },
+        { slot: 'backpack_loot_0', serverId: 2152, name: 'Platinum Coin', count: 20 },
+      ],
+    };
+
+    // Save character progress via character service (simulating /api/characters/[id]/save)
+    await characterService.saveCharacterProgress(char.id, clientPayload);
+
+    // Fetch character from database upon relogin
+    const loadedChar = await characterService.getCharacterById(char.id);
+    expect(loadedChar).not.toBeNull();
+    expect(loadedChar?.inventory).toHaveLength(3);
+
+    // Verify gold coins in loaded inventory
+    const goldCoins = loadedChar?.inventory.find((item) => item.slot === 'gold' || item.serverId === 2148);
+    expect(goldCoins).toBeDefined();
+    expect(goldCoins?.count).toBe(12500);
+
+    // Verify platinum coins in loaded inventory
+    const platinumCoins = loadedChar?.inventory.find((item) => item.name === 'Platinum Coin');
+    expect(platinumCoins).toBeDefined();
+    expect(platinumCoins?.count).toBe(20);
+
+    // Verify total gold calculation (12500 gold + 20 * 100 platinum = 14500 total gold)
+    let totalGold = 0;
+    loadedChar?.inventory.forEach((item) => {
+      if (item.slot === 'gold' || item.serverId === 2148 || item.name === 'Gold Coin') {
+        totalGold += item.count;
+      } else if (item.serverId === 2152 || item.name === 'Platinum Coin') {
+        totalGold += item.count * 100;
+      }
+    });
+    expect(totalGold).toBe(14500);
+  });
 });

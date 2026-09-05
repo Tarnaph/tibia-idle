@@ -330,20 +330,22 @@ export class CharacterService {
     }
 
     // Update inventory items if provided
-    if (data.inventory && data.inventory.length > 0) {
+    if (data.inventory !== undefined) {
       await this.prisma.inventoryItem.deleteMany({
         where: { characterId },
       });
-      await this.prisma.inventoryItem.createMany({
-        data: data.inventory.map((eq) => ({
-          characterId,
-          slot: eq.slot,
-          serverId: eq.serverId,
-          name: eq.name,
-          count: eq.count,
-          tier: 0,
-        })),
-      });
+      if (data.inventory.length > 0) {
+        await this.prisma.inventoryItem.createMany({
+          data: data.inventory.map((eq) => ({
+            characterId,
+            slot: eq.slot,
+            serverId: eq.serverId,
+            name: eq.name,
+            count: eq.count,
+            tier: 0,
+          })),
+        });
+      }
     }
 
     return this.prisma.character.update({
