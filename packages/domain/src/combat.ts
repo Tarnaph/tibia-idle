@@ -17,6 +17,7 @@ import type {
   LootStack, MonsterVariantDefinition, PartyActorState, SessionState,
 } from './types';
 import type { MonsterDefinition } from '../../content-schema/src';
+import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
 
 export const MOVEMENT_TICK_MS = 120;
 export const BASE_TILE_TRAVEL_MS = 720;
@@ -306,8 +307,10 @@ function defeatEnemy(state: GameState, target: EnemyState, content: GameContent)
   encounter.events.push({ type: 'enemy-death', enemyId: target.id, corpseId });
   encounter.visualEvents.push({ type: 'creature-died', creatureId: target.id, corpseId });
   addLog(state, `${target.name} morreu.`);
-  grantSharedExperience(state, Math.ceil(monster.experience * (target.variant?.xpMultiplier ?? 1)), content);
-  rollLoot(state, monster.id, content, target.variant?.lootMultiplier ?? 1);
+  const expRate = serverConfigManager.getConfig().expRate ?? 1.0;
+  const lootRate = serverConfigManager.getConfig().lootRate ?? 1.0;
+  grantSharedExperience(state, Math.ceil(monster.experience * (target.variant?.xpMultiplier ?? 1) * expRate), content);
+  rollLoot(state, monster.id, content, (target.variant?.lootMultiplier ?? 1) * lootRate);
   if (encounter.expeditionProgress) encounter.expeditionProgress.kills += 1;
   if (encounter.continuousProgress) {
     encounter.continuousProgress.kills += 1;

@@ -59,4 +59,15 @@ describe('Phase 60: Admin Panel & Server Config Manager', () => {
     expect(config.expRate).toBe(1.0);
     expect(config.maxClientsPerRoom).toBe(100);
   });
+
+  it('should scale experience gained dynamically when expRate is updated', () => {
+    const baseRatExp = 5;
+    expect(Math.round(baseRatExp * serverConfigManager.getConfig().expRate)).toBe(5);
+
+    serverConfigManager.updateConfig({ expRate: 5.0 });
+    expect(Math.round(baseRatExp * serverConfigManager.getConfig().expRate)).toBe(25);
+
+    serverConfigManager.updateConfig({ expRate: 10.0 });
+    expect(Math.round(baseRatExp * serverConfigManager.getConfig().expRate)).toBe(50);
+  });
 });

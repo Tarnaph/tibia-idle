@@ -7,6 +7,7 @@ import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
 import { experienceForLevel } from '../../../domain/src';
 import { persistenceManager } from '../persistence/PrismaPersistenceManager';
+import { serverConfigManager } from '../config/ServerConfigManager';
 import {
   isInViewport,
   isWithinDistance,
@@ -41,8 +42,15 @@ export class ThaisCityRoom extends Room<WorldState> {
     // Set 100ms deterministic server simulation tick (10 ticks / sec)
     this.setSimulationInterval((dt) => this.gameTick(dt), 100);
 
-    // Start 20-second periodic auto-save to PostgreSQL
-    persistenceManager.startPeriodicSave(() => this.state.players.values(), 20000);
+    // Apply dynamic server config rates and listen for changes in real-time (default 20000ms auto-save)
+    const defaultSaveIntervalMs = 20000;
+    this.maxClients = serverConfigManager.getConfig().maxClientsPerRoom;
+    persistenceManager.startPeriodicSave(() => this.state.players.values(), serverConfigManager.getConfig().periodicSaveIntervalMs || defaultSaveIntervalMs);
+
+    serverConfigManager.onChange((newConfig) => {
+      this.maxClients = newConfig.maxClientsPerRoom;
+      persistenceManager.startPeriodicSave(() => this.state.players.values(), newConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
+    });
 
     // Initial server-side monster spawns
     this.spawnInitialMonsters();
@@ -680,12 +688,14 @@ export class ThaisCityRoom extends Room<WorldState> {
         } else if (normalizedChannel === 'world') {
           canReceive = true;
         } else if (normalizedChannel === 'local') {
+          const localRadius = serverConfigManager.getConfig().localChatRadius || LOCAL_CHAT_RADIUS;
           canReceive =
             player.posZ === recipient.posZ &&
-            (isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, LOCAL_CHAT_RADIUS) ||
+            (isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, localRadius) ||
              isInViewport(player.posX, player.posY, recipient.posX, recipient.posY));
         } else if (normalizedChannel === 'yell') {
-          canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, YELL_CHAT_RADIUS);
+          const yellRadius = serverConfigManager.getConfig().yellChatRadius || YELL_CHAT_RADIUS;
+          canReceive = isWithinDistance(player.posX, player.posY, recipient.posX, recipient.posY, yellRadius);
         } else {
           canReceive = true;
         }
@@ -801,7 +811,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       'carrion-worm': 70,
     };
 
-    const xpGain = baseExperienceMap[monster.monsterTypeId] ?? (monster.monsterTypeId === 'rotworm' ? 40 : 5);
+    const baseExp = baseExperienceMap[monster.monsterTypeId] ?? (monster.monsterTypeId === 'rotworm' ? 40 : 5);
+    const expRate = serverConfigManager.getConfig().expRate ?? 1.0;
+    const xpGain = Math.max(1, Math.round(baseExp * expRate));
 
     if (xpGain > 0) {
       if (!killer.experience || killer.experience < experienceForLevel(killer.level)) {
@@ -835,7 +847,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
 
       if (this.state.serverTick % 3 === 0 && player.mp < player.maxMp) {
-        player.mp = Math.min(player.maxMp, player.mp + 1);
+        const regenRate = serverConfigManager.getConfig().regenRate ?? 1.0;
+        const regenAmount = Math.max(1, Math.round(1 * regenRate));
+        player.mp = Math.min(player.maxMp, player.mp + regenAmount);
       }
 
       if (player.targetId && now - player.lastAttackTime >= player.attackCooldownMs) {
