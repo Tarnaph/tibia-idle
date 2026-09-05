@@ -342,7 +342,10 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
 
     // Player reconnects to the new room server instance after crash
     const mockClient: any = { sessionId: 'session-player-reconnect', send: () => {} };
-    await room2.onJoin(mockClient, { characterId: char.id });
+    await room2.onJoin(mockClient, {
+      characterId: char.id,
+      mockCharacter: { id: char.id, accountId: acc.account.id, name: char.name, vocationId: 2, level: 35 },
+    });
 
     const reconnectedPlayer = room2.state.players.get('session-player-reconnect');
     expect(reconnectedPlayer).toBeDefined();
