@@ -50,6 +50,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     serverConfigManager.onChange((newConfig) => {
       this.maxClients = newConfig.maxClientsPerRoom;
       persistenceManager.startPeriodicSave(() => this.state.players.values(), newConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
+      this.broadcast('server:config', newConfig);
     });
 
     // Initial server-side monster spawns
@@ -493,6 +494,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     this.state.players.set(client.sessionId, player);
+    client.send('server:config', serverConfigManager.getConfig());
   }
 
   async onLeave(client: Client, code?: number | boolean) {

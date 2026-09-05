@@ -21,6 +21,7 @@ import {
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
 } from '@/packages/domain/src';
+import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
 import { BottomDock } from './BottomDock';
 import { EquipmentPanel, type StatsDelta } from './EquipmentPanel';
@@ -435,6 +436,21 @@ function GamePrototypeContent() {
     };
   }, [multiplayerParty, content]);
   prepareHuntCharactersRef.current = prepareHuntCharacters;
+
+  useEffect(() => {
+    const syncServerRates = async () => {
+      try {
+        const res = await fetch('/api/config');
+        const data = (await res.json()) as any;
+        if (data.success && data.config) {
+          serverConfigManager.updateConfig(data.config);
+        }
+      } catch {}
+    };
+    void syncServerRates();
+    const timer = setInterval(syncServerRates, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const unsub = gameNetwork.onStateChange((players) => {

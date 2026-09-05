@@ -1,5 +1,6 @@
 import type { Room } from 'colyseus.js';
 import { joinGameRoom } from './colyseusClient';
+import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
 
 export interface RemotePlayerSnapshot {
   id: string;
@@ -250,6 +251,12 @@ export class GameClientNetworkManager {
     };
     this.room.onMessage('chat', onChat);
     this.room.onMessage('chat_message', onChat);
+
+    this.room.onMessage('server:config', (config: any) => {
+      if (config) {
+        serverConfigManager.updateConfig(config);
+      }
+    });
 
     // Party multiplayer event listeners
     this.room.onMessage('party:invitationReceived', (data: PartyInvitation) => {
