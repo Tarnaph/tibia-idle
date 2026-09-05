@@ -4,14 +4,16 @@ import { verifyAuthToken, TokenPayload } from './jwt';
 export type ProtectedArea = 'game' | 'admin';
 export type AccessDecision = 'allow' | 'login-required' | 'forbidden';
 
-export function decideAccess(area: ProtectedArea, viewer: Pick<AuthViewer, 'role'> | null): AccessDecision {
+export function decideAccess(area: ProtectedArea, viewer: { role?: AccountRole | string | null } | null): AccessDecision {
   if (!viewer) return 'login-required';
-  if (area === 'admin' && viewer.role !== 'admin') return 'forbidden';
+  const roleUpper = String(viewer.role || '').toUpperCase();
+  if (area === 'admin' && roleUpper !== 'ADMIN' && roleUpper !== 'GM') return 'forbidden';
   return 'allow';
 }
 
-export function canManageUpdates(role: AccountRole | null): boolean {
-  return role === 'admin';
+export function canManageUpdates(role: AccountRole | string | null): boolean {
+  const roleUpper = String(role || '').toUpperCase();
+  return roleUpper === 'ADMIN' || roleUpper === 'GM';
 }
 
 export function visiblePublicUpdates(updates: readonly GameUpdateRow[]): GameUpdateRow[] {
@@ -27,7 +29,8 @@ export function requireAdminAuth(request: Request): TokenPayload {
   }
   const token = authHeader.replace('Bearer ', '');
   const decoded = verifyAuthToken(token);
-  if (decoded.role !== 'admin' && (decoded.role as string) !== 'ADMIN') {
+  const roleUpper = String(decoded.role || '').toUpperCase();
+  if (roleUpper !== 'ADMIN' && roleUpper !== 'GM') {
     throw new Error('FORBIDDEN');
   }
   return decoded;

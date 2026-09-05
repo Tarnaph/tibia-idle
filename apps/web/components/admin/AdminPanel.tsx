@@ -239,6 +239,30 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
     return matchesSearch && matchesVoc;
   });
 
+  const roleUpper = (auth.viewer?.role || '').toUpperCase();
+  const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
+
+  if (auth.status === 'authenticated' && !isAdminOrGm) {
+    return (
+      <main className="admin-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0a0d14', color: '#f0d080' }}>
+        <div style={{ background: '#171b26', border: '1px solid #c0392b', padding: '32px', borderRadius: '8px', textAlign: 'center', maxWidth: '480px' }}>
+          <h2 style={{ fontSize: '24px', color: '#e74c3c', marginBottom: '16px' }}>⚠️ Acesso Negado</h2>
+          <p style={{ color: '#ccc', marginBottom: '24px' }}>
+            Esta área é restrita a administradores. Sua conta (<strong>{auth.viewer?.displayName}</strong>) possui permissão de nível <code>{auth.viewer?.role}</code>.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <Link href="/game" style={{ background: '#f0d080', color: '#000', padding: '10px 20px', borderRadius: '4px', fontWeight: 'bold', textDecoration: 'none' }}>
+              Voltar ao Jogo
+            </Link>
+            <Link href="/" style={{ background: '#2c3e50', color: '#fff', padding: '10px 20px', borderRadius: '4px', textDecoration: 'none' }}>
+              Página Inicial
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="admin-shell">
       <header className="admin-header">

@@ -113,7 +113,7 @@ export function LandingPage({
               <Link className="header-play diablo-cta-btn" href="/game">
                 <span>JOGAR AGORA</span>
               </Link>
-              {auth.viewer.role === 'admin' && (
+              {(auth.viewer.role?.toUpperCase() === 'ADMIN' || auth.viewer.role?.toUpperCase() === 'GM') && (
                 <Link className="admin-link diablo-admin-link" href="/admin">
                   ADMIN
                 </Link>

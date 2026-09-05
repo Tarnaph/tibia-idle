@@ -9,6 +9,7 @@ interface WindowDockBarProps {
   characterName?: string;
   onlinePlayersCount?: number;
   debug: boolean;
+  isAdmin?: boolean;
   onToggleDebug: () => void;
   onSelectHunt: () => void;
   onOpenSkills: () => void;
@@ -22,6 +23,7 @@ export function WindowDockBar({
   characterName = 'Hero',
   onlinePlayersCount = 13315,
   debug,
+  isAdmin = false,
   onToggleDebug,
   onSelectHunt,
   onOpenSkills,
@@ -178,6 +180,17 @@ export function WindowDockBar({
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
           </svg>
         </button>
+
+        {isAdmin && (
+          <a
+            href="/admin"
+            className="huntera-square-btn"
+            title="Painel de Administração (/admin)"
+            style={{ borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+          >
+            🛡️
+          </a>
+        )}
 
         <button
           type="button"

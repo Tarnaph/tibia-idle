@@ -6,10 +6,10 @@ status: complete
 last_updated: "2026-09-05T15:58:00.000Z"
 last_activity: "2026-09-05 — Concluída Phase 64: Unificação da Engine Server-Side, Persistência Relacional Completa, Validação de Posse de Personagem e Progressão Offline Real."
 progress:
-  total_phases: 66
-  completed_phases: 66
-  total_plans: 66
-  completed_plans: 66
+  total_phases: 67
+  completed_phases: 67
+  total_plans: 67
+  completed_plans: 67
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 66 concluída com sucesso.
+**Current focus:** Phase 67 concluída com sucesso.
 
 ## Current Position
 
-Phase: 66 of 66 (Experiência Autêntica de Monstros e Progressão de Nível)  
+Phase: 67 of 67 (Restrição Estrita de Acesso ao Painel /admin e Botões da UI)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 66.
+Last activity: 2026-09-05 — Concluída Phase 67.
 
 Progress: [██████████] 100%
 

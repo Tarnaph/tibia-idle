@@ -53,6 +53,7 @@ import { PartyInvitationModal } from './party/PartyInvitationModal';
 import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
+import { useAuth } from '../auth/AuthProvider';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
 const thaisTilesZ7 = thaisCityJson.tiles;
@@ -181,8 +182,11 @@ function GamePrototypeContent() {
   } | null>(null);
   const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
+  const auth = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(true);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
+  const roleUpper = ((auth.viewer?.role || onlineAccount?.role) || '').toUpperCase();
+  const isAdmin = roleUpper === 'ADMIN' || roleUpper === 'GM';
   const [onlineCharacter, setOnlineCharacter] = useState<CharacterItem | null>(null);
   const [isConnectedServer, setIsConnectedServer] = useState(false);
   const [remotePlayers, setRemotePlayers] = useState<Map<string, RemotePlayerSnapshot>>(new Map());
@@ -1507,9 +1511,10 @@ function GamePrototypeContent() {
       {/* Top HUD Dock Bar */}
       <WindowDockBar
         gold={game.session.gold}
-        accountUsername="ADMIN"
+        accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
         characterName={activeCharacter.name}
         debug={debugGrid}
+        isAdmin={isAdmin}
         onToggleDebug={() => setDebugGrid((value) => !value)}
         onSelectHunt={() => setHuntSelectorOpen(true)}
         onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
