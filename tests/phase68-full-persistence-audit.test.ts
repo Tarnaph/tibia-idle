@@ -479,4 +479,52 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     expect(mockUserChar.equipment.armor).toBe(2463);
     expect(mockUserChar.inventory.equipmentIds).toContain(2493);
   });
+
+  it('Requirement 7: Persists items placed in the Bag (Bolsa) across logout and login sessions', async () => {
+    const acc = await accountService.register({ email: 'bolsa.hero@tibia.test', password: 'password123!' });
+    const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Bolsa Holder', vocationId: 3 });
+
+    // Client saves payload containing items in Bag (slot: 'bag_0', 'bag_1')
+    const bagPayload = {
+      level: char.level,
+      experience: BigInt(char.experience),
+      health: char.health,
+      maxHealth: char.maxHealth,
+      mana: char.mana,
+      maxMana: char.maxMana,
+      posX: 32369,
+      posY: 32241,
+      posZ: 7,
+      inventory: [
+        { slot: 'bag_0', serverId: 2671, name: 'Dragon Ham', count: 10 },
+        { slot: 'bag_1', serverId: 2493, name: 'Demon Helmet', count: 1 },
+      ],
+    };
+
+    await characterService.saveCharacterProgress(char.id, bagPayload);
+
+    const loadedChar = await characterService.getCharacterById(char.id);
+    expect(loadedChar).not.toBeNull();
+    expect(loadedChar?.inventory).toHaveLength(2);
+
+    // Simulate handleSelectCharacter hydration logic for Bag items
+    const loadedBag: Array<{ itemId?: number; name: string; amount: number }> = [];
+    const dbInventory = loadedChar?.inventory || [];
+
+    dbInventory.forEach((item: any) => {
+      if (item.slot.startsWith('bag_') || item.slot.startsWith('backpack_bag_')) {
+        loadedBag.push({
+          itemId: item.serverId,
+          name: item.name,
+          amount: item.count,
+        });
+      }
+    });
+
+    expect(loadedBag).toHaveLength(2);
+    expect(loadedBag[0].name).toBe('Dragon Ham');
+    expect(loadedBag[0].amount).toBe(10);
+    expect(loadedBag[1].name).toBe('Demon Helmet');
+    expect(loadedBag[1].amount).toBe(1);
+  });
 });

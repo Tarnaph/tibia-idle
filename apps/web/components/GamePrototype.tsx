@@ -650,9 +650,10 @@ function GamePrototypeContent() {
     if (charItem.mana) userChar.currentMana = charItem.mana;
     if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
 
-    // Hydrate skills, gold, loot, and inventory items from DB if available
+    // Hydrate skills, gold, loot, bag, and inventory items from DB if available
     let loadedGold = 0;
     const loadedLoot: Array<{ itemId?: number; name: string; amount: number }> = [];
+    const loadedBag: Array<{ itemId?: number; name: string; amount: number }> = [];
     const dbInventory = (charItem as any).inventory;
 
     if (Array.isArray((charItem as any).skills)) {
@@ -697,15 +698,35 @@ function GamePrototypeContent() {
             if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
               userChar.inventory.equipmentIds.push(item.serverId);
             }
-          } else if (item.slot.startsWith('backpack_loot_') || (!findEquipment(content.equipment, item.serverId) && item.serverId !== 2148 && item.serverId !== 2152)) {
+          } else if (item.slot.startsWith('bag_') || item.slot.startsWith('backpack_bag_')) {
+            loadedBag.push({
+              itemId: item.serverId,
+              name: item.name,
+              amount: item.count,
+            });
+            if (findEquipment(content.equipment, item.serverId) && !userChar.inventory.equipmentIds.includes(item.serverId)) {
+              userChar.inventory.equipmentIds.push(item.serverId);
+            }
+          } else if (item.slot.startsWith('backpack_loot_') || item.slot.startsWith('loot_')) {
             loadedLoot.push({
               itemId: item.serverId,
               name: item.name,
               amount: item.count,
             });
-          } else if (item.serverId) {
-            if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
+            if (findEquipment(content.equipment, item.serverId) && !userChar.inventory.equipmentIds.includes(item.serverId)) {
               userChar.inventory.equipmentIds.push(item.serverId);
+            }
+          } else if (item.serverId) {
+            if (findEquipment(content.equipment, item.serverId)) {
+              if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
+                userChar.inventory.equipmentIds.push(item.serverId);
+              }
+            } else {
+              loadedLoot.push({
+                itemId: item.serverId,
+                name: item.name,
+                amount: item.count,
+              });
             }
           }
         });
@@ -754,7 +775,8 @@ function GamePrototypeContent() {
           cameraTargetCharacterId: userChar.id,
           characters: [userChar],
           gold: Array.isArray(dbInventory) ? loadedGold : cur.session.gold,
-          loot: loadedLoot.length > 0 ? loadedLoot : cur.session.loot,
+          loot: Array.isArray(dbInventory) ? loadedLoot : cur.session.loot,
+          bag: Array.isArray(dbInventory) ? loadedBag : cur.session.bag,
         },
       };
     });
@@ -792,6 +814,7 @@ function GamePrototypeContent() {
     const saveProgress = async () => {
       try {
         const inventoryPayload: Array<{ slot: string; serverId: number; name: string; count: number }> = [];
+        const savedServerIds = new Set<number>();
 
         // 1. Equipped Items
         const slots: CharacterEquipmentSlot[] = ['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'];
@@ -805,23 +828,11 @@ function GamePrototypeContent() {
               name: eqDef?.name || 'Equipment',
               count: 1,
             });
+            savedServerIds.add(itemId);
           }
         });
 
-        // 2. Backpack Equipment (owned equipment not equipped in a slot)
-        const equippedSet = new Set(Object.values(activeCharacter.equipment).filter(Boolean));
-        const backpackEquipIds = activeCharacter.inventory.equipmentIds.filter((id) => !equippedSet.has(id));
-        backpackEquipIds.forEach((itemId, idx) => {
-          const eqDef = findEquipment(content.equipment, itemId);
-          inventoryPayload.push({
-            slot: `backpack_${idx}`,
-            serverId: itemId,
-            name: eqDef?.name || 'Item',
-            count: 1,
-          });
-        });
-
-        // 3. Gold Coins
+        // 2. Gold Coins
         if (game.session.gold > 0) {
           inventoryPayload.push({
             slot: 'gold',
@@ -831,7 +842,20 @@ function GamePrototypeContent() {
           });
         }
 
-        // 4. Loot Stacks
+        // 3. Bag / Bolsa Items
+        if (game.session.bag && game.session.bag.length > 0) {
+          game.session.bag.forEach((stack, idx) => {
+            inventoryPayload.push({
+              slot: `bag_${idx}`,
+              serverId: stack.itemId || 2148,
+              name: stack.name,
+              count: stack.amount,
+            });
+            if (stack.itemId) savedServerIds.add(stack.itemId);
+          });
+        }
+
+        // 4. Loot / Mochila Items
         if (game.session.loot && game.session.loot.length > 0) {
           game.session.loot.forEach((stack, idx) => {
             inventoryPayload.push({
@@ -840,8 +864,21 @@ function GamePrototypeContent() {
               name: stack.name,
               count: stack.amount,
             });
+            if (stack.itemId) savedServerIds.add(stack.itemId);
           });
         }
+
+        // 5. Additional Owned Equipment (if any equipment ID in equipmentIds not yet saved)
+        const unequippedIds = activeCharacter.inventory.equipmentIds.filter((id) => !savedServerIds.has(id));
+        unequippedIds.forEach((itemId, idx) => {
+          const eqDef = findEquipment(content.equipment, itemId);
+          inventoryPayload.push({
+            slot: `backpack_${idx}`,
+            serverId: itemId,
+            name: eqDef?.name || 'Item',
+            count: 1,
+          });
+        });
 
         await fetch(`/api/characters/${activeCharacter.id}/save`, {
           method: 'POST',
@@ -877,7 +914,7 @@ function GamePrototypeContent() {
       window.removeEventListener('beforeunload', handleUnload);
       void saveProgress();
     };
-  }, [activeCharacter, cityPos, game.session.gold, game.session.loot, content.equipment]);
+  }, [activeCharacter, cityPos, game.session.gold, game.session.loot, game.session.bag, content.equipment]);
 
   const mountBonus = activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none' ? 20 : 0;
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus;
