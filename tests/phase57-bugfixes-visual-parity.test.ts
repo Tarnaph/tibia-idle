@@ -204,4 +204,14 @@ describe('Phase 57: Bug Fixes & Visual Parity (Offensive Exhaust, Wand VFX, Part
     expect(huntModalSrc).toContain('LÍDER');
     expect(huntModalSrc).toContain('Esperando os outros...');
   });
+
+  it('guarantees secondary party members in multiplayer hunt strictly focus the leader target', async () => {
+    const movementSrc = readFileSync(resolve(projectRoot, 'packages/domain/src/spatial/movement.ts'), 'utf8');
+    const combatSrc = readFileSync(resolve(projectRoot, 'packages/domain/src/combat.ts'), 'utf8');
+
+    // Verification that isMultiplayerParty guards strict leader target following
+    expect(movementSrc).toContain('encounter.isMultiplayerParty && actor.characterId !== mainActor?.characterId');
+    expect(combatSrc).toContain('encounter.isMultiplayerParty && !isLeader');
+    expect(combatSrc).toContain('isMultiplayerParty: Boolean(session.isMultiplayerParty)');
+  });
 });

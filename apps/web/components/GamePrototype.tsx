@@ -465,6 +465,7 @@ function GamePrototypeContent() {
       session: {
         ...cur.session,
         characters: updatedChars,
+        isMultiplayerParty: true,
       },
     };
   }, [multiplayerParty, content]);
@@ -1473,7 +1474,7 @@ function GamePrototypeContent() {
     <main className="mmorpg-client fullscreen-mode">
       {/* Background 100% Fullscreen Viewport */}
       <div className="fullscreen-viewport">
-        <div style={{ display: mode === 'hunt' ? 'block' : 'none', width: '100%', height: '100%' }}>
+        <div style={{ display: mode === 'hunt' ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
           <PixiArena
             game={game}
             debug={debugGrid}
@@ -1487,7 +1488,7 @@ function GamePrototypeContent() {
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
           />
         </div>
-        <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%' }}>
+        <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
           <ThaisCityArena
             characters={game.session.characters}
             cityPos={cityPos}

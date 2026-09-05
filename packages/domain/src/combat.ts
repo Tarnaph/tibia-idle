@@ -93,6 +93,7 @@ function createEncounter(seed: string, session: SessionState, content: GameConte
       lastActivityAt: 0, stalledSince: null,
       zones: huntRoute.respawnZones.map((zone) => ({ zoneId: zone.id, activeEnemyIds: [], lastActivatedAt: null, lastClearedAt: null, nextRespawnAt: 0, activationCount: 0 })),
     } : null,
+    isMultiplayerParty: Boolean(session.isMultiplayerParty),
   };
 }
 
@@ -312,6 +313,19 @@ function defeatEnemy(state: GameState, target: EnemyState, content: GameContent)
     encounter.continuousProgress.kills += 1;
     if (target.variant?.visualModifier === 'rare-aura') encounter.continuousProgress.rareKills += 1;
   }
+  // Clear target for all party actors and session characters targeting this enemy
+  for (const actor of encounter.partyActors) {
+    if (actor.targetId === target.id) {
+      actor.targetId = null;
+      actor.path = [];
+      if (actor.pendingAttack?.targetId === target.id) actor.pendingAttack = null;
+    }
+  }
+  for (const char of state.session.characters) {
+    if (char.combatState.targetId === target.id) {
+      char.combatState.targetId = null;
+    }
+  }
   synchronizeEncounterOccupancy(encounter);
 }
 
@@ -380,7 +394,11 @@ function formatSpellWords(words: string): string {
 
 function castAutomaticSpells(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
+  const leaderActor = encounter.partyActors.find((a) => a.alive && (a.characterId === state.session.leaderId || a.characterId === state.session.selectedCharacterId)) ?? encounter.partyActors.find((a) => a.alive);
+
   for (const actor of encounter.partyActors.filter((candidate) => candidate.alive)) {
+    const isLeader = actor.characterId === leaderActor?.characterId;
+    const leaderTarget = leaderActor?.targetId ? encounter.enemies.find((e) => e.id === leaderActor.targetId && e.alive) : null;
     const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
     const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
     const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
@@ -454,10 +472,16 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
 
       // 2. RUNES AUTO-TRIGGER
       if (action.kind === 'rune' && !usedOffensiveActionThisTick) {
+        // Strict Party Target Logic: In multiplayer party, secondary members only attack leader's target
+        if (encounter.isMultiplayerParty && !isLeader && !leaderTarget) continue;
         const rune = action.rune;
         const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns['attack'] ?? 0) <= encounter.elapsedMs;
         if (runeReady) {
-          const inRange = encounter.enemies
+          const eligibleEnemies = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
+            ? [leaderTarget]
+            : encounter.enemies.filter((enemy) => enemy.alive);
+
+          const inRange = eligibleEnemies
             .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
             .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
 
@@ -483,6 +507,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
             encounter.rngState = rng.state;
             actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
             actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
+            actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
             for (const target of targets) {
               const damage = resistedDamage(rawDamage, target, rune.combatType, content);
@@ -504,11 +529,13 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
         const spell = action.spell;
         const isOffensive = spell.group === 'attack';
         if (isOffensive && usedOffensiveActionThisTick) continue;
+        // Strict Party Target Logic: In multiplayer party, secondary members only attack leader's target
+        if (encounter.isMultiplayerParty && isOffensive && !isLeader && !leaderTarget) continue;
 
         const spellReady = actor.mana >= spell.mana &&
           (actor.spellCooldowns[String(spell.spellId)] ?? 0) <= encounter.elapsedMs &&
           (actor.groupCooldowns[spell.group] ?? 0) <= encounter.elapsedMs &&
-          (!isOffensive || (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs);
+          (!isOffensive || ((actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns['attack'] ?? 0) <= encounter.elapsedMs));
 
         if (spellReady) {
           let targetActor: PartyActorState | undefined;
@@ -537,8 +564,11 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
               continue;
             }
           } else {
+            const eligibleEnemies = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
+              ? [leaderTarget]
+              : encounter.enemies.filter((enemy) => enemy.alive);
             const range = spell.area === 'wave-4' ? 4 : Math.max(1, spell.range);
-            const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
+            const inRange = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
               .sort((left, right) => {
                 const isLeftTarget = left.id === actor.targetId;
                 const isRightTarget = right.id === actor.targetId;
@@ -557,7 +587,9 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
           actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
           actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
           if (isOffensive) {
+            actor.groupCooldowns['attack'] = encounter.elapsedMs + spell.groupCooldownMs;
             actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;
+            actor.nextAttackAt = encounter.elapsedMs + spell.groupCooldownMs;
             usedOffensiveActionThisTick = true;
           }
 
@@ -718,6 +750,7 @@ export function triggerManualHotbarAction(
     encounter.rngState = rng.state;
     actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
     actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
+    actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
     for (const target of targets) {
       const damage = resistedDamage(rawDamage, target, rune.combatType, content);
@@ -748,7 +781,11 @@ export function triggerManualHotbarAction(
   actor.mana -= spell.mana;
   actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
   actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
-  if (isOffensive) actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;
+  if (isOffensive) {
+    actor.groupCooldowns['attack'] = encounter.elapsedMs + spell.groupCooldownMs;
+    actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;
+    actor.nextAttackAt = encounter.elapsedMs + spell.groupCooldownMs;
+  }
 
   const spellSpeech = formatSpellWords(spell.words);
   const projectileId = spell.visual.projectileId === 'weapon-type' ? resolveWeaponProjectile(character, content) : spell.visual.projectileId;
@@ -828,6 +865,8 @@ export function triggerManualHotbarAction(
 
 function playerAttacks(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
+  const leaderActor = encounter.partyActors.find((a) => a.alive && (a.characterId === state.session.leaderId || a.characterId === state.session.selectedCharacterId)) ?? encounter.partyActors.find((a) => a.alive);
+
   for (const actor of encounter.partyActors.filter((candidate) => candidate.alive)) {
     if (actor.pendingAttack && encounter.elapsedMs >= actor.pendingAttack.impactAt) {
       const pending = actor.pendingAttack; actor.pendingAttack = null;
@@ -868,7 +907,22 @@ function playerAttacks(state: GameState, content: GameContent): void {
       }
     }
     if (actor.pendingAttack) continue;
-    if (encounter.elapsedMs < actor.nextAttackAt) continue;
+    if (encounter.elapsedMs < actor.nextAttackAt || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs) continue;
+
+    const isLeader = actor.characterId === leaderActor?.characterId;
+    const leaderTarget = leaderActor?.targetId ? encounter.enemies.find((e) => e.id === leaderActor.targetId && e.alive) : null;
+
+    // Strict Party Target Logic:
+    // In multiplayer party with friends, secondary members MUST ONLY attack the leader's target!
+    // If the leader has no target or the leader's target is dead, the secondary member waits!
+    if (encounter.isMultiplayerParty && !isLeader) {
+      if (!leaderTarget) {
+        actor.targetId = null;
+        continue;
+      }
+      actor.targetId = leaderTarget.id;
+    }
+
     const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
     const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
     if (stats.attack <= 0) continue;
@@ -876,12 +930,19 @@ function playerAttacks(state: GameState, content: GameContent): void {
     const stanceMultiplier = stance === 'offensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
     const effectiveAttack = Math.max(1, Math.round(stats.attack * stanceMultiplier));
     const range = attackRange(character.id, state, content);
-    const lockedTarget = encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive);
-    let target = lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range ? lockedTarget : undefined;
-    if (!target) {
-      target = encounter.enemies.find((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
-      if (target && !lockedTarget) actor.targetId = target.id;
+
+    let target: EnemyState | undefined;
+    if (encounter.isMultiplayerParty && !isLeader && leaderTarget) {
+      target = meleeDistance(actor.position, leaderTarget.position) <= range ? leaderTarget : undefined;
+    } else {
+      const lockedTarget = encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive);
+      target = lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range ? lockedTarget : undefined;
+      if (!target) {
+        target = encounter.enemies.find((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
+        if (target && !lockedTarget) actor.targetId = target.id;
+      }
     }
+
     if (!target) continue;
     const ranged = range > 1;
     actor.pendingAttack = { targetId: target.id, impactAt: encounter.elapsedMs + 180, attack: effectiveAttack, weaponName: stats.weaponName, activeSkill: stats.activeSkill, activeSkillLevel: stats.activeSkillLevel, ranged };
@@ -901,6 +962,8 @@ function playerAttacks(state: GameState, content: GameContent): void {
       encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId });
     }
     actor.nextAttackAt = encounter.elapsedMs + actor.attackIntervalMs;
+    actor.groupCooldowns['attack'] = encounter.elapsedMs + actor.attackIntervalMs;
+    actor.groupCooldowns['rune'] = encounter.elapsedMs + actor.attackIntervalMs;
   }
 }
 

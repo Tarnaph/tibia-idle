@@ -219,6 +219,7 @@ export interface SessionState {
   selectedCharacterId: string;
   cameraTargetCharacterId: string;
   characters: CharacterState[];
+  isMultiplayerParty?: boolean;
   loot: LootStack[]; // Mochila (retrocompatibilidade)
   bag?: LootStack[];  // Bolsa (12 slots seguros)
   depot?: LootStack[]; // Armazém DP
@@ -324,6 +325,7 @@ export interface HuntEncounterState {
   expeditionProgress: ExpeditionProgress | null;
   huntRoute: HuntRoute | null;
   continuousProgress: ContinuousHuntProgress | null;
+  isMultiplayerParty?: boolean;
 }
 
 export interface GameState { session: SessionState; encounter: HuntEncounterState }

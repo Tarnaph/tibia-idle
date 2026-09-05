@@ -103,6 +103,9 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
     if (!appRef.current) return;
     if (active) {
       if (!appRef.current.ticker.started) appRef.current.ticker.start();
+      try {
+        appRef.current.resize();
+      } catch {}
     } else {
       if (appRef.current.ticker.started) appRef.current.ticker.stop();
     }
@@ -115,10 +118,15 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       const pixi = await import('pixi.js');
       const { Application, Assets, Container, Graphics, Sprite, Text, Texture } = pixi;
       const app = new Application();
-      await app.init({ resizeTo: hostRef.current ?? undefined, antialias: false, background: 0x080a0b, resolution: Math.min(2, window.devicePixelRatio), autoDensity: true, roundPixels: true });
+      await app.init({ resizeTo: hostRef.current ?? window, antialias: false, background: 0x080a0b, resolution: Math.min(2, window.devicePixelRatio), autoDensity: true, roundPixels: true });
       if (disposed || !hostRef.current) { app.destroy(true, { children: true }); return; }
       
       appRef.current = app;
+      app.canvas.style.width = '100%';
+      app.canvas.style.height = '100%';
+      app.canvas.style.display = 'block';
+      app.canvas.style.position = 'absolute';
+      app.canvas.style.inset = '0';
       hostRef.current.appendChild(app.canvas);
       app.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
       app.canvas.addEventListener('webglcontextlost', (e) => {
@@ -612,13 +620,40 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       };
       app.ticker.add(render);
       syncRef.current = sync; sync(latestRef.current.game, latestRef.current.debug);
-      const onResize = () => { cameraInitialized = false; sync(latestRef.current.game, latestRef.current.debug); };
+      const onResize = () => {
+        try {
+          app.resize();
+        } catch {}
+        cameraInitialized = false;
+        sync(latestRef.current.game, latestRef.current.debug);
+      };
       window.addEventListener('resize', onResize);
-      cleanup = () => { window.removeEventListener('resize', onResize); app.ticker.remove(render); app.destroy(true, { children: true }); };
+
+      let resizeObserver: ResizeObserver | null = null;
+      if (typeof ResizeObserver !== 'undefined' && hostRef.current) {
+        resizeObserver = new ResizeObserver(() => {
+          onResize();
+        });
+        resizeObserver.observe(hostRef.current);
+      }
+
+      cleanup = () => {
+        if (resizeObserver) resizeObserver.disconnect();
+        window.removeEventListener('resize', onResize);
+        app.ticker.remove(render);
+        app.destroy(true, { children: true });
+      };
     })();
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };
   }, []);
 
   useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu]);
-  return <div ref={hostRef} className="pixi-arena" aria-label="Arena OTBM 2D com movimento interpolado, spells, party, monstros e corpses reais" />;
+  return (
+    <div
+      ref={hostRef}
+      className="pixi-arena"
+      style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, overflow: 'hidden' }}
+      aria-label="Arena OTBM 2D com movimento interpolado, spells, party, monstros e corpses reais"
+    />
+  );
 }

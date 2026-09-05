@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-05T06:17:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 57: Correções Críticas de Combate/Rede (Teletransporte Templo, Dano Duplicado, VFX Wands) e Fidelidade Visual Imagens 1-5."
+last_updated: "2026-09-05T06:45:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 58: Viewport Fullscreen de Caçada, Ataque Único sem Duplicação e Lógica Estrita de Party Target."
 progress:
-  total_phases: 57
-  completed_phases: 57
-  total_plans: 57
-  completed_plans: 57
+  total_phases: 58
+  completed_phases: 58
+  total_plans: 58
+  completed_plans: 58
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 57 concluída (Correções Críticas de Combate/Rede e Fidelidade Visual Imagens 1-5).
+**Current focus:** Fase 58 Concluída com Sucesso (58/58 suítes de teste passando, 332 testes).
 
 ## Current Position
 
-Phase: 57 of 57 (Correções Críticas de Combate/Rede e Fidelidade Visual)  
+Phase: 58 of 58 (Correção da Tela de Hunt, Ataque Único e Lógica de Party Target)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 57: Correções Críticas de Combate/Rede e Fidelidade Visual.
+Last activity: 2026-09-05 — Concluída Phase 58.
 
 Progress: [██████████] 100%
 

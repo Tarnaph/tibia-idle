@@ -884,6 +884,33 @@ Plans:
 Plans:
 - [x] 57-01-PLAN: Correções Críticas de Combate/Rede e Fidelidade Visual Concluída.
 
+---
+
+### Phase 58: Correção da Tela de Hunt (Fullscreen/Viewport), Ataque Único sem Duplicação e Lógica Estrita de Party Target
+
+**Goal:** Eliminar a área preta da tela de hunt expandindo o PixiArena para 100% da tela com ResizeObserver e app.resize(); remover a duplicação de ataques compartilhando a cadência entre ataques básicos e magias ofensivas; e implementar a regra estrita de party onde todos os membros atacam unicamente o mesmo alvo do líder e aguardam o líder alvejar o próximo inimigo quando o atual morre.  
+**Depends on:** Phase 57  
+**Requirements:**
+1. **Correção do Viewport de Caçada (Fim da Área Preta):**
+   - Garantir que `.fullscreen-viewport`, `.pixi-arena` e o canvas do Pixi ocupem 100% da largura e altura da tela (`position: absolute; inset: 0; width: 100%; height: 100%`).
+   - Disparar `app.resize()` e reset de câmera ao alternar para o modo hunt (`active = true`) e escutar redimensionamento via `ResizeObserver` no `hostRef.current`.
+2. **Eliminação Definitiva de Ataques Duplicados (Cadência Única de 2s):**
+   - Unificar o cooldown ofensivo entre ataques básicos (varinha/arma) e magias/runas ofensivas. Quando um ataque básico é disparado, consome o cooldown de ataque e runa (`2000ms`); quando uma magia ofensiva é lançada, consome `nextAttackAt` e o cooldown de ataque.
+   - Cada personagem realiza no máximo 1 ataque por intervalo de 2 segundos, eliminando múltiplos golpes simultâneos.
+3. **Lógica Estrita de Target de Party (Mirror do Líder e Espera na Morte):**
+   - Somente o líder da party pode selecionar e engajar novos alvos.
+   - Todos os membros da party atacam unicamente o mesmo monstro que o líder estiver atacando (`leaderTarget`).
+   - Membros secundários nunca selecionam alvos aleatórios por conta própria; se o líder não tiver alvo ou o monstro morrer (`defeatEnemy`), todos limpam o `targetId` e aguardam o líder atacar outro monstro.
+**Success Criteria:**
+1. Tela de caçada preenche 100% da tela sem bordas ou áreas pretas.
+2. Personagens não disparam ataques duplicados (magia + wand no mesmo tick).
+3. Membros da party atacam apenas o monstro do líder e param/aguardam quando ele morre.
+4. 0 erros de TypeScript (`npm run typecheck`) e 100% dos testes passando (`npm test`).
+
+Plans:
+- [x] 58-01-PLAN: Correção de Viewport, Ataque Único e Lógica Estrita de Party Target Concluída.
+
+
 
 
 

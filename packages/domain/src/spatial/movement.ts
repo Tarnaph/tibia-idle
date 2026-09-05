@@ -140,16 +140,47 @@ export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Ma
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
     const range = ranges.get(actor.characterId) ?? 1;
 
-    // Target Focus: If main character is targeting a living enemy, secondary actors mirror that target!
+    // Strict Party Target Logic:
+    // If actor is a secondary member (not main/leader) in a multiplayer party, it ONLY targets the leader's active target.
+    // If the leader has no target or the target is dead, the secondary member waits and follows the leader!
     let selected;
-    if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
-      selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]));
-    }
-    if (!selected) {
-      selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds);
+    if (encounter.isMultiplayerParty && actor.characterId !== mainActor?.characterId) {
+      if (mainTargetEnemy) {
+        actor.targetId = mainTargetEnemy.id;
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]));
+      } else {
+        // Leader has no active target: secondary actor waits and follows leader
+        actor.targetId = null;
+        actor.path = [];
+        if (mainActor && meleeDistance(actor.position, mainActor.position) > 1) {
+          const blocked = new Set([...occupied, ...reserved]);
+          blocked.delete(positionKey(actor.position));
+          blocked.delete(positionKey(mainActor.position));
+          const path = findPath(encounter.room.map, actor.position, surroundingPositions(mainActor.position).filter((p) => isTileWalkable(encounter.room.map, p) && !blocked.has(positionKey(p))), blocked);
+          if (path.length > 0) {
+            const next = path[0];
+            if (destinationAvailable(encounter, next, occupied, reserved)) {
+              const from = clonePosition(actor.position);
+              if (commitMovement(encounter, actor.characterId, from, next, occupied, reserved)) {
+                actor.direction = directionBetween(actor.position, next);
+                actor.position = clonePosition(next);
+                actor.nextMoveAt = encounter.elapsedMs + stepDuration(actor.hasteUntil > encounter.elapsedMs ? actor.speed * 1.3 : actor.speed);
+              }
+            }
+          }
+        }
+        continue;
+      }
+    } else {
+      if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]));
+      }
+      if (!selected) {
+        selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds);
+      }
+      actor.targetId = selected?.enemy.id ?? null;
     }
 
-    actor.targetId = selected?.enemy.id ?? null;
     actor.path = selected?.path.map(clonePosition) ?? [];
     if (!selected || selected.alreadyInRange) continue;
     const next = selected.path[0];

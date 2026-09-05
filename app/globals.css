@@ -45,6 +45,30 @@ h1, h2, h3, p { margin: 0; }
     linear-gradient(145deg, #353737, #1c1e1e 45%, #111212);
   background-size: 13px 11px, 17px 19px, auto, auto;
 }
+
+.fullscreen-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.pixi-arena, .thais-city-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden;
+}
+
+.pixi-arena canvas, .thais-city-viewport canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover;
+}
 .development-preview-badge {
   position: fixed;
   z-index: 90;
