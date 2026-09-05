@@ -24,8 +24,11 @@ export class PrismaPersistenceManager {
         where: { id: player.characterId },
         data: {
           level: player.level,
+          experience: typeof player.experience === 'number' && player.experience >= 0 ? BigInt(player.experience) : undefined,
           health: player.hp,
+          maxHealth: player.maxHp,
           mana: player.mp,
+          maxMana: player.maxMp,
           posX: player.posX,
           posY: player.posY,
           posZ: player.posZ,
