@@ -24,20 +24,12 @@ describe('Phase 56: Multiplayer Party System (Invites, Follow Leader, Shared Hun
     room.state.players.set('client-2', player2);
     (room as any).clients = [client1, client2];
 
-    // Player 1 invites Player 2 by name
+    // Player 1 invites Player 2 by name (disabled in Phase 61)
     (room as any).onMessageHandlers['party:invite'](client1, { targetName: 'Druid Friend' });
 
-    // Expect client2 to receive the invitation
-    expect(client2.send).toHaveBeenCalledWith('party:invitationReceived', {
-      inviterSessionId: 'client-1',
-      inviterName: 'Knight Leader',
-      inviterLevel: 80,
-      inviterVocationId: 4,
-    });
-
-    // Expect client1 to receive confirmation
-    expect(client1.send).toHaveBeenCalledWith('party:inviteSent', {
-      targetName: 'Druid Friend',
+    // Expect client1 to receive disabled message
+    expect(client1.send).toHaveBeenCalledWith('party:error', {
+      message: 'O sistema de convites de party entre jogadores reais está temporariamente desativado.',
     });
   });
 
