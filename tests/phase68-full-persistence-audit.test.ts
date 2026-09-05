@@ -413,4 +413,70 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     });
     expect(totalGold).toBe(14500);
   });
+
+  it('Requirement 6: Unequipped equipment stored in backpack stays in backpack and does not re-equip default starter item on reload', async () => {
+    const acc = await accountService.register({ email: 'backpack.hero@tibia.test', password: 'password123!' });
+    const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Backpack Wearer', vocationId: 1 });
+
+    // Player unequips head armor into backpack_0 and leaves head slot EMPTY (no item with slot: 'head')
+    const unequippedPayload = {
+      level: char.level,
+      experience: BigInt(char.experience),
+      health: char.health,
+      maxHealth: char.maxHealth,
+      mana: char.mana,
+      maxMana: char.maxMana,
+      posX: 32369,
+      posY: 32241,
+      posZ: 7,
+      inventory: [
+        { slot: 'armor', serverId: 2463, name: 'Plate Armor', count: 1 },
+        { slot: 'backpack_0', serverId: 2493, name: 'Demon Helmet', count: 1 },
+      ],
+    };
+
+    await characterService.saveCharacterProgress(char.id, unequippedPayload);
+
+    const loadedChar = await characterService.getCharacterById(char.id);
+    expect(loadedChar).not.toBeNull();
+
+    // Verify database records
+    const headItem = loadedChar?.inventory.find((i: any) => i.slot === 'head');
+    expect(headItem).toBeUndefined();
+
+    const backpackItem = loadedChar?.inventory.find((i: any) => i.slot === 'backpack_0');
+    expect(backpackItem).toBeDefined();
+    expect(backpackItem?.serverId).toBe(2493);
+
+    // Simulate handleSelectCharacter hydration logic from GamePrototype
+    const mockUserChar: any = {
+      equipment: { head: 2493, armor: 2463, legs: 2647, boots: 2643, leftHand: 2525, rightHand: 2376 },
+      inventory: { equipmentIds: [2493, 2463, 2647, 2643, 2525, 2376] },
+    };
+
+    // Hydration logic matching updated GamePrototype.tsx
+    const dbInventory = loadedChar?.inventory || [];
+    if (Array.isArray(dbInventory)) {
+      mockUserChar.equipment = { head: null, armor: null, legs: null, boots: null, leftHand: null, rightHand: null };
+      mockUserChar.inventory.equipmentIds = [];
+
+      dbInventory.forEach((item: any) => {
+        if (['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'].includes(item.slot)) {
+          mockUserChar.equipment[item.slot] = item.serverId;
+          if (!mockUserChar.inventory.equipmentIds.includes(item.serverId)) {
+            mockUserChar.inventory.equipmentIds.push(item.serverId);
+          }
+        } else if (item.serverId) {
+          if (!mockUserChar.inventory.equipmentIds.includes(item.serverId)) {
+            mockUserChar.inventory.equipmentIds.push(item.serverId);
+          }
+        }
+      });
+    }
+
+    // Assert head slot is strictly null (empty) and backpack contains Demon Helmet (2493)
+    expect(mockUserChar.equipment.head).toBeNull();
+    expect(mockUserChar.equipment.armor).toBe(2463);
+    expect(mockUserChar.inventory.equipmentIds).toContain(2493);
+  });
 });

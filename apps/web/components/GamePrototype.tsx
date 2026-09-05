@@ -674,30 +674,42 @@ function GamePrototypeContent() {
       });
     }
 
-    if (Array.isArray(dbInventory) && dbInventory.length > 0) {
-      dbInventory.forEach((item: { slot: string; serverId: number; name: string; count: number }) => {
-        if (item.slot === 'gold' || item.serverId === 2148 || item.name === 'Gold Coin') {
-          loadedGold += item.count;
-        } else if (item.serverId === 2152 || item.name === 'Platinum Coin') {
-          loadedGold += item.count * 100;
-        } else if (['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'].includes(item.slot)) {
-          const slotKey = item.slot as CharacterEquipmentSlot;
-          userChar.equipment[slotKey] = item.serverId;
-          if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
-            userChar.inventory.equipmentIds.push(item.serverId);
+    if (Array.isArray(dbInventory)) {
+      userChar.equipment = {
+        head: null,
+        armor: null,
+        legs: null,
+        boots: null,
+        leftHand: null,
+        rightHand: null,
+      };
+      userChar.inventory.equipmentIds = [];
+
+      if (dbInventory.length > 0) {
+        dbInventory.forEach((item: { slot: string; serverId: number; name: string; count: number }) => {
+          if (item.slot === 'gold' || item.serverId === 2148 || item.name === 'Gold Coin') {
+            loadedGold += item.count;
+          } else if (item.serverId === 2152 || item.name === 'Platinum Coin') {
+            loadedGold += item.count * 100;
+          } else if (['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'].includes(item.slot)) {
+            const slotKey = item.slot as CharacterEquipmentSlot;
+            userChar.equipment[slotKey] = item.serverId;
+            if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
+              userChar.inventory.equipmentIds.push(item.serverId);
+            }
+          } else if (item.slot.startsWith('backpack_loot_') || (!findEquipment(content.equipment, item.serverId) && item.serverId !== 2148 && item.serverId !== 2152)) {
+            loadedLoot.push({
+              itemId: item.serverId,
+              name: item.name,
+              amount: item.count,
+            });
+          } else if (item.serverId) {
+            if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
+              userChar.inventory.equipmentIds.push(item.serverId);
+            }
           }
-        } else if (item.slot.startsWith('backpack_loot_') || (!findEquipment(content.equipment, item.serverId) && item.serverId !== 2148 && item.serverId !== 2152)) {
-          loadedLoot.push({
-            itemId: item.serverId,
-            name: item.name,
-            amount: item.count,
-          });
-        } else if (item.serverId) {
-          if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
-            userChar.inventory.equipmentIds.push(item.serverId);
-          }
-        }
-      });
+        });
+      }
     }
 
     const hasDbColors =
