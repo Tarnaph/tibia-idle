@@ -776,13 +776,20 @@ export function ThaisCityArena({
         }
         const isMoving = sample.moving;
 
+        if (!Number.isFinite(currentPixelX) || !Number.isFinite(currentPixelY)) {
+          currentPixelX = curPos.x * TILE_SIZE + 16;
+          currentPixelY = curPos.y * TILE_SIZE + 16;
+        }
+
         // 3. Camera smoothly follows interpolated player position
         const camera = calculatePixelCamera(app.screen.width, app.screen.height, TILE_SIZE);
-        world.scale.set(camera.scale);
-        world.position.set(
-          app.screen.width / 2 - currentPixelX * camera.scale,
-          app.screen.height / 2 - currentPixelY * camera.scale
-        );
+        if (Number.isFinite(camera.scale) && camera.scale > 0) {
+          world.scale.set(camera.scale);
+          world.position.set(
+            app.screen.width / 2 - currentPixelX * camera.scale,
+            app.screen.height / 2 - currentPixelY * camera.scale
+          );
+        }
 
         // Clean up removed actor views (local player, ambient, and remote players)
         const validActorIds = new Set<string>();
@@ -1073,8 +1080,10 @@ export function ThaisCityArena({
               }
             }
 
-            view.root.position.set(px, py);
-            view.root.zIndex = py;
+            if (Number.isFinite(px) && Number.isFinite(py)) {
+              view.root.position.set(px, py);
+              view.root.zIndex = py;
+            }
             view.label.position.set(0, creatureVisualLayout.nameplateY);
             const curHp = p.hp ?? 100;
             const maxHp = p.maxHp ?? 100;

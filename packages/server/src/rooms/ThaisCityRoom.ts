@@ -344,13 +344,12 @@ export class ThaisCityRoom extends Room<WorldState> {
         existingSessionId !== client.sessionId &&
         (
           (charId && existingPlayer.characterId === charId) ||
-          (charName && existingPlayer.name.toLowerCase() === charName.toLowerCase()) ||
-          (accountId !== 'acc-guest' && existingPlayer.accountId === accountId)
+          (charName && existingPlayer.name.toLowerCase() === charName.toLowerCase())
         )
       ) {
         const oldClient = this.clients.find((c) => c.sessionId === existingSessionId);
         if (oldClient) {
-          try { oldClient.leave(4001); } catch {}
+          try { oldClient.leave(4000); } catch {}
         }
         this.handlePlayerLeaveParty(existingSessionId);
         this.state.players.delete(existingSessionId);

@@ -419,6 +419,20 @@ function GamePrototypeContent() {
       if (party) {
         setIsPartyCreated(true);
         setPartyMemberIds(party.members.map((m) => m.characterId));
+
+        // When accepting / joining as a follower, ensure we are near the leader
+        if (party.leaderSessionId !== gameNetwork.LocalPlayerId) {
+          const leader = party.members.find((m) => m.sessionId === party.leaderSessionId);
+          if (leader) {
+            const dist = Math.hypot(cityPosRef.current.x - leader.x, cityPosRef.current.y - leader.y);
+            if (dist > 8 || cityPosRef.current.z !== leader.z) {
+              const targetPos = { x: leader.x, y: leader.y + 1, z: leader.z };
+              setWalkingPath(null);
+              setCityPos(targetPos);
+              gameNetwork.sendMove('south', targetPos);
+            }
+          }
+        }
       } else {
         setPartyMemberIds((prev) => (prev[0] ? [prev[0]] : []));
       }
@@ -447,10 +461,17 @@ function GamePrototypeContent() {
 
     const unsubLeaderMoved = gameNetwork.onPartyLeaderMoved((data) => {
       if (modeRef.current !== 'hunt' && data.leaderSessionId !== gameNetwork.LocalPlayerId) {
-        const activeTileMap = cityPosRef.current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
         const dist = Math.hypot(cityPosRef.current.x - data.x, cityPosRef.current.y - data.y);
-        if (dist > 1.2) {
-          const path = findCityPath(activeTileMap, cityPosRef.current, { x: data.x, y: data.y, z: data.z });
+        if (dist > 12 || cityPosRef.current.z !== data.z) {
+          const targetPos = { x: data.x, y: data.y + 1, z: data.z };
+          setWalkingPath(null);
+          setCityPos(targetPos);
+          gameNetwork.sendMove('south', targetPos);
+          return;
+        }
+        if (dist > 1.2 && cityPosRef.current.z === data.z) {
+          const activeTileMap = cityPosRef.current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+          const path = findCityPath(activeTileMap, cityPosRef.current, { x: data.x, y: data.y, z: data.z }, 400);
           if (path.length > 1) {
             const followPath = path.slice(0, Math.max(1, path.length - 1));
             setWalkingPath({
@@ -1180,9 +1201,17 @@ function GamePrototypeContent() {
       if (!leader) return;
 
       const dist = Math.hypot(cityPos.x - leader.x, cityPos.y - leader.y);
+      if (dist > 12 || cityPos.z !== leader.z) {
+        const targetPos = { x: leader.x, y: leader.y + 1, z: leader.z };
+        setWalkingPath(null);
+        setCityPos(targetPos);
+        gameNetwork.sendMove('south', targetPos);
+        return;
+      }
+
       if (dist > 1.4 && cityPos.z === leader.z) {
         const activeTileMap = cityPos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
-        const path = findCityPath(activeTileMap, cityPos, { x: leader.x, y: leader.y, z: leader.z });
+        const path = findCityPath(activeTileMap, cityPos, { x: leader.x, y: leader.y, z: leader.z }, 400);
         if (path.length > 1) {
           const followPath = path.slice(0, Math.max(1, path.length - 1));
           setWalkingPath({
@@ -1192,7 +1221,7 @@ function GamePrototypeContent() {
           });
         }
       }
-    }, 400);
+    }, 500);
 
     return () => window.clearInterval(followInterval);
   }, [isFollowingLeader, mode, multiplayerParty, remotePlayers, cityPos, thaisTileMapZ6, thaisTileMapZ7]);
