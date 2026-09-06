@@ -6,6 +6,7 @@ import { createContinuousHuntRoute } from './huntRoute';
 import { createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
 import { createSeededRng, rollInteger } from './rng';
 import { spellFormulaRange } from './spells';
+import { addTrainingTries } from './training';
 import { findHotbarAction, isHotbarActionUnlocked } from './hotbarActions';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { isMeleeRange, meleeDistance } from './spatial/pathfinding';
@@ -588,6 +589,15 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
           const amount = rollInteger(rng, Math.floor(formulaRange.min), Math.max(Math.floor(formulaRange.min), Math.ceil(formulaRange.max)));
           encounter.rngState = rng.state;
           actor.mana -= spell.mana;
+          if (spell.mana > 0) {
+            const vocation = vocationFor(content, character.vocation);
+            const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+            const magicTries = spell.mana * content.rateMagic * skillRate;
+            for (const advanced of addTrainingTries(character, 'magicLevel', magicTries, vocation)) {
+              encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
+              addLog(state, `You advanced to Magic Level ${character.skills.magicLevel}.`);
+            }
+          }
           actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
           actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
           if (isOffensive) {
@@ -783,6 +793,15 @@ export function triggerManualHotbarAction(
   const amount = rollInteger(rng, Math.floor(formulaRange.min), Math.max(Math.floor(formulaRange.min), Math.ceil(formulaRange.max)));
   encounter.rngState = rng.state;
   actor.mana -= spell.mana;
+  if (spell.mana > 0) {
+    const vocation = vocationFor(content, character.vocation);
+    const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+    const magicTries = spell.mana * content.rateMagic * skillRate;
+    for (const advanced of addTrainingTries(character, 'magicLevel', magicTries, vocation)) {
+      encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
+      addLog(state, `You advanced to Magic Level ${character.skills.magicLevel}.`);
+    }
+  }
   actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
   actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
   if (isOffensive) {
@@ -906,6 +925,15 @@ function playerAttacks(state: GameState, content: GameContent): void {
           encounter.visualEvents.push({ type: 'melee-hit', sourceId: actor.characterId, targetId: target.id, effectId: 10, blocked: damage <= 0 });
         }
         const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
+        if (pending.activeSkill && pending.activeSkill !== 'magicLevel') {
+          const vocation = vocationFor(content, character.vocation);
+          const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+          const tries = 1 * content.rateSkill * skillRate;
+          for (const advanced of addTrainingTries(character, pending.activeSkill, tries, vocation)) {
+            encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
+            addLog(state, `You advanced in ${pending.activeSkill}.`);
+          }
+        }
         addLog(state, `${character.name} atingiu ${target.name} por ${damage} com ${pending.weaponName}.`);
         if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
       }
@@ -989,6 +1017,17 @@ function enemyAttacks(state: GameState, content: GameContent): void {
     const armor = rollInteger(rng, Math.floor(stats.armor / 2), stats.armor);
     const damage = Math.max(0, raw - defense - armor);
     enemy.nextAttackAt = encounter.elapsedMs + enemy.attackIntervalMs;
+    // Progress shielding skill when defending with shield
+    const hasShield = getEquippedItems(character, content.equipment).some((item) => item.weaponType === 'shield');
+    if (hasShield) {
+      const vocation = vocationFor(content, character.vocation);
+      const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+      const tries = 1 * content.rateSkill * skillRate;
+      for (const advanced of addTrainingTries(character, 'shielding', tries, vocation)) {
+        encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
+        addLog(state, `You advanced in Shielding.`);
+      }
+    }
     if (damage > 0) {
       target.lastHitTakenAt = encounter.elapsedMs;
       // Magic Shield (Utamo Vita) absorbs damage with mana first!
