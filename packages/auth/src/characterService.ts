@@ -208,58 +208,71 @@ export class CharacterService {
       where: { name: { equals: trimmedName } },
     });
 
-    if (existingChar) {
-      throw new Error(`O nome "${trimmedName}" já está em uso por outro aventureiro.`);
+    let isDuplicate = !!existingChar;
+    if (!isDuplicate && typeof this.prisma.character.findMany === 'function') {
+      const allChars = await this.prisma.character.findMany({ select: { name: true } });
+      isDuplicate = allChars.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase());
     }
 
-    // Create character with relational starter kit
-    return this.prisma.character.create({
-      data: {
-        accountId: input.accountId,
-        name: trimmedName,
-        vocationId: config.vocationId,
-        vocationName: config.name,
-        level: 1,
-        experience: BigInt(0),
-        health: config.baseHp,
-        maxHealth: config.baseHp,
-        mana: config.baseMp,
-        maxMana: config.baseMp,
-        capacity: config.capacity,
-        outfitLookType: config.outfitLookType,
-        posX: THAIS_TEMPLE_SPAWN.posX,
-        posY: THAIS_TEMPLE_SPAWN.posY,
-        posZ: THAIS_TEMPLE_SPAWN.posZ,
-        townId: THAIS_TEMPLE_SPAWN.townId,
-        skills: {
-          create: config.skills.map((s) => ({
-            skillId: s.skillId,
-            skillName: s.skillName,
-            value: s.value,
-            tries: BigInt(0),
-          })),
+    if (isDuplicate) {
+      throw new Error(`O nome "${trimmedName}" já está em uso por outro aventureiro. Escolha outro nome.`);
+    }
+
+    try {
+      // Create character with relational starter kit
+      return await this.prisma.character.create({
+        data: {
+          accountId: input.accountId,
+          name: trimmedName,
+          vocationId: config.vocationId,
+          vocationName: config.name,
+          level: 1,
+          experience: BigInt(0),
+          health: config.baseHp,
+          maxHealth: config.baseHp,
+          mana: config.baseMp,
+          maxMana: config.baseMp,
+          capacity: config.capacity,
+          outfitLookType: config.outfitLookType,
+          posX: THAIS_TEMPLE_SPAWN.posX,
+          posY: THAIS_TEMPLE_SPAWN.posY,
+          posZ: THAIS_TEMPLE_SPAWN.posZ,
+          townId: THAIS_TEMPLE_SPAWN.townId,
+          skills: {
+            create: config.skills.map((s) => ({
+              skillId: s.skillId,
+              skillName: s.skillName,
+              value: s.value,
+              tries: BigInt(0),
+            })),
+          },
+          inventory: {
+            create: config.equipment.map((eq) => ({
+              slot: eq.slot,
+              serverId: eq.serverId,
+              name: eq.name,
+              count: eq.count,
+              tier: 0,
+            })),
+          },
+          spells: {
+            create: config.spells.map((spellId) => ({
+              spellId,
+            })),
+          },
         },
-        inventory: {
-          create: config.equipment.map((eq) => ({
-            slot: eq.slot,
-            serverId: eq.serverId,
-            name: eq.name,
-            count: eq.count,
-            tier: 0,
-          })),
+        include: {
+          skills: true,
+          inventory: true,
+          spells: true,
         },
-        spells: {
-          create: config.spells.map((spellId) => ({
-            spellId,
-          })),
-        },
-      },
-      include: {
-        skills: true,
-        inventory: true,
-        spells: true,
-      },
-    });
+      });
+    } catch (err: any) {
+      if (err.code === 'P2002' || (err.message && err.message.includes('Unique constraint'))) {
+        throw new Error(`O nome "${trimmedName}" já está em uso por outro aventureiro. Escolha outro nome.`);
+      }
+      throw err;
+    }
   }
 
   async getCharactersByAccountId(accountId: string) {
