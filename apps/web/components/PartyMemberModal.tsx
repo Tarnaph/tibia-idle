@@ -53,10 +53,7 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
       return;
     }
 
-    const vocOption = VOCATION_OPTIONS.find((v) => v.id === selectedVocation);
-    const targetBase = vocOption ? vocOption.base : 'Knight';
-
-    const result = onCreate(name.trim(), targetBase, gender);
+    const result = onCreate(name.trim(), 'None', gender);
     if (result) {
       setError(result);
     } else {
@@ -76,7 +73,7 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
         <div className="new-member-header">
           <h2 className="new-member-title">NOVO MEMBRO</h2>
           <p className="new-member-subtitle">
-            Digite o nome e escolha a vocação do novo membro da party.
+            Digite o nome do novo personagem. Ele começará no Nível 1 e escolherá a vocação ao atingir o Nível 8.
           </p>
         </div>
 
@@ -110,40 +107,6 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
             >
               Feminino
             </button>
-          </div>
-
-          {/* Vocation Grid (2 columns) */}
-          <div className="new-member-vocations-grid">
-            {VOCATION_OPTIONS.map((option) => {
-              const isSelected = selectedVocation === option.id;
-              const outfitFrame =
-                assets.outfits[option.base]?.frames.find((f) => f.direction === 'south') ??
-                assets.outfits[option.base]?.frames[0];
-
-              return (
-                <div
-                  key={option.id}
-                  className={`new-member-voc-card ${isSelected ? 'selected' : ''}`}
-                  onClick={() => setSelectedVocation(option.id)}
-                >
-                  <div className="voc-card-sprite">
-                    {outfitFrame ? (
-                      <img
-                        src={outfitFrame.publicUrl}
-                        alt={option.name}
-                        className="voc-sprite-img"
-                      />
-                    ) : (
-                      <span className="voc-placeholder-icon">⚔️</span>
-                    )}
-                  </div>
-                  <div className="voc-card-info">
-                    <strong className="voc-card-name">{option.name}</strong>
-                    <small className="voc-card-role">{option.roleDescription}</small>
-                  </div>
-                </div>
-              );
-            })}
           </div>
 
           {error && <p className="new-member-error">{error}</p>}

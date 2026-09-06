@@ -38,6 +38,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 73: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento** - Abas com o nome do personagem na ChatWindow para conversas privadas isoladas do World/Local Chat, envio direto e botão de fechar (✕).
 - [x] **Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais** - Inicialização de novos personagens estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 cap), e auditoria completa com verificação das tags de visibilidade urbana no Templo de Thais (inHunt: false, posZ: 7, outfit, vocation e nameplate).
 - [x] **Phase 75: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP)** - Adição de itens de teste gratuitos na loja (0 gold) para avançar 1 nível (com recálculo de stats), avançar 1 ponto em cada skill e comprar pacotes de gold livremente.
+- [x] **Phase 76: Escolha de Vocação no Nível 8+, Remoção da Escolha na Criação e Item de Troca de Vocação (Gold & 0 GP)** - Remoção do seletor de vocação na criação de personagem (todos nascem sem vocação / None no nível 1), trava de escolha de vocação ao atingir Nível 8+ (irreversível), e inclusão do Pergaminho de Troca de Vocação na Loja por Gold Coins e na Loja de Testes por 0 GP.
 
 ---
 
@@ -1319,4 +1320,36 @@ Plans: Concluído com sucesso.
 
 - [x] 75-01-PLAN: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP).
 - Resumo de entrega: `.planning/phases/phase-75-testing-shop-items/75-SUMMARY.md`
+
+### Phase 76: Escolha de Vocação no Nível 8+, Remoção da Escolha na Criação e Item de Troca de Vocação (Gold & 0 GP)
+
+**Goal:** Remover a escolha de vocação na tela de criação de personagem (todos nascem sem vocação / `None` no Nível 1 com atributos iniciais de aprendiz), implementar o modal de escolha de vocação permanente ao atingir Nível 8 ou superior, e disponibilizar o item "Pergaminho de Troca de Vocação" (Change Vocation Scroll) tanto na Loja por Gold quanto na Loja de Testes por 0 GP para permitir a redefinição de vocação.  
+**Depends on:** Phase 75  
+**Requirements:**
+1. **Remoção de Vocação na Criação:**
+   - Na tela e modal de criação de personagem (`PartyMemberModal`, `TibiaAuthCharacterModal`), remover a seleção de vocação (Knight, Paladin, Sorcerer, Druid).
+   - Todos os novos personagens criados iniciam como `None` (Sem vocação) no Nível 1.
+2. **Escolha de Vocação ao Alcançar Nível 8+:**
+   - Quando um personagem de vocação `None` atinge o Nível 8 ou superior (seja caçando ou usando item de nível), um modal ou aviso em tela permite escolher uma das 4 vocações (Knight, Paladin, Sorcerer, Druid).
+   - A escolha é permanente e gravada no estado do personagem.
+3. **Item de Troca de Vocação (Change Vocation Scroll):**
+   - Item `Pergaminho de Troca de Vocação` (ID 9912).
+   - Disponível na Loja Normal (`consumables`) por custo em Gold Coins (ex: 5.000 GP) e na Loja de Testes (`testing`) por 0 GP.
+   - Ao ser usado na Bolsa/Mochila ou comprado, reverte a vocação do personagem para `None` ou abre o seletor de vocação para permitir uma nova escolha.
+4. **Qualidade e Testes:**
+   - Suíte de testes no Vitest cobrindo criação sem vocação, trava até nível 8, escolha de vocação e reset por item.
+   - `npm run typecheck` com 0 erros.
+
+**Success Criteria:**
+1. Criar personagem não exibe opção de vocação; o personagem nasce Nível 1 como `None`.
+2. Ao atingir Nível 8+, a interface abre a seleção de vocação e salva permanentemente.
+3. Pergaminho de Troca de Vocação está presente na loja de gold e na de 0 GP.
+4. Usar o pergaminho permite redefinir a vocação do personagem.
+5. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: Concluído com sucesso.
+
+- [x] 76-01-PLAN: Escolha de Vocação no Nível 8+, Remoção na Criação e Item de Troca.
+- Resumo de entrega: `.planning/phases/phase-76-vocation-choice-level8/76-SUMMARY.md`
+
 

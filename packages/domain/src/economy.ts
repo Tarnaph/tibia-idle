@@ -1,7 +1,7 @@
 import type { ItemEconomyDefinition, ItemSellOffer } from '../../content-schema/src';
 import type { GameContent, GameState, ItemLootPreference, LootStack, CharacterState, CharacterSkills } from './types';
 import { experienceForLevel } from './experience';
-import { vocationFor } from './party';
+import { vocationFor, resetCharacterVocation } from './party';
 
 export interface SellLootResult { state: GameState; goldEarned: number; soldStacks: number; unsoldStacks: number }
 
@@ -167,6 +167,7 @@ export const TEST_SHOP_ITEMS = {
   SKILL_FISHING: 9909,
   LEVEL_UP_10: 9910,
   LEVEL_UP_50: 9911,
+  VOCATION_RESET: 9912,
 } as const;
 
 export function isTestShopItem(itemId: number): boolean {
@@ -311,6 +312,14 @@ export function applyTestItemEffect(
     return {
       state: nextState,
       message: `[Skill Up] ${activeChar.name}: ${skillInfo.name} avançou para ${updatedChar.skills[skillInfo.key]}!`,
+    };
+  }
+
+  if (itemId === TEST_SHOP_ITEMS.VOCATION_RESET && activeChar) {
+    const resetRes = resetCharacterVocation(state, activeChar.id);
+    return {
+      state: resetRes.state,
+      message: `[Vocação] Vocação de ${activeChar.name} redefinida! Escolha sua nova vocação.`,
     };
   }
 

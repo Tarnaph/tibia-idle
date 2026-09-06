@@ -84,7 +84,7 @@ export interface EquipmentCatalog {
   items: EquipmentDefinition[];
 }
 
-export type BaseVocationName = 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid';
+export type BaseVocationName = 'None' | 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid';
 export type PromotedVocationName = 'Elite Knight' | 'Royal Paladin' | 'Master Sorcerer' | 'Elder Druid';
 export type VocationName = BaseVocationName | PromotedVocationName;
 export type ProgressionSkill = 'fist' | 'club' | 'sword' | 'axe' | 'distance' | 'shielding';

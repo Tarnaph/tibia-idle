@@ -19,6 +19,33 @@ export interface VocationStarterConfig {
 }
 
 export const VOCATION_CONFIGS: Record<number, VocationStarterConfig> = {
+  0: {
+    vocationId: 0,
+    name: 'None',
+    baseHp: 150,
+    baseMp: 35,
+    capacity: 400,
+    outfitLookType: 128,
+    spells: ['exura'],
+    skills: [
+      { skillId: 0, skillName: 'Fist Fighting', value: 10 },
+      { skillId: 1, skillName: 'Club Fighting', value: 10 },
+      { skillId: 2, skillName: 'Sword Fighting', value: 10 },
+      { skillId: 3, skillName: 'Axe Fighting', value: 10 },
+      { skillId: 4, skillName: 'Distance Fighting', value: 10 },
+      { skillId: 5, skillName: 'Shielding', value: 10 },
+      { skillId: 6, skillName: 'Fishing', value: 10 },
+      { skillId: 7, skillName: 'Magic Level', value: 0 },
+    ],
+    equipment: [
+      { slot: 'rightHand', serverId: 2382, name: 'Dagger', count: 1 },
+      { slot: 'leftHand', serverId: 2512, name: 'Wooden Shield', count: 1 },
+      { slot: 'armor', serverId: 2651, name: 'Jacket', count: 1 },
+      { slot: 'legs', serverId: 2649, name: 'Leather Legs', count: 1 },
+      { slot: 'boots', serverId: 2643, name: 'Leather Boots', count: 1 },
+      { slot: 'backpack', serverId: 1988, name: 'Backpack', count: 1 },
+    ],
+  },
   1: {
     vocationId: 1,
     name: 'Sorcerer',

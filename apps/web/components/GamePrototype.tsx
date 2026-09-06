@@ -17,7 +17,7 @@ import {
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
-  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION,
+  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation,
   calculateDeathPenaltyReport, type DeathPenaltyReport,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
@@ -37,7 +37,8 @@ import { IdleHeader } from './IdleHeader';
 import { ItemSprite } from './ItemSprite';
 import { ItemTooltip } from './ItemTooltip';
 import { GlobalItemTooltip } from './GlobalItemTooltip';
-import { PartyMemberModal } from './PartyMemberModal';
+  import { PartyMemberModal } from './PartyMemberModal';
+import { VocationChoiceModal } from './VocationChoiceModal';
 import { OutfitModal } from './OutfitModal';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
@@ -2066,6 +2067,18 @@ function GamePrototypeContent() {
         totalGold={game.session.gold}
         onClose={() => setShopOpen(false)}
         onBuyItem={handleBuyShopItem}
+      />
+
+      <VocationChoiceModal
+        open={activeCharacter.level >= 8 && activeCharacter.vocation === 'None'}
+        characterName={activeCharacter.name}
+        onSelectVocation={(vocName) => {
+          const res = chooseCharacterVocation(game, activeCharacter.id, vocName, content);
+          if (res.ok) {
+            setGame(res.state);
+            setSaleMessage(`Parabéns! ${activeCharacter.name} agora é um ${vocName}!`);
+          }
+        }}
       />
 
       <QuickSellWindow
