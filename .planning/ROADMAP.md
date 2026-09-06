@@ -1155,8 +1155,9 @@ Plans: Concluído (Validado em `tests/phase69-progression-audit.test.ts` e `69-S
 2. Clicar em "Mandar Mensagem" abre o chat e prepara o envio para o amigo selecionado.
 3. 0 erros de tipagem TypeScript e testes Vitest passando.
 
-Plans:
-- [ ] 70-01-PLAN: Botão de Mandar Mensagem, Barra de Ações Rápidas e Integração de Whisper no Chat.
+Plans: Concluído (Validado em `tests/phase70-friends-message.test.ts` e `70-SUMMARY.md`).
+
+- [x] 70-01-PLAN: Botão de Mandar Mensagem, Barra de Ações Rápidas e Integração de Whisper no Chat.
 
 
 
