@@ -18,6 +18,7 @@ import {
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION,
+  calculateDeathPenaltyReport, type DeathPenaltyReport,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
 } from '@/packages/domain/src';
@@ -1076,10 +1077,33 @@ function GamePrototypeContent() {
     }
   }, [mode, encounter.status, activeCharacter.name]);
 
+  const deathPenaltyReport = useMemo(() => {
+    if (!isDeathModalOpen || !activeCharacter) return undefined;
+    const cfg = serverConfigManager.getConfig();
+    return calculateDeathPenaltyReport(
+      activeCharacter,
+      game.session.loot || [],
+      {
+        expLossPercent: cfg.deathPenaltyExpPercent ?? 10,
+        skillLossPercent: cfg.deathPenaltySkillPercent ?? 10,
+        loseLoot: cfg.deathPenaltyLoseLoot ?? true,
+      }
+    );
+  }, [isDeathModalOpen, activeCharacter, game.session.loot]);
+
   const handleConfirmDeath = useCallback(() => {
     setIsDeathModalOpen(false);
+    const cfg = serverConfigManager.getConfig();
     setGame((current) => {
-      const respawned = respawnInTemple(current, undefined, content);
+      const respawned = respawnInTemple(
+        current,
+        {
+          expLossPercent: cfg.deathPenaltyExpPercent ?? 10,
+          skillLossPercent: cfg.deathPenaltySkillPercent ?? 10,
+          loseLoot: cfg.deathPenaltyLoseLoot ?? true,
+        },
+        content
+      );
       const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
       const localOnly = mainId ? respawned.session.characters.filter((c: CharacterState) => c.id === mainId) : [respawned.session.characters[0]];
       return {
@@ -1106,7 +1130,7 @@ function GamePrototypeContent() {
         setSaleMessage('Chegou no Depot de Thais.');
       },
     });
-    setSaleMessage('Alas! Você morreu, renasceu no Templo de Thais com penalidades aplicadas.');
+    setSaleMessage('Você morreu e renasceu no Templo de Thais com as penalidades aplicadas.');
   }, [content]);
 
   // Advance training at dummy using selected skill with Web Worker ticker
@@ -1934,6 +1958,7 @@ function GamePrototypeContent() {
 
       <DeathModal
         open={isDeathModalOpen}
+        report={deathPenaltyReport}
         onConfirm={handleConfirmDeath}
         onCancel={handleConfirmDeath}
       />

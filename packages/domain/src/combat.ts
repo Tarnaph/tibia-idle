@@ -1268,6 +1268,107 @@ export interface DeathPenaltyOptions {
   loseLoot?: boolean;
 }
 
+export interface SkillLossDetail {
+  skill: string;
+  name: string;
+  before: number;
+  after: number;
+  lost: number;
+}
+
+export interface LostLootItemDetail {
+  itemId?: number;
+  name: string;
+  amount: number;
+}
+
+export interface DeathPenaltyReport {
+  expPercent: number;
+  currentExp: number;
+  lostExp: number;
+  newExp: number;
+  currentLevel: number;
+  newLevel: number;
+  isDelevel: boolean;
+  skillsLost: SkillLossDetail[];
+  lostLoot: LostLootItemDetail[];
+  totalLootItemsLost: number;
+  loseLootEnabled: boolean;
+}
+
+export function calculateDeathPenaltyReport(
+  character: CharacterState,
+  sessionLoot: LootStack[] = [],
+  options?: DeathPenaltyOptions,
+): DeathPenaltyReport {
+  const cfg = serverConfigManager.getConfig();
+  const expPercent = options?.expLossPercent ?? cfg.deathPenaltyExpPercent ?? 10;
+  const skillPercent = options?.skillLossPercent ?? cfg.deathPenaltySkillPercent ?? 10;
+  const loseLootEnabled = options?.loseLoot ?? cfg.deathPenaltyLoseLoot ?? true;
+
+  const currentExp = character.experience;
+  const lostExp = expPercent > 0 && currentExp > 0 ? Math.floor(currentExp * (expPercent / 100)) : 0;
+  const newExp = Math.max(0, currentExp - lostExp);
+
+  const currentLevel = character.level;
+  const newLevel = levelForExperience(newExp);
+  const isDelevel = newLevel < currentLevel;
+
+  const SKILL_NAMES: Record<string, string> = {
+    sword: 'Sword Fighting',
+    axe: 'Axe Fighting',
+    club: 'Club Fighting',
+    distance: 'Distance Fighting',
+    shielding: 'Shielding',
+    fist: 'Fist Fighting',
+    magicLevel: 'Magic Level',
+  };
+
+  const skillsLost: SkillLossDetail[] = [];
+  if (skillPercent > 0 && character.skills) {
+    const keys = ['sword', 'axe', 'club', 'distance', 'shielding', 'fist', 'magicLevel'] as const;
+    for (const k of keys) {
+      const currentVal = character.skills[k];
+      if (typeof currentVal === 'number' && currentVal > 0) {
+        const minVal = k === 'magicLevel' ? 0 : 10;
+        const lostVal = Math.max(0, Math.floor(currentVal * (skillPercent / 100)));
+        const afterVal = Math.max(minVal, currentVal - lostVal);
+        skillsLost.push({
+          skill: k,
+          name: SKILL_NAMES[k] ?? k,
+          before: currentVal,
+          after: afterVal,
+          lost: lostVal,
+        });
+      }
+    }
+  }
+
+  const lostLoot: LostLootItemDetail[] = loseLootEnabled
+    ? sessionLoot.map((item) => ({
+        itemId: item.itemId,
+        name: item.name,
+        amount: item.amount,
+      }))
+    : [];
+
+  const totalLootItemsLost = lostLoot.reduce((sum, item) => sum + item.amount, 0);
+
+  return {
+    expPercent,
+    currentExp,
+    lostExp,
+    newExp,
+    currentLevel,
+    newLevel,
+    isDelevel,
+    skillsLost,
+    lostLoot,
+    totalLootItemsLost,
+    loseLootEnabled,
+  };
+}
+
 export function respawnInTemple(
   state: GameState,
   options?: DeathPenaltyOptions,

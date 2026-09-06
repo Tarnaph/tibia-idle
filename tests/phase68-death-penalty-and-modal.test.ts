@@ -140,4 +140,47 @@ describe('Phase 68: Death Modal, Death Penalty System, and Admin Controls', () =
       deathPenaltyLoseLoot: true,
     });
   });
+
+  it('generates a detailed death penalty report for the UI in Portuguese context', async () => {
+    const { calculateDeathPenaltyReport } = await import('../packages/domain/src');
+    let game = createIdleGame('test-penalty-report', content);
+    game = startGame(game, content);
+
+    const char = game.session.characters[0];
+    char.level = 5;
+    char.experience = 810; // Level 5 requires 800 XP
+    char.skills.sword = 30;
+    char.skills.shielding = 25;
+
+    const sessionLoot = [
+      { itemId: 2148, name: 'Gold Coin', amount: 45 },
+      { itemId: 3976, name: 'Worm', amount: 3 },
+    ];
+
+    const report = calculateDeathPenaltyReport(char, sessionLoot, {
+      expLossPercent: 10,
+      skillLossPercent: 10,
+      loseLoot: true,
+    });
+
+    expect(report.expPercent).toBe(10);
+    expect(report.currentExp).toBe(810);
+    expect(report.lostExp).toBe(81); // 10% of 810
+    expect(report.newExp).toBe(729);
+    expect(report.currentLevel).toBe(5);
+    expect(report.newLevel).toBe(4);
+    expect(report.isDelevel).toBe(true); // De-leveled to 4
+
+    // Skills
+    const swordLoss = report.skillsLost.find((s) => s.skill === 'sword');
+    expect(swordLoss).toBeDefined();
+    expect(swordLoss?.before).toBe(30);
+    expect(swordLoss?.lost).toBe(3);
+    expect(swordLoss?.after).toBe(27);
+
+    // Loot
+    expect(report.totalLootItemsLost).toBe(48);
+    expect(report.lostLoot.length).toBe(2);
+    expect(report.loseLootEnabled).toBe(true);
+  });
 });
