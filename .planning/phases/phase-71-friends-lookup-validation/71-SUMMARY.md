@@ -25,12 +25,19 @@ Implementação da verificação e validação de existência de personagens ao 
      - ✅ **Sucesso (verde):** quando o personagem é localizado e adicionado com sucesso.
    - Botão de fechar (✕) e temporizador automático para dispensar o alerta de sucesso.
 
-4. **Testes e Qualidade:**
+4. **Remoção de Elementos de Party da Lista de Amigos (`FriendsWindow.tsx`):**
+   - Subtítulo atualizado para `Veja quem está online e mantenha contato com seus amigos.`
+   - Removido o botão `[ ⚔️ Party ]` do card do amigo selecionado, mantendo foco direto em `[ 💬 Mandar Mensagem ]` e `[ ❌ Remover ]`.
+   - Removida a opção `Convidar para a party` do menu de contexto (botão direito).
+
+5. **Testes e Qualidade:**
    - Suíte de testes dedicada em `tests/phase71-friends-character-lookup.test.ts` com 100% de aprovação (5 testes aprovados).
    - Verificação contínua de tipos: `npm run typecheck` com 0 erros.
-   - Preservação da suíte de testes de paridade visual e mensagens (`phase70` e `phase57`).
+   - Atualização e aprovação de 100% dos testes de paridade visual e mensagens (`phase70`, `phase57` e `phase48`).
 
 ## Verificação e Status
 - **Typecheck:** 0 erros
 - **Vitest:** 100% aprovado
-- **Git Commit:** `8e92a97e: feat(friends): verify character existence before adding to friends list`
+- **Git Commits:**
+  - `8e92a97e: feat(friends): verify character existence before adding to friends list`
+  - `aa906250: fix(friends): remove party invite button and options from friends window`
