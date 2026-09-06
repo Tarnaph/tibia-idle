@@ -93,9 +93,9 @@ describe('Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-R
       const knight = VOCATION_CONFIGS[4];
       expect(knight).toBeDefined();
       expect(knight.name).toBe('Knight');
-      expect(knight.baseHp).toBe(185);
+      expect(knight.baseHp).toBe(150);
       expect(knight.baseMp).toBe(35);
-      expect(knight.capacity).toBe(470);
+      expect(knight.capacity).toBe(400);
       expect(knight.outfitLookType).toBe(131);
       expect(knight.spells).toContain('exori');
       expect(knight.spells).toContain('exura-ico');
@@ -112,9 +112,9 @@ describe('Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-R
       const paladin = VOCATION_CONFIGS[3];
       expect(paladin).toBeDefined();
       expect(paladin.name).toBe('Paladin');
-      expect(paladin.baseHp).toBe(165);
+      expect(paladin.baseHp).toBe(150);
       expect(paladin.baseMp).toBe(35);
-      expect(paladin.capacity).toBe(450);
+      expect(paladin.capacity).toBe(400);
       expect(paladin.outfitLookType).toBe(129);
       expect(paladin.spells).toContain('exori-san');
 
@@ -129,15 +129,15 @@ describe('Phase 42: Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-R
     it('configures Sorcerer and Druid with authentic elemental rods/wands and wave spells', () => {
       const sorc = VOCATION_CONFIGS[1];
       expect(sorc.name).toBe('Sorcerer');
-      expect(sorc.baseHp).toBe(145);
-      expect(sorc.baseMp).toBe(30);
+      expect(sorc.baseHp).toBe(150);
+      expect(sorc.baseMp).toBe(35);
       expect(sorc.spells).toContain('exevo-vis-hur');
       expect(sorc.equipment.find((e) => e.slot === 'rightHand')?.name).toBe('Wand of Vortex');
 
       const druid = VOCATION_CONFIGS[2];
       expect(druid.name).toBe('Druid');
-      expect(druid.baseHp).toBe(145);
-      expect(druid.baseMp).toBe(30);
+      expect(druid.baseHp).toBe(150);
+      expect(druid.baseMp).toBe(35);
       expect(druid.spells).toContain('exevo-tera-hur');
       expect(druid.spells).toContain('exura-gran');
       expect(druid.equipment.find((e) => e.slot === 'rightHand')?.name).toBe('Snakebite Rod');
