@@ -11,7 +11,9 @@
 | ID | Nome do Item | Categoria | Preço | Efeito Imediato / Ao Usar |
 |---|---|---|---|---|
 | **9900** | Saco de Ouro (10.000 GP) | `testing` | **0 GP** | Adiciona +10.000 gold à carteira do jogador imediatamente |
-| **9901** | Tomo do Conhecimento (+1 Nível) | `testing` | **0 GP** | +1 Nível ao personagem ativo, recalcula XP pela fórmula canônica do Tibia (`experienceForLevel`) e adiciona HP/Mana de acordo com a vocação (Knight: +15 HP, +5 Mana; Paladin: +10 HP, +15 Mana; Sorcerer/Druid: +5 HP, +30 Mana) |
+| **9901** | Tomo do Conhecimento (+1 Nível) | `testing` | **0 GP** | +1 Nível ao personagem ativo, recalcula XP pela fórmula canônica do Tibia (`experienceForLevel`) e adiciona HP/Mana de acordo com a vocação |
+| **9910** | Tomo do Conhecimento Supremo (+10 Níveis) | `testing` | **0 GP** | +10 Níveis ao personagem ativo de uma só vez |
+| **9911** | Elixir Divino (+50 Níveis) | `testing` | **0 GP** | +50 Níveis ao personagem ativo de uma só vez |
 | **9902** | Pergaminho de Espada (+1 Sword) | `testing` | **0 GP** | +1 Perícia de Sword Fighting e reseta tries para 0 |
 | **9903** | Pergaminho de Machado (+1 Axe) | `testing` | **0 GP** | +1 Perícia de Axe Fighting e reseta tries para 0 |
 | **9904** | Pergaminho de Clava (+1 Club) | `testing` | **0 GP** | +1 Perícia de Club Fighting e reseta tries para 0 |

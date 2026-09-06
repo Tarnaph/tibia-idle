@@ -48,6 +48,8 @@ const SHOP_CONSUMABLES: ShopItemDisplay[] = [
   // Phase 75: Debug & Testing items for 0 gold
   { id: 9900, name: 'Saco de Ouro (10.000 GP)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Adiciona 10.000 moedas de ouro imediatamente.' },
   { id: 9901, name: 'Tomo do Conhecimento (+1 Nível)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança seu personagem em 1 nível e ajusta HP/Mana da vocação.' },
+  { id: 9910, name: 'Tomo do Conhecimento Supremo (+10 Níveis)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança seu personagem em 10 níveis de uma vez.' },
+  { id: 9911, name: 'Elixir Divino (+50 Níveis)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança seu personagem em 50 níveis de uma vez.' },
   { id: 9902, name: 'Pergaminho de Espada (+1 Sword)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Espada (Sword) em +1.' },
   { id: 9903, name: 'Pergaminho de Machado (+1 Axe)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Machado (Axe) em +1.' },
   { id: 9904, name: 'Pergaminho de Clava (+1 Club)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Clava (Club) em +1.' },

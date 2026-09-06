@@ -12,6 +12,8 @@ interface ItemSpriteProps {
 const TEST_ITEM_SPRITE_MAP: Record<number, number> = {
   9900: 2148, // Gold Pack -> Gold Coin
   9901: 2160, // Level Up -> Crystal Coin
+  9910: 2160, // Level Up 10 -> Crystal Coin
+  9911: 2160, // Level Up 50 -> Crystal Coin
   9902: 2376, // Sword -> Sword
   9903: 2388, // Axe -> Hatchet
   9904: 2398, // Club -> Mace

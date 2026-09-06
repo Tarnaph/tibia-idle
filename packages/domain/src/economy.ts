@@ -165,10 +165,12 @@ export const TEST_SHOP_ITEMS = {
   SKILL_MAGIC: 9907,
   SKILL_FIST: 9908,
   SKILL_FISHING: 9909,
+  LEVEL_UP_10: 9910,
+  LEVEL_UP_50: 9911,
 } as const;
 
 export function isTestShopItem(itemId: number): boolean {
-  return itemId >= 9900 && itemId <= 9909;
+  return itemId >= 9900 && itemId <= 9915;
 }
 
 export function applyCharacterLevelAdvance(
@@ -243,8 +245,9 @@ export function applyTestItemEffect(
   targetCharId?: string,
 ): { state: GameState; message: string } {
   const activeChar =
-    state.session.characters.find((c) => c.id === (targetCharId || state.session.selectedCharacterId)) ??
-    state.session.characters[0];
+    state.session.characters.find(
+      (c) => c.id === (targetCharId || state.session.selectedCharacterId || state.session.leaderId)
+    ) ?? state.session.characters[0];
 
   if (itemId === TEST_SHOP_ITEMS.GOLD_PACK) {
     const goldToAdd = 10000 * quantity;
@@ -258,8 +261,19 @@ export function applyTestItemEffect(
     return { state: nextState, message: `+${goldToAdd.toLocaleString()} Gold adicionado à sua carteira!` };
   }
 
-  if (itemId === TEST_SHOP_ITEMS.LEVEL_UP && activeChar) {
-    const updatedChar = applyCharacterLevelAdvance(activeChar, quantity, content);
+  if (
+    (itemId === TEST_SHOP_ITEMS.LEVEL_UP ||
+      itemId === TEST_SHOP_ITEMS.LEVEL_UP_10 ||
+      itemId === TEST_SHOP_ITEMS.LEVEL_UP_50) &&
+    activeChar
+  ) {
+    const levelGain =
+      itemId === TEST_SHOP_ITEMS.LEVEL_UP_50
+        ? 50 * quantity
+        : itemId === TEST_SHOP_ITEMS.LEVEL_UP_10
+        ? 10 * quantity
+        : 1 * quantity;
+    const updatedChar = applyCharacterLevelAdvance(activeChar, levelGain, content);
     const nextState = {
       ...state,
       session: {
@@ -269,7 +283,7 @@ export function applyTestItemEffect(
     };
     return {
       state: nextState,
-      message: `[Level Up] ${activeChar.name} avançou para o Nível ${updatedChar.level}!`,
+      message: `[Level Up] ${activeChar.name} avançou +${levelGain} nível(is) para o Nível ${updatedChar.level}!`,
     };
   }
 
@@ -324,7 +338,10 @@ export function buyShopItem(
     return { ok: false, state, error: `Gold insuficiente. Você precisa de ${totalPrice} gold.` };
   }
 
-  const activeChar = state.session.characters.find((c) => c.id === state.session.selectedCharacterId) ?? state.session.characters[0];
+  const activeChar =
+    state.session.characters.find(
+      (c) => c.id === (state.session.selectedCharacterId || state.session.leaderId)
+    ) ?? state.session.characters[0];
   const isEquipment = content.equipment.some((e) => e.id === itemId);
 
   let nextState = {

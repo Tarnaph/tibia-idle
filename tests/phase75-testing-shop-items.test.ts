@@ -15,6 +15,8 @@ describe('Phase 75: Test & Debug Shop Items (0 GP)', () => {
   it('identifies test shop items correctly with isTestShopItem', () => {
     expect(isTestShopItem(9900)).toBe(true);
     expect(isTestShopItem(9901)).toBe(true);
+    expect(isTestShopItem(9910)).toBe(true);
+    expect(isTestShopItem(9911)).toBe(true);
     expect(isTestShopItem(9905)).toBe(true);
     expect(isTestShopItem(9909)).toBe(true);
 
@@ -22,7 +24,7 @@ describe('Phase 75: Test & Debug Shop Items (0 GP)', () => {
     expect(isTestShopItem(2400)).toBe(false); // Magic sword
     expect(isTestShopItem(7618)).toBe(false); // Health potion
     expect(isTestShopItem(9899)).toBe(false);
-    expect(isTestShopItem(9910)).toBe(false);
+    expect(isTestShopItem(9920)).toBe(false);
   });
 
   it('allows purchasing gold pack (9900) for 0 gold even with zero gold balance', () => {
@@ -59,7 +61,23 @@ describe('Phase 75: Test & Debug Shop Items (0 GP)', () => {
     expect(updatedChar.maxHp).toBeGreaterThan(initialMaxHp);
     expect(updatedChar.currentHp).toBe(updatedChar.maxHp);
     expect(updatedChar.maxMana).toBeGreaterThanOrEqual(initialMaxMana);
-    expect(result.message).toContain(`[Level Up] ${char.name} avançou para o Nível ${initialLevel + 1}`);
+    expect(result.message).toContain(`[Level Up] ${char.name} avançou +1 nível(is) para o Nível ${initialLevel + 1}!`);
+  });
+
+  it('advances +10 levels and +50 levels with items 9910 and 9911', () => {
+    let game = createIdleGame(seed, content);
+    const char = game.session.characters.find((c) => c.id === game.session.selectedCharacterId)!;
+    const initialLevel = char.level;
+
+    const res10 = buyShopItem(game, TEST_SHOP_ITEMS.LEVEL_UP_10, 'Tomo do Conhecimento Supremo (+10 Níveis)', 0, 1, content);
+    expect(res10.ok).toBe(true);
+    const char10 = res10.state.session.characters.find((c) => c.id === char.id)!;
+    expect(char10.level).toBe(initialLevel + 10);
+
+    const res50 = buyShopItem(res10.state, TEST_SHOP_ITEMS.LEVEL_UP_50, 'Elixir Divino (+50 Níveis)', 0, 1, content);
+    expect(res50.ok).toBe(true);
+    const char50 = res50.state.session.characters.find((c) => c.id === char.id)!;
+    expect(char50.level).toBe(initialLevel + 60);
   });
 
   it('advances all 8 skills when purchasing individual skill items (9902..9909) for 0 GP', () => {

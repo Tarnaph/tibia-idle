@@ -1595,25 +1595,23 @@ function GamePrototypeContent() {
   const sellOneLoot = (itemId: number) => setGame((current) => { const result = sellLootStack(current, content, itemId); setSaleMessage(result.goldEarned > 0 ? `Venda concluída: +${result.goldEarned} gold.` : 'Item protegido ou sem preço comprovado.'); return result.state; });
   const toggleLootPreference = (itemId: number, key: 'autoLoot' | 'lockSell' | 'quickSell') => setGame((current) => updateItemLootPreference(current, itemId, { [key]: !itemLootPreference(current, itemId)[key] }));
   const handleBuyShopItem = (itemId: number, itemName: string, price: number, quantity: number) => {
-    let res = { ok: false, error: 'Erro desconhecido' };
-    setGame((current) => {
-      const result = buyShopItem(current, itemId, itemName, price, quantity, content);
-      res = { ok: result.ok, error: result.error ?? 'Erro desconhecido' };
-      if (result.ok && result.message) {
+    const result = buyShopItem(game, itemId, itemName, price, quantity, content);
+    if (result.ok) {
+      setGame(result.state);
+      if (result.message) {
         setSaleMessage(result.message);
       }
-      return result.ok ? result.state : current;
-    });
-    return res;
+    }
+    return { ok: result.ok, error: result.error };
   };
   const handleUseItem = (itemId: number) => {
-    setGame((current) => {
-      const result = useTestConsumable(current, itemId, content);
-      if (result.ok && result.message) {
+    const result = useTestConsumable(game, itemId, content);
+    if (result.ok) {
+      setGame(result.state);
+      if (result.message) {
         setSaleMessage(result.message);
       }
-      return result.ok ? result.state : current;
-    });
+    }
   };
   const selectPartyCharacter = (characterId: string) => {
     setGame((current) => selectCharacter(current, characterId));
