@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma as defaultPrisma } from '../../../database/src';
+import { levelForExperience } from '../../../domain/src';
 import type { PlayerState } from '../schemas/PlayerState';
 
 export class PrismaPersistenceManager {
@@ -20,11 +21,14 @@ export class PrismaPersistenceManager {
     }
 
     try {
+      const expVal = typeof player.experience === 'number' && player.experience >= 0 ? player.experience : 0;
+      const validLevel = Math.max(player.level || 1, levelForExperience(expVal));
+
       await this.db.character.update({
         where: { id: player.characterId },
         data: {
-          level: player.level,
-          experience: typeof player.experience === 'number' && player.experience >= 0 ? BigInt(player.experience) : undefined,
+          level: validLevel,
+          experience: typeof player.experience === 'number' && player.experience >= 0 ? BigInt(Math.floor(player.experience)) : undefined,
           health: player.hp,
           maxHealth: player.maxHp,
           mana: player.mp,

@@ -11,7 +11,7 @@ import huntRegionsJson from '@/content/generated/hunt-regions.json';
 import type { BaseVocationName, EquipmentCatalog, EquipmentDefinition, HuntRegionCatalog, ItemEconomyCatalog, MonsterCatalog, SpellCatalog, StarterLoadoutCatalog, VocationCatalog } from '@/packages/content-schema/src';
 import {
   addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter,
-  characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
+  characterCapacity, deriveStats, experienceForLevel, experienceProgress, levelForExperience, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem, useTestConsumable,
   setCharacterStance, setCharacterTargetDistance,
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
@@ -767,7 +767,16 @@ function GamePrototypeContent() {
       VOCATION_MAP[charItem.vocationId] ||
       'Knight';
     const userChar = createCharacter(charItem.id, charItem.name, vocName, content, 'male');
-    if (charItem.level) userChar.level = charItem.level;
+    const rawExp = (charItem as any).experience;
+    if (typeof rawExp === 'number' && rawExp >= 0) {
+      userChar.experience = rawExp;
+    } else if (typeof rawExp === 'string' && !isNaN(Number(rawExp))) {
+      userChar.experience = Number(rawExp);
+    } else if (charItem.level) {
+      userChar.experience = experienceForLevel(charItem.level);
+    }
+    userChar.level = Math.max(charItem.level || 1, levelForExperience(userChar.experience));
+
     if (charItem.health) userChar.currentHp = charItem.health;
     if (charItem.maxHealth) userChar.maxHp = charItem.maxHealth;
     if (charItem.mana) userChar.currentMana = charItem.mana;

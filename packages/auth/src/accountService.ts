@@ -135,12 +135,21 @@ export class AccountService {
           select: {
             id: true,
             name: true,
+            vocationId: true,
             vocationName: true,
             level: true,
+            experience: true,
             health: true,
             maxHealth: true,
             mana: true,
             maxMana: true,
+            capacity: true,
+            staminaMinutes: true,
+            isAutoIdle: true,
+            lastHuntId: true,
+            posX: true,
+            posY: true,
+            posZ: true,
             outfitLookType: true,
             isOnline: true,
             lastLogin: true,
@@ -159,7 +168,10 @@ export class AccountService {
       coins: account.coins,
       isPremium: account.isPremium,
       isBanned: account.isBanned,
-      characters: account.characters,
+      characters: account.characters.map((c) => ({
+        ...c,
+        experience: Number(c.experience ?? 0),
+      })),
       createdAt: account.createdAt,
     };
   }

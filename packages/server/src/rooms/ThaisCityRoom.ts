@@ -444,6 +444,9 @@ export class ThaisCityRoom extends Room<WorldState> {
         posX = dbChar.posX;
         posY = dbChar.posY;
         posZ = dbChar.posZ;
+        let loadedExperience = dbChar.experience !== undefined && dbChar.experience !== null
+          ? Number(dbChar.experience)
+          : experienceForLevel(level);
         loadedStaminaMinutes = dbChar.staminaMinutes ?? 15;
         loadedIsAutoIdle = dbChar.isAutoIdle ?? false;
         loadedLastHuntId = dbChar.lastHuntId ?? '';

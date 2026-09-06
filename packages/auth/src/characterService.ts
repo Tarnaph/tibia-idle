@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import { experienceForLevel, levelForExperience } from '../../domain/src';
 
 export interface CreateCharacterInput {
   accountId: string;
@@ -320,7 +321,15 @@ export class CharacterService {
   ) {
     const updateData: any = {};
     if (data.level !== undefined) updateData.level = data.level;
-    if (data.experience !== undefined) updateData.experience = data.experience;
+    if (data.experience !== undefined) {
+      updateData.experience = data.experience;
+      const expLevel = levelForExperience(Number(data.experience));
+      if (updateData.level === undefined || updateData.level < expLevel) {
+        updateData.level = expLevel;
+      }
+    } else if (data.level !== undefined) {
+      updateData.experience = BigInt(experienceForLevel(data.level));
+    }
     if (data.health !== undefined) updateData.health = data.health;
     if (data.maxHealth !== undefined) updateData.maxHealth = data.maxHealth;
     if (data.mana !== undefined) updateData.mana = data.mana;
