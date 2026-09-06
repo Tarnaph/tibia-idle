@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-05T22:52:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 70: Botão de Mandar Mensagem e Ações Diretas na Lista de Amigos."
+last_updated: "2026-09-05T23:20:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 71: Verificação de Existência de Personagem na Lista de Amigos."
 progress:
-  total_phases: 70
-  completed_phases: 70
-  total_plans: 70
-  completed_plans: 70
+  total_phases: 71
+  completed_phases: 71
+  total_plans: 71
+  completed_plans: 71
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Botão de mandar mensagem na lista de amigos, ações rápidas (Party, Whisper, Remover) e integração fluida com a janela de Chat.
+**Current focus:** Verificação de existência de personagem ao adicionar amigos, endpoint `/api/characters/lookup`, validações e feedback visual.
 
 ## Current Position
 
-Phase: 70 of 70 (Botão de Mandar Mensagem na Lista de Amigos)  
+Phase: 71 of 71 (Verificação de Existência de Personagem na Lista de Amigos)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 70.
+Last activity: 2026-09-05 — Concluída Phase 71.
 
 Progress: [██████████] 100%
 
@@ -96,6 +96,7 @@ Progress: [██████████] 100%
 | 68. Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade e Painel Admin | 1 | - | - | Complete |
 | 69. Auditoria e Conexão Integral de Progressão (XP, Skills e Magic Level) | 1 | - | - | Complete |
 | 70. Botão de Mandar Mensagem e Ações Diretas na Lista de Amigos | 1 | - | - | Complete |
+| 71. Verificação de Existência de Personagem na Lista de Amigos | 1 | - | - | Complete |
 
 ## Accumulated Context
 

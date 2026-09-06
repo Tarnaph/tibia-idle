@@ -1159,5 +1159,32 @@ Plans: Concluído (Validado em `tests/phase70-friends-message.test.ts` e `70-SUM
 
 - [x] 70-01-PLAN: Botão de Mandar Mensagem, Barra de Ações Rápidas e Integração de Whisper no Chat.
 
+### Phase 71: Verificação de Existência de Personagem na Lista de Amigos
 
+**Goal:** Impedir a adição de personagens inexistentes na lista de amigos (`FriendsWindow`), consultando a existência do personagem no banco de dados via endpoint `/api/characters/lookup` e jogadores remotos ativos na sessão antes de persistir, com feedback visual em tempo real.  
+**Depends on:** Phase 70  
+**Requirements:**
+1. **Endpoint de Consulta `/api/characters/lookup`:**
+   - Consulta o banco de dados via Prisma buscando o personagem por nome (com correspondência insensível a maiúsculas/minúsculas).
+   - Retorna os dados oficiais do personagem (`id`, `name`, `level`, `vocationName`, `isOnline`) caso exista.
+   - Retorna 404 e mensagem de erro amigável se não for encontrado.
+2. **Validações no Frontend (`GamePrototype.tsx`):**
+   - Bloquear auto-adição com mensagem clara ("Você não pode adicionar seu próprio personagem à lista de amigos.").
+   - Bloquear duplicatas com aviso informativo.
+   - Reconhecer jogadores remotos ativos na sessão multijogador.
+   - Consultar o endpoint de lookup do servidor antes de adicionar.
+3. **Feedback Visual na Janela de Amigos (`FriendsWindow.tsx`):**
+   - Estado de carregamento no botão ("Verificando...") enquanto consulta o servidor.
+   - Alerta visual estilizado logo abaixo do formulário de busca (vermelho para erro e verde para sucesso).
+4. **Qualidade e Testes:**
+   - 0 erros de compilação TypeScript (`npm run typecheck`).
+   - Suíte de testes Vitest em `tests/phase71-friends-character-lookup.test.ts` com 100% de aprovação.
 
+**Success Criteria:**
+1. Personagens que não existem não são adicionados à lista de amigos e o usuário recebe feedback visual claro.
+2. Personagens existentes no servidor são adicionados com level e vocação autênticos.
+3. 0 erros no typecheck e testes Vitest aprovados.
+
+Plans: Concluído (Validado em `tests/phase71-friends-character-lookup.test.ts` e `71-SUMMARY.md`).
+
+- [x] 71-01-PLAN: Verificação de Existência de Personagem, Endpoint de Lookup e Feedback Visual na FriendsWindow.
