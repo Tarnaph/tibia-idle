@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-06T13:56:00.000Z"
-last_activity: "2026-09-06 — Conclusão da Phase 76: Escolha de Vocação no Nível 8+, Remoção na Criação e Item de Troca."
+status: in_progress
+last_updated: "2026-09-06T14:13:00.000Z"
+last_activity: "2026-09-06 — Criação da Phase 77: Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta."
 progress:
-  total_phases: 76
+  total_phases: 77
   completed_phases: 76
   total_plans: 76
   completed_plans: 76
-  percent: 100
+  percent: 98
 ---
 
 # Project State
@@ -20,22 +20,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Escolha de vocação no nível 8+, remoção do seletor na criação e item de troca de vocação na loja.
+**Current focus:** Progressão difícil de nível para desbloqueio de slots por conta e restrição de vocações únicas sem duplicatas.
 
 ## Current Position
 
-Phase: 76 of 76 (Escolha de Vocação no Nível 8+, Remoção na Criação e Item de Troca)  
-Plan: 1 of 1 in current phase  
-Status: Complete  
-Last activity: 2026-09-06 — Conclusão da Phase 76.
+Phase: 77 of 77 (Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta)  
+Plan: 0 of 0 in current phase  
+Status: In Progress  
+Last activity: 2026-09-06 — Criação da Phase 77.
 
-Progress: [██████████] 100%
+Progress: [█████████░] 98%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 47
-- Total phases in roadmap: 47
+- Total phases completed: 76
+- Total phases in roadmap: 77
 - Tests status: 46 test suites (289 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
@@ -44,64 +44,9 @@ Progress: [██████████] 100%
 
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
-| 1 a 41. (Milestone 1 - Singleplayer & Engine Vertical Slice) | 41 | - | - | Complete |
-| 42. Arquitetura PostgreSQL + Prisma ORM e Autenticação Multi-Role | 1 | - | - | Complete |
-| 43. Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em Ticks | 1 | - | - | Complete |
-| 44. Sincronização de Estado com Colyseus Schema, Interest Management e Chat | 1 | - | - | Complete |
-| 45. Refatoração do Frontend para Colyseus.js Client & Telas de Auth/Admin | 1 | - | - | Complete |
-| 46. Persistência PostgreSQL em Lote, Reconexão Nativa Colyseus e Testes E2E | 1 | - | - | Complete |
-| 1. Motor de Simulação e Combate Idle | 1 | - | - | Complete |
-| 2. Sistema de Equipamento e Atributos Derivados | 1 | - | - | Complete |
-| 3. Espacialidade 2D, Grid e Pathfinding A\* | 1 | - | - | Complete |
-| 4. Camada de Apresentação e Interpolação PixiJS | 1 | - | - | Complete |
-| 5. Treinamento Funcional de Habilidades | 1 | - | - | Complete |
-| 6. Importador Oficial de Mapas OTBM e Spawns XML | 1 | - | - | Complete |
-| 7. Preservação de Integridade e Isolamento de Servidores Legados | 1 | - | - | Complete |
-| 8. Pipeline Oficial de Assets Tibia 8.60 (DAT/SPR/OTB) | 1 | - | - | Complete |
-| 9. Decodificador Universal de Sprites RLE do Tibia | 1 | - | - | Complete |
-| 10. Catálogo Visual Integrado de Sprites e Apresentação | 1 | - | - | Complete |
-| 11. Pipeline Automatizado de Extração e Validação Visual | 1 | - | - | Complete |
-| 12. Arena OTBM 2D Real com Sprites Autênticos do Tibia 8.60 | 1 | - | - | Complete |
-| 13. Combate Fluido com Movimento Contínuo e Câmera Centrada | 1 | - | - | Complete |
-| 14. Animação Oficial de Morte, Cadáveres e Drop de Loot | 1 | - | - | Complete |
-| 15. Sistema de Party, Gestão de Membros e Vocations | 1 | - | - | Complete |
-| 16. Sistema de Economia, Moedas, Loot e Preços Oficiais | 1 | - | - | Complete |
-| 17. Janelas Arrastáveis e HUD Tibia 11 | 1 | - | - | Complete |
-| 18. Hotkeys Tibia 11, Action Bar e Disparo de Magias/Poções | 1 | - | - | Complete |
-| 19. Refinamento Visual de Itens, Inventário e HUD | 1 | - | - | Complete |
-| 20. Extração e Integração Oficial de Ícones e Poções | 1 | - | - | Complete |
-| 21. Magias, Poções, Runas, Hotkeys e Animações Oficiais | 1 | - | - | Complete |
-| 22. Autenticidade de Combate Tibia (Animações, Retículo, Fala, Chase e Cooldown) | 1 | - | - | Complete |
-| 23. Cooldowns Oficiais, Fluidez Inicial, Target Inteligente, XP 50k e Cave Rats | 1 | - | - | Complete |
-| 24. Área Autêntica da Magia Exori (SQUARE1X1 3x3 e Efeito Visual) | 1 | - | - | Complete |
-| 25. Novo Inventário, Depot, Venda Rápida, Movimento Reto e Preços | 1 | - | - | Complete |
-| 26. Alinhamento do Inventário, HUD Centralizada, Janela Flutuante, Stances e Distância | 1 | - | - | Complete |
-| 27. Desequipar Mochila, Trava de Foco e Level Up | 1 | - | - | Complete |
-| 28. Nova UI de Caçadas e Nova UI da Party com Modal | 1 | - | - | Complete |
-| 29. Saída de Caçada e Sistema de Treino com Dummies | 1 | - | - | Complete |
-| 30. Mapa Global de Thais, Início Imediato de Hunt e Sair no Dock | 1 | - | - | Complete |
-| 31. Migração Tibia 10.98 DAT/SPR e Renderização Autêntica de Thais | 1 | - | - | Complete |
-| 32. Vida, Nome do Personagem, Passos e Elementos Animados em Thais | 1 | - | - | Complete |
-| 33. Thais Completa, Fonte Nítida, Velocidade por Nível e Pathfinding por Clique | 1 | - | - | Complete |
-| 34. Unificação Visual de Nome e Barra de Vida Entre Cidade e Caçada | 1 | - | - | Complete |
-| 35. Cadência de Teclado, Velocidade Urbana (+25%) e Viagem para Caçada via Cais | 1 | - | - | Complete |
-| 36. Restauração Visual da Cidade, Isolamento de Andares e Escadas Canônicas | 1 | - | - | Complete |
-| 37. Movimento Fluído na Cidade (+50% Velocidade) e Mapa Completo do Segundo Andar | 1 | - | - | Complete |
-| 38. Fontes da Caçada Unificadas, VisualMotionTrack na Cidade e Integridade do Barco | 1 | - | - | Complete |
-| 39. Integração de mapaserver.otbm, Resposta Instantânea do Teclado e Velocidade Dobrada | 1 | - | - | Complete |
-| 40. Velocidade Normal, Bloqueio Estrito de Paredes e Âncora Canto Inferior Direito do SQM | 1 | - | - | Complete |
-| 41. Tooltip Global de Itens no Topo e Inspeção de Jogadores na Cidade | 1 | - | - | Complete |
-| 42. Sistema de Outfits e Montarias para Todos os Personagens da Party | 1 | - | - | Complete |
-| 43. Layout Oficial Tibia 11 do Menu de Outfit & Montarias | 1 | - | - | Complete |
-| 68. Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade e Painel Admin | 1 | - | - | Complete |
-| 69. Auditoria e Conexão Integral de Progressão (XP, Skills e Magic Level) | 1 | - | - | Complete |
-| 70. Botão de Mandar Mensagem e Ações Diretas na Lista de Amigos | 1 | - | - | Complete |
-| 71. Verificação de Existência de Personagem na Lista de Amigos | 1 | - | - | Complete |
-| 72. Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador | 1 | - | - | Complete |
-| 73. Abas Privadas Dedicadas no Chat para Mensagens Diretas com Fechamento | 1 | - | - | Complete |
-| 74. Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais | 1 | - | - | Complete |
-| 75. Itens de Teste na Loja (Nível, Skills e Gold por 0 GP) | 1 | - | - | Complete |
+| 1 a 75. (Fases Anteriores Concluídas) | 75 | - | - | Complete |
 | 76. Escolha de Vocação no Nível 8+, Remoção na Criação e Item de Troca | 1 | - | - | Complete |
+| 77. Progressão Difícil de Desbloqueio de Slots e Vocações Únicas por Conta | 0 | - | - | In Progress |
 
 ## Accumulated Context
 

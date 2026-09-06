@@ -39,6 +39,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais** - Inicialização de novos personagens estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 cap), e auditoria completa com verificação das tags de visibilidade urbana no Templo de Thais (inHunt: false, posZ: 7, outfit, vocation e nameplate).
 - [x] **Phase 75: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP)** - Adição de itens de teste gratuitos na loja (0 gold) para avançar 1 nível (com recálculo de stats), avançar 1 ponto em cada skill e comprar pacotes de gold livremente.
 - [x] **Phase 76: Escolha de Vocação no Nível 8+, Remoção da Escolha na Criação e Item de Troca de Vocação (Gold & 0 GP)** - Remoção do seletor de vocação na criação de personagem (todos nascem sem vocação / None no nível 1), trava de escolha de vocação ao atingir Nível 8+ (irreversível), e inclusão do Pergaminho de Troca de Vocação na Loja por Gold Coins e na Loja de Testes por 0 GP.
+- [ ] **Phase 77: Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta** - Trava progressiva de nível mais exigente para liberação dos 4 slots de personagens por conta (Slots no Nível 1, 50, 100 e 150) e restrição estrita de vocações únicas por conta (sem vocações repetidas no grupo/conta: 1 Knight, 1 Paladin, 1 Sorcerer, 1 Druid).
 
 ---
 
@@ -1351,5 +1352,38 @@ Plans: Concluído com sucesso.
 
 - [x] 76-01-PLAN: Escolha de Vocação no Nível 8+, Remoção na Criação e Item de Troca.
 - Resumo de entrega: `.planning/phases/phase-76-vocation-choice-level8/76-SUMMARY.md`
+
+### Phase 77: Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta
+
+**Goal:** Implementar uma progressão mais difícil de nível para liberar os 4 slots de personagens do grupo na conta (Slot 1 no Nível 1, Slot 2 no Nível 50, Slot 3 no Nível 100 e Slot 4 no Nível 150) e impor a regra estrita de vocações únicas por conta (cada conta só pode possuir 1 personagem de cada vocação: Knight, Paladin, Sorcerer, Druid, sem repetição).  
+**Depends on:** Phase 76  
+**Requirements:**
+1. **Progressão Difícil para Liberação de Slots da Conta:**
+   - Slot 1: Liberado imediatamente ao criar a conta / primeiro personagem (Nível 1).
+   - Slot 2: Requer que o jogador possua ao menos um personagem no **Nível 50** ou superior.
+   - Slot 3: Requer que o jogador possua ao menos um personagem no **Nível 100** ou superior.
+   - Slot 4: Requer que o jogador possua ao menos um personagem no **Nível 150** ou superior.
+   - Bloqueio visual nos slots travados (`🔒 Slot 2 Requer Nível 50`, `🔒 Slot 3 Requer Nível 100`, `🔒 Slot 4 Requer Nível 150`) e trava na criação/adição de personagens no squad.
+   - Bypass irrestrito mantido para contas com role `ADMIN` ou `GM`.
+2. **Restrição Estrita de Vocações Únicas por Conta:**
+   - Cada conta só pode ter no máximo **1 Knight**, **1 Paladin**, **1 Sorcerer** e **1 Druid**.
+   - No modal de escolha de vocação no Nível 8+ (`VocationChoiceModal`), desabilitar e indicar visualmente como indisponíveis as vocações que outros personagens da mesma conta já possuem.
+   - Se o personagem utilizar o Pergaminho de Troca de Vocação (ID 9912), ele só poderá mudar para uma vocação que ainda esteja vaga/livre na conta.
+   - Uma conta com os 4 slots liberados e 4 personagens terá exatamente 1 herói de cada vocação sem nenhuma duplicata.
+3. **Qualidade e Testes:**
+   - Suíte de testes no Vitest cobrindo a progressão difícil dos 4 slots, bloqueio de vocação duplicada na conta e exceções de Admin.
+   - `npm run typecheck` com 0 erros.
+
+**Success Criteria:**
+1. Os slots 2, 3 e 4 exigem Nível 50, 100 e 150 respectivamente.
+2. Contas normais não conseguem criar ou equipar personagens nos slots bloqueados.
+3. Vocações já escolhidas por um personagem da conta não podem ser repetidas por outros personagens da mesma conta.
+4. Ao completar 4 personagens, a conta possui rigorosamente 1 Knight, 1 Paladin, 1 Sorcerer e 1 Druid.
+5. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: 0 plans
+
+- [ ] TBD (run /gsd-plan-phase 77 to break down)
+
 
 
