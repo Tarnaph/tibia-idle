@@ -1129,5 +1129,34 @@ Plans: Concluído (Validado em `tests/phase69-progression-audit.test.ts` e `69-S
 
 - [x] 69-01-PLAN: Auditoria, conexão de ganho de Skills e Magic Level em combate e suíte de testes de progressão.
 
+### Phase 70: Botão de Mandar Mensagem e Ações Diretas na Lista de Amigos
+
+**Goal:** Implementar o botão visual explícito e direto de "Mandar Mensagem" na lista de amigos (`FriendsWindow`), barra de ações para o amigo selecionado, e integração com o sistema de chat para focar a janela e pré-preencher o whisper clássico (`*Nome* `).  
+**Depends on:** Phase 69  
+**Requirements:**
+1. **Botão de Mensagem por Amigo:**
+   - Cada linha de amigo (online e offline) deve exibir um botão direto e visível `[ 💬 Mensagem ]` ou ícone com tooltip claro.
+   - Clicar no botão aciona o callback `onPrivateMessage(friend.name)`.
+2. **Barra de Ações do Amigo Selecionado:**
+   - Ao clicar ou selecionar um amigo na lista, exibir uma seção de ações destacada:
+     - Nome e Nível do amigo selecionado.
+     - Botão `[ 💬 Mandar Mensagem ]` com destaque visual.
+     - Botão `[ ⚔️ Convidar Party ]`.
+     - Botão `[ ❌ Remover ]`.
+3. **Integração com a Janela de Chat:**
+   - `ChatWindowHandle` atualizado com suporte a pré-preenchimento de input (`prefillInput` ou `focusInput(channel, prefill)`).
+   - Ao clicar em "Mandar Mensagem", abrir a janela de chat, trazê-la para frente e colocar no campo de texto `*NomeDoAmigo* `, posicionando o cursor pronto para digitação.
+4. **Qualidade e Validação:**
+   - 0 erros de TypeScript (`npm run typecheck`).
+   - Teste automatizado Vitest verificando a presença e disparo do botão de mensagem e integração.
+
+**Success Criteria:**
+1. O usuário vê claramente o botão de mandar mensagem em cada amigo da lista.
+2. Clicar em "Mandar Mensagem" abre o chat e prepara o envio para o amigo selecionado.
+3. 0 erros de tipagem TypeScript e testes Vitest passando.
+
+Plans:
+- [ ] 70-01-PLAN: Botão de Mandar Mensagem, Barra de Ações Rápidas e Integração de Whisper no Chat.
+
 
 
