@@ -29,6 +29,7 @@ interface TibiaAuthCharacterModalProps {
 }
 
 const VOCATION_NAMES: Record<number, string> = {
+  0: 'Sem Vocação',
   1: 'Sorcerer',
   2: 'Druid',
   3: 'Paladin',
@@ -198,7 +199,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: charName, vocationId: selectedVocation }),
+        body: JSON.stringify({ name: charName, vocationId: 0 }),
       });
       const data = (await res.json()) as any;
       if (!data.success) {
@@ -687,27 +688,18 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '8px' }}>Escolha a Vocação</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      {[1, 2, 3, 4].map((vocId) => (
-                        <button
-                          key={vocId}
-                          type="button"
-                          onClick={() => setSelectedVocation(vocId)}
-                          style={{
-                            padding: '10px',
-                            backgroundColor: selectedVocation === vocId ? '#3d3121' : '#11161d',
-                            border: selectedVocation === vocId ? '2px solid #d4a843' : '1px solid #2b3442',
-                            borderRadius: '4px',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            color: selectedVocation === vocId ? '#f3e5ab' : '#aaa',
-                          }}
-                        >
-                          <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{VOCATION_NAMES[vocId]}</div>
-                          <div style={{ fontSize: '10px', color: '#888', marginTop: '3px' }}>{VOCATION_DESCRIPTIONS[vocId]}</div>
-                        </button>
-                      ))}
+                    <div
+                      style={{
+                        fontSize: '11px',
+                        color: '#a09886',
+                        backgroundColor: '#11161d',
+                        padding: '10px 12px',
+                        borderRadius: '4px',
+                        border: '1px solid #2b3442',
+                        lineHeight: '1.5',
+                      }}
+                    >
+                      ℹ️ O personagem começará no <strong>Nível 1</strong> sem vocação. Você poderá escolher a sua vocação (Knight, Paladin, Sorcerer ou Druid) ao atingir o Nível 8+.
                     </div>
                   </div>
 
