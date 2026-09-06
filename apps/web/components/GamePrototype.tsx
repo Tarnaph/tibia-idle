@@ -38,6 +38,7 @@ import { ItemTooltip } from './ItemTooltip';
 import { GlobalItemTooltip } from './GlobalItemTooltip';
 import { PartyMemberModal } from './PartyMemberModal';
 import { OutfitModal } from './OutfitModal';
+import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { PixiArena } from './PixiArena';
 import { TrainingArena } from './TrainingArena';
@@ -236,6 +237,7 @@ function GamePrototypeContent() {
   ]);
   const [overheadMessages, setOverheadMessages] = useState<CityOverheadMessage[]>([]);
   const chatWindowRef = useRef<ChatWindowHandle>(null);
+  const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
 
   // Friends System State
   const [friendsList, setFriendsList] = useState<FriendItem[]>(() => {
@@ -1057,43 +1059,55 @@ function GamePrototypeContent() {
 
   useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running');
 
-  // When defeated in hunt, resurrect and respawn in Thais Temple (32369, 32241, 7) and walk to plaza
+  // When defeated in hunt or dead, open authentic "You are dead" modal
   useEffect(() => {
     if (mode === 'hunt' && encounter.status === 'defeated') {
-      const timer = window.setTimeout(() => {
-        setGame((current) => {
-          const respawned = respawnInTemple(current);
-          const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
-          const localOnly = mainId ? respawned.session.characters.filter((c: CharacterState) => c.id === mainId) : [respawned.session.characters[0]];
-          return {
-            ...respawned,
-            session: {
-              ...respawned.session,
-              characters: localOnly,
-            },
-          };
-        });
-        setMode('training');
-        gameNetwork.sendSetInHunt(false);
-        setIsTrainingAtDummy(false);
-        setCityPos(THAIS_TEMPLE_POSITION);
-        setWalkingPath({
-          waypoints: [
-            { x: 32368, y: 32215, z: 7 },
-            { x: 32345, y: 32215, z: 7 },
-            { x: 32345, y: 32224, z: 7 },
-          ],
-          destinationName: 'Depot de Thais',
-          currentIndex: 0,
-          onArrive: () => {
-            setSaleMessage('Chegou no Depot de Thais.');
-          },
-        });
-        setSaleMessage('Alas! Você morreu, renasceu no Templo de Thais e está caminhando para a praça...');
-      }, 1000);
-      return () => window.clearTimeout(timer);
+      setIsDeathModalOpen(true);
+      setOverheadMessages((prev) => [
+        ...prev,
+        {
+          id: `dead-${Date.now()}`,
+          senderName: activeCharacter.name,
+          text: 'You are dead.',
+          channel: 'local',
+          timestamp: Date.now(),
+        },
+      ]);
     }
-  }, [mode, encounter.status]);
+  }, [mode, encounter.status, activeCharacter.name]);
+
+  const handleConfirmDeath = useCallback(() => {
+    setIsDeathModalOpen(false);
+    setGame((current) => {
+      const respawned = respawnInTemple(current, undefined, content);
+      const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
+      const localOnly = mainId ? respawned.session.characters.filter((c: CharacterState) => c.id === mainId) : [respawned.session.characters[0]];
+      return {
+        ...respawned,
+        session: {
+          ...respawned.session,
+          characters: localOnly,
+        },
+      };
+    });
+    setMode('training');
+    gameNetwork.sendSetInHunt(false);
+    setIsTrainingAtDummy(false);
+    setCityPos(THAIS_TEMPLE_POSITION);
+    setWalkingPath({
+      waypoints: [
+        { x: 32368, y: 32215, z: 7 },
+        { x: 32345, y: 32215, z: 7 },
+        { x: 32345, y: 32224, z: 7 },
+      ],
+      destinationName: 'Depot de Thais',
+      currentIndex: 0,
+      onArrive: () => {
+        setSaleMessage('Chegou no Depot de Thais.');
+      },
+    });
+    setSaleMessage('Alas! Você morreu, renasceu no Templo de Thais com penalidades aplicadas.');
+  }, [content]);
 
   // Advance training at dummy using selected skill with Web Worker ticker
   const tickTraining = useCallback(() => {
@@ -1917,6 +1931,12 @@ function GamePrototypeContent() {
           onSave={handleSaveOutfit}
         />
       )}
+
+      <DeathModal
+        open={isDeathModalOpen}
+        onConfirm={handleConfirmDeath}
+        onCancel={handleConfirmDeath}
+      />
 
       <FriendsWindow
         friends={friendsList}

@@ -8,6 +8,9 @@ export interface ServerConfig {
   allowReconnectionSec: number;
   localChatRadius: number;
   yellChatRadius: number;
+  deathPenaltyExpPercent: number;
+  deathPenaltySkillPercent: number;
+  deathPenaltyLoseLoot: boolean;
 }
 
 const defaultConfig: ServerConfig = {
@@ -20,6 +23,9 @@ const defaultConfig: ServerConfig = {
   allowReconnectionSec: 20,
   localChatRadius: 8,
   yellChatRadius: 30,
+  deathPenaltyExpPercent: 10,
+  deathPenaltySkillPercent: 10,
+  deathPenaltyLoseLoot: true,
 };
 
 class ServerConfigManagerClass {
@@ -43,6 +49,9 @@ class ServerConfigManagerClass {
       allowReconnectionSec: typeof partial.allowReconnectionSec === 'number' && partial.allowReconnectionSec >= 0 ? Math.floor(partial.allowReconnectionSec) : this.config.allowReconnectionSec,
       localChatRadius: typeof partial.localChatRadius === 'number' && partial.localChatRadius > 0 ? Math.floor(partial.localChatRadius) : this.config.localChatRadius,
       yellChatRadius: typeof partial.yellChatRadius === 'number' && partial.yellChatRadius > 0 ? Math.floor(partial.yellChatRadius) : this.config.yellChatRadius,
+      deathPenaltyExpPercent: typeof partial.deathPenaltyExpPercent === 'number' && partial.deathPenaltyExpPercent >= 0 ? Math.min(100, partial.deathPenaltyExpPercent) : this.config.deathPenaltyExpPercent,
+      deathPenaltySkillPercent: typeof partial.deathPenaltySkillPercent === 'number' && partial.deathPenaltySkillPercent >= 0 ? Math.min(100, partial.deathPenaltySkillPercent) : this.config.deathPenaltySkillPercent,
+      deathPenaltyLoseLoot: typeof partial.deathPenaltyLoseLoot === 'boolean' ? partial.deathPenaltyLoseLoot : this.config.deathPenaltyLoseLoot,
     };
 
     this.listeners.forEach((fn) => fn(this.getConfig()));

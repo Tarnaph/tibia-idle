@@ -1,6 +1,6 @@
 import { deriveStats, getEquippedItems } from './derivedStats';
 import { adaptWaveHuntToExpedition } from './expedition';
-import { experienceForLevel } from './experience';
+import { experienceForLevel, levelForExperience } from './experience';
 import { huntById } from './hunt';
 import { createContinuousHuntRoute } from './huntRoute';
 import { createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
@@ -1262,16 +1262,76 @@ export function leaveHunt(state: GameState): GameState {
   addLog(next, `${next.encounter.hunt.name}: sessão encerrada pelo jogador.`); return next;
 }
 
-export function respawnInTemple(state: GameState): GameState {
+export interface DeathPenaltyOptions {
+  expLossPercent?: number;
+  skillLossPercent?: number;
+  loseLoot?: boolean;
+}
+
+export function respawnInTemple(
+  state: GameState,
+  options?: DeathPenaltyOptions,
+  content?: GameContent,
+): GameState {
   const next = cloneState(state);
+  const cfg = serverConfigManager.getConfig();
+  const expLossPercent = options?.expLossPercent ?? cfg.deathPenaltyExpPercent ?? 10;
+  const skillLossPercent = options?.skillLossPercent ?? cfg.deathPenaltySkillPercent ?? 10;
+  const loseLoot = options?.loseLoot ?? cfg.deathPenaltyLoseLoot ?? true;
+
   const charMap = new Map(next.session.characters.map((c) => [c.id, c]));
   for (const character of next.session.characters) {
+    // 1. XP Penalty: lose configured % of experience (default 10%)
+    if (expLossPercent > 0 && character.experience > 0) {
+      const expLost = Math.floor(character.experience * (expLossPercent / 100));
+      character.experience = Math.max(0, character.experience - expLost);
+
+      // Level recalculation (de-level if experience drops below current level threshold)
+      const prevLevel = character.level;
+      const newLevel = levelForExperience(character.experience);
+      if (newLevel < prevLevel) {
+        character.level = newLevel;
+        if (content) {
+          try {
+            const vocation = vocationFor(content, character.vocation);
+            const baseHp = 150 + (newLevel - 1) * vocation.gainHp;
+            const baseMana = (newLevel - 1) * vocation.gainMana;
+            character.maxHp = Math.max(150, baseHp);
+            character.maxMana = Math.max(0, baseMana);
+          } catch {}
+        }
+      }
+    }
+
+    // 2. Skill Penalty: lose configured % in all skills (default 10%)
+    if (skillLossPercent > 0 && character.skills) {
+      const skillsToReduce: Array<keyof typeof character.skills> = [
+        'sword', 'axe', 'club', 'distance', 'shielding', 'fist', 'magicLevel',
+      ];
+      for (const skillKey of skillsToReduce) {
+        const currentVal = character.skills[skillKey];
+        if (typeof currentVal === 'number' && currentVal > 0) {
+          const minVal = skillKey === 'magicLevel' ? 0 : 10;
+          const lostVal = Math.max(0, Math.floor(currentVal * (skillLossPercent / 100)));
+          character.skills[skillKey] = Math.max(minVal, currentVal - lostVal);
+        }
+      }
+    }
+
     character.currentHp = character.maxHp;
     character.currentMana = character.maxMana;
     character.combatState.targetId = null;
     character.combatState.spellCooldowns = {};
     character.combatState.groupCooldowns = {};
   }
+
+  // 3. Loot Penalty: lose accumulated hunt loot if enabled (default true)
+  let lostLootCount = 0;
+  if (loseLoot && next.session.loot && next.session.loot.length > 0) {
+    lostLootCount = next.session.loot.reduce((sum, item) => sum + item.amount, 0);
+    next.session.loot = [];
+  }
+
   for (const actor of next.encounter.partyActors) {
     const char = charMap.get(actor.characterId);
     actor.alive = true;
@@ -1282,7 +1342,7 @@ export function respawnInTemple(state: GameState): GameState {
   }
   next.encounter.status = 'completed';
   next.encounter.events.push({ type: 'hunt-complete' });
-  addLog(next, 'Você renasceu no Templo de Thais (32369, 32241, 7).');
+  addLog(next, `Alas! Você morreu e renasceu no Templo de Thais. Penalidade: -${expLossPercent}% XP, -${skillLossPercent}% Skills${loseLoot ? `, e o loot da caçada foi perdido (${lostLootCount} itens)` : ''}.`);
   return next;
 }
 

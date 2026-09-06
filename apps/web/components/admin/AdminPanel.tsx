@@ -65,6 +65,9 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
     allowReconnectionSec: 20,
     localChatRadius: 8,
     yellChatRadius: 30,
+    deathPenaltyExpPercent: 10,
+    deathPenaltySkillPercent: 10,
+    deathPenaltyLoseLoot: true,
   });
 
   // Players state
@@ -475,6 +478,71 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
                       onChange={(e) => setServerConfig({ ...serverConfig, localChatRadius: parseInt(e.target.value) || 8 })}
                       style={{ width: '100%', padding: '8px', background: '#11161d', border: '1px solid #3d3122', color: '#fff', borderRadius: '4px' }}
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* DEATH PENALTY CONFIG CARD */}
+              <div style={{ backgroundColor: '#1b222d', border: '1px solid #3d3122', borderRadius: '6px', padding: '20px', gridColumn: 'span 2' }}>
+                <h3 style={{ color: '#d4a843', fontSize: '15px', marginTop: 0, marginBottom: '16px', borderBottom: '1px solid #2b3442', paddingBottom: '8px' }}>
+                  💀 Penalidades de Morte (Death Penalty)
+                </h3>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+                  <div>
+                    <label style={{ fontSize: '12px', color: '#c7b299', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Perda de XP na Morte (%)</span>
+                      <span style={{ color: '#ff766b' }}>{serverConfig.deathPenaltyExpPercent ?? 10}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      step="1"
+                      value={serverConfig.deathPenaltyExpPercent ?? 10}
+                      onChange={(e) => setServerConfig({ ...serverConfig, deathPenaltyExpPercent: parseFloat(e.target.value) })}
+                      style={{ width: '100%', marginTop: '6px' }}
+                    />
+                    <div style={{ fontSize: '11px', color: '#8c8273', marginTop: '4px' }}>
+                      Percentual de experiência deduzida ao morrer (padrão: 10%). Aplica de-level se a XP cair do nível.
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '12px', color: '#c7b299', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Perda de Habilidades / Skills (%)</span>
+                      <span style={{ color: '#ff766b' }}>{serverConfig.deathPenaltySkillPercent ?? 10}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      step="1"
+                      value={serverConfig.deathPenaltySkillPercent ?? 10}
+                      onChange={(e) => setServerConfig({ ...serverConfig, deathPenaltySkillPercent: parseFloat(e.target.value) })}
+                      style={{ width: '100%', marginTop: '6px' }}
+                    />
+                    <div style={{ fontSize: '11px', color: '#8c8273', marginTop: '4px' }}>
+                      Percentual de redução em todas as skills (melee, distance, shielding, magic level).
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #242c38' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input
+                      type="checkbox"
+                      id="deathPenaltyLoseLoot"
+                      checked={serverConfig.deathPenaltyLoseLoot ?? true}
+                      onChange={(e) => setServerConfig({ ...serverConfig, deathPenaltyLoseLoot: e.target.checked })}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#d4a843' }}
+                    />
+                    <label htmlFor="deathPenaltyLoseLoot" style={{ fontSize: '12px', color: '#f3e5ab', fontWeight: 'bold', cursor: 'pointer' }}>
+                      Perder todo o loot acumulado na caçada ao morrer
+                    </label>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#8c8273', marginLeft: '26px', marginTop: '4px' }}>
+                    Se ativo, esvazia os itens obtidos na caçada atual. Equipamentos e Bolsa protegida não são afetados.
                   </div>
                 </div>
               </div>

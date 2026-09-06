@@ -9,3 +9,13 @@ export function experienceProgress(level: number, experience: number): number {
   if (next <= current) return 1;
   return Math.min(1, Math.max(0, (experience - current) / (next - current)));
 }
+
+export function levelForExperience(experience: number): number {
+  if (experience <= 0) return 1;
+  let level = 1;
+  while (experience >= experienceForLevel(level + 1)) {
+    level += 1;
+  }
+  return Math.max(1, level);
+}
+
