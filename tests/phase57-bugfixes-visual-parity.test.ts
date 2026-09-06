@@ -176,11 +176,10 @@ describe('Phase 57: Bug Fixes & Visual Parity (Offensive Exhaust, Wand VFX, Part
     const huntModalSrc = readFileSync(resolve(projectRoot, 'apps/web/components/party/GroupHuntApprovalModal.tsx'), 'utf8');
     const huntSelectorSrc = readFileSync(resolve(projectRoot, 'apps/web/components/HuntSelector.tsx'), 'utf8');
 
-    // Image 1: Friends Window
-    expect(friendsSrc).toContain('Veja quem está online e mantenha sua party por perto.');
+    // Image 1: Friends Window (party removed per user design requirements)
+    expect(friendsSrc).toContain('Veja quem está online e mantenha contato com seus amigos.');
     expect(friendsSrc).toContain('ONLINE (');
     expect(friendsSrc).toContain('Mandar mensagem para');
-    expect(friendsSrc).toContain('Convidar para a party');
     expect(friendsSrc).toContain('Remover dos amigos');
     expect(friendsSrc).toContain('Amigos:');
     expect(friendsSrc).toContain('Online:');

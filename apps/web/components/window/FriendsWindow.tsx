@@ -17,7 +17,7 @@ interface FriendsWindowProps {
   onAddFriend: (name: string) => Promise<{ success: boolean; error?: string } | void> | void;
   onRemoveFriend: (name: string) => void;
   onPrivateMessage: (name: string) => void;
-  onInviteParty: (name: string) => void;
+  onInviteParty?: (name: string) => void;
 }
 
 export function FriendsWindow({
@@ -26,7 +26,6 @@ export function FriendsWindow({
   onAddFriend,
   onRemoveFriend,
   onPrivateMessage,
-  onInviteParty,
 }: FriendsWindowProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -99,7 +98,7 @@ export function FriendsWindow({
       >
         {/* Subtitle */}
         <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '10px' }}>
-          Veja quem está online e mantenha sua party por perto.
+          Veja quem está online e mantenha contato com seus amigos.
         </div>
 
         {/* Search Bar + Adicionar Button */}
@@ -461,29 +460,6 @@ export function FriendsWindow({
 
               <button
                 type="button"
-                onClick={() => onInviteParty(selectedFriend.name)}
-                style={{
-                  padding: '5px 10px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  backgroundColor: '#15803d',
-                  border: '1px solid #4ade80',
-                  borderRadius: '3px',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#166534')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
-              >
-                <span>⚔️</span>
-                <span>Party</span>
-              </button>
-
-              <button
-                type="button"
                 title={`Remover ${selectedFriend.name} dos amigos`}
                 onClick={() => {
                   onRemoveFriend(selectedFriend.name);
@@ -585,27 +561,6 @@ export function FriendsWindow({
             >
               <span>💬</span>
               <span>Mandar mensagem para {selectedFriend.name}</span>
-            </div>
-
-            <div
-              onClick={() => {
-                onInviteParty(selectedFriend.name);
-                setContextMenuPos(null);
-              }}
-              style={{
-                padding: '7px 12px',
-                color: '#f1f5f9',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'background-color 0.1s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-              <span>⚔️</span>
-              <span>Convidar para a party</span>
             </div>
 
             <div
