@@ -1125,8 +1125,9 @@ Plans: Concluído (Validado em `tests/phase68-death-penalty-and-modal.test.ts` e
 4. Suíte de testes cobrindo todos os cenários de progressão com 100% de aprovação.
 5. 0 erros de tipagem TypeScript.
 
-Plans:
-- [ ] 69-01-PLAN: Auditoria, conexão de ganho de Skills e Magic Level em combate e suíte de testes de progressão.
+Plans: Concluído (Validado em `tests/phase69-progression-audit.test.ts` e `69-SUMMARY.md`).
+
+- [x] 69-01-PLAN: Auditoria, conexão de ganho de Skills e Magic Level em combate e suíte de testes de progressão.
 
 
 
