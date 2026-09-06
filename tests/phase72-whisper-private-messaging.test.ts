@@ -150,4 +150,48 @@ describe('Phase 72: Whisper and Private Messaging Integration', () => {
     const errorMsg = isSelf ? 'Você não pode enviar mensagens privadas para seu próprio personagem.' : null;
     expect(errorMsg).toBe('Você não pode enviar mensagens privadas para seu próprio personagem.');
   });
+
+  it('dynamically computes online status for friends list based on active players in room', () => {
+    const friendsList = [
+      { id: 'f-1', name: 'Sirius Black', isOnline: false },
+      { id: 'f-2', name: 'Knight Of Thais', isOnline: false },
+      { id: 'f-3', name: 'OfflineFriend', isOnline: false },
+    ];
+
+    const remotePlayersMap = new Map([
+      ['p-1', { name: 'Sirius Black' }],
+      ['p-2', { name: 'Knight Of Thais' }],
+    ]);
+
+    const onlineNames = new Set(Array.from(remotePlayersMap.values()).map((r) => r.name.toLowerCase()));
+
+    const effectiveFriends = friendsList.map((f) => ({
+      ...f,
+      isOnline: onlineNames.has(f.name.toLowerCase()) || f.isOnline === true,
+    }));
+
+    expect(effectiveFriends.find((f) => f.name === 'Sirius Black')?.isOnline).toBe(true);
+    expect(effectiveFriends.find((f) => f.name === 'Knight Of Thais')?.isOnline).toBe(true);
+    expect(effectiveFriends.find((f) => f.name === 'OfflineFriend')?.isOnline).toBe(false);
+  });
+
+  it('supports multi-word target names in slash commands and quoted names', () => {
+    const players = new Map([
+      ['p-1', { name: 'Knight Of Thais' }],
+    ]);
+
+    const rawInput = '/w "Knight Of Thais" Fala guerreiro';
+    const slashMatch = rawInput.match(/^\/(?:w|whisper|tell|msg)\s+(?:"([^"]+)"|(\S+))\s*(.*)$/i);
+
+    let targetName = (slashMatch![1] || slashMatch![2]).trim();
+    let whisperContent = slashMatch![3].trim();
+
+    expect(targetName).toBe('Knight Of Thais');
+    expect(whisperContent).toBe('Fala guerreiro');
+
+    const found = Array.from(players.values()).find((p) => p.name.toLowerCase() === targetName.toLowerCase());
+    expect(found).toBeDefined();
+    expect(found?.name).toBe('Knight Of Thais');
+  });
 });
+
