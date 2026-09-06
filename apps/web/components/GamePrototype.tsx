@@ -260,12 +260,92 @@ function GamePrototypeContent() {
     } catch {}
   }, [friendsList]);
 
-  const handleAddFriend = useCallback((name: string) => {
-    setFriendsList((prev) => {
-      if (prev.some((f) => f.name.toLowerCase() === name.toLowerCase())) return prev;
-      return [...prev, { id: `friend-${Date.now()}`, name, level: 1, vocation: 'Player', isOnline: true }];
-    });
-  }, []);
+  const handleAddFriend = useCallback(
+    async (name: string): Promise<{ success: boolean; error?: string }> => {
+      const trimmed = name.trim();
+      if (!trimmed) {
+        return { success: false, error: 'Por favor, informe o nome do personagem.' };
+      }
+
+      const activeChar = selectedCharacterOf(game);
+      const isSelf =
+        (activeChar?.name && activeChar.name.toLowerCase() === trimmed.toLowerCase()) ||
+        game.session.characters.some((c) => c.name.toLowerCase() === trimmed.toLowerCase());
+
+      if (isSelf) {
+        return { success: false, error: 'Você não pode adicionar seu próprio personagem à lista de amigos.' };
+      }
+
+      if (friendsList.some((f) => f.name.toLowerCase() === trimmed.toLowerCase())) {
+        return { success: false, error: `"${trimmed}" já está na sua lista de amigos.` };
+      }
+
+      // Check remote players in current session first
+      const remoteMatch = remotePlayers
+        ? Array.from(remotePlayers.values()).find(
+            (r) => r.name.toLowerCase() === trimmed.toLowerCase()
+          )
+        : null;
+
+      if (remoteMatch) {
+        const newFriend: FriendItem = {
+          id: `f-${remoteMatch.id || Date.now()}`,
+          name: remoteMatch.name,
+          level: remoteMatch.level || 1,
+          vocation: VOCATION_MAP[remoteMatch.vocationId] || 'Knight',
+          isOnline: true,
+        };
+        setFriendsList((prev) => [...prev, newFriend]);
+        setSaleMessage(`Amigo ${remoteMatch.name} adicionado com sucesso!`);
+        return { success: true };
+      }
+
+      // Query database API lookup endpoint to verify existence
+      try {
+        const res = await fetch(`/api/characters/lookup?name=${encodeURIComponent(trimmed)}`);
+        const data = (await res.json()) as {
+          success?: boolean;
+          character?: {
+            id?: string;
+            name: string;
+            level?: number;
+            vocationId?: number;
+            vocationName?: string;
+            isOnline?: boolean;
+          };
+          error?: string;
+        };
+
+        if (res.ok && data.success && data.character) {
+          const char = data.character;
+          const newFriend: FriendItem = {
+            id: `f-${char.id || Date.now()}`,
+            name: char.name,
+            level: char.level || 1,
+            vocation:
+              char.vocationName ||
+              (char.vocationId ? VOCATION_MAP[char.vocationId] : undefined) ||
+              'Player',
+            isOnline: Boolean(char.isOnline),
+          };
+          setFriendsList((prev) => [...prev, newFriend]);
+          setSaleMessage(`Amigo ${char.name} adicionado com sucesso!`);
+          return { success: true };
+        }
+
+        return {
+          success: false,
+          error: data?.error || `Personagem "${trimmed}" não existe no servidor.`,
+        };
+      } catch {
+        return {
+          success: false,
+          error: 'Erro de comunicação ao verificar personagem no servidor.',
+        };
+      }
+    },
+    [game, friendsList, remotePlayers]
+  );
 
   const handleRemoveFriend = useCallback((name: string) => {
     setFriendsList((prev) => prev.filter((f) => f.name.toLowerCase() !== name.toLowerCase()));

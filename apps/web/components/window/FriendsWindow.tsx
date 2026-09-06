@@ -14,7 +14,7 @@ export interface FriendItem {
 interface FriendsWindowProps {
   friends: FriendItem[];
   allKnownCharacters?: { name: string; level?: number; vocation?: string }[];
-  onAddFriend: (name: string) => void;
+  onAddFriend: (name: string) => Promise<{ success: boolean; error?: string } | void> | void;
   onRemoveFriend: (name: string) => void;
   onPrivateMessage: (name: string) => void;
   onInviteParty: (name: string) => void;
@@ -29,16 +29,35 @@ export function FriendsWindow({
   onInviteParty,
 }: FriendsWindowProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
   const [selectedFriend, setSelectedFriend] = useState<FriendItem | null>(null);
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     const query = searchQuery.trim();
-    if (!query) return;
-    onAddFriend(query);
-    setSearchQuery('');
+    if (!query || isSearching) return;
+    setFeedback(null);
+    setIsSearching(true);
+
+    try {
+      const result = await onAddFriend(query);
+      if (result && !result.success) {
+        setFeedback({ type: 'error', message: result.error || `Personagem "${query}" não encontrado.` });
+      } else {
+        setSearchQuery('');
+        setFeedback({ type: 'success', message: `Personagem "${query}" adicionado com sucesso!` });
+        setTimeout(() => {
+          setFeedback((prev) => (prev?.type === 'success' ? null : prev));
+        }, 4000);
+      }
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err?.message || 'Erro ao consultar personagem.' });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleFriendClick = (friend: FriendItem, e: React.MouseEvent) => {
@@ -80,11 +99,14 @@ export function FriendsWindow({
       >
         {/* Subtitle */}
         <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '10px' }}>
-          Veja quem está online e mantenha contato com seus amigos.
+          Veja quem está online e mantenha sua party por perto.
         </div>
 
         {/* Search Bar + Adicionar Button */}
-        <form onSubmit={handleAdd} style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+        <form
+          onSubmit={handleAdd}
+          style={{ display: 'flex', gap: '8px', marginBottom: feedback ? '8px' : '14px' }}
+        >
           <div
             style={{
               flex: 1,
@@ -94,13 +116,18 @@ export function FriendsWindow({
               border: '1px solid #232936',
               borderRadius: '3px',
               padding: '0 8px',
+              opacity: isSearching ? 0.7 : 1,
             }}
           >
             <span style={{ color: '#64748b', marginRight: '6px', fontSize: '12px' }}>🔍</span>
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              disabled={isSearching}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (feedback) setFeedback(null);
+              }}
               placeholder="Buscar personagem..."
               style={{
                 flex: 1,
@@ -115,24 +142,65 @@ export function FriendsWindow({
           </div>
           <button
             type="submit"
+            disabled={isSearching}
             style={{
               padding: '6px 14px',
               fontSize: '11px',
               fontWeight: 600,
-              backgroundColor: '#1b2230',
+              backgroundColor: isSearching ? '#151a24' : '#1b2230',
               border: '1px solid #3b4861',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.4)',
-              color: '#d1d5db',
+              color: isSearching ? '#64748b' : '#d1d5db',
               borderRadius: '3px',
-              cursor: 'pointer',
+              cursor: isSearching ? 'not-allowed' : 'pointer',
               transition: 'all 0.15s ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#263044')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1b2230')}
+            onMouseEnter={(e) => {
+              if (!isSearching) e.currentTarget.style.backgroundColor = '#263044';
+            }}
+            onMouseLeave={(e) => {
+              if (!isSearching) e.currentTarget.style.backgroundColor = '#1b2230';
+            }}
           >
-            Adicionar
+            {isSearching ? 'Verificando...' : 'Adicionar'}
           </button>
         </form>
+
+        {/* Feedback Message (Error or Success) */}
+        {feedback && (
+          <div
+            role="alert"
+            style={{
+              padding: '6px 10px',
+              marginBottom: '12px',
+              borderRadius: '3px',
+              fontSize: '11px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor:
+                feedback.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+              border: feedback.type === 'error' ? '1px solid #b91c1c' : '1px solid #15803d',
+              color: feedback.type === 'error' ? '#fca5a5' : '#86efac',
+              lineHeight: '1.4',
+            }}
+          >
+            <span style={{ fontSize: '12px' }}>{feedback.type === 'error' ? '⚠️' : '✅'}</span>
+            <span style={{ flex: 1 }}>{feedback.message}</span>
+            <span
+              onClick={() => setFeedback(null)}
+              style={{
+                cursor: 'pointer',
+                opacity: 0.7,
+                padding: '0 4px',
+                fontSize: '11px',
+                fontWeight: 700,
+              }}
+            >
+              ✕
+            </span>
+          </div>
+        )}
 
         {/* Section Header: ONLINE (N) */}
         <div
