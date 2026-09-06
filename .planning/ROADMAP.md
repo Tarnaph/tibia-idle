@@ -27,6 +27,10 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 62: Remoção do Sistema de Trade entre Personagens** - Remoção da opção no menu de contexto, da janela de Trade, do registro no WindowManagerContext e do gerenciamento de estado de troca no frontend.
 - [x] **Phase 63: Correção de Vulnerabilidades de Segurança & Blindagem Server-Side (Anti-Cheat, Autenticação de APIs Admin e Autenticidade WebSocket)** - Autenticação JWT estrita com verificação de role `ADMIN` em todas as rotas `/api/admin/*`, restrição de teleporte (`player:teleport`) apenas para GMs, eliminação de noclip em `handlePlayerMove`, remoção de personificação via `mockCharacter` em produção e validação estrita no servidor.
 - [x] **Phase 64: Unificação da Engine Server-Side, Persistência Relacional Completa (Inventário/Gold/Depot), Validação de Posse de Personagem e Progressão Offline Real** - Validação estrita `dbChar.accountId === accountId` no `onJoin`, persistência relacional de inventário/skills/gold/depot no Prisma, visualização real-time de todos os players online na Thais City e cálculo de progresso offline.
+- [x] **Phase 65: Visibilidade e Persistência de Jogadores Remotos na Thais City Arena** - Eliminação de evicção de jogadores remotos, preservação de estado multiplayer e estabilidade na cidade.
+- [x] **Phase 66: Experiência Autêntica de Monstros e Progressão de Nível** - Valores canônicos de XP para criaturas e fórmula autêntica de level up sem inflação.
+- [x] **Phase 67: Loja da Cidade (NPC Item Shop) com Filtros por Categoria, Vocação e Compra por Gold Coins** - ShopWindow com compras de armas, armaduras, consumíveis e validação de ouro.
+- [ ] **Phase 68: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte (XP, Skills e Loot) e Controles de Penalidade no Painel Admin** - Janela clássica "You are dead" ao morrer, perda configurável de 10% de XP, 10% de skills e loot da caçada, teleporte ao Templo de Thais e controles dinâmicos de penalidade no Painel de Administração (/admin).
 
 ---
 
@@ -1040,5 +1044,53 @@ Plans:
 
 Plans:
 - [x] 67-01-PLAN: Implementação da Loja de Itens da Cidade (ShopWindow) com Filtros por Categoria/Vocação, Validação de Gold Coins e Entrega de Itens.
+
+---
+
+### Phase 68: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte (XP, Skills e Loot) e Controles de Penalidade no Painel Admin
+
+**Goal:** Implementar a janela clássica de morte autêntica do Tibia ("You are dead") com o texto canônico e botão "Ok" para renascer na cidade de Thais; aplicar o sistema completo e autoritativo de penalidade por morte (perda de 10% de XP com recálculo de nível, perda de 10% de skills e perda do loot da caçada atual); e integrar as taxas de penalidade de forma dinâmica e editável no Painel do Administrador (`/admin`).  
+**Depends on:** Phase 67  
+**Requirements:**
+1. **Modal Clássico "You are dead":**
+   - Janela cinza chanfrada com barra de título "You are dead" e o texto canônico exato da imagem de referência:
+     > "Alas! Brave adventurer, you have met a sad fate.
+     > But do not despair, for the gods will bring you back
+     > into the world in exchange for a small sacrifice.
+     > 
+     > Simply click on 'Ok' to resume your journeys in Tibia!"
+   - Botões "Ok" e "Cancel".
+   - Texto flutuante sobre a criatura/personagem: "You are dead."
+   - Ao clicar em "Ok":
+     - Aplica a penalidade de morte ativa.
+     - Respawna o jogador com vida e mana cheias no Templo de Thais (`32369, 32241, 7`).
+     - Encerra o modo caçada (`mode = 'training'` / cidade) e aciona a rota de caminhada até o Depot de Thais.
+2. **Sistema de Penalidade por Morte (Death Penalty):**
+   - **Perda de XP**: Deduz 10% da experiência total do personagem (`experience = Math.max(0, Math.floor(experience * (1 - expLossPercent / 100)))`).
+   - **Recálculo de Level**: Se a experiência pós-penalidade for menor que o requisito para o nível atual (`experienceForLevel(level)`), regredir o nível do personagem para o nível correspondente à nova XP (downgrade clássico do Tibia).
+   - **Perda de Skills**: Reduz 10% em todas as habilidades (`sword`, `axe`, `club`, `distance`, `shielding`, `fist`, `magicLevel` ou pontos de avanço).
+   - **Perda de Loot da Caçada**: Esvazia o inventário de loot acumulado na caçada atual (`session.loot = []`), preservando os equipamentos equipados e os itens guardados na Bolsa (`bag`).
+   - Mensagem de log no console/chat detalhando as perdas sofridas na morte.
+3. **Controles de Penalidade no Painel de Administração (`/admin`):**
+   - Aba "Variáveis do Servidor" do `AdminPanel.tsx` com novas opções configuráveis:
+     - `Rate de Perda de XP na Morte (%)` (default: 10)
+     - `Rate de Perda de Skills na Morte (%)` (default: 10)
+     - `Perder Loot da Caçada na Morte` (toggle checkbox, default: true)
+   - Integração com `ServerConfigManager.ts` e persistência nas configurações do servidor.
+4. **Qualidade e Validação:**
+   - 0 erros de TypeScript (`npm run typecheck`).
+   - Suíte de testes automatizados Vitest cobrindo a aplicação de penalidades, recálculo de level e persistência.
+
+**Success Criteria:**
+1. Modal "You are dead" abre fielmente com o texto do Tibia ao morrer em caçada ou na cidade.
+2. Clicar em "Ok" renasce o personagem no Templo de Thais com HP/MP cheios e caminhando para o depot.
+3. Personagem perde 10% de XP e tem seu nível recalculado fielmente caso a XP caia abaixo do nível.
+4. Personagem perde 10% de skills e todo o loot recolhido da caçada atual.
+5. As taxas de penalidade são customizáveis em tempo real no painel `/admin`.
+6. 0 erros de TypeScript e 100% dos testes Vitest passando.
+
+Plans:
+- [ ] 68-01-PLAN: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte e Configuração no Painel Admin.
+
 
 

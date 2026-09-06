@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-05T18:21:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 67: Loja da Cidade (NPC Item Shop) com Filtros por Categoria, Vocação e Compra por Gold Coins."
+status: ready_to_plan
+last_updated: "2026-09-05T21:45:00.000Z"
+last_activity: "2026-09-05 — Adicionada Phase 68: Modal Autêntico de Morte (\"You are dead\"), Sistema de Penalidade por Morte (XP, Skills e Loot) e Controles no Painel Admin."
 progress:
-  total_phases: 67
+  total_phases: 68
   completed_phases: 67
-  total_plans: 67
+  total_plans: 68
   completed_plans: 67
-  percent: 100
+  percent: 98
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Loja de Itens (NPC Store) implementada e validada com 100% de testes e 0 erros de TypeScript.
+**Current focus:** Modal clássico de morte ("You are dead"), penalidade de morte (10% XP com recálculo de level, 10% skills e loot da caçada) e taxas configuráveis no Painel Admin.
 
 ## Current Position
 
-Phase: 67 of 67 (Loja da Cidade / NPC Item Shop)  
-Plan: 1 of 1 in current phase  
-Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 67.
+Phase: 68 of 68 (Modal Autêntico de Morte & Sistema de Penalidade de Morte)  
+Plan: 0 of 1 in current phase  
+Status: Ready to plan / execute  
+Last activity: 2026-09-05 — Adicionada Phase 68.
 
-Progress: [██████████] 100%
+Progress: [█████████░] 98%
 
 ## Performance Metrics
 
