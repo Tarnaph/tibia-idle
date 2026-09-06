@@ -43,4 +43,10 @@ export class PlayerState extends Schema {
   @type('string') mount: string = 'none';
   @type('boolean') mountActive: boolean = false;
   @type('boolean') inHunt: boolean = false;
+  @type('boolean') isTraining: boolean = false;
+  @type('number') staminaMinutes: number = 15;
+  @type('number') maxStaminaMinutes: number = 15;
+  @type('boolean') isAutoIdle: boolean = false;
+  @type('string') lastHuntId: string = '';
 }
+

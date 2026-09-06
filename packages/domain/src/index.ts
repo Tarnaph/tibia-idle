@@ -19,3 +19,4 @@ export * from './spatial/rooms';
 export * from './spatial/tileMap';
 export * from './spatial/types';
 export * from './progression/speed';
+export * from './stamina';

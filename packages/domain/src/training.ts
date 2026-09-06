@@ -3,6 +3,7 @@ import { getEquippedItems } from './derivedStats';
 import { vocationFor } from './party';
 import type { CharacterState, GameContent, GameState, TrainableSkill } from './types';
 import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
+import { calculateMaxStamina, tickStamina } from './stamina';
 
 const skillBase: Record<ProgressionSkill, number> = { fist: 50, club: 50, sword: 50, axe: 50, distance: 30, shielding: 100 };
 
@@ -51,7 +52,14 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
   next.encounter.visualEvents = [];
   const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
 
+  const deltaSec = deltaMs / 1000;
   for (const character of next.session.characters) {
+    const maxStamina = calculateMaxStamina(character.level);
+    character.maxStaminaMinutes = maxStamina;
+    const curStamina = character.staminaMinutes ?? maxStamina;
+    const staminaRes = tickStamina(curStamina, maxStamina, 'training', deltaSec);
+    character.staminaMinutes = staminaRes.staminaMinutes;
+
     const vocation = vocationFor(content, character.vocation);
     const skill = targetSkill ?? trainingSkillFor(character, content);
     if (skill === 'magicLevel') {

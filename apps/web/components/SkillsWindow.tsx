@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import type { CharacterState, DerivedStats, GameContent, SkillTooltipInfo } from '@/packages/domain/src';
-import { skillProgress, vocationFor, characterCapacity, inventoryWeight, getSkillTooltipInfo } from '@/packages/domain/src';
+import { skillProgress, vocationFor, characterCapacity, inventoryWeight, getSkillTooltipInfo, formatStaminaTime, getStaminaPercentage } from '@/packages/domain/src';
 
 interface SkillsWindowProps {
   open: boolean;
@@ -152,13 +152,24 @@ export function SkillsWindow({
             <span className="skills-val">00:09</span>
           </div>
 
-          {/* Stamina with Green Meter */}
+          {/* Stamina with Dynamic Meter */}
           <div className="skills-row">
             <span className="skills-label">Stamina</span>
-            <span className="skills-val">40:01</span>
+            <span className="skills-val">{formatStaminaTime(character.staminaMinutes ?? 15)}</span>
           </div>
           <div className="skills-meter-track">
-            <div className="skills-meter-fill green" style={{ width: '95%' }} />
+            <div
+              className={`skills-meter-fill ${
+                getStaminaPercentage(character.staminaMinutes ?? 15, character.maxStaminaMinutes ?? 15) <= 15
+                  ? 'red'
+                  : getStaminaPercentage(character.staminaMinutes ?? 15, character.maxStaminaMinutes ?? 15) <= 50
+                  ? 'orange'
+                  : 'green'
+              }`}
+              style={{
+                width: `${getStaminaPercentage(character.staminaMinutes ?? 15, character.maxStaminaMinutes ?? 15)}%`,
+              }}
+            />
           </div>
 
           {/* Offline Training with Red Meter */}

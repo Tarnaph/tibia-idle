@@ -1908,6 +1908,22 @@ function GamePrototypeContent() {
         characterName={activeCharacter.name}
         debug={debugGrid}
         isAdmin={isAdmin}
+        isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
+        inHunt={mode === 'hunt'}
+        isTraining={false}
+        staminaMinutes={activeCharacter.staminaMinutes ?? 15}
+        maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
+        onToggleAutoIdle={() => {
+          const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
+          setGame((cur) => {
+            const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
+            if (char) {
+              (char as any).isAutoIdle = nextEnabled;
+            }
+            return { ...cur };
+          });
+          gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
+        }}
         onToggleDebug={() => setDebugGrid((value) => !value)}
         onSelectHunt={() => setHuntSelectorOpen(true)}
         onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
@@ -2016,6 +2032,18 @@ function GamePrototypeContent() {
         spells={content.spells}
         elapsedMs={encounter.elapsedMs}
         isHunting={mode === 'hunt'}
+        isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
+        onToggleAutoIdle={() => {
+          const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
+          setGame((cur) => {
+            const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
+            if (char) {
+              (char as any).isAutoIdle = nextEnabled;
+            }
+            return { ...cur };
+          });
+          gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
+        }}
         onExitHunt={exitHunt}
         onSeed={setSeed}
         onBegin={beginOrRestart}

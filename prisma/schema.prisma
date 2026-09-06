@@ -35,7 +35,10 @@ model Character {
   mana           Int              @default(35)
   maxMana        Int              @default(35)
   capacity       Int              @default(400)
-  staminaMinutes Int              @default(2520)
+  staminaMinutes Int              @default(15)
+  isAutoIdle     Boolean          @default(false)
+  lastHuntId     String?
+  hotbarJson     String?
   outfitLookType Int              @default(131)
   outfitHead     Int              @default(0)
   outfitBody     Int              @default(0)

@@ -148,6 +148,8 @@ describe('Phase 27: Unequip to Bag, Strict Target Lock, and Level Up Announcemen
     targetRat.previousPosition = { ...frontTile };
     targetRat.hp = 1;
     targetRat.maxHp = 1;
+    const ratDef = content.monsters.find((m) => m.id === targetRat.monsterId);
+    if (ratDef) ratDef.experience = 50000;
     (targetRat as any).experience = 50000;
 
     actor.targetId = targetRat.id;

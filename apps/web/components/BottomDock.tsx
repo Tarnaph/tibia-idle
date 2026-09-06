@@ -12,6 +12,8 @@ interface BottomDockProps {
   spells: SpellDefinition[];
   elapsedMs: number;
   isHunting?: boolean;
+  isAutoIdle?: boolean;
+  onToggleAutoIdle?: () => void;
   onExitHunt?: () => void;
   onSeed?(value: string): void;
   onBegin?(): void;
@@ -34,6 +36,8 @@ export function BottomDock({
   spells,
   elapsedMs,
   isHunting = false,
+  isAutoIdle = false,
+  onToggleAutoIdle,
   onExitHunt,
   onConfigureSlot,
   onSlotClick,
@@ -135,6 +139,8 @@ export function BottomDock({
         actor={actor}
         spells={spells}
         elapsedMs={elapsedMs}
+        isAutoIdle={isAutoIdle}
+        onToggleAutoIdle={onToggleAutoIdle}
         onConfigureSlot={onConfigureSlot}
         onSlotClick={onSlotClick}
         onToggleBackpack={onToggleBackpack}

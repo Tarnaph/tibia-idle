@@ -5,7 +5,7 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
-import { experienceForLevel } from '../../../domain/src';
+import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt } from '../../../domain/src';
 import { persistenceManager } from '../persistence/PrismaPersistenceManager';
 import { serverConfigManager } from '../config/ServerConfigManager';
 import {
@@ -317,12 +317,51 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     });
 
-    this.onMessage('player:setInHunt', (client, data: { inHunt: boolean }) => {
+    this.onMessage('player:setInHunt', (client, data: { inHunt: boolean; huntId?: string }) => {
       const player = this.state.players.get(client.sessionId);
       if (player) {
-        player.inHunt = Boolean(data.inHunt);
+        const wantsHunt = Boolean(data.inHunt);
+        if (data.huntId) {
+          player.lastHuntId = data.huntId;
+        }
+        if (wantsHunt && !canEnterHunt(player.staminaMinutes)) {
+          player.inHunt = false;
+          client.send('stamina:empty', {
+            message: 'Sua estamina acabou! Treine na zona de treinamento ou descanse para recuperar.',
+          });
+          return;
+        }
+        player.inHunt = wantsHunt;
       }
     });
+
+    this.onMessage('player:toggleAutoIdle', (client, data?: { enabled?: boolean; huntId?: string }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player) {
+        if (typeof data?.enabled === 'boolean') {
+          player.isAutoIdle = data.enabled;
+        } else {
+          player.isAutoIdle = !player.isAutoIdle;
+        }
+        if (data?.huntId) {
+          player.lastHuntId = data.huntId;
+        }
+        void persistenceManager.saveCharacter(player);
+        client.send('autoIdle:toggled', {
+          isAutoIdle: player.isAutoIdle,
+          lastHuntId: player.lastHuntId,
+        });
+      }
+    });
+
+    this.onMessage('player:setLastHuntId', (client, data: { huntId: string }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player && data?.huntId) {
+        player.lastHuntId = data.huntId;
+        void persistenceManager.saveCharacter(player);
+      }
+    });
+
 
     this.onMessage('party:targetSync', (client, data: { targetId: string | null }) => {
       const leaderId = this.playerPartyLeader.get(client.sessionId);
@@ -360,6 +399,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     let posX: number | undefined;
     let posY: number | undefined;
     let posZ: number | undefined;
+    let loadedStaminaMinutes: number | undefined;
+    let loadedIsAutoIdle: boolean | undefined;
+    let loadedLastHuntId: string | undefined;
 
     let accountRole = 'PLAYER';
     if (options.token) {
@@ -402,6 +444,9 @@ export class ThaisCityRoom extends Room<WorldState> {
         posX = dbChar.posX;
         posY = dbChar.posY;
         posZ = dbChar.posZ;
+        loadedStaminaMinutes = dbChar.staminaMinutes ?? 15;
+        loadedIsAutoIdle = dbChar.isAutoIdle ?? false;
+        loadedLastHuntId = dbChar.lastHuntId ?? '';
         outfitLookType = (options as any).outfitLookType ?? dbChar.outfitLookType ?? 128;
         if (dbChar.vocationName && !(options as any).outfit) {
           outfitName = dbChar.vocationName;
@@ -470,7 +515,26 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.mount = mount;
     player.mountActive = mountActive;
 
+    // Calculate stamina capacity based on highest character level on account
+    let accountHighestLevel = level;
+    if (options.characterId && accountId !== 'acc-guest') {
+      try {
+        accountHighestLevel = await persistenceManager.getAccountHighestLevel(accountId);
+      } catch {
+        accountHighestLevel = level;
+      }
+    }
+    const maxStamina = calculateMaxStamina(Math.max(level, accountHighestLevel));
+    player.maxStaminaMinutes = maxStamina;
+    player.staminaMinutes = Math.min(maxStamina, Math.max(0, loadedStaminaMinutes ?? 15));
+
+    // Auto-Idle state load
+    player.isAutoIdle = loadedIsAutoIdle ?? false;
+    player.lastHuntId = loadedLastHuntId || 'rat-cellars';
+
     player.inHunt = false;
+
+
 
     if (!this.clients.includes(client)) {
       (this.clients as any).push(client);
@@ -956,11 +1020,75 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.state.serverTick += 1;
     const now = Date.now();
 
-    // Player auto-attack & mana regen & movement idle reset
+    // Player auto-attack & mana regen & movement idle reset & stamina tick
     this.state.players.forEach((player: PlayerState) => {
       if (player.isWalking && now - player.lastStepTime > 350) {
         player.isWalking = false;
       }
+
+      // Stamina update tick
+      const isTargetingDummy = Boolean(
+        player.targetId &&
+        (player.targetId.includes('dummy') || this.state.monsters.get(player.targetId)?.monsterTypeId === 'dummy')
+      );
+      player.isTraining = !player.inHunt && isTargetingDummy;
+
+      const staminaMode = player.inHunt ? 'hunting' : player.isTraining ? 'training' : 'resting';
+      const staminaRes = tickStamina(
+        player.staminaMinutes,
+        player.maxStaminaMinutes,
+        staminaMode,
+        deltaTimeMs / 1000
+      );
+      player.staminaMinutes = staminaRes.staminaMinutes;
+
+      if (staminaRes.evicted) {
+        player.inHunt = false;
+        player.posX = 32369;
+        player.posY = 32241;
+        player.posZ = 7;
+        player.direction = 'south';
+        player.isWalking = false;
+
+        const client = this.clients.find((c) => c.sessionId === player.id);
+        if (client) {
+          client.send('stamina:depleted', {
+            message: 'Sua estamina acabou! Você foi ejetado da caçada para a cidade.',
+          });
+        }
+      }
+
+      // Auto-Idle State Machine Loop
+      if (player.isAutoIdle) {
+        if (staminaRes.evicted || (player.inHunt && player.staminaMinutes <= 0)) {
+          player.inHunt = false;
+          player.isTraining = true;
+          player.posX = 32369;
+          player.posY = 32241;
+          player.posZ = 7;
+
+          const client = this.clients.find((c) => c.sessionId === player.id);
+          if (client) {
+            client.send('autoIdle:event', {
+              action: 'switched_to_training',
+              message: '🤖 Auto-Idle: Estamina esgotada. Herói direcionado para o treino em Dummies.',
+            });
+          }
+        } else if (!player.inHunt && player.staminaMinutes >= player.maxStaminaMinutes) {
+          player.isTraining = false;
+          player.inHunt = true;
+
+          const client = this.clients.find((c) => c.sessionId === player.id);
+          if (client) {
+            client.send('autoIdle:event', {
+              action: 'returned_to_hunt',
+              huntId: player.lastHuntId || 'rat-cellars',
+              message: '🤖 Auto-Idle: Estamina 100% restaurada! Herói retornou automaticamente para a caçada.',
+            });
+          }
+        }
+      }
+
 
       if (this.state.serverTick % 3 === 0 && player.mp < player.maxMp) {
         const regenRate = serverConfigManager.getConfig().regenRate ?? 1.0;

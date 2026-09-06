@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-06T14:36:00.000Z"
-last_activity: "2026-09-06 — Conclusão da Phase 78: Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips na UI."
+last_updated: "2026-09-06T15:45:00.000Z"
+last_activity: "2026-09-06 — Conclusão da Phase 81: Sistema de Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência Anti-Morte com Persistência Prisma."
 progress:
-  total_phases: 78
-  completed_phases: 78
-  total_plans: 78
-  completed_plans: 78
+  total_phases: 81
+  completed_phases: 81
+  total_plans: 81
+  completed_plans: 81
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Auditoria de progressão de habilidades, bônus de velocidade de ataque/movimento para melee, resistência mágica para ML, mitigação física para Shielding e tooltips de UI.
+**Current focus:** Sistema de Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência Anti-Morte com Persistência Prisma — Auto-atribuição da melhor poção na hotbar se vazia, cura preditiva anti-morte antes de tomar o dano fatal e persistência Prisma (`Character.hotbarJson`).
 
 ## Current Position
 
-Phase: 78 of 78 (Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips Informativos de UI)  
+Phase: 81 of 81 (Sistema de Poção Automática Inteligente & Cura de Emergência)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-06 — Conclusão da Phase 78.
+Last activity: 2026-09-06 — Conclusão da Phase 81.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 78
-- Total phases in roadmap: 78
-- Tests status: 48 test suites (297 testes aprovados)
+- Total phases completed: 81
+- Total phases in roadmap: 81
+- Tests status: 51 test suites (440+ testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -44,9 +44,11 @@ Progress: [██████████] 100%
 
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
-| 1 a 76. (Fases Anteriores Concluídas) | 76 | - | - | Complete |
-| 77. Progressão Difícil de Desbloqueio de Slots e Vocações Únicas por Conta | 1 | - | - | Complete |
+| 1 a 77. (Fases Anteriores Concluídas) | 77 | - | - | Complete |
 | 78. Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips na UI | 1 | - | - | Complete |
+| 79. Sistema de Estamina da Conta | 1 | - | - | Complete |
+| 80. Modo Caçada Auto-Idle Autônoma | 1 | - | - | Complete |
+| 81. Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência | 1 | - | - | Complete |
 
 ## Accumulated Context
 

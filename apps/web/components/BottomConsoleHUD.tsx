@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
 import {
   findHotbarAction,
+  formatStaminaTime,
+  getStaminaPercentage,
   type CharacterState,
   type CombatStance,
   type PartyActorState,
@@ -15,6 +17,8 @@ interface BottomConsoleHUDProps {
   actor?: PartyActorState;
   spells: SpellDefinition[];
   elapsedMs: number;
+  isAutoIdle?: boolean;
+  onToggleAutoIdle?: () => void;
   onConfigureSlot?: (slotIndex: number) => void;
   onSlotClick?: (slotIndex: number) => void;
   onToggleBackpack?: () => void;
@@ -29,6 +33,8 @@ export function BottomConsoleHUD({
   actor,
   spells,
   elapsedMs,
+  isAutoIdle = false,
+  onToggleAutoIdle,
   onConfigureSlot,
   onSlotClick,
   onToggleBackpack,
@@ -213,11 +219,17 @@ export function BottomConsoleHUD({
           </div>
         </div>
 
-        {/* Stamina / Energy Bar (Diagonal green stripes + 10:12h (+)) */}
-        <div className="hud-stamina-container">
-          <div className="hud-stamina-fill" />
+        {/* Stamina / Energy Bar (Diagonal green stripes + dynamic MM:SS (+)) */}
+        <div
+          className="hud-stamina-container"
+          title={`Estamina: ${formatStaminaTime(character.staminaMinutes ?? 15)} / ${formatStaminaTime(character.maxStaminaMinutes ?? 15)}`}
+        >
+          <div
+            className="hud-stamina-fill"
+            style={{ width: `${getStaminaPercentage(character.staminaMinutes ?? 15, character.maxStaminaMinutes ?? 15)}%` }}
+          />
           <div className="hud-stamina-info">
-            <span className="hud-stamina-time">10:12h</span>
+            <span className="hud-stamina-time">{formatStaminaTime(character.staminaMinutes ?? 15)}</span>
             <button type="button" className="hud-stamina-plus-btn" title="Adicionar Stamina / Bônus">+</button>
           </div>
         </div>
@@ -389,17 +401,46 @@ export function BottomConsoleHUD({
         </div>
       </div>
 
-      {/* Optional Log Drawer Button in Corner */}
-      {onToggleCombatLog && (
-        <button
-          type="button"
-          className="hud-log-toggle"
-          title="Ver Combat Log"
-          onClick={onToggleCombatLog}
-        >
-          Log ({logCount})
-        </button>
-      )}
+      {/* Integrated AUTO ON/OFF Control Button matching reference HUD screenshot */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {onToggleAutoIdle && (
+          <button
+            type="button"
+            className={`hud-auto-toggle-btn ${isAutoIdle ? 'active' : ''}`}
+            title="Alternar Modo Auto-Idle (Caça ⇄ Treino ⇄ Loja)"
+            onClick={onToggleAutoIdle}
+            style={{
+              padding: '2px 8px',
+              fontSize: '11px',
+              fontWeight: 'bold',
+              borderRadius: '4px',
+              border: isAutoIdle ? '1px solid #52e043' : '1px solid #555',
+              backgroundColor: isAutoIdle ? 'rgba(82, 224, 67, 0.2)' : 'rgba(20, 20, 20, 0.8)',
+              color: isAutoIdle ? '#52e043' : '#a0a0a0',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              boxShadow: isAutoIdle ? '0 0 6px rgba(82, 224, 67, 0.5)' : 'none',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{ fontSize: '10px' }}>🤖</span>
+            <span>AUTO {isAutoIdle ? 'ON' : 'OFF'}</span>
+          </button>
+        )}
+
+        {onToggleCombatLog && (
+          <button
+            type="button"
+            className="hud-log-toggle"
+            title="Ver Combat Log"
+            onClick={onToggleCombatLog}
+          >
+            Log ({logCount})
+          </button>
+        )}
+      </div>
     </div>
   );
 }

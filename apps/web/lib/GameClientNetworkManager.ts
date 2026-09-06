@@ -520,6 +520,11 @@ export class GameClientNetworkManager {
     this.room.send('party:acceptHuntProposal', {});
   }
 
+  sendAutoIdleToggle(enabled: boolean, huntId?: string): void {
+    if (!this.room) return;
+    this.room.send('player:toggleAutoIdle', { enabled, huntId });
+  }
+
   sendPartyRejectHuntProposal(): void {
     if (!this.room) return;
     this.room.send('party:rejectHuntProposal', {});

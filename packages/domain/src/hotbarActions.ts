@@ -144,7 +144,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     name: 'Health Potion',
     kind: 'potion',
     category: 'healing',
-    requiredLevel: 8,
+    requiredLevel: 1,
     vocations: ALL_VOCATIONS,
     cooldownMs: 1000,
     effectId: 15,
@@ -196,7 +196,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     name: 'Mana Potion',
     kind: 'potion',
     category: 'mana',
-    requiredLevel: 8,
+    requiredLevel: 1,
     vocations: ALL_VOCATIONS,
     cooldownMs: 1000,
     effectId: 13,
@@ -314,3 +314,43 @@ export function isHotbarActionUnlocked(character: CharacterState, action: Hotbar
   }
   return character.level >= action.spell.requiredLevel && action.spell.vocations.includes(character.vocation);
 }
+
+export function getBestHealthPotionForCharacter(character: CharacterState): HotbarPotionDefinition | undefined {
+  const eligible = HOTBAR_POTIONS.filter((potion) => {
+    if (potion.category !== 'healing' || typeof potion.healMin !== 'number') return false;
+    return isHotbarActionUnlocked(character, { kind: 'potion', potion });
+  });
+
+  if (eligible.length === 0) {
+    return HOTBAR_POTIONS.find((p) => p.id === 7618) ?? HOTBAR_POTIONS[0];
+  }
+  eligible.sort((a, b) => b.requiredLevel - a.requiredLevel || (b.healMax ?? 0) - (a.healMax ?? 0));
+  return eligible[0];
+}
+
+export function ensureHealthPotionInHotbar(character: CharacterState, content: GameContent): number | undefined {
+  if (!character.hotbar) character.hotbar = [];
+
+  const existingPotionId = character.hotbar.find((id) => {
+    if (typeof id !== 'number' || id === 0) return false;
+    const action = findHotbarAction(id, content);
+    return action?.kind === 'potion' && action.potion.category === 'healing';
+  });
+
+  if (existingPotionId) return existingPotionId;
+
+  const bestPotion = getBestHealthPotionForCharacter(character);
+  if (!bestPotion) return undefined;
+
+  const emptyIndex = character.hotbar.findIndex((id) => typeof id !== 'number' || id === 0);
+  if (emptyIndex !== -1) {
+    character.hotbar[emptyIndex] = bestPotion.id;
+  } else if (character.hotbar.length < 20) {
+    character.hotbar.push(bestPotion.id);
+  } else {
+    character.hotbar[0] = bestPotion.id;
+  }
+
+  return bestPotion.id;
+}
+

@@ -40,6 +40,10 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 75: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP)** - Adição de itens de teste gratuitos na loja (0 gold) para avançar 1 nível (com recálculo de stats), avançar 1 ponto em cada skill e comprar pacotes de gold livremente.
 - [x] **Phase 76: Escolha de Vocação no Nível 8+, Remoção da Escolha na Criação e Item de Troca de Vocação (Gold & 0 GP)** - Remoção do seletor de vocação na criação de personagem (todos nascem sem vocação / None no nível 1), trava de escolha de vocação ao atingir Nível 8+ (irreversível), e inclusão do Pergaminho de Troca de Vocação na Loja por Gold Coins e na Loja de Testes por 0 GP.
 - [x] **Phase 77: Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta** - Trava progressiva de nível mais exigente para liberação dos 4 slots de personagens por conta (Slots no Nível 1, 50, 100 e 150) e restrição estrita de vocações únicas por conta (sem vocações repetidas no grupo/conta: 1 Knight, 1 Paladin, 1 Sorcerer, 1 Druid).
+- [x] **Phase 78: Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips na UI** - Bônus de velocidade e ataque para melee, resistência mágica para ML, mitigação física para Shielding e tooltips descritivos na UI.
+- [x] **Phase 79: Sistema de Estamina da Conta (Account-Wide Stamina System)** - Estamina proporcional ao personagem de maior nível na conta, consumo em caçada, ejeção compulsória ao zerar (0 min), regeneração passiva por tempo e regeneração acelerada na Zona de Treinamento.
+- [x] **Phase 80: Modo Caçada Auto-Idle Autônoma (Full Auto-Idle Hunt & Training Loop)** - Botão/estado de Auto-Idle persistido no banco Prisma DB (`isAutoIdle`), ciclo autônomo de caçada, auto-venda de loot, auto-compra de poções ao esgotar, rotação automática para a zona de treino (dummies) ao zerar estamina e retorno automático à caçada ao regenerar estamina total.
+- [x] **Phase 81: Sistema de Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência Anti-Morte com Persistência Prisma** - Auto-equipamento da melhor poção de cura no menu/hotbar do personagem, sistema de cura preditiva de emergência antes do golpe fatal e salvamento permanente do array da hotbar no Prisma DB (`Character.hotbarJson`).
 
 ---
 
@@ -1417,6 +1421,70 @@ Plans: Concluído com sucesso.
 - [x] 78-01-PLAN: Auditoria de Progressão de Skills, Atributos Derivados (Velocidade, Attack Speed, Resistência Mágica, Mitigação Física) e Tooltips na UI.
 - Resumo de entrega: `.planning/phases/phase-78-skill-progression-perks-and-tooltips/78-SUMMARY.md`
 
+### Phase 79: Sistema de Estamina da Conta (Account-Wide Stamina System)
 
+**Goal:** Implementar o sistema completo de estamina com capacidade máxima escalando pelo maior nível da conta, consumo contínuo durante caçadas, ejeção compulsória da caçada ao atingir 0 de estamina, bloqueio de entrada sem estamina, regeneração passiva por tempo decorrido e regeneração acelerada na Zona de Treinamento (dummies/skills).  
+**Depends on:** Phase 78  
+**Requirements:**
+1. **Capacidade Máxima de Estamina (Max Stamina):**
+   - Calculada proporcionalmente com base no personagem de maior nível da conta.
+   - Fórmula: `MaxStamina = 2520 + (highestLevel - 1) * 30` minutos.
+2. **Consumo em Caçada e Ejeção Compulsória:**
+   - Consumo contínuo de 1 minuto por 60s reais em caçada ativa.
+   - Ao zerar a estamina (`staminaMinutes <= 0`), encerra a caçada imediatamente (`inHunt: false`), teleporta o herói/squad para a zona segura (Templo) e exibe notificação visual.
+   - Bloqueia nova entrada em caçada caso `staminaMinutes <= 0`.
+3. **Regeneração Passiva e Acelerada:**
+   - **Passiva (Cidade / Repouso / Offline):** Regenera +1 minuto a cada 3 minutos reais.
+   - **Treinamento (Dummies / Skills):** Regenera +1 minuto a cada 1 minuto de treino ativo (3x mais rápido).
+4. **Sincronização e Persistência:**
+   - Sincronização via `PlayerState` do Colyseus (`staminaMinutes`, `maxStaminaMinutes`) e persistência relacional Prisma (`Character` / `Account`).
+5. **Qualidade e Testes:**
+   - Suíte de testes no Vitest cobrindo capacidade por nível, consumo, ejeção, bloqueio e taxas de regeneração.
+   - `npm run typecheck` com 0 erros.
+
+**Success Criteria:**
+1. Capacidade total de estamina escala com o maior nível da conta.
+2. Estamina é consumida em caçada e zerar ejeta compulsoriamente para a cidade.
+3. Não permite entrar em caçadas com estamina zerada.
+4. Regeneração na zona de treinamento é 3x mais rápida do que em descanso passivo.
+5. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: Concluído com sucesso.
+
+- [x] 79-01-PLAN: Sistema de Estamina da Conta.
+- Resumo de entrega: `.planning/phases/phase-79-stamina-system/79-SUMMARY.md`
+
+### Phase 80: Modo Caçada Auto-Idle Autônoma (Full Auto-Idle Hunt & Training Loop)
+
+**Goal:** Criar o sistema completo e botão de Modo Auto-Idle permanente na conta (`isAutoIdle`), que gerencia de forma autônoma o ciclo contínuo do jogo: caçar monstros, coletar loot, auto-vender itens no shop/NPC, consumir poções e auto-comprar suprimentos com gold ao esgotar, rotacionar para os Dummies de Treino na cidade ao zerar a estamina e retornar automaticamente para a última área de caçada ao atingir a estamina máxima.  
+**Depends on:** Phase 79  
+**Requirements:**
+1. **Persistência Permanente no Banco Prisma:**
+   - Adicionar campo `isAutoIdle Boolean @default(false)` e `lastHuntId String?` em `Character` / `Account` no Prisma.
+   - Sincronização via `PlayerState` do Colyseus e carregamento autoritativo no `onJoin`.
+2. **Ciclo Autônomo de Caçada & Economia:**
+   - **Combate & Loot:** Caçar criaturas no mapa, coletar drops e gerenciar HP/MP com poções automáticas.
+   - **Auto-Venda & Auto-Compra de Poções:** Vender itens do Loot Pouch quando permitido/cheio e comprar poções adicionais na loja com os Gold Coins acumulados caso o estoque acabe.
+3. **Rotação Automática Caçada <-> Treinamento:**
+   - **Quando Zerar Estamina (0 min):** Ejeção para o Templo/Treino e início automático do treinamento em Dummies (acelerando a recuperação de estamina 3x).
+   - **Quando Estamina Ficar Máxima (Max Stamina):** Se a flag `isAutoIdle` continuar ativa, retornar automaticamente para a última região de caçada (`lastHuntId`) e retomar o combate sem intervenção do jogador.
+4. **Interface do Usuário (HUD):**
+   - Botão de alternância proeminente `"🤖 MODO AUTO-IDLE"` no HUD com indicador de status (`Ativo` / `Inativo`), estado do loop (`Caçando`, `Abastecendo Loja`, `Treinando Dummies`) e modal de configurações de auto-loop.
+5. **Qualidade e Testes:**
+   - Suíte de testes Vitest validando a máquina de estados do loop autônomo, persistência Prisma, rotação por estamina e compra/venda automática de itens.
+   - `npm run typecheck` com 0 erros.
+
+**Success Criteria:**
+1. Botão de ativar/desativar Modo Auto-Idle na interface visual do jogo.
+2. Estado `isAutoIdle` e `lastHuntId` persistidos permanentemente no banco de dados Prisma.
+3. Ao zerar estamina em caçada, o bot vai automaticamente para o treino em dummies.
+4. Ao recuperar estamina total no treino, o bot retorna automaticamente à última caçada.
+5. Auto-compra de poções e auto-venda de itens operando durante a caçada idle.
+6. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: Concluído com sucesso.
+
+- [x] 80-01-PLAN: Modo Caçada Auto-Idle Autônoma.
+- Resumo de entrega: `.planning/phases/phase-80-full-auto-idle-loop/80-SUMMARY.md`
 
 

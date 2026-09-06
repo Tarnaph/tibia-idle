@@ -7,7 +7,8 @@ import { createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } 
 import { createSeededRng, rollInteger } from './rng';
 import { spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
-import { findHotbarAction, isHotbarActionUnlocked } from './hotbarActions';
+import { calculateMaxStamina, tickStamina } from './stamina';
+import { HOTBAR_POTIONS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked } from './hotbarActions';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { isMeleeRange, meleeDistance } from './spatial/pathfinding';
 import { createRoomState, roomDefinitionAt } from './spatial/rooms';
@@ -398,6 +399,45 @@ function formatSpellWords(words: string): string {
     .join(' ');
 }
 
+export function consumePotionFromInventory(state: GameState, potionId: number): boolean {
+  const potionDef = HOTBAR_POTIONS.find((p) => p.id === potionId);
+  if (!potionDef) return false;
+
+  const containers = [
+    state.session.bag ?? [],
+    state.session.loot ?? [],
+  ];
+
+  for (const container of containers) {
+    const stack = container.find(
+      (item) => item.itemId === potionId || (item.name && item.name.toLowerCase().includes(potionDef.name.toLowerCase()))
+    );
+    if (stack && stack.amount > 0) {
+      stack.amount -= 1;
+      if (stack.amount <= 0) {
+        const idx = container.indexOf(stack);
+        if (idx !== -1) container.splice(idx, 1);
+      }
+      return true;
+    }
+  }
+
+  const leader = state.session.characters.find((c) => c.id === state.session.leaderId || c.id === state.session.selectedCharacterId);
+  if (leader && (leader as any).isAutoIdle) {
+    const cost = 50;
+    if (state.session.gold >= cost) {
+      state.session.gold -= cost;
+      return true;
+    }
+  }
+
+  if ((state.session.bag ?? []).length === 0 && (state.session.loot ?? []).length === 0) {
+    return true;
+  }
+
+  return false;
+}
+
 function castAutomaticSpells(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   const leaderActor = encounter.partyActors.find((a) => a.alive && (a.characterId === state.session.leaderId || a.characterId === state.session.selectedCharacterId)) ?? encounter.partyActors.find((a) => a.alive);
@@ -413,6 +453,8 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
     let usedSpellThisTick = false;
     let usedOffensiveActionThisTick = false;
 
+    ensureHealthPotionInHotbar(character, content);
+
     for (const actionId of character.hotbar) {
       if (typeof actionId !== 'number' || actionId === 0) continue;
       const action = findHotbarAction(actionId, content);
@@ -422,11 +464,12 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
       if (action.kind === 'potion' && !usedPotionThisTick) {
         const potion = action.potion;
         if ((actor.groupCooldowns['potion'] ?? 0) <= encounter.elapsedMs) {
-          const tookRecentHit = (encounter.elapsedMs - actor.lastHitTakenAt) < 3000 && actor.hp < character.maxHp;
-          const needsHp = typeof potion.healMin === 'number' && (actor.hp / character.maxHp < 0.88 || tookRecentHit);
-          const needsMana = typeof potion.manaMin === 'number' && character.maxMana > 0 && actor.mana / character.maxMana < 0.70;
+          const needsHp = typeof potion.healMin === 'number' && (actor.hp / character.maxHp <= 0.50);
+          const needsMana = typeof potion.manaMin === 'number' && character.maxMana > 0 && (actor.mana / character.maxMana <= 0.50);
 
           if (needsHp || needsMana) {
+            const consumed = consumePotionFromInventory(state, potion.id);
+            if (!consumed) continue;
             const rng = createSeededRng(encounter.rngState);
             let healed = 0;
             let restoredMana = 0;
@@ -690,6 +733,12 @@ export function triggerManualHotbarAction(
   if (action.kind === 'potion') {
     const potion = action.potion;
     if ((actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
+
+    const consumed = consumePotionFromInventory(state, potion.id);
+    if (!consumed) {
+      addLog(state, `${character.name} não possui ${potion.name} no inventário.`);
+      return false;
+    }
 
     const rng = createSeededRng(encounter.rngState);
     let healed = 0;
@@ -1002,6 +1051,71 @@ function playerAttacks(state: GameState, content: GameContent): void {
   }
 }
 
+export function triggerEmergencyAutoPotion(
+  state: GameState,
+  target: PartyActorState,
+  character: CharacterState,
+  content: GameContent,
+  incomingDamage: number
+): void {
+  const encounter = state.encounter;
+  const isLethalOrCritical = (target.hp - incomingDamage <= 0) || (target.hp / character.maxHp <= 0.50);
+  if (!isLethalOrCritical) return;
+
+  const potionId = ensureHealthPotionInHotbar(character, content);
+  if (!potionId) return;
+
+  const action = findHotbarAction(potionId, content);
+  if (!action || action.kind !== 'potion' || !isHotbarActionUnlocked(character, action)) return;
+
+  const potion = action.potion;
+  const canDrink = (target.groupCooldowns['potion'] ?? 0) <= encounter.elapsedMs || target.hp - incomingDamage <= 0;
+  if (!canDrink) return;
+
+  const consumed = consumePotionFromInventory(state, potion.id);
+  if (!consumed) return;
+
+  const rng = createSeededRng(encounter.rngState);
+  let healed = 0;
+  let restoredMana = 0;
+
+  if (typeof potion.healMin === 'number' && typeof potion.healMax === 'number') {
+    const rawHeal = rollInteger(rng, potion.healMin, potion.healMax);
+    healed = Math.min(rawHeal, character.maxHp - target.hp);
+    target.hp += healed;
+  }
+
+  if (typeof potion.manaMin === 'number' && typeof potion.manaMax === 'number') {
+    const rawMana = rollInteger(rng, potion.manaMin, potion.manaMax);
+    restoredMana = Math.min(rawMana, character.maxMana - target.mana);
+    target.mana += restoredMana;
+  }
+
+  encounter.rngState = rng.state;
+  target.groupCooldowns['potion'] = encounter.elapsedMs + potion.cooldownMs;
+
+  encounter.events.push({
+    type: 'spell-cast',
+    sourceId: target.characterId,
+    targetId: target.characterId,
+    spellId: potion.id,
+    amount: healed || restoredMana,
+    healing: healed > 0,
+    speech: 'Aaaah...',
+  });
+  encounter.events.push({
+    type: 'spell-visual',
+    sourceId: target.characterId,
+    targetId: target.characterId,
+    spellId: potion.id,
+    effectId: potion.effectId,
+    projectileId: null,
+  });
+
+  addLog(state, `${character.name} tomou poção de emergência (${potion.name}) antes do golpe fatal e recuperou ${healed} HP!`);
+  syncCharacterResources(state, target);
+}
+
 function enemyAttacks(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   const rng = createSeededRng(encounter.rngState);
@@ -1036,6 +1150,9 @@ function enemyAttacks(state: GameState, content: GameContent): void {
     }
     if (damage > 0) {
       target.lastHitTakenAt = encounter.elapsedMs;
+      // Emergency auto-potion check before applying lethal/critical damage!
+      triggerEmergencyAutoPotion(state, target, character, content, damage);
+
       // Magic Shield (Utamo Vita) absorbs damage with mana first!
       if (target.magicShieldUntil > encounter.elapsedMs && target.mana > 0) {
         const manaDamage = Math.min(damage, target.mana);
@@ -1269,6 +1386,21 @@ export function advanceCombat(state: GameState, content: GameContent, deltaMs = 
   const next = cloneState(state); const encounter = next.encounter;
   if (encounter.status !== 'running' || deltaMs <= 0) return next;
   encounter.elapsedMs += deltaMs; encounter.round += 1;
+
+  const deltaSec = deltaMs / 1000;
+  for (const character of next.session.characters) {
+    const maxStamina = calculateMaxStamina(character.level);
+    character.maxStaminaMinutes = maxStamina;
+    const curStamina = character.staminaMinutes ?? maxStamina;
+    const staminaRes = tickStamina(curStamina, maxStamina, 'hunting', deltaSec);
+    character.staminaMinutes = staminaRes.staminaMinutes;
+    if (staminaRes.evicted) {
+      encounter.status = 'completed';
+      encounter.events.push({ type: 'hunt-complete' });
+      addLog(next, `${character.name}: a estamina acabou! A caçada foi encerrada.`);
+    }
+  }
+
   regenerateParty(next, content);
   if (encounter.mode === 'continuous') advanceContinuousHunt(next, content);
   else if (encounter.mode === 'expedition') advanceExpedition(next, content);

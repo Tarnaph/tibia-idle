@@ -25,3 +25,9 @@ O assistente Antigravity DEVE **sempre utilizar a skill `/gsd`** e o ecossistema
 4. **Modo Totalmente Autônomo (Allow All & Accept All):**
    - O assistente opera em modo **100% autônomo**, com **Allow All** e **Accept All** pré-aprovados para todas as decisões, comandos, criações de arquivos e execução de planos.
    - Não interromper o fluxo para pedir confirmações triviais ou autorizações intermediárias; avançar diretamente de planejamento -> execução -> testes -> entrega.
+
+5. **💾 Diretriz de Persistência Permanente Obrigatória (MMORPG State):**
+   - Em QUALQUER solicitação de nova funcionalidade, alteração, criação de sistema, recompensa, inventário, conquista ou alteração de estado do jogador/conta:
+   - O assistente DEVE analisar proativamente se a informação precisa ser **permanente entre sessões/relogs/restarts do servidor**.
+   - Garantir a modelagem no banco de dados Prisma (`prisma/schema.prisma`), persistência no `PrismaPersistenceManager.ts` e carregamento autoritativo no `onJoin` do servidor Colyseus (`ThaisCityRoom.ts`), nunca deixando o progresso puramente em memória transiente de frontend ou runtime temporário.
+

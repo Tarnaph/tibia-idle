@@ -91,7 +91,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
             mana: data.mana || 35,
             maxMana: data.maxMana || 35,
             capacity: data.capacity || 400,
-            staminaMinutes: 2520,
+            staminaMinutes: 15,
             outfitLookType: data.outfitLookType || 131,
             outfitHead: data.outfitHead || 0,
             outfitBody: data.outfitBody || 0,

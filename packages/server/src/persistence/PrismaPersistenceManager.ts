@@ -39,11 +39,33 @@ export class PrismaPersistenceManager {
           outfitLegs: player.outfitLegs,
           outfitFeet: player.outfitFeet,
           capacity: player.capacity,
+          staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
+          isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,
+          lastHuntId: typeof player.lastHuntId === 'string' && player.lastHuntId ? player.lastHuntId : undefined,
+          hotbarJson: Array.isArray((player as any).hotbar) ? JSON.stringify((player as any).hotbar) : undefined,
           updatedAt: new Date(),
         },
       });
+
     } catch (err: any) {
       console.warn(`[PrismaPersistenceManager] Failed to save character ${player.characterId}:`, err.message);
+    }
+  }
+
+  /**
+   * Fetches the highest level of any character belonging to the given account ID.
+   */
+  async getAccountHighestLevel(accountId: string): Promise<number> {
+    if (!accountId || accountId.startsWith('acc-guest')) return 1;
+    try {
+      const highestChar = await this.db.character.findFirst({
+        where: { accountId },
+        orderBy: { level: 'desc' },
+        select: { level: true },
+      });
+      return highestChar?.level ?? 1;
+    } catch (err: any) {
+      return 1;
     }
   }
 
@@ -53,9 +75,15 @@ export class PrismaPersistenceManager {
   async loadCharacter(characterId: string) {
     if (!characterId || characterId.startsWith('char-guest')) return null;
     try {
-      return await this.db.character.findUnique({
+      const char = await this.db.character.findUnique({
         where: { id: characterId },
       });
+      if (!char) return null;
+      let hotbar: number[] = [];
+      if (char.hotbarJson) {
+        try { hotbar = JSON.parse(char.hotbarJson); } catch (e) { hotbar = []; }
+      }
+      return { ...char, hotbar };
     } catch (err: any) {
       console.warn(`[PrismaPersistenceManager] Failed to load character ${characterId}:`, err.message);
       return null;

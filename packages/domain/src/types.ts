@@ -44,6 +44,8 @@ export interface CharacterState {
   currentMana: number;
   maxHp: number;
   maxMana: number;
+  staminaMinutes?: number;
+  maxStaminaMinutes?: number;
   skills: CharacterSkills;
   skillTries: SkillTries;
   equipment: EquipmentLoadout;

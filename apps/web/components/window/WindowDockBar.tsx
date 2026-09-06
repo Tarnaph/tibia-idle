@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useWindowManager, type WindowId } from './WindowManagerContext';
+import { AutoIdleButton } from '../AutoIdleButton';
 
 interface WindowDockBarProps {
   gold: number;
@@ -10,6 +11,12 @@ interface WindowDockBarProps {
   onlinePlayersCount?: number;
   debug: boolean;
   isAdmin?: boolean;
+  isAutoIdle?: boolean;
+  inHunt?: boolean;
+  isTraining?: boolean;
+  staminaMinutes?: number;
+  maxStaminaMinutes?: number;
+  onToggleAutoIdle?: () => void;
   onToggleDebug: () => void;
   onSelectHunt: () => void;
   onOpenSkills: () => void;
@@ -25,6 +32,12 @@ export function WindowDockBar({
   onlinePlayersCount = 13315,
   debug,
   isAdmin = false,
+  isAutoIdle = false,
+  inHunt = false,
+  isTraining = false,
+  staminaMinutes = 15,
+  maxStaminaMinutes = 15,
+  onToggleAutoIdle,
   onToggleDebug,
   onSelectHunt,
   onOpenSkills,
@@ -89,6 +102,18 @@ export function WindowDockBar({
         <span className="shop-icon">🏯</span>
         <span className="shop-label">Loja</span>
       </button>
+
+      {/* Auto-Idle Button */}
+      {onToggleAutoIdle && (
+        <AutoIdleButton
+          isAutoIdle={isAutoIdle}
+          onToggle={onToggleAutoIdle}
+          inHunt={inHunt}
+          isTraining={isTraining}
+          staminaMinutes={staminaMinutes}
+          maxStaminaMinutes={maxStaminaMinutes}
+        />
+      )}
 
       {/* Online Players Status */}
       <div className="huntera-online-status" title="Jogadores conectados no mundo online">
