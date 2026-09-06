@@ -249,40 +249,6 @@ export function FriendsWindow({
                   <span>💬</span>
                   <span>Mensagem</span>
                 </button>
-
-                {/* Direct Party Invite Button */}
-                <button
-                  type="button"
-                  title={`Convidar ${friend.name} para a party`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onInviteParty(friend.name);
-                  }}
-                  style={{
-                    padding: '3px 6px',
-                    fontSize: '10.5px',
-                    fontWeight: 600,
-                    backgroundColor: '#1c2820',
-                    border: '1px solid #2d4d36',
-                    borderRadius: '3px',
-                    color: '#86efac',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '2px',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#263d2e';
-                    e.currentTarget.style.color = '#bbf7d0';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1c2820';
-                    e.currentTarget.style.color = '#86efac';
-                  }}
-                >
-                  <span>⚔️</span>
-                </button>
               </div>
             </div>
           ))}
