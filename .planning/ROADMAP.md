@@ -1386,5 +1386,37 @@ Plans: Concluído com sucesso.
 - [x] 77-01-PLAN: Progressão Difícil de Desbloqueio de Slots e Vocações Únicas por Conta.
 - Resumo de entrega: `.planning/phases/phase-77-hard-slot-unlocks-unique-vocations/77-SUMMARY.md`
 
+### Phase 78: Auditoria de Progressão de Skills, Vantagens por Atributo (Velocidade e Attack Speed para Melee, Resistência Mágica para Magic/Shielding) e Tooltips Informativos de UI
+
+**Goal:** Auditar e aprimorar a matemática de progressão de habilidades, concedendo vantagens tangíveis por nível: bônus de velocidade de movimento e velocidade de ataque (redução do intervalo de ataques) para skills físicas/corpo a corpo (Sword, Axe, Club, Distance, Fist); bônus de resistência a danos mágicos/elementais e eficiência para Magic Level; mitigação de dano físico e bloqueio para Shielding; além de tooltips visuais detalhados na interface (hover sobre as skills na SkillsWindow) exibindo os bônus ativos e ganhos do próximo nível.  
+**Depends on:** Phase 77  
+**Requirements:**
+1. **Bônus de Skills Físicas / Melee (Sword, Axe, Club, Distance, Fist):**
+   - **Velocidade de Movimento:** Conceder bônus de velocidade de locomoção em tiles/segundo proporcional ao nível da skill física ativa.
+   - **Velocidade de Ataque:** Reduzir o intervalo entre ataques básicos (`attackIntervalMs`) com base na skill física ativa do herói (ex.: -0.4% por nível, até o limite mínimo de intervalo).
+2. **Bônus de Skills Mágicas e Defensivas (Magic Level, Shielding):**
+   - **Magic Level:** Conceder porcentagem de resistência a danos mágicos/elementais e aumento na eficiência de recuperação de mana/custo de spells.
+   - **Shielding:** Conceder mitigação percentual contra danos físicos recebidos e maior eficácia de bloqueio de armadura/escudo.
+3. **Tooltips Informativos na Interface (`SkillsWindow`):**
+   - Ao passar o mouse por cima de cada skill na `SkillsWindow`, exibir um tooltip explicativo rico detalhando:
+     - Descrição da skill.
+     - Bônus ativos aplicados no nível atual (ex.: `+X Dano Físico`, `+Y% Vel. Ataque`, `+Z Vel. Movimento`, `+W% Resistência Mágica`).
+     - Ganhos exatos ao alcançar o próximo nível da skill.
+4. **Qualidade e Testes:**
+   - Suíte no Vitest validando o cálculo de derivados de skills, velocidade de movimento, redução de intervalo de ataque, resistência mágica e mitigação física.
+   - 0 erros no `npm run typecheck` e 100% dos testes Vitest passando.
+
+**Success Criteria:**
+1. Habilidades corporais (Sword/Axe/Club/Distance/Fist) concedem velocidade de movimento e aumentam a velocidade de ataque.
+2. Magic Level concede resistência a danos mágicos e Shielding concede mitigação física.
+3. Passar o mouse sobre as skills na `SkillsWindow` exibe tooltips detalhados com os bônus atuais e do próximo nível.
+4. 0 erros de TypeScript e 100% dos testes passando no Vitest.
+
+Plans: Concluído com sucesso.
+
+- [x] 78-01-PLAN: Auditoria de Progressão de Skills, Atributos Derivados (Velocidade, Attack Speed, Resistência Mágica, Mitigação Física) e Tooltips na UI.
+- Resumo de entrega: `.planning/phases/phase-78-skill-progression-perks-and-tooltips/78-SUMMARY.md`
+
+
 
 

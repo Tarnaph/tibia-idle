@@ -61,10 +61,11 @@ function cloneState(state: GameState): GameState {
 
 function makeActor(character: SessionState['characters'][number], spawn: PartyActorState['position'], content: GameContent): PartyActorState {
   const vocation = vocationFor(content, character.vocation);
+  const stats = deriveStats(character, content.equipment, vocation);
   return {
     characterId: character.id, hp: character.currentHp, mana: character.currentMana, alive: character.currentHp > 0,
     position: clonePosition(spawn), previousPosition: clonePosition(spawn), direction: 'east', path: [], targetId: null,
-    nextAttackAt: 0, attackIntervalMs: vocation.attackSpeedMs, speed: vocation.baseSpeed, nextMoveAt: 0, nextSpellAt: 0,
+    nextAttackAt: 0, attackIntervalMs: stats.attackIntervalMs, speed: vocation.baseSpeed + (character.level - 1) * 2 + stats.movementSpeedBonus, nextMoveAt: 0, nextSpellAt: 0,
     spellCooldowns: { ...character.combatState.spellCooldowns }, groupCooldowns: { ...character.combatState.groupCooldowns }, hasteUntil: 0,
     magicShieldUntil: 0, bloodRageUntil: 0, lastHitTakenAt: 0,
     nextManaRegenAt: vocation.manaGainTicks * 2_000, nextHealthRegenAt: vocation.healthGainTicks * 2_000, pendingAttack: null,
@@ -993,9 +994,11 @@ function playerAttacks(state: GameState, content: GameContent): void {
       }
       encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId });
     }
-    actor.nextAttackAt = encounter.elapsedMs + actor.attackIntervalMs;
-    actor.groupCooldowns['attack'] = encounter.elapsedMs + actor.attackIntervalMs;
-    actor.groupCooldowns['rune'] = encounter.elapsedMs + actor.attackIntervalMs;
+    actor.attackIntervalMs = stats.attackIntervalMs;
+    actor.speed = vocationFor(content, character.vocation).baseSpeed + (character.level - 1) * 2 + stats.movementSpeedBonus;
+    actor.nextAttackAt = encounter.elapsedMs + stats.attackIntervalMs;
+    actor.groupCooldowns['attack'] = encounter.elapsedMs + stats.attackIntervalMs;
+    actor.groupCooldowns['rune'] = encounter.elapsedMs + stats.attackIntervalMs;
   }
 }
 
@@ -1015,7 +1018,10 @@ function enemyAttacks(state: GameState, content: GameContent): void {
     const effectiveDefense = Math.max(0, Math.round(stats.defense * defenseMultiplier));
     const defense = rollInteger(rng, Math.floor(effectiveDefense / 2), effectiveDefense);
     const armor = rollInteger(rng, Math.floor(stats.armor / 2), stats.armor);
-    const damage = Math.max(0, raw - defense - armor);
+    let damage = Math.max(0, raw - defense - armor);
+    if (damage > 0 && stats.physicalDamageMitigationPercent > 0) {
+      damage = Math.max(0, Math.round(damage * (1 - stats.physicalDamageMitigationPercent / 100)));
+    }
     enemy.nextAttackAt = encounter.elapsedMs + enemy.attackIntervalMs;
     // Progress shielding skill when defending with shield
     const hasShield = getEquippedItems(character, content.equipment).some((item) => item.weaponType === 'shield');

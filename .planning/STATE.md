@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-06T14:25:00.000Z"
-last_activity: "2026-09-06 — Conclusão da Phase 77: Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta."
+last_updated: "2026-09-06T14:36:00.000Z"
+last_activity: "2026-09-06 — Conclusão da Phase 78: Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips na UI."
 progress:
-  total_phases: 77
-  completed_phases: 77
-  total_plans: 77
-  completed_plans: 77
+  total_phases: 78
+  completed_phases: 78
+  total_plans: 78
+  completed_plans: 78
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Progressão difícil de nível para desbloqueio de slots por conta e restrição de vocações únicas sem duplicatas.
+**Current focus:** Auditoria de progressão de habilidades, bônus de velocidade de ataque/movimento para melee, resistência mágica para ML, mitigação física para Shielding e tooltips de UI.
 
 ## Current Position
 
-Phase: 77 of 77 (Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta)  
+Phase: 78 of 78 (Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips Informativos de UI)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-06 — Conclusão da Phase 77.
+Last activity: 2026-09-06 — Conclusão da Phase 78.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 77
-- Total phases in roadmap: 77
-- Tests status: 47 test suites (293 testes aprovados)
+- Total phases completed: 78
+- Total phases in roadmap: 78
+- Tests status: 48 test suites (297 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -44,9 +44,9 @@ Progress: [██████████] 100%
 
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
-| 1 a 75. (Fases Anteriores Concluídas) | 75 | - | - | Complete |
-| 76. Escolha de Vocação no Nível 8+, Remoção na Criação e Item de Troca | 1 | - | - | Complete |
+| 1 a 76. (Fases Anteriores Concluídas) | 76 | - | - | Complete |
 | 77. Progressão Difícil de Desbloqueio de Slots e Vocações Únicas por Conta | 1 | - | - | Complete |
+| 78. Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips na UI | 1 | - | - | Complete |
 
 ## Accumulated Context
 

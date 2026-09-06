@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { CharacterState, DerivedStats, GameContent } from '@/packages/domain/src';
-import { skillProgress, vocationFor, characterCapacity, inventoryWeight } from '@/packages/domain/src';
+import type { CharacterState, DerivedStats, GameContent, SkillTooltipInfo } from '@/packages/domain/src';
+import { skillProgress, vocationFor, characterCapacity, inventoryWeight, getSkillTooltipInfo } from '@/packages/domain/src';
 
 interface SkillsWindowProps {
   open: boolean;
@@ -20,6 +20,8 @@ export function SkillsWindow({
   onClose,
 }: SkillsWindowProps) {
   const [minimized, setMinimized] = useState(false);
+  const [activeTooltip, setActiveTooltip] = useState<SkillTooltipInfo | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   if (!open) return null;
 
@@ -41,7 +43,21 @@ export function SkillsWindow({
 
   // Calculate free capacity and speed
   const capacity = Math.max(0, characterCapacity(character, content) - inventoryWeight(character, content.equipment));
-  const speed = 110 + (character.level - 1) * 2;
+  const speed = 110 + (character.level - 1) * 2 + stats.movementSpeedBonus;
+
+  const handleMouseEnter = (
+    e: React.MouseEvent,
+    skillKey: 'fist' | 'club' | 'sword' | 'axe' | 'distance' | 'shielding' | 'magicLevel' | 'fishing' | 'level',
+  ) => {
+    const info = getSkillTooltipInfo(character.skills, skillKey, character.level);
+    setActiveTooltip(info);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltipPos({ x: rect.right + 12, y: rect.top });
+  };
+
+  const handleMouseLeave = () => {
+    setActiveTooltip(null);
+  };
 
   return (
     <div className="tibia-skills-floating-window" role="dialog" aria-label="Skills">
@@ -49,7 +65,7 @@ export function SkillsWindow({
       <div className="tibia-skills-titlebar">
         <div className="tibia-skills-title">
           <span className="skills-icon">🏹</span>
-          <span>Skills</span>
+          <span>Skills & Atributos</span>
         </div>
         <div className="tibia-skills-controls">
           <button
@@ -75,7 +91,12 @@ export function SkillsWindow({
       {!minimized && (
         <div className="tibia-skills-body">
           {/* Level & XP */}
-          <div className="skills-row-level">
+          <div
+            className="skills-row-level"
+            style={{ cursor: 'help' }}
+            onMouseEnter={(e) => handleMouseEnter(e, 'level')}
+            onMouseLeave={handleMouseLeave}
+          >
             <span className="skills-label">Level</span>
             <span className="skills-val bold">{level}</span>
           </div>
@@ -103,12 +124,12 @@ export function SkillsWindow({
           {/* Vitals */}
           <div className="skills-row">
             <span className="skills-label">Hit Points</span>
-            <span className="skills-val">{hp}</span>
+            <span className="skills-val">{hp} / {maxHp}</span>
           </div>
 
           <div className="skills-row">
             <span className="skills-label">Mana</span>
-            <span className="skills-val">{mana}</span>
+            <span className="skills-val">{mana} / {maxMana}</span>
           </div>
 
           <div className="skills-row">
@@ -118,12 +139,12 @@ export function SkillsWindow({
 
           <div className="skills-row">
             <span className="skills-label">Capacity</span>
-            <span className="skills-val">{capacity}</span>
+            <span className="skills-val">{capacity} oz</span>
           </div>
 
           <div className="skills-row">
             <span className="skills-label">Speed</span>
-            <span className="skills-val">{speed}</span>
+            <span className="skills-val">{speed} (+{stats.movementSpeedBonus} skill)</span>
           </div>
 
           <div className="skills-row">
@@ -150,7 +171,12 @@ export function SkillsWindow({
           </div>
 
           {/* Magic Level with Red Meter */}
-          <div className="skills-row">
+          <div
+            className="skills-row"
+            style={{ cursor: 'help' }}
+            onMouseEnter={(e) => handleMouseEnter(e, 'magicLevel')}
+            onMouseLeave={handleMouseLeave}
+          >
             <span className="skills-label">Magic Level</span>
             <span className="skills-val bold">{character.skills.magicLevel}</span>
           </div>
@@ -168,17 +194,22 @@ export function SkillsWindow({
             { label: 'Axe Fighting', key: 'axe' as const, val: character.skills.axe },
             { label: 'Distance Fighting', key: 'distance' as const, val: character.skills.distance },
             { label: 'Shielding', key: 'shielding' as const, val: character.skills.shielding },
-            { label: 'Fishing', key: null, val: 10 },
+            { label: 'Fishing', key: 'fishing' as const, val: character.skills.fishing ?? 10 },
           ].map((item) => (
             <React.Fragment key={item.label}>
-              <div className="skills-row">
+              <div
+                className="skills-row"
+                style={{ cursor: 'help' }}
+                onMouseEnter={(e) => handleMouseEnter(e, item.key)}
+                onMouseLeave={handleMouseLeave}
+              >
                 <span className="skills-label">{item.label}</span>
                 <span className="skills-val bold">{item.val}</span>
               </div>
               <div className="skills-meter-track">
                 <div
                   className="skills-meter-fill green"
-                  style={{ width: `${item.key ? getProgress(item.key) : 15}%` }}
+                  style={{ width: `${item.key !== 'fishing' ? getProgress(item.key) : 15}%` }}
                 />
               </div>
             </React.Fragment>
@@ -187,37 +218,71 @@ export function SkillsWindow({
           <div className="tibia-skills-divider" />
 
           {/* Imbuements / Leech Stats */}
-          <div className="skills-section-header">Critical Hit:</div>
+          <div className="skills-section-header">Resistências & Mitigações:</div>
           <div className="skills-sub-row">
-            <span className="skills-sub-label">Chance</span>
-            <span className="skills-val">0%</span>
+            <span className="skills-sub-label">Resist. Mágica</span>
+            <span className="skills-val green">+{stats.magicDamageResistancePercent}%</span>
           </div>
           <div className="skills-sub-row">
-            <span className="skills-sub-label">Extra Damage</span>
-            <span className="skills-val">0%</span>
+            <span className="skills-sub-label">Mitigação Física</span>
+            <span className="skills-val green">+{stats.physicalDamageMitigationPercent}%</span>
+          </div>
+          <div className="skills-sub-row">
+            <span className="skills-sub-label">Vel. de Ataque</span>
+            <span className="skills-val green">+{stats.attackSpeedBonusPercent}% ({stats.attackIntervalMs}ms)</span>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Rich Tooltip */}
+      {activeTooltip && (
+        <div
+          style={{
+            position: 'fixed',
+            left: `${tooltipPos.x}px`,
+            top: `${tooltipPos.y}px`,
+            zIndex: 9999999,
+            width: '280px',
+            backgroundColor: '#16191d',
+            border: '2px solid #5a4b32',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.85)',
+            borderRadius: '4px',
+            padding: '10px 12px',
+            color: '#e2d6c1',
+            fontFamily: 'sans-serif',
+            fontSize: '12px',
+            pointerEvents: 'none',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', borderBottom: '1px solid #3c3121', paddingBottom: '4px' }}>
+            <span style={{ color: '#ffd700', fontWeight: 'bold', fontSize: '13px' }}>{activeTooltip.name}</span>
+            <span style={{ backgroundColor: '#2b2318', color: '#ff8c00', padding: '1px 6px', borderRadius: '3px', fontWeight: 'bold' }}>Nível {activeTooltip.level}</span>
           </div>
 
-          <div className="skills-section-header">Hit Points Leech:</div>
-          <div className="skills-sub-row">
-            <span className="skills-sub-label">Chance</span>
-            <span className="skills-val">0%</span>
-          </div>
-          <div className="skills-sub-row">
-            <span className="skills-sub-label">Amount</span>
-            <span className="skills-val">0%</span>
+          <p style={{ margin: '0 0 8px 0', fontSize: '11px', color: '#a09888', lineHeight: '1.3' }}>
+            {activeTooltip.description}
+          </p>
+
+          <div style={{ marginBottom: '8px' }}>
+            <div style={{ color: '#67de82', fontWeight: 'bold', marginBottom: '3px', fontSize: '11px' }}>✨ Bônus Atuais (Nível {activeTooltip.level}):</div>
+            <ul style={{ margin: 0, paddingLeft: '14px', color: '#d0c8b8', lineHeight: '1.4' }}>
+              {activeTooltip.currentPerks.map((perk, idx) => (
+                <li key={idx}>{perk}</li>
+              ))}
+            </ul>
           </div>
 
-          <div className="skills-section-header">Mana Leech:</div>
-          <div className="skills-sub-row">
-            <span className="skills-sub-label">Chance</span>
-            <span className="skills-val">0%</span>
-          </div>
-          <div className="skills-sub-row">
-            <span className="skills-sub-label">Amount</span>
-            <span className="skills-val">0%</span>
+          <div>
+            <div style={{ color: '#ffb830', fontWeight: 'bold', marginBottom: '3px', fontSize: '11px' }}>⬆️ Próximo Nível (Nível {activeTooltip.level + 1}):</div>
+            <ul style={{ margin: 0, paddingLeft: '14px', color: '#b8b0a0', lineHeight: '1.4' }}>
+              {activeTooltip.nextLevelPerks.map((perk, idx) => (
+                <li key={idx}>{perk}</li>
+              ))}
+            </ul>
           </div>
         </div>
       )}
     </div>
   );
 }
+
