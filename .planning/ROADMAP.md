@@ -1089,8 +1089,9 @@ Plans:
 5. As taxas de penalidade são customizáveis em tempo real no painel `/admin`.
 6. 0 erros de TypeScript e 100% dos testes Vitest passando.
 
-Plans:
-- [ ] 68-01-PLAN: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte e Configuração no Painel Admin.
+Plans: Concluído (Validado em `tests/phase68-death-penalty-and-modal.test.ts` e `68-SUMMARY.md`).
+
+- [x] 68-01-PLAN: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte e Configuração no Painel Admin.
 
 
 
