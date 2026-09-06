@@ -799,10 +799,13 @@ function GamePrototypeContent() {
         magiclevel: 'magicLevel',
         magic: 'magicLevel',
       };
-      ((charItem as any).skills as Array<{ skillId: number; skillName: string; value: number }>).forEach((sk) => {
+      ((charItem as any).skills as Array<{ skillId: number; skillName: string; value: number; tries?: number }>).forEach((sk) => {
         const key = skillNameMap[sk.skillName.toLowerCase()];
         if (key && userChar.skills[key] !== undefined) {
           userChar.skills[key] = sk.value;
+          if (sk.tries !== undefined && userChar.skillTries && userChar.skillTries[key] !== undefined) {
+            userChar.skillTries[key] = Number(sk.tries);
+          }
         }
       });
     }
@@ -1028,7 +1031,15 @@ function GamePrototypeContent() {
             posX: cityPos.x,
             posY: cityPos.y,
             posZ: cityPos.z,
-            skills: activeCharacter.skills,
+            skills: [
+              { skillId: 0, skillName: 'Fist Fighting', value: activeCharacter.skills.fist, tries: activeCharacter.skillTries?.fist ? Math.floor(activeCharacter.skillTries.fist) : 0 },
+              { skillId: 1, skillName: 'Club Fighting', value: activeCharacter.skills.club, tries: activeCharacter.skillTries?.club ? Math.floor(activeCharacter.skillTries.club) : 0 },
+              { skillId: 2, skillName: 'Sword Fighting', value: activeCharacter.skills.sword, tries: activeCharacter.skillTries?.sword ? Math.floor(activeCharacter.skillTries.sword) : 0 },
+              { skillId: 3, skillName: 'Axe Fighting', value: activeCharacter.skills.axe, tries: activeCharacter.skillTries?.axe ? Math.floor(activeCharacter.skillTries.axe) : 0 },
+              { skillId: 4, skillName: 'Distance Fighting', value: activeCharacter.skills.distance, tries: activeCharacter.skillTries?.distance ? Math.floor(activeCharacter.skillTries.distance) : 0 },
+              { skillId: 5, skillName: 'Shielding', value: activeCharacter.skills.shielding, tries: activeCharacter.skillTries?.shielding ? Math.floor(activeCharacter.skillTries.shielding) : 0 },
+              { skillId: 7, skillName: 'Magic Level', value: activeCharacter.skills.magicLevel, tries: activeCharacter.skillTries?.magicLevel ? Math.floor(activeCharacter.skillTries.magicLevel) : 0 },
+            ],
             inventory: inventoryPayload,
           }),
         });

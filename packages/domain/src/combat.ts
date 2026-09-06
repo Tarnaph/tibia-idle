@@ -975,13 +975,15 @@ function playerAttacks(state: GameState, content: GameContent): void {
           encounter.visualEvents.push({ type: 'melee-hit', sourceId: actor.characterId, targetId: target.id, effectId: 10, blocked: damage <= 0 });
         }
         const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
-        if (pending.activeSkill && pending.activeSkill !== 'magicLevel') {
+        if (pending.activeSkill) {
           const vocation = vocationFor(content, character.vocation);
           const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
-          const tries = 1 * content.rateSkill * skillRate;
+          const rateMultiplier = pending.activeSkill === 'magicLevel' ? content.rateMagic : content.rateSkill;
+          const tries = 1 * rateMultiplier * skillRate;
           for (const advanced of addTrainingTries(character, pending.activeSkill, tries, vocation)) {
             encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
-            addLog(state, `You advanced in ${pending.activeSkill}.`);
+            const skillDisplayName = pending.activeSkill === 'magicLevel' ? `Magic Level ${character.skills.magicLevel}` : pending.activeSkill;
+            addLog(state, `You advanced in ${skillDisplayName}.`);
           }
         }
         addLog(state, `${character.name} atingiu ${target.name} por ${damage} com ${pending.weaponName}.`);

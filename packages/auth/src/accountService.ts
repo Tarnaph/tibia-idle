@@ -153,6 +153,14 @@ export class AccountService {
             outfitLookType: true,
             isOnline: true,
             lastLogin: true,
+            skills: {
+              select: {
+                skillId: true,
+                skillName: true,
+                value: true,
+                tries: true,
+              },
+            },
           },
         },
       },
@@ -171,6 +179,10 @@ export class AccountService {
       characters: account.characters.map((c) => ({
         ...c,
         experience: Number(c.experience ?? 0),
+        skills: c.skills.map((s) => ({
+          ...s,
+          tries: Number(s.tries ?? 0),
+        })),
       })),
       createdAt: account.createdAt,
     };

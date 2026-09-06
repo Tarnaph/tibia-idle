@@ -51,6 +51,33 @@ export class PrismaPersistenceManager {
         },
       });
 
+      const skillsData = (player as any).skills;
+      if (Array.isArray(skillsData) && skillsData.length > 0) {
+        for (const sk of skillsData) {
+          if (typeof sk.skillId === 'number' && typeof sk.value === 'number') {
+            await this.db.characterSkill.upsert({
+              where: {
+                characterId_skillId: {
+                  characterId: player.characterId,
+                  skillId: sk.skillId,
+                },
+              },
+              update: {
+                value: sk.value,
+                tries: sk.tries !== undefined ? BigInt(sk.tries) : undefined,
+              },
+              create: {
+                characterId: player.characterId,
+                skillId: sk.skillId,
+                skillName: sk.skillName || 'Skill',
+                value: sk.value,
+                tries: sk.tries !== undefined ? BigInt(sk.tries) : BigInt(0),
+              },
+            });
+          }
+        }
+      }
+
     } catch (err: any) {
       console.warn(`[PrismaPersistenceManager] Failed to save character ${player.characterId}:`, err.message);
     }
@@ -81,6 +108,7 @@ export class PrismaPersistenceManager {
     try {
       const char = await this.db.character.findUnique({
         where: { id: characterId },
+        include: { skills: true },
       });
       if (!char) return null;
       let hotbar: number[] = [];

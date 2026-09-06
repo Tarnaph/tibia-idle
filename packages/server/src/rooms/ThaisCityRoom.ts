@@ -5,7 +5,28 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
-import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt } from '../../../domain/src';
+import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, type TrainableSkill, type GameContent } from '../../../domain/src';
+import vocationsJson from '../../../../content/generated/vocations.json';
+import equipmentJson from '../../../../content/generated/equipment.json';
+import monstersJson from '../../../../content/generated/monsters.json';
+import startersJson from '../../../../content/generated/starter-loadouts.json';
+import spellsJson from '../../../../content/generated/spells.json';
+import huntRegionsJson from '../../../../content/generated/hunt-regions.json';
+import economyJson from '../../../../content/generated/item-economy.json';
+import type { EquipmentCatalog, HuntRegionCatalog, ItemEconomyCatalog, MonsterCatalog, SpellCatalog, StarterLoadoutCatalog, VocationCatalog, VocationName } from '../../../content-schema/src';
+
+const gameContent: GameContent = {
+  equipment: (equipmentJson as EquipmentCatalog).items,
+  monsters: (monstersJson as MonsterCatalog).monsters,
+  starterLoadouts: (startersJson as StarterLoadoutCatalog).loadouts,
+  vocations: (vocationsJson as VocationCatalog).vocations,
+  spells: (spellsJson as SpellCatalog).spells,
+  huntRegions: (huntRegionsJson as HuntRegionCatalog).regions,
+  economy: economyJson as ItemEconomyCatalog,
+  hunts: initialHunts,
+  rateSkill: (vocationsJson as VocationCatalog).rateSkill,
+  rateMagic: (vocationsJson as VocationCatalog).rateMagic,
+};
 import { persistenceManager } from '../persistence/PrismaPersistenceManager';
 import { serverConfigManager } from '../config/ServerConfigManager';
 import {
@@ -425,6 +446,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     let outfitAddons = 0;
     let mount = (options as any).mount || 'none';
     let mountActive = Boolean((options as any).mountActive);
+    let loadedSkills: any[] = [];
 
     if (options.characterId) {
       const dbChar = await persistenceManager.loadCharacter(options.characterId);
@@ -459,6 +481,14 @@ export class ThaisCityRoom extends Room<WorldState> {
           outfitBody = dbChar.outfitBody;
           outfitLegs = dbChar.outfitLegs;
           outfitFeet = dbChar.outfitFeet;
+        }
+         if (Array.isArray((dbChar as any).skills)) {
+          loadedSkills = (dbChar as any).skills.map((s: any) => ({
+            skillId: s.skillId,
+            skillName: s.skillName,
+            value: s.value,
+            tries: Number(s.tries ?? 0),
+          }));
         }
       }
     }
@@ -506,6 +536,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.posY = posY ?? 32241;
     player.posZ = posZ ?? 7;
     player.direction = 'south';
+    (player as any).skills = loadedSkills;
 
     // Set outfit state
     player.outfit = outfitName;
@@ -1108,6 +1139,55 @@ export class ThaisCityRoom extends Room<WorldState> {
             const damage = Math.max(1, rawDamage - monster.armorPower);
             monster.hp -= damage;
             player.lastAttackTime = now;
+
+            // Advance character skill on attack
+            const vocName = (player.vocationName || 'Knight') as VocationName;
+            const primarySkill: TrainableSkill = player.vocationId === 2 ? 'magicLevel' : player.vocationId === 3 ? 'distance' : player.vocationId === 1 ? 'sword' : 'club';
+            const vocDef = vocationFor(gameContent, vocName);
+            const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+            const rateMult = primarySkill === 'magicLevel' ? gameContent.rateMagic : gameContent.rateSkill;
+            const tries = 1 * rateMult * skillRate;
+
+            let charSkills = (player as any).skills;
+            if (!Array.isArray(charSkills) || charSkills.length === 0) {
+              charSkills = [
+                { skillId: 0, skillName: 'Fist Fighting', value: 10, tries: 0 },
+                { skillId: 1, skillName: 'Club Fighting', value: 10, tries: 0 },
+                { skillId: 2, skillName: 'Sword Fighting', value: 10, tries: 0 },
+                { skillId: 3, skillName: 'Axe Fighting', value: 10, tries: 0 },
+                { skillId: 4, skillName: 'Distance Fighting', value: 10, tries: 0 },
+                { skillId: 5, skillName: 'Shielding', value: 10, tries: 0 },
+                { skillId: 7, skillName: 'Magic Level', value: 0, tries: 0 },
+              ];
+              (player as any).skills = charSkills;
+            }
+            const primarySkillStr = primarySkill as string;
+            const targetSkillId = primarySkillStr === 'magicLevel' ? 7 : primarySkillStr === 'distance' ? 4 : primarySkillStr === 'sword' ? 2 : primarySkillStr === 'axe' ? 3 : 1;
+            let targetSkillObj = charSkills.find((s: any) => s.skillId === targetSkillId);
+            if (!targetSkillObj) {
+              targetSkillObj = { skillId: targetSkillId, skillName: primarySkill, value: 10, tries: 0 };
+              charSkills.push(targetSkillObj);
+            }
+            const skillMap: Record<string, number> = { fist: 10, club: 10, sword: 10, axe: 10, distance: 10, shielding: 10, magicLevel: 0 };
+            const skillTriesMap: Record<string, number> = { fist: 0, club: 0, sword: 0, axe: 0, distance: 0, shielding: 0, magicLevel: 0 };
+            charSkills.forEach((s: any) => {
+              const nameMap: Record<number, string> = { 0: 'fist', 1: 'club', 2: 'sword', 3: 'axe', 4: 'distance', 5: 'shielding', 7: 'magicLevel' };
+              const key = nameMap[s.skillId];
+              if (key) {
+                skillMap[key] = s.value;
+                skillTriesMap[key] = s.tries || 0;
+              }
+            });
+            const charState: any = { skills: skillMap, skillTries: skillTriesMap };
+            const leveled = addTrainingTries(charState, primarySkill, tries, vocDef);
+            targetSkillObj.value = charState.skills[primarySkill];
+            targetSkillObj.tries = charState.skillTries[primarySkill];
+            if (leveled.length > 0) {
+              const client = this.clients.find((c) => c.sessionId === player.id);
+              if (client) {
+                client.send('skill:levelUp', { skill: primarySkill, level: targetSkillObj.value });
+              }
+            }
 
             this.pushCombatEvent('damage', player.id, monster.id, damage, monster.posX, monster.posY, `${damage}`, '#ff3333');
 

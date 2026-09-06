@@ -341,8 +341,33 @@ export class CharacterService {
     if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
 
     // Update skills if provided
-    if (data.skills && data.skills.length > 0) {
-      for (const sk of data.skills) {
+    let skillList: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }> = [];
+    if (Array.isArray(data.skills)) {
+      skillList = data.skills;
+    } else if (data.skills && typeof data.skills === 'object') {
+      const SKILL_MAP: Record<string, { skillId: number; skillName: string }> = {
+        fist: { skillId: 0, skillName: 'Fist Fighting' },
+        club: { skillId: 1, skillName: 'Club Fighting' },
+        sword: { skillId: 2, skillName: 'Sword Fighting' },
+        axe: { skillId: 3, skillName: 'Axe Fighting' },
+        distance: { skillId: 4, skillName: 'Distance Fighting' },
+        shielding: { skillId: 5, skillName: 'Shielding' },
+        fishing: { skillId: 6, skillName: 'Fishing' },
+        magiclevel: { skillId: 7, skillName: 'Magic Level' },
+        magic: { skillId: 7, skillName: 'Magic Level' },
+      };
+      for (const [key, rawVal] of Object.entries(data.skills)) {
+        const meta = SKILL_MAP[key.toLowerCase()];
+        if (meta) {
+          const val = typeof rawVal === 'number' ? rawVal : typeof (rawVal as any)?.value === 'number' ? (rawVal as any).value : 10;
+          const tries = typeof (rawVal as any)?.tries === 'number' || typeof (rawVal as any)?.tries === 'bigint' ? BigInt((rawVal as any).tries) : undefined;
+          skillList.push({ skillId: meta.skillId, skillName: meta.skillName, value: val, tries });
+        }
+      }
+    }
+
+    if (skillList.length > 0) {
+      for (const sk of skillList) {
         await this.prisma.characterSkill.upsert({
           where: {
             characterId_skillId: {
