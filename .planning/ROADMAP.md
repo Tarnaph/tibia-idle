@@ -1093,5 +1093,40 @@ Plans: Concluído (Validado em `tests/phase68-death-penalty-and-modal.test.ts` e
 
 - [x] 68-01-PLAN: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte e Configuração no Painel Admin.
 
+### Phase 69: Auditoria e Conexão Integral de Progressão (XP de Nível, Skills e Magic Level em Combate e Treino)
+
+**Goal:** Auditar e integrar ponta a ponta o sistema de progressão contínua de personagens (ganho de XP, subida de nível com HP/Mana proporcionais por vocação, evolução de Skills físicas e de distância em combate e no dummy, e evolução de Magic Level ao gastar mana em magias ativas durante caçadas).  
+**Depends on:** Phase 68  
+**Requirements:**
+1. **Auditoria de Progressão de Nível e XP:**
+   - Validação da fórmula oficial cúbica do TFS `experienceForLevel(level)`.
+   - Garantir que a XP ganha de monstros avança o nível imediatamente, concedendo `gainHp`, `gainMana` e `gainCap` exatos por vocação (Knight, Paladin, Sorcerer, Druid e promoções).
+   - Emissão do evento oficial `level-up` e mensagem no chat: "You advanced from Level X to Level Y."
+2. **Auditoria e Conexão de Progressão de Skills:**
+   - Validação dos multiplicadores oficiais de vocação e fórmulas de tries (`requiredSkillTries`).
+   - Conectar o avanço de skills no combate real (`advanceCombat`):
+     - Ataque corpo a corpo ou à distância com sucesso concede tries na skill ativa da arma (`sword`, `axe`, `club`, `distance`, `fist`).
+     - Bloqueio de ataques de monstros com escudo equipado concede tries em `shielding`.
+     - Multiplicador de skill rate do servidor (`serverConfig.skillRate`) aplicado em tempo real.
+     - Emissão do evento `skill-up` e mensagem canônica: "You advanced in [Skill]."
+3. **Auditoria e Conexão de Progressão de Magic Level:**
+   - Validação da fórmula oficial de mana necessária por nível mágico (`requiredMagicTries`).
+   - Conectar o ganho de tries de Magic Level ao gastar mana conjurando magias durante o combate (`advanceCombat` e `triggerManualHotbarAction`).
+   - Multiplicador de magic rate do servidor (`serverConfig.skillRate` / `content.rateMagic`) aplicado.
+   - Emissão do evento `skill-up` com mensagem: "You advanced to Magic Level X."
+4. **Qualidade e Testes:**
+   - 0 erros de TypeScript (`npm run typecheck`).
+   - Suíte de testes automatizados Vitest validando a progressão completa em combate de Level, Skills e Magic Level.
+
+**Success Criteria:**
+1. Matar monstros concede XP e sobe o nível com os atributos exatos da vocação.
+2. Desferir ataques e bloquear danos em caçadas avança as barras e níveis de skills.
+3. Gastar mana em magias em combate real avança a barra e nível de Magic Level.
+4. Suíte de testes cobrindo todos os cenários de progressão com 100% de aprovação.
+5. 0 erros de tipagem TypeScript.
+
+Plans:
+- [ ] 69-01-PLAN: Auditoria, conexão de ganho de Skills e Magic Level em combate e suíte de testes de progressão.
+
 
 

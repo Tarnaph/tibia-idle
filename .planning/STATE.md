@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-05T22:00:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 68: Modal Autêntico de Morte (\"You are dead\"), Sistema de Penalidade por Morte (XP, Skills e Loot) e Controles no Painel Admin."
+status: ready_to_plan
+last_updated: "2026-09-05T22:20:00.000Z"
+last_activity: "2026-09-05 — Adicionada Phase 69: Auditoria e Conexão Integral de Progressão (XP de Nível, Skills e Magic Level em Combate e Treino)."
 progress:
-  total_phases: 68
+  total_phases: 69
   completed_phases: 68
-  total_plans: 68
+  total_plans: 69
   completed_plans: 68
-  percent: 100
+  percent: 98
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Modal clássico de morte ("You are dead"), penalidade de morte (10% XP com recálculo de level, 10% skills e loot da caçada) e taxas configuráveis no Painel Admin.
+**Current focus:** Auditoria completa de progressão de níveis (XP oficial TFS), evolução de skills em combate ativo/dummy e ganho de Magic Level ao usar magias/gastar mana.
 
 ## Current Position
 
-Phase: 68 of 68 (Modal Autêntico de Morte & Sistema de Penalidade de Morte)  
-Plan: 1 of 1 in current phase  
-Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 68.
+Phase: 69 of 69 (Auditoria e Conexão Integral de Progressão)  
+Plan: 0 of 1 in current phase  
+Status: Ready to plan / execute  
+Last activity: 2026-09-05 — Adicionada Phase 69.
 
-Progress: [██████████] 100%
+Progress: [█████████░] 98%
 
 ## Performance Metrics
 
@@ -94,6 +94,7 @@ Progress: [██████████] 100%
 | 42. Sistema de Outfits e Montarias para Todos os Personagens da Party | 1 | - | - | Complete |
 | 43. Layout Oficial Tibia 11 do Menu de Outfit & Montarias | 1 | - | - | Complete |
 | 68. Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade e Painel Admin | 1 | - | - | Complete |
+| 69. Auditoria e Conexão Integral de Progressão (XP, Skills e Magic Level) | 1 | - | - | Ready |
 
 ## Accumulated Context
 
