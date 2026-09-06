@@ -544,7 +544,13 @@ function GamePrototypeContent() {
     });
 
     const unsubChat = gameNetwork.onChatMessage((netMsg) => {
-      const ch: 'local' | 'world' = netMsg.channel === 'world' || netMsg.channel === 'global' ? 'world' : 'local';
+      const isWhisper = netMsg.channel === 'whisper';
+      const ch: 'local' | 'world' | 'whisper' = isWhisper
+        ? 'whisper'
+        : netMsg.channel === 'world' || netMsg.channel === 'global'
+        ? 'world'
+        : 'local';
+
       setChatMessages((prev) => {
         if (prev.some((m) => m.id === netMsg.id)) return prev;
         return [
@@ -553,6 +559,7 @@ function GamePrototypeContent() {
             id: netMsg.id || `net-${Date.now()}-${Math.random()}`,
             senderId: netMsg.senderId,
             senderName: netMsg.senderName,
+            recipientName: netMsg.recipientName,
             channel: ch,
             text: netMsg.text,
             timestamp: netMsg.timestamp || Date.now(),
@@ -560,7 +567,14 @@ function GamePrototypeContent() {
         ];
       });
 
-      if (mode !== 'hunt') {
+      // If incoming whisper from another player, auto-open chat window so user never misses it
+      if (isWhisper && netMsg.senderName !== activeCharacter.name && netMsg.senderName !== 'Servidor') {
+        openWindow('chat');
+        bringToFront('chat');
+        setSaleMessage(`Nova mensagem privada de ${netMsg.senderName}!`);
+      }
+
+      if (!isWhisper && mode !== 'hunt') {
         setOverheadMessages((prev) => [
           ...prev.slice(-20),
           {
@@ -568,7 +582,7 @@ function GamePrototypeContent() {
             senderId: netMsg.senderId,
             senderName: netMsg.senderName,
             text: netMsg.text,
-            channel: ch,
+            channel: ch === 'whisper' ? 'local' : ch,
             timestamp: netMsg.timestamp || Date.now(),
           },
         ]);
@@ -1013,13 +1027,38 @@ function GamePrototypeContent() {
   const lastStepTimeRef = useRef(0);
 
   const handleSendChatMessage = useCallback((text: string, channel: 'local' | 'world') => {
+    const rawTrimmed = text.trim();
+    if (!rawTrimmed) return;
+
     if (!gameNetwork.IsConnected) {
       const msgId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const starMatch = rawTrimmed.match(/^\*([^*]+)\*\s*(.*)$/);
+      const slashMatch = rawTrimmed.match(/^\/(?:w|whisper|tell|msg)\s+([^\s]+)\s*(.*)$/i);
+
+      if (starMatch || slashMatch) {
+        const targetRecipient = (starMatch ? starMatch[1] : slashMatch![1]).trim();
+        const whisperContent = (starMatch ? starMatch[2] : slashMatch![2]).trim();
+
+        if (!whisperContent) return;
+
+        const whisperMsg: ChatMessageItem = {
+          id: msgId,
+          senderName: activeCharacter.name,
+          recipientName: targetRecipient,
+          channel: 'whisper',
+          text: whisperContent,
+          timestamp: Date.now(),
+        };
+        setChatMessages((prev) => [...prev.slice(-99), whisperMsg]);
+        setSaleMessage(`Mensagem privada enviada para ${targetRecipient}.`);
+        return;
+      }
+
       const newMsg: ChatMessageItem = {
         id: msgId,
         senderName: activeCharacter.name,
         channel,
-        text,
+        text: rawTrimmed,
         timestamp: Date.now(),
       };
 
@@ -1031,16 +1070,16 @@ function GamePrototypeContent() {
             id: msgId,
             senderId: activeCharacter.id,
             senderName: activeCharacter.name,
-            text,
+            text: rawTrimmed,
             channel,
             timestamp: Date.now(),
           },
         ]);
       }
     } else {
-      gameNetwork.sendChat(text, channel);
+      gameNetwork.sendChat(rawTrimmed, channel);
     }
-  }, [activeCharacter.name, mode]);
+  }, [activeCharacter.name, activeCharacter.id, mode]);
 
   const handleOpenOutfitModal = useCallback((characterId?: string) => {
     setOutfitModalCharId(characterId || activeCharacter.id);

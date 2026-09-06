@@ -659,12 +659,110 @@ export class ThaisCityRoom extends Room<WorldState> {
     const player = this.state.players.get(client.sessionId);
     if (!player || !rawText.trim()) return;
 
+    const rawTrimmed = rawText.trim();
+    const timestamp = Date.now();
+
+    // Check if message is a private whisper (*Recipient* message or /w Recipient message or /tell Recipient message)
+    const starMatch = rawTrimmed.match(/^\*([^*]+)\*\s*(.*)$/);
+    const slashMatch = rawTrimmed.match(/^\/(?:w|whisper|tell|msg)\s+([^\s]+)\s*(.*)$/i);
+
+    if (starMatch || slashMatch) {
+      const targetName = (starMatch ? starMatch[1] : slashMatch![1]).trim();
+      const whisperContent = (starMatch ? starMatch[2] : slashMatch![2]).trim();
+
+      if (!whisperContent) {
+        if (typeof client.send === 'function') {
+          client.send('chat', {
+            id: `sys-${timestamp}-${Math.random().toString(36).slice(2, 6)}`,
+            senderId: 'system',
+            senderName: 'Servidor',
+            text: `Por favor, digite a mensagem a ser enviada para ${targetName}.`,
+            channel: 'whisper',
+            timestamp,
+          });
+        }
+        return;
+      }
+
+      if (targetName.toLowerCase() === player.name.toLowerCase()) {
+        if (typeof client.send === 'function') {
+          client.send('chat', {
+            id: `sys-${timestamp}-${Math.random().toString(36).slice(2, 6)}`,
+            senderId: 'system',
+            senderName: 'Servidor',
+            text: 'Você não pode enviar mensagens privadas para seu próprio personagem.',
+            channel: 'whisper',
+            timestamp,
+          });
+        }
+        return;
+      }
+
+      // Find recipient among connected players
+      let recipientClient: Client | null = null;
+      let recipientPlayer: any = null;
+
+      for (const [sid, p] of this.state.players.entries()) {
+        if (p.name.toLowerCase() === targetName.toLowerCase()) {
+          recipientPlayer = p;
+          recipientClient = this.clients.find((c) => c.sessionId === sid) || null;
+          break;
+        }
+      }
+
+      const msgId = `whisper-${timestamp}-${Math.random().toString(36).slice(2, 7)}`;
+
+      if (recipientClient && recipientPlayer && typeof recipientClient.send === 'function') {
+        // Send to recipient
+        const recipientPayload = {
+          id: msgId,
+          senderId: client.sessionId,
+          senderName: player.name,
+          recipientName: recipientPlayer.name,
+          text: whisperContent,
+          channel: 'whisper',
+          timestamp,
+        };
+        recipientClient.send('chat', recipientPayload);
+        recipientClient.send('chat_message', recipientPayload);
+
+        // Send to sender for local chat history confirmation
+        if (typeof client.send === 'function') {
+          const senderPayload = {
+            id: msgId,
+            senderId: client.sessionId,
+            senderName: player.name,
+            recipientName: recipientPlayer.name,
+            text: whisperContent,
+            channel: 'whisper',
+            timestamp,
+          };
+          client.send('chat', senderPayload);
+          client.send('chat_message', senderPayload);
+        }
+      } else {
+        // Recipient not found online
+        if (typeof client.send === 'function') {
+          client.send('chat', {
+            id: `sys-${timestamp}-${Math.random().toString(36).slice(2, 6)}`,
+            senderId: 'system',
+            senderName: 'Servidor',
+            text: `Personagem "${targetName}" não está online no momento.`,
+            channel: 'whisper',
+            timestamp,
+          });
+        }
+      }
+
+      // Whisper handled privately; do not broadcast to public room or world chat
+      return;
+    }
+
     const normalizedChannel =
       channel === 'world' || channel === 'global' ? 'world' :
       channel === 'yell' ? 'yell' : 'local';
 
-    const text = normalizedChannel === 'yell' ? rawText.trim().toUpperCase() : rawText.trim();
-    const timestamp = Date.now();
+    const text = normalizedChannel === 'yell' ? rawTrimmed.toUpperCase() : rawTrimmed;
 
     const msg = new ChatMessageSchema();
     msg.id = `msg-${timestamp}-${Math.random()}`;

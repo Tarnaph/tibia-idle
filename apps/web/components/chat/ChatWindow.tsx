@@ -6,7 +6,8 @@ export interface ChatMessageItem {
   id: string;
   senderId?: string;
   senderName: string;
-  channel: 'local' | 'world';
+  recipientName?: string;
+  channel: 'local' | 'world' | 'whisper';
   text: string;
   timestamp: number;
 }
@@ -77,7 +78,9 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
     }
   }, [messages, activeTab]);
 
-  const filteredMessages = messages.filter((m) => m.channel === activeTab);
+  const filteredMessages = messages.filter(
+    (m) => m.channel === activeTab || m.channel === 'whisper'
+  );
 
   const handleSend = () => {
     const trimmed = inputText.trim();
@@ -189,10 +192,29 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           </div>
         ) : (
           filteredMessages.map((msg) => {
+            const isWhisper = msg.channel === 'whisper';
             const isLocal = msg.channel === 'local';
             const isSelf = msg.senderName === characterName;
-            const senderColor = isLocal ? '#ffff55' : '#55ffff';
-            const textColor = isLocal ? '#fffce8' : '#e8f8ff';
+
+            let senderLabel = `${msg.senderName}${isSelf ? ' (Você)' : ''}:`;
+            let senderColor = isLocal ? '#ffff55' : '#55ffff';
+            let textColor = isLocal ? '#fffce8' : '#e8f8ff';
+
+            if (isWhisper) {
+              if (msg.senderName === 'Servidor') {
+                senderLabel = '[Servidor]:';
+                senderColor = '#f87171';
+                textColor = '#fca5a5';
+              } else if (isSelf) {
+                senderLabel = `Para ${msg.recipientName || 'Amigo'}:`;
+                senderColor = '#c084fc';
+                textColor = '#f3e8ff';
+              } else {
+                senderLabel = `De ${msg.senderName}:`;
+                senderColor = '#38bdf8';
+                textColor = '#e0f2fe';
+              }
+            }
 
             return (
               <div
@@ -203,6 +225,9 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                   display: 'flex',
                   alignItems: 'baseline',
                   gap: '5px',
+                  backgroundColor: isWhisper ? 'rgba(88, 28, 135, 0.12)' : 'transparent',
+                  borderRadius: '2px',
+                  padding: isWhisper ? '1px 3px' : '0',
                 }}
               >
                 <time style={{ color: '#606a74', fontSize: '9.5px', flexShrink: 0 }}>
@@ -214,10 +239,17 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                     fontWeight: 700,
                     flexShrink: 0,
                     textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+                    cursor: isWhisper && !isSelf && msg.senderName !== 'Servidor' ? 'pointer' : 'default',
+                  }}
+                  title={isWhisper && !isSelf && msg.senderName !== 'Servidor' ? `Clique para responder ${msg.senderName}` : undefined}
+                  onClick={() => {
+                    if (isWhisper && !isSelf && msg.senderName !== 'Servidor') {
+                      setInputText(`*${msg.senderName}* `);
+                      inputRef.current?.focus();
+                    }
                   }}
                 >
-                  {msg.senderName}
-                  {isSelf ? ' (Você)' : ''}:
+                  {senderLabel}
                 </span>
                 <span style={{ color: textColor }}>{msg.text}</span>
               </div>

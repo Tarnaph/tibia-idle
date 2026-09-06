@@ -46,6 +46,7 @@ export interface NetworkChatMessage {
   id: string;
   senderId: string;
   senderName: string;
+  recipientName?: string;
   channel: string;
   text: string;
   timestamp: number;
