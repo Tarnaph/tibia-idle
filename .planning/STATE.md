@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-05T23:20:00.000Z"
-last_activity: "2026-09-05 — Concluída Phase 71: Verificação de Existência de Personagem na Lista de Amigos."
+last_updated: "2026-09-05T23:45:00.000Z"
+last_activity: "2026-09-05 — Concluída Phase 72: Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador."
 progress:
-  total_phases: 71
-  completed_phases: 71
-  total_plans: 71
-  completed_plans: 71
+  total_phases: 72
+  completed_phases: 72
+  total_plans: 72
+  completed_plans: 72
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Verificação de existência de personagem ao adicionar amigos, endpoint `/api/characters/lookup`, validações e feedback visual.
+**Current focus:** Roteamento de mensagens privadas (whisper), entrega ponta a ponta no servidor Colyseus, visibilidade entre abas e auto-abertura no cliente.
 
 ## Current Position
 
-Phase: 71 of 71 (Verificação de Existência de Personagem na Lista de Amigos)  
+Phase: 72 of 72 (Roteamento de Mensagens Privadas e Entrega Multijogador)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-05 — Concluída Phase 71.
+Last activity: 2026-09-05 — Concluída Phase 72.
 
 Progress: [██████████] 100%
 
@@ -97,6 +97,7 @@ Progress: [██████████] 100%
 | 69. Auditoria e Conexão Integral de Progressão (XP, Skills e Magic Level) | 1 | - | - | Complete |
 | 70. Botão de Mandar Mensagem e Ações Diretas na Lista de Amigos | 1 | - | - | Complete |
 | 71. Verificação de Existência de Personagem na Lista de Amigos | 1 | - | - | Complete |
+| 72. Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador | 1 | - | - | Complete |
 
 ## Accumulated Context
 

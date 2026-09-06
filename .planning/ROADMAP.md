@@ -1188,3 +1188,30 @@ Plans: Concluído (Validado em `tests/phase70-friends-message.test.ts` e `70-SUM
 Plans: Concluído (Validado em `tests/phase71-friends-character-lookup.test.ts` e `71-SUMMARY.md`).
 
 - [x] 71-01-PLAN: Verificação de Existência de Personagem, Endpoint de Lookup e Feedback Visual na FriendsWindow.
+
+### Phase 72: Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador
+
+**Goal:** Resolver a falha onde mensagens privadas enviadas pela lista de amigos não eram recebidas pelo outro jogador, implementando roteamento autoritativo de whispers no servidor Colyseus (`ThaisCityRoom`), entrega direta sem restrição de distância física, visibilidade em ambas as abas do chat (`ChatWindow`) e abertura automática para o destinatário.  
+**Depends on:** Phase 71  
+**Requirements:**
+1. **Roteamento de Whisper no Servidor (`ThaisCityRoom.ts`):**
+   - Detectar sintaxe padrão de whisper (`*Destinatário* mensagem` ou `/w Destinatário mensagem`).
+   - Localizar o jogador destinatário conectado na sala autoritativa.
+   - Enviar payload com canal `whisper` diretamente ao socket do destinatário e do remetente, sem restrição de proximidade/raio de visão.
+   - Fornecer feedback amigável ao remetente caso o destinatário esteja offline (`Personagem "X" não está online no momento.`).
+2. **Recepção e Visibilidade no Cliente (`GamePrototype.tsx` & `ChatWindow.tsx`):**
+   - Permitir que mensagens com `channel === 'whisper'` sejam visíveis em ambas as abas (`Local` e `World`).
+   - Exibir estilização clássica de whisper (azul ciano para mensagens recebidas, magenta/roxo para mensagens enviadas).
+   - Abrir automaticamente a janela de chat do destinatário ao receber mensagem privada para que nenhuma mensagem seja perdida.
+3. **Qualidade e Testes:**
+   - 0 erros no `npm run typecheck`.
+   - Suíte de testes dedicada em `tests/phase72-whisper-private-messaging.test.ts` com 100% de aprovação.
+
+**Success Criteria:**
+1. Mensagens enviadas para amigos chegam instantaneamente ao destinatário independentemente de distância ou aba aberta.
+2. Destinatário é notificado com abertura da janela de chat e cores diferenciadas de whisper.
+3. Remetente recebe confirmação do que foi enviado ou aviso caso o amigo esteja offline.
+
+Plans: Concluído (Validado em `tests/phase72-whisper-private-messaging.test.ts` e `72-SUMMARY.md`).
+
+- [x] 72-01-PLAN: Roteamento de Whisper no Servidor, Entrega Direta e Visibilidade no ChatWindow.
