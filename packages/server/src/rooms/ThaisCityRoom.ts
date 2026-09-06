@@ -576,12 +576,22 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     // Strictly enforce 1 session per account AND 1 session per characterId across all clients/tabs/devices
     for (const [existingSessionId, existingPlayer] of this.state.players.entries()) {
-      const isSameAccount = accountId !== 'acc-guest' && existingPlayer.accountId === accountId;
-      const isSameCharacter = charId && !charId.startsWith('char-guest') && existingPlayer.characterId === charId;
+      const isSameAccount = accountId && accountId !== 'acc-guest' && existingPlayer.accountId === accountId;
+      const isSameCharacter = Boolean(charId && existingPlayer.characterId === charId);
 
       if (existingSessionId !== client.sessionId && (isSameAccount || isSameCharacter)) {
-        console.warn(`[ThaisCityRoom] Connection attempt rejected: account ${accountId} (char ${charId}) is already active on session ${existingSessionId}`);
-        throw new Error('ACCOUNT_ALREADY_LOGGED_IN');
+        const oldClient = this.clients.find((c) => c.sessionId === existingSessionId);
+        if (oldClient) {
+          try {
+            oldClient.send('session:duplicate', {
+              message: 'Sua conta foi conectada em outra janela ou dispositivo.',
+            });
+            oldClient.leave(4000);
+          } catch {}
+        }
+        this.handlePlayerLeaveParty(existingSessionId);
+        void persistenceManager.saveCharacter(existingPlayer);
+        this.state.players.delete(existingSessionId);
       }
     }
 
