@@ -33,8 +33,8 @@ describe('Phase 58: Hunt Viewport Fullscreen, Unified Attack Cadence and Strict 
     const combatSrc = readFileSync(resolve(projectRoot, 'packages/domain/src/combat.ts'), 'utf8');
 
     // Basic attack sets rune cooldown and attack cooldown
-    expect(combatSrc).toContain("actor.groupCooldowns['attack'] = encounter.elapsedMs + actor.attackIntervalMs");
-    expect(combatSrc).toContain("actor.groupCooldowns['rune'] = encounter.elapsedMs + actor.attackIntervalMs");
+    expect(combatSrc).toContain("actor.groupCooldowns['attack'] = encounter.elapsedMs + stats.attackIntervalMs");
+    expect(combatSrc).toContain("actor.groupCooldowns['rune'] = encounter.elapsedMs + stats.attackIntervalMs");
 
     // Spell/Rune cast sets nextAttackAt and attack cooldown
     expect(combatSrc).toContain("actor.nextAttackAt = encounter.elapsedMs + spell.groupCooldownMs");
