@@ -242,24 +242,39 @@ function GamePrototypeContent() {
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
   const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
 
-  // Cross-tab BroadcastChannel session duplicate detector
+  // Cross-tab BroadcastChannel session duplicate detector & responder
   useEffect(() => {
     if (typeof window === 'undefined' || !onlineAccount?.id) return;
     const channelName = `tibia_session_${onlineAccount.id}`;
     let channel: BroadcastChannel | null = null;
-    const sessionTokenId = Date.now().toString();
+    const currentTabId = Math.random().toString(36).substring(2, 9);
 
     try {
       channel = new BroadcastChannel(channelName);
-      channel.postMessage({ type: 'SESSION_PING', sessionId: sessionTokenId });
 
       channel.onmessage = (event) => {
-        if (event.data?.type === 'SESSION_PING' && event.data.sessionId !== sessionTokenId) {
-          setDuplicateSessionError('Sua conta foi aberta em outra aba do navegador. Apenas uma sessão ativa por conta é permitida.');
+        if (!event.data) return;
+
+        // Active game tab responds to new tab's PING
+        if (event.data.type === 'SESSION_PING' && event.data.tabId !== currentTabId) {
+          channel?.postMessage({
+            type: 'SESSION_PONG',
+            targetTabId: event.data.tabId,
+          });
+        }
+
+        // New tab receives confirmation that an active session already exists in another tab
+        if (event.data.type === 'SESSION_PONG' && event.data.targetTabId === currentTabId) {
+          setDuplicateSessionError(
+            'Sua conta já possui uma sessão ativa em outra aba do navegador. Apenas uma conexão por conta é permitida.'
+          );
         }
       };
+
+      // Announce this tab to check if another tab is already active
+      channel.postMessage({ type: 'SESSION_PING', tabId: currentTabId });
     } catch (err) {
-      // Ignore if BroadcastChannel not supported in browser environment
+      // Ignore if BroadcastChannel not supported
     }
 
     return () => {

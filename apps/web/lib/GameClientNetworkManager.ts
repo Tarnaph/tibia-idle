@@ -139,16 +139,25 @@ export class GameClientNetworkManager {
   }
 
   async connect(token: string, characterId: string, options?: Record<string, any>): Promise<Room<any>> {
-    this.room = await joinGameRoom(token, characterId, options);
-    this.localPlayerId = this.room.sessionId;
-    this.reconnectionToken = this.room.reconnectionToken || null;
+    try {
+      this.room = await joinGameRoom(token, characterId, options);
+      this.localPlayerId = this.room.sessionId;
+      this.reconnectionToken = this.room.reconnectionToken || null;
 
-    if (typeof window !== 'undefined' && this.reconnectionToken) {
-      sessionStorage.setItem('colyseus_reconnect_token', this.reconnectionToken);
+      if (typeof window !== 'undefined' && this.reconnectionToken) {
+        sessionStorage.setItem('colyseus_reconnect_token', this.reconnectionToken);
+      }
+
+      this.setupRoomListeners();
+      return this.room;
+    } catch (err: any) {
+      if (err?.message?.includes('ACCOUNT_ALREADY_LOGGED_IN')) {
+        const msg = 'Esta conta já está conectada em outra janela ou dispositivo. Encerre a outra sessão para poder entrar.';
+        this.duplicateSessionListeners.forEach((fn) => fn(msg));
+        throw new Error(msg);
+      }
+      throw err;
     }
-
-    this.setupRoomListeners();
-    return this.room;
   }
 
   async tryReconnect(reconnectToken?: string): Promise<Room<any> | null> {

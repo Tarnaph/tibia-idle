@@ -90,6 +90,34 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
     }
   };
 
+  const [activeSessionWarning, setActiveSessionWarning] = useState<string | null>(null);
+
+  // Cross-tab active session detector for character selection modal
+  useEffect(() => {
+    if (typeof window === 'undefined' || !account?.id) return;
+    const channelName = `tibia_session_${account.id}`;
+    let channel: BroadcastChannel | null = null;
+    const currentTabId = Math.random().toString(36).substring(2, 9);
+
+    try {
+      channel = new BroadcastChannel(channelName);
+      channel.onmessage = (event) => {
+        if (!event.data) return;
+        if (event.data.type === 'SESSION_PING' && event.data.tabId !== currentTabId) {
+          channel?.postMessage({ type: 'SESSION_PONG', targetTabId: event.data.tabId });
+        }
+        if (event.data.type === 'SESSION_PONG' && event.data.targetTabId === currentTabId) {
+          setActiveSessionWarning('Esta conta já está conectada em outra aba do navegador. Apenas uma sessão por conta é permitida.');
+        }
+      };
+      channel.postMessage({ type: 'SESSION_PING', tabId: currentTabId });
+    } catch {}
+
+    return () => {
+      if (channel) channel.close();
+    };
+  }, [account?.id]);
+
   // Check saved token on mount
   useEffect(() => {
     const savedToken = localStorage.getItem('colyseus_token');
@@ -250,6 +278,10 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
 
   const startFadeOutAndEnter = (char: CharacterItem) => {
     if (isEnteringGame) return;
+    if (activeSessionWarning) {
+      setErrorMsg(activeSessionWarning);
+      return;
+    }
     setIsEnteringGame(true);
 
     const currentToken = token || localStorage.getItem('colyseus_token') || '';

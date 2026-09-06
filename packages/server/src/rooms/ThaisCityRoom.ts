@@ -580,18 +580,8 @@ export class ThaisCityRoom extends Room<WorldState> {
       const isSameCharacter = charId && !charId.startsWith('char-guest') && existingPlayer.characterId === charId;
 
       if (existingSessionId !== client.sessionId && (isSameAccount || isSameCharacter)) {
-        const oldClient = this.clients.find((c) => c.sessionId === existingSessionId);
-        if (oldClient) {
-          try {
-            oldClient.send('session:duplicate', {
-              message: 'Sua conta foi conectada em outra janela ou dispositivo.',
-            });
-            oldClient.leave(4000);
-          } catch {}
-        }
-        this.handlePlayerLeaveParty(existingSessionId);
-        void persistenceManager.saveCharacter(existingPlayer);
-        this.state.players.delete(existingSessionId);
+        console.warn(`[ThaisCityRoom] Connection attempt rejected: account ${accountId} (char ${charId}) is already active on session ${existingSessionId}`);
+        throw new Error('ACCOUNT_ALREADY_LOGGED_IN');
       }
     }
 
