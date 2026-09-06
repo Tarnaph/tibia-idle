@@ -22,8 +22,8 @@ export const VOCATION_CONFIGS: Record<number, VocationStarterConfig> = {
   1: {
     vocationId: 1,
     name: 'Sorcerer',
-    baseHp: 145,
-    baseMp: 30,
+    baseHp: 150,
+    baseMp: 35,
     capacity: 400,
     outfitLookType: 130,
     spells: ['exura', 'exevo-vis-hur'],
@@ -50,8 +50,8 @@ export const VOCATION_CONFIGS: Record<number, VocationStarterConfig> = {
   2: {
     vocationId: 2,
     name: 'Druid',
-    baseHp: 145,
-    baseMp: 30,
+    baseHp: 150,
+    baseMp: 35,
     capacity: 400,
     outfitLookType: 130,
     spells: ['exura', 'exura-gran', 'exevo-tera-hur'],
@@ -78,9 +78,9 @@ export const VOCATION_CONFIGS: Record<number, VocationStarterConfig> = {
   3: {
     vocationId: 3,
     name: 'Paladin',
-    baseHp: 165,
+    baseHp: 150,
     baseMp: 35,
-    capacity: 450,
+    capacity: 400,
     outfitLookType: 129,
     spells: ['exura', 'exori-san'],
     skills: [
@@ -106,9 +106,9 @@ export const VOCATION_CONFIGS: Record<number, VocationStarterConfig> = {
   4: {
     vocationId: 4,
     name: 'Knight',
-    baseHp: 185,
+    baseHp: 150,
     baseMp: 35,
-    capacity: 470,
+    capacity: 400,
     outfitLookType: 131,
     spells: ['exura-ico', 'exori', 'exori-ico'],
     skills: [
@@ -191,8 +191,8 @@ export class CharacterService {
         name: trimmedName,
         vocationId: config.vocationId,
         vocationName: config.name,
-        level: 8,
-        experience: BigInt(4200),
+        level: 1,
+        experience: BigInt(0),
         health: config.baseHp,
         maxHealth: config.baseHp,
         mana: config.baseMp,

@@ -352,7 +352,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     let charId = `char-${client.sessionId}`;
     let charName = `Hero ${client.sessionId.slice(0, 4)}`;
     let vocationId = 4;
-    let level = 8;
+    let level = 1;
     let hp: number | undefined;
     let maxHp: number | undefined;
     let mp: number | undefined;
@@ -435,9 +435,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     const safeVocationId = Number(vocationId) || 4;
     const vocation = VOCATION_CONFIGS[safeVocationId] || VOCATION_CONFIGS[4] || {
       name: 'Knight',
-      baseHp: 185,
+      baseHp: 150,
       baseMp: 35,
-      capacity: 470,
+      capacity: 400,
     };
 
     const player = new PlayerState();
@@ -664,11 +664,38 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     // Check if message is a private whisper (*Recipient* message or /w Recipient message or /tell Recipient message)
     const starMatch = rawTrimmed.match(/^\*([^*]+)\*\s*(.*)$/);
-    const slashMatch = rawTrimmed.match(/^\/(?:w|whisper|tell|msg)\s+([^\s]+)\s*(.*)$/i);
+    const slashMatch = rawTrimmed.match(/^\/(?:w|whisper|tell|msg)\s+(?:"([^"]+)"|(\S+))\s*(.*)$/i);
 
     if (starMatch || slashMatch) {
-      const targetName = (starMatch ? starMatch[1] : slashMatch![1]).trim();
-      const whisperContent = (starMatch ? starMatch[2] : slashMatch![2]).trim();
+      let targetName = (starMatch ? starMatch[1] : (slashMatch![1] || slashMatch![2])).trim();
+      let whisperContent = (starMatch ? starMatch[2] : slashMatch![3]).trim();
+
+      // Find recipient among connected players
+      let recipientClient: Client | null = null;
+      let recipientPlayer: any = null;
+
+      for (const [sid, p] of this.state.players.entries()) {
+        if (p.name.trim().toLowerCase() === targetName.toLowerCase()) {
+          recipientPlayer = p;
+          recipientClient = this.clients.find((c) => c.sessionId === sid) || null;
+          break;
+        }
+      }
+
+      // Fallback: If slash command was used without quotes and targetName was split on space, check if any online player name matches start of text
+      if (!recipientPlayer && slashMatch && !slashMatch[1]) {
+        const afterCmd = rawTrimmed.replace(/^\/(?:w|whisper|tell|msg)\s+/i, '').trim();
+        for (const [sid, p] of this.state.players.entries()) {
+          const pNameLower = p.name.trim().toLowerCase();
+          if (afterCmd.toLowerCase().startsWith(pNameLower)) {
+            recipientPlayer = p;
+            recipientClient = this.clients.find((c) => c.sessionId === sid) || null;
+            targetName = p.name;
+            whisperContent = afterCmd.slice(p.name.length).trim();
+            break;
+          }
+        }
+      }
 
       if (!whisperContent) {
         if (typeof client.send === 'function') {
@@ -684,7 +711,7 @@ export class ThaisCityRoom extends Room<WorldState> {
         return;
       }
 
-      if (targetName.toLowerCase() === player.name.toLowerCase()) {
+      if (targetName.toLowerCase() === player.name.trim().toLowerCase()) {
         if (typeof client.send === 'function') {
           client.send('chat', {
             id: `sys-${timestamp}-${Math.random().toString(36).slice(2, 6)}`,
@@ -696,18 +723,6 @@ export class ThaisCityRoom extends Room<WorldState> {
           });
         }
         return;
-      }
-
-      // Find recipient among connected players
-      let recipientClient: Client | null = null;
-      let recipientPlayer: any = null;
-
-      for (const [sid, p] of this.state.players.entries()) {
-        if (p.name.toLowerCase() === targetName.toLowerCase()) {
-          recipientPlayer = p;
-          recipientClient = this.clients.find((c) => c.sessionId === sid) || null;
-          break;
-        }
       }
 
       const msgId = `whisper-${timestamp}-${Math.random().toString(36).slice(2, 7)}`;
@@ -724,7 +739,6 @@ export class ThaisCityRoom extends Room<WorldState> {
           timestamp,
         };
         recipientClient.send('chat', recipientPayload);
-        recipientClient.send('chat_message', recipientPayload);
 
         // Send to sender for local chat history confirmation
         if (typeof client.send === 'function') {
@@ -738,7 +752,6 @@ export class ThaisCityRoom extends Room<WorldState> {
             timestamp,
           };
           client.send('chat', senderPayload);
-          client.send('chat_message', senderPayload);
         }
       } else {
         // Recipient not found online

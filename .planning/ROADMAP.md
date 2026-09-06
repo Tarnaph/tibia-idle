@@ -36,6 +36,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 71: Verificação de Existência de Personagem na Lista de Amigos** - Consulta ao banco de dados e jogadores ativos antes de adicionar amigo.
 - [x] **Phase 72: Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador** - Roteamento autoritativo de whispers no Colyseus e entrega direta ponta a ponta.
 - [x] **Phase 73: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento** - Abas com o nome do personagem na ChatWindow para conversas privadas isoladas do World/Local Chat, envio direto e botão de fechar (✕).
+- [x] **Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais** - Inicialização de novos personagens estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 cap), e auditoria completa com verificação das tags de visibilidade urbana no Templo de Thais (inHunt: false, posZ: 7, outfit, vocation e nameplate).
 
 ---
 
@@ -1258,4 +1259,30 @@ Plans: Concluído (Validado em `tests/phase72-whisper-private-messaging.test.ts`
 Plans: Concluído (Validado em `tests/phase73-private-chat-tabs.test.ts` e `73-SUMMARY.md`).
 
 - [x] 73-01-PLAN: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento.
+
+### Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais
+
+**Goal:** Configurar novos personagens para começarem no Nível 1 (0 XP, 150 HP, 35 MP, 400 de capacidade) e verificar minuciosamente que possuam as tags e propriedades corretas (`inHunt: false`, `posZ: 7`, coordenadas do Templo de Thais `(32369, 32241, 7)`, outfit de vocação e nameplate) para serem perfeitamente vistos por outros jogadores na cidade de Thais.  
+**Depends on:** Phase 73  
+**Requirements:**
+1. **Inicialização em Nível 1:**
+   - Todos os novos personagens criados via `CharacterService` e rotas `/api/characters` iniciam com `level: 1` e `experience: 0`.
+   - Atributos base padronizados para o início canônico de nível 1 (150 HP, 35 MP, 400 de capacidade).
+   - Defaults do Prisma Schema e esquemas Colyseus (`PlayerState`) alinhados a nível 1.
+2. **Verificação de Visibilidade Urbana em Thais:**
+   - Auditoria e validação de que os novos personagens recebem `inHunt: false` (o filtro primário que oculta heróis em caçadas).
+   - Confirmação de spawn no piso térreo de Thais (`posZ: 7`), coincidindo com o plano de visualização do cliente (`curPos.z = 7`).
+   - Confirmação de renderização com nameplate verde estilizado (`0x67de82`), layout de sprite e outfit da vocação correspondente.
+3. **Qualidade e Testes:**
+   - Suíte de testes dedicada no Vitest cobrindo a criação em nível 1 e todos os requisitos de visibilidade urbana.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+**Success Criteria:**
+1. Novos personagens são criados com nível 1 e 0 de experiência.
+2. Novos personagens possuem a tag `inHunt: false` e coordenadas `posZ: 7` no Templo de Thais, garantindo visibilidade imediata no cliente de outros jogadores.
+3. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: Concluído (Validado em `tests/phase74-new-characters-level-1.test.ts` e `74-SUMMARY.md`).
+
+- [x] 74-01-PLAN: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais.
 

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-06T11:42:00.000Z"
-last_activity: "2026-09-06 — Concluída Phase 73: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento."
+last_updated: "2026-09-06T12:35:00.000Z"
+last_activity: "2026-09-06 — Concluída Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais."
 progress:
-  total_phases: 73
-  completed_phases: 73
-  total_plans: 73
-  completed_plans: 73
+  total_phases: 74
+  completed_phases: 74
+  total_plans: 74
+  completed_plans: 74
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Abas privadas dedicadas no ChatWindow (1-to-1 PMs), isolamento fora do global/world, envio direto e fechamento de aba (✕).
+**Current focus:** Personagens novos iniciando estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 cap) e verificação de visibilidade urbana no Templo de Thais.
 
 ## Current Position
 
-Phase: 73 of 73 (Abas Privadas Dedicadas no Chat para Mensagens Diretas com Fechamento)  
+Phase: 74 of 74 (Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-06 — Concluída Phase 73.
+Last activity: 2026-09-06 — Concluída Phase 74.
 
 Progress: [██████████] 100%
 
@@ -99,11 +99,13 @@ Progress: [██████████] 100%
 | 71. Verificação de Existência de Personagem na Lista de Amigos | 1 | - | - | Complete |
 | 72. Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador | 1 | - | - | Complete |
 | 73. Abas Privadas Dedicadas no Chat para Mensagens Diretas com Fechamento | 1 | - | - | Complete |
+| 74. Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais | 1 | - | - | Complete |
 
 ## Accumulated Context
 
 ### Decisions
 
+- [Phase 74]: Personagens novos iniciam estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 de capacidade) com spawn canônico em Thais (32369, 32241, 7) e tags auditadas (inHunt: false, posZ: 7, nameplate e outfit da vocação) para visibilidade imediata por outros jogadores.
 - [Phase 73]: Abas privadas dedicadas no ChatWindow (1-para-1) com isolamento estrito fora de Local e World, envio direto sem necessidade de digitar prefixo, e botão de fechar (✕) que restaura para o Local Chat.
 - [Phase 1]: Combate baseado em ticks de 120ms com desacoplamento de interface e curva cumulativa de XP oficial do TFS.
 - [Phase 2]: Derivação de ataque, defesa e armor usando fórmulas fiéis à engine TFS.

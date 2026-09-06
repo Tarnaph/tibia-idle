@@ -84,13 +84,13 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
             name: data.name,
             vocationId: data.vocationId || 4,
             vocationName: data.vocationName || 'Knight',
-            level: data.level || 8,
-            experience: data.experience !== undefined ? BigInt(data.experience) : BigInt(4200),
-            health: data.health || 185,
-            maxHealth: data.maxHealth || 185,
+            level: data.level || 1,
+            experience: data.experience !== undefined ? BigInt(data.experience) : BigInt(0),
+            health: data.health || 150,
+            maxHealth: data.maxHealth || 150,
             mana: data.mana || 35,
             maxMana: data.maxMana || 35,
-            capacity: data.capacity || 470,
+            capacity: data.capacity || 400,
             staminaMinutes: 2520,
             outfitLookType: data.outfitLookType || 131,
             outfitHead: data.outfitHead || 0,
@@ -179,8 +179,8 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     const acc = await accountService.register({ email: 'persistence.hero@tibia.test', password: 'password123!' });
     const char = await characterService.createCharacter({ accountId: acc.account.id, name: 'Knight Legend', vocationId: 4 });
 
-    expect(char.level).toBe(8);
-    expect(Number(char.experience)).toBe(4200);
+    expect(char.level).toBe(1);
+    expect(Number(char.experience)).toBe(0);
 
     // Update character progress to level 50, 125,000 XP, 450 HP, 600 MP at coordinates (32369, 32241, 7)
     await characterService.saveCharacterProgress(char.id, {

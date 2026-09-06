@@ -8,14 +8,14 @@ export class PlayerState extends Schema {
   @type('string') name: string = '';
   @type('number') vocationId: number = 4;
   @type('string') vocationName: string = 'Knight';
-  @type('number') level: number = 8;
-  @type('number') experience: number = 4200;
+  @type('number') level: number = 1;
+  @type('number') experience: number = 0;
 
-  @type('number') hp: number = 185;
-  @type('number') maxHp: number = 185;
+  @type('number') hp: number = 150;
+  @type('number') maxHp: number = 150;
   @type('number') mp: number = 35;
   @type('number') maxMp: number = 35;
-  @type('number') capacity: number = 470;
+  @type('number') capacity: number = 400;
 
   @type('number') posX: number = 32369;
   @type('number') posY: number = 32241;
