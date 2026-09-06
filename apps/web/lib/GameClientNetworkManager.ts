@@ -110,6 +110,7 @@ type PartyNotificationListener = (data: { type: 'error' | 'rejected' | 'disbande
 type PartyHuntProposalListener = (proposal: PartyHuntProposal) => void;
 type PartyHuntProposalSyncListener = (data: { huntId: string; huntName: string; acceptedSessionIds: string[]; totalMembers: number }) => void;
 type PartyHuntProposalRejectedListener = (data: { rejectedByName: string; huntName: string }) => void;
+type DuplicateSessionListener = (message: string) => void;
 
 export class GameClientNetworkManager {
   private room: Room<any> | null = null;
@@ -126,6 +127,7 @@ export class GameClientNetworkManager {
   private partyHuntProposalListeners: Set<PartyHuntProposalListener> = new Set();
   private partyHuntProposalSyncListeners: Set<PartyHuntProposalSyncListener> = new Set();
   private partyHuntProposalRejectedListeners: Set<PartyHuntProposalRejectedListener> = new Set();
+  private duplicateSessionListeners: Set<DuplicateSessionListener> = new Set();
 
   private playersMap: Map<string, RemotePlayerSnapshot> = new Map();
   private localPlayerId: string | null = null;
@@ -314,6 +316,12 @@ export class GameClientNetworkManager {
 
     this.room.onMessage('party:targetUpdated', (data: { targetId: string | null }) => {
       this.partyTargetSyncListeners.forEach((fn) => fn(data.targetId));
+    });
+
+    this.room.onMessage('session:duplicate', (data: { message: string }) => {
+      if (data?.message) {
+        this.duplicateSessionListeners.forEach((fn) => fn(data.message));
+      }
     });
 
     this.room.onMessage('party:leaderMoved', (data: { leaderSessionId: string; x: number; y: number; z: number; direction: string }) => {
@@ -543,6 +551,11 @@ export class GameClientNetworkManager {
   onPartyHuntProposalRejected(listener: PartyHuntProposalRejectedListener): () => void {
     this.partyHuntProposalRejectedListeners.add(listener);
     return () => this.partyHuntProposalRejectedListeners.delete(listener);
+  }
+
+  onDuplicateSession(listener: DuplicateSessionListener): () => void {
+    this.duplicateSessionListeners.add(listener);
+    return () => this.duplicateSessionListeners.delete(listener);
   }
 
   get CurrentParty(): PartySnapshot | null {

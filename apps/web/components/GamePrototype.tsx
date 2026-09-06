@@ -240,6 +240,40 @@ function GamePrototypeContent() {
   const [overheadMessages, setOverheadMessages] = useState<CityOverheadMessage[]>([]);
   const chatWindowRef = useRef<ChatWindowHandle>(null);
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
+  const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
+
+  // Cross-tab BroadcastChannel session duplicate detector
+  useEffect(() => {
+    if (typeof window === 'undefined' || !onlineAccount?.id) return;
+    const channelName = `tibia_session_${onlineAccount.id}`;
+    let channel: BroadcastChannel | null = null;
+    const sessionTokenId = Date.now().toString();
+
+    try {
+      channel = new BroadcastChannel(channelName);
+      channel.postMessage({ type: 'SESSION_PING', sessionId: sessionTokenId });
+
+      channel.onmessage = (event) => {
+        if (event.data?.type === 'SESSION_PING' && event.data.sessionId !== sessionTokenId) {
+          setDuplicateSessionError('Sua conta foi aberta em outra aba do navegador. Apenas uma sessão ativa por conta é permitida.');
+        }
+      };
+    } catch (err) {
+      // Ignore if BroadcastChannel not supported in browser environment
+    }
+
+    return () => {
+      if (channel) channel.close();
+    };
+  }, [onlineAccount?.id]);
+
+  // Colyseus network duplicate session listener
+  useEffect(() => {
+    const unsub = gameNetwork.onDuplicateSession((msg) => {
+      setDuplicateSessionError(msg || 'Sua conta foi conectada em outra janela ou dispositivo. Conexão encerrada.');
+    });
+    return () => unsub();
+  }, []);
 
   // Friends System State
   const [friendsList, setFriendsList] = useState<FriendItem[]>(() => {
@@ -2292,6 +2326,27 @@ function GamePrototypeContent() {
             window.location.href = '/';
           }}
         />
+      )}
+
+      {/* Duplicate Session Error Modal Overlay */}
+      {duplicateSessionError && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-slate-900 border-2 border-amber-500/80 rounded-2xl p-6 max-w-md w-full text-center shadow-2xl space-y-4">
+            <div className="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/60 flex items-center justify-center mx-auto text-amber-400 text-3xl font-bold shadow-inner">
+              ⚠️
+            </div>
+            <h3 className="text-xl font-bold text-amber-300">Conexão Duplicada Detectada</h3>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              {duplicateSessionError}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full py-3 px-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition-all shadow-lg active:scale-95"
+            >
+              Recarregar e Entrar Aqui
+            </button>
+          </div>
+        </div>
       )}
     </main>
   );
