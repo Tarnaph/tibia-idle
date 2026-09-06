@@ -37,6 +37,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 72: Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador** - Roteamento autoritativo de whispers no Colyseus e entrega direta ponta a ponta.
 - [x] **Phase 73: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento** - Abas com o nome do personagem na ChatWindow para conversas privadas isoladas do World/Local Chat, envio direto e botão de fechar (✕).
 - [x] **Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais** - Inicialização de novos personagens estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 cap), e auditoria completa com verificação das tags de visibilidade urbana no Templo de Thais (inHunt: false, posZ: 7, outfit, vocation e nameplate).
+- [x] **Phase 75: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP)** - Adição de itens de teste gratuitos na loja (0 gold) para avançar 1 nível (com recálculo de stats), avançar 1 ponto em cada skill e comprar pacotes de gold livremente.
 
 ---
 
@@ -1285,4 +1286,37 @@ Plans: Concluído (Validado em `tests/phase73-private-chat-tabs.test.ts` e `73-S
 Plans: Concluído (Validado em `tests/phase74-new-characters-level-1.test.ts` e `74-SUMMARY.md`).
 
 - [x] 74-01-PLAN: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais.
+
+### Phase 75: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP)
+
+**Goal:** Implementar itens de teste especiais na loja (`ShopWindow`) com custo zero de gold, permitindo aos desenvolvedores e jogadores avançar 1 nível imediatamente (com atualização de vida, mana e capacidade por vocação), avançar cada uma das habilidades (Sword, Axe, Club, Distance, Shielding, Magic Level, Fist, Fishing) e adquirir grandes quantias de gold sem custo.  
+**Depends on:** Phase 74  
+**Requirements:**
+1. **Pacote de Gold Grátis (0 GP):**
+   - Disponibilizar pacote de 10.000 Gold Coins custando 0 de gold na loja.
+   - Ao comprar, adiciona imediatamente o gold ao saldo do jogador.
+2. **Item de Nível (+1 Level) por 0 GP:**
+   - Disponibilizar item "Tome of Knowledge (+1 Nível)" custando 0 de gold.
+   - Ao comprar ou usar, avança 1 nível completo do personagem ativo, definindo a XP canônica correspondente e concedendo os ganhos de HP, Mana e Cap da vocação.
+3. **Itens de Skill (+1 Skill) por 0 GP:**
+   - Disponibilizar um tomo para cada habilidade: Sword, Axe, Club, Distance, Shielding, Magic Level, Fist e Fishing.
+   - Ao comprar ou usar, avança +1 ponto na respectiva habilidade do personagem.
+4. **Usabilidade e Feedback Visual:**
+   - Categoria visual clara na loja (`consumables` e suporte a filtro de testes).
+   - Suporte a uso direto na Bag com duplo-clique.
+   - Notificação visual de Level Up e Skill Up.
+5. **Qualidade e Testes:**
+   - Suíte de testes dedicada no Vitest cobrindo compra por 0 gold, avanço de nível com vocações, avanço de cada skill e adição de gold.
+   - 0 erros no TypeScript (`npm run typecheck`).
+
+**Success Criteria:**
+1. Comprar o pacote de gold na loja por 0 GP adiciona gold ao saldo sem cobrar nada.
+2. Comprar ou usar o tomo de nível eleva o personagem em 1 nível e recalcula atributos.
+3. Comprar ou usar cada tomo de skill eleva a habilidade correspondente em +1.
+4. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: Concluído com sucesso.
+
+- [x] 75-01-PLAN: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP).
+- Resumo de entrega: `.planning/phases/phase-75-testing-shop-items/75-SUMMARY.md`
 

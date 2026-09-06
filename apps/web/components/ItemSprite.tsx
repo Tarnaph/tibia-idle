@@ -9,8 +9,23 @@ interface ItemSpriteProps {
   className?: string;
 }
 
+const TEST_ITEM_SPRITE_MAP: Record<number, number> = {
+  9900: 2148, // Gold Pack -> Gold Coin
+  9901: 2160, // Level Up -> Crystal Coin
+  9902: 2376, // Sword -> Sword
+  9903: 2388, // Axe -> Hatchet
+  9904: 2398, // Club -> Mace
+  9905: 2456, // Distance -> Bow
+  9906: 2461, // Shielding / Defense -> Leather Helmet
+  9907: 2190, // Magic Level -> Wand of Vortex
+  9908: 2467, // Fist -> Leather Armor
+  9909: 2544, // Fishing / Hunting -> Arrow
+};
+
 export function itemVisualAsset(itemId: number | undefined) {
-  return itemId === undefined ? undefined : visualAssets.items[String(itemId)];
+  if (itemId === undefined) return undefined;
+  const mappedId = TEST_ITEM_SPRITE_MAP[itemId] ?? itemId;
+  return visualAssets.items[String(mappedId)];
 }
 
 export function ItemSprite({ itemId, label, className = '' }: ItemSpriteProps) {

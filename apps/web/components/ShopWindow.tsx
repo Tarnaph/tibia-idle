@@ -6,7 +6,7 @@ import type { CharacterState } from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
 import { showGlobalItemTooltip, hideGlobalItemTooltip } from './GlobalItemTooltip';
 
-export type ShopCategory = 'all' | 'weapons' | 'shields' | 'armors' | 'consumables' | 'accessories';
+export type ShopCategory = 'all' | 'weapons' | 'shields' | 'armors' | 'consumables' | 'accessories' | 'testing';
 export type VocationFilter = 'all' | 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid';
 
 interface ShopItemDisplay {
@@ -45,6 +45,17 @@ const SHOP_CONSUMABLES: ShopItemDisplay[] = [
   { id: 7590, name: 'Great Mana Potion', category: 'consumables', price: 120, levelReq: 80, vocations: ['Sorcerer', 'Druid'], description: 'Restaura aproximadamente 200 MP.' },
   { id: 2268, name: 'Sudden Death Rune', category: 'consumables', price: 135, levelReq: 45, vocations: ['Sorcerer'], description: 'Runa de ataque de morte súbita.' },
   { id: 2273, name: 'Ultimate Healing Rune', category: 'consumables', price: 175, levelReq: 24, vocations: ['Druid', 'Sorcerer'], description: 'Runa de cura intensa para si e companheiros.' },
+  // Phase 75: Debug & Testing items for 0 gold
+  { id: 9900, name: 'Saco de Ouro (10.000 GP)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Adiciona 10.000 moedas de ouro imediatamente.' },
+  { id: 9901, name: 'Tomo do Conhecimento (+1 Nível)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança seu personagem em 1 nível e ajusta HP/Mana da vocação.' },
+  { id: 9902, name: 'Pergaminho de Espada (+1 Sword)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Espada (Sword) em +1.' },
+  { id: 9903, name: 'Pergaminho de Machado (+1 Axe)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Machado (Axe) em +1.' },
+  { id: 9904, name: 'Pergaminho de Clava (+1 Club)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Clava (Club) em +1.' },
+  { id: 9905, name: 'Pergaminho de Distância (+1 Distance)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Distância (Distance) em +1.' },
+  { id: 9906, name: 'Pergaminho de Escudo (+1 Shielding)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Defesa com Escudo (Shielding) em +1.' },
+  { id: 9907, name: 'Tomo Arcano (+1 Magic Level)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança o Nível Mágico (Magic Level) em +1.' },
+  { id: 9908, name: 'Faixa de Luta (+1 Fist)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Luta Desarmada (Fist) em +1.' },
+  { id: 9909, name: 'Isca Mágica (+1 Fishing)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Pesca (Fishing) em +1.' },
 ];
 
 export function ShopWindow({
@@ -279,6 +290,7 @@ export function ShopWindow({
             { id: 'armors', label: '🛡️ Armaduras' },
             { id: 'consumables', label: '🧪 Consumíveis' },
             { id: 'accessories', label: '💍 Acessórios' },
+            { id: 'testing', label: '⭐ Testes (0 GP)' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -393,12 +405,18 @@ export function ShopWindow({
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 'bold', color: canAfford ? '#ffd700' : '#ff6b6b' }}>
-                        💰 {totalPrice.toLocaleString('pt-BR')} gold
-                      </span>
+                      {item.price === 0 ? (
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#51cf66', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          🎁 GRÁTIS (0 GP)
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: canAfford ? '#ffd700' : '#ff6b6b' }}>
+                          💰 {totalPrice.toLocaleString('pt-BR')} gold
+                        </span>
+                      )}
 
                       <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        {item.category === 'consumables' && item.id !== 2148 && item.id !== 2152 && (
+                        {(item.category === 'consumables' || item.category === 'testing') && item.id !== 2148 && item.id !== 2152 && (
                           <input
                             type="number"
                             min="1"
@@ -426,14 +444,14 @@ export function ShopWindow({
                             padding: '4px 10px',
                             borderRadius: '4px',
                             border: 'none',
-                            backgroundColor: canAfford ? '#28a745' : '#495057',
+                            backgroundColor: canAfford ? (item.price === 0 ? '#1971c2' : '#28a745') : '#495057',
                             color: canAfford ? '#ffffff' : '#868e96',
                             fontSize: '11px',
                             fontWeight: 'bold',
                             cursor: canAfford ? 'pointer' : 'not-allowed',
                           }}
                         >
-                          Comprar
+                          {item.price === 0 ? 'Obter (0 GP)' : 'Comprar'}
                         </button>
                       </div>
                     </div>

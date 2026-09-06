@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-06T12:35:00.000Z"
-last_activity: "2026-09-06 — Concluída Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais."
+last_updated: "2026-09-06T13:30:00.000Z"
+last_activity: "2026-09-06 — Conclusão da Phase 75: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP)."
 progress:
-  total_phases: 74
-  completed_phases: 74
-  total_plans: 74
-  completed_plans: 74
+  total_phases: 75
+  completed_phases: 75
+  total_plans: 75
+  completed_plans: 75
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Personagens novos iniciando estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 cap) e verificação de visibilidade urbana no Templo de Thais.
+**Current focus:** Itens de teste na loja da cidade (0 GP) para avançar 1 nível, avançar cada skill e adquirir gold livremente.
 
 ## Current Position
 
-Phase: 74 of 74 (Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais)  
+Phase: 75 of 75 (Itens de Teste na Loja: Nível, Skills e Gold por 0 GP)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-06 — Concluída Phase 74.
+Last activity: 2026-09-06 — Conclusão da Phase 75.
 
 Progress: [██████████] 100%
 
@@ -100,6 +100,7 @@ Progress: [██████████] 100%
 | 72. Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador | 1 | - | - | Complete |
 | 73. Abas Privadas Dedicadas no Chat para Mensagens Diretas com Fechamento | 1 | - | - | Complete |
 | 74. Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais | 1 | - | - | Complete |
+| 75. Itens de Teste na Loja (Nível, Skills e Gold por 0 GP) | 1 | - | - | Complete |
 
 ## Accumulated Context
 

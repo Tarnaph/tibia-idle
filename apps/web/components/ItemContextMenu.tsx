@@ -13,6 +13,7 @@ export interface ItemContextMenuProps {
   lockSell: boolean;
   quickSell: boolean;
   onEquipToggle?: () => void;
+  onUse?: () => void;
   onMarketSell?: () => void;
   onMarketView?: () => void;
   onToggleAutoLoot: () => void;
@@ -32,6 +33,7 @@ export function ItemContextMenu({
   lockSell,
   quickSell,
   onEquipToggle,
+  onUse,
   onMarketSell,
   onMarketView,
   onToggleAutoLoot,
@@ -73,6 +75,20 @@ export function ItemContextMenu({
     >
       <div className="context-menu-title">{itemName}</div>
       <div className="context-menu-divider" />
+
+      {onUse && (
+        <button
+          type="button"
+          className="context-menu-item"
+          style={{ color: '#51cf66', fontWeight: 'bold' }}
+          onClick={() => {
+            onUse();
+            onClose();
+          }}
+        >
+          ✨ Usar
+        </button>
+      )}
 
       {isEquippable && (
         <button

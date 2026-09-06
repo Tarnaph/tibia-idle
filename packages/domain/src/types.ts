@@ -25,6 +25,7 @@ export interface CharacterSkills {
   distance: number;
   shielding: number;
   magicLevel: number;
+  fishing?: number;
 }
 
 export type SkillTries = Record<TrainableSkill, number>;

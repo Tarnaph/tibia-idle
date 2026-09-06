@@ -12,7 +12,7 @@ import type { BaseVocationName, EquipmentCatalog, EquipmentDefinition, HuntRegio
 import {
   addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
-  transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem,
+  transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem, useTestConsumable,
   setCharacterStance, setCharacterTargetDistance,
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
@@ -1599,9 +1599,21 @@ function GamePrototypeContent() {
     setGame((current) => {
       const result = buyShopItem(current, itemId, itemName, price, quantity, content);
       res = { ok: result.ok, error: result.error ?? 'Erro desconhecido' };
+      if (result.ok && result.message) {
+        setSaleMessage(result.message);
+      }
       return result.ok ? result.state : current;
     });
     return res;
+  };
+  const handleUseItem = (itemId: number) => {
+    setGame((current) => {
+      const result = useTestConsumable(current, itemId, content);
+      if (result.ok && result.message) {
+        setSaleMessage(result.message);
+      }
+      return result.ok ? result.state : current;
+    });
   };
   const selectPartyCharacter = (characterId: string) => {
     setGame((current) => selectCharacter(current, characterId));
@@ -2034,6 +2046,7 @@ function GamePrototypeContent() {
         onUnequipSlot={(slot) => setGame((cur) => unequipSlotToBag(cur, activeCharacter.id, slot, content))}
         onTransferContainerItem={(from, to, index) => setGame((cur) => transferItemBetweenContainers(cur, from, to, index))}
         onDestroyItem={(container, index) => setGame((cur) => destroyContainerItem(cur, container, index))}
+        onUseItem={handleUseItem}
         onToggleItemPreference={(itemId, key) => setGame((cur) => updateItemLootPreference(cur, itemId, { [key]: !itemLootPreference(cur, itemId)[key] }))}
         getItemPreference={(itemId) => itemLootPreference(game, itemId)}
       />

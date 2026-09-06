@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
 import {
   findEquipment,
+  isTestShopItem,
   type CharacterEquipmentSlot,
   type CharacterState,
   type LootStack,
@@ -28,6 +29,7 @@ interface InventoryWindowProps {
   onUnequipSlot: (slot: CharacterEquipmentSlot) => void;
   onTransferContainerItem: (from: 'backpack' | 'bag', to: 'backpack' | 'bag', index: number) => void;
   onDestroyItem: (container: 'backpack' | 'bag', index: number) => void;
+  onUseItem?: (itemId: number) => void;
   onToggleItemPreference: (itemId: number, key: 'autoLoot' | 'lockSell' | 'quickSell') => void;
   getItemPreference: (itemId: number) => { autoLoot: boolean; lockSell: boolean; quickSell: boolean };
 }
@@ -45,6 +47,7 @@ export function InventoryWindow({
   onUnequipSlot,
   onTransferContainerItem,
   onDestroyItem,
+  onUseItem,
   onToggleItemPreference,
   getItemPreference,
 }: InventoryWindowProps) {
@@ -288,7 +291,15 @@ export function InventoryWindow({
                       className={`inventory-slot-cell ${stack ? 'occupied' : 'empty'}`}
                       draggable={!!stack}
                       onDragStart={(e) => stack?.itemId && handleDragStart(e, 'bag', stack.itemId, index)}
-                      onDoubleClick={() => stack?.itemId && onEquipItem(stack.itemId)}
+                      onDoubleClick={() => {
+                        if (stack?.itemId) {
+                          if (isTestShopItem(stack.itemId) && onUseItem) {
+                            onUseItem(stack.itemId);
+                          } else {
+                            onEquipItem(stack.itemId);
+                          }
+                        }
+                      }}
                       onMouseEnter={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
                       onMouseMove={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
                       onMouseLeave={() => hideGlobalItemTooltip()}
@@ -341,7 +352,15 @@ export function InventoryWindow({
                       className={`inventory-slot-cell ${stack ? 'occupied' : 'empty'}`}
                       draggable={!!stack}
                       onDragStart={(e) => stack?.itemId && handleDragStart(e, 'backpack', stack.itemId, index)}
-                      onDoubleClick={() => stack?.itemId && onEquipItem(stack.itemId)}
+                      onDoubleClick={() => {
+                        if (stack?.itemId) {
+                          if (isTestShopItem(stack.itemId) && onUseItem) {
+                            onUseItem(stack.itemId);
+                          } else {
+                            onEquipItem(stack.itemId);
+                          }
+                        }
+                      }}
                       onMouseEnter={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
                       onMouseMove={(e) => stack?.itemId && showGlobalItemTooltip({ itemId: stack.itemId, name: stack.name, amount: stack.amount, lockSell: pref.lockSell, quickSell: pref.quickSell }, e)}
                       onMouseLeave={() => hideGlobalItemTooltip()}
@@ -397,6 +416,11 @@ export function InventoryWindow({
           autoLoot={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).autoLoot : true}
           lockSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).lockSell : false}
           quickSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).quickSell : false}
+          onUse={
+            'itemId' in contextMenu.item && contextMenu.item.itemId && isTestShopItem(contextMenu.item.itemId) && onUseItem
+              ? () => onUseItem((contextMenu.item as LootStack).itemId!)
+              : undefined
+          }
           onEquipToggle={() => {
             if (contextMenu.container === 'equipped' && contextMenu.slot) {
               onUnequipSlot(contextMenu.slot);
