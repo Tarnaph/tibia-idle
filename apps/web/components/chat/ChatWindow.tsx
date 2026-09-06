@@ -12,8 +12,9 @@ export interface ChatMessageItem {
 }
 
 export interface ChatWindowHandle {
-  focusInput: (channel?: 'local' | 'world') => void;
+  focusInput: (channel?: 'local' | 'world', prefill?: string) => void;
   setActiveChannel: (channel: 'local' | 'world') => void;
+  prefillInput: (text: string) => void;
 }
 
 interface ChatWindowProps {
@@ -39,16 +40,33 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
   const listRef = useRef<HTMLDivElement>(null);
 
   useImperativeHandle(ref, () => ({
-    focusInput: (channel?: 'local' | 'world') => {
+    focusInput: (channel?: 'local' | 'world', prefill?: string) => {
       if (channel) {
         setActiveTab(channel);
       }
+      if (typeof prefill === 'string') {
+        setInputText(prefill);
+      }
       setTimeout(() => {
         inputRef.current?.focus();
+        if (inputRef.current && typeof prefill === 'string') {
+          inputRef.current.selectionStart = inputRef.current.value.length;
+          inputRef.current.selectionEnd = inputRef.current.value.length;
+        }
       }, 20);
     },
     setActiveChannel: (channel: 'local' | 'world') => {
       setActiveTab(channel);
+    },
+    prefillInput: (text: string) => {
+      setInputText(text);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        if (inputRef.current) {
+          inputRef.current.selectionStart = inputRef.current.value.length;
+          inputRef.current.selectionEnd = inputRef.current.value.length;
+        }
+      }, 20);
     },
   }));
 

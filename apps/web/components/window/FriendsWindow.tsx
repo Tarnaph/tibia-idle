@@ -43,6 +43,11 @@ export function FriendsWindow({
 
   const handleFriendClick = (friend: FriendItem, e: React.MouseEvent) => {
     e.preventDefault();
+    setSelectedFriend(friend);
+  };
+
+  const handleFriendContextMenu = (friend: FriendItem, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setSelectedFriend(friend);
     setContextMenuPos({ x: e.clientX, y: e.clientY });
@@ -52,7 +57,6 @@ export function FriendsWindow({
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setContextMenuPos(null);
-        setSelectedFriend(null);
       }
     };
     window.addEventListener('mousedown', handleClickOutside);
@@ -63,7 +67,7 @@ export function FriendsWindow({
   const offlineFriends = friends.filter((f) => f.isOnline === false);
 
   return (
-    <DraggableWindow id="friends" icon="⭐" defaultWidth={380}>
+    <DraggableWindow id="friends" icon="⭐" defaultWidth={390}>
       <div
         aria-label="Seus Amigos"
         style={{
@@ -74,9 +78,9 @@ export function FriendsWindow({
           userSelect: 'none',
         }}
       >
-        {/* Subtitle from Image 1 */}
+        {/* Subtitle */}
         <div style={{ color: '#94a3b8', fontSize: '11px', marginBottom: '10px' }}>
-          Veja quem está online e mantenha sua party por perto.
+          Veja quem está online e mantenha contato com seus amigos.
         </div>
 
         {/* Search Bar + Adicionar Button */}
@@ -154,11 +158,11 @@ export function FriendsWindow({
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '1px',
-            minHeight: '130px',
-            maxHeight: '220px',
+            gap: '2px',
+            minHeight: '120px',
+            maxHeight: '200px',
             overflowY: 'auto',
-            marginBottom: '14px',
+            marginBottom: '10px',
           }}
         >
           {onlineFriends.length === 0 && offlineFriends.length === 0 ? (
@@ -172,14 +176,15 @@ export function FriendsWindow({
             <div
               key={friend.id || friend.name}
               onClick={(e) => handleFriendClick(friend, e)}
-              onContextMenu={(e) => handleFriendClick(friend, e)}
+              onContextMenu={(e) => handleFriendContextMenu(friend, e)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '6px 8px',
-                borderRadius: '2px',
+                padding: '5px 8px',
+                borderRadius: '3px',
                 backgroundColor: selectedFriend?.name === friend.name ? '#1e293b' : 'transparent',
+                border: selectedFriend?.name === friend.name ? '1px solid #334155' : '1px solid transparent',
                 cursor: 'pointer',
                 transition: 'background-color 0.1s',
               }}
@@ -203,9 +208,82 @@ export function FriendsWindow({
                 />
                 <span style={{ color: '#f1f5f9', fontWeight: 600, fontSize: '11.5px' }}>{friend.name}</span>
               </div>
-              <span style={{ color: '#94a3b8', fontSize: '11px' }}>
-                Lv. {friend.level ?? 188}
-              </span>
+
+              {/* Action Buttons & Level on Row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ color: '#94a3b8', fontSize: '11px', marginRight: '4px' }}>
+                  Lv. {friend.level ?? 1}
+                </span>
+
+                {/* Direct Message Button */}
+                <button
+                  type="button"
+                  title={`Mandar mensagem para ${friend.name}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPrivateMessage(friend.name);
+                  }}
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '10.5px',
+                    fontWeight: 600,
+                    backgroundColor: '#1b2a40',
+                    border: '1px solid #3b5984',
+                    borderRadius: '3px',
+                    color: '#93c5fd',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '3px',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#253d61';
+                    e.currentTarget.style.color = '#bfdbfe';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1b2a40';
+                    e.currentTarget.style.color = '#93c5fd';
+                  }}
+                >
+                  <span>💬</span>
+                  <span>Mensagem</span>
+                </button>
+
+                {/* Direct Party Invite Button */}
+                <button
+                  type="button"
+                  title={`Convidar ${friend.name} para a party`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onInviteParty(friend.name);
+                  }}
+                  style={{
+                    padding: '3px 6px',
+                    fontSize: '10.5px',
+                    fontWeight: 600,
+                    backgroundColor: '#1c2820',
+                    border: '1px solid #2d4d36',
+                    borderRadius: '3px',
+                    color: '#86efac',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '2px',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#263d2e';
+                    e.currentTarget.style.color = '#bbf7d0';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1c2820';
+                    e.currentTarget.style.color = '#86efac';
+                  }}
+                >
+                  <span>⚔️</span>
+                </button>
+              </div>
             </div>
           ))}
 
@@ -234,16 +312,17 @@ export function FriendsWindow({
                 <div
                   key={friend.id || friend.name}
                   onClick={(e) => handleFriendClick(friend, e)}
-                  onContextMenu={(e) => handleFriendClick(friend, e)}
+                  onContextMenu={(e) => handleFriendContextMenu(friend, e)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '6px 8px',
-                    borderRadius: '2px',
+                    padding: '5px 8px',
+                    borderRadius: '3px',
                     backgroundColor: selectedFriend?.name === friend.name ? '#1e293b' : 'transparent',
+                    border: selectedFriend?.name === friend.name ? '1px solid #334155' : '1px solid transparent',
                     cursor: 'pointer',
-                    opacity: 0.65,
+                    opacity: 0.8,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -258,14 +337,141 @@ export function FriendsWindow({
                     />
                     <span style={{ color: '#cbd5e1', fontSize: '11.5px' }}>{friend.name}</span>
                   </div>
-                  <span style={{ color: '#64748b', fontSize: '11px' }}>
-                    Lv. {friend.level ?? 1}
-                  </span>
+
+                  {/* Actions for offline friend */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ color: '#64748b', fontSize: '11px', marginRight: '4px' }}>
+                      Lv. {friend.level ?? 1}
+                    </span>
+
+                    <button
+                      type="button"
+                      title={`Deixar mensagem para ${friend.name}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onPrivateMessage(friend.name);
+                      }}
+                      style={{
+                        padding: '3px 8px',
+                        fontSize: '10.5px',
+                        fontWeight: 600,
+                        backgroundColor: '#1b2a40',
+                        border: '1px solid #3b5984',
+                        borderRadius: '3px',
+                        color: '#93c5fd',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                      }}
+                    >
+                      <span>💬</span>
+                      <span>Mensagem</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </>
           )}
         </div>
+
+        {/* Selected Friend Action Card */}
+        {selectedFriend && (
+          <div
+            style={{
+              backgroundColor: '#111726',
+              border: '1px solid #2d3b55',
+              borderRadius: '4px',
+              padding: '8px 10px',
+              marginBottom: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '11px' }}>
+                Selecionado: <strong style={{ color: '#60a5fa' }}>{selectedFriend.name}</strong>
+              </span>
+              <span style={{ color: '#94a3b8', fontSize: '10.5px' }}>
+                Lv. {selectedFriend.level ?? 1}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                type="button"
+                onClick={() => onPrivateMessage(selectedFriend.name)}
+                style={{
+                  flex: 1,
+                  padding: '5px 8px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  backgroundColor: '#2563eb',
+                  border: '1px solid #60a5fa',
+                  borderRadius: '3px',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+              >
+                <span>💬</span>
+                <span>Mandar Mensagem</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onInviteParty(selectedFriend.name)}
+                style={{
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  backgroundColor: '#15803d',
+                  border: '1px solid #4ade80',
+                  borderRadius: '3px',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#166534')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
+              >
+                <span>⚔️</span>
+                <span>Party</span>
+              </button>
+
+              <button
+                type="button"
+                title={`Remover ${selectedFriend.name} dos amigos`}
+                onClick={() => {
+                  onRemoveFriend(selectedFriend.name);
+                  setSelectedFriend(null);
+                }}
+                style={{
+                  padding: '5px 8px',
+                  fontSize: '11px',
+                  backgroundColor: '#331515',
+                  border: '1px solid #7f1d1d',
+                  borderRadius: '3px',
+                  color: '#f87171',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#451a1a')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#331515')}
+              >
+                ❌
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Footer: Amigos: X | Online: Y + Fechar Button */}
         <div
@@ -306,7 +512,7 @@ export function FriendsWindow({
           </button>
         </div>
 
-        {/* Context Menu Matching Image 1 */}
+        {/* Context Menu Matching Right-Click */}
         {contextMenuPos && selectedFriend && (
           <div
             ref={menuRef}
@@ -320,7 +526,7 @@ export function FriendsWindow({
               borderRadius: '4px',
               padding: '4px 0',
               zIndex: 999999,
-              minWidth: '190px',
+              minWidth: '200px',
               fontSize: '11.5px',
               animation: 'fadeIn 0.12s ease-out',
             }}
@@ -329,36 +535,43 @@ export function FriendsWindow({
               onClick={() => {
                 onPrivateMessage(selectedFriend.name);
                 setContextMenuPos(null);
-                setSelectedFriend(null);
               }}
               style={{
                 padding: '7px 12px',
-                color: '#f1f5f9',
+                color: '#60a5fa',
                 cursor: 'pointer',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
                 transition: 'background-color 0.1s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              Mandar mensagem para {selectedFriend.name}
+              <span>💬</span>
+              <span>Mandar mensagem para {selectedFriend.name}</span>
             </div>
 
             <div
               onClick={() => {
                 onInviteParty(selectedFriend.name);
                 setContextMenuPos(null);
-                setSelectedFriend(null);
               }}
               style={{
                 padding: '7px 12px',
                 color: '#f1f5f9',
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
                 transition: 'background-color 0.1s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              Convidar para a party
+              <span>⚔️</span>
+              <span>Convidar para a party</span>
             </div>
 
             <div
@@ -372,12 +585,16 @@ export function FriendsWindow({
                 color: '#f87171',
                 borderTop: '1px solid #1e293b',
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
                 transition: 'background-color 0.1s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              Remover dos amigos
+              <span>❌</span>
+              <span>Remover dos amigos</span>
             </div>
           </div>
         )}

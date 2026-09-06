@@ -274,7 +274,8 @@ function GamePrototypeContent() {
   const handlePrivateMessage = useCallback((name: string) => {
     openWindow('chat');
     bringToFront('chat');
-    chatWindowRef.current?.focusInput('local');
+    chatWindowRef.current?.focusInput('local', `*${name}* `);
+    setSaleMessage(`Abrindo mensagem privada para ${name}...`);
   }, [openWindow, bringToFront]);
 
   const handleInviteParty = useCallback((name: string) => {
