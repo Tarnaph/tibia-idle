@@ -30,7 +30,12 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 65: Visibilidade e Persistência de Jogadores Remotos na Thais City Arena** - Eliminação de evicção de jogadores remotos, preservação de estado multiplayer e estabilidade na cidade.
 - [x] **Phase 66: Experiência Autêntica de Monstros e Progressão de Nível** - Valores canônicos de XP para criaturas e fórmula autêntica de level up sem inflação.
 - [x] **Phase 67: Loja da Cidade (NPC Item Shop) com Filtros por Categoria, Vocação e Compra por Gold Coins** - ShopWindow com compras de armas, armaduras, consumíveis e validação de ouro.
-- [ ] **Phase 68: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte (XP, Skills e Loot) e Controles de Penalidade no Painel Admin** - Janela clássica "You are dead" ao morrer, perda configurável de 10% de XP, 10% de skills e loot da caçada, teleporte ao Templo de Thais e controles dinâmicos de penalidade no Painel de Administração (/admin).
+- [x] **Phase 68: Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade por Morte (XP, Skills e Loot) e Controles de Penalidade no Painel Admin** - Janela clássica "You are dead" ao morrer, perda configurável de 10% de XP, 10% de skills e loot da caçada, teleporte ao Templo de Thais e controles dinâmicos de penalidade no Painel de Administração (/admin).
+- [x] **Phase 69: Auditoria e Conexão Integral de Progressão (XP, Skills e Magic Level)** - Sincronização completa de evolução entre cliente e banco de dados.
+- [x] **Phase 70: Botão de Mandar Mensagem e Ações Diretas na Lista de Amigos** - Botão e atalhos para interagir e conversar diretamente com amigos da lista.
+- [x] **Phase 71: Verificação de Existência de Personagem na Lista de Amigos** - Consulta ao banco de dados e jogadores ativos antes de adicionar amigo.
+- [x] **Phase 72: Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador** - Roteamento autoritativo de whispers no Colyseus e entrega direta ponta a ponta.
+- [x] **Phase 73: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento** - Abas com o nome do personagem na ChatWindow para conversas privadas isoladas do World/Local Chat, envio direto e botão de fechar (✕).
 
 ---
 
@@ -411,6 +416,12 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 62. Remoção do Sistema de Trade entre Personagens | 1/1 | Complete | 2026-09-05 |
 | 63. Correção de Vulnerabilidades de Segurança & Blindagem Server-Side | 1/1 | Complete | 2026-09-05 |
 | 64. Unificação da Engine Server-Side, Persistência Relacional e Progressão Offline | 1/1 | Complete | 2026-09-05 |
+| 68. Modal Autêntico de Morte ("You are dead"), Sistema de Penalidade e Painel Admin | 1/1 | Complete | 2026-09-05 |
+| 69. Auditoria e Conexão Integral de Progressão (XP, Skills e Magic Level) | 1/1 | Complete | 2026-09-05 |
+| 70. Botão de Mandar Mensagem e Ações Diretas na Lista de Amigos | 1/1 | Complete | 2026-09-05 |
+| 71. Verificação de Existência de Personagem na Lista de Amigos | 1/1 | Complete | 2026-09-05 |
+| 72. Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador | 1/1 | Complete | 2026-09-05 |
+| 73. Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento | 1/1 | Complete | 2026-09-06 |
 
 -----
 
@@ -1215,3 +1226,36 @@ Plans: Concluído (Validado em `tests/phase71-friends-character-lookup.test.ts` 
 Plans: Concluído (Validado em `tests/phase72-whisper-private-messaging.test.ts` e `72-SUMMARY.md`).
 
 - [x] 72-01-PLAN: Roteamento de Whisper no Servidor, Entrega Direta e Visibilidade no ChatWindow.
+
+### Phase 73: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento
+
+**Goal:** Implementar o sistema autêntico de mensagens privadas no estilo Tibia na `ChatWindow`, abrindo abas dedicadas com o nome do personagem correspondente ao clicar em "Mandar Mensagem" na lista de amigos ou ao receber uma mensagem direta, isolando a conversa fora dos chats Local e World, com suporte a envio automático de whisper e botão para fechar a aba (`✕`).  
+**Depends on:** Phase 72  
+**Requirements:**
+1. **Abas Dinâmicas de Conversa Privada (`ChatWindow.tsx`):**
+   - Suporte a abas dinâmicas além de `Local` e `World`: cada conversa privada ativa possui sua própria aba identificada pelo nome do personagem (`characterName`).
+   - Cada aba de conversa privada possui um botão de fechar (`✕`) permitindo que o jogador encerre e oculte aquela conversa quando desejar.
+   - Indicador visual elegante quando houver novas mensagens não lidas em uma aba privada inativa (badge de notificação ou cor destacada).
+2. **Isolamento de Mensagens Privadas:**
+   - Mensagens privadas (whispers) trocadas com um personagem específico são exibidas exclusivamente na aba dedicada daquele personagem, não poluindo o `World Chat` (global) nem o `Local Chat`.
+   - Na aba do personagem, a conversa exibe o histórico direto entre o jogador e o destinatário com horário, nomes estilizados e texto legível.
+3. **Envio Direto e Fluido (Input Bar):**
+   - Quando a aba do personagem estiver selecionada, o input de texto direciona o envio automaticamente para aquele personagem (via protocolo de whisper do Colyseus/gameNetwork), sem exigir que o usuário digite `*Nome*` manualmente.
+   - Placeholder contextualizado: `Mensagem privada para [Nome]...`.
+4. **Integração com Lista de Amigos (`FriendsWindow.tsx` e `GamePrototype.tsx`):**
+   - Clicar em "Mandar Mensagem" na lista de amigos abre diretamente a janela de chat, cria ou foca a aba correspondente ao amigo e foca o campo de digitação pronto para escrever.
+   - Receber uma mensagem privada de outro jogador abre automaticamente a janela de chat (se minimizada) e cria/atualiza a aba daquele jogador.
+5. **Qualidade e Testes:**
+   - 0 erros de TypeScript (`npm run typecheck`).
+   - Suíte de testes dedicada no Vitest cobrindo: abertura de abas privadas, isolamento das mensagens fora do global/world, envio direto e fechamento da aba com o botão `✕`.
+
+**Success Criteria:**
+1. Clicar em mandar mensagem para um amigo abre uma aba com o nome dele no chat.
+2. A conversa privada aparece apenas na aba dedicada daquele personagem, sem poluir o World Chat.
+3. Cada aba privada pode ser fechada individualmente pelo botão `✕`.
+4. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: Concluído (Validado em `tests/phase73-private-chat-tabs.test.ts` e `73-SUMMARY.md`).
+
+- [x] 73-01-PLAN: Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento.
+

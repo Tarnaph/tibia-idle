@@ -13,15 +13,18 @@ export interface ChatMessageItem {
 }
 
 export interface ChatWindowHandle {
-  focusInput: (channel?: 'local' | 'world', prefill?: string) => void;
-  setActiveChannel: (channel: 'local' | 'world') => void;
+  focusInput: (channel?: string, prefill?: string) => void;
+  setActiveChannel: (channel: string) => void;
   prefillInput: (text: string) => void;
+  openPrivateTab: (characterName: string) => void;
+  closePrivateTab: (characterName: string) => void;
 }
 
 interface ChatWindowProps {
   messages: ChatMessageItem[];
-  onSendMessage: (text: string, channel: 'local' | 'world') => void;
+  onSendMessage: (text: string, channel: 'local' | 'world' | 'whisper', recipientName?: string) => void;
   characterName: string;
+  onClosePrivateTab?: (targetName: string) => void;
 }
 
 function formatTime(timestamp: number): string {
@@ -32,18 +35,61 @@ function formatTime(timestamp: number): string {
 }
 
 export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function ChatWindow(
-  { messages, onSendMessage, characterName },
+  { messages, onSendMessage, characterName, onClosePrivateTab },
   ref
 ) {
-  const [activeTab, setActiveTab] = useState<'local' | 'world'>('local');
+  const [activeTab, setActiveTab] = useState<string>('local');
+  const [privateTabs, setPrivateTabs] = useState<string[]>([]);
+  const [unreadTabs, setUnreadTabs] = useState<Set<string>>(new Set());
   const [inputText, setInputText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  const handleSelectTab = (tab: string) => {
+    setActiveTab(tab);
+    setUnreadTabs((prev) => {
+      const next = new Set(prev);
+      next.delete(tab.toLowerCase());
+      return next;
+    });
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 10);
+  };
+
+  const openPrivateTab = (targetName: string) => {
+    const trimmed = targetName.trim();
+    if (!trimmed) return;
+    setPrivateTabs((prev) => {
+      if (!prev.some((p) => p.toLowerCase() === trimmed.toLowerCase())) {
+        return [...prev, trimmed];
+      }
+      return prev;
+    });
+    handleSelectTab(trimmed);
+  };
+
+  const handleCloseTab = (targetName: string) => {
+    setPrivateTabs((prev) => prev.filter((p) => p.toLowerCase() !== targetName.toLowerCase()));
+    setUnreadTabs((prev) => {
+      const next = new Set(prev);
+      next.delete(targetName.toLowerCase());
+      return next;
+    });
+    onClosePrivateTab?.(targetName);
+    if (activeTab.toLowerCase() === targetName.toLowerCase()) {
+      setActiveTab('local');
+    }
+  };
+
   useImperativeHandle(ref, () => ({
-    focusInput: (channel?: 'local' | 'world', prefill?: string) => {
+    focusInput: (channel?: string, prefill?: string) => {
       if (channel) {
-        setActiveTab(channel);
+        if (channel === 'local' || channel === 'world') {
+          handleSelectTab(channel);
+        } else {
+          openPrivateTab(channel);
+        }
       }
       if (typeof prefill === 'string') {
         setInputText(prefill);
@@ -56,8 +102,12 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
         }
       }, 20);
     },
-    setActiveChannel: (channel: 'local' | 'world') => {
-      setActiveTab(channel);
+    setActiveChannel: (channel: string) => {
+      if (channel === 'local' || channel === 'world') {
+        handleSelectTab(channel);
+      } else {
+        openPrivateTab(channel);
+      }
     },
     prefillInput: (text: string) => {
       setInputText(text);
@@ -69,25 +119,78 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
         }
       }, 20);
     },
+    openPrivateTab: (targetName: string) => {
+      openPrivateTab(targetName);
+    },
+    closePrivateTab: (targetName: string) => {
+      handleCloseTab(targetName);
+    },
   }));
 
-  // Auto-scroll on new message
+  // Track incoming whispers to dynamically register private tabs and mark unread
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg && lastMsg.channel === 'whisper') {
+      const isSelf = lastMsg.senderName.toLowerCase() === characterName.toLowerCase();
+      const partner = isSelf ? lastMsg.recipientName : (lastMsg.senderName !== 'Servidor' ? lastMsg.senderName : null);
+      if (partner) {
+        setPrivateTabs((prev) => {
+          if (!prev.some((p) => p.toLowerCase() === partner.toLowerCase())) {
+            return [...prev, partner];
+          }
+          return prev;
+        });
+        if (activeTab.toLowerCase() !== partner.toLowerCase() && !isSelf) {
+          setUnreadTabs((prev) => new Set(prev).add(partner.toLowerCase()));
+        }
+      }
+    }
+  }, [messages, characterName, activeTab]);
+
+  // Auto-scroll on new message or tab change
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
   }, [messages, activeTab]);
 
-  const filteredMessages = messages.filter(
-    (m) => m.channel === activeTab || m.channel === 'whisper'
-  );
+  // Strict channel isolation:
+  // - local tab: ONLY local messages
+  // - world tab: ONLY world messages
+  // - private tab: ONLY whisper messages with that specific partner
+  const filteredMessages = messages.filter((m) => {
+    if (activeTab === 'local') {
+      return m.channel === 'local';
+    }
+    if (activeTab === 'world') {
+      return m.channel === 'world';
+    }
+    // Private tab for specific partner character
+    const targetLower = activeTab.toLowerCase();
+    if (m.channel === 'whisper') {
+      const senderMatches = m.senderName.toLowerCase() === targetLower;
+      const recipientMatches = m.recipientName?.toLowerCase() === targetLower;
+      const isServerNotice = m.senderName === 'Servidor' && m.text.toLowerCase().includes(targetLower);
+      return senderMatches || recipientMatches || isServerNotice;
+    }
+    return false;
+  });
 
   const handleSend = () => {
     const trimmed = inputText.trim();
     if (!trimmed) return;
-    onSendMessage(trimmed, activeTab);
+
+    if (activeTab === 'local') {
+      onSendMessage(trimmed, 'local');
+    } else if (activeTab === 'world') {
+      onSendMessage(trimmed, 'world');
+    } else {
+      // Direct message inside private tab
+      onSendMessage(trimmed, 'whisper', activeTab);
+    }
+
     setInputText('');
-    // Re-focus or maintain focus
     inputRef.current?.focus();
   };
 
@@ -100,6 +203,28 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
     }
   };
 
+  const isPrivateActive = activeTab !== 'local' && activeTab !== 'world';
+
+  let inputPlaceholder = 'Diga algo no Local Chat... (amarelo, só quem está perto)';
+  let inputBorderColor = 'rgba(255, 215, 0, 0.35)';
+  let sendButtonBorder = '#ffd700';
+  let sendButtonBg = 'rgba(255, 215, 0, 0.2)';
+  let sendButtonColor = '#ffff55';
+
+  if (activeTab === 'world') {
+    inputPlaceholder = 'Diga algo no World Chat... (azul, visível no servidor inteiro)';
+    inputBorderColor = 'rgba(0, 191, 255, 0.35)';
+    sendButtonBorder = '#00bfff';
+    sendButtonBg = 'rgba(0, 191, 255, 0.2)';
+    sendButtonColor = '#55ffff';
+  } else if (isPrivateActive) {
+    inputPlaceholder = `Mensagem privada para ${activeTab}... (Enter para enviar)`;
+    inputBorderColor = 'rgba(192, 132, 252, 0.45)';
+    sendButtonBorder = '#c084fc';
+    sendButtonBg = 'rgba(192, 132, 252, 0.25)';
+    sendButtonColor = '#e9d5ff';
+  }
+
   return (
     <div className="chat-window-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '190px' }}>
       {/* Tabs Header */}
@@ -111,14 +236,14 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           padding: '4px 6px',
           background: 'rgba(10, 14, 18, 0.75)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          overflowX: 'auto',
+          alignItems: 'center',
         }}
       >
+        {/* Local Chat Tab */}
         <button
           type="button"
-          onClick={() => {
-            setActiveTab('local');
-            inputRef.current?.focus();
-          }}
+          onClick={() => handleSelectTab('local')}
           style={{
             padding: '3px 10px',
             fontSize: '11px',
@@ -132,18 +257,17 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
+            flexShrink: 0,
           }}
         >
           <span style={{ fontSize: '10px' }}>📍</span>
           <span>Local Chat</span>
         </button>
 
+        {/* World Chat Tab */}
         <button
           type="button"
-          onClick={() => {
-            setActiveTab('world');
-            inputRef.current?.focus();
-          }}
+          onClick={() => handleSelectTab('world')}
           style={{
             padding: '3px 10px',
             fontSize: '11px',
@@ -157,13 +281,101 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
             display: 'flex',
             alignItems: 'center',
             gap: '5px',
+            flexShrink: 0,
           }}
         >
           <span style={{ fontSize: '10px' }}>🌐</span>
           <span>World Chat</span>
         </button>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', fontSize: '9px', color: '#68727d', gap: '4px' }}>
+        {/* Dynamic Private Chat Tabs */}
+        {privateTabs.map((tabName) => {
+          const isActive = activeTab.toLowerCase() === tabName.toLowerCase();
+          const hasUnread = unreadTabs.has(tabName.toLowerCase());
+
+          return (
+            <div
+              key={tabName}
+              onClick={() => handleSelectTab(tabName)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '3px 8px',
+                fontSize: '11px',
+                fontWeight: 700,
+                borderRadius: '3px',
+                cursor: 'pointer',
+                border: isActive
+                  ? '1px solid #c084fc'
+                  : hasUnread
+                  ? '1px solid #f59e0b'
+                  : '1px solid rgba(255,255,255,0.08)',
+                background: isActive
+                  ? 'rgba(147, 51, 234, 0.25)'
+                  : hasUnread
+                  ? 'rgba(245, 158, 11, 0.18)'
+                  : 'rgba(20, 24, 30, 0.5)',
+                color: isActive ? '#f3e8ff' : hasUnread ? '#fbbf24' : '#c084fc',
+                transition: 'all 0.15s ease',
+                flexShrink: 0,
+                boxShadow: isActive ? '0 0 6px rgba(192, 132, 252, 0.25)' : 'none',
+              }}
+              title={`Conversa privada com ${tabName}`}
+            >
+              <span style={{ fontSize: '10px' }}>💬</span>
+              <span>{tabName}</span>
+              {hasUnread && !isActive && (
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: '#f59e0b',
+                    display: 'inline-block',
+                  }}
+                  title="Nova mensagem não lida"
+                />
+              )}
+              {/* Close Tab Button (✕) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseTab(tabName);
+                }}
+                title={`Fechar aba de ${tabName}`}
+                style={{
+                  marginLeft: '4px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: isActive ? '#e9d5ff' : '#64748b',
+                  fontSize: '11px',
+                  lineHeight: 1,
+                  padding: '1px 3px',
+                  cursor: 'pointer',
+                  borderRadius: '2px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#ef4444';
+                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = isActive ? '#e9d5ff' : '#64748b';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          );
+        })}
+
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', fontSize: '9px', color: '#68727d', gap: '4px', flexShrink: 0 }}>
           <span>Enter para focar</span>
         </div>
       </div>
@@ -188,13 +400,15 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           <div style={{ color: '#55606d', fontStyle: 'italic', fontSize: '10px', padding: '12px 4px', textAlign: 'center' }}>
             {activeTab === 'local'
               ? 'Nenhuma mensagem local recente (alcance de proximidade).'
-              : 'Nenhuma mensagem no World Chat (chat global do servidor).'}
+              : activeTab === 'world'
+              ? 'Nenhuma mensagem no World Chat (chat global do servidor).'
+              : `Nenhuma mensagem nesta conversa privada com ${activeTab}. Diga olá!`}
           </div>
         ) : (
           filteredMessages.map((msg) => {
             const isWhisper = msg.channel === 'whisper';
             const isLocal = msg.channel === 'local';
-            const isSelf = msg.senderName === characterName;
+            const isSelf = msg.senderName.toLowerCase() === characterName.toLowerCase();
 
             let senderLabel = `${msg.senderName}${isSelf ? ' (Você)' : ''}:`;
             let senderColor = isLocal ? '#ffff55' : '#55ffff';
@@ -206,11 +420,11 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                 senderColor = '#f87171';
                 textColor = '#fca5a5';
               } else if (isSelf) {
-                senderLabel = `Para ${msg.recipientName || 'Amigo'}:`;
+                senderLabel = `Você:`;
                 senderColor = '#c084fc';
                 textColor = '#f3e8ff';
               } else {
-                senderLabel = `De ${msg.senderName}:`;
+                senderLabel = `${msg.senderName}:`;
                 senderColor = '#38bdf8';
                 textColor = '#e0f2fe';
               }
@@ -227,7 +441,7 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                   gap: '5px',
                   backgroundColor: isWhisper ? 'rgba(88, 28, 135, 0.12)' : 'transparent',
                   borderRadius: '2px',
-                  padding: isWhisper ? '1px 3px' : '0',
+                  padding: isWhisper ? '1px 4px' : '0',
                 }}
               >
                 <time style={{ color: '#606a74', fontSize: '9.5px', flexShrink: 0 }}>
@@ -241,13 +455,7 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                     textShadow: '0 1px 2px rgba(0,0,0,0.8)',
                     cursor: isWhisper && !isSelf && msg.senderName !== 'Servidor' ? 'pointer' : 'default',
                   }}
-                  title={isWhisper && !isSelf && msg.senderName !== 'Servidor' ? `Clique para responder ${msg.senderName}` : undefined}
-                  onClick={() => {
-                    if (isWhisper && !isSelf && msg.senderName !== 'Servidor') {
-                      setInputText(`*${msg.senderName}* `);
-                      inputRef.current?.focus();
-                    }
-                  }}
+                  title={isWhisper && !isSelf && msg.senderName !== 'Servidor' ? `Conversando com ${msg.senderName}` : undefined}
                 >
                   {senderLabel}
                 </span>
@@ -276,16 +484,12 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={
-            activeTab === 'local'
-              ? 'Diga algo no Local Chat... (amarelo, só quem está perto)'
-              : 'Diga algo no World Chat... (azul, visível no servidor inteiro)'
-          }
+          placeholder={inputPlaceholder}
           maxLength={180}
           style={{
             flex: 1,
             background: 'rgba(0, 0, 0, 0.5)',
-            border: activeTab === 'local' ? '1px solid rgba(255, 215, 0, 0.35)' : '1px solid rgba(0, 191, 255, 0.35)',
+            border: `1px solid ${inputBorderColor}`,
             borderRadius: '3px',
             padding: '4px 8px',
             color: '#f0f3f6',
@@ -302,9 +506,9 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
             fontSize: '11px',
             fontWeight: 700,
             borderRadius: '3px',
-            border: activeTab === 'local' ? '1px solid #ffd700' : '1px solid #00bfff',
-            background: activeTab === 'local' ? 'rgba(255, 215, 0, 0.2)' : 'rgba(0, 191, 255, 0.2)',
-            color: activeTab === 'local' ? '#ffff55' : '#55ffff',
+            border: `1px solid ${sendButtonBorder}`,
+            background: sendButtonBg,
+            color: sendButtonColor,
             cursor: 'pointer',
           }}
         >

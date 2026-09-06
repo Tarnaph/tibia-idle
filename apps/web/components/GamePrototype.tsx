@@ -260,6 +260,27 @@ function GamePrototypeContent() {
     } catch {}
   }, [friendsList]);
 
+  // Dynamically calculate real-time online status for friends list based on active remote players and session characters
+  const effectiveFriendsList = useMemo(() => {
+    const onlineNames = new Set<string>();
+    if (remotePlayers) {
+      for (const r of remotePlayers.values()) {
+        if (r.name) onlineNames.add(r.name.trim().toLowerCase());
+      }
+    }
+    for (const c of game.session.characters) {
+      if (c.name) onlineNames.add(c.name.trim().toLowerCase());
+    }
+
+    return friendsList.map((f) => {
+      const isOnlineNow = onlineNames.has(f.name.trim().toLowerCase()) || f.isOnline === true;
+      return {
+        ...f,
+        isOnline: isOnlineNow,
+      };
+    });
+  }, [friendsList, remotePlayers, game.session.characters]);
+
   const handleAddFriend = useCallback(
     async (name: string): Promise<{ success: boolean; error?: string }> => {
       const trimmed = name.trim();
@@ -354,8 +375,8 @@ function GamePrototypeContent() {
   const handlePrivateMessage = useCallback((name: string) => {
     openWindow('chat');
     bringToFront('chat');
-    chatWindowRef.current?.focusInput('local', `*${name}* `);
-    setSaleMessage(`Abrindo mensagem privada para ${name}...`);
+    chatWindowRef.current?.openPrivateTab(name);
+    setSaleMessage(`Abrindo conversa privada com ${name}...`);
   }, [openWindow, bringToFront]);
 
   const handleInviteParty = useCallback((name: string) => {
@@ -571,6 +592,7 @@ function GamePrototypeContent() {
       if (isWhisper && netMsg.senderName !== activeCharacter.name && netMsg.senderName !== 'Servidor') {
         openWindow('chat');
         bringToFront('chat');
+        chatWindowRef.current?.openPrivateTab(netMsg.senderName);
         setSaleMessage(`Nova mensagem privada de ${netMsg.senderName}!`);
       }
 
@@ -1026,9 +1048,30 @@ function GamePrototypeContent() {
   const heldDirectionRef = useRef<{ dx: number; dy: number } | null>(null);
   const lastStepTimeRef = useRef(0);
 
-  const handleSendChatMessage = useCallback((text: string, channel: 'local' | 'world') => {
+  const handleSendChatMessage = useCallback((text: string, channel: 'local' | 'world' | 'whisper', recipientName?: string) => {
     const rawTrimmed = text.trim();
     if (!rawTrimmed) return;
+
+    if (channel === 'whisper' && recipientName) {
+      const targetRecipient = recipientName.trim();
+      if (!gameNetwork.IsConnected) {
+        const msgId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const whisperMsg: ChatMessageItem = {
+          id: msgId,
+          senderName: activeCharacter.name,
+          recipientName: targetRecipient,
+          channel: 'whisper',
+          text: rawTrimmed,
+          timestamp: Date.now(),
+        };
+        setChatMessages((prev) => [...prev.slice(-99), whisperMsg]);
+        setSaleMessage(`Mensagem privada enviada para ${targetRecipient}.`);
+        return;
+      } else {
+        gameNetwork.sendChat(`*${targetRecipient}* ${rawTrimmed}`, 'local');
+        return;
+      }
+    }
 
     if (!gameNetwork.IsConnected) {
       const msgId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -1071,7 +1114,7 @@ function GamePrototypeContent() {
             senderId: activeCharacter.id,
             senderName: activeCharacter.name,
             text: rawTrimmed,
-            channel,
+            channel: channel === 'world' ? 'world' : 'local',
             timestamp: Date.now(),
           },
         ]);
@@ -2084,7 +2127,7 @@ function GamePrototypeContent() {
       />
 
       <FriendsWindow
-        friends={friendsList}
+        friends={effectiveFriendsList}
         allKnownCharacters={[
           ...game.session.characters.map((c) => ({ name: c.name, level: c.level, vocation: c.vocation })),
           ...(remotePlayers
