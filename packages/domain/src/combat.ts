@@ -297,6 +297,7 @@ function rollLoot(state: GameState, monsterId: string, content: GameContent, mul
 }
 
 function defeatEnemy(state: GameState, target: EnemyState, content: GameContent): void {
+  if (!target.alive) return;
   const encounter = state.encounter;
   target.alive = false; target.path = []; target.targetId = null;
   const monster = monsterFor(content, target.monsterId);
@@ -906,7 +907,7 @@ function playerAttacks(state: GameState, content: GameContent): void {
         }
         const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
         addLog(state, `${character.name} atingiu ${target.name} por ${damage} com ${pending.weaponName}.`);
-        if (target.hp <= 0) defeatEnemy(state, target, content);
+        if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
       }
     }
     if (actor.pendingAttack) continue;

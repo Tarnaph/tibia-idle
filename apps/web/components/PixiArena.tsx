@@ -309,6 +309,9 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         }
       };
 
+      let lastProcessedEvents: unknown = null;
+      let lastProcessedVisualEvents: unknown = null;
+
       const sync = (state: GameState, showDebug: boolean) => {
         const now = performance.now(); rebuildTerrain(state, showDebug);
         spatialDebug.removeChildren().forEach((child) => child.destroy({ children: true }));
@@ -347,6 +350,8 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           cameraInitialized = false;
           for (const view of views.values()) view.root.destroy({ children: true });
           views.clear(); effects.removeChildren().forEach((child) => child.destroy({ children: true })); timed.length = 0;
+          lastProcessedEvents = null;
+          lastProcessedVisualEvents = null;
         }
         const committedMovements = state.encounter.events.filter((event) => event.type === 'movement');
         const liveIds = new Set<string>();
@@ -377,110 +382,117 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           const sprite = new Sprite(loaded[mapping.frame.publicUrl]); const point = worldPoint(corpse.position);
           sprite.anchor.set(0.5, 1); sprite.position.set(point.x, point.y); sprite.zIndex = corpse.position.y * 10; corpses.addChild(sprite);
         }
-        for (const event of state.encounter.events) {
-          if (event.type === 'spell-visual') addSpellVisual(state, event, now);
-          if (event.type === 'spell-cast' && event.speech) {
-            const sourcePos = actorPosition(state, event.sourceId);
-            if (sourcePos) {
-              const point = worldPoint(sourcePos);
-              const isPotion = event.speech === 'Aaaah...';
+        if (lastProcessedEvents !== state.encounter.events) {
+          lastProcessedEvents = state.encounter.events;
+          for (const event of state.encounter.events) {
+            if (event.type === 'spell-visual') addSpellVisual(state, event, now);
+            if (event.type === 'spell-cast' && event.speech) {
+              const sourcePos = actorPosition(state, event.sourceId);
+              if (sourcePos) {
+                const point = worldPoint(sourcePos);
+                const isPotion = event.speech === 'Aaaah...';
 
-              // Speech container holding spell icon + speech text side-by-side
-              const speechContainer = new Container();
-              let iconWidth = 0;
+                // Speech container holding spell icon + speech text side-by-side
+                const speechContainer = new Container();
+                let iconWidth = 0;
 
-              const iconPath = !isPotion
-                ? resolveActionImagePath(event.spellId, 'spell', event.speech)
-                : null;
+                const iconPath = !isPotion
+                  ? resolveActionImagePath(event.spellId, 'spell', event.speech)
+                  : null;
 
-              if (iconPath && loaded[iconPath]) {
-                const iconSize = 14;
-                const iconSprite = new Sprite(loaded[iconPath]);
-                iconSprite.width = iconSize;
-                iconSprite.height = iconSize;
-                iconSprite.position.set(0, 0);
+                if (iconPath && loaded[iconPath]) {
+                  const iconSize = 14;
+                  const iconSprite = new Sprite(loaded[iconPath]);
+                  iconSprite.width = iconSize;
+                  iconSprite.height = iconSize;
+                  iconSprite.position.set(0, 0);
 
-                // Small 1px dark border around the icon matching official Tibia UI
-                const iconBorder = new Graphics()
-                  .rect(-0.5, -0.5, iconSize + 1, iconSize + 1)
-                  .stroke({ color: 0x111315, width: 1 });
+                  // Small 1px dark border around the icon matching official Tibia UI
+                  const iconBorder = new Graphics()
+                    .rect(-0.5, -0.5, iconSize + 1, iconSize + 1)
+                    .stroke({ color: 0x111315, width: 1 });
 
-                speechContainer.addChild(iconBorder, iconSprite);
-                iconWidth = iconSize + 3;
+                  speechContainer.addChild(iconBorder, iconSprite);
+                  iconWidth = iconSize + 3;
+                }
+
+                const speechText = new Text({
+                  text: event.speech,
+                  resolution: 2,
+                  style: {
+                    fill: isPotion ? 0xffaa00 : 0xf2a33c, // Authentic warm Tibia spell orange
+                    stroke: { color: 0x000000, width: 2 },
+                    fontSize: 7,
+                    fontFamily: 'Verdana, Arial, sans-serif',
+                    fontWeight: '700',
+                  },
+                });
+                speechText.position.set(iconWidth, 0);
+                speechContainer.addChild(speechText);
+
+                const totalWidth = iconWidth + speechText.width;
+                speechContainer.position.set(point.x - totalWidth / 2, point.y - 24);
+                effects.addChild(speechContainer);
+                timed.push({ root: speechContainer, startedAt: now, durationMs: 1200, kind: 'float' });
               }
-
-              const speechText = new Text({
-                text: event.speech,
+            }
+            if (event.type === 'experience-gained') {
+              const charPos = actorPosition(state, event.characterId);
+              if (charPos && event.amount > 0) {
+                const point = worldPoint(charPos);
+                const xpText = new Text({
+                  text: `+${event.amount} XP`,
+                  resolution: 2,
+                  style: {
+                    fill: 0xffffff,
+                    stroke: { color: 0x000000, width: 2 },
+                    fontSize: 7,
+                    fontFamily: 'Verdana, Arial, sans-serif',
+                    fontWeight: '700',
+                  },
+                });
+                xpText.anchor.set(0.5, 1);
+                xpText.position.set(point.x, point.y - 26);
+                effects.addChild(xpText);
+                timed.push({ root: xpText, startedAt: now, durationMs: 1100, kind: 'float' });
+              }
+            }
+            if (event.type !== 'player-attack' && event.type !== 'enemy-attack' && event.type !== 'spell-cast') continue;
+            const targetId = event.targetId; const targetPosition = actorPosition(state, targetId); if (!targetPosition) continue;
+            const amount = event.type === 'spell-cast' ? event.amount : event.damage;
+            if (amount > 0) {
+              const isHealing = event.type === 'spell-cast' && event.healing;
+              const prefix = isHealing ? '+' : '';
+              const text = new Text({
+                text: `${prefix}${amount}`,
                 resolution: 2,
                 style: {
-                  fill: isPotion ? 0xffaa00 : 0xf2a33c, // Authentic warm Tibia spell orange
-                  stroke: { color: 0x000000, width: 2 },
+                  fill: isHealing ? 0x62e58a : 0xff766b,
+                  stroke: { color: 0x1a0504, width: 2 },
                   fontSize: 7,
                   fontFamily: 'Verdana, Arial, sans-serif',
                   fontWeight: '700',
                 },
               });
-              speechText.position.set(iconWidth, 0);
-              speechContainer.addChild(speechText);
-
-              const totalWidth = iconWidth + speechText.width;
-              speechContainer.position.set(point.x - totalWidth / 2, point.y - 24);
-              effects.addChild(speechContainer);
-              timed.push({ root: speechContainer, startedAt: now, durationMs: 1200, kind: 'float' });
+              text.anchor.set(0.5); const point = worldPoint(targetPosition); text.position.set(point.x, point.y - 18); effects.addChild(text);
+              timed.push({ root: text, startedAt: now, durationMs: 700, kind: 'float' });
             }
+            const sourceView = views.get(event.sourceId);
+            if (sourceView) sourceView.attackUntil = now + 160;
           }
-          if (event.type === 'experience-gained') {
-            const charPos = actorPosition(state, event.characterId);
-            if (charPos && event.amount > 0) {
-              const point = worldPoint(charPos);
-              const xpText = new Text({
-                text: `+${event.amount} XP`,
-                resolution: 2,
-                style: {
-                  fill: 0xffffff,
-                  stroke: { color: 0x000000, width: 2 },
-                  fontSize: 7,
-                  fontFamily: 'Verdana, Arial, sans-serif',
-                  fontWeight: '700',
-                },
-              });
-              xpText.anchor.set(0.5, 1);
-              xpText.position.set(point.x, point.y - 26);
-              effects.addChild(xpText);
-              timed.push({ root: xpText, startedAt: now, durationMs: 1100, kind: 'float' });
-            }
-          }
-          if (event.type !== 'player-attack' && event.type !== 'enemy-attack' && event.type !== 'spell-cast') continue;
-          const targetId = event.targetId; const targetPosition = actorPosition(state, targetId); if (!targetPosition) continue;
-          const amount = event.type === 'spell-cast' ? event.amount : event.damage;
-          if (amount > 0) {
-            const isHealing = event.type === 'spell-cast' && event.healing;
-            const prefix = isHealing ? '+' : '';
-            const text = new Text({
-              text: `${prefix}${amount}`,
-              resolution: 2,
-              style: {
-                fill: isHealing ? 0x62e58a : 0xff766b,
-                stroke: { color: 0x1a0504, width: 2 },
-                fontSize: 7,
-                fontFamily: 'Verdana, Arial, sans-serif',
-                fontWeight: '700',
-              },
-            });
-            text.anchor.set(0.5); const point = worldPoint(targetPosition); text.position.set(point.x, point.y - 18); effects.addChild(text);
-            timed.push({ root: text, startedAt: now, durationMs: 700, kind: 'float' });
-          }
-          const sourceView = views.get(event.sourceId);
-          if (sourceView) sourceView.attackUntil = now + 160;
         }
-        for (const event of state.encounter.visualEvents) {
-          if (event.type === 'projectile-launched') {
-            const from = actorPosition(state, event.sourceId); const to = actorPosition(state, event.targetId); const mapping = visualAssets.missiles[String(event.projectileId)];
-            if (from && to && mapping) { const frame = mapping.frames.find((candidate) => candidate.direction === projectileDirection(from, to)) ?? mapping.frames[0]; const sprite = new Sprite(loaded[frame.publicUrl]); sprite.anchor.set(0.5); effects.addChild(sprite); timed.push({ root: sprite, startedAt: now, durationMs: Math.max(220, Math.min(700, 90 * (Math.abs(to.x - from.x) + Math.abs(to.y - from.y)))), kind: 'missile', from: { ...from }, to: { ...to } }); }
-          }
-          if (event.type === 'melee-hit' || event.type === 'projectile-hit') {
-            const target = actorPosition(state, event.targetId); const mapping = visualAssets.effects[String(event.effectId)];
-            if (target && mapping) { const root = new Container(); const point = worldPoint(target); root.position.set(point.x, point.y); const sprite = new Sprite(loaded[mapping.frames[0].publicUrl]); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root); timed.push({ root, startedAt: now, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) }); }
+
+        if (lastProcessedVisualEvents !== state.encounter.visualEvents) {
+          lastProcessedVisualEvents = state.encounter.visualEvents;
+          for (const event of state.encounter.visualEvents) {
+            if (event.type === 'projectile-launched') {
+              const from = actorPosition(state, event.sourceId); const to = actorPosition(state, event.targetId); const mapping = visualAssets.missiles[String(event.projectileId)];
+              if (from && to && mapping) { const frame = mapping.frames.find((candidate) => candidate.direction === projectileDirection(from, to)) ?? mapping.frames[0]; const sprite = new Sprite(loaded[frame.publicUrl]); sprite.anchor.set(0.5); effects.addChild(sprite); timed.push({ root: sprite, startedAt: now, durationMs: Math.max(220, Math.min(700, 90 * (Math.abs(to.x - from.x) + Math.abs(to.y - from.y)))), kind: 'missile', from: { ...from }, to: { ...to } }); }
+            }
+            if (event.type === 'melee-hit' || event.type === 'projectile-hit') {
+              const target = actorPosition(state, event.targetId); const mapping = visualAssets.effects[String(event.effectId)];
+              if (target && mapping) { const root = new Container(); const point = worldPoint(target); root.position.set(point.x, point.y); const sprite = new Sprite(loaded[mapping.frames[0].publicUrl]); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root); timed.push({ root, startedAt: now, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) }); }
+            }
           }
         }
         if (!cameraInitialized) {
