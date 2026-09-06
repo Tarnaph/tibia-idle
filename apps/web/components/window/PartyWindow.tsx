@@ -65,15 +65,15 @@ export function PartyWindow({
     if (roleUpper === 'ADMIN' || roleUpper === 'GM') return true;
     if (slotIndex === 0) return true; // Slot 1: Level 1+
     if (slotIndex === 1) return userLevel >= 50; // Slot 2: Level 50+
-    if (slotIndex === 2) return userLevel >= 90; // Slot 3: Level 90+
-    if (slotIndex === 3) return userLevel >= 120; // Slot 4: Level 120+
+    if (slotIndex === 2) return userLevel >= 100; // Slot 3: Level 100+
+    if (slotIndex === 3) return userLevel >= 150; // Slot 4: Level 150+
     return false;
   };
 
   const getSlotRequiredLevel = (slotIndex: number): number => {
     if (slotIndex === 1) return 50;
-    if (slotIndex === 2) return 90;
-    if (slotIndex === 3) return 120;
+    if (slotIndex === 2) return 100;
+    if (slotIndex === 3) return 150;
     return 1;
   };
 

@@ -130,6 +130,20 @@ export function removePartyMember(state: GameState, characterId: string): GameSt
   };
 }
 
+export function getTakenAccountVocations(
+  characters: CharacterState[],
+  excludeCharacterId?: string,
+): Set<BaseVocationName> {
+  const taken = new Set<BaseVocationName>();
+  for (const char of characters) {
+    if (excludeCharacterId && char.id === excludeCharacterId) continue;
+    if (char.baseVocation && char.baseVocation !== 'None') {
+      taken.add(char.baseVocation as BaseVocationName);
+    }
+  }
+  return taken;
+}
+
 export function chooseCharacterVocation(
   state: GameState,
   characterId: string,
@@ -143,6 +157,15 @@ export function chooseCharacterVocation(
   const char = state.session.characters[charIndex];
   if (char.level < 8) {
     return { ok: false, state, error: 'É necessário atingir o Nível 8 para escolher uma vocação.' };
+  }
+
+  const takenVocations = getTakenAccountVocations(state.session.characters, characterId);
+  if (takenVocations.has(newVocation)) {
+    return {
+      ok: false,
+      state,
+      error: `A vocação ${newVocation} já está em uso por outro personagem nesta conta. Cada conta só pode ter 1 personagem de cada vocação.`,
+    };
   }
 
   const vocationDef = vocationFor(content, newVocation);

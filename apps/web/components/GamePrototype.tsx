@@ -17,7 +17,7 @@ import {
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
-  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation,
+  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations,
   calculateDeathPenaltyReport, type DeathPenaltyReport,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
@@ -418,8 +418,8 @@ function GamePrototypeContent() {
 
       if (!isAdminOrGm) {
         if (currentCount === 1 && mainLevel < 50) return;
-        if (currentCount === 2 && mainLevel < 90) return;
-        if (currentCount === 3 && mainLevel < 120) return;
+        if (currentCount === 2 && mainLevel < 100) return;
+        if (currentCount === 3 && mainLevel < 150) return;
       }
 
       setGame((cur) => {
@@ -1555,11 +1555,11 @@ function GamePrototypeContent() {
       if (currentMemberCount === 1 && mainLevel < 50) {
         return 'Nível 50 necessário para desbloquear o 2º slot do squad.';
       }
-      if (currentMemberCount === 2 && mainLevel < 90) {
-        return 'Nível 90 necessário para desbloquear o 3º slot do squad.';
+      if (currentMemberCount === 2 && mainLevel < 100) {
+        return 'Nível 100 necessário para desbloquear o 3º slot do squad.';
       }
-      if (currentMemberCount === 3 && mainLevel < 120) {
-        return 'Nível 120 necessário para desbloquear o 4º slot do squad.';
+      if (currentMemberCount === 3 && mainLevel < 150) {
+        return 'Nível 150 necessário para desbloquear o 4º slot do squad.';
       }
       if (currentMemberCount >= 4) {
         return 'O squad já atingiu o limite máximo de 4 membros.';
@@ -2072,11 +2072,14 @@ function GamePrototypeContent() {
       <VocationChoiceModal
         open={activeCharacter.level >= 8 && activeCharacter.vocation === 'None'}
         characterName={activeCharacter.name}
+        takenVocations={getTakenAccountVocations(game.session.characters, activeCharacter.id)}
         onSelectVocation={(vocName) => {
           const res = chooseCharacterVocation(game, activeCharacter.id, vocName, content);
           if (res.ok) {
             setGame(res.state);
             setSaleMessage(`Parabéns! ${activeCharacter.name} agora é um ${vocName}!`);
+          } else if (res.error) {
+            setSaleMessage(res.error);
           }
         }}
       />

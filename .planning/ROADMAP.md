@@ -39,7 +39,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 74: Personagens Novos em Nível 1 e Verificação de Visibilidade Urbana em Thais** - Inicialização de novos personagens estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 cap), e auditoria completa com verificação das tags de visibilidade urbana no Templo de Thais (inHunt: false, posZ: 7, outfit, vocation e nameplate).
 - [x] **Phase 75: Itens de Teste na Loja (Nível, Skills e Gold por 0 GP)** - Adição de itens de teste gratuitos na loja (0 gold) para avançar 1 nível (com recálculo de stats), avançar 1 ponto em cada skill e comprar pacotes de gold livremente.
 - [x] **Phase 76: Escolha de Vocação no Nível 8+, Remoção da Escolha na Criação e Item de Troca de Vocação (Gold & 0 GP)** - Remoção do seletor de vocação na criação de personagem (todos nascem sem vocação / None no nível 1), trava de escolha de vocação ao atingir Nível 8+ (irreversível), e inclusão do Pergaminho de Troca de Vocação na Loja por Gold Coins e na Loja de Testes por 0 GP.
-- [ ] **Phase 77: Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta** - Trava progressiva de nível mais exigente para liberação dos 4 slots de personagens por conta (Slots no Nível 1, 50, 100 e 150) e restrição estrita de vocações únicas por conta (sem vocações repetidas no grupo/conta: 1 Knight, 1 Paladin, 1 Sorcerer, 1 Druid).
+- [x] **Phase 77: Progressão Difícil de Desbloqueio de Slots de Personagem e Restrição de Vocações Únicas por Conta** - Trava progressiva de nível mais exigente para liberação dos 4 slots de personagens por conta (Slots no Nível 1, 50, 100 e 150) e restrição estrita de vocações únicas por conta (sem vocações repetidas no grupo/conta: 1 Knight, 1 Paladin, 1 Sorcerer, 1 Druid).
 
 ---
 
@@ -1381,9 +1381,10 @@ Plans: Concluído com sucesso.
 4. Ao completar 4 personagens, a conta possui rigorosamente 1 Knight, 1 Paladin, 1 Sorcerer e 1 Druid.
 5. 0 erros no typecheck e 100% dos testes Vitest passando.
 
-Plans: 0 plans
+Plans: Concluído com sucesso.
 
-- [ ] TBD (run /gsd-plan-phase 77 to break down)
+- [x] 77-01-PLAN: Progressão Difícil de Desbloqueio de Slots e Vocações Únicas por Conta.
+- Resumo de entrega: `.planning/phases/phase-77-hard-slot-unlocks-unique-vocations/77-SUMMARY.md`
 
 
 
