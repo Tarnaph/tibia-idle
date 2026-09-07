@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import '@/apps/web/lib/pixiPolyfill';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CharacterState, CombatVisualEvent, TrainableSkill } from '@/packages/domain/src';
 import { calculatePixelCamera, creatureVisualLayout } from '@/packages/presentation/src';
@@ -37,8 +38,8 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
       const decorUrl = visualAssets.assets.trainingDecor.frames[0].publicUrl;
       const renderMembers = latestMembers.current;
       const outfitUrls = renderMembers.flatMap(({ character }) => visualAssets.outfits[character.vocation].frames.map((frame) => frame.publicUrl));
-      const effectUrls = [10, 13].flatMap((id) => visualAssets.effects[String(id)]?.frames.map((frame) => frame.publicUrl) ?? []);
-      const missileUrls = visualAssets.missiles['28']?.frames.map((frame) => frame.publicUrl) ?? [];
+      const effectUrls = Object.values(visualAssets.effects).flatMap((fx) => fx.frames.map((frame) => frame.publicUrl));
+      const missileUrls = Object.values(visualAssets.missiles).flatMap((m) => m.frames.map((frame) => frame.publicUrl));
       const loaded = await Assets.load([...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, ...outfitUrls, ...effectUrls, ...missileUrls])]) as Record<string, PixiTexture>;
       if (disposed) { app.destroy(true, { children: true }); return; }
       for (const texture of Object.values(loaded)) texture.source.style.scaleMode = 'nearest';
@@ -103,7 +104,17 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
       app.ticker.add(animate);
       const onResize = () => rebuild(); window.addEventListener('resize', onResize); cleanup = () => window.removeEventListener('resize', onResize);
     })();
-    return () => { disposed = true; visualSyncRef.current = null; cleanup?.(); appRef.current?.destroy(true, { children: true }); appRef.current = null; };
+    return () => {
+      disposed = true;
+      visualSyncRef.current = null;
+      cleanup?.();
+      try {
+        appRef.current?.destroy(true, { children: true });
+      } catch (err) {
+        console.warn('[TrainingArena] Safe catch on app.destroy:', err);
+      }
+      appRef.current = null;
+    };
   }, [debug, memberStructure]);
   return <div ref={hostRef} className="pixi-arena training-arena" aria-label="Training Room funcional com party e progresso de skills" />;
 }

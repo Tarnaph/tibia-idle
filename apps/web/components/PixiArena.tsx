@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import '@/apps/web/lib/pixiPolyfill';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CardinalDirection, GameState, GridPosition } from '@/packages/domain/src';
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
@@ -585,9 +586,11 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
             const from = worldPoint(visual.from); const to = worldPoint(visual.to);
             visual.root.position.set(from.x + (to.x - from.x) * progress, from.y + (to.y - from.y) * progress);
           }
-          if (visual.kind === 'effect' && visual.frames && visual.root.children[0] instanceof Sprite) {
+          if (visual.kind === 'effect' && visual.frames && visual.root.children[0] && 'texture' in visual.root.children[0]) {
             const frame = visual.frames[Math.min(visual.frames.length - 1, Math.floor(progress * visual.frames.length))];
-            (visual.root.children[0] as Sprite).texture = loaded[frame];
+            if (frame && loaded[frame]) {
+              (visual.root.children[0] as Sprite).texture = loaded[frame];
+            }
           }
         }
 
@@ -653,7 +656,11 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         if (resizeObserver) resizeObserver.disconnect();
         window.removeEventListener('resize', onResize);
         app.ticker.remove(render);
-        app.destroy(true, { children: true });
+        try {
+          app.destroy(true, { children: true });
+        } catch (err) {
+          console.warn('[PixiArena] Safe catch on app.destroy:', err);
+        }
       };
     })();
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };

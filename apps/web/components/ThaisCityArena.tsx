@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import '@/apps/web/lib/pixiPolyfill';
 import thaisCityJson from '@/content/generated/thais-city.json';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
@@ -118,6 +119,7 @@ export function ThaisCityArena({
     remotePlayers,
     localPlayerId,
     overheadMessages,
+    visualEvents,
   });
   latestRef.current = {
     characters,
@@ -131,6 +133,7 @@ export function ThaisCityArena({
     remotePlayers,
     localPlayerId,
     overheadMessages,
+    visualEvents,
   };
 
   useEffect(() => {
@@ -177,7 +180,12 @@ export function ThaisCityArena({
       const outfitUrls = Object.values(visualAssets.outfits).flatMap((outfit) =>
         outfit.frames.map((f) => f.publicUrl)
       );
-      const teleportEffectUrls = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
+      const effectUrls = Object.values(visualAssets.effects).flatMap((fx) =>
+        fx.frames.map((f) => f.publicUrl)
+      );
+      const missileUrls = Object.values(visualAssets.missiles).flatMap((m) =>
+        m.frames.map((f) => f.publicUrl)
+      );
       const mapItemUrls = thaisData.tiles.flatMap((t) =>
         t.serverItemIds.flatMap((id) => {
           const mapping = visualAssets.mapItems[String(id)];
@@ -189,7 +197,7 @@ export function ThaisCityArena({
       );
 
       const allUrls = [
-        ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl, ...thumbUrls, ...outfitUrls, ...teleportEffectUrls, ...mapItemUrls]),
+        ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl, ...thumbUrls, ...outfitUrls, ...effectUrls, ...missileUrls, ...mapItemUrls]),
       ];
       
       const loaded: Record<string, PixiTexture> = {};
@@ -245,6 +253,18 @@ export function ThaisCityArena({
         startedAt: number;
         durationMs: number;
       }> = [];
+
+      interface TimedCityVisual {
+        root: InstanceType<typeof Container> | InstanceType<typeof Sprite>;
+        startedAt: number;
+        durationMs: number;
+        kind: 'missile' | 'effect' | 'float';
+        from?: { x: number; y: number };
+        to?: { x: number; y: number };
+        frames?: string[];
+      }
+      const timedCityVisuals: TimedCityVisual[] = [];
+      let lastProcessedVisualEvents: CombatVisualEvent[] | undefined;
 
       const triggerTeleportEffect = (px: number, py: number) => {
         if (teleportFrames.length === 0) return;
@@ -941,6 +961,125 @@ export function ThaisCityArena({
           }
         }
 
+        // 4b. Process Combat Visual Events in City (Dummy training wand missiles & hits, combat events)
+        const incomingVisuals = latestRef.current.visualEvents;
+        if (incomingVisuals && incomingVisuals !== lastProcessedVisualEvents) {
+          lastProcessedVisualEvents = incomingVisuals;
+          for (const ev of incomingVisuals) {
+            if (ev.type === 'projectile-launched') {
+              const mMapping = visualAssets.missiles[String(ev.projectileId)];
+              if (mMapping && mMapping.frames.length > 0) {
+                const fUrl = mMapping.frames[0].publicUrl;
+                if (loaded[fUrl]) {
+                  const sp = new Sprite(loaded[fUrl]);
+                  sp.anchor.set(0.5);
+                  effectsLayer.addChild(sp);
+                  const fromPx = { x: currentPixelX, y: currentPixelY };
+                  const toPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
+                  timedCityVisuals.push({
+                    root: sp,
+                    startedAt: now,
+                    durationMs: 350,
+                    kind: 'missile',
+                    from: fromPx,
+                    to: toPx,
+                  });
+                }
+              }
+            } else if (ev.type === 'projectile-hit' || ev.type === 'melee-hit') {
+              const fxMapping = visualAssets.effects[String(ev.effectId)];
+              if (fxMapping && fxMapping.frames.length > 0) {
+                const fUrl = fxMapping.frames[0].publicUrl;
+                if (loaded[fUrl]) {
+                  const sp = new Sprite(loaded[fUrl]);
+                  sp.anchor.set(0.5);
+                  const targetPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
+                  sp.position.set(targetPx.x, targetPx.y);
+                  effectsLayer.addChild(sp);
+                  timedCityVisuals.push({
+                    root: sp,
+                    startedAt: now,
+                    durationMs: Math.max(300, fxMapping.frames.length * 70),
+                    kind: 'effect',
+                    frames: fxMapping.frames.map((f) => f.publicUrl),
+                  });
+                }
+              }
+            } else if (ev.type === 'training-action') {
+              // Direct training action event from domain training system
+              if (ev.projectileId) {
+                const mMapping = visualAssets.missiles[String(ev.projectileId)];
+                if (mMapping && mMapping.frames.length > 0) {
+                  const fUrl = mMapping.frames[0].publicUrl;
+                  if (loaded[fUrl]) {
+                    const sp = new Sprite(loaded[fUrl]);
+                    sp.anchor.set(0.5);
+                    effectsLayer.addChild(sp);
+                    timedCityVisuals.push({
+                      root: sp,
+                      startedAt: now,
+                      durationMs: 320,
+                      kind: 'missile',
+                      from: { x: currentPixelX, y: currentPixelY },
+                      to: { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 },
+                    });
+                  }
+                }
+              }
+              if (ev.effectId) {
+                const fxMapping = visualAssets.effects[String(ev.effectId)];
+                if (fxMapping && fxMapping.frames.length > 0) {
+                  const fUrl = fxMapping.frames[0].publicUrl;
+                  if (loaded[fUrl]) {
+                    const sp = new Sprite(loaded[fUrl]);
+                    sp.anchor.set(0.5);
+                    const targetPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
+                    sp.position.set(targetPx.x, targetPx.y);
+                    effectsLayer.addChild(sp);
+                    timedCityVisuals.push({
+                      root: sp,
+                      startedAt: now + (ev.projectileId ? 250 : 0),
+                      durationMs: Math.max(300, fxMapping.frames.length * 70),
+                      kind: 'effect',
+                      frames: fxMapping.frames.map((f) => f.publicUrl),
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // 4c. Update timed city visuals (missiles, effects, floaters)
+        for (let idx = timedCityVisuals.length - 1; idx >= 0; idx--) {
+          const vis = timedCityVisuals[idx];
+          const progress = (now - vis.startedAt) / vis.durationMs;
+          vis.root.visible = progress >= 0;
+          if (progress < 0) continue;
+          if (progress >= 1) {
+            try {
+              vis.root.destroy({ children: true });
+            } catch {}
+            timedCityVisuals.splice(idx, 1);
+            continue;
+          }
+          if (vis.kind === 'missile' && vis.from && vis.to) {
+            vis.root.position.set(
+              vis.from.x + (vis.to.x - vis.from.x) * progress,
+              vis.from.y + (vis.to.y - vis.from.y) * progress
+            );
+          } else if (vis.kind === 'effect' && vis.frames && vis.frames.length > 0) {
+            const frameIdx = Math.min(
+              vis.frames.length - 1,
+              Math.floor(progress * vis.frames.length)
+            );
+            const frameUrl = vis.frames[frameIdx];
+            if (frameUrl && loaded[frameUrl] && 'texture' in vis.root) {
+              (vis.root as InstanceType<typeof Sprite>).texture = loaded[frameUrl];
+            }
+          }
+        }
+
         // 5. Update ambient city players stationed across Thais
         for (const p of AMBIENT_THAIS_PLAYERS) {
           const view = ensureActorView(p);
@@ -1242,7 +1381,11 @@ export function ThaisCityArena({
         app.canvas.removeEventListener('pointerleave', onPointerLeave);
         app.canvas.removeEventListener('pointerdown', onPointerDown);
         app.canvas.removeEventListener('contextmenu', onContextMenu);
-        app.destroy(true, { children: true });
+        try {
+          app.destroy(true, { children: true });
+        } catch (err) {
+          console.warn('[ThaisCityArena] Safe catch on app.destroy:', err);
+        }
       };
     })();
 

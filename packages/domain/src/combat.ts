@@ -957,17 +957,17 @@ function playerAttacks(state: GameState, content: GameContent): void {
           let effectId = 10;
           if (isMagic) {
             if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) {
-              effectId = 11; // CONST_ME_ENERGYHIT
-            } else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire')) {
-              effectId = 15; // CONST_ME_HITBYFIRE
+              effectId = 12; // CONST_ME_ENERGYHIT (legacy effectId = 11)
+            } else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire') || nameLower.includes('inferno')) {
+              effectId = 16; // CONST_ME_HITBYFIRE (legacy effectId = 15)
             } else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) {
-              effectId = 17; // CONST_ME_MORTAREA
+              effectId = 18; // CONST_ME_MORTAREA
             } else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) {
-              effectId = 8; // CONST_ME_POISONRINGS
-            } else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice')) {
-              effectId = 43; // CONST_ME_ICEATTACK
+              effectId = 17; // CONST_ME_HITBYPOISON (legacy effectId = 8)
+            } else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice') || nameLower.includes('chiller')) {
+              effectId = 43; // CONST_ME_ICETORNADO
             } else {
-              effectId = 11;
+              effectId = 12;
             }
           }
           encounter.visualEvents.push({ type: 'projectile-hit', sourceId: actor.characterId, targetId: target.id, effectId });
@@ -1036,12 +1036,12 @@ function playerAttacks(state: GameState, content: GameContent): void {
       const isMagic = nameLower.includes('wand') || nameLower.includes('rod');
       let projectileId = 28;
       if (isMagic) {
-        if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) projectileId = 4; // Energy spark
-        else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire')) projectileId = 3; // Fire
-        else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) projectileId = 31; // Death
-        else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) projectileId = 14; // Poison
-        else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice')) projectileId = 28; // Ice / magic
-        else projectileId = 4;
+        if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) projectileId = 5; // CONST_ANI_ENERGY (legacy projectileId = 4)
+        else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire') || nameLower.includes('inferno')) projectileId = 4; // CONST_ANI_FIRE
+        else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) projectileId = 11; // CONST_ANI_DEATH
+        else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) projectileId = 15; // CONST_ANI_POISON
+        else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice') || nameLower.includes('chiller')) projectileId = 29; // CONST_ANI_ICE
+        else projectileId = 5;
       }
       encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId });
     }

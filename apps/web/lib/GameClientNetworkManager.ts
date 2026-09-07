@@ -39,6 +39,12 @@ export interface NetworkCombatEvent {
   spellId?: string;
   x: number;
   y: number;
+  fromX?: number;
+  fromY?: number;
+  projectileId?: number | null;
+  effectId?: number | null;
+  text?: string;
+  color?: string;
   timestamp: number;
 }
 

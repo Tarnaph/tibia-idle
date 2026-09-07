@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-06T15:45:00.000Z"
-last_activity: "2026-09-06 — Conclusão da Phase 81: Sistema de Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência Anti-Morte com Persistência Prisma."
+last_updated: "2026-09-07T10:30:00.000Z"
+last_activity: "2026-09-07 — Conclusão da Phase 82: Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer."
 progress:
-  total_phases: 81
-  completed_phases: 81
-  total_plans: 81
-  completed_plans: 81
+  total_phases: 82
+  completed_phases: 82
+  total_plans: 82
+  completed_plans: 82
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Sistema de Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência Anti-Morte com Persistência Prisma — Auto-atribuição da melhor poção na hotbar se vazia, cura preditiva anti-morte antes de tomar o dano fatal e persistência Prisma (`Character.hotbarJson`).
+**Current focus:** Blindagem de runtime do PixiJS v8 no gerenciamento de texturas de texto/destruição de containers, e efeitos visuais autênticos de projéteis e impacto de Wands (Wand of Vortex) com range de vocações mágicas na cidade.
 
 ## Current Position
 
-Phase: 81 of 81 (Sistema de Poção Automática Inteligente & Cura de Emergência)  
+Phase: 82 of 82 (Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-06 — Conclusão da Phase 81.
+Last activity: 2026-09-07 — Conclusão da Phase 82.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 81
-- Total phases in roadmap: 81
-- Tests status: 51 test suites (440+ testes aprovados)
+- Total phases completed: 82
+- Total phases in roadmap: 82
+- Tests status: 85 test suites (466 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -49,6 +49,7 @@ Progress: [██████████] 100%
 | 79. Sistema de Estamina da Conta | 1 | - | - | Complete |
 | 80. Modo Caçada Auto-Idle Autônoma | 1 | - | - | Complete |
 | 81. Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência | 1 | - | - | Complete |
+| 82. Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer | 1 | - | - | Complete |
 
 ## Accumulated Context
 

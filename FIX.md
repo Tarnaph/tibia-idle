@@ -1,5 +1,5 @@
 # CORREÇÕS DE BUG
 
-Quando o líder aperta para "Sair da caçada" ele traz toda a party junto, porém, quando o líder aperta "iniciar com o time" e todos aceitam o convite, o player convidado vai para a hunt e ele fica parado aonde estava, e o personagem que foi para hunt tem uma versão duplicada do líder. 
+Fiz um personagem novo e na hora de começar a jogar com ele apreceu esse bug do print
 
-Precisa corrigir esse problema de duplicar personagens, cada player deve ter apenas uma versão no jogo sendo impossível de duplicar
+Wand do sorcerer continua sem funcionar o efeito, corrija, veja nos arquivos do server e tibia tem algo que possa resolver isso

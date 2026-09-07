@@ -944,7 +944,11 @@ export class ThaisCityRoom extends Room<WorldState> {
     posX: number,
     posY: number,
     text: string,
-    color: string
+    color: string,
+    projectileId?: number | null,
+    effectId?: number | null,
+    fromX?: number,
+    fromY?: number
   ) {
     const event = new CombatEventSchema();
     event.id = `evt-${Date.now()}-${Math.random()}`;
@@ -974,6 +978,10 @@ export class ThaisCityRoom extends Room<WorldState> {
           value,
           posX,
           posY,
+          fromX: typeof fromX === 'number' ? fromX : posX,
+          fromY: typeof fromY === 'number' ? fromY : posY,
+          projectileId: projectileId ?? null,
+          effectId: effectId ?? null,
           text,
           color,
           timestamp: event.timestamp,
@@ -1137,8 +1145,10 @@ export class ThaisCityRoom extends Room<WorldState> {
       if (player.targetId && now - player.lastAttackTime >= player.attackCooldownMs) {
         const monster = this.state.monsters.get(player.targetId);
         if (monster && !monster.isDead) {
-          const isAdjacent = Math.abs(monster.posX - player.posX) <= 1 && Math.abs(monster.posY - player.posY) <= 1;
-          if (isAdjacent || player.vocationId === 3) {
+          const isRanged = player.vocationId === 1 || player.vocationId === 2 || player.vocationId === 3;
+          const maxRange = isRanged ? 4 : 1;
+          const inRange = Math.max(Math.abs(monster.posX - player.posX), Math.abs(monster.posY - player.posY)) <= maxRange;
+          if (inRange) {
             const rawDamage = 20 + Math.floor(Math.random() * 25);
             const damage = Math.max(1, rawDamage - monster.armorPower);
             monster.hp -= damage;
@@ -1146,7 +1156,7 @@ export class ThaisCityRoom extends Room<WorldState> {
 
             // Advance character skill on attack
             const vocName = (player.vocationName || 'Knight') as VocationName;
-            const primarySkill: TrainableSkill = player.vocationId === 2 ? 'magicLevel' : player.vocationId === 3 ? 'distance' : player.vocationId === 1 ? 'sword' : 'club';
+            const primarySkill: TrainableSkill = (player.vocationId === 1 || player.vocationId === 2) ? 'magicLevel' : player.vocationId === 3 ? 'distance' : 'sword';
             const vocDef = vocationFor(gameContent, vocName);
             const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
             const rateMult = primarySkill === 'magicLevel' ? gameContent.rateMagic : gameContent.rateSkill;
@@ -1193,7 +1203,23 @@ export class ThaisCityRoom extends Room<WorldState> {
               }
             }
 
-            this.pushCombatEvent('damage', player.id, monster.id, damage, monster.posX, monster.posY, `${damage}`, '#ff3333');
+            const projectileId = player.vocationId === 1 ? 5 : player.vocationId === 2 ? 29 : player.vocationId === 3 ? 3 : null;
+            const effectId = player.vocationId === 1 ? 12 : player.vocationId === 2 ? 43 : 10;
+
+            this.pushCombatEvent(
+              'damage',
+              player.id,
+              monster.id,
+              damage,
+              monster.posX,
+              monster.posY,
+              `${damage}`,
+              '#ff3333',
+              projectileId,
+              effectId,
+              player.posX,
+              player.posY
+            );
 
             if (monster.hp <= 0) {
               this.killMonster(monster, player);

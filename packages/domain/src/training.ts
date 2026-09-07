@@ -69,7 +69,35 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
       character.trainingState.manaSimulationRemainderMs %= regenerationIntervalMs;
       const manaSpent = regenerationPulses * vocation.manaGainAmount;
       character.trainingState.manaSpent += manaSpent;
-      if (manaSpent > 0) next.encounter.visualEvents.push({ type: 'training-action', sourceId: character.id, style: 'magic', effectId: 13, projectileId: null });
+      if (manaSpent > 0) {
+        const weapon = getEquippedItems(character, content.equipment).find((item) => item.weaponType === 'wand');
+        const nameLower = weapon?.name.toLowerCase() || '';
+        let projectileId: number | null = null;
+        // For historical test compatibility, default magic training effect is 13 (magic spark), while specific wands can supply projectileId and wand impact effect
+        let effectId = 13;
+        if (weapon) {
+          if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) {
+            projectileId = 5;
+            effectId = 13; // energy magic spark
+          } else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire') || nameLower.includes('inferno')) {
+            projectileId = 4;
+            effectId = 16;
+          } else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) {
+            projectileId = 11;
+            effectId = 18;
+          } else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) {
+            projectileId = 15;
+            effectId = 17;
+          } else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice') || nameLower.includes('chiller')) {
+            projectileId = 29;
+            effectId = 43;
+          } else {
+            projectileId = 5;
+            effectId = 13;
+          }
+        }
+        next.encounter.visualEvents.push({ type: 'training-action', sourceId: character.id, style: 'magic', effectId, projectileId });
+      }
       for (const advanced of addTrainingTries(character, skill, manaSpent * content.rateMagic * skillRate, vocation)) {
         next.encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
       }
