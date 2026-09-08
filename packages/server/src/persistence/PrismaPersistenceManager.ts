@@ -24,6 +24,8 @@ export class PrismaPersistenceManager {
       const expVal = typeof player.experience === 'number' && player.experience >= 0 ? player.experience : 0;
       const validLevel = Math.max(player.level || 1, levelForExperience(expVal));
 
+      const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
+
       await this.db.character.update({
         where: { id: player.characterId },
         data: {
@@ -33,9 +35,9 @@ export class PrismaPersistenceManager {
           maxHealth: player.maxHp,
           mana: player.mp,
           maxMana: player.maxMp,
-          posX: player.posX,
-          posY: player.posY,
-          posZ: player.posZ,
+          posX: isHuntMode ? 32369 : player.posX,
+          posY: isHuntMode ? 32241 : player.posY,
+          posZ: isHuntMode ? 7 : player.posZ,
           direction: player.direction,
           outfitLookType: player.outfitLookType,
           outfitHead: player.outfitHead,
@@ -50,6 +52,25 @@ export class PrismaPersistenceManager {
           updatedAt: new Date(),
         },
       });
+
+      if (typeof (player as any).magicLevel === 'number') {
+        await this.db.characterSkill.upsert({
+          where: {
+            characterId_skillId: {
+              characterId: player.characterId,
+              skillId: 7,
+            },
+          },
+          update: { value: (player as any).magicLevel },
+          create: {
+            characterId: player.characterId,
+            skillId: 7,
+            skillName: 'Magic Level',
+            value: (player as any).magicLevel,
+            tries: BigInt(0),
+          },
+        });
+      }
 
       const skillsData = (player as any).skills;
       if (Array.isArray(skillsData) && skillsData.length > 0) {

@@ -43,6 +43,9 @@ export async function POST(
       outfitLookType: body.outfitLookType,
       skills: body.skills,
       inventory: body.inventory,
+      hotbar: body.hotbar,
+      vocationName: body.vocationName,
+      promotion: body.promotion,
     });
 
     return NextResponse.json({

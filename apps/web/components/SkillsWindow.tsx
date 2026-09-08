@@ -10,6 +10,7 @@ interface SkillsWindowProps {
   stats: DerivedStats;
   content: GameContent;
   onClose: () => void;
+  onPromote?: (characterId: string) => void;
 }
 
 export function SkillsWindow({
@@ -18,14 +19,32 @@ export function SkillsWindow({
   stats,
   content,
   onClose,
+  onPromote,
 }: SkillsWindowProps) {
   const [minimized, setMinimized] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<SkillTooltipInfo | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalMsg, setErrorModalMsg] = useState<string | null>(null);
 
   if (!open) return null;
 
   const vocation = vocationFor(content, character.vocation);
+  const isPromoted = Boolean(character.promotion || vocation.promoted);
+  const targetPromotionName =
+    character.baseVocation === 'Sorcerer' ? 'Master Sorcerer'
+    : character.baseVocation === 'Druid' ? 'Elder Druid'
+    : character.baseVocation === 'Paladin' ? 'Royal Paladin'
+    : 'Elite Knight';
+
+  const handleConfirmPromotion = () => {
+    setConfirmModalOpen(false);
+    if (onPromote) {
+      onPromote(character.id);
+      setSuccessModalOpen(true);
+    }
+  };
 
   // Experience calculations
   const currentExp = character.experience;
@@ -65,7 +84,7 @@ export function SkillsWindow({
       <div className="tibia-skills-titlebar">
         <div className="tibia-skills-title">
           <span className="skills-icon">🏹</span>
-          <span>Skills & Atributos</span>
+          <span>Skills</span>
         </div>
         <div className="tibia-skills-controls">
           <button
@@ -114,11 +133,44 @@ export function SkillsWindow({
             <span className="skills-val green">237%</span>
           </div>
 
-          <div className="skills-boost-container">
-            <div className="skills-boost-badge">
+          <div
+            className="skills-boost-container"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isPromoted ? 'center' : 'space-between',
+              gap: '6px',
+            }}
+          >
+            <div className="skills-boost-badge" style={{ flex: isPromoted ? 'initial' : 1 }}>
               <span className="boost-icon">📦⚡</span>
               <span className="boost-text">XP Boost</span>
             </div>
+
+            {!isPromoted && (
+              <button
+                type="button"
+                className="skills-promote-btn"
+                onClick={() => setConfirmModalOpen(true)}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '4px',
+                  background: 'linear-gradient(180deg, #9a7328 0%, #523b12 100%)',
+                  border: '1px solid #e2ba61',
+                  color: '#ffffff',
+                  fontWeight: 'bold',
+                  fontSize: '10px',
+                  padding: '3px 6px',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                }}
+              >
+                📜 Promover (20k)
+              </button>
+            )}
           </div>
 
           {/* Vitals */}
@@ -290,6 +342,53 @@ export function SkillsWindow({
                 <li key={idx}>{perk}</li>
               ))}
             </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Promotion Confirmation Modal */}
+      {confirmModalOpen && (
+        <div className="hotbar-modal-backdrop" onClick={() => setConfirmModalOpen(false)}>
+          <div style={{ background: '#141724', border: '1px solid #2e354f', borderRadius: '4px', padding: '16px', width: '320px', color: '#fff', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#e2ba61' }}>Confirmar Promoção</h3>
+            <p style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '16px' }}>
+              Deseja promover <strong>{character.name}</strong> para <strong>{targetPromotionName}</strong> por 20.000 Gold Coins?
+            </p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setConfirmModalOpen(false)}
+                style={{ background: '#252a3c', border: '1px solid #475569', color: '#cbd5e1', padding: '6px 12px', borderRadius: '3px', cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmPromotion}
+                style={{ background: 'linear-gradient(180deg, #166534 0%, #14532d 100%)', border: '1px solid #22c55e', color: '#fff', fontWeight: 'bold', padding: '6px 16px', borderRadius: '3px', cursor: 'pointer' }}
+              >
+                Promover (20.000 Gold)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Promotion Success Modal */}
+      {successModalOpen && (
+        <div className="hotbar-modal-backdrop" onClick={() => setSuccessModalOpen(false)}>
+          <div style={{ background: '#141724', border: '1px solid #22c55e', borderRadius: '4px', padding: '16px', width: '320px', color: '#fff', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#4ade80' }}>🎉 Promoção Concluída!</h3>
+            <p style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '16px' }}>
+              Parabéns! <strong>{character.name}</strong> agora é um <strong>{targetPromotionName}</strong>!
+            </p>
+            <button
+              type="button"
+              onClick={() => setSuccessModalOpen(false)}
+              style={{ background: 'linear-gradient(180deg, #15803d 0%, #166534 100%)', border: '1px solid #4ade80', color: '#fff', fontWeight: 'bold', padding: '6px 20px', borderRadius: '3px', cursor: 'pointer' }}
+            >
+              Excelente!
+            </button>
           </div>
         </div>
       )}

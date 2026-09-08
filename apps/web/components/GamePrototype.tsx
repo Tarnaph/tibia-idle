@@ -179,6 +179,7 @@ function GamePrototypeContent() {
   const [confirmSale, setConfirmSale] = useState(false);
   const [levelUpMessage, setLevelUpMessage] = useState<{ text: string; timestamp: number } | null>(null);
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
+  const [hotbarConfigSlot, setHotbarConfigSlot] = useState<number | null>(null);
   const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>(THAIS_TEMPLE_POSITION);
   const [walkingPath, setWalkingPath] = useState<{
     waypoints: Array<{ x: number; y: number; z: number }>;
@@ -804,9 +805,19 @@ function GamePrototypeContent() {
     setOnlineAccount(acc);
     setOnlineCharacter(charItem);
     setShowAuthModal(false);
-    const targetX = (charItem as any).posX ?? charItem.positionX ?? 32369;
-    const targetY = (charItem as any).posY ?? charItem.positionY ?? 32241;
-    const targetZ = (charItem as any).posZ ?? charItem.positionZ ?? 7;
+
+    let targetX = (charItem as any).posX ?? charItem.positionX ?? 32369;
+    let targetY = (charItem as any).posY ?? charItem.positionY ?? 32241;
+    let targetZ = (charItem as any).posZ ?? charItem.positionZ ?? 7;
+
+    // Safety Net: If character position is unwalkable or out of bounds (stuck), reset to Thais Temple (32369, 32241, 7)
+    const activeTileMap = targetZ === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+    const tile = activeTileMap.get(`${targetX},${targetY}`);
+    if (!tile || !tile.walkable) {
+      targetX = THAIS_TEMPLE_POSITION.x;
+      targetY = THAIS_TEMPLE_POSITION.y;
+      targetZ = THAIS_TEMPLE_POSITION.z;
+    }
     setCityPos({ x: targetX, y: targetY, z: targetZ });
 
     // Update game state with the real user character created or selected in Auth Modal!
@@ -816,6 +827,30 @@ function GamePrototypeContent() {
       VOCATION_MAP[charItem.vocationId] ||
       'Knight';
     const userChar = createCharacter(charItem.id, charItem.name, vocName, content, 'male');
+
+    // Promotion hydration
+    if ((charItem as any).promotion) {
+      userChar.promotion = (charItem as any).promotion;
+      userChar.vocation = (charItem as any).promotion;
+    }
+
+    // Hotbar hydration from DB hotbarJson or hotbar
+    if ((charItem as any).hotbarJson) {
+      try {
+        const parsed = JSON.parse((charItem as any).hotbarJson);
+        if (Array.isArray(parsed)) {
+          userChar.hotbar = parsed;
+        } else if (parsed && Array.isArray(parsed.hotbar)) {
+          userChar.hotbar = parsed.hotbar;
+          if (parsed.hotbarConfigs) {
+            (userChar as any).hotbarConfigs = parsed.hotbarConfigs;
+          }
+        }
+      } catch {}
+    } else if (Array.isArray((charItem as any).hotbar)) {
+      userChar.hotbar = (charItem as any).hotbar;
+    }
+
     const rawExp = (charItem as any).experience;
     if (typeof rawExp === 'number' && rawExp >= 0) {
       userChar.experience = rawExp;
@@ -838,21 +873,23 @@ function GamePrototypeContent() {
     const dbInventory = (charItem as any).inventory;
 
     if (Array.isArray((charItem as any).skills)) {
-      const skillNameMap: Record<string, TrainableSkill> = {
+      const skillNameMap: Record<string, keyof typeof userChar.skills> = {
         fist: 'fist',
         club: 'club',
         sword: 'sword',
         axe: 'axe',
         distance: 'distance',
         shielding: 'shielding',
+        fishing: 'fishing',
         magiclevel: 'magicLevel',
+        'magic level': 'magicLevel',
         magic: 'magicLevel',
       };
       ((charItem as any).skills as Array<{ skillId: number; skillName: string; value: number; tries?: number }>).forEach((sk) => {
-        const key = skillNameMap[sk.skillName.toLowerCase()];
+        const key = skillNameMap[sk.skillName?.toLowerCase()] || (sk.skillId === 7 ? 'magicLevel' : undefined);
         if (key && userChar.skills[key] !== undefined) {
           userChar.skills[key] = sk.value;
-          if (sk.tries !== undefined && userChar.skillTries && userChar.skillTries[key] !== undefined) {
+          if (key !== 'fishing' && sk.tries !== undefined && userChar.skillTries && userChar.skillTries[key] !== undefined) {
             userChar.skillTries[key] = Number(sk.tries);
           }
         }
@@ -1653,14 +1690,10 @@ function GamePrototypeContent() {
   };
   const selectPartyCharacter = (characterId: string) => {
     setGame((current) => selectCharacter(current, characterId));
-    setStatsDelta(null); setPromotionMessage('');
+    setStatsDelta(null);
+    setPromotionMessage('');
   };
-  const promoteSelectedCharacter = () => setGame((current) => {
-    const selected = selectedCharacterOf(current);
-    const result = promoteCharacter(current, selected.id, content);
-    setPromotionMessage(result.ok ? `${selected.name} agora é ${promotedVocationFor(selected.baseVocation)}.` : (result.error ?? 'Promoção indisponível.'));
-    return result.state;
-  });
+
   const reorderSelectedHotbar = (fromIndex: number, toIndex: number) => setGame((current) => {
     const selected = selectedCharacterOf(current);
     return {
@@ -1672,18 +1705,68 @@ function GamePrototypeContent() {
     };
   });
 
-  const [hotbarConfigSlot, setHotbarConfigSlot] = useState<number | null>(null);
+  const handlePromoteCharacter = (charId: string) => {
+    setGame((current) => {
+      const res = promoteCharacter(current, charId, content);
+      if (res.ok) {
+        setSaleMessage(`Personagem promovido com sucesso! -20.000 Gold`);
+        const promotedChar = res.state.session.characters.find((c) => c.id === charId);
+        if (promotedChar) {
+          const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+          if (token && promotedChar.id && !promotedChar.id.startsWith('char-guest')) {
+            fetch(`/api/characters/${promotedChar.id}/save`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({
+                level: promotedChar.level,
+                experience: promotedChar.experience,
+                vocationName: promotedChar.vocation,
+                promotion: promotedChar.promotion,
+              }),
+            }).catch(() => {});
+          }
+        }
+        return res.state;
+      } else if (res.error) {
+        setSaleMessage(res.error);
+      }
+      return current;
+    });
+  };
 
-  const handleSaveHotbarSlot = (slotIndex: number, actionId: number | null) => {
+  const handleSaveHotbarSlot = (slotIndex: number, actionId: number | null, config?: any) => {
     setGame((current) => {
       const activeId = current.session.selectedCharacterId;
+      let targetChar: CharacterState | undefined;
+
       const characters = current.session.characters.map((char) => {
         if (char.id !== activeId) return char;
         const hotbar = [...char.hotbar];
         while (hotbar.length <= slotIndex) hotbar.push(0);
         hotbar[slotIndex] = actionId === null ? 0 : actionId;
-        return { ...char, hotbar };
+
+        const hotbarConfigs = { ...((char as any).hotbarConfigs || {}) };
+        if (config) {
+          hotbarConfigs[slotIndex] = config;
+        }
+
+        targetChar = { ...char, hotbar, hotbarConfigs } as any;
+        return targetChar!;
       });
+
+      if (targetChar) {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+        if (token && targetChar.id && !targetChar.id.startsWith('char-guest')) {
+          fetch(`/api/characters/${targetChar.id}/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+              hotbar: targetChar.hotbar,
+            }),
+          }).catch(() => {});
+        }
+      }
+
       return {
         ...current,
         session: {
@@ -1978,6 +2061,7 @@ function GamePrototypeContent() {
         stats={activeStats}
         content={content}
         onClose={() => setSkillsModalOpen(false)}
+        onPromote={(charId) => handlePromoteCharacter(charId)}
       />
 
       {/* Window 3: Party & Squad */}

@@ -330,6 +330,9 @@ export class CharacterService {
       outfitLookType?: number;
       skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }>;
       inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
+      hotbar?: any;
+      vocationName?: string;
+      promotion?: string;
     }
   ) {
     const updateData: any = {};
@@ -352,6 +355,9 @@ export class CharacterService {
     if (data.posY !== undefined) updateData.posY = data.posY;
     if (data.posZ !== undefined) updateData.posZ = data.posZ;
     if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
+    if (data.hotbar !== undefined) updateData.hotbarJson = typeof data.hotbar === 'string' ? data.hotbar : JSON.stringify(data.hotbar);
+    if (data.vocationName !== undefined) updateData.vocationName = data.vocationName;
+    if (data.promotion !== undefined) updateData.promotion = data.promotion;
 
     // Update skills if provided
     let skillList: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }> = [];
