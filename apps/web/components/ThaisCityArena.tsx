@@ -214,15 +214,27 @@ export function ThaisCityArena({
         ...(visualAssets.effects['43']?.frames.map((f) => f.publicUrl) ?? []),
         ...(visualAssets.effects['10']?.frames.map((f) => f.publicUrl) ?? []),
       ];
-      const mapItemUrls = thaisData.tiles.flatMap((t) =>
-        t.serverItemIds.flatMap((id) => {
-          const mapping = visualAssets.mapItems[String(id)];
-          if (mapping?.frames && mapping.frames.length > 0) {
-            return mapping.frames.map((f) => f.publicUrl);
-          }
-          return mapping?.frame ? [mapping.frame.publicUrl] : [];
-        })
-      );
+      const upperTilesList = (thaisData as { upperTiles?: typeof thaisData.tiles }).upperTiles ?? [];
+      const mapItemUrls = Array.from(new Set([
+        ...thaisData.tiles.flatMap((t) =>
+          t.serverItemIds.flatMap((id) => {
+            const mapping = visualAssets.mapItems[String(id)];
+            if (mapping?.frames && mapping.frames.length > 0) {
+              return mapping.frames.map((f) => f.publicUrl);
+            }
+            return mapping?.frame ? [mapping.frame.publicUrl] : [];
+          })
+        ),
+        ...upperTilesList.flatMap((t) =>
+          t.serverItemIds.flatMap((id) => {
+            const mapping = visualAssets.mapItems[String(id)];
+            if (mapping?.frames && mapping.frames.length > 0) {
+              return mapping.frames.map((f) => f.publicUrl);
+            }
+            return mapping?.frame ? [mapping.frame.publicUrl] : [];
+          })
+        ),
+      ]));
 
       const loaded: Record<string, PixiTexture> = {};
 
@@ -245,9 +257,10 @@ export function ThaisCityArena({
         }
       };
 
-      // 1. Preload highest priority assets immediately (<50 URLs, ~50ms)
+      // 1. Preload highest priority assets immediately (including map tiles)
       const priorityUrls = [
         floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
+        ...mapItemUrls,
         ...outfitUrls.slice(0, 32),
         ...teleportEffectUrls,
         ...fireEffectUrls,
@@ -255,7 +268,7 @@ export function ThaisCityArena({
         ...coreEffectUrls,
       ];
       try {
-        await loadBatch(priorityUrls, 35);
+        await loadBatch(priorityUrls, 50);
       } catch (err) {
         console.warn('Priority asset loading error:', err);
       }
@@ -265,8 +278,8 @@ export function ThaisCityArena({
         return;
       }
 
-      // 2. Stream remaining map tiles and outfit frames progressively in the background
-      const remainingUrls = [...new Set([...thumbUrls, ...outfitUrls, ...mapItemUrls])].filter((u) => !loaded[u]);
+      // 2. Stream remaining outfit frames progressively in the background
+      const remainingUrls = [...new Set([...thumbUrls, ...outfitUrls])].filter((u) => !loaded[u]);
       void loadBatch(remainingUrls, 30);
 
 

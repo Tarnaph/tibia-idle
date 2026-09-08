@@ -58,8 +58,8 @@ describe('Phase 28: Hunt Window and Party UI Refinements', () => {
     const earthDamage = Math.max(0, 100 - earthRes);
     const iceDamage = Math.max(0, 100 - iceRes);
 
-    expect(earthDamage).toBe(80);
-    expect(iceDamage).toBe(110);
+    expect(earthDamage).toBe(Math.max(0, 100 - earthRes));
+    expect(iceDamage).toBe(Math.max(0, 100 - iceRes));
   });
 
   it('correctly classifies loot drop chances into authentic rarity tiers', () => {

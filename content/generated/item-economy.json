@@ -27,17 +27,116 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 8,
+          "sourceNpc": "Al Dee",
+          "sourceFile": "data/npc/Al Dee.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Gree Dee",
+          "sourceFile": "data/npc/Gree Dee.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Halif",
+          "sourceFile": "data/npc/Halif.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Rafzan",
+          "sourceFile": "data/npc/Rafzan.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Richard",
+          "sourceFile": "data/npc/Richard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 15,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Rope",
-          "sourceName": "TibiaWiki — Rope",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Ahmet",
+          "sourceFile": "data/npc/Ahmet.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Bashira",
+          "sourceFile": "data/npc/Bashira.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Beatrice",
+          "sourceFile": "data/npc/Beatrice.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Gladys",
+          "sourceFile": "data/npc/Gladys.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Gorn",
+          "sourceFile": "data/npc/Gorn.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Lubo",
+          "sourceFile": "data/npc/Lubo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Maro",
+          "sourceFile": "data/npc/Maro.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Maun",
+          "sourceFile": "data/npc/Maun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Sarina",
+          "sourceFile": "data/npc/Sarina.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (8, 15); canonical rule selects the highest."
       ]
     },
     {
@@ -66,17 +165,12 @@
       "offers": [
         {
           "price": 50,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Silver_Amulet",
-          "sourceName": "TibiaWiki — Silver Amulet",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Yaman",
+          "sourceFile": "data/npc/Yaman.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2172,
@@ -85,17 +179,12 @@
       "offers": [
         {
           "price": 50,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Bronze_Amulet",
-          "sourceName": "TibiaWiki — Bronze Amulet",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Haroun",
+          "sourceFile": "data/npc/Haroun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2213,
@@ -104,17 +193,12 @@
       "offers": [
         {
           "price": 100,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Dwarven_Ring",
-          "sourceName": "TibiaWiki — Dwarven Ring",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Yaman",
+          "sourceFile": "data/npc/Yaman.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2230,
@@ -161,8 +245,92 @@
       "offers": [
         {
           "price": 25,
-          "sourceNpc": "Mad",
-          "sourceFile": "data/npc/Mad.xml",
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Obi",
+          "sourceFile": "data/npc/Obi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
           "sourceKind": "npc-xml-shop-sellable"
         }
       ],
@@ -175,46 +343,368 @@
       "offers": [
         {
           "price": 4,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Hand_Axe",
-          "sourceName": "TibiaWiki — Hand Axe",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Obi",
+          "sourceFile": "data/npc/Obi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2386,
-      "canonicalSellPrice": 7,
-      "status": "sellable",
-      "offers": [
-        {
-          "price": 7,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Axe",
-          "sourceName": "TibiaWiki — Axe",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-        }
-      ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
-    },
-    {
-      "itemId": 2388,
       "canonicalSellPrice": 20,
       "status": "sellable",
       "offers": [
         {
+          "price": 7,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Flint",
+          "sourceFile": "data/npc/Flint.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Obi",
+          "sourceFile": "data/npc/Obi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 7,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 20,
-          "sourceNpc": "Mad",
-          "sourceFile": "data/npc/Mad.xml",
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": [
+        "Multiple proven sell prices (7, 20); canonical rule selects the highest."
+      ]
+    },
+    {
+      "itemId": 2388,
+      "canonicalSellPrice": 25,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 25,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Obi",
+          "sourceFile": "data/npc/Obi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Timur",
+          "sourceFile": "data/npc/Timur.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
           "sourceKind": "npc-xml-shop-sellable"
         }
       ],
@@ -222,21 +712,162 @@
     },
     {
       "itemId": 2389,
-      "canonicalSellPrice": 3,
+      "canonicalSellPrice": 9,
       "status": "sellable",
       "offers": [
         {
+          "price": 1,
+          "sourceNpc": "Uzgod",
+          "sourceFile": "data/npc/Uzgod.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 3,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Spear",
-          "sourceName": "TibiaWiki — Spear",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Asnarus",
+          "sourceFile": "data/npc/Asnarus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Atrad",
+          "sourceFile": "data/npc/Atrad.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Dario",
+          "sourceFile": "data/npc/Dario.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Edoch",
+          "sourceFile": "data/npc/Edoch.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Galuna",
+          "sourceFile": "data/npc/Galuna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Irea",
+          "sourceFile": "data/npc/Irea.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Maun",
+          "sourceFile": "data/npc/Maun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Obi",
+          "sourceFile": "data/npc/Obi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Perac",
+          "sourceFile": "data/npc/Perac.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Perod",
+          "sourceFile": "data/npc/Perod.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Taegen",
+          "sourceFile": "data/npc/Taegen.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Vincent",
+          "sourceFile": "data/npc/Vincent.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Xed",
+          "sourceFile": "data/npc/Xed.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Silas",
+          "sourceFile": "data/npc/Silas.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (1, 3, 9); canonical rule selects the highest."
       ]
     },
     {
@@ -245,13 +876,141 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 23,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 23,
+          "sourceNpc": "Uzgod",
+          "sourceFile": "data/npc/Uzgod.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 30,
-          "sourceNpc": "Mad",
-          "sourceFile": "data/npc/Mad.xml",
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Obi",
+          "sourceFile": "data/npc/Obi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Timur",
+          "sourceFile": "data/npc/Timur.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Ulrik",
+          "sourceFile": "data/npc/Ulrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
           "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": []
+      "warnings": [
+        "Multiple proven sell prices (23, 30); canonical rule selects the highest."
+      ]
     },
     {
       "itemId": 2448,
@@ -260,17 +1019,90 @@
       "offers": [
         {
           "price": 10,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Studded_Club",
-          "sourceName": "TibiaWiki — Studded Club",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2460,
@@ -278,69 +1110,542 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 22,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 22,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 22,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 30,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Brass_Helmet",
-          "sourceName": "TibiaWiki — Brass Helmet",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Aldo",
+          "sourceFile": "data/npc/Aldo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Flint",
+          "sourceFile": "data/npc/Flint.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (22, 30); canonical rule selects the highest."
       ]
     },
     {
       "itemId": 2461,
-      "canonicalSellPrice": 4,
+      "canonicalSellPrice": 10,
       "status": "sellable",
       "offers": [
         {
+          "price": 3,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 4,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Leather_Helmet",
-          "sourceName": "TibiaWiki — Leather Helmet",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Aldo",
+          "sourceFile": "data/npc/Aldo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Ulrik",
+          "sourceFile": "data/npc/Ulrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (3, 4, 10); canonical rule selects the highest."
       ]
     },
     {
       "itemId": 2464,
-      "canonicalSellPrice": 100,
+      "canonicalSellPrice": 70,
       "status": "sellable",
       "offers": [
         {
-          "price": 100,
-          "sourceNpc": "Mad",
-          "sourceFile": "data/npc/Mad.xml",
+          "price": 40,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Ulrik",
+          "sourceFile": "data/npc/Ulrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
           "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": []
+      "warnings": [
+        "Multiple proven sell prices (40, 70); canonical rule selects the highest."
+      ]
     },
     {
       "itemId": 2473,
-      "canonicalSellPrice": 66,
+      "canonicalSellPrice": 70,
       "status": "sellable",
       "offers": [
         {
+          "price": 25,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 66,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Viking_Helmet",
-          "sourceName": "TibiaWiki — Viking Helmet",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Aldo",
+          "sourceFile": "data/npc/Aldo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Timur",
+          "sourceFile": "data/npc/Timur.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 66,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 70,
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (25, 66, 70); canonical rule selects the highest."
       ]
     },
     {
@@ -349,17 +1654,104 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 10,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 25,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Studded_Armor",
-          "sourceName": "TibiaWiki — Studded Armor",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Norbert",
+          "sourceFile": "data/npc/Norbert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (10, 25); canonical rule selects the highest."
       ]
     },
     {
@@ -368,36 +1760,222 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 31,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 45,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Plate_Shield",
-          "sourceName": "TibiaWiki — Plate Shield",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 45,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (31, 40, 45); canonical rule selects the highest."
       ]
     },
     {
       "itemId": 2511,
-      "canonicalSellPrice": 16,
+      "canonicalSellPrice": 25,
       "status": "sellable",
       "offers": [
         {
           "price": 16,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Brass_Shield",
-          "sourceName": "TibiaWiki — Brass Shield",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 16,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (16, 25); canonical rule selects the highest."
       ]
     },
     {
@@ -406,17 +1984,128 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 3,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 5,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Wooden_Shield",
-          "sourceName": "TibiaWiki — Wooden Shield",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Ulrik",
+          "sourceFile": "data/npc/Ulrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (3, 5); canonical rule selects the highest."
       ]
     },
     {
@@ -426,17 +2115,96 @@
       "offers": [
         {
           "price": 50,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Copper_Shield",
-          "sourceName": "TibiaWiki — Copper Shield",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 50,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2553,
@@ -445,35 +2213,189 @@
       "offers": [
         {
           "price": 15,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Pick",
-          "sourceName": "TibiaWiki — Pick",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Ahmet",
+          "sourceFile": "data/npc/Ahmet.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Bashira",
+          "sourceFile": "data/npc/Bashira.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Beatrice",
+          "sourceFile": "data/npc/Beatrice.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Gladys",
+          "sourceFile": "data/npc/Gladys.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Gorn",
+          "sourceFile": "data/npc/Gorn.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Lubo",
+          "sourceFile": "data/npc/Lubo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Maro",
+          "sourceFile": "data/npc/Maro.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Maun",
+          "sourceFile": "data/npc/Maun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 15,
+          "sourceNpc": "Sarina",
+          "sourceFile": "data/npc/Sarina.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2554,
-      "canonicalSellPrice": 10,
+      "canonicalSellPrice": 8,
       "status": "sellable",
       "offers": [
         {
-          "price": 10,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Shovel",
-          "sourceName": "TibiaWiki — Shovel",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "price": 2,
+          "sourceNpc": "Al Dee",
+          "sourceFile": "data/npc/Al Dee.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Rafzan",
+          "sourceFile": "data/npc/Rafzan.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Richard",
+          "sourceFile": "data/npc/Richard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Ahmet",
+          "sourceFile": "data/npc/Ahmet.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Bashira",
+          "sourceFile": "data/npc/Bashira.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Beatrice",
+          "sourceFile": "data/npc/Beatrice.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Flint",
+          "sourceFile": "data/npc/Flint.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Gladys",
+          "sourceFile": "data/npc/Gladys.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Gorn",
+          "sourceFile": "data/npc/Gorn.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Lubo",
+          "sourceFile": "data/npc/Lubo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Maro",
+          "sourceFile": "data/npc/Maro.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Maun",
+          "sourceFile": "data/npc/Maun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 8,
+          "sourceNpc": "Sarina",
+          "sourceFile": "data/npc/Sarina.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (2, 8); canonical rule selects the highest."
       ]
     },
     {
@@ -482,17 +2404,104 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 30,
+          "sourceNpc": "Al Dee",
+          "sourceFile": "data/npc/Al Dee.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Rafzan",
+          "sourceFile": "data/npc/Rafzan.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Richard",
+          "sourceFile": "data/npc/Richard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 40,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Fishing_Rod",
-          "sourceName": "TibiaWiki — Fishing Rod",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Ahmet",
+          "sourceFile": "data/npc/Ahmet.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Bashira",
+          "sourceFile": "data/npc/Bashira.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Beatrice",
+          "sourceFile": "data/npc/Beatrice.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Gladys",
+          "sourceFile": "data/npc/Gladys.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Gorn",
+          "sourceFile": "data/npc/Gorn.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Lubo",
+          "sourceFile": "data/npc/Lubo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Maro",
+          "sourceFile": "data/npc/Maro.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Maun",
+          "sourceFile": "data/npc/Maun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 40,
+          "sourceNpc": "Sarina",
+          "sourceFile": "data/npc/Sarina.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (30, 40); canonical rule selects the highest."
       ]
     },
     {
@@ -521,35 +2530,213 @@
       "offers": [
         {
           "price": 2,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Leather_Boots",
-          "sourceName": "TibiaWiki — Leather Boots",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Aldo",
+          "sourceFile": "data/npc/Aldo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2649,
-      "canonicalSellPrice": 10,
+      "canonicalSellPrice": 9,
       "status": "sellable",
       "offers": [
         {
-          "price": 10,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Leather_Legs",
-          "sourceName": "TibiaWiki — Leather Legs",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "price": 1,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Dixi",
+          "sourceFile": "data/npc/Dixi.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Lee'Delle",
+          "sourceFile": "data/npc/Lee'Delle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Aldo",
+          "sourceFile": "data/npc/Aldo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 9,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (1, 2, 9); canonical rule selects the highest."
       ]
     },
     {
@@ -559,17 +2746,24 @@
       "offers": [
         {
           "price": 2,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Meat",
-          "sourceName": "TibiaWiki — Meat",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Billy",
+          "sourceFile": "data/npc/Billy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Richard",
+          "sourceFile": "data/npc/Richard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Willie",
+          "sourceFile": "data/npc/Willie.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2667,
@@ -597,17 +2791,18 @@
       "offers": [
         {
           "price": 4,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Ham",
-          "sourceName": "TibiaWiki — Ham",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Billy",
+          "sourceFile": "data/npc/Billy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4,
+          "sourceNpc": "Willie",
+          "sourceFile": "data/npc/Willie.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2679,
@@ -616,17 +2811,18 @@
       "offers": [
         {
           "price": 1,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Cherry",
-          "sourceName": "TibiaWiki — Cherry",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Billy",
+          "sourceFile": "data/npc/Billy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 1,
+          "sourceNpc": "Willie",
+          "sourceFile": "data/npc/Willie.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2687,
@@ -649,22 +2845,35 @@
     },
     {
       "itemId": 2696,
-      "canonicalSellPrice": 5,
+      "canonicalSellPrice": 2,
       "status": "sellable",
       "offers": [
         {
-          "price": 5,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Cheese",
-          "sourceName": "TibiaWiki — Cheese",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "price": 2,
+          "sourceNpc": "Billy",
+          "sourceFile": "data/npc/Billy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Coltrayne",
+          "sourceFile": "data/npc/Coltrayne.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Richard",
+          "sourceFile": "data/npc/Richard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2,
+          "sourceNpc": "Willie",
+          "sourceFile": "data/npc/Willie.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 2787,
@@ -692,17 +2901,30 @@
       "offers": [
         {
           "price": 25,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Troll_Green",
-          "sourceName": "TibiaWiki — Troll Green",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Luna",
+          "sourceFile": "data/npc/Luna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 25,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 3976,
@@ -729,17 +2951,38 @@
       "status": "sellable",
       "offers": [
         {
+          "price": 12,
+          "sourceNpc": "Tom",
+          "sourceFile": "data/npc/Tom.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
           "price": 80,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Minotaur_Leather",
-          "sourceName": "TibiaWiki — Minotaur Leather",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Irmana",
+          "sourceFile": "data/npc/Irmana.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
       "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        "Multiple proven sell prices (12, 80); canonical rule selects the highest."
       ]
     },
     {
@@ -749,36 +2992,50 @@
       "offers": [
         {
           "price": 500,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Iron_Ore",
-          "sourceName": "TibiaWiki — Iron Ore",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 500,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 500,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 5901,
-      "canonicalSellPrice": 15,
+      "canonicalSellPrice": 5,
       "status": "sellable",
       "offers": [
         {
-          "price": 15,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Wood",
-          "sourceName": "TibiaWiki — Wood",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "price": 5,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 5,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 8859,
@@ -787,17 +3044,30 @@
       "offers": [
         {
           "price": 10,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Spider_Fangs",
-          "sourceName": "TibiaWiki — Spider Fangs",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Malunga",
+          "sourceFile": "data/npc/Malunga.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 10603,
@@ -806,17 +3076,30 @@
       "offers": [
         {
           "price": 20,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Swamp_Grass",
-          "sourceName": "TibiaWiki — Swamp Grass",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 20,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 20,
+          "sourceNpc": "Luna",
+          "sourceFile": "data/npc/Luna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 20,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 10606,
@@ -825,17 +3108,30 @@
       "offers": [
         {
           "price": 30,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Bunch_of_Troll_Hair",
-          "sourceName": "TibiaWiki — Bunch of Troll Hair",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Irmana",
+          "sourceFile": "data/npc/Irmana.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 10609,
@@ -844,17 +3140,30 @@
       "offers": [
         {
           "price": 10,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Lump_of_Dirt",
-          "sourceName": "TibiaWiki — Lump of Dirt",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Luna",
+          "sourceFile": "data/npc/Luna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 11192,
@@ -863,17 +3172,30 @@
       "offers": [
         {
           "price": 35,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Carrion_Worm_Fang",
-          "sourceName": "TibiaWiki — Carrion Worm Fang",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 35,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 35,
+          "sourceNpc": "Fiona",
+          "sourceFile": "data/npc/Fiona.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 35,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 12428,
@@ -882,17 +3204,24 @@
       "offers": [
         {
           "price": 75,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Minotaur_Horn",
-          "sourceName": "TibiaWiki — Minotaur Horn",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 75,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 75,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
     },
     {
       "itemId": 12437,
@@ -901,10 +3230,74 @@
       "offers": [
         {
           "price": 30,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Malunga",
+          "sourceFile": "data/npc/Malunga.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 30,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 12441,
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Malunga",
+          "sourceFile": "data/npc/Malunga.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 10,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 13506,
+      "canonicalSellPrice": 20,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 20,
           "sourceType": "web",
           "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Pelvis_Bone",
-          "sourceName": "TibiaWiki — Pelvis Bone",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Slime_Mould",
+          "sourceName": "TibiaWiki — Slime Mould",
           "retrievedAt": "2026-09-03",
           "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
         }
@@ -914,23 +3307,32 @@
       ]
     },
     {
-      "itemId": 12441,
-      "canonicalSellPrice": 10,
+      "itemId": 13757,
+      "canonicalSellPrice": 20,
       "status": "sellable",
       "offers": [
         {
-          "price": 10,
-          "sourceType": "web",
-          "sourceKind": "web-reference",
-          "sourceUrl": "https://tibia.fandom.com/wiki/Poison_Spider_Shell",
-          "sourceName": "TibiaWiki — Poison Spider Shell",
-          "retrievedAt": "2026-09-03",
-          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+          "price": 20,
+          "sourceNpc": "Telas",
+          "sourceFile": "data/npc/Telas.xml",
+          "sourceKind": "npc-xml-shop-sellable"
         }
       ],
-      "warnings": [
-        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
-      ]
+      "warnings": []
+    },
+    {
+      "itemId": 26654,
+      "canonicalSellPrice": 30,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 30,
+          "sourceNpc": "Albinius",
+          "sourceFile": "data/npc/Albinius.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
     }
   ]
 }

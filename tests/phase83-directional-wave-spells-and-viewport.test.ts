@@ -33,7 +33,7 @@ const content: GameContent = {
   monsters: (monstersJson as MonsterCatalog).monsters,
   starterLoadouts: (startersJson as StarterLoadoutCatalog).loadouts,
   vocations: (vocationsJson as VocationCatalog).vocations,
-  spells: (spellsJson as SpellCatalog).spells,
+  spells: (spellsJson as unknown as SpellCatalog).spells,
   huntRegions: (huntRegionsJson as HuntRegionCatalog).regions,
   economy: economyJson as ItemEconomyCatalog,
   hunts: initialHunts,

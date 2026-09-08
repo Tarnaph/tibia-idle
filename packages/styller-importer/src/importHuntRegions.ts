@@ -1,95 +1,127 @@
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
 import type { HuntRegionCatalog, HuntRegionDefinition } from '../../content-schema/src/index.ts';
+import { getServerDataRoot } from './helpers.ts';
 
 interface ImportOptions { projectRoot?: string; write?: boolean }
-interface OtbmNode { type: number; props: number[]; children: OtbmNode[] }
-export interface OtbItemMovementFlags { clientId: number | null; group: number; flags: number; blockSolid: boolean; blockPathFind: boolean }
 
-const START = 0xfe;
-const END = 0xff;
-const ESCAPE = 0xfd;
-const regions = [
-  { huntId: 'rat-cellars', monsterName: 'Rat', center: [566, 1092, 10, 3], size: [50, 34] },
-  { huntId: 'spider-burrow', monsterName: 'Spider', center: [632, 1085, 10, 1], size: [50, 34] },
-  { huntId: 'troll-camp', monsterName: 'Troll', center: [528, 1132, 8, 1], size: [50, 34] },
-  { huntId: 'old-crypt', monsterName: 'Skeleton', center: [550, 1139, 9, 4], size: [50, 34] },
-  { huntId: 'rotworm-cave', monsterName: 'Rotworm', center: [967, 975, 8, 16], size: [48, 32] },
-] as const;
-const asArray = <T>(value: T | T[] | undefined): T[] => value === undefined ? [] : Array.isArray(value) ? value : [value];
+interface OtbItemMovementFlags {
+  clientId: number | null;
+  group: number;
+  flags: number;
+  blockSolid: boolean;
+  blockPathFind: boolean;
+}
 
-function readNode(buffer: Buffer, start: number): { node: OtbmNode; next: number } {
-  if (buffer[start] !== START) throw new Error(`Invalid OTBM node at ${start}.`);
-  let offset = start + 1;
-  const node: OtbmNode = { type: buffer[offset], props: [], children: [] };
+interface OtbNode {
+  type: number;
+  props: number[];
+  children: OtbNode[];
+}
+
+const OTB_ESCAPE = 0xfd;
+const OTB_START = 0xfe;
+const OTB_END = 0xff;
+
+const asArray = <T>(value: T | T[] | undefined): T[] => (value === undefined ? [] : Array.isArray(value) ? value : [value]);
+
+const regions: Array<{
+  huntId: string;
+  name: string;
+  monsterName: string;
+  recommendedLevel: number;
+  center: [number, number, number, number];
+  size: [number, number];
+  monsterDensityRatio: number;
+}> = [
+  { huntId: 'thais-rats', name: 'Thais Sewers Rats', monsterName: 'Rat', recommendedLevel: 1, center: [32369, 32241, 8, 12], size: [25, 25], monsterDensityRatio: 0.15 },
+  { huntId: 'thais-trolls', name: 'Thais East Trolls Cave', monsterName: 'Troll', recommendedLevel: 8, center: [32475, 32265, 8, 14], size: [30, 30], monsterDensityRatio: 0.2 },
+  { huntId: 'thais-rotworms', name: 'Thais South Rotworms Cave', monsterName: 'Rotworm', recommendedLevel: 15, center: [32340, 32330, 8, 16], size: [35, 35], monsterDensityRatio: 0.25 },
+  { huntId: 'fibula-dungeon', name: 'Fibula Underground Dungeon', monsterName: 'Skeleton', recommendedLevel: 25, center: [32170, 32430, 9, 20], size: [40, 40], monsterDensityRatio: 0.3 },
+  { huntId: 'cyclopolis', name: 'Edron Cyclopolis Deep Mines', monsterName: 'Dwarf', recommendedLevel: 45, center: [33250, 31690, 9, 24], size: [50, 50], monsterDensityRatio: 0.35 },
+];
+
+function readNode(buffer: Buffer, startOffset: number): { node: OtbNode; nextOffset: number } {
+  if (buffer[startOffset] !== OTB_START) throw new Error('Invalid OTBM node start.');
+  let offset = startOffset + 1;
+  const node: OtbNode = { type: buffer[offset], props: [], children: [] };
   offset += 1;
-  let childrenStarted = false;
   while (offset < buffer.length) {
-    const byte = buffer[offset++];
-    if (byte === ESCAPE) {
-      if (childrenStarted) throw new Error('Escaped property found after OTBM child node.');
-      node.props.push(buffer[offset++]);
-    } else if (byte === START) {
-      childrenStarted = true;
+    const byte = buffer[offset];
+    offset += 1;
+    if (byte === OTB_ESCAPE) {
+      if (offset >= buffer.length) throw new Error('Invalid escaped OTBM byte.');
+      node.props.push(buffer[offset]);
+      offset += 1;
+      continue;
+    }
+    if (byte === OTB_START) {
       const child = readNode(buffer, offset - 1);
       node.children.push(child.node);
-      offset = child.next;
-    } else if (byte === END) {
-      return { node, next: offset };
-    } else if (!childrenStarted) {
-      node.props.push(byte);
+      offset = child.nextOffset;
+      continue;
     }
+    if (byte === OTB_END) return { node, nextOffset: offset };
+    node.props.push(byte);
   }
   throw new Error('Unterminated OTBM node.');
 }
 
-function itemIdsOf(tile: OtbmNode): number[] {
-  const props = Buffer.from(tile.props);
-  let offset = tile.type === 14 ? 6 : 2;
-  const ids: number[] = [];
-  while (offset < props.length) {
-    const attribute = props[offset++];
-    if (attribute === 3 && offset + 4 <= props.length) { offset += 4; continue; }
-    if (attribute === 9 && offset + 2 <= props.length) { ids.push(props.readUInt16LE(offset)); offset += 2; continue; }
-    // Unknown tile attributes cannot be scanned byte-by-byte: their payload may
-    // contain 0x09 and create a phantom item. Stop conservatively.
-    break;
-  }
-  for (const item of tile.children) {
-    const itemProps = Buffer.from(item.props);
-    if (item.type === 6 && itemProps.length >= 2) ids.push(itemProps.readUInt16LE(0));
-  }
-  return [...new Set(ids)];
-}
-
-export function classifyTileWalkability(serverItemIds: number[], itemFlags: ReadonlyMap<number, OtbItemMovementFlags>): boolean {
-  if (serverItemIds.length === 0) return false;
-  const items = serverItemIds.map((serverId) => itemFlags.get(serverId));
-  if (items.some((item) => item === undefined)) return false;
-  const known = items.filter((item): item is OtbItemMovementFlags => item !== undefined);
+export function classifyTileWalkability(
+  items: Array<number | OtbItemMovementFlags | undefined>,
+  itemFlagsMap?: Map<number, OtbItemMovementFlags>,
+): boolean {
+  const flagsList = items.map((item) => {
+    if (typeof item === 'number') return itemFlagsMap?.get(item);
+    return item;
+  });
+  const known = flagsList.filter((item): item is OtbItemMovementFlags => item !== undefined);
+  if (known.length !== items.length) return false;
   const hasGround = known.some((item) => item.group === 1);
   return hasGround && !known.some((item) => item.blockSolid || item.blockPathFind);
 }
 
 export async function importHuntRegions(options: ImportOptions = {}): Promise<HuntRegionCatalog> {
   const projectRoot = options.projectRoot ?? process.cwd();
-  const worldRoot = resolve(projectRoot, '..', 'styller-master', 'data', 'world');
+  const serverRoot = getServerDataRoot(projectRoot);
+  const worldRoot = resolve(serverRoot, 'data', 'world');
+  const generatedPath = resolve(projectRoot, 'content', 'generated', 'hunt-regions.json');
+
+  let spawnPath = resolve(worldRoot, 'spawn.xml');
+  if (!existsSync(spawnPath)) spawnPath = resolve(worldRoot, 'realmap-spawn.xml');
+  
+  let otbmPath = resolve(worldRoot, 'styller.otbm');
+  if (!existsSync(otbmPath)) otbmPath = resolve(worldRoot, 'realmap.otbm');
+
+  const itemsOtbPath = resolve(serverRoot, 'data', 'items', 'items.otb');
+
+  if (!existsSync(spawnPath) || !existsSync(otbmPath) || !existsSync(itemsOtbPath)) {
+    if (existsSync(generatedPath)) {
+      const source = await readFile(generatedPath, 'utf8');
+      return JSON.parse(source) as HuntRegionCatalog;
+    }
+  }
+
   const [spawnSource, otbm, itemsOtb] = await Promise.all([
-    readFile(resolve(worldRoot, 'spawn.xml'), 'utf8'),
-    readFile(resolve(worldRoot, 'styller.otbm')),
-    readFile(resolve(projectRoot, '..', 'styller-master', 'data', 'items', 'items.otb')),
+    readFile(spawnPath, 'utf8'),
+    readFile(otbmPath),
+    readFile(itemsOtbPath),
   ]);
+
   const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '', parseAttributeValue: true, trimValues: true });
-  const spawnGroups = asArray<Record<string, unknown>>(parser.parse(spawnSource).spawns.spawn);
+  const spawnGroups = asArray<Record<string, unknown>>(parser.parse(spawnSource).spawns?.spawn ?? []);
   const root = readNode(otbm, 4).node;
   const itemRoot = readNode(itemsOtb, 4).node;
   const itemFlags = new Map<number, OtbItemMovementFlags>();
+
   for (const itemNode of itemRoot.children) {
     const props = Buffer.from(itemNode.props);
     if (props.length < 7) continue;
     const flags = props.readUInt32LE(0);
-    let serverId: number | undefined; let clientId: number | null = null;
+    let serverId: number | undefined;
+    let clientId: number | null = null;
     let offset = 4;
     while (offset + 3 <= props.length) {
       const attribute = props[offset];
@@ -102,14 +134,17 @@ export async function importHuntRegions(options: ImportOptions = {}): Promise<Hu
     }
     if (serverId !== undefined) itemFlags.set(serverId, { clientId, group: itemNode.type, flags, blockSolid: (flags & 1) !== 0, blockPathFind: (flags & 4) !== 0 });
   }
+
   const mapData = root.children.find((child) => child.type === 2);
   if (!mapData) throw new Error('OTBM map-data node was not found.');
+
   const output: HuntRegionDefinition[] = regions.map((selection) => {
-    const [centerX, centerY, centerZ, radius] = selection.center;
+    const [centerX, centerY, centerZ] = selection.center;
     const [width, height] = selection.size;
     const x = centerX - Math.floor(width / 2);
     const y = centerY - Math.floor(height / 2);
     const tiles: HuntRegionDefinition['tiles'] = [];
+
     for (const area of mapData.children) {
       if (area.type !== 4 || area.props.length < 5) continue;
       const areaProps = Buffer.from(area.props);
@@ -118,41 +153,64 @@ export async function importHuntRegions(options: ImportOptions = {}): Promise<Hu
       const z = areaProps[4];
       if (z !== centerZ) continue;
       for (const tile of area.children) {
-        if ((tile.type !== 5 && tile.type !== 14) || tile.props.length < 2) continue;
-        const absoluteX = baseX + tile.props[0];
-        const absoluteY = baseY + tile.props[1];
-        if (absoluteX < x || absoluteY < y || absoluteX >= x + width || absoluteY >= y + height) continue;
-        const serverItemIds = itemIdsOf(tile);
-        const walkable = classifyTileWalkability(serverItemIds, itemFlags);
-        const itemProperties = serverItemIds.flatMap((serverId) => {
-          const item = itemFlags.get(serverId); return item ? [{ serverId, ...item }] : [];
+        if (tile.props.length < 2) continue;
+        const tileX = baseX + tile.props[0];
+        const tileY = baseY + tile.props[1];
+        if (tileX < x || tileX >= x + width || tileY < y || tileY >= y + height) continue;
+        const itemIds: number[] = [];
+        for (const child of tile.children) {
+          if (child.props.length >= 2) itemIds.push(Buffer.from(child.props).readUInt16LE(0));
+        }
+        const walkable = classifyTileWalkability(itemIds.map((id) => itemFlags.get(id)));
+        tiles.push({
+          x: tileX,
+          y: tileY,
+          z,
+          walkable,
+          serverItemIds: itemIds,
+          groundServerId: itemIds[0] ?? null,
+          itemProperties: [],
         });
-        tiles.push({ x: absoluteX, y: absoluteY, z, serverItemIds, walkable, groundServerId: itemProperties.find((item) => item.group === 1)?.serverId ?? null, itemProperties });
       }
     }
-    const spawnPositions = spawnGroups.flatMap((group) => {
-      const groupX = Number(group.centerx); const groupY = Number(group.centery); const groupZ = Number(group.centerz);
-      if (groupZ !== centerZ) return [];
-      return asArray<Record<string, unknown>>(group.monster as Record<string, unknown> | Record<string, unknown>[] | undefined)
-        .filter((monster) => String(monster.name).toLowerCase() === selection.monsterName.toLowerCase())
-        .map((monster) => ({ x: groupX + Number(monster.x), y: groupY + Number(monster.y), z: Number(monster.z), spawntime: Number(monster.spawntime ?? 60) }))
-        .filter((spawn) => spawn.x >= x && spawn.y >= y && spawn.x < x + width && spawn.y < y + height);
-    });
-    if (tiles.length === 0 || spawnPositions.length === 0) throw new Error(`${selection.monsterName} region did not resolve to OTBM tiles and XML spawns.`);
-    const warnings: string[] = [];
-    if (tiles.length < width * height) warnings.push('The OTBM recorte contains void coordinates; these remain non-walkable in Cavebound.');
+
+    const walkableCount = tiles.filter((tile) => tile.walkable).length;
     return {
-      huntId: selection.huntId, monsterName: selection.monsterName,
-      sourceCenter: { x: centerX, y: centerY, z: centerZ, radius }, bounds: { x, y, z: centerZ, width, height },
-      spawnPositions, tiles: tiles.sort((left, right) => left.y - right.y || left.x - right.x),
-      sourceFiles: ['data/world/spawn.xml', 'data/world/styller.otbm'], importWarnings: warnings,
+      huntId: selection.huntId,
+      name: selection.name,
+      monsterName: selection.monsterName,
+      recommendedLevel: selection.recommendedLevel,
+      sourceCenter: { x: centerX, y: centerY, z: centerZ, radius: selection.center[3] },
+      bounds: { x, y, z: centerZ, width, height },
+      environment: {
+        source: 'otbm',
+        width,
+        height,
+        walkableCount,
+        wallCount: tiles.length - walkableCount,
+        densityRatio: Number((walkableCount / Math.max(1, width * height)).toFixed(4)),
+      },
+      spawnPositions: spawnGroups.filter((spawn) => {
+        const sx = Number(spawn.centerx ?? spawn.x);
+        const sy = Number(spawn.centery ?? spawn.y);
+        const sz = Number(spawn.centerz ?? spawn.z);
+        return sz === centerZ && sx >= x && sx < x + width && sy >= y && sy < y + height;
+      }).map((spawn) => ({
+        x: Number(spawn.centerx ?? spawn.x),
+        y: Number(spawn.centery ?? spawn.y),
+        z: Number(spawn.centerz ?? spawn.z),
+        spawntime: Number(spawn.spawntime ?? 60),
+      })),
+      sourceFiles: ['data/world/spawn.xml', 'data/world/styller.otbm'],
+      importWarnings: [],
+      tiles: tiles.sort((left, right) => left.y - right.y || left.x - right.x),
     };
   });
+
   const catalog: HuntRegionCatalog = { importedAtBuildTime: true, regions: output };
   if (options.write !== false) {
-    const outputPath = resolve(projectRoot, 'content', 'generated', 'hunt-regions.json');
-    await mkdir(dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8');
+    await mkdir(dirname(generatedPath), { recursive: true });
+    await writeFile(generatedPath, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8');
   }
   return catalog;
 }

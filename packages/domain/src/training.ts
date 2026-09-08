@@ -63,7 +63,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
     const vocation = vocationFor(content, character.vocation);
     const skill = targetSkill ?? trainingSkillFor(character, content);
     if (skill === 'magicLevel') {
-      const regenerationIntervalMs = Math.max(1, vocation.manaGainTicks * 2_000);
+      const regenerationIntervalMs = Math.max(1, vocation.manaGainTicks * 1_000);
       character.trainingState.manaSimulationRemainderMs += deltaMs;
       const regenerationPulses = Math.floor(character.trainingState.manaSimulationRemainderMs / regenerationIntervalMs);
       character.trainingState.manaSimulationRemainderMs %= regenerationIntervalMs;
@@ -103,7 +103,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
       }
       continue;
     }
-    const interval = vocation.attackSpeedMs * (skill === 'distance' ? 4 : 2);
+    const interval = 2000 * (skill === 'distance' ? 2 : 1);
     character.trainingState.skillRemainderMs += deltaMs;
     const actions = Math.floor(character.trainingState.skillRemainderMs / interval);
     character.trainingState.skillRemainderMs %= interval;

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-08T10:10:00.000Z"
-last_activity: "2026-09-08 — Conclusão da Phase 83: Diagnóstico e Correção de Tela Preta no Viewport do PixiJS e Magias Direcionais em Onda (Exevo Flam Hur / Fire Wave)."
+last_updated: "2026-09-08T13:40:00.000Z"
+last_activity: "2026-09-08 — Conclusão da Phase 84: Migração Completa dos Importadores para Tibia 11 (realmap11) e Pré-Carregamento das Texturas do Mapa de Thais."
 progress:
-  total_phases: 83
-  completed_phases: 83
-  total_plans: 83
-  completed_plans: 83
+  total_phases: 84
+  completed_phases: 84
+  total_plans: 84
+  completed_plans: 84
   percent: 100
 ---
 
@@ -19,23 +19,23 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-09-02)
 
-**Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Resolução de gargalo de carregamento de texturas prevenindo tela preta no viewport e propagação em cone canônico de 17 SQMs para magias de onda (Exevo Flam Hur).
+**Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
+**Current focus:** Leitura autoritativa direta dos arquivos do Tibia 11 em realmap11 para itens, monstros, vocações, economias e magias, e renderização imediata do mapa urbano de Thais.
 
 ## Current Position
 
-Phase: 83 of 83 (Diagnóstico e Correção de Tela Preta no Viewport e Magias Direcionais em Onda)  
+Phase: 84 of 84 (Migração dos Importadores para Tibia 11 e Pré-Carregamento do Mapa de Thais)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-08 — Conclusão da Phase 83.
+Last activity: 2026-09-08 — Conclusão da Phase 84.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 83
-- Total phases in roadmap: 83
+- Total phases completed: 84
+- Total phases in roadmap: 84
 - Tests status: 86 test suites (470 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
@@ -51,6 +51,7 @@ Progress: [██████████] 100%
 | 81. Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência | 1 | - | - | Complete |
 | 82. Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer | 1 | - | - | Complete |
 | 83. Diagnóstico e Correção de Tela Preta no Viewport e Magias Direcionais em Onda (Exevo Flam Hur) | 1 | - | - | Complete |
+| 84. Migração dos Importadores para Dados Autorizativos do Tibia 11 e Pré-Carregamento do Mapa de Thais | 1 | - | - | Complete |
 
 ## Accumulated Context
 

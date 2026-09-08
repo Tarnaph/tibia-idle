@@ -142,13 +142,14 @@ describe('Phase 69: Comprehensive Character Progression Audit and Integration', 
       let game = createIdleGame('test-combat-skill-prog', content);
       game = startGame(game, content);
 
-      const char = game.session.characters[0];
+      const char = game.session.characters.find((c) => c.vocation === 'Knight') ?? game.session.characters[0];
       // Starter Knight has steel axe equipped (item 8601), so active skill is axe
-      char.skills.axe = 10;
+      char.equipment.leftHand = 8601;
+      char.skills.axe = 30;
       char.skillTries.axe = 0;
 
       // Position player next to enemy
-      const actor = game.encounter.partyActors[0];
+      const actor = game.encounter.partyActors.find((a) => a.characterId === char.id) ?? game.encounter.partyActors[0];
       const enemy = game.encounter.enemies[0];
       actor.position = { ...enemy.position, x: enemy.position.x + 1 };
       actor.nextAttackAt = 0;
@@ -161,7 +162,7 @@ describe('Phase 69: Comprehensive Character Progression Audit and Integration', 
       // Advance through pending attack impact (180ms)
       game = advanceCombat(game, content, 200);
 
-      const updatedChar = game.session.characters[0];
+      const updatedChar = game.session.characters.find((c) => c.vocation === 'Knight') ?? game.session.characters[0];
       // Should have gained tries in axe fighting
       expect(updatedChar.skillTries.axe).toBeGreaterThan(0);
     });

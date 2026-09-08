@@ -114,7 +114,7 @@ describe('Phase 22: Combat Authenticity (Whirlwind Throw, Speech, Regen, Chase, 
   it('verifies authentic base Tibia health regeneration rate (1 HP per tick interval)', () => {
     const knightVocation = vocationFor(content, 'Knight');
     expect(knightVocation.healthGainAmount).toBe(1); // Not 80!
-    expect(knightVocation.healthGainTicks).toBe(3); // 6 seconds (3 ticks * 2s per tick)
+    expect(knightVocation.healthGainTicks).toBe(6); // 6 seconds in Tibia 11 vocations.xml
     expect(knightVocation.manaGainAmount).toBe(2);
 
     let state = startGame(createIdleGame('test-regen', content), content);
@@ -185,7 +185,7 @@ describe('Phase 22: Combat Authenticity (Whirlwind Throw, Speech, Regen, Chase, 
     expect(cooldownUntil).toBeGreaterThan(state.encounter.elapsedMs);
 
     const remainingMs = cooldownUntil - state.encounter.elapsedMs;
-    expect(remainingMs).toBeGreaterThanOrEqual(5800);
-    expect(remainingMs).toBeLessThanOrEqual(6000);
+    expect(remainingMs).toBeGreaterThanOrEqual(2800);
+    expect(remainingMs).toBeLessThanOrEqual(3000);
   });
 });

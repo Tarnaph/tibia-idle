@@ -1,6 +1,8 @@
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import type { BaseVocationName, StarterLoadoutCatalog, StarterLoadoutDefinition } from '../../content-schema/src/index.ts';
+import { getServerDataRoot } from './helpers.ts';
 
 interface ImportOptions { projectRoot?: string; write?: boolean }
 
@@ -13,12 +15,19 @@ const definitions: Array<{ id: number; vocation: BaseVocationName; hand: number 
 
 export async function importStarterLoadouts(options: ImportOptions = {}): Promise<StarterLoadoutCatalog> {
   const projectRoot = options.projectRoot ?? process.cwd();
-  const sourcePath = resolve(projectRoot, '..', 'styller-master', 'data', 'creaturescripts', 'scripts', 'custom', 'firstitems.lua');
-  const source = await readFile(sourcePath, 'utf8');
-  const commonIds = [2457, 2463, 2647, 2525, 2643];
-  for (const itemId of [...commonIds, ...definitions.map((entry) => entry.hand)]) {
-    if (!new RegExp(`\\{${itemId},\\s*1\\}`).test(source)) throw new Error(`Starter item ${itemId} was not found in firstitems.lua.`);
+  const serverRoot = getServerDataRoot(projectRoot);
+  const sourcePath = resolve(serverRoot, 'data', 'creaturescripts', 'scripts', 'custom', 'firstitems.lua');
+  
+  if (existsSync(sourcePath)) {
+    const source = await readFile(sourcePath, 'utf8');
+    const commonIds = [2457, 2463, 2647, 2525, 2643];
+    for (const itemId of [...commonIds, ...definitions.map((entry) => entry.hand)]) {
+      if (!new RegExp(`\\{${itemId},\\s*1\\}`).test(source)) {
+        console.warn(`Starter item ${itemId} was not found in firstitems.lua.`);
+      }
+    }
   }
+
   const loadouts: StarterLoadoutDefinition[] = definitions.map(({ id, vocation, hand }) => ({
     vocation,
     equipped: { head: 2457, armor: 2463, legs: 2647, boots: 2643, leftHand: hand, rightHand: hand === 2389 ? null : 2525 },

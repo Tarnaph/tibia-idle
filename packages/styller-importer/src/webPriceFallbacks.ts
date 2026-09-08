@@ -62,4 +62,5 @@ export const webPriceFallbacks = new Map<number, WebItemSellOffer>([
   [12428, offer(75, 'Minotaur Horn')],
   [12437, offer(30, 'Pelvis Bone')],
   [12441, offer(10, 'Poison Spider Shell')],
+  [13506, offer(20, 'Slime Mould')],
 ]);

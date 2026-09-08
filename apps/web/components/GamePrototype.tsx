@@ -81,7 +81,7 @@ const content: GameContent = {
   equipment: equipmentCatalog.items,
   vocations: vocationCatalog.vocations,
   starterLoadouts: starterCatalog.loadouts,
-  spells: (spellsJson as SpellCatalog).spells,
+  spells: (spellsJson as unknown as SpellCatalog).spells,
   huntRegions: (huntRegionsJson as HuntRegionCatalog).regions,
   economy: economyJson as ItemEconomyCatalog,
   hunts: initialHunts,

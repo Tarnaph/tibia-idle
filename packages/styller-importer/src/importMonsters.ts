@@ -1,5 +1,6 @@
+import { existsSync, readdirSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
 import {
   validateMonsterDefinition,
@@ -7,6 +8,7 @@ import {
   type MonsterCatalog,
   type MonsterDefinition,
 } from '../../content-schema/src/index.ts';
+import { getServerDataRoot } from './helpers.ts';
 
 interface ImportOptions { projectRoot?: string; write?: boolean }
 
@@ -18,6 +20,21 @@ export const SELECTED_MONSTER_FILES = [
 const asArray = <T>(value: T | T[] | undefined): T[] => value === undefined ? [] : Array.isArray(value) ? value : [value];
 const numberValue = (value: unknown, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
 const asRecord = (value: unknown): Record<string, unknown> => value && typeof value === 'object' ? value as Record<string, unknown> : {};
+
+function findFileRecursively(dir: string, fileName: string): string | null {
+  if (!existsSync(dir)) return null;
+  const entries = readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const found = findFileRecursively(fullPath, fileName);
+      if (found) return found;
+    } else if (entry.name.toLowerCase() === fileName.toLowerCase()) {
+      return fullPath;
+    }
+  }
+  return null;
+}
 
 function itemIndexes(items: unknown[]) {
   const namesById = new Map<number, string>();
@@ -92,12 +109,19 @@ function normalizeMonster(
 
 export async function importMonsters(options: ImportOptions = {}): Promise<MonsterCatalog> {
   const projectRoot = options.projectRoot ?? process.cwd();
-  const styllerRoot = resolve(projectRoot, '..', 'styller-master');
+  const styllerRoot = getServerDataRoot(projectRoot);
   const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '', parseAttributeValue: true, trimValues: true });
   const itemsXml = await readFile(resolve(styllerRoot, 'data', 'items', 'items.xml'), 'utf8');
   const { namesById, idsByName } = itemIndexes(asArray(parser.parse(itemsXml).items.item));
   const monsters = await Promise.all(SELECTED_MONSTER_FILES.map(async (file) => {
-    const monsterPath = resolve(styllerRoot, 'data', 'monster', 'monsters', `${file}.xml`);
+    const fileName = `${file.replace('_', ' ')}.xml`;
+    const fileNameUnderscore = `${file}.xml`;
+    let monsterPath = resolve(styllerRoot, 'data', 'monster', 'monsters', `${file}.xml`);
+    if (!existsSync(monsterPath)) {
+      const monsterDir = resolve(styllerRoot, 'data', 'monster');
+      const found = findFileRecursively(monsterDir, fileNameUnderscore) || findFileRecursively(monsterDir, fileName);
+      if (found) monsterPath = found;
+    }
     return normalizeMonster(parser.parse(await readFile(monsterPath, 'utf8')).monster, monsterPath, styllerRoot, namesById, idsByName);
   }));
   const catalog: MonsterCatalog = { importedAtBuildTime: true, monsters };

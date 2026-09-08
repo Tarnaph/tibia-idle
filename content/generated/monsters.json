@@ -5,16 +5,16 @@
       "id": "rat",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/rat.xml"
+        "relativePath": "data/monster/mammals/glires/rat.xml"
       },
       "name": "Rat",
       "description": "a rat",
       "race": "blood",
       "experience": 5,
-      "speed": 134,
+      "speed": 135,
       "maxHp": 20,
-      "armor": 1,
-      "defense": 1,
+      "armor": 5,
+      "defense": 5,
       "lookType": 21,
       "corpseId": 5964,
       "attacks": [
@@ -22,7 +22,7 @@
           "kind": "melee",
           "intervalMs": 2000,
           "minDamage": 0,
-          "maxDamage": 8
+          "maxDamage": 10
         }
       ],
       "loot": [
@@ -40,7 +40,7 @@
         }
       ],
       "elementalPercent": {
-        "earth": 20,
+        "earth": 25,
         "holy": 20,
         "ice": -10,
         "death": -10
@@ -51,7 +51,7 @@
       "id": "cave-rat",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/cave_rat.xml"
+        "relativePath": "data/monster/mammals/glires/cave_rat.xml"
       },
       "name": "Cave Rat",
       "description": "a cave rat",
@@ -59,8 +59,8 @@
       "experience": 10,
       "speed": 150,
       "maxHp": 30,
-      "armor": 1,
-      "defense": 1,
+      "armor": 5,
+      "defense": 5,
       "lookType": 56,
       "corpseId": 5964,
       "attacks": [
@@ -79,6 +79,12 @@
           "maxCount": 2
         },
         {
+          "itemId": 2687,
+          "name": "cookie",
+          "chance": 750,
+          "maxCount": 1
+        },
+        {
           "itemId": 2696,
           "name": "cheese",
           "chance": 30000,
@@ -87,14 +93,8 @@
         {
           "itemId": 3976,
           "name": "worm",
-          "chance": 10000,
+          "chance": 9700,
           "maxCount": 2
-        },
-        {
-          "itemId": 2687,
-          "name": "cookie",
-          "chance": 940,
-          "maxCount": 1
         }
       ],
       "elementalPercent": {
@@ -106,16 +106,16 @@
       "id": "spider",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/spider.xml"
+        "relativePath": "data/monster/invertebrates/arachnids/spider.xml"
       },
       "name": "Spider",
       "description": "a spider",
       "race": "venom",
       "experience": 12,
-      "speed": 152,
+      "speed": 165,
       "maxHp": 20,
-      "armor": 2,
-      "defense": 2,
+      "armor": 5,
+      "defense": 5,
       "lookType": 30,
       "corpseId": 5961,
       "attacks": [
@@ -123,25 +123,25 @@
           "kind": "melee",
           "intervalMs": 2000,
           "minDamage": 0,
-          "maxDamage": 9
+          "maxDamage": 25
         }
       ],
       "loot": [
         {
           "itemId": 2148,
           "name": "gold coin",
-          "chance": 65000,
+          "chance": 63333,
           "maxCount": 5
         },
         {
           "itemId": 8859,
           "name": "spider fangs",
-          "chance": 950,
+          "chance": 810,
           "maxCount": 1
         }
       ],
       "elementalPercent": {
-        "fire": -20
+        "fire": -1
       },
       "immunities": []
     },
@@ -149,7 +149,7 @@
       "id": "bug",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/bug.xml"
+        "relativePath": "data/monster/invertebrates/insects/bug.xml"
       },
       "name": "Bug",
       "description": "Bug",
@@ -157,8 +157,8 @@
       "experience": 18,
       "speed": 160,
       "maxHp": 29,
-      "armor": 2,
-      "defense": 2,
+      "armor": 5,
+      "defense": 5,
       "lookType": 45,
       "corpseId": 5990,
       "attacks": [
@@ -173,13 +173,13 @@
         {
           "itemId": 2148,
           "name": "gold coin",
-          "chance": 50000,
+          "chance": 51170,
           "maxCount": 6
         },
         {
           "itemId": 2679,
           "name": "cherry",
-          "chance": 3000,
+          "chance": 2590,
           "maxCount": 3
         }
       ],
@@ -192,7 +192,7 @@
       "id": "poison-spider",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/poison_spider.xml"
+        "relativePath": "data/monster/invertebrates/arachnids/poison_spider.xml"
       },
       "name": "Poison Spider",
       "description": "a poison spider",
@@ -200,8 +200,8 @@
       "experience": 22,
       "speed": 160,
       "maxHp": 26,
-      "armor": 2,
-      "defense": 2,
+      "armor": 5,
+      "defense": 5,
       "lookType": 36,
       "corpseId": 5974,
       "attacks": [
@@ -237,16 +237,16 @@
       "id": "troll",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/troll.xml"
+        "relativePath": "data/monster/humanoids/trolls/troll.xml"
       },
       "name": "Troll",
       "description": "a troll",
       "race": "blood",
       "experience": 20,
-      "speed": 126,
+      "speed": 170,
       "maxHp": 50,
-      "armor": 6,
-      "defense": 6,
+      "armor": 10,
+      "defense": 10,
       "lookType": 15,
       "corpseId": 5960,
       "attacks": [
@@ -259,21 +259,27 @@
       ],
       "loot": [
         {
+          "itemId": 2120,
+          "name": "rope",
+          "chance": 7950,
+          "maxCount": 1
+        },
+        {
           "itemId": 2148,
           "name": "gold coin",
           "chance": 65300,
           "maxCount": 12
         },
         {
-          "itemId": 2380,
-          "name": "hand axe",
-          "chance": 20000,
+          "itemId": 2170,
+          "name": "silver amulet",
+          "chance": 80,
           "maxCount": 1
         },
         {
-          "itemId": 2666,
-          "name": "meat",
-          "chance": 15000,
+          "itemId": 2380,
+          "name": "hand axe",
+          "chance": 18000,
           "maxCount": 1
         },
         {
@@ -283,9 +289,21 @@
           "maxCount": 1
         },
         {
+          "itemId": 2448,
+          "name": "studded club",
+          "chance": 5000,
+          "maxCount": 1
+        },
+        {
           "itemId": 2461,
           "name": "leather helmet",
           "chance": 12000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2512,
+          "name": "wooden shield",
+          "chance": 4730,
           "maxCount": 1
         },
         {
@@ -295,38 +313,26 @@
           "maxCount": 1
         },
         {
-          "itemId": 2120,
-          "name": "rope",
-          "chance": 8200,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2512,
-          "name": "wooden shield",
-          "chance": 6300,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2448,
-          "name": "studded club",
-          "chance": 5000,
+          "itemId": 2666,
+          "name": "meat",
+          "chance": 15000,
           "maxCount": 1
         },
         {
           "itemId": 10606,
           "name": "bunch of troll hair",
-          "chance": 700,
+          "chance": 1000,
           "maxCount": 1
         },
         {
-          "itemId": 2170,
-          "name": "silver amulet",
-          "chance": 80,
+          "itemId": 26654,
+          "name": "heavy old tome",
+          "chance": 1000,
           "maxCount": 1
         }
       ],
       "elementalPercent": {
-        "energy": 20,
+        "energy": 25,
         "holy": 10,
         "earth": -10,
         "death": -10
@@ -337,16 +343,16 @@
       "id": "swamp-troll",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/swamp_troll.xml"
+        "relativePath": "data/monster/humanoids/trolls/swamp_troll.xml"
       },
       "name": "Swamp Troll",
       "description": "a swamp troll",
-      "race": "blood",
+      "race": "venom",
       "experience": 25,
-      "speed": 128,
+      "speed": 170,
       "maxHp": 55,
-      "armor": 6,
-      "defense": 6,
+      "armor": 15,
+      "defense": 15,
       "lookType": 76,
       "corpseId": 6018,
       "attacks": [
@@ -359,9 +365,9 @@
       ],
       "loot": [
         {
-          "itemId": 2667,
-          "name": "fish",
-          "chance": 60000,
+          "itemId": 2050,
+          "name": "torch",
+          "chance": 15000,
           "maxCount": 1
         },
         {
@@ -371,9 +377,9 @@
           "maxCount": 5
         },
         {
-          "itemId": 2050,
-          "name": "torch",
-          "chance": 15000,
+          "itemId": 2235,
+          "name": "mouldy cheese",
+          "chance": 10000,
           "maxCount": 1
         },
         {
@@ -383,15 +389,33 @@
           "maxCount": 1
         },
         {
-          "itemId": 2235,
-          "name": "mouldy cheese",
-          "chance": 10000,
+          "itemId": 2580,
+          "name": "fishing rod",
+          "chance": 60,
           "maxCount": 1
         },
         {
           "itemId": 2643,
           "name": "leather boots",
-          "chance": 10000,
+          "chance": 9500,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2667,
+          "name": "fish",
+          "chance": 60000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2805,
+          "name": "troll green",
+          "chance": 1200,
+          "maxCount": 1
+        },
+        {
+          "itemId": 5901,
+          "name": "wood",
+          "chance": 2140,
           "maxCount": 1
         },
         {
@@ -401,26 +425,14 @@
           "maxCount": 1
         },
         {
-          "itemId": 5901,
-          "name": "wood",
-          "chance": 2000,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2805,
-          "name": "troll green",
-          "chance": 1000,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2580,
-          "name": "fishing rod",
-          "chance": 80,
+          "itemId": 13506,
+          "name": "medicine pouch",
+          "chance": 2160,
           "maxCount": 1
         }
       ],
       "elementalPercent": {
-        "earth": 15,
+        "earth": 5,
         "fire": -5
       },
       "immunities": []
@@ -429,16 +441,16 @@
       "id": "rotworm",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/rotworm.xml"
+        "relativePath": "data/monster/invertebrates/annelids/rotworm.xml"
       },
       "name": "Rotworm",
       "description": "a rotworm",
       "race": "blood",
       "experience": 40,
-      "speed": 116,
+      "speed": 150,
       "maxHp": 65,
-      "armor": 8,
-      "defense": 8,
+      "armor": 10,
+      "defense": 10,
       "lookType": 26,
       "corpseId": 5967,
       "attacks": [
@@ -457,21 +469,9 @@
           "maxCount": 17
         },
         {
-          "itemId": 2671,
-          "name": "ham",
-          "chance": 20120,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2666,
-          "name": "meat",
-          "chance": 20000,
-          "maxCount": 1
-        },
-        {
-          "itemId": 10609,
-          "name": "lump of dirt",
-          "chance": 10000,
+          "itemId": 2376,
+          "name": "sword",
+          "chance": 3000,
           "maxCount": 1
         },
         {
@@ -481,15 +481,27 @@
           "maxCount": 1
         },
         {
+          "itemId": 2666,
+          "name": "meat",
+          "chance": 20000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2671,
+          "name": "ham",
+          "chance": 20120,
+          "maxCount": 1
+        },
+        {
           "itemId": 3976,
           "name": "worm",
           "chance": 3000,
           "maxCount": 3
         },
         {
-          "itemId": 2376,
-          "name": "sword",
-          "chance": 3000,
+          "itemId": 10609,
+          "name": "lump of dirt",
+          "chance": 10000,
           "maxCount": 1
         }
       ],
@@ -500,16 +512,16 @@
       "id": "skeleton",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/skeleton.xml"
+        "relativePath": "data/monster/theundead/skeletons/skeleton.xml"
       },
       "name": "Skeleton",
       "description": "a skeleton",
       "race": "undead",
       "experience": 35,
-      "speed": 154,
+      "speed": 150,
       "maxHp": 50,
-      "armor": 2,
-      "defense": 2,
+      "armor": 10,
+      "defense": 10,
       "lookType": 33,
       "corpseId": 5972,
       "attacks": [
@@ -517,22 +529,10 @@
           "kind": "melee",
           "intervalMs": 2000,
           "minDamage": 0,
-          "maxDamage": 17
+          "maxDamage": 20
         }
       ],
       "loot": [
-        {
-          "itemId": 2230,
-          "name": "bone",
-          "chance": 49100,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2148,
-          "name": "gold coin",
-          "chance": 45000,
-          "maxCount": 10
-        },
         {
           "itemId": 2050,
           "name": "torch",
@@ -540,9 +540,39 @@
           "maxCount": 1
         },
         {
-          "itemId": 12437,
-          "name": "pelvis bone",
-          "chance": 9500,
+          "itemId": 2050,
+          "name": "torch",
+          "chance": 9880,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2148,
+          "name": "gold coin",
+          "chance": 43900,
+          "maxCount": 10
+        },
+        {
+          "itemId": 2230,
+          "name": "bone",
+          "chance": 49100,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2376,
+          "name": "sword",
+          "chance": 1940,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2388,
+          "name": "hatchet",
+          "chance": 4850,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2398,
+          "name": "mace",
+          "chance": 4850,
           "maxCount": 1
         },
         {
@@ -552,32 +582,26 @@
           "maxCount": 1
         },
         {
-          "itemId": 2388,
-          "name": "hatchet",
-          "chance": 5100,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2398,
-          "name": "mace",
-          "chance": 4350,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2376,
-          "name": "sword",
-          "chance": 2060,
-          "maxCount": 1
-        },
-        {
           "itemId": 2511,
           "name": "brass shield",
-          "chance": 1070,
+          "chance": 2090,
+          "maxCount": 1
+        },
+        {
+          "itemId": 12437,
+          "name": "pelvis bone",
+          "chance": 9940,
+          "maxCount": 1
+        },
+        {
+          "itemId": 26654,
+          "name": "heavy old tome",
+          "chance": 1000,
           "maxCount": 1
         }
       ],
       "elementalPercent": {
-        "holy": -25
+        "holy": -5
       },
       "immunities": [
         "death",
@@ -589,16 +613,16 @@
       "id": "minotaur",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/minotaur.xml"
+        "relativePath": "data/monster/humanoids/minotaurs/minotaur.xml"
       },
       "name": "Minotaur",
       "description": "a minotaur",
       "race": "blood",
       "experience": 50,
-      "speed": 168,
+      "speed": 170,
       "maxHp": 100,
-      "armor": 11,
-      "defense": 11,
+      "armor": 15,
+      "defense": 15,
       "lookType": 25,
       "corpseId": 5969,
       "attacks": [
@@ -617,38 +641,14 @@
           "maxCount": 25
         },
         {
-          "itemId": 2510,
-          "name": "plate shield",
-          "chance": 20020,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2398,
-          "name": "mace",
-          "chance": 12840,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2464,
-          "name": "chain armor",
-          "chance": 10000,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2460,
-          "name": "brass helmet",
-          "chance": 7700,
+          "itemId": 2172,
+          "name": "bronze amulet",
+          "chance": 110,
           "maxCount": 1
         },
         {
           "itemId": 2376,
           "name": "sword",
-          "chance": 5000,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2666,
-          "name": "meat",
           "chance": 5000,
           "maxCount": 1
         },
@@ -659,15 +659,27 @@
           "maxCount": 1
         },
         {
-          "itemId": 12428,
-          "name": "minotaur horn",
-          "chance": 2090,
-          "maxCount": 2
+          "itemId": 2398,
+          "name": "mace",
+          "chance": 12840,
+          "maxCount": 1
         },
         {
-          "itemId": 5878,
-          "name": "minotaur leather",
-          "chance": 990,
+          "itemId": 2460,
+          "name": "brass helmet",
+          "chance": 7700,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2464,
+          "name": "chain armor",
+          "chance": 10000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2510,
+          "name": "plate shield",
+          "chance": 20020,
           "maxCount": 1
         },
         {
@@ -677,17 +689,30 @@
           "maxCount": 1
         },
         {
-          "itemId": 2172,
-          "name": "bronze amulet",
-          "chance": 110,
+          "itemId": 2666,
+          "name": "meat",
+          "chance": 5000,
           "maxCount": 1
+        },
+        {
+          "itemId": 5878,
+          "name": "minotaur leather",
+          "chance": 990,
+          "maxCount": 1
+        },
+        {
+          "itemId": 12428,
+          "name": "minotaur horn",
+          "chance": 2090,
+          "maxCount": 2
         }
       ],
       "elementalPercent": {
         "fire": 20,
         "holy": 10,
         "ice": -10,
-        "death": -10
+        "death": -5,
+        "energy": -15
       },
       "immunities": []
     },
@@ -695,16 +720,16 @@
       "id": "dwarf",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/dwarf.xml"
+        "relativePath": "data/monster/humanoids/dwarves/dwarf.xml"
       },
       "name": "Dwarf",
       "description": "a dwarf",
       "race": "blood",
       "experience": 45,
-      "speed": 170,
+      "speed": 180,
       "maxHp": 90,
-      "armor": 8,
-      "defense": 8,
+      "armor": 10,
+      "defense": 10,
       "lookType": 69,
       "corpseId": 6007,
       "attacks": [
@@ -717,21 +742,15 @@
       ],
       "loot": [
         {
-          "itemId": 2787,
-          "name": "white mushroom",
-          "chance": 50000,
-          "maxCount": 1
-        },
-        {
           "itemId": 2148,
           "name": "gold coin",
           "chance": 35000,
           "maxCount": 8
         },
         {
-          "itemId": 2388,
-          "name": "hatchet",
-          "chance": 25000,
+          "itemId": 2213,
+          "name": "dwarven ring",
+          "chance": 100,
           "maxCount": 1
         },
         {
@@ -741,21 +760,9 @@
           "maxCount": 1
         },
         {
-          "itemId": 2553,
-          "name": "pick",
-          "chance": 10000,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2530,
-          "name": "copper shield",
-          "chance": 10000,
-          "maxCount": 1
-        },
-        {
-          "itemId": 2649,
-          "name": "leather legs",
-          "chance": 10000,
+          "itemId": 2388,
+          "name": "hatchet",
+          "chance": 25000,
           "maxCount": 1
         },
         {
@@ -765,21 +772,39 @@
           "maxCount": 1
         },
         {
+          "itemId": 2530,
+          "name": "copper shield",
+          "chance": 10000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2553,
+          "name": "pick",
+          "chance": 10000,
+          "maxCount": 1
+        },
+        {
           "itemId": 2597,
           "name": "letter",
           "chance": 8000,
           "maxCount": 1
         },
         {
-          "itemId": 2213,
-          "name": "dwarven ring",
-          "chance": 100,
+          "itemId": 2649,
+          "name": "leather legs",
+          "chance": 10000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2787,
+          "name": "white mushroom",
+          "chance": 50000,
           "maxCount": 1
         },
         {
           "itemId": 5880,
           "name": "iron ore",
-          "chance": 100,
+          "chance": 700,
           "maxCount": 1
         }
       ],
@@ -794,7 +819,7 @@
       "id": "carrion-worm",
       "source": {
         "format": "styller-monster-xml",
-        "relativePath": "data/monster/monsters/carrion_worm.xml"
+        "relativePath": "data/monster/invertebrates/annelids/carrion_worm.xml"
       },
       "name": "Carrion Worm",
       "description": "a carrion worm",
@@ -837,6 +862,12 @@
           "itemId": 11192,
           "name": "carrion worm fang",
           "chance": 10000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 13757,
+          "name": "coal",
+          "chance": 210,
           "maxCount": 1
         }
       ],

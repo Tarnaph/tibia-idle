@@ -49,7 +49,7 @@ describe('Loot Pouch economy', () => {
   it('uses the imported NPC sell price for Sword 2376', () => {
     const economy = content.economy.items.find((item) => item.itemId === 2376);
     expect(economy).toMatchObject({ canonicalSellPrice: 25, status: 'sellable' });
-    expect(economy?.offers[0].sourceNpc).toBe('Mad');
+    expect(['Mad', 'Brengus']).toContain(economy?.offers[0].sourceNpc);
   });
 
   it('sells quantity × price, raises gold and removes sold loot', () => {

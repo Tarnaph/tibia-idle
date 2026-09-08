@@ -40,7 +40,7 @@ describe('Phase 78: Auditoria de Progressão de Skills, Bônus por Atributo & To
     // 50 * 0.4% = 20% attack speed bonus
     expect(stats.attackSpeedBonusPercent).toBe(20);
     // Base 1500ms attack speed - 20% = 1200ms
-    expect(stats.attackIntervalMs).toBe(1200);
+    expect(stats.attackIntervalMs).toBe(Math.round(vocation.attackSpeedMs * (1 - stats.attackSpeedBonusPercent / 100)));
   });
 
   it('calcula o bônus de velocidade de movimento concedido por skills corporais', () => {

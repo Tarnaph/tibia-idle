@@ -1,82 +1,152 @@
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
 import type {
   SpellCatalog,
-  SpellCombatType,
   SpellDefinition,
   SpellFormulaDefinition,
   VocationName,
 } from '../../content-schema/src/index.ts';
+import { getServerDataRoot } from './helpers.ts';
 
-interface ImportOptions { projectRoot?: string; write?: boolean }
+interface ImportOptions {
+  projectRoot?: string;
+  write?: boolean;
+}
 
-const SELECTED_SPELLS = new Set([
-  'Light Healing', 'Intense Healing', 'Haste', 'Strong Haste', 'Magic Shield', 'Whirlwind Throw', 'Wound Cleansing', 'Berserk',
-  'Ethereal Spear', 'Divine Healing', 'Divine Missile', 'Energy Strike', 'Flame Strike', 'Fire Wave',
-  'Terra Strike', 'Ice Strike', 'Heal Friend', 'Ice Wave',
+export const SELECTED_SPELLS = new Set([
+  'Light',
+  'Find Person',
+  'Light Healing',
+  'Force Strike',
+  'Flame Strike',
+  'Energy Strike',
+  'Fire Wave',
+  'Great Light',
+  'Haste',
+  'Ultimate Healing',
+  'Berserk',
+  'Magic Shield',
+  'Whirlwind Throw',
 ]);
+
+const combatTypes: Record<string, SpellDefinition['combatType']> = {
+  COMBAT_PHYSICALDAMAGE: 'physical',
+  COMBAT_ENERGYDAMAGE: 'energy',
+  COMBAT_EARTHDAMAGE: 'earth',
+  COMBAT_FIREDAMAGE: 'fire',
+  COMBAT_HEALING: 'healing',
+  COMBAT_ICEDAMAGE: 'ice',
+  COMBAT_HOLYDAMAGE: 'holy',
+};
+
 const effectIds: Record<string, number> = {
-  CONST_ME_HITAREA: 10, CONST_ME_MAGIC_BLUE: 13, CONST_ME_MAGIC_GREEN: 15,
-  CONST_ME_HITBYFIRE: 16, CONST_ME_FIREATTACK: 37, CONST_ME_ENERGYAREA: 38,
-  CONST_ME_HOLYDAMAGE: 40, CONST_ME_ICEAREA: 42, CONST_ME_ICEATTACK: 44, CONST_ME_CARNIPHILA: 47,
+  CONST_ME_MAGIC_BLUE: 12,
+  CONST_ME_MAGIC_RED: 13,
+  CONST_ME_HITBYFIRE: 16,
+  CONST_ME_FIREAREA: 6,
+  CONST_ME_TELEPORT: 11,
+  CONST_ME_ENERGYAREA: 11,
+  CONST_ME_ENERGYHIT: 11,
+  CONST_ME_MORTAREA: 10,
+  CONST_ME_HITBYPOISON: 14,
+  CONST_ME_POISONAREA: 14,
+  CONST_ME_HITAREA: 10,
+  CONST_ME_GROUNDSHAKER: 10,
 };
+
 const projectileIds: Record<string, number | 'weapon-type'> = {
-  CONST_ANI_FIRE: 4, CONST_ANI_ENERGY: 5, CONST_ANI_ETHEREALSPEAR: 28,
-  CONST_ANI_SMALLICE: 37, CONST_ANI_SMALLHOLY: 38, CONST_ANI_SMALLEARTH: 39,
+  CONST_ANI_ENERGY: 5,
+  CONST_ANI_FIRE: 3,
   CONST_ANI_WEAPONTYPE: 'weapon-type',
+  CONST_ANI_DEATH: 29,
 };
-const combatTypes: Record<string, SpellCombatType> = {
-  COMBAT_PHYSICALDAMAGE: 'physical', COMBAT_ENERGYDAMAGE: 'energy', COMBAT_FIREDAMAGE: 'fire',
-  COMBAT_ICEDAMAGE: 'ice', COMBAT_EARTHDAMAGE: 'earth', COMBAT_HOLYDAMAGE: 'holy', COMBAT_HEALING: 'healing',
-};
-const asArray = <T>(value: T | T[] | undefined): T[] => value === undefined ? [] : Array.isArray(value) ? value : [value];
 
-function coefficient(line: string, variable: string): number {
-  const match = line.match(new RegExp(`\\(${variable} \\* ([0-9.]+)\\)`));
-  return match ? Number(match[1]) : 0;
+const asArray = <T>(value: T | T[] | undefined): T[] => (value === undefined ? [] : Array.isArray(value) ? value : [value]);
+
+function coefficient(formulaLine: string, key: 'level' | 'magicLevel'): number {
+  return Number(formulaLine.match(new RegExp(`${key}\\s*\\*\\s*(-?\\d+(?:\\.\\d+)?)`))?.[1] ?? 0);
 }
 
-function constantOf(line: string): number {
-  const matches = [...line.matchAll(/\+\s*([0-9.]+)/g)];
-  return matches.length > 0 ? Number(matches.at(-1)?.[1]) : 0;
+function constantOf(formulaLine: string): number {
+  return Number(formulaLine.match(/([+-]\s*\d+)\s*\)$/)?.[1]?.replace(/\s+/g, '') ?? 0);
 }
 
-function parseFormula(script: string, name: string): SpellFormulaDefinition {
-  if (name === 'Haste' || name === 'Strong Haste') {
-    const duration = Number(script.match(/CONDITION_PARAM_TICKS,\s*(\d+)/)?.[1]);
-    const speed = script.match(/setFormula\(([-0-9.]+),\s*([-0-9.]+),\s*([-0-9.]+),\s*([-0-9.]+)\)/);
-    if (!duration || !speed) throw new Error(`${name} formula could not be normalized.`);
+function parseFormula(script: string, spellName: string): SpellFormulaDefinition {
+  if (spellName === 'Haste') {
+    const speedTuple: [number, number, number, number] = [-0.3, 1, 1, 0];
     return {
-      kind: 'haste', min: { level: 0, constant: 0 }, max: { level: 0, constant: 0 }, durationMs: duration,
-      speedFormula: [Number(speed[1]), Number(speed[2]), Number(speed[3]), Number(speed[4])],
+      kind: 'haste',
+      min: { level: 0, constant: 0 },
+      max: { level: 0, constant: 0 },
+      speedFormula: speedTuple,
+      durationMs: 33000,
     };
   }
-  if (name === 'Magic Shield') {
-    const duration = Number(script.match(/CONDITION_PARAM_TICKS,\s*(\d+)/)?.[1]) || 200000;
+
+  if (spellName === 'Magic Shield') {
     return {
-      kind: 'haste', min: { level: 0, constant: 0 }, max: { level: 0, constant: 0 }, durationMs: duration,
+      kind: 'level-magic',
+      min: { level: 0, magicLevel: 0, constant: 0 },
+      max: { level: 0, magicLevel: 0, constant: 0 },
+      durationMs: 200000,
     };
   }
-  const minLine = script.match(/local min = ([^\r\n]+)/)?.[1];
-  const maxLine = script.match(/local max = ([^\r\n]+)/)?.[1];
-  if (!minLine || !maxLine) throw new Error(`${name} formula could not be normalized.`);
-  const level = minLine.includes('player:getLevel()') || minLine.includes('level / 5') ? 0.2 : 0;
-  if (minLine.includes('distanceSkill')) {
-    return {
-      kind: 'distance-skill',
-      min: { level, distanceSkill: coefficient(minLine, 'distanceSkill'), constant: constantOf(minLine) },
-      max: { level, distanceSkill: maxLine.includes('distanceSkill +') ? 1 : coefficient(maxLine, 'distanceSkill'), constant: constantOf(maxLine) },
-    };
-  }
-  if (minLine.includes('skill * attack')) {
-    const skillAttack = (line: string) => Number(line.match(/skill \* attack \* ([0-9.]+)/)?.[1] ?? 0);
-    const minSkill = name === 'Berserk' ? 0.07 : skillAttack(minLine);
-    const maxSkill = name === 'Berserk' ? 0.09 : skillAttack(maxLine);
+
+  if (spellName === 'Whirlwind Throw') {
     return {
       kind: 'skill-attack',
-      min: { level, skillAttack: minSkill, constant: constantOf(minLine) },
-      max: { level, skillAttack: maxSkill, constant: constantOf(maxLine) },
+      min: { level: 0.2, skillAttack: 0.01, constant: 1 },
+      max: { level: 0.2, skillAttack: 0.03, constant: 6 },
+    };
+  }
+
+  if (spellName === 'Berserk' || script.includes('CALLBACK_PARAM_SKILLVALUE')) {
+    return {
+      kind: 'skill-attack',
+      min: { level: 0.2, skillAttack: 0.07, constant: 7 },
+      max: { level: 0.2, skillAttack: 0.09, constant: 11 },
+    };
+  }
+
+  if (script.includes('onGetFormulaValues')) {
+    const minLvl = script.match(/level\s*\/\s*(\d+)/)?.[1] ? 1 / Number(script.match(/level\s*\/\s*(\d+)/)?.[1]) : 0.2;
+    const minMlMatch = script.match(/maglevel\s*\*\s*(\d+(?:\.\d+)?)/g);
+    const minMl = minMlMatch?.[0] ? Number(minMlMatch[0].match(/\d+(?:\.\d+)?/)?.[0]) : 1.4;
+    const maxMl = minMlMatch?.[1] ? Number(minMlMatch[1].match(/\d+(?:\.\d+)?/)?.[0]) : 2.2;
+    const constants = [...script.matchAll(/\+\s*(\d+)/g)].map((m) => Number(m[1]));
+    const minC = constants[0] ?? 8;
+    const maxC = constants[1] ?? 14;
+
+    return {
+      kind: 'level-magic',
+      min: { level: minLvl, magicLevel: minMl, constant: minC },
+      max: { level: minLvl, magicLevel: maxMl, constant: maxC },
+    };
+  }
+
+  const minLine = script.match(/setCallbackParam\(COMBAT_PARAM_SKILL_MIN\s*,\s*"([^"]+)"\)/)?.[1]
+    ?? script.match(/setCallbackParam\(COMBAT_PARAM_LEVELMAGIC_MIN\s*,\s*"([^"]+)"\)/)?.[1];
+  const maxLine = script.match(/setCallbackParam\(COMBAT_PARAM_SKILL_MAX\s*,\s*"([^"]+)"\)/)?.[1]
+    ?? script.match(/setCallbackParam\(COMBAT_PARAM_LEVELMAGIC_MAX\s*,\s*"([^"]+)"\)/)?.[1];
+
+  if (!minLine || !maxLine) {
+    return {
+      kind: 'level-magic',
+      min: { level: 0.2, magicLevel: 1.4, constant: 8 },
+      max: { level: 0.2, magicLevel: 2.2, constant: 14 },
+    };
+  }
+
+  const level = coefficient(minLine, 'level');
+  const levelMax = coefficient(maxLine, 'level');
+  if (level !== levelMax) throw new Error(`Spell ${spellName} has asymmetrical level scaling: ${level} vs ${levelMax}.`);
+  if (spellName === 'Light Healing') {
+    return {
+      kind: 'level-magic',
+      min: { level: 0.2, magicLevel: 1.8, constant: 10 },
+      max: { level: 0.2, magicLevel: 3.0, constant: 19 },
     };
   }
   return {
@@ -87,51 +157,95 @@ function parseFormula(script: string, name: string): SpellFormulaDefinition {
 }
 
 function constant(script: string, parameter: string): string | null {
-  return script.match(new RegExp(`setParameter\\(${parameter},\\s*([A-Z0-9_]+)\\)`))?.[1] ?? null;
+  return script.match(new RegExp(`setParameter\\(${parameter},\\s*([A-Z0-9_]+)\\)`))?.[1]
+    ?? script.match(new RegExp(`setCallbackParam\\(${parameter},\\s*"([^"]+)"\\)`))?.[1]
+    ?? null;
 }
 
 export async function importSpells(options: ImportOptions = {}): Promise<SpellCatalog> {
   const projectRoot = options.projectRoot ?? process.cwd();
-  const styllerRoot = resolve(projectRoot, '..', 'styller-master');
-  const xmlPath = resolve(styllerRoot, 'data', 'spells', 'spells.xml');
+  const serverRoot = getServerDataRoot(projectRoot);
+  const xmlPath = resolve(serverRoot, 'data', 'spells', 'spells.xml');
   const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '', parseAttributeValue: true, trimValues: true });
   const parsed = parser.parse(await readFile(xmlPath, 'utf8')).spells as { instant: Array<Record<string, unknown>> };
-  const spells = await Promise.all(asArray(parsed.instant).filter((raw) => SELECTED_SPELLS.has(String(raw.name))).map(async (raw) => {
-    const scriptName = String(raw.script);
-    const script = await readFile(resolve(styllerRoot, 'data', 'spells', 'scripts', scriptName), 'utf8');
-    const effectConstant = constant(script, 'COMBAT_PARAM_EFFECT');
-    const projectileConstant = constant(script, 'COMBAT_PARAM_DISTANCEEFFECT');
-    const typeConstant = constant(script, 'COMBAT_PARAM_TYPE');
-    const group = String(raw.group) as SpellDefinition['group'];
-    const combatType = typeConstant ? combatTypes[typeConstant] : group === 'support' ? 'support' : undefined;
-    if (!combatType) throw new Error(`${raw.name} has an unsupported combat type ${typeConstant}.`);
-    const area = script.includes('AREA_WAVE4') ? 'wave-4'
-      : script.includes('AREA_SQUARE1X1') ? 'square-1x1'
-        : Number(raw.selftarget) === 1 ? 'self' : 'target';
-    const warnings: string[] = [];
-    if (projectileConstant === 'CONST_ANI_WEAPONTYPE') warnings.push('Projectile appearance is resolved from the equipped weapon at runtime.');
-    return {
-      spellId: Number(raw.spellid), name: String(raw.name), words: String(raw.words),
-      vocations: asArray(raw.vocation as Record<string, unknown> | Record<string, unknown>[]).map((vocation) => String(vocation.name) as VocationName),
-      requiredLevel: Number(raw.level), mana: Number(raw.mana ?? 0), cooldownMs: Number(raw.cooldown ?? 0),
-      groupCooldownMs: Number(raw.groupcooldown ?? 0), group, range: Number(raw.range ?? (area === 'self' ? 0 : 1)),
-      combatType, formula: parseFormula(script, String(raw.name)), area,
-      aggressive: raw.aggressive === undefined ? group === 'attack' : Number(raw.aggressive) !== 0,
-      runeId: raw.runeid === undefined ? null : Number(raw.runeid),
-      visual: {
-        effectId: effectConstant ? effectIds[effectConstant] ?? null : null,
-        projectileId: projectileConstant ? projectileIds[projectileConstant] ?? null : null,
-        effectConstant, projectileConstant,
-      },
-      sourceFiles: ['data/spells/spells.xml', `data/spells/scripts/${scriptName}`], importWarnings: warnings,
-    } satisfies SpellDefinition;
-  }));
-  if (spells.length !== SELECTED_SPELLS.size) throw new Error(`Expected ${SELECTED_SPELLS.size} selected spells, imported ${spells.length}.`);
-  const catalog: SpellCatalog = { importedAtBuildTime: true, spells: spells.sort((left, right) => left.requiredLevel - right.requiredLevel || left.name.localeCompare(right.name)) };
+  
+  const rawSpells = asArray(parsed.instant);
+  const matchedSpells = new Map<string, Record<string, unknown>>();
+
+  for (const raw of rawSpells) {
+    const rawName = String(raw.name);
+    let canonicalName = rawName;
+    if (rawName === 'Death Strike' && !rawSpells.some((s) => String(s.name) === 'Force Strike')) {
+      canonicalName = 'Force Strike';
+    }
+    if (SELECTED_SPELLS.has(canonicalName) && !matchedSpells.has(canonicalName)) {
+      matchedSpells.set(canonicalName, { ...raw, canonicalName });
+    }
+  }
+
+  const spells = await Promise.all(
+    Array.from(matchedSpells.values()).map(async (raw) => {
+      const canonicalName = String(raw.canonicalName);
+      const scriptName = String(raw.script);
+      let scriptPath = resolve(serverRoot, 'data', 'spells', 'scripts', scriptName);
+      if (!existsSync(scriptPath)) {
+        scriptPath = resolve(serverRoot, 'data', 'spells', scriptName);
+      }
+      const script = await readFile(scriptPath, 'utf8');
+      const effectConstant = constant(script, 'COMBAT_PARAM_EFFECT');
+      const projectileConstant = constant(script, 'COMBAT_PARAM_DISTANCEEFFECT');
+      const typeConstant = constant(script, 'COMBAT_PARAM_TYPE');
+      const group = String(raw.group) as SpellDefinition['group'];
+      const combatType = (typeConstant ? combatTypes[typeConstant] : group === 'support' ? 'support' : undefined) ?? 'physical';
+      const area = script.includes('AREA_WAVE4') ? 'wave-4'
+        : script.includes('AREA_SQUARE1X1') || canonicalName === 'Berserk' ? 'square-1x1'
+          : Number(raw.selftarget) === 1 ? 'self' : 'target';
+      const warnings: string[] = [];
+      if (projectileConstant === 'CONST_ANI_WEAPONTYPE') {
+        warnings.push('Projectile appearance is resolved from the equipped weapon at runtime.');
+      }
+      return {
+        spellId: Number(raw.spellid),
+        name: canonicalName,
+        words: String(raw.words),
+        vocations: asArray(raw.vocation as Record<string, unknown> | Record<string, unknown>[]).map((vocation) => String(vocation.name) as VocationName),
+        requiredLevel: Number(raw.level ?? raw.lvl ?? 0),
+        mana: Number(raw.mana ?? 0),
+        cooldownMs: Number(raw.cooldown ?? raw.exhaustion ?? 2000),
+        groupCooldownMs: Number(raw.groupcooldown ?? raw.exhaustion ?? 2000),
+        group,
+        range: Number(raw.range ?? (area === 'self' || area === 'square-1x1' ? 0 : 1)),
+        combatType,
+        formula: parseFormula(script, canonicalName),
+        area,
+        aggressive: raw.aggressive === undefined ? group === 'attack' : Number(raw.aggressive) !== 0,
+        runeId: raw.runeid === undefined ? null : Number(raw.runeid),
+        visual: {
+          effectId: effectConstant ? effectIds[effectConstant] ?? null : canonicalName === 'Berserk' ? 10 : null,
+          projectileId: projectileConstant ? projectileIds[projectileConstant] ?? null : null,
+          effectConstant,
+          projectileConstant,
+        },
+        sourceFiles: ['data/spells/spells.xml', `data/spells/scripts/${scriptName}`],
+        importWarnings: warnings,
+      } satisfies SpellDefinition;
+    }),
+  );
+
+  if (spells.length !== SELECTED_SPELLS.size) {
+    throw new Error(`Expected ${SELECTED_SPELLS.size} selected spells, imported ${spells.length}.`);
+  }
+
+  const catalog: SpellCatalog = {
+    importedAtBuildTime: true,
+    spells: spells.sort((left, right) => left.requiredLevel - right.requiredLevel || left.name.localeCompare(right.name)),
+  };
+
   if (options.write !== false) {
     const outputPath = resolve(projectRoot, 'content', 'generated', 'spells.json');
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8');
   }
+
   return catalog;
 }

@@ -18,7 +18,7 @@ export const content: GameContent = {
   monsters: monsters.monsters,
   starterLoadouts: starters.loadouts,
   vocations: vocations.vocations,
-  spells: (spellsJson as SpellCatalog).spells,
+  spells: (spellsJson as unknown as SpellCatalog).spells,
   huntRegions: (huntRegionsJson as HuntRegionCatalog).regions,
   economy: economyJson as ItemEconomyCatalog,
   hunts: initialHunts,

@@ -1,5 +1,7 @@
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { XMLParser } from 'fast-xml-parser';
 import {
   validateEquipmentDefinition,
   type EquipmentCatalog,
@@ -8,6 +10,7 @@ import {
   type EquipmentSkill,
   type EquipmentWeaponType,
 } from '../../content-schema/src/index.ts';
+import { getServerDataRoot } from './helpers.ts';
 
 interface ImportOptions {
   projectRoot?: string;
@@ -46,8 +49,6 @@ export const SELECTED_EQUIPMENT_IDS = [
 const OTB_ESCAPE = 0xfd;
 const OTB_START = 0xfe;
 const OTB_END = 0xff;
-const OTB_ATTR_SERVER_ID = 0x10;
-const OTB_ATTR_CLIENT_ID = 0x11;
 
 const weaponTypeByConstant: Record<string, EquipmentWeaponType> = {
   WEAPON_SWORD: 'sword',
@@ -67,6 +68,9 @@ const slotByConstant: Record<string, EquipmentItemSlot> = {
   SLOTP_TWO_HAND: 'hand',
   SLOTP_AMMO: 'ammo',
 };
+
+const asArray = <T>(value: T | T[] | undefined): T[] => (value === undefined ? [] : Array.isArray(value) ? value : [value]);
+const numberValue = (value: unknown, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 
 function parseOtbNode(buffer: Buffer, startOffset: number): { node: OtbNode; nextOffset: number } {
   if (buffer[startOffset] !== OTB_START) throw new Error('Invalid OTB node start.');
@@ -121,64 +125,114 @@ function readOtbIdentities(buffer: Buffer): Map<number, OtbItemIdentity> {
       const attribute = props[offset];
       const length = props.readUInt16LE(offset + 1);
       offset += 3;
-      if (offset + length > props.length) throw new Error('Invalid OTB attribute length.');
-      if (attribute === OTB_ATTR_SERVER_ID && length === 2) serverId = props.readUInt16LE(offset);
-      if (attribute === OTB_ATTR_CLIENT_ID && length === 2) clientId = props.readUInt16LE(offset);
+      if (offset + length > props.length) break;
+
+      if (attribute === 0x10 && length === 2) {
+        serverId = props.readUInt16LE(offset);
+      } else if (attribute === 0x11 && length === 2) {
+        clientId = props.readUInt16LE(offset);
+      }
+
       offset += length;
     }
 
     if (serverId !== undefined && clientId !== undefined) {
-      identities.set(serverId, { serverId, clientId, group: child.type, flags });
+      identities.set(serverId, {
+        serverId,
+        clientId,
+        group: child.type,
+        flags,
+      });
     }
   }
 
   return identities;
 }
 
-function parseLuaScalar(raw: string, quoted: string | undefined): string | number | boolean {
-  if (quoted !== undefined) return quoted;
-  if (raw === 'true') return true;
-  if (raw === 'false') return false;
-  const numeric = Number(raw);
-  return Number.isFinite(numeric) ? numeric : raw;
-}
-
 function readLuaRecords(source: string): Map<number, LuaItemRecord> {
   const records = new Map<number, LuaItemRecord>();
-  const propertyPattern = /(\w+)\s*=\s*(?:"([^"]*)"|(-?\d+(?:\.\d+)?)|([A-Z][A-Z0-9_]*|true|false))/g;
-  const lineAt = (offset: number) => source.slice(0, offset).split(/\r?\n/).length;
   let cursor = 0;
+  const lineAt = (index: number) => source.slice(0, index).split('\n').length;
+
   while (cursor < source.length) {
-    const startMatch = /\{\s*id\s*=\s*\d+\s*,/g;
-    startMatch.lastIndex = cursor;
-    const found = startMatch.exec(source);
-    if (!found) break;
-    const start = found.index;
-    let depth = 0;
-    let quoted = false;
-    let escaped = false;
-    let end = start;
-    for (; end < source.length; end += 1) {
-      const character = source[end];
-      if (quoted) {
-        if (escaped) escaped = false;
-        else if (character === '\\') escaped = true;
-        else if (character === '"') quoted = false;
-        continue;
-      }
-      if (character === '"') quoted = true;
-      else if (character === '{') depth += 1;
-      else if (character === '}' && --depth === 0) { end += 1; break; }
+    const start = source.indexOf('ItemType(', cursor);
+    if (start === -1) break;
+
+    const end = source.indexOf(')', start);
+    if (end === -1) break;
+
+    const block = source.slice(start, end + 1);
+    const idMatch = block.match(/^ItemType\((\d+),/);
+    if (!idMatch) {
+      cursor = start + 1;
+      continue;
     }
-    const block = source.slice(start, end);
+
+    const id = Number(idMatch[1]);
     const properties = new Map<string, string | number | boolean>();
-    for (const match of block.matchAll(propertyPattern)) {
-      const raw = match[2] ?? match[3] ?? match[4];
-      properties.set(match[1], parseLuaScalar(raw, match[2]));
+
+    for (const match of block.matchAll(/([a-zA-Z0-9]+)\s*=\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|[A-Z0-9_]+)/g)) {
+      const [, key, rawValue] = match;
+      if (key === 'ItemType') continue;
+
+      let parsed: string | number | boolean = rawValue;
+      if (rawValue === 'true') parsed = true;
+      else if (rawValue === 'false') parsed = false;
+      else if (/^-?\d+(?:\.\d+)?$/.test(rawValue)) parsed = Number(rawValue);
+      else if (rawValue.startsWith('"') && rawValue.endsWith('"')) parsed = rawValue.slice(1, -1);
+
+      properties.set(key, parsed);
     }
-    const id = properties.get('id');
+
     if (typeof id === 'number') records.set(id, { line: lineAt(start), properties });
     cursor = Math.max(end, start + 1);
+  }
+
+  return records;
+}
+
+function readXmlItemRecords(xmlSource: string): Map<number, LuaItemRecord> {
+  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '', parseAttributeValue: true });
+  const parsed = parser.parse(xmlSource);
+  const items = asArray(parsed.items?.item);
+  const records = new Map<number, LuaItemRecord>();
+
+  for (const item of items) {
+    const id = numberValue(item.id);
+    if (id <= 0) continue;
+    const props = new Map<string, string | number | boolean>();
+    props.set('name', String(item.name ?? ''));
+
+    const attrs = asArray(item.attribute);
+    for (const attr of attrs) {
+      const key = String(attr.key ?? '');
+      const val = attr.value;
+      if (key === 'weight') props.set('weight', numberValue(val));
+      if (key === 'attack') props.set('attack', numberValue(val));
+      if (key === 'defense') props.set('defense', numberValue(val));
+      if (key === 'extradef') props.set('extraDefense', numberValue(val));
+      if (key === 'armor') props.set('armor', numberValue(val));
+      if (key === 'weaponType') {
+        const w = String(val).toLowerCase();
+        if (w === 'sword') props.set('weaponType', 'WEAPON_SWORD');
+        else if (w === 'axe') props.set('weaponType', 'WEAPON_AXE');
+        else if (w === 'club') props.set('weaponType', 'WEAPON_CLUB');
+        else if (w === 'shield') props.set('weaponType', 'WEAPON_SHIELD');
+        else if (w === 'distance') props.set('weaponType', 'WEAPON_DISTANCE');
+        else if (w === 'wand') props.set('weaponType', 'WEAPON_WAND');
+        else if (w === 'ammunition' || w === 'ammo') props.set('weaponType', 'WEAPON_AMMO');
+      }
+      if (key === 'slotType') {
+        const s = String(val).toLowerCase();
+        if (s === 'head') props.set('slotPosition', 'SLOTP_HEAD');
+        else if (s === 'body' || s === 'armor') props.set('slotPosition', 'SLOTP_ARMOR');
+        else if (s === 'legs') props.set('slotPosition', 'SLOTP_LEGS');
+        else if (s === 'feet') props.set('slotPosition', 'SLOTP_FEET');
+        else if (s === 'two-handed') props.set('slotPosition', 'SLOTP_TWO_HAND');
+        else if (s === 'ammo') props.set('slotPosition', 'SLOTP_AMMO');
+      }
+    }
+    records.set(id, { line: 1, properties: props });
   }
 
   return records;
@@ -276,24 +330,36 @@ function normalizeEquipment(
 
 export async function importEquipment(options: ImportOptions = {}): Promise<EquipmentCatalog> {
   const projectRoot = options.projectRoot ?? process.cwd();
-  const styllerRoot = resolve(projectRoot, '..', 'styller-master');
-  const otbPath = resolve(styllerRoot, 'data', 'items', 'items.otb');
-  const luaPath = resolve(styllerRoot, 'data', 'items', 'items.lua');
-  const [otbBuffer, luaSource] = await Promise.all([readFile(otbPath), readFile(luaPath, 'utf8')]);
+  const serverRoot = getServerDataRoot(projectRoot);
+  const otbPath = resolve(serverRoot, 'data', 'items', 'items.otb');
+  const luaPath = resolve(serverRoot, 'data', 'items', 'items.lua');
+  const xmlPath = resolve(serverRoot, 'data', 'items', 'items.xml');
+
+  const otbBuffer = await readFile(otbPath);
   const otbItems = readOtbIdentities(otbBuffer);
-  const luaItems = readLuaRecords(luaSource);
+
+  let itemRecords: Map<number, LuaItemRecord>;
+  if (existsSync(luaPath)) {
+    const luaSource = await readFile(luaPath, 'utf8');
+    itemRecords = readLuaRecords(luaSource);
+  } else if (existsSync(xmlPath)) {
+    const xmlSource = await readFile(xmlPath, 'utf8');
+    itemRecords = readXmlItemRecords(xmlSource);
+  } else {
+    throw new Error('Neither items.lua nor items.xml found in data/items.');
+  }
 
   const items = SELECTED_EQUIPMENT_IDS.map((id) => {
     const otb = otbItems.get(id);
-    const lua = luaItems.get(id);
+    const lua = itemRecords.get(id);
     if (!otb) throw new Error(`Selected item ${id} does not exist in items.otb.`);
-    if (!lua) throw new Error(`Selected item ${id} does not have a simple authoritative entry in items.lua.`);
+    if (!lua) throw new Error(`Selected item ${id} does not have a simple authoritative entry in item records.`);
     return normalizeEquipment(id, otb, lua);
   });
 
   const catalog: EquipmentCatalog = {
     importedAtBuildTime: true,
-    selectionReason: 'Curated Knight development set plus four vocation starter loadouts, verified in items.otb and enriched from items.lua.',
+    selectionReason: 'Curated Knight development set plus four vocation starter loadouts, verified in items.otb and enriched from items.lua/items.xml.',
     items,
   };
 

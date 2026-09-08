@@ -20,7 +20,7 @@ const gameContent: GameContent = {
   monsters: (monstersJson as MonsterCatalog).monsters,
   starterLoadouts: (startersJson as StarterLoadoutCatalog).loadouts,
   vocations: (vocationsJson as VocationCatalog).vocations,
-  spells: (spellsJson as SpellCatalog).spells,
+  spells: (spellsJson as unknown as SpellCatalog).spells,
   huntRegions: (huntRegionsJson as HuntRegionCatalog).regions,
   economy: economyJson as ItemEconomyCatalog,
   hunts: initialHunts,
@@ -1241,7 +1241,7 @@ export class ThaisCityRoom extends Room<WorldState> {
             targetSkillObj.tries = charState.skillTries[primarySkill];
             if (leveled.length > 0) {
               const client = this.clients.find((c) => c.sessionId === player.id);
-              if (client) {
+              if (client && typeof (client as any).send === 'function') {
                 client.send('skill:levelUp', { skill: primarySkill, level: targetSkillObj.value });
               }
             }

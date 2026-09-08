@@ -315,7 +315,7 @@ describe('Phase 56: Multiplayer Party System (Invites, Follow Leader, Shared Hun
   });
 
   it('only casts automatic spells if configured in the hotbar; never auto-casts if hotbar is empty', async () => {
-    const { advanceCombat, createIdleGame, restartHunt } = await import('../packages/domain/src');
+    const { advanceCombat, createIdleGame, restartHunt, startGame } = await import('../packages/domain/src');
     const { content } = await import('./fixture');
 
     const game = createIdleGame('test-empty-hotbar', content);
@@ -340,10 +340,20 @@ describe('Phase 56: Multiplayer Party System (Invites, Follow Leader, Shared Hun
     expect(spellCasts).toHaveLength(0);
 
     // Now configure Exura (spellId 1) in hotbar with sufficient mana
+    activeChar.level = 20;
+    activeChar.maxHp = 150;
     activeChar.maxMana = 100;
     activeChar.currentMana = 100;
+    activeChar.inventory = { equipmentIds: [] };
     activeChar.hotbar = [1];
-    const huntWithSpell = restartHunt(game, 'test-with-hotbar-seed', content, 'rat-cellars');
+    let huntWithSpell = restartHunt(game, 'test-with-hotbar-seed', content, 'rat-cellars');
+    huntWithSpell.encounter.mode = 'legacyWaveMode';
+    huntWithSpell = startGame(huntWithSpell, content);
+    const charInHunt = huntWithSpell.session.characters.find((c) => c.id === activeChar.id)!;
+    charInHunt.vocation = 'Paladin';
+    charInHunt.baseVocation = 'Paladin';
+    charInHunt.inventory.equipmentIds = [];
+    charInHunt.hotbar = [1];
     const actorWithSpell = huntWithSpell.encounter.partyActors.find((a) => a.characterId === activeChar.id)!;
     actorWithSpell.hp = 50;
     actorWithSpell.mana = 100;
