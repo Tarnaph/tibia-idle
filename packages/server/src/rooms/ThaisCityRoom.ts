@@ -5,7 +5,7 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
-import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, type TrainableSkill, type GameContent } from '../../../domain/src';
+import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, type TrainableSkill, type GameContent } from '../../../domain/src';
 import vocationsJson from '../../../../content/generated/vocations.json';
 import equipmentJson from '../../../../content/generated/equipment.json';
 import monstersJson from '../../../../content/generated/monsters.json';
@@ -733,6 +733,49 @@ export class ThaisCityRoom extends Room<WorldState> {
         player.hp = Math.min(player.maxHp, player.hp + heal);
 
         this.pushCombatEvent('heal', player.id, player.id, heal, player.posX, player.posY, `+${heal}`, '#33ff33');
+      }
+    } else if (spellId === 'exevo-flam-hur' || spellId === '19' || spellId === 'exevo flam hur' || spellId === 'fire-wave') {
+      const manaCost = 25;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+
+        this.pushCombatEvent('spell', player.id, '', 0, player.posX, player.posY, 'Exevo flam hur!', '#ff6600');
+
+        const dir = (player.direction || 'south') as 'north' | 'south' | 'east' | 'west';
+        const waveTiles = getWave4Tiles({ x: player.posX, y: player.posY, z: player.posZ }, dir);
+        const waveTileSet = new Set(waveTiles.map((t) => `${t.x},${t.y}`));
+
+        // Emit hit by fire (effectId: 16) on each of the 17 tiles in the wave
+        for (const tile of waveTiles) {
+          this.pushCombatEvent('spell_area', player.id, '', 0, tile.x, tile.y, '', '#ff6600', null, 16);
+        }
+
+        // Damage any monsters inside the wave cone
+        this.state.monsters.forEach((monster: MonsterState) => {
+          if (!monster.isDead && waveTileSet.has(`${monster.posX},${monster.posY}`)) {
+            const rawDamage = 35 + Math.floor(Math.random() * 30) + Math.floor(player.level * 0.2);
+            const damage = Math.max(1, rawDamage - monster.armorPower);
+            monster.hp -= damage;
+            this.pushCombatEvent('damage', player.id, monster.id, damage, monster.posX, monster.posY, `${damage}`, '#ff3333');
+
+            if (monster.hp <= 0) {
+              this.killMonster(monster, player);
+            }
+          }
+        });
+
+        // Skill advance magicLevel
+        const vocName = (player.vocationName || 'Sorcerer') as VocationName;
+        const vocDef = vocationFor(gameContent, vocName);
+        const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+        const magicTries = manaCost * gameContent.rateMagic * skillRate;
+        let charSkills = (player as any).skills;
+        if (Array.isArray(charSkills)) {
+          let mlObj = charSkills.find((s: any) => s.skillId === 7);
+          if (mlObj) {
+            mlObj.tries = (mlObj.tries || 0) + magicTries;
+          }
+        }
       }
     } else if (spellId === 'exori') {
       const manaCost = 115;

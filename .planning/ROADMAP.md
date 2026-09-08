@@ -1488,4 +1488,34 @@ Plans: Concluído com sucesso.
 - [x] 80-01-PLAN: Modo Caçada Auto-Idle Autônoma.
 - Resumo de entrega: `.planning/phases/phase-80-full-auto-idle-loop/80-SUMMARY.md`
 
+### Phase 81: Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência
+
+**Goal:** Sistema de cura de emergência automático e auto-configuração de hotbars com as melhores poções de vida e mana para a vocação e nível do herói.
+**Success Criteria:** Auto-uso inteligente de poções ao cair HP/MP, auto-população de poções na hotbar, 0 erros no typecheck e 100% testes aprovados.
+Plans: Concluído com sucesso.
+- [x] 81-01-PLAN: Poção Automática Inteligente e Auto-Configuração de Hotbar.
+- Resumo de entrega: `.planning/phases/phase-81-smart-emergency-auto-potion/81-SUMMARY.md`
+
+### Phase 82: Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer
+
+**Goal:** Eliminação de runtime crashes de TexturePool no PixiJS v8 ao destruir containers e restauração de efeitos autênticos de projétil/impacto para a Wand of Vortex.
+**Success Criteria:** Proteção no polyfill de TexturePool, projétil 5 e impacto 12 para Wand of Vortex em Thais e caçadas, 0 erros no typecheck e 100% testes aprovados.
+Plans: Concluído com sucesso.
+- [x] 82-01-PLAN: Correção de Runtime TexturePool e Efeitos Visuais de Wands.
+- Resumo de entrega: `.planning/phases/phase-82-pixi-cleanup-and-sorcerer-wand/82-SUMMARY.md`
+
+### Phase 83: Diagnóstico e Correção de Tela Preta no Viewport e Magias Direcionais em Onda (Exevo Flam Hur)
+
+**Goal:** Eliminar o bloqueio de carregamento de texturas que causava tela preta no viewport ao entrar no jogo e implementar a geometria canônica de cone de 17 SQMs na direção que o conjurador olha para a magia Fire Wave (Exevo Flam Hur).
+**Success Criteria:**
+1. Viewport do PixiJS monta o palco imediatamente sem tela preta, carregando assets prioritários em lotes rápidos de ~50ms.
+2. Magia `Fire Wave` (`exevo flam hur`) propaga em cone canônico de 17 SQMs na direção do conjurador sem lançar projétil teleguiado.
+3. Todas as criaturas dentro da onda sofrem dano em área; criaturas fora da onda permanecem ilesas.
+4. Suporte a `exevo flam hur` no servidor multiplayer com eventos de área nos 17 SQMs.
+5. 0 erros no typecheck e 100% dos testes Vitest passando.
+Plans: Concluído com sucesso.
+- [x] 83-01-PLAN: Correção de Tela Preta e Magias Direcionais em Onda.
+- Resumo de entrega: `.planning/phases/phase-83-directional-wave-spells-and-viewport-fix/83-SUMMARY.md`
+
+
 

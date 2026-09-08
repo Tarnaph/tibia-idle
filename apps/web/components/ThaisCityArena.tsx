@@ -167,63 +167,6 @@ export function ThaisCityArena({
         app.ticker.stop();
       }
 
-      // Collect assets to load
-      const floorUrl = visualAssets.assets.trainingFloor.frames[0].publicUrl;
-      const wallUrl = visualAssets.assets.trainingWall.frames[0].publicUrl;
-      const rugUrl = visualAssets.assets.trainingRug.frames[0].publicUrl;
-      const dummyUrl = visualAssets.assets.trainingDummy.frames[0].publicUrl;
-      const decorUrl = visualAssets.assets.trainingDecor.frames[0].publicUrl;
-      const mountUrl = '/generated/mounts/donkey_rider_south.png';
-      const thumbUrls = [
-        'citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate', 'oriental', 'beggar'
-      ].map((id) => `/generated/outfit-thumbs/${id}.png`);
-      const outfitUrls = Object.values(visualAssets.outfits).flatMap((outfit) =>
-        outfit.frames.map((f) => f.publicUrl)
-      );
-      const effectUrls = Object.values(visualAssets.effects).flatMap((fx) =>
-        fx.frames.map((f) => f.publicUrl)
-      );
-      const missileUrls = Object.values(visualAssets.missiles).flatMap((m) =>
-        m.frames.map((f) => f.publicUrl)
-      );
-      const mapItemUrls = thaisData.tiles.flatMap((t) =>
-        t.serverItemIds.flatMap((id) => {
-          const mapping = visualAssets.mapItems[String(id)];
-          if (mapping?.frames && mapping.frames.length > 0) {
-            return mapping.frames.map((f) => f.publicUrl);
-          }
-          return mapping?.frame ? [mapping.frame.publicUrl] : [];
-        })
-      );
-
-      const allUrls = [
-        ...new Set([floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl, ...thumbUrls, ...outfitUrls, ...effectUrls, ...missileUrls, ...mapItemUrls]),
-      ];
-      
-      const loaded: Record<string, PixiTexture> = {};
-      try {
-        await Promise.allSettled(
-          allUrls.map(async (url) => {
-            try {
-              const texture = await Assets.load<PixiTexture>(url);
-              if (texture) {
-                texture.source.style.scaleMode = 'nearest';
-                loaded[url] = texture;
-              }
-            } catch {
-              // Ignore single asset load failure
-            }
-          })
-        );
-      } catch (err) {
-        console.warn('Map asset loading error:', err);
-      }
-
-      if (disposed) {
-        app.destroy(true, { children: true });
-        return;
-      }
-
       const world = new Container();
       const floor7Container = new Container();
       const terrainLayerZ7 = new Container();
@@ -246,6 +189,87 @@ export function ThaisCityArena({
       world.addChild(floor7Container, floor6Container, actorsLayer, effectsLayer);
       app.stage.addChild(world, overlayLayer);
 
+      // Collect essential assets
+      const floorUrl = visualAssets.assets.trainingFloor.frames[0].publicUrl;
+      const wallUrl = visualAssets.assets.trainingWall.frames[0].publicUrl;
+      const rugUrl = visualAssets.assets.trainingRug.frames[0].publicUrl;
+      const dummyUrl = visualAssets.assets.trainingDummy.frames[0].publicUrl;
+      const decorUrl = visualAssets.assets.trainingDecor.frames[0].publicUrl;
+      const mountUrl = '/generated/mounts/donkey_rider_south.png';
+      const thumbUrls = [
+        'citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate', 'oriental', 'beggar'
+      ].map((id) => `/generated/outfit-thumbs/${id}.png`);
+      const outfitUrls = Object.values(visualAssets.outfits).flatMap((outfit) =>
+        outfit.frames.map((f) => f.publicUrl)
+      );
+      const teleportEffectUrls = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
+      const fireEffectUrls = visualAssets.effects['16']?.frames.map((f) => f.publicUrl) ?? [];
+      const coreMissileUrls = [
+        ...(visualAssets.missiles['5']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.missiles['29']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.missiles['3']?.frames.map((f) => f.publicUrl) ?? []),
+      ];
+      const coreEffectUrls = [
+        ...(visualAssets.effects['12']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.effects['43']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.effects['10']?.frames.map((f) => f.publicUrl) ?? []),
+      ];
+      const mapItemUrls = thaisData.tiles.flatMap((t) =>
+        t.serverItemIds.flatMap((id) => {
+          const mapping = visualAssets.mapItems[String(id)];
+          if (mapping?.frames && mapping.frames.length > 0) {
+            return mapping.frames.map((f) => f.publicUrl);
+          }
+          return mapping?.frame ? [mapping.frame.publicUrl] : [];
+        })
+      );
+
+      const loaded: Record<string, PixiTexture> = {};
+
+      const loadBatch = async (urls: string[], chunkSize = 35) => {
+        for (let i = 0; i < urls.length; i += chunkSize) {
+          if (disposed) break;
+          const chunk = urls.slice(i, i + chunkSize);
+          await Promise.allSettled(
+            chunk.map(async (url) => {
+              if (loaded[url]) return;
+              try {
+                const texture = await Assets.load<PixiTexture>(url);
+                if (texture) {
+                  texture.source.style.scaleMode = 'nearest';
+                  loaded[url] = texture;
+                }
+              } catch {}
+            })
+          );
+        }
+      };
+
+      // 1. Preload highest priority assets immediately (<50 URLs, ~50ms)
+      const priorityUrls = [
+        floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
+        ...outfitUrls.slice(0, 32),
+        ...teleportEffectUrls,
+        ...fireEffectUrls,
+        ...coreMissileUrls,
+        ...coreEffectUrls,
+      ];
+      try {
+        await loadBatch(priorityUrls, 35);
+      } catch (err) {
+        console.warn('Priority asset loading error:', err);
+      }
+
+      if (disposed) {
+        app.destroy(true, { children: true });
+        return;
+      }
+
+      // 2. Stream remaining map tiles and outfit frames progressively in the background
+      const remainingUrls = [...new Set([...thumbUrls, ...outfitUrls, ...mapItemUrls])].filter((u) => !loaded[u]);
+      void loadBatch(remainingUrls, 30);
+
+
       const teleportFrames = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
       const teleportEffects: Array<{
         sprite: InstanceType<typeof Sprite>;
@@ -265,6 +289,38 @@ export function ThaisCityArena({
       }
       const timedCityVisuals: TimedCityVisual[] = [];
       let lastProcessedVisualEvents: CombatVisualEvent[] | undefined;
+
+      const unsubNetworkCombat = gameNetwork.onCombatEvent((ev) => {
+        if (ev.effectId) {
+          const fxMapping = visualAssets.effects[String(ev.effectId)];
+          if (fxMapping && fxMapping.frames.length > 0) {
+            const firstFrameUrl = fxMapping.frames[0].publicUrl;
+            const targetX = ev.posX ?? ev.x ?? 0;
+            const targetY = ev.posY ?? ev.y ?? 0;
+            const targetPx = { x: targetX * TILE_SIZE + 16, y: targetY * TILE_SIZE + 16 };
+            const sp = new Sprite(loaded[firstFrameUrl] || Texture.EMPTY);
+            sp.anchor.set(0.5);
+            sp.position.set(targetPx.x, targetPx.y);
+            effectsLayer.addChild(sp);
+            timedCityVisuals.push({
+              root: sp,
+              startedAt: performance.now(),
+              durationMs: Math.max(300, fxMapping.frames.length * 70),
+              kind: 'effect',
+              frames: fxMapping.frames.map((f) => f.publicUrl),
+            });
+            if (!loaded[firstFrameUrl]) {
+              void Assets.load<PixiTexture>(firstFrameUrl).then((tex) => {
+                if (tex) {
+                  tex.source.style.scaleMode = 'nearest';
+                  loaded[firstFrameUrl] = tex;
+                  if ('texture' in sp) (sp as any).texture = tex;
+                }
+              });
+            }
+          }
+        }
+      });
 
       const triggerTeleportEffect = (px: number, py: number) => {
         if (teleportFrames.length === 0) return;
@@ -1376,6 +1432,7 @@ export function ThaisCityArena({
       });
 
       cleanup = () => {
+        unsubNetworkCombat?.();
         hideGlobalPlayerTooltip();
         app.canvas.removeEventListener('pointermove', onPointerMove);
         app.canvas.removeEventListener('pointerleave', onPointerLeave);

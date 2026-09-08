@@ -32,13 +32,15 @@ export interface RemotePlayerSnapshot {
 }
 
 export interface NetworkCombatEvent {
-  type: 'damage' | 'heal' | 'spell' | 'miss';
+  type: 'damage' | 'heal' | 'spell' | 'miss' | 'spell_area' | string;
   sourceId: string;
   targetId: string;
   amount?: number;
   spellId?: string;
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
+  posX?: number;
+  posY?: number;
   fromX?: number;
   fromY?: number;
   projectileId?: number | null;
@@ -260,9 +262,11 @@ export class GameClientNetworkManager {
     });
 
     // 4. Listen to messages from server
-    this.room.onMessage('combat_event', (event: NetworkCombatEvent) => {
+    const onCombat = (event: NetworkCombatEvent) => {
       this.combatListeners.forEach((fn) => fn(event));
-    });
+    };
+    this.room.onMessage('combat_event', onCombat);
+    this.room.onMessage('combatEvent', onCombat);
 
     const onChat = (msg: NetworkChatMessage) => {
       this.chatListeners.forEach((fn) => fn(msg));

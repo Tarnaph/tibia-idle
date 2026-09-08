@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-07T10:30:00.000Z"
-last_activity: "2026-09-07 — Conclusão da Phase 82: Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer."
+last_updated: "2026-09-08T10:10:00.000Z"
+last_activity: "2026-09-08 — Conclusão da Phase 83: Diagnóstico e Correção de Tela Preta no Viewport do PixiJS e Magias Direcionais em Onda (Exevo Flam Hur / Fire Wave)."
 progress:
-  total_phases: 82
-  completed_phases: 82
-  total_plans: 82
-  completed_plans: 82
+  total_phases: 83
+  completed_phases: 83
+  total_plans: 83
+  completed_plans: 83
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 8.60 (TFS), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Blindagem de runtime do PixiJS v8 no gerenciamento de texturas de texto/destruição de containers, e efeitos visuais autênticos de projéteis e impacto de Wands (Wand of Vortex) com range de vocações mágicas na cidade.
+**Current focus:** Resolução de gargalo de carregamento de texturas prevenindo tela preta no viewport e propagação em cone canônico de 17 SQMs para magias de onda (Exevo Flam Hur).
 
 ## Current Position
 
-Phase: 82 of 82 (Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer)  
+Phase: 83 of 83 (Diagnóstico e Correção de Tela Preta no Viewport e Magias Direcionais em Onda)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-07 — Conclusão da Phase 82.
+Last activity: 2026-09-08 — Conclusão da Phase 83.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 82
-- Total phases in roadmap: 82
-- Tests status: 85 test suites (466 testes aprovados)
+- Total phases completed: 83
+- Total phases in roadmap: 83
+- Tests status: 86 test suites (470 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -50,6 +50,7 @@ Progress: [██████████] 100%
 | 80. Modo Caçada Auto-Idle Autônoma | 1 | - | - | Complete |
 | 81. Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência | 1 | - | - | Complete |
 | 82. Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer | 1 | - | - | Complete |
+| 83. Diagnóstico e Correção de Tela Preta no Viewport e Magias Direcionais em Onda (Exevo Flam Hur) | 1 | - | - | Complete |
 
 ## Accumulated Context
 

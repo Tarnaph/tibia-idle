@@ -45,12 +45,52 @@ export function reorderHotbar(character: CharacterState, fromIndex: number, toIn
 
 export type FacingDirection = 'north' | 'east' | 'south' | 'west';
 
+export const WAVE_4_PATTERN = [
+  { distance: 1, halfWidth: 0 },
+  { distance: 2, halfWidth: 1 },
+  { distance: 3, halfWidth: 1 },
+  { distance: 4, halfWidth: 2 },
+  { distance: 5, halfWidth: 2 },
+] as const;
+
+export function getWave4Tiles(
+  casterPos: { x: number; y: number; z?: number },
+  direction: FacingDirection
+): Array<{ x: number; y: number; z: number }> {
+  const vectors: Record<FacingDirection, { fx: number; fy: number; lx: number; ly: number }> = {
+    north: { fx: 0, fy: -1, lx: 1, ly: 0 },
+    south: { fx: 0, fy: 1, lx: 1, ly: 0 },
+    east: { fx: 1, fy: 0, lx: 0, ly: 1 },
+    west: { fx: -1, fy: 0, lx: 0, ly: 1 },
+  };
+  const { fx, fy, lx, ly } = vectors[direction] || vectors.south;
+  const tiles: Array<{ x: number; y: number; z: number }> = [];
+  const cz = casterPos.z ?? 7;
+
+  for (const row of WAVE_4_PATTERN) {
+    for (let w = -row.halfWidth; w <= row.halfWidth; w++) {
+      tiles.push({
+        x: casterPos.x + fx * row.distance + lx * w,
+        y: casterPos.y + fy * row.distance + ly * w,
+        z: cz,
+      });
+    }
+  }
+
+  return tiles;
+}
+
 export function getDirectionalSpellTiles(
-  casterPos: { x: number; y: number; z: number },
+  casterPos: { x: number; y: number; z?: number },
   direction: FacingDirection,
   spellName: string,
   spellRangeVal = 1
 ): Array<{ x: number; y: number; z: number }> {
+  const lowerName = spellName.toLowerCase();
+  if (lowerName.includes('wave') || lowerName.includes('flam hur') || lowerName.includes('frigo hur') || lowerName.includes('tera hur')) {
+    return getWave4Tiles(casterPos, direction);
+  }
+
   const dirMap: Record<FacingDirection, { dx: number; dy: number }> = {
     north: { dx: 0, dy: -1 },
     east: { dx: 1, dy: 0 },
@@ -60,17 +100,29 @@ export function getDirectionalSpellTiles(
 
   const { dx, dy } = dirMap[direction] || dirMap.south;
   const tiles: Array<{ x: number; y: number; z: number }> = [];
+  const cz = casterPos.z ?? 7;
 
-  const lowerName = spellName.toLowerCase();
-  if (lowerName.includes('lux') || lowerName.includes('wave') || lowerName.includes('gran vis')) {
+  if (lowerName.includes('lux') || lowerName.includes('beam') || lowerName.includes('gran vis')) {
     const range = Math.max(3, spellRangeVal);
     for (let r = 1; r <= range; r++) {
-      tiles.push({ x: casterPos.x + dx * r, y: casterPos.y + dy * r, z: casterPos.z });
+      tiles.push({ x: casterPos.x + dx * r, y: casterPos.y + dy * r, z: cz });
     }
   } else {
-    tiles.push({ x: casterPos.x + dx, y: casterPos.y + dy, z: casterPos.z });
+    tiles.push({ x: casterPos.x + dx, y: casterPos.y + dy, z: cz });
   }
 
   return tiles;
 }
+
+export function getSpellAreaTiles(
+  spell: SpellDefinition,
+  casterPos: { x: number; y: number; z?: number },
+  direction: FacingDirection
+): Array<{ x: number; y: number; z: number }> {
+  if (spell.area === 'wave-4') {
+    return getWave4Tiles(casterPos, direction);
+  }
+  return getDirectionalSpellTiles(casterPos, direction, spell.name, spell.range);
+}
+
 
