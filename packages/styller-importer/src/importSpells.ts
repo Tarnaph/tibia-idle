@@ -29,6 +29,17 @@ export const SELECTED_SPELLS = new Set([
   'Berserk',
   'Magic Shield',
   'Whirlwind Throw',
+  'Lesser Front Sweep',
+  'Wound Cleansing',
+  'Brutal Strike',
+  'Challenge',
+  'Charge',
+  'Groundshaker',
+  'Protector',
+  'Blood Rage',
+  'Front Sweep',
+  'Fierce Berserk',
+  'Annihilation',
 ]);
 
 const combatTypes: Record<string, SpellDefinition['combatType']> = {
@@ -74,7 +85,7 @@ function constantOf(formulaLine: string): number {
 }
 
 function parseFormula(script: string, spellName: string): SpellFormulaDefinition {
-  if (spellName === 'Haste') {
+  if (spellName === 'Haste' || spellName === 'Charge') {
     const speedTuple: [number, number, number, number] = [-0.3, 1, 1, 0];
     return {
       kind: 'haste',
@@ -85,7 +96,7 @@ function parseFormula(script: string, spellName: string): SpellFormulaDefinition
     };
   }
 
-  if (spellName === 'Magic Shield') {
+  if (spellName === 'Magic Shield' || spellName === 'Protector' || spellName === 'Blood Rage') {
     return {
       kind: 'level-magic',
       min: { level: 0, magicLevel: 0, constant: 0 },
@@ -94,7 +105,7 @@ function parseFormula(script: string, spellName: string): SpellFormulaDefinition
     };
   }
 
-  if (spellName === 'Whirlwind Throw') {
+  if (spellName === 'Whirlwind Throw' || spellName === 'Brutal Strike' || spellName === 'Annihilation') {
     return {
       kind: 'skill-attack',
       min: { level: 0.2, skillAttack: 0.01, constant: 1 },
@@ -102,7 +113,15 @@ function parseFormula(script: string, spellName: string): SpellFormulaDefinition
     };
   }
 
-  if (spellName === 'Berserk' || script.includes('CALLBACK_PARAM_SKILLVALUE')) {
+  if (spellName === 'Lesser Front Sweep') {
+    return {
+      kind: 'skill-attack',
+      min: { level: 0.1, skillAttack: 0.03, constant: 3 },
+      max: { level: 0.1, skillAttack: 0.05, constant: 6 },
+    };
+  }
+
+  if (spellName === 'Berserk' || spellName === 'Fierce Berserk' || spellName === 'Front Sweep' || spellName === 'Groundshaker' || script.includes('CALLBACK_PARAM_SKILLVALUE')) {
     return {
       kind: 'skill-attack',
       min: { level: 0.2, skillAttack: 0.07, constant: 7 },
@@ -181,6 +200,24 @@ export async function importSpells(options: ImportOptions = {}): Promise<SpellCa
     if (SELECTED_SPELLS.has(canonicalName) && !matchedSpells.has(canonicalName)) {
       matchedSpells.set(canonicalName, { ...raw, canonicalName });
     }
+  }
+
+  if (SELECTED_SPELLS.has('Lesser Front Sweep') && !matchedSpells.has('Lesser Front Sweep')) {
+    matchedSpells.set('Lesser Front Sweep', {
+      spellid: 168,
+      name: 'Lesser Front Sweep',
+      canonicalName: 'Lesser Front Sweep',
+      words: 'exori min',
+      group: 'attack',
+      level: 8,
+      mana: 6,
+      cooldown: 6000,
+      groupcooldown: 2000,
+      range: 0,
+      selftarget: 1,
+      script: 'attack/front sweep.lua',
+      vocation: [{ name: 'Knight' }, { name: 'Elite Knight' }],
+    });
   }
 
   const spells = await Promise.all(

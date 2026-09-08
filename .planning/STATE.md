@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-08T13:40:00.000Z"
-last_activity: "2026-09-08 — Conclusão da Phase 84: Migração Completa dos Importadores para Tibia 11 (realmap11) e Pré-Carregamento das Texturas do Mapa de Thais."
+last_updated: "2026-09-08T13:55:00.000Z"
+last_activity: "2026-09-08 — Inicialização da Phase 85: Início Direto de Caçada, Alinhamento de Magias de Knight e Modal Avançado Configurar Ação."
 progress:
-  total_phases: 84
+  total_phases: 85
   completed_phases: 84
-  total_plans: 84
+  total_plans: 85
   completed_plans: 84
-  percent: 100
+  percent: 99
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Leitura autoritativa direta dos arquivos do Tibia 11 em realmap11 para itens, monstros, vocações, economias e magias, e renderização imediata do mapa urbano de Thais.
+**Current focus:** Início direto de caçada sem caminhada prévia ao cais, alinhamento completo de magias de Knight e redesenho do modal Configurar Ação com suporte a regras, filtros, monstros ignorados e condições de disparo.
 
 ## Current Position
 
-Phase: 84 of 84 (Migração dos Importadores para Tibia 11 e Pré-Carregamento do Mapa de Thais)  
+Phase: 85 of 85 (Início Direto de Caçada, Alinhamento de Magias de Knight e Modal Avançado Configurar Ação)  
 Plan: 1 of 1 in current phase  
-Status: Complete  
-Last activity: 2026-09-08 — Conclusão da Phase 84.
+Status: In_Progress  
+Last activity: 2026-09-08 — Inicialização da Phase 85.
 
-Progress: [██████████] 100%
+Progress: [█████████░] 99%
 
 ## Performance Metrics
 

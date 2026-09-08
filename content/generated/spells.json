@@ -51,6 +51,49 @@
       "importWarnings": []
     },
     {
+      "spellId": 168,
+      "name": "Lesser Front Sweep",
+      "words": "exori min",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 8,
+      "mana": 6,
+      "cooldownMs": 6000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 0,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.1,
+          "skillAttack": 0.03,
+          "constant": 3
+        },
+        "max": {
+          "level": 0.1,
+          "skillAttack": 0.05,
+          "constant": 6
+        }
+      },
+      "area": "self",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/front sweep.lua"
+      ],
+      "importWarnings": []
+    },
+    {
       "spellId": 10,
       "name": "Light",
       "words": "utevo lux",
@@ -143,6 +186,49 @@
       "sourceFiles": [
         "data/spells/spells.xml",
         "data/spells/scripts/healing/light healing.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 123,
+      "name": "Wound Cleansing",
+      "words": "exura ico",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 10,
+      "mana": 40,
+      "cooldownMs": 1000,
+      "groupCooldownMs": 1000,
+      "group": "healing",
+      "range": 0,
+      "combatType": "healing",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 4,
+          "constant": 25
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 8,
+          "constant": 50
+        }
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 12,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_BLUE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/healing/wound cleansing.lua"
       ],
       "importWarnings": []
     },
@@ -386,6 +472,51 @@
       "importWarnings": []
     },
     {
+      "spellId": 61,
+      "name": "Brutal Strike",
+      "words": "exori ico",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 16,
+      "mana": 30,
+      "cooldownMs": 3000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 1,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.2,
+          "skillAttack": 0.01,
+          "constant": 1
+        },
+        "max": {
+          "level": 0.2,
+          "skillAttack": 0.03,
+          "constant": 6
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": "weapon-type",
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": "CONST_ANI_WEAPONTYPE"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/brutal strike.lua"
+      ],
+      "importWarnings": [
+        "Projectile appearance is resolved from the equipped weapon at runtime."
+      ]
+    },
+    {
       "spellId": 87,
       "name": "Force Strike",
       "words": "exori mort",
@@ -468,6 +599,96 @@
       "sourceFiles": [
         "data/spells/spells.xml",
         "data/spells/scripts/attack/fire wave.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 93,
+      "name": "Challenge",
+      "words": "exeta res",
+      "vocations": [
+        "Elite Knight"
+      ],
+      "requiredLevel": 20,
+      "mana": 30,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "support",
+      "range": 0,
+      "combatType": "support",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0.2,
+          "magicLevel": 1.4,
+          "constant": 8
+        },
+        "max": {
+          "level": 0.2,
+          "magicLevel": 2.2,
+          "constant": 14
+        }
+      },
+      "area": "square-1x1",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": 12,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_BLUE",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/support/challenge.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 131,
+      "name": "Charge",
+      "words": "utani tempo hur",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 25,
+      "mana": 100,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "support",
+      "range": 0,
+      "combatType": "support",
+      "formula": {
+        "kind": "haste",
+        "min": {
+          "level": 0,
+          "constant": 0
+        },
+        "max": {
+          "level": 0,
+          "constant": 0
+        },
+        "speedFormula": [
+          -0.3,
+          1,
+          1,
+          0
+        ],
+        "durationMs": 33000
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": null,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_GREEN",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/support/charge.lua"
       ],
       "importWarnings": []
     },
@@ -562,6 +783,49 @@
       "importWarnings": []
     },
     {
+      "spellId": 106,
+      "name": "Groundshaker",
+      "words": "exori mas",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 33,
+      "mana": 160,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 1,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.2,
+          "skillAttack": 0.07,
+          "constant": 7
+        },
+        "max": {
+          "level": 0.2,
+          "skillAttack": 0.09,
+          "constant": 11
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_GROUNDSHAKER",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/groundshaker.lua"
+      ],
+      "importWarnings": []
+    },
+    {
       "spellId": 80,
       "name": "Berserk",
       "words": "exori",
@@ -603,6 +867,225 @@
         "data/spells/scripts/attack/berserk.lua"
       ],
       "importWarnings": []
+    },
+    {
+      "spellId": 132,
+      "name": "Protector",
+      "words": "utamo tempo",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 55,
+      "mana": 200,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "support",
+      "range": 0,
+      "combatType": "support",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0,
+          "magicLevel": 0,
+          "constant": 0
+        },
+        "max": {
+          "level": 0,
+          "magicLevel": 0,
+          "constant": 0
+        },
+        "durationMs": 200000
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": null,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_GREEN",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/support/protector.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 133,
+      "name": "Blood Rage",
+      "words": "utito tempo",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 60,
+      "mana": 290,
+      "cooldownMs": 2000,
+      "groupCooldownMs": 2000,
+      "group": "support",
+      "range": 0,
+      "combatType": "support",
+      "formula": {
+        "kind": "level-magic",
+        "min": {
+          "level": 0,
+          "magicLevel": 0,
+          "constant": 0
+        },
+        "max": {
+          "level": 0,
+          "magicLevel": 0,
+          "constant": 0
+        },
+        "durationMs": 200000
+      },
+      "area": "self",
+      "aggressive": false,
+      "runeId": null,
+      "visual": {
+        "effectId": null,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_MAGIC_GREEN",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/support/blood rage.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 59,
+      "name": "Front Sweep",
+      "words": "exori min",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 70,
+      "mana": 200,
+      "cooldownMs": 3000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 1,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.2,
+          "skillAttack": 0.07,
+          "constant": 7
+        },
+        "max": {
+          "level": 0.2,
+          "skillAttack": 0.09,
+          "constant": 11
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/front sweep.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 105,
+      "name": "Fierce Berserk",
+      "words": "exori gran",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 90,
+      "mana": 340,
+      "cooldownMs": 3000,
+      "groupCooldownMs": 2000,
+      "group": "attack",
+      "range": 0,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.2,
+          "skillAttack": 0.07,
+          "constant": 7
+        },
+        "max": {
+          "level": 0.2,
+          "skillAttack": 0.09,
+          "constant": 11
+        }
+      },
+      "area": "square-1x1",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": null,
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": null
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/fierce berserk.lua"
+      ],
+      "importWarnings": []
+    },
+    {
+      "spellId": 62,
+      "name": "Annihilation",
+      "words": "exori gran ico",
+      "vocations": [
+        "Knight",
+        "Elite Knight"
+      ],
+      "requiredLevel": 110,
+      "mana": 300,
+      "cooldownMs": 10000,
+      "groupCooldownMs": 4000,
+      "group": "attack",
+      "range": 1,
+      "combatType": "physical",
+      "formula": {
+        "kind": "skill-attack",
+        "min": {
+          "level": 0.2,
+          "skillAttack": 0.01,
+          "constant": 1
+        },
+        "max": {
+          "level": 0.2,
+          "skillAttack": 0.03,
+          "constant": 6
+        }
+      },
+      "area": "target",
+      "aggressive": true,
+      "runeId": null,
+      "visual": {
+        "effectId": 10,
+        "projectileId": "weapon-type",
+        "effectConstant": "CONST_ME_HITAREA",
+        "projectileConstant": "CONST_ANI_WEAPONTYPE"
+      },
+      "sourceFiles": [
+        "data/spells/spells.xml",
+        "data/spells/scripts/attack/annihilation.lua"
+      ],
+      "importWarnings": [
+        "Projectile appearance is resolved from the equipped weapon at runtime."
+      ]
     }
   ]
 }

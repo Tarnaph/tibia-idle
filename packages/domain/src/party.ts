@@ -13,7 +13,7 @@ const baseSkills: Record<BaseVocationName, CharacterSkills> = {
 // but owning one supported spell must not silently grant every shared XML spell.
 const starterSpellBooks: Record<BaseVocationName, number[]> = {
   None: [1],
-  Knight: [1, 6, 107, 7, 80],
+  Knight: [1, 6, 59, 61, 62, 80, 93, 105, 106, 107, 123, 131, 132, 133, 168],
   Paladin: [1, 2, 111, 125, 122],
   Sorcerer: [1, 88, 89, 19],
   Druid: [1, 113, 112, 84, 121],

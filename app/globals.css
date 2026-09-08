@@ -6651,6 +6651,451 @@ h1, h2, h3, p { margin: 0; }
   border-color: #8b2828;
 }
 
+/* Tibia 11 Action Config Modal ("Configurar ação") */
+.hotbar-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hotbar-config-window {
+  width: 680px;
+  height: 580px;
+  background: #141724;
+  border: 1px solid #2e354f;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  color: #c4d0ec;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.hotbar-config-header {
+  height: 32px;
+  background: linear-gradient(180deg, #22293e 0%, #171b2a 100%);
+  border-bottom: 1px solid #2e354f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.hotbar-config-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #dbe4f8;
+}
+
+.hotbar-config-close {
+  background: transparent;
+  border: none;
+  color: #7b8ba8;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.hotbar-config-close:hover {
+  color: #ffffff;
+}
+
+.hotbar-top-tabs {
+  display: flex;
+  background: #0f121d;
+  border-bottom: 1px solid #282f46;
+  padding: 4px 6px 0 6px;
+  gap: 4px;
+}
+
+.hotbar-top-tab {
+  flex: 1;
+  height: 28px;
+  background: #181d2d;
+  border: 1px solid #2e354f;
+  border-bottom: none;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  color: #8b9bbd;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hotbar-top-tab:hover {
+  color: #e2ebfd;
+  background: #20273c;
+}
+
+.hotbar-top-tab.active {
+  color: #ffffff;
+  background: linear-gradient(180deg, #2a3554 0%, #171d2d 100%);
+  border-color: #4d66a4;
+  border-bottom: 1px solid #171d2d;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.hotbar-config-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.hotbar-left-column {
+  width: 260px;
+  background: #0e111a;
+  border-right: 1px solid #242b40;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hotbar-list-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #151a28;
+  border: 1px solid #262e46;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hotbar-list-card:hover {
+  border-color: #3f4e77;
+  background: #1d2337;
+}
+
+.hotbar-list-card.selected {
+  border-color: #4d7cff;
+  background: linear-gradient(90deg, #1b2646 0%, #151a28 100%);
+  box-shadow: 0 0 8px rgba(77, 124, 255, 0.25);
+}
+
+.hotbar-icon-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.hotbar-rune-badge, .hotbar-potion-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #f1c40f;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 0 3px;
+  border-radius: 2px;
+  border: 1px solid #635016;
+}
+
+.hotbar-potion-badge.free {
+  color: #2ecc71;
+  border-color: #1b5e20;
+}
+
+.hotbar-card-name {
+  font-weight: 500;
+  color: #d1dcf5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hotbar-right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #131724;
+  padding: 12px;
+  overflow-y: auto;
+  gap: 10px;
+}
+
+.hotbar-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hotbar-detail-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.hotbar-sub-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.hotbar-sub-tab {
+  padding: 3px 12px;
+  background: #192033;
+  border: 1px solid #2d3856;
+  border-radius: 2px;
+  color: #9cb1db;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hotbar-sub-tab.active {
+  background: linear-gradient(180deg, #2c3c66 0%, #1a2542 100%);
+  border-color: #4a67ac;
+  color: #ffffff;
+}
+
+.hotbar-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #abbcdb;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.hotbar-class-desc {
+  color: #8da4d0;
+  font-style: italic;
+}
+
+.hotbar-flavour-text {
+  color: #c7d5f0;
+}
+
+.hotbar-stats-line {
+  font-weight: 600;
+  color: #8096c4;
+}
+
+.hotbar-formula-line {
+  color: #d6e2ff;
+}
+
+.hotbar-note-line {
+  color: #798cb3;
+  font-size: 10px;
+}
+
+.hotbar-req-line {
+  color: #8598bf;
+  font-size: 11px;
+}
+
+.hotbar-section-block {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #232b42;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hotbar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hotbar-section-title {
+  font-weight: 700;
+  color: #e0e8fc;
+  font-size: 12px;
+}
+
+.hotbar-section-btn {
+  background: #1b2438;
+  border: 1px solid #37476e;
+  border-radius: 2px;
+  color: #c5d7fc;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hotbar-section-btn:hover {
+  background: #263350;
+  border-color: #526aa4;
+}
+
+.hotbar-section-desc {
+  margin: 0;
+  color: #7a8cb3;
+  font-size: 10px;
+}
+
+.hotbar-empty-text {
+  color: #637599;
+  font-size: 11px;
+}
+
+.hotbar-select-input {
+  background: #0d101a;
+  border: 1px solid #2b3552;
+  color: #e0e8fc;
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-size: 11px;
+  outline: none;
+}
+
+.hotbar-conditions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hotbar-condition-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #0e121e;
+  border: 1px solid #242c44;
+  padding: 4px 6px;
+  border-radius: 3px;
+}
+
+.hotbar-cond-select {
+  background: #171e30;
+  border: 1px solid #2e3b5e;
+  color: #d1dcf5;
+  padding: 2px 4px;
+  font-size: 11px;
+  border-radius: 2px;
+}
+
+.hotbar-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #2e3b5e;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #171e30;
+}
+
+.hotbar-stepper button {
+  background: #202b45;
+  border: none;
+  color: #9eb5e3;
+  width: 18px;
+  height: 20px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.hotbar-stepper button:hover {
+  background: #2d3c61;
+  color: #ffffff;
+}
+
+.hotbar-stepper input {
+  width: 32px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  text-align: center;
+  font-size: 11px;
+}
+
+.hotbar-percent-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #9cb1db;
+  font-size: 11px;
+  margin-left: 2px;
+}
+
+.hotbar-remove-cond-btn {
+  background: transparent;
+  border: none;
+  color: #ff6666;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-left: auto;
+}
+
+.hotbar-remove-cond-btn:hover {
+  color: #ff3333;
+}
+
+.hotbar-right-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hotbar-active-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #d8e3fd;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.hotbar-save-btn {
+  background: linear-gradient(180deg, #2b3a61 0%, #19233c 100%);
+  border: 1px solid #48609c;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 5px 20px;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.hotbar-save-btn:hover {
+  background: linear-gradient(180deg, #36497a 0%, #202d4d 100%);
+  border-color: #5c7ac7;
+}
+
+.hotbar-inline-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hotbar-inline-add input {
+  background: #0d101a;
+  border: 1px solid #2b3552;
+  color: #fff;
+  padding: 3px 6px;
+  border-radius: 2px;
+  font-size: 11px;
+  flex: 1;
+}
+
+.hotbar-inline-add button {
+  background: #202b45;
+  border: 1px solid #37476e;
+  color: #fff;
+  padding: 3px 8px;
+  font-size: 11px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
 .party-member-row {
   display: flex;
   align-items: center;

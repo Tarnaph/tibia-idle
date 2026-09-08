@@ -1,5 +1,7 @@
-# CORREÇÕS DE BUG
+# MUDANÇAS
 
-Fiz um personagem novo e na hora de começar a jogar com ele apreceu esse bug do print
+Ao apertar em "iniciar caçada" já vai para caçada, vamos retirar o personagem andando até o lugar anterior.
 
-Wand do sorcerer continua sem funcionar o efeito, corrija, veja nos arquivos do server e tibia tem algo que possa resolver isso
+Quero alterar a tela de magias, runas e itens, deixar mais parecido e com essas funções do print
+
+Aproveitando no print tem todas as magias do knight, veja quais faltam em nossos documentos para deixar alinhado

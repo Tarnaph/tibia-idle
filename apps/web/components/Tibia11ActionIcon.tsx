@@ -54,14 +54,16 @@ export function resolveActionImagePath(id?: number, kind?: string, name?: string
   if (lower.includes('exura san') || lower.includes('divine healing') || id === 6) return '/spells/exura-san.png';
   if (lower.includes('exura') || lower.includes('light healing') || id === 1) return '/spells/exura.png';
 
+  if (lower.includes('annihilation') || lower.includes('exori gran ico')) return '/spells/exori-gran.png';
   if (lower.includes('exori gran') || lower.includes('fierce berserk') || id === 10) return '/spells/exori-gran.png';
   if (lower.includes('exori mas') || lower.includes('groundshaker') || id === 12) return '/spells/exori-mas.png';
   if (lower.includes('exori ico') || lower.includes('brutal strike') || id === 11) return '/spells/exori-ico.png';
   if (lower.includes('exori hur') || lower.includes('whirlwind') || id === 13) return '/spells/exori-hur.png';
-  if (lower.includes('exori min') || lower.includes('front sweep') || id === 14) return '/spells/exori-min.png';
+  if (lower.includes('exori min') || lower.includes('front sweep') || lower.includes('lesser front sweep') || id === 14) return '/spells/exori-min.png';
   if (lower.includes('exori') || lower.includes('berserk') || id === 9) return '/spells/exori.png';
 
   if (lower.includes('blood rage') || lower.includes('utito tempo') || id === 15) return '/spells/utito-tempo.png';
+  if (lower.includes('protector') || lower.includes('utamo tempo')) return '/spells/utito-tempo.png';
   if (lower.includes('charge') || lower.includes('swift foot') || lower.includes('tempo hur')) return '/spells/utani-tempo-hur.png';
   if (lower.includes('strong haste') || lower.includes('gran hur') || id === 17) return '/spells/utani-gran-hur.png';
   if (lower.includes('haste') || lower.includes('utani hur') || id === 16) return '/spells/utani-hur.png';

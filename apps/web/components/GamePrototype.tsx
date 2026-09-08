@@ -1496,49 +1496,17 @@ function GamePrototypeContent() {
   const startSelectedHunt = (huntId: string) => {
     const targetHunt = content.hunts.find((h) => h.id === huntId) ?? encounter.hunt;
     setHuntSelectorOpen(false);
-
-    // If already in hunt mode, switch directly
-    if (mode === 'hunt') {
-      const nextSeed = seed.trim() || defaultSeed;
-      setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
-      if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
-        gameNetwork.sendPartyHuntSync(huntId, nextSeed);
-      }
-      return;
-    }
-
-    // In city mode: walk to stairs (z:7 -> z:6) and along the dock to the boat teleporter
     setIsTrainingAtDummy(false);
-    const waypoints = findHuntTravelRoute(thaisTileMapZ7, thaisTileMapZ6, cityPos);
+    setWalkingPath(null);
 
-    if (waypoints.length === 0) {
-      const nextSeed = seed.trim() || defaultSeed;
-      setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
-      setMode('hunt');
-      gameNetwork.sendSetInHunt(true);
-      if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
-        gameNetwork.sendPartyHuntSync(huntId, nextSeed);
-      }
-      return;
+    const nextSeed = seed.trim() || defaultSeed;
+    setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
+    setMode('hunt');
+    gameNetwork.sendSetInHunt(true);
+    if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+      gameNetwork.sendPartyHuntSync(huntId, nextSeed);
     }
-
-    setWalkingPath({
-      waypoints,
-      destinationName: `Cais do Navio (${targetHunt.name})`,
-      currentIndex: 0,
-      onArrive: () => {
-        const nextSeed = seed.trim() || defaultSeed;
-        setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
-        setMode('hunt');
-        gameNetwork.sendSetInHunt(true);
-        if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
-          gameNetwork.sendPartyHuntSync(huntId, nextSeed);
-        }
-        setSaleMessage(`Você embarcou no navio em Thais e chegou em ${targetHunt.name}!`);
-      },
-    });
-
-    setSaleMessage(`Caminhando até as escadas do cais para viajar para ${targetHunt.name}...`);
+    setSaleMessage(`Você viajou para ${targetHunt.name}!`);
   };
   startSelectedHuntRef.current = startSelectedHunt;
 

@@ -7,13 +7,25 @@ import {
   HOTBAR_POTIONS,
   HOTBAR_RUNES,
   findHotbarAction,
-  isHotbarActionUnlocked,
   type CharacterState,
   type GameContent,
-  type HotbarActionItem,
-  type HotbarPotionDefinition,
-  type HotbarRuneDefinition,
 } from '@/packages/domain/src';
+
+export interface HotbarCondition {
+  id: string;
+  target: 'self' | 'target' | 'leader';
+  metric: 'hp' | 'mana' | 'monsters';
+  operator: 'lte' | 'gte' | 'lt';
+  value: number;
+  isPercent: boolean;
+}
+
+export interface HotbarSlotConfig {
+  enabled: boolean;
+  healingTarget?: 'self' | 'lowest_hp' | 'party_leader';
+  ignoredMonsters?: string[];
+  conditions?: HotbarCondition[];
+}
 
 interface HotbarConfigModalProps {
   open: boolean;
@@ -21,10 +33,10 @@ interface HotbarConfigModalProps {
   character: CharacterState;
   content: GameContent;
   onClose: () => void;
-  onSave: (slotIndex: number, actionId: number | null) => void;
+  onSave: (slotIndex: number, actionId: number | null, config?: HotbarSlotConfig) => void;
 }
 
-type TabKey = 'spells' | 'runes' | 'potions';
+type TabKey = 'spells' | 'runes' | 'items';
 
 export function HotbarConfigModal({
   open,
@@ -36,23 +48,36 @@ export function HotbarConfigModal({
 }: HotbarConfigModalProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('spells');
   const currentActionId = character.hotbar[slotIndex] ?? null;
-  const [selectedId, setSelectedId] = useState<number | null>(currentActionId);
+  const [selectedId, setSelectedId] = useState<number | null>(
+    currentActionId ?? (content.spells.find((s) => s.name === 'Lesser Front Sweep')?.spellId ?? 168)
+  );
+  const [subTab, setSubTab] = useState<'details' | 'preview'>('details');
+
+  // Config states
+  const [isEnabled, setIsEnabled] = useState<boolean>(true);
+  const [healingTarget, setHealingTarget] = useState<'self' | 'lowest_hp' | 'party_leader'>('self');
+  const [ignoredMonsters, setIgnoredMonsters] = useState<string[]>([]);
+  const [isAddingIgnored, setIsAddingIgnored] = useState<boolean>(false);
+  const [ignoredInput, setIgnoredInput] = useState<string>('');
+  const [conditions, setConditions] = useState<HotbarCondition[]>([
+    { id: '1', target: 'self', metric: 'hp', operator: 'lte', value: 75, isPercent: true },
+  ]);
 
   if (!open) return null;
 
-  // Filter spells for this character's vocation
+  // Spells filtered for vocation
   const availableSpells = content.spells.filter((spell) =>
-    spell.vocations.includes(character.vocation)
+    spell.vocations.includes(character.vocation) || spell.vocations.includes(character.baseVocation)
   );
 
-  // Filter runes
+  // Runes filtered for vocation
   const availableRunes = HOTBAR_RUNES.filter((rune) =>
-    rune.vocations.includes(character.vocation)
+    rune.vocations.includes(character.vocation) || rune.vocations.includes(character.baseVocation)
   );
 
-  // Filter potions
+  // Potions/items filtered for vocation
   const availablePotions = HOTBAR_POTIONS.filter((potion) =>
-    potion.vocations.includes(character.vocation)
+    potion.vocations.includes(character.vocation) || potion.vocations.includes(character.baseVocation)
   );
 
   const selectedAction = selectedId !== null ? findHotbarAction(selectedId, content) : null;
@@ -62,201 +87,452 @@ export function HotbarConfigModal({
   };
 
   const handleSave = () => {
-    onSave(slotIndex, selectedId);
+    onSave(slotIndex, selectedId, {
+      enabled: isEnabled,
+      healingTarget,
+      ignoredMonsters,
+      conditions,
+    });
     onClose();
   };
 
-  const handleClear = () => {
-    onSave(slotIndex, null);
-    onClose();
+  const handleAddCondition = () => {
+    setConditions((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(),
+        target: 'self',
+        metric: 'hp',
+        operator: 'lte',
+        value: 75,
+        isPercent: true,
+      },
+    ]);
+  };
+
+  const handleRemoveCondition = (id: string) => {
+    setConditions((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const handleUpdateCondition = (id: string, patch: Partial<HotbarCondition>) => {
+    setConditions((prev) => prev.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+  };
+
+  const handleAddIgnoredMonster = () => {
+    const trimmed = ignoredInput.trim();
+    if (trimmed && !ignoredMonsters.includes(trimmed)) {
+      setIgnoredMonsters((prev) => [...prev, trimmed]);
+      setIgnoredInput('');
+      setIsAddingIgnored(false);
+    }
+  };
+
+  const handleRemoveIgnoredMonster = (name: string) => {
+    setIgnoredMonsters((prev) => prev.filter((m) => m !== name));
   };
 
   return (
     <div className="hotbar-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="hotbar-modal-window" onClick={(e) => e.stopPropagation()}>
+      <div className="hotbar-config-window" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="hotbar-modal-header">
-          <div className="hotbar-modal-title">
-            <span>⚙️ Configurar Hotkey {slotIndex < 12 ? `[F${slotIndex + 1}]` : `Slot ${slotIndex + 1}`}</span>
-            <small>Personagem: {character.name} ({character.vocation} · Lv {character.level})</small>
-          </div>
-          <button type="button" className="hotbar-modal-close" onClick={onClose} title="Fechar">
+        <div className="hotbar-config-header">
+          <span className="hotbar-config-title">Configurar ação</span>
+          <button type="button" className="hotbar-config-close" onClick={onClose} title="Fechar">
             ✕
           </button>
         </div>
 
-        {/* 3 Tabs */}
-        <div className="hotbar-modal-tabs" role="tablist">
+        {/* Top Tabs */}
+        <div className="hotbar-top-tabs" role="tablist">
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'spells'}
-            className={`hotbar-tab-btn ${activeTab === 'spells' ? 'active' : ''}`}
+            className={`hotbar-top-tab ${activeTab === 'spells' ? 'active' : ''}`}
             onClick={() => setActiveTab('spells')}
           >
-            🔮 Magias ({availableSpells.length})
+            Magias
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'runes'}
-            className={`hotbar-tab-btn ${activeTab === 'runes' ? 'active' : ''}`}
+            className={`hotbar-top-tab ${activeTab === 'runes' ? 'active' : ''}`}
             onClick={() => setActiveTab('runes')}
           >
-            📜 Runas ({availableRunes.length})
+            Runas
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={activeTab === 'potions'}
-            className={`hotbar-tab-btn ${activeTab === 'potions' ? 'active' : ''}`}
-            onClick={() => setActiveTab('potions')}
+            className={`hotbar-top-tab ${activeTab === 'items' ? 'active' : ''}`}
+            onClick={() => setActiveTab('items')}
           >
-            🧪 Itens & Poções ({availablePotions.length})
+            Itens
           </button>
         </div>
 
-        {/* Content Area */}
-        <div className="hotbar-modal-list">
-          {activeTab === 'spells' && (
-            <div className="hotbar-cards-grid">
-              {availableSpells.map((spell) => {
-                const unlocked = character.level >= spell.requiredLevel;
+        {/* 2-Column Body Layout */}
+        <div className="hotbar-config-body">
+          {/* Left Column: Vertical Action List */}
+          <div className="hotbar-left-column">
+            {activeTab === 'spells' &&
+              availableSpells.map((spell) => {
                 const isSelected = selectedId === spell.spellId;
                 return (
                   <div
                     key={spell.spellId}
-                    className={`hotbar-action-card ${isSelected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
+                    className={`hotbar-list-card ${isSelected ? 'selected' : ''}`}
                     onClick={() => handleSelect(spell.spellId)}
                   >
-                    <div className="action-card-top">
-                      <Tibia11ActionIcon id={spell.spellId} kind="spell" name={spell.name} size={32} />
-                      <div className="action-card-header">
-                        <span className="action-name">{spell.name}</span>
-                        <span className="action-words">{spell.words}</span>
-                      </div>
-                    </div>
-                    <div className="action-card-meta">
-                      <span className="badge mana">{spell.mana} MP</span>
-                      <span className="badge group">{spell.group.toUpperCase()}</span>
-                      <span className={`badge req ${unlocked ? 'ok' : 'req-fail'}`}>
-                        {unlocked ? `Lv ${spell.requiredLevel}` : `Requer Lv ${spell.requiredLevel}`}
-                      </span>
-                    </div>
-                    <div className="action-card-desc">
-                      Recarga: {(spell.cooldownMs / 1000).toFixed(1)}s · Alcance: {spell.range > 0 ? `${spell.range} tiles` : 'Auto'}
-                    </div>
+                    <Tibia11ActionIcon id={spell.spellId} kind="spell" name={spell.name} size={32} />
+                    <span className="hotbar-card-name">{spell.name}</span>
                   </div>
                 );
               })}
-            </div>
-          )}
 
-          {activeTab === 'runes' && (
-            <div className="hotbar-cards-grid">
-              {availableRunes.map((rune) => {
-                const unlocked =
-                  character.level >= rune.requiredLevel &&
-                  character.skills.magicLevel >= rune.requiredMagicLevel;
+            {activeTab === 'runes' &&
+              availableRunes.map((rune) => {
                 const isSelected = selectedId === rune.id;
+                const goldBadge =
+                  rune.id === 2273 ? '160'
+                  : rune.id === 2311 ? '15'
+                  : rune.id === 2302 ? '30'
+                  : rune.id === 2271 ? '30'
+                  : rune.id === 2288 ? '40'
+                  : '45';
                 return (
                   <div
                     key={rune.id}
-                    className={`hotbar-action-card ${isSelected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
+                    className={`hotbar-list-card ${isSelected ? 'selected' : ''}`}
                     onClick={() => handleSelect(rune.id)}
                   >
-                    <div className="action-card-top">
+                    <div className="hotbar-icon-container">
                       <Tibia11ActionIcon id={rune.id} kind="rune" name={rune.name} size={32} />
-                      <div className="action-card-header">
-                        <span className="action-name">{rune.name}</span>
-                        <span className="action-words">{rune.words}</span>
-                      </div>
+                      <span className="hotbar-rune-badge">{goldBadge}</span>
                     </div>
-                    <div className="action-card-meta">
-                      <span className="badge type">{rune.combatType.toUpperCase()}</span>
-                      <span className={`badge req ${character.level >= rune.requiredLevel ? 'ok' : 'req-fail'}`}>
-                        Lv {rune.requiredLevel}
-                      </span>
-                      <span className={`badge req ${character.skills.magicLevel >= rune.requiredMagicLevel ? 'ok' : 'req-fail'}`}>
-                        ML {rune.requiredMagicLevel}
-                      </span>
-                    </div>
-                    <div className="action-card-desc">{rune.description}</div>
+                    <span className="hotbar-card-name">{rune.name}</span>
                   </div>
                 );
               })}
-            </div>
-          )}
 
-          {activeTab === 'potions' && (
-            <div className="hotbar-cards-grid">
-              {availablePotions.map((potion) => {
-                const unlocked = character.level >= potion.requiredLevel;
+            {activeTab === 'items' &&
+              availablePotions.map((potion) => {
                 const isSelected = selectedId === potion.id;
+                const badge =
+                  potion.id === 8704 ? 'Grátis'
+                  : potion.id === 7618 ? '50'
+                  : potion.id === 7620 ? '56'
+                  : potion.id === 7589 ? '108'
+                  : potion.id === 7588 ? '115'
+                  : '225';
                 return (
                   <div
                     key={potion.id}
-                    className={`hotbar-action-card ${isSelected ? 'selected' : ''} ${!unlocked ? 'locked' : ''}`}
+                    className={`hotbar-list-card ${isSelected ? 'selected' : ''}`}
                     onClick={() => handleSelect(potion.id)}
                   >
-                    <div className="action-card-top">
+                    <div className="hotbar-icon-container">
                       <Tibia11ActionIcon id={potion.id} kind="potion" name={potion.name} size={32} />
-                      <div className="action-card-header">
-                        <span className="action-name">{potion.name}</span>
-                        <span className="action-badge-tag">{potion.category === 'healing' ? '❤️ VIDA' : '💙 MANA'}</span>
-                      </div>
+                      <span className={`hotbar-potion-badge ${badge === 'Grátis' ? 'free' : ''}`}>{badge}</span>
                     </div>
-                    <div className="action-card-meta">
-                      <span className={`badge req ${unlocked ? 'ok' : 'req-fail'}`}>
-                        {unlocked ? `Lv ${potion.requiredLevel}` : `Requer Lv ${potion.requiredLevel}`}
-                      </span>
-                      <span className="badge group">Recarga 1.0s</span>
-                    </div>
-                    <div className="action-card-desc">{potion.description}</div>
+                    <span className="hotbar-card-name">{potion.name}</span>
                   </div>
                 );
               })}
-            </div>
-          )}
-        </div>
-
-        {/* Footer / Actions */}
-        <div className="hotbar-modal-footer">
-          <div className="hotbar-selected-info">
-            {selectedAction ? (
-              <div className="selected-preview-box">
-                <Tibia11ActionIcon
-                  id={selectedAction.kind === 'spell' ? selectedAction.spell.spellId : selectedAction.kind === 'rune' ? selectedAction.rune.id : selectedAction.potion.id}
-                  kind={selectedAction.kind}
-                  name={selectedAction.kind === 'spell' ? selectedAction.spell.name : selectedAction.kind === 'rune' ? selectedAction.rune.name : selectedAction.potion.name}
-                  size={24}
-                />
-                <span>
-                  Selecionado:{' '}
-                  <strong>
-                    {selectedAction.kind === 'spell'
-                      ? selectedAction.spell.name
-                      : selectedAction.kind === 'rune'
-                      ? selectedAction.rune.name
-                      : selectedAction.potion.name}
-                  </strong>{' '}
-                  ({selectedAction.kind.toUpperCase()})
-                </span>
-              </div>
-            ) : (
-              <span className="text-muted">Nenhuma ação selecionada (slot ficará vazio: +)</span>
-            )}
           </div>
-          <div className="hotbar-footer-buttons">
-            <button type="button" className="btn-modal-clear" onClick={handleClear} title="Esvaziar este slot">
-              Limpar Slot (+)
-            </button>
-            <button type="button" className="btn-modal-cancel" onClick={onClose}>
-              Cancelar
-            </button>
-            <button type="button" className="btn-modal-save" onClick={handleSave}>
-              Salvar
-            </button>
+
+          {/* Right Column: Detailed Action Config Panel */}
+          <div className="hotbar-right-column">
+            {selectedAction ? (
+              <>
+                {/* Header info */}
+                <div className="hotbar-detail-header">
+                  <Tibia11ActionIcon
+                    id={
+                      selectedAction.kind === 'spell' ? selectedAction.spell.spellId
+                      : selectedAction.kind === 'rune' ? selectedAction.rune.id
+                      : selectedAction.potion.id
+                    }
+                    kind={selectedAction.kind}
+                    name={
+                      selectedAction.kind === 'spell' ? selectedAction.spell.name
+                      : selectedAction.kind === 'rune' ? selectedAction.rune.name
+                      : selectedAction.potion.name
+                    }
+                    size={36}
+                  />
+                  <h3 className="hotbar-detail-title">
+                    {selectedAction.kind === 'spell' ? selectedAction.spell.name
+                    : selectedAction.kind === 'rune' ? selectedAction.rune.name
+                    : selectedAction.potion.name}
+                  </h3>
+                </div>
+
+                {/* Sub-tabs */}
+                <div className="hotbar-sub-tabs">
+                  <button
+                    type="button"
+                    className={`hotbar-sub-tab ${subTab === 'details' ? 'active' : ''}`}
+                    onClick={() => setSubTab('details')}
+                  >
+                    Detalhes
+                  </button>
+                  <button
+                    type="button"
+                    className={`hotbar-sub-tab ${subTab === 'preview' ? 'active' : ''}`}
+                    onClick={() => setSubTab('preview')}
+                  >
+                    Prévia
+                  </button>
+                </div>
+
+                {/* Details Tab Content */}
+                {subTab === 'details' && (
+                  <div className="hotbar-detail-content">
+                    {/* Classification */}
+                    <div className="hotbar-class-desc">
+                      {selectedAction.kind === 'spell' && (
+                        selectedAction.spell.group === 'attack'
+                          ? 'Magia em área — atinge os inimigos ao seu redor.'
+                          : selectedAction.spell.group === 'healing'
+                          ? 'Magia de cura — restaura vida instantaneamente.'
+                          : 'Magia de suporte — confere efeitos benéficos.'
+                      )}
+                      {selectedAction.kind === 'rune' && (
+                        selectedAction.rune.category === 'healing'
+                          ? 'Runa de cura — lançada em você ou em um aliado por perto.'
+                          : 'Runa de ataque — disparada contra inimigos.'
+                      )}
+                      {selectedAction.kind === 'potion' && 'Bebe sozinha quando a regra dela passa.'}
+                    </div>
+
+                    {/* Flavour Description */}
+                    <div className="hotbar-flavour-text">
+                      {selectedAction.kind === 'spell' && (
+                        selectedAction.spell.name === 'Lesser Front Sweep'
+                          ? "A novice's sweep across the three tiles ahead — cheap, weak, and the first attack spell a knight learns."
+                          : selectedAction.spell.name === 'Wound Cleansing'
+                          ? "Heals a knight's wounds in battle using stamina and focus."
+                          : `${selectedAction.spell.words} — ${selectedAction.spell.group} spell.`
+                      )}
+                      {selectedAction.kind === 'rune' && selectedAction.rune.description}
+                      {selectedAction.kind === 'potion' && selectedAction.potion.description}
+                    </div>
+
+                    {/* Stats Line */}
+                    <div className="hotbar-stats-line">
+                      {selectedAction.kind === 'spell' && (
+                        `${selectedAction.spell.mana} de mana · ${(selectedAction.spell.cooldownMs / 1000).toFixed(0)}s de cooldown`
+                      )}
+                      {selectedAction.kind === 'rune' && (
+                        `Custa ${selectedAction.rune.id === 2273 ? 160 : 40} gold por uso.`
+                      )}
+                      {selectedAction.kind === 'potion' && (
+                        selectedAction.potion.id === 8704 ? 'Uso gratuito — não custa gold.' : `Recupera vida/mana com recarga de 1.0s.`
+                      )}
+                    </div>
+
+                    {/* Damage / Heal Range */}
+                    <div className="hotbar-formula-line">
+                      {selectedAction.kind === 'spell' && (
+                        selectedAction.spell.name === 'Lesser Front Sweep' ? 'Causa 51–90 de dano em cada inimigo atingido'
+                        : selectedAction.spell.name === 'Wound Cleansing' ? 'Cura 80–140 de vida'
+                        : selectedAction.spell.group === 'healing' ? 'Cura vida proporcional ao seu nível e Magic Level'
+                        : 'Causa dano físico/elemental nos alvos atingidos'
+                      )}
+                      {selectedAction.kind === 'rune' && (
+                        selectedAction.rune.id === 2273 ? 'Cura 168–272 de vida' : 'Causa dano com base no seu Magic Level'
+                      )}
+                      {selectedAction.kind === 'potion' && (
+                        selectedAction.potion.id === 8704 ? 'Cura 63–88 de vida' : `Cura ${selectedAction.potion.healMin ?? 150}–${selectedAction.potion.healMax ?? 200} de vida`
+                      )}
+                    </div>
+
+                    {/* Mitigation / Note */}
+                    <div className="hotbar-note-line">
+                      {selectedAction.kind === 'spell' && selectedAction.spell.group === 'attack' && 'Antes da armadura e das resistências do alvo.'}
+                    </div>
+
+                    {/* Requirement */}
+                    <div className="hotbar-req-line">
+                      {selectedAction.kind === 'spell' && `Requer: knight only, level ${selectedAction.spell.requiredLevel}+`}
+                      {selectedAction.kind === 'rune' && `Requer: level ${selectedAction.rune.requiredLevel}+`}
+                      {selectedAction.kind === 'potion' && (selectedAction.potion.id === 8704 ? 'Uso gratuito — não custa gold.' : `Requer: level ${selectedAction.potion.requiredLevel}+`)}
+                    </div>
+
+                    {/* Monstros ignorados (for area spells) */}
+                    {selectedAction.kind === 'spell' && selectedAction.spell.group === 'attack' && (
+                      <div className="hotbar-section-block">
+                        <div className="hotbar-section-header">
+                          <span className="hotbar-section-title">Monstros ignorados</span>
+                          <button
+                            type="button"
+                            className="hotbar-section-btn"
+                            onClick={() => setIsAddingIgnored(true)}
+                          >
+                            + Ignorar um monstro...
+                          </button>
+                        </div>
+                        <p className="hotbar-section-desc">
+                          Este slot nunca dispara contra eles, e eles nunca contam nas condições de área dele. Nenhum outro slot da barra é afetado.
+                        </p>
+                        {isAddingIgnored && (
+                          <div className="hotbar-inline-add">
+                            <input
+                              type="text"
+                              placeholder="Nome do monstro (ex: Rat)"
+                              value={ignoredInput}
+                              onChange={(e) => setIgnoredInput(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddIgnoredMonster()}
+                            />
+                            <button type="button" onClick={handleAddIgnoredMonster}>Ignorar</button>
+                            <button type="button" onClick={() => setIsAddingIgnored(false)}>Cancelar</button>
+                          </div>
+                        )}
+                        <div className="hotbar-ignored-list">
+                          {ignoredMonsters.length === 0 ? (
+                            <span className="hotbar-empty-text">Nada ignorado — este slot ataca tudo.</span>
+                          ) : (
+                            ignoredMonsters.map((m) => (
+                              <span key={m} className="hotbar-tag">
+                                {m} <button type="button" onClick={() => handleRemoveIgnoredMonster(m)}>✕</button>
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Alvo da cura Dropdown (for healing actions) */}
+                    {((selectedAction.kind === 'spell' && selectedAction.spell.group === 'healing') ||
+                      (selectedAction.kind === 'rune' && selectedAction.rune.category === 'healing')) && (
+                      <div className="hotbar-section-block">
+                        <label className="hotbar-section-title">Alvo da cura</label>
+                        <select
+                          className="hotbar-select-input"
+                          value={healingTarget}
+                          onChange={(e) => setHealingTarget(e.target.value as any)}
+                        >
+                          <option value="self">Você mesmo</option>
+                          <option value="lowest_hp">Aliado com menor HP</option>
+                          <option value="party_leader">Líder da party</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Condições Section */}
+                    <div className="hotbar-section-block">
+                      <div className="hotbar-section-header">
+                        <span className="hotbar-section-title">Condições</span>
+                        <button
+                          type="button"
+                          className="hotbar-section-btn"
+                          onClick={handleAddCondition}
+                        >
+                          + Adicionar condição
+                        </button>
+                      </div>
+
+                      {conditions.length === 0 ? (
+                        <p className="hotbar-section-desc">
+                          Todas as condições precisam bater. Sem condições, dispara sempre.
+                        </p>
+                      ) : (
+                        <div className="hotbar-conditions-list">
+                          {conditions.map((cond) => (
+                            <div key={cond.id} className="hotbar-condition-row">
+                              <select
+                                className="hotbar-cond-select"
+                                value={cond.target}
+                                onChange={(e) => handleUpdateCondition(cond.id, { target: e.target.value as any })}
+                              >
+                                <option value="self">Você</option>
+                                <option value="target">Alvo</option>
+                                <option value="leader">Líder</option>
+                              </select>
+
+                              <select
+                                className="hotbar-cond-select"
+                                value={cond.metric}
+                                onChange={(e) => handleUpdateCondition(cond.id, { metric: e.target.value as any })}
+                              >
+                                <option value="hp">HP</option>
+                                <option value="mana">MP</option>
+                                <option value="monsters">Monstros</option>
+                              </select>
+
+                              <select
+                                className="hotbar-cond-select"
+                                value={cond.operator}
+                                onChange={(e) => handleUpdateCondition(cond.id, { operator: e.target.value as any })}
+                              >
+                                <option value="lte">menor ou igual a</option>
+                                <option value="gte">maior ou igual a</option>
+                                <option value="lt">menor que</option>
+                              </select>
+
+                              <div className="hotbar-stepper">
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateCondition(cond.id, { value: Math.max(1, cond.value - 5) })}
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  value={cond.value}
+                                  onChange={(e) => handleUpdateCondition(cond.id, { value: Number(e.target.value) })}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateCondition(cond.id, { value: cond.value + 5 })}
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              <label className="hotbar-percent-checkbox">
+                                <input
+                                  type="checkbox"
+                                  checked={cond.isPercent}
+                                  onChange={(e) => handleUpdateCondition(cond.id, { isPercent: e.target.checked })}
+                                />
+                                <span>%</span>
+                              </label>
+
+                              <button
+                                type="button"
+                                className="hotbar-remove-cond-btn"
+                                onClick={() => handleRemoveCondition(cond.id)}
+                                title="Remover condição"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="hotbar-empty-right">
+                <span>Nenhuma ação selecionada</span>
+              </div>
+            )}
+
+            {/* Right Column Bottom Footer */}
+            <div className="hotbar-right-footer">
+              <label className="hotbar-active-checkbox">
+                <input
+                  type="checkbox"
+                  checked={isEnabled}
+                  onChange={(e) => setIsEnabled(e.target.checked)}
+                />
+                <span>Ativada</span>
+              </label>
+
+              <button type="button" className="hotbar-save-btn" onClick={handleSave}>
+                Salvar
+              </button>
+            </div>
           </div>
         </div>
       </div>
