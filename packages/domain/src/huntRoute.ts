@@ -10,6 +10,7 @@ const counts: Record<string, Array<[number, number]>> = {
   'troll-camp': [[1, 2], [2, 3], [2, 3], [3, 4], [3, 4], [3, 5]],
   'old-crypt': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 5]],
   'rotworm-cave': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 6]],
+  'dragon-lair': [[1, 2], [2, 3], [2, 3], [3, 4], [3, 4], [3, 5]],
 };
 
 function routeThroughMap(room: RoomState): GridPosition[] {

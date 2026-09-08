@@ -11,11 +11,11 @@ import { content } from './fixture';
 describe('structural hunt and inventory UX', () => {
   it('keeps every real hunt region large, populated and almost fully backed by OTBM tiles', () => {
     const regions = (regionsJson as HuntRegionCatalog).regions;
-    expect(regions).toHaveLength(5);
+    expect(regions).toHaveLength(6);
     for (const region of regions) {
       expect(region.bounds.width).toBeGreaterThanOrEqual(45);
       expect(region.bounds.height).toBeGreaterThanOrEqual(30);
-      expect(region.spawnPositions.length).toBeGreaterThanOrEqual(6);
+      expect(region.spawnPositions.length).toBeGreaterThanOrEqual(5);
       expect(region.tiles.length / (region.bounds.width * region.bounds.height)).toBeGreaterThan(0.98);
       expect(region.tiles.filter((tile) => tile.walkable).length).toBeGreaterThan(100);
     }

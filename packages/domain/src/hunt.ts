@@ -48,6 +48,12 @@ export const initialHunts: HuntDefinition[] = [
     roomDefinitions: rooms('rotworm-cave'), environment: { regionId: 'rotworm-cave', label: 'Rotworm cave', source: 'styller-otbm' },
     waves: waves('rotworm', [1, 1, 2, 2, 2, 3, 3, 3, 4, 0], 'The Burrower', 2),
   },
+  {
+    id: 'dragon-lair', name: 'Dragon Lair', description: 'Caverna profunda extraída de um lair real habitado por Dragons.',
+    recommendedLevel: 45, minimumLevel: 25, monsters: ['dragon'], rewardProfile: 'xp', status: 'available',
+    roomDefinitions: rooms('dragon-lair'), environment: { regionId: 'dragon-lair', label: 'Dragon lair', source: 'styller-otbm' },
+    waves: waves('dragon', [1, 1, 2, 2, 2, 3, 3, 3, 4, 0], 'Dragon Lord', 1),
+  },
 ];
 
 export const rotwormCave = initialHunts.find((hunt) => hunt.id === 'rotworm-cave')!;

@@ -140,6 +140,112 @@
       ]
     },
     {
+      "itemId": 2145,
+      "canonicalSellPrice": 300,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 200,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 200,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Briasol",
+          "sourceFile": "data/npc/Briasol.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Chantalle",
+          "sourceFile": "data/npc/Chantalle.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Edmund",
+          "sourceFile": "data/npc/Edmund.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Gail",
+          "sourceFile": "data/npc/Gail.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Hanna",
+          "sourceFile": "data/npc/Hanna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Ishina",
+          "sourceFile": "data/npc/Ishina.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Iwan",
+          "sourceFile": "data/npc/Iwan.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Jessica",
+          "sourceFile": "data/npc/Jessica.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Odemara",
+          "sourceFile": "data/npc/Odemara.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Oiriz",
+          "sourceFile": "data/npc/Oiriz.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Talila",
+          "sourceFile": "data/npc/Talila.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Tesha",
+          "sourceFile": "data/npc/Tesha.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Tezila",
+          "sourceFile": "data/npc/Tezila.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Valindara",
+          "sourceFile": "data/npc/Valindara.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": [
+        "Multiple proven sell prices (200, 300); canonical rule selects the highest."
+      ]
+    },
+    {
       "itemId": 2148,
       "canonicalSellPrice": 1,
       "status": "sellable",
@@ -179,6 +285,46 @@
       "offers": [
         {
           "price": 50,
+          "sourceNpc": "Haroun",
+          "sourceFile": "data/npc/Haroun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2177,
+      "canonicalSellPrice": 85,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 85,
+          "sourceNpc": "Alexander",
+          "sourceFile": "data/npc/Alexander.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2187,
+      "canonicalSellPrice": 3000,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 3000,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3000,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3000,
           "sourceNpc": "Haroun",
           "sourceFile": "data/npc/Haroun.xml",
           "sourceKind": "npc-xml-shop-sellable"
@@ -601,6 +747,98 @@
       ]
     },
     {
+      "itemId": 2387,
+      "canonicalSellPrice": 260,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 260,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Uzgod",
+          "sourceFile": "data/npc/Uzgod.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 260,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
       "itemId": 2388,
       "canonicalSellPrice": 25,
       "status": "sellable",
@@ -871,6 +1109,104 @@
       ]
     },
     {
+      "itemId": 2397,
+      "canonicalSellPrice": 51,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 51,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Habdel",
+          "sourceFile": "data/npc/Habdel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Romella",
+          "sourceFile": "data/npc/Romella.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Rowenna",
+          "sourceFile": "data/npc/Rowenna.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Uzgod",
+          "sourceFile": "data/npc/Uzgod.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 51,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
       "itemId": 2398,
       "canonicalSellPrice": 30,
       "status": "sellable",
@@ -1013,6 +1349,60 @@
       ]
     },
     {
+      "itemId": 2409,
+      "canonicalSellPrice": 900,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 900,
+          "sourceNpc": "Alesar",
+          "sourceFile": "data/npc/Alesar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 900,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2413,
+      "canonicalSellPrice": 500,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 500,
+          "sourceNpc": "Nah'Bob",
+          "sourceFile": "data/npc/Nah'bob.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 2434,
+      "canonicalSellPrice": 2000,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 2000,
+          "sourceNpc": "Alesar",
+          "sourceFile": "data/npc/Alesar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 2000,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
       "itemId": 2448,
       "canonicalSellPrice": 10,
       "status": "sellable",
@@ -1103,6 +1493,242 @@
         }
       ],
       "warnings": []
+    },
+    {
+      "itemId": 2455,
+      "canonicalSellPrice": 160,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 120,
+          "sourceNpc": "Asnarus",
+          "sourceFile": "data/npc/Asnarus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Dario",
+          "sourceFile": "data/npc/Dario.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Edoch",
+          "sourceFile": "data/npc/Edoch.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Gnomerrow",
+          "sourceFile": "data/npc/Gnomerrow.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Maun",
+          "sourceFile": "data/npc/Maun.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Perod",
+          "sourceFile": "data/npc/Perod.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Taegen",
+          "sourceFile": "data/npc/Taegen.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Vincent",
+          "sourceFile": "data/npc/Vincent.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 120,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 160,
+          "sourceNpc": "Timur",
+          "sourceFile": "data/npc/Timur.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": [
+        "Multiple proven sell prices (120, 160); canonical rule selects the highest."
+      ]
+    },
+    {
+      "itemId": 2457,
+      "canonicalSellPrice": 300,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 190,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 190,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 190,
+          "sourceNpc": "Ulrik",
+          "sourceFile": "data/npc/Ulrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Aldo",
+          "sourceFile": "data/npc/Aldo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Flint",
+          "sourceFile": "data/npc/Flint.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Gamel",
+          "sourceFile": "data/npc/Gamel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 293,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 300,
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": [
+        "Multiple proven sell prices (190, 293, 300); canonical rule selects the highest."
+      ]
     },
     {
       "itemId": 2460,
@@ -1755,6 +2381,110 @@
       ]
     },
     {
+      "itemId": 2509,
+      "canonicalSellPrice": 80,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 80,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Baltim",
+          "sourceFile": "data/npc/Baltim.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Turvy",
+          "sourceFile": "data/npc/Turvy.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Ulrik",
+          "sourceFile": "data/npc/Ulrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 80,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
       "itemId": 2510,
       "canonicalSellPrice": 45,
       "status": "sellable",
@@ -2109,6 +2839,34 @@
       ]
     },
     {
+      "itemId": 2516,
+      "canonicalSellPrice": 4000,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 360,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4000,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 4000,
+          "sourceNpc": "Nah'Bob",
+          "sourceFile": "data/npc/Nah'bob.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": [
+        "Multiple proven sell prices (360, 4000); canonical rule selects the highest."
+      ]
+    },
+    {
       "itemId": 2530,
       "canonicalSellPrice": 50,
       "status": "sellable",
@@ -2205,6 +2963,25 @@
         }
       ],
       "warnings": []
+    },
+    {
+      "itemId": 2546,
+      "canonicalSellPrice": 10,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 10,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Burst_Arrow",
+          "sourceName": "TibiaWiki — Burst Arrow",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
+      "warnings": [
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+      ]
     },
     {
       "itemId": 2553,
@@ -2634,6 +3411,110 @@
       "warnings": []
     },
     {
+      "itemId": 2647,
+      "canonicalSellPrice": 115,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 115,
+          "sourceNpc": "Aldo",
+          "sourceFile": "data/npc/Aldo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Azil",
+          "sourceFile": "data/npc/Azil.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Brengus",
+          "sourceFile": "data/npc/Brengus.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Cedrik",
+          "sourceFile": "data/npc/Cedrik.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Cornelia",
+          "sourceFile": "data/npc/Cornelia.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Hardek",
+          "sourceFile": "data/npc/Hardek.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Kroox",
+          "sourceFile": "data/npc/Kroox.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Memech",
+          "sourceFile": "data/npc/Memech.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Morpel",
+          "sourceFile": "data/npc/Morpel.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Robert",
+          "sourceFile": "data/npc/Robert.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Rock In A Hard Place",
+          "sourceFile": "data/npc/Rock In A Hard Place.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Sam",
+          "sourceFile": "data/npc/Sam.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Shanar",
+          "sourceFile": "data/npc/Shanar.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Willard",
+          "sourceFile": "data/npc/Willard.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 115,
+          "sourceNpc": "Yanni",
+          "sourceFile": "data/npc/Yanni.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
       "itemId": 2649,
       "canonicalSellPrice": 9,
       "status": "sellable",
@@ -2805,6 +3686,25 @@
       "warnings": []
     },
     {
+      "itemId": 2672,
+      "canonicalSellPrice": 25,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 25,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Dragon_Ham",
+          "sourceName": "TibiaWiki — Dragon Ham",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
+      "warnings": [
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+      ]
+    },
+    {
       "itemId": 2679,
       "canonicalSellPrice": 1,
       "status": "sellable",
@@ -2946,6 +3846,38 @@
       ]
     },
     {
+      "itemId": 5877,
+      "canonicalSellPrice": 100,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 100,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Irmana",
+          "sourceFile": "data/npc/Irmana.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
       "itemId": 5878,
       "canonicalSellPrice": 80,
       "status": "sellable",
@@ -3036,6 +3968,77 @@
         }
       ],
       "warnings": []
+    },
+    {
+      "itemId": 5920,
+      "canonicalSellPrice": 100,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 100,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Fiona",
+          "sourceFile": "data/npc/Fiona.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 7430,
+      "canonicalSellPrice": 3000,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 3000,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 3000,
+          "sourceNpc": "Rashid",
+          "sourceFile": "data/npc/Rashid.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 7588,
+      "canonicalSellPrice": 100,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 100,
+          "sourceType": "web",
+          "sourceKind": "web-reference",
+          "sourceUrl": "https://tibia.fandom.com/wiki/Strong_Health_Potion",
+          "sourceName": "TibiaWiki — Strong Health Potion",
+          "retrievedAt": "2026-09-03",
+          "tibiaVersionContext": "Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+        }
+      ],
+      "warnings": [
+        "Web fallback: Preço de venda canônico oficial do Tibia 8.60 / 11 (NPC de compra de equipamentos, utilitários, comida ou creature products)."
+      ]
     },
     {
       "itemId": 8859,
@@ -3190,6 +4193,38 @@
         },
         {
           "price": 35,
+          "sourceNpc": "Yasir",
+          "sourceFile": "data/npc/Yasir.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "itemId": 12413,
+      "canonicalSellPrice": 100,
+      "status": "sellable",
+      "offers": [
+        {
+          "price": 100,
+          "sourceNpc": "Edward",
+          "sourceFile": "data/npc/Compra Tudo.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Edward Rook",
+          "sourceFile": "data/npc/Compra Tudo Rook.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
+          "sourceNpc": "Fiona",
+          "sourceFile": "data/npc/Fiona.xml",
+          "sourceKind": "npc-xml-shop-sellable"
+        },
+        {
+          "price": 100,
           "sourceNpc": "Yasir",
           "sourceFile": "data/npc/Yasir.xml",
           "sourceKind": "npc-xml-shop-sellable"

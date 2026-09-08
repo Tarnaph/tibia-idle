@@ -161,8 +161,8 @@ describe('Phase 8 training and promotion', () => {
 });
 
 describe('Phase 8 hunts and economy', () => {
-  it('models five ten-wave OTBM hunts and derives each final boss from its real base monster', () => {
-    expect(initialHunts).toHaveLength(5);
+  it('models ten-wave OTBM hunts and derives each final boss from its real base monster', () => {
+    expect(initialHunts).toHaveLength(6);
     for (const hunt of initialHunts) {
       expect(hunt.waves).toHaveLength(10);
       expect(hunt.waves.slice(0, 9).every((wave) => !wave.boss)).toBe(true);

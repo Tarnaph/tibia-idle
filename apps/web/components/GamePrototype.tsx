@@ -1539,7 +1539,10 @@ function GamePrototypeContent() {
     const nextSeed = seed.trim() || defaultSeed;
     setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
     setMode('hunt');
-    gameNetwork.sendSetInHunt(true);
+    gameNetwork.sendSetInHunt(true, huntId);
+    if (huntId === 'dragon-lair') {
+      gameNetwork.sendTeleport(32741, 31294, 11);
+    }
     if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntSync(huntId, nextSeed);
     }

@@ -14,7 +14,7 @@ interface ImportOptions { projectRoot?: string; write?: boolean }
 
 export const SELECTED_MONSTER_FILES = [
   'rat', 'cave_rat', 'spider', 'bug', 'poison_spider', 'troll', 'swamp_troll',
-  'rotworm', 'skeleton', 'minotaur', 'dwarf', 'carrion_worm',
+  'rotworm', 'skeleton', 'minotaur', 'dwarf', 'carrion_worm', 'dragon',
 ] as const;
 
 const asArray = <T>(value: T | T[] | undefined): T[] => value === undefined ? [] : Array.isArray(value) ? value : [value];

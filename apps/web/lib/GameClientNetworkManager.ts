@@ -403,9 +403,9 @@ export class GameClientNetworkManager {
     this.stateListeners.forEach((fn) => fn(new Map(this.playersMap)));
   }
 
-  sendSetInHunt(inHunt: boolean): void {
+  sendSetInHunt(inHunt: boolean, huntId?: string): void {
     if (!this.room) return;
-    this.room.send('player:setInHunt', { inHunt });
+    this.room.send('player:setInHunt', { inHunt, huntId });
   }
 
   sendMove(direction: 'north' | 'south' | 'east' | 'west', coords?: { x: number; y: number; z?: number }): void {

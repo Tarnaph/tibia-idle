@@ -36,11 +36,12 @@ const regions: Array<{
   size: [number, number];
   monsterDensityRatio: number;
 }> = [
-  { huntId: 'thais-rats', name: 'Thais Sewers Rats', monsterName: 'Rat', recommendedLevel: 1, center: [32369, 32241, 8, 12], size: [25, 25], monsterDensityRatio: 0.15 },
-  { huntId: 'thais-trolls', name: 'Thais East Trolls Cave', monsterName: 'Troll', recommendedLevel: 8, center: [32475, 32265, 8, 14], size: [30, 30], monsterDensityRatio: 0.2 },
-  { huntId: 'thais-rotworms', name: 'Thais South Rotworms Cave', monsterName: 'Rotworm', recommendedLevel: 15, center: [32340, 32330, 8, 16], size: [35, 35], monsterDensityRatio: 0.25 },
-  { huntId: 'fibula-dungeon', name: 'Fibula Underground Dungeon', monsterName: 'Skeleton', recommendedLevel: 25, center: [32170, 32430, 9, 20], size: [40, 40], monsterDensityRatio: 0.3 },
-  { huntId: 'cyclopolis', name: 'Edron Cyclopolis Deep Mines', monsterName: 'Dwarf', recommendedLevel: 45, center: [33250, 31690, 9, 24], size: [50, 50], monsterDensityRatio: 0.35 },
+  { huntId: 'rat-cellars', name: 'Rat Cellars', monsterName: 'Rat', recommendedLevel: 1, center: [566, 1092, 10, 12], size: [25, 25], monsterDensityRatio: 0.15 },
+  { huntId: 'spider-burrow', name: 'Spider Burrow', monsterName: 'Spider', recommendedLevel: 4, center: [632, 1085, 10, 14], size: [30, 30], monsterDensityRatio: 0.2 },
+  { huntId: 'troll-camp', name: 'Troll Camp', monsterName: 'Troll', recommendedLevel: 7, center: [528, 1132, 8, 16], size: [35, 35], monsterDensityRatio: 0.25 },
+  { huntId: 'old-crypt', name: 'Old Crypt', monsterName: 'Skeleton', recommendedLevel: 10, center: [550, 1139, 9, 20], size: [40, 40], monsterDensityRatio: 0.3 },
+  { huntId: 'rotworm-cave', name: 'Rotworm Cave', monsterName: 'Rotworm', recommendedLevel: 12, center: [967, 975, 8, 24], size: [50, 50], monsterDensityRatio: 0.35 },
+  { huntId: 'dragon-lair', name: 'Dragon Lair', monsterName: 'Dragon', recommendedLevel: 45, center: [32741, 31294, 11, 20], size: [50, 50], monsterDensityRatio: 0.35 },
 ];
 
 function readNode(buffer: Buffer, startOffset: number): { node: OtbNode; nextOffset: number } {

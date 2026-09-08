@@ -19,8 +19,8 @@ describe('idle hunt domain', () => {
     expect(rotwormCave.waves[9].boss).toMatchObject({ baseMonsterId: 'rotworm', name: 'The Burrower', hpMultiplier: 4 });
   });
 
-  it('provides five real STYLLER habitat hunts with gradual recommended levels', () => {
-    expect(initialHunts.map((hunt) => hunt.recommendedLevel)).toEqual([1, 4, 7, 10, 12]);
+  it('provides real STYLLER habitat hunts with gradual recommended levels', () => {
+    expect(initialHunts.map((hunt) => hunt.recommendedLevel)).toEqual([1, 4, 7, 10, 12, 45]);
     expect(initialHunts.every((hunt) => hunt.waves.length === 10 && hunt.environment.source === 'styller-otbm')).toBe(true);
     const imported = new Set(content.monsters.map((monster) => monster.id));
     expect(initialHunts.flatMap((hunt) => hunt.monsters).every((id) => imported.has(id))).toBe(true);

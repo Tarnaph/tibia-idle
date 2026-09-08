@@ -353,6 +353,11 @@ export class ThaisCityRoom extends Room<WorldState> {
           return;
         }
         player.inHunt = wantsHunt;
+        if (wantsHunt && data.huntId === 'dragon-lair') {
+          player.posX = 32741;
+          player.posY = 31294;
+          player.posZ = 11;
+        }
       }
     });
 

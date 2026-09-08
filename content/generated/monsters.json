@@ -878,6 +878,175 @@
         "ice": -5
       },
       "immunities": []
+    },
+    {
+      "id": "dragon",
+      "source": {
+        "format": "styller-monster-xml",
+        "relativePath": "data/monster/reptiles/dragons/dragon.xml"
+      },
+      "name": "Dragon",
+      "description": "a dragon",
+      "race": "blood",
+      "experience": 700,
+      "speed": 185,
+      "maxHp": 1000,
+      "armor": 30,
+      "defense": 30,
+      "lookType": 34,
+      "corpseId": 5973,
+      "attacks": [
+        {
+          "kind": "melee",
+          "intervalMs": 2000,
+          "minDamage": 0,
+          "maxDamage": 120
+        }
+      ],
+      "loot": [
+        {
+          "itemId": 2145,
+          "name": "small diamond",
+          "chance": 380,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2148,
+          "name": "gold coin",
+          "chance": 47500,
+          "maxCount": 70
+        },
+        {
+          "itemId": 2148,
+          "name": "gold coin",
+          "chance": 37500,
+          "maxCount": 45
+        },
+        {
+          "itemId": 2177,
+          "name": "life crystal",
+          "chance": 120,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2187,
+          "name": "wand of inferno",
+          "chance": 1005,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2387,
+          "name": "double axe",
+          "chance": 960,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2397,
+          "name": "longsword",
+          "chance": 4000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2409,
+          "name": "serpent sword",
+          "chance": 420,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2413,
+          "name": "broadsword",
+          "chance": 1950,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2434,
+          "name": "dragon hammer",
+          "chance": 560,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2455,
+          "name": "crossbow",
+          "chance": 10000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2457,
+          "name": "steel helmet",
+          "chance": 3000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2509,
+          "name": "steel shield",
+          "chance": 15000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2516,
+          "name": "dragon shield",
+          "chance": 320,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2546,
+          "name": "burst arrow",
+          "chance": 8060,
+          "maxCount": 10
+        },
+        {
+          "itemId": 2647,
+          "name": "plate legs",
+          "chance": 2000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 2672,
+          "name": "dragon ham",
+          "chance": 65500,
+          "maxCount": 3
+        },
+        {
+          "itemId": 5877,
+          "name": "green dragon leather",
+          "chance": 1005,
+          "maxCount": 1
+        },
+        {
+          "itemId": 5920,
+          "name": "green dragon scale",
+          "chance": 1000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 7430,
+          "name": "dragonbone staff",
+          "chance": 110,
+          "maxCount": 1
+        },
+        {
+          "itemId": 7588,
+          "name": "strong health potion",
+          "chance": 1000,
+          "maxCount": 1
+        },
+        {
+          "itemId": 12413,
+          "name": "dragon's tail",
+          "chance": 9740,
+          "maxCount": 1
+        }
+      ],
+      "elementalPercent": {
+        "earth": 80,
+        "energy": 20,
+        "ice": -10
+      },
+      "immunities": [
+        "paralyze",
+        "invisible",
+        "fire"
+      ]
     }
   ]
 }
