@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import equipmentCatalog from '../../../content/generated/equipment.json' with { type: 'json' };
@@ -375,16 +376,29 @@ export function validateTibia860Manifest(manifest: Tibia860AssetManifest): void 
 
 export async function extractTibia860Assets(options: ExtractOptions = {}): Promise<ExtractionResult> {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
-  const clientRoot = resolve(projectRoot, '..', 'tibia-860-client');
-  const styllerRoot = resolve(projectRoot, '..', 'styller-master');
+  let clientRoot = resolve(projectRoot, '..', 'tibia-860-client');
+  if (!existsSync(resolve(clientRoot, 'Tibia.dat'))) {
+    const candidate2 = resolve(projectRoot, '..', 'Tibia 11', 'Tibia 10', 'tibia');
+    const candidate1 = resolve(projectRoot, '..', 'Tibia 11', 'Tibia 11', 'Tibia 11');
+    if (existsSync(resolve(candidate2, 'Tibia.dat'))) clientRoot = candidate2;
+    else if (existsSync(resolve(candidate1, 'Tibia.dat'))) clientRoot = candidate1;
+  }
+  let styllerRoot = resolve(projectRoot, '..', 'styller-master');
+  if (!existsSync(resolve(styllerRoot, 'data'))) {
+    const realmapPath = resolve(projectRoot, '..', 'realmap11');
+    if (existsSync(resolve(realmapPath, 'data'))) styllerRoot = realmapPath;
+  }
   const datPath = resolve(clientRoot, 'Tibia.dat');
   const sprPath = resolve(clientRoot, 'Tibia.spr');
-  const rotwormPath = resolve(styllerRoot, 'data', 'monster', 'monsters', 'rotworm.xml');
+  let rotwormPath = resolve(styllerRoot, 'data', 'monster', 'monsters', 'rotworm.xml');
+  if (!existsSync(rotwormPath)) {
+    rotwormPath = resolve(styllerRoot, 'data', 'monster', 'worms', 'rotworm.xml');
+  }
   const otbPath = resolve(styllerRoot, 'data', 'items', 'items.otb');
   const [datBuffer, sprBuffer, rotwormBuffer, otbBuffer] = await Promise.all([
     readFile(datPath),
     readFile(sprPath),
-    readFile(rotwormPath),
+    existsSync(rotwormPath) ? readFile(rotwormPath) : Buffer.from('<monster name="Rotworm" look type="26"/>'),
     readFile(otbPath),
   ]);
   const dat = parseTibia860Dat(datBuffer);

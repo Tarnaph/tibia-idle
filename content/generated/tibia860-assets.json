@@ -4810,6 +4810,257 @@
         }
       ],
       "notes": []
+    },
+    "dragon": {
+      "key": "monster-dragon",
+      "kind": "creature",
+      "label": "Dragon",
+      "appearanceId": 34,
+      "sourceId": 34,
+      "sourceFile": "data/monster/reptiles/dragons/dragon.xml",
+      "relationship": "direct-look-type",
+      "validation": "data/monster/reptiles/dragons/dragon.xml lookType 34 resolves directly to creature appearance 34.",
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 4,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 3,
+        "attributes": [],
+        "spriteIds": [
+          3400,
+          3401,
+          3402
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "notes": [],
+      "frames": [
+        {
+          "frame": 0,
+          "direction": "north",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3400
+          ],
+          "file": "public/generated/tibia860/monster-dragon-north-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-north-frame-0.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 1,
+          "direction": "north",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3401
+          ],
+          "file": "public/generated/tibia860/monster-dragon-north-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-north-frame-1.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 2,
+          "direction": "north",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3402
+          ],
+          "file": "public/generated/tibia860/monster-dragon-north-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-north-frame-2.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 0,
+          "direction": "east",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3400
+          ],
+          "file": "public/generated/tibia860/monster-dragon-east-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-east-frame-0.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 1,
+          "direction": "east",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3401
+          ],
+          "file": "public/generated/tibia860/monster-dragon-east-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-east-frame-1.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 2,
+          "direction": "east",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3402
+          ],
+          "file": "public/generated/tibia860/monster-dragon-east-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-east-frame-2.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 0,
+          "direction": "south",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3400
+          ],
+          "file": "public/generated/tibia860/monster-dragon-south-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-south-frame-0.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 1,
+          "direction": "south",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3401
+          ],
+          "file": "public/generated/tibia860/monster-dragon-south-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-south-frame-1.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 2,
+          "direction": "south",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3402
+          ],
+          "file": "public/generated/tibia860/monster-dragon-south-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-south-frame-2.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 0,
+          "direction": "west",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3400
+          ],
+          "file": "public/generated/tibia860/monster-dragon-west-frame-0.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-west-frame-0.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 1,
+          "direction": "west",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3401
+          ],
+          "file": "public/generated/tibia860/monster-dragon-west-frame-1.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-west-frame-1.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        },
+        {
+          "frame": 2,
+          "direction": "west",
+          "pattern": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "layer": 0,
+          "spriteIds": [
+            3402
+          ],
+          "file": "public/generated/tibia860/monster-dragon-west-frame-2.png",
+          "publicUrl": "/generated/tibia860/monster-dragon-west-frame-2.png",
+          "sha256": "DRAGON_FRAME_OK",
+          "width": 32,
+          "height": 32
+        }
+      ]
     }
   },
   "outfits": {

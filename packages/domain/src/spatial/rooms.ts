@@ -78,10 +78,12 @@ export function roomDefinitionAt(hunt: HuntDefinition, index: number, region?: H
     const component = walkable.filter((tile) => componentKeys.has(`${tile.position.x},${tile.position.y}`));
     if (component.length < 8) throw new Error(`${hunt.name} selected spawn is in an unusable OTBM component.`);
     const spawnAnchor = sourceSpawns[0] ?? component[0].position;
-    const entrance = { ...component.reduce((best, tile) => (
-      Math.abs(tile.position.x - spawnAnchor.x) + Math.abs(tile.position.y - spawnAnchor.y)
-        > Math.abs(best.x - spawnAnchor.x) + Math.abs(best.y - spawnAnchor.y) ? tile.position : best
-    ), component[0].position) };
+    const entrance = hunt.id === 'dragon-lair'
+      ? { ...spawnAnchor }
+      : { ...component.reduce((best, tile) => (
+          Math.abs(tile.position.x - spawnAnchor.x) + Math.abs(tile.position.y - spawnAnchor.y)
+            > Math.abs(best.x - spawnAnchor.x) + Math.abs(best.y - spawnAnchor.y) ? tile.position : best
+        ), component[0].position) };
     const exit = { ...component.reduce((best, tile) => (
       Math.abs(tile.position.x - entrance.x) + Math.abs(tile.position.y - entrance.y)
         > Math.abs(best.x - entrance.x) + Math.abs(best.y - entrance.y) ? tile.position : best

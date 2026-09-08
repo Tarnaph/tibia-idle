@@ -368,7 +368,9 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           view.label.text = character.name; view.sprite.alpha = actor.alive ? 1 : 0.45;
         }
         for (const enemy of state.encounter.enemies.filter((candidate) => candidate.alive)) {
-          liveIds.add(enemy.id); const mapping = visualAssets.creatures[enemy.monsterId]; if (!mapping) continue;
+          liveIds.add(enemy.id);
+          const mapping = visualAssets.creatures[enemy.monsterId] || visualAssets.creatures['dragon'] || visualAssets.creatures['rotworm'] || Object.values(visualAssets.creatures)[0];
+          if (!mapping) continue;
           const view = views.get(enemy.id) ?? createView(enemy.id, mapping, enemy.previousPosition, enemy.direction, enemy.name, true);
           view.label.text = enemy.name; view.label.style.fill = enemy.variant?.visualModifier === 'rare-aura' ? 0xd694ff : enemy.variant ? 0xffc857 : 0xe6ded0;
           view.sprite.scale.set(enemy.variant?.scale ?? 1);

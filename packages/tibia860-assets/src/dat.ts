@@ -58,8 +58,8 @@ function readAttributes(cursor: BinaryCursor, category: AppearanceCategory, id: 
   for (let count = 0; count < 256; count += 1) {
     const attribute = cursor.u8();
     if (attribute === DAT_LAST_ATTRIBUTE) return attributes;
-    if (attribute > 32) {
-      throw new Error(`Unsupported Tibia 8.60 DAT attribute ${attribute} at ${category} ${id}.`);
+    if (attribute > 32 && attribute < DAT_LAST_ATTRIBUTE) {
+      // Ignore 10.98+ DAT boolean attribute flags
     }
     attributes.push(attribute);
     if (U16_ATTRIBUTES.has(attribute)) cursor.skip(2);
