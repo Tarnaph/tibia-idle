@@ -65,42 +65,59 @@ export const ALL_SPELL_ICON_URLS: string[] = [
   '/spells/hmm-rune.png',
   '/spells/ice-storm.png',
   '/potions/small-health-potion.png',
+  '/potions/health-potion.png',
   '/potions/strong-health-potion.png',
   '/potions/great-health-potion.png',
   '/potions/ultimate-health-potion.png',
   '/potions/supreme-health-potion.png',
   '/potions/small-mana-potion.png',
+  '/potions/mana-potion.png',
   '/potions/strong-mana-potion.png',
   '/potions/great-mana-potion.png',
   '/potions/ultimate-mana-potion.png',
   '/potions/great-spirit-potion.png',
   '/potions/ultimate-spirit-potion.png',
+  '/potions/antidote-potion.png',
+  '/potions/berserk-potion.png',
+  '/potions/mastermind-potion.png',
+  '/potions/bullseye-potion.png',
+  '/potions/empty-potion-flask.png',
 ];
 
 /**
- * Resolves an action to an authentic official CipSoft image path extracted in Phase 20
+ * Resolves an action to an authentic official CipSoft image path extracted in Phase 20 / Phase 91
  */
 export function resolveActionImagePath(id?: number, kind?: string, name?: string): string | null {
   const lower = (name || '').toLowerCase();
 
-  // 1. Potions (Authentic transparent flacons)
-  if (kind === 'potion' || lower.includes('potion')) {
-    if (id === 26031 || lower.includes('supreme')) return '/potions/supreme-health-potion.png';
+  // 1. Potions (Authentic transparent flacons from Tibia 10.98 client)
+  if (kind === 'potion' || lower.includes('potion') || lower.includes('flask')) {
+    if (id === 26031 || lower.includes('supreme health') || (id === undefined && lower.includes('supreme') && !lower.includes('mana') && !lower.includes('spirit'))) return '/potions/supreme-health-potion.png';
     if (lower.includes('spirit') || id === 8472 || id === 26030) {
-      if (id === 26030 || lower.includes('ultimate')) return '/potions/ultimate-spirit-potion.png';
+      if (id === 26030 || lower.includes('ultimate') || lower.includes('supreme')) return '/potions/ultimate-spirit-potion.png';
       return '/potions/great-spirit-potion.png';
     }
     if (lower.includes('mana') || id === 7620 || id === 7589 || id === 7590 || id === 26029) {
-      if (id === 26029 || lower.includes('ultimate')) return '/potions/ultimate-mana-potion.png';
+      if (id === 26029 || lower.includes('ultimate') || lower.includes('supreme')) return '/potions/ultimate-mana-potion.png';
       if (id === 7590 || lower.includes('great')) return '/potions/great-mana-potion.png';
       if (id === 7589 || lower.includes('strong')) return '/potions/strong-mana-potion.png';
-      return '/potions/small-mana-potion.png';
+      if (lower.includes('small')) return '/potions/small-mana-potion.png';
+      return '/potions/mana-potion.png';
     }
+    if (id === 8474 || id === 10089 || lower.includes('antidote')) return '/potions/antidote-potion.png';
+    if (id === 7439 || lower.includes('berserk')) return '/potions/berserk-potion.png';
+    if (id === 7440 || lower.includes('mastermind')) return '/potions/mastermind-potion.png';
+    if (id === 7443 || lower.includes('bullseye')) return '/potions/bullseye-potion.png';
+    if (id === 7634) return '/potions/empty-potion-flask-small.png';
+    if (id === 7635) return '/potions/empty-potion-flask-medium.png';
+    if (id === 7636 || lower.includes('flask')) return '/potions/empty-potion-flask.png';
+
     // Health Potions
     if (id === 8473 || lower.includes('ultimate')) return '/potions/ultimate-health-potion.png';
     if (id === 7591 || lower.includes('great')) return '/potions/great-health-potion.png';
     if (id === 7588 || lower.includes('strong')) return '/potions/strong-health-potion.png';
-    return '/potions/small-health-potion.png';
+    if (id === 8704 || lower.includes('small')) return '/potions/small-health-potion.png';
+    return '/potions/health-potion.png';
   }
 
   // 2. Runes (Authentic CipSoft Rune/Spell Icons)

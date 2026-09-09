@@ -52,6 +52,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 88: Sincronização Dinâmica da Barra de Progresso de XP (XP Progress Bar Tracking)** - Substituição dos cálculos estáticos/lineares pela fórmula autoritativa `experienceProgress(level, experience) * 100` do domínio no `BottomConsoleHUD`, `SkillsWindow`, `LeftSidebar` e `RightSidebar`, garantindo que a barra de XP atualize em tempo real a cada monstro derrotado e ganho de experiência.
 - [x] **Phase 89: Tela de Carregamento de Login e Sincronização Atômica de Estado do Personagem** - Ocultação total do personagem provisório no templo de Thais durante a entrada no jogo, exibição de tela de carregamento autêntica estilo Tibia e inicialização direta com nome, outfit e coordenadas salvas do banco de dados.
 - [x] **Phase 90: Perseguição Universal de Monstros e Seleção Dinâmica de Alvos (ALVO - Mais próximo, Menor vida, Maior vida)** - Expansão do raio de detecção de monstros para 50+ tiles garantindo perseguição agressiva de todos as criaturas no mapa, e implementação funcional do dropdown ALVO no BottomConsoleHUD integrando as estratégias `'closest'`, `'lowest-hp'` e `'highest-hp'` na ordenação de alvos no combate.
+- [ ] **Phase 91: Extração e Correção de Sprites Autênticas de Poções (Health, Mana, Spirit e Variações) via Tibia 10.98 & RealMap 11** - Mapeamento e extração determinística via items.otb e Tibia.dat/Tibia.spr de todas as poções de cura, mana, spirit e elixires do jogo (7618, 7620, 7588, 7589, 7590, 7591, 8472, 8473, 26029, 26030, 26031, 8704, 7439, 7440, 7443, 8474), substituição dos ícones sintéticos/embaçados no Tibia11ActionIcon e ItemSprite pelas sprites transparentes originais e integração total na Action Bar, Hotbar e Loja.
 
 ---
 
@@ -438,6 +439,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 71. Verificação de Existência de Personagem na Lista de Amigos | 1/1 | Complete | 2026-09-05 |
 | 72. Roteamento de Mensagens Privadas (Whisper) e Entrega Multijogador | 1/1 | Complete | 2026-09-05 |
 | 73. Abas Privadas Dedicadas no Chat para Mensagens Diretas (1-to-1 PMs) com Fechamento | 1/1 | Complete | 2026-09-06 |
+| 91. Extração e Correção de Sprites Autênticas de Poções via Tibia 10.98 | 1/1 | Complete | 2026-09-09 |
 
 -----
 
@@ -1619,3 +1621,31 @@ Plans: Concluído com sucesso.
 
 Plans: Concluído com sucesso.
 - [x] 89-01-PLAN: Tela de Carregamento de Login e Sincronização Atômica do Personagem.
+
+### Phase 90: Perseguição Universal de Monstros e Seleção Dinâmica de Alvos (ALVO)
+
+**Goal:** Expandir a perseguição agressiva de criaturas no mapa e integrar o dropdown de estratégia de alvo ('closest', 'lowest-hp', 'highest-hp') no BottomConsoleHUD.
+**Depends on:** Phase 89
+**Plans:** Concluído com sucesso.
+- [x] 90-01-PLAN: Perseguição Universal de Monstros e Seleção Dinâmica de Alvos.
+
+### Phase 91: Extração e Correção de Sprites Autênticas de Poções (Health, Mana, Spirit e Variações) via Tibia 10.98 & RealMap 11
+
+**Goal:** Extrair diretamente do `items.otb` e `Tibia.dat`/`Tibia.spr` do Tibia 10.98 todas as poções de vida, mana, espírito e elixires do jogo, integrando-as ao manifesto `tibia1098-assets.json`, substituindo imagens sintéticas no `Tibia11ActionIcon` e garantindo renderização nítida em Action Bar, Hotbar, Loja e Inventário.
+**Depends on:** Phase 90
+**Requirements:**
+1. Extração de todos os Server IDs de poções via `packages/tibia1098-assets/src/extractor.ts`:
+   - Health Potions: 8704, 7618, 7588, 7591, 8473, 26031.
+   - Mana Potions: 7620, 7589, 7590, 26029.
+   - Spirit Potions: 8472, 26030.
+   - Antidotes & Elixires: 8474, 10089, 7439, 7440, 7443, 7634, 7635, 7636.
+2. Atualização dos caminhos de imagem no `Tibia11ActionIcon.tsx` e substituição das sprites em `public/potions/` pelos PNGs autênticos.
+3. Testes automatizados cobrindo resolução, dimensões de sprites e mapeamentos de ação.
+**Success Criteria:**
+1. Todas as poções possuem sprites originais do Tibia 10.98 renderizadas em 32x32 pixels.
+2. Action Bar e Hotbar exibem as poções autênticas.
+3. Loja e Inventário renderizam poções via `ItemSprite` sem ícones ausentes (`?`).
+4. 0 erros de tipagem e 100% dos testes Vitest passando.
+
+Plans:
+- [x] 91-01-PLAN: Extração e Correção de Sprites Autênticas de Poções.

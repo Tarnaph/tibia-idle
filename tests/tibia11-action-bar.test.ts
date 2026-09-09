@@ -190,8 +190,12 @@ describe('Phase 17: Tibia 11 Migration, Potions, Runes and Action Bar', () => {
 
     // Potions
     const healthPotionPath = resolveActionImagePath(7618, 'potion', 'Health Potion');
-    expect(healthPotionPath).toBe('/potions/small-health-potion.png');
+    expect(healthPotionPath).toBe('/potions/health-potion.png');
     expect(fs.existsSync(path.resolve('public', healthPotionPath!.slice(1)))).toBe(true);
+
+    const smallHealthPotionPath = resolveActionImagePath(8704, 'potion', 'Small Health Potion');
+    expect(smallHealthPotionPath).toBe('/potions/small-health-potion.png');
+    expect(fs.existsSync(path.resolve('public', smallHealthPotionPath!.slice(1)))).toBe(true);
 
     const supremePotionPath = resolveActionImagePath(26031, 'potion', 'Supreme Health Potion');
     expect(supremePotionPath).toBe('/potions/supreme-health-potion.png');
