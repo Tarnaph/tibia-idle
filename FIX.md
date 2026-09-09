@@ -1,3 +1,8 @@
 # CORREÇÕES
 
-Precisamos corrigir os icones das magias e os nomes dela, vamos começar pelo sorcerer, master sorcerer vou mandar prints com elas para auxiliar correção
+Os efeitos das magias ainda estão errado
+
+o nome da magia que aparecia em cima da cabeça dos personagens com o icone sumiu precisa ajustar estava certo 
+
+Faça um menu sanduiche do lado do sair e adicione uma ferramenta que permite tirar aumentar ou diminuir zoom da tela para o jogador escolher como quer
+

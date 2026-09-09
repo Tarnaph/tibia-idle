@@ -7,8 +7,9 @@ import type { CardinalDirection, GameState, GridPosition } from '@/packages/doma
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
 import type { Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
 import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
-import { resolveActionImagePath } from './Tibia11ActionIcon';
+import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getRecoloredCanvasSync, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
+import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 
 interface PixiArenaProps {
   game: GameState;
@@ -17,60 +18,6 @@ interface PixiArenaProps {
   onSelectTarget?: (enemyId: string) => void;
   onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
 }
-
-const ALL_SPELL_ICON_URLS = [
-  '/spells/exura.png',
-  '/spells/exura-gran.png',
-  '/spells/exura-vita.png',
-  '/spells/exura-sio.png',
-  '/spells/exura-san.png',
-  '/spells/exura-ico.png',
-  '/spells/exana-mort.png',
-  '/spells/exori.png',
-  '/spells/exori-ico.png',
-  '/spells/exori-gran.png',
-  '/spells/exori-mas.png',
-  '/spells/exori-hur.png',
-  '/spells/exori-min.png',
-  '/spells/exori-vis.png',
-  '/spells/exori-flam.png',
-  '/spells/exori-frigo.png',
-  '/spells/exori-tera.png',
-  '/spells/exori-mort.png',
-  '/spells/exori-san.png',
-  '/spells/energy-beam.png',
-  '/spells/physical-strike.png',
-  '/spells/3g.png',
-  '/spells/3h.png',
-  '/spells/3i.png',
-  '/spells/3j.png',
-  '/spells/3l.png',
-  '/spells/4g.png',
-  '/spells/4h.png',
-  '/spells/4j.png',
-  '/spells/2g.png',
-  '/spells/2h.png',
-  '/spells/2i.png',
-  '/spells/utamo-vita.png',
-  '/spells/utani-hur.png',
-  '/spells/utani-gran-hur.png',
-  '/spells/utito-tempo.png',
-  '/spells/exeta-res.png',
-  '/spells/exevo-vis-hur.png',
-  '/spells/exevo-flam-hur.png',
-  '/spells/exevo-frigo-hur.png',
-  '/spells/exevo-tera-hur.png',
-  '/spells/exevo-gran-mas-flam.png',
-  '/spells/exevo-gran-mas-frigo.png',
-  '/spells/exevo-gran-mas-vis.png',
-  '/spells/exevo-gran-mas-tera.png',
-  '/spells/exevo-mas-san.png',
-  '/spells/sd-rune.png',
-  '/spells/gfb-rune.png',
-  '/spells/explosion-rune.png',
-  '/spells/hmm-rune.png',
-  '/spells/ice-storm.png',
-];
 interface ActorView {
   root: Container;
   sprite: Sprite;
@@ -665,7 +612,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         if (target) {
           const visualPosition = views.get(target.characterId)?.track.sample(now).renderPosition ?? target.position;
           const point = worldPoint(visualPosition);
-          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 2 });
+          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 2 * zoomMult });
           camera = cameraInitialized ? smoothWorldCamera(camera, desired, app.ticker.deltaMS) : desired; cameraInitialized = true;
           world.scale.set(camera.zoom); world.position.set(Math.round(app.screen.width / 2 - camera.x * camera.zoom), Math.round(app.screen.height / 2 - camera.y * camera.zoom));
           const debugText = overlay.getChildByLabel('camera-debug') as Text | null;
@@ -695,7 +642,14 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         resizeObserver.observe(hostRef.current);
       }
 
+      let zoomMult = getZoomMultiplier();
+      const unsubZoom = onZoomChange((val) => {
+        zoomMult = val;
+        cameraInitialized = false;
+      });
+
       cleanup = () => {
+        unsubZoom();
         if (resizeObserver) resizeObserver.disconnect();
         window.removeEventListener('resize', onResize);
         app.ticker.remove(render);

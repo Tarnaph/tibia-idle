@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useWindowManager, type WindowId } from './WindowManagerContext';
 import { AutoIdleButton } from '../AutoIdleButton';
+import { getZoomMultiplier, setZoomMultiplier, resetZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 
 interface WindowDockBarProps {
   gold: number;
@@ -46,6 +47,14 @@ export function WindowDockBar({
   onExitGame,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [zoom, setZoom] = useState(() => getZoomMultiplier());
+
+  useEffect(() => {
+    return onZoomChange((newZoom) => {
+      setZoom(newZoom);
+    });
+  }, []);
 
   const handleExit = () => {
     if (onExitGame) {
@@ -233,6 +242,79 @@ export function WindowDockBar({
             <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
           </svg>
         </button>
+
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <button
+            type="button"
+            className={`huntera-square-btn hamburger-btn ${isMenuOpen ? 'active' : ''}`}
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            title="Menu de Opções & Câmera Zoom"
+            aria-expanded={isMenuOpen}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+
+          {isMenuOpen && (
+            <div className="huntera-menu-dropdown">
+              <div className="menu-header">
+                <span>⚙️ Opções & Câmera</span>
+                <button type="button" className="close-menu-btn" onClick={() => setIsMenuOpen(false)}>×</button>
+              </div>
+
+              <div className="menu-section">
+                <div className="menu-section-title">🔍 Zoom da Câmera</div>
+                <div className="zoom-controls-row">
+                  <button
+                    type="button"
+                    className="zoom-btn"
+                    onClick={() => setZoomMultiplier(zoom - 0.15)}
+                    disabled={zoom <= 0.5}
+                    title="Diminuir Zoom (Aproximar Câmera)"
+                  >
+                    -
+                  </button>
+                  <div className="zoom-percentage-badge">
+                    {Math.round(zoom * 100)}%
+                  </div>
+                  <button
+                    type="button"
+                    className="zoom-btn"
+                    onClick={() => setZoomMultiplier(zoom + 0.15)}
+                    disabled={zoom >= 2.0}
+                    title="Aumentar Zoom (Afastar Câmera)"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="zoom-presets-grid">
+                  {[0.7, 0.85, 1.0, 1.15, 1.3, 1.5].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      className={`zoom-preset-btn ${Math.abs(zoom - preset) < 0.03 ? 'selected' : ''}`}
+                      onClick={() => setZoomMultiplier(preset)}
+                    >
+                      {Math.round(preset * 100)}%
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="zoom-reset-btn"
+                  onClick={() => resetZoomMultiplier()}
+                >
+                  ↺ Resetar Zoom (100%)
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <button
           type="button"

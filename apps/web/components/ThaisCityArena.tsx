@@ -13,6 +13,8 @@ import type { Application as PixiApplication, Texture as PixiTexture } from 'pix
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
 import { getRecoloredCanvasSync, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
+import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
+import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 
 export interface CityOverheadMessage {
   id: string;
@@ -280,6 +282,7 @@ export function ThaisCityArena({
       // 1. Preload highest priority assets immediately (including map tiles)
       const priorityUrls = [
         floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
+        ...ALL_SPELL_ICON_URLS,
         ...mapItemUrls,
         ...outfitUrls.slice(0, 32),
         ...teleportEffectUrls,
@@ -312,13 +315,14 @@ export function ThaisCityArena({
       }> = [];
 
       interface TimedCityVisual {
-        root: InstanceType<typeof Container> | InstanceType<typeof Sprite>;
+        root: InstanceType<typeof Container> | InstanceType<typeof Sprite> | InstanceType<typeof Text>;
         startedAt: number;
         durationMs: number;
         kind: 'missile' | 'effect' | 'float';
         from?: { x: number; y: number };
         to?: { x: number; y: number };
         frames?: string[];
+        startY?: number;
       }
       const timedCityVisuals: TimedCityVisual[] = [];
       let lastProcessedVisualEvents: CombatVisualEvent[] | undefined;
@@ -516,6 +520,7 @@ export function ThaisCityArena({
         direction: 'north' | 'south' | 'east' | 'west';
       }
 
+
       const followerVisualStates = new Map<string, FollowerVisualState>();
       const remoteMotionTracks = new Map<string, { track: VisualMotionTrack; lastTile: { x: number; y: number; z: number } }>();
 
@@ -533,6 +538,12 @@ export function ThaisCityArena({
       let smoothCamY = 0;
       let camInitialized = false;
       let hoveredPlayerId: string | null = null;
+
+      let zoomMult = getZoomMultiplier();
+      const unsubZoom = onZoomChange((val) => {
+        zoomMult = val;
+        camInitialized = false;
+      });
 
       const onPointerMove = (e: PointerEvent) => {
         const rect = app.canvas.getBoundingClientRect();
@@ -929,8 +940,8 @@ export function ThaisCityArena({
           currentPixelY = curPos.y * TILE_SIZE + 16;
         }
 
-        // 3. Camera smoothly follows interpolated player position with 2.0x scale (matching Hunt screen)
-        const cameraScale = 2;
+        // 3. Camera smoothly follows interpolated player position with scale matching user zoom preference
+        const cameraScale = 2 * zoomMult;
         const targetCamX = app.screen.width / 2 - currentPixelX * cameraScale;
         const targetCamY = app.screen.height / 2 - currentPixelY * cameraScale;
         if (!camInitialized) {
@@ -1099,7 +1110,7 @@ export function ThaisCityArena({
                   });
                 }
               }
-            } else if ((ev as any).type === 'spell-visual' || (ev as any).type === 'heal-applied' || (ev as any).type === 'spell') {
+            } else if ((ev as any).type === 'spell-visual' || (ev as any).type === 'heal-applied' || (ev as any).type === 'spell' || (ev as any).type === 'spell-cast') {
               const effectId = 'effectId' in ev ? (ev as any).effectId : null;
               if (effectId) {
                 const fxMapping = visualAssets.effects[String(effectId)];
@@ -1126,37 +1137,57 @@ export function ThaisCityArena({
                 }
               }
               const speech = 'speech' in ev ? (ev as any).speech : 'text' in ev ? (ev as any).text : '';
+              const spellId = 'spellId' in ev ? (ev as any).spellId : undefined;
               if (speech) {
-                const myLeader = curChars[0];
-                const speakerName = myLeader ? myLeader.name : 'Você';
-                const msgId = `spell-speech-${Date.now()}-${Math.random()}`;
-                const newMsg: CityOverheadMessage = {
-                  id: msgId,
-                  senderName: speakerName,
-                  text: speech,
-                  channel: 'local',
-                  timestamp: Date.now(),
-                };
-                if (latestRef.current.overheadMessages) {
-                  latestRef.current.overheadMessages.push(newMsg);
+                const speechContainer = new Container();
+                let iconWidth = 0;
+
+                const iconPath = resolveActionImagePath(spellId, 'spell', speech);
+                if (iconPath && loaded[iconPath]) {
+                  const iconSize = 14;
+                  const iconSprite = new Sprite(loaded[iconPath]);
+                  iconSprite.width = iconSize;
+                  iconSprite.height = iconSize;
+                  iconSprite.position.set(0, 0);
+
+                  const iconBorder = new Graphics()
+                    .rect(-0.5, -0.5, iconSize + 1, iconSize + 1)
+                    .stroke({ color: 0x111315, width: 1 });
+
+                  speechContainer.addChild(iconBorder, iconSprite);
+                  iconWidth = iconSize + 3;
                 }
-              }
-            } else if ((ev as any).type === 'spell-cast') {
-              const speech = 'speech' in ev ? (ev as any).speech : '';
-              if (speech) {
-                const myLeader = curChars[0];
-                const speakerName = myLeader ? myLeader.name : 'Você';
-                const msgId = `spell-speech-${Date.now()}-${Math.random()}`;
-                const newMsg: CityOverheadMessage = {
-                  id: msgId,
-                  senderName: speakerName,
+
+                const speechText = new Text({
                   text: speech,
-                  channel: 'local',
-                  timestamp: Date.now(),
-                };
-                if (latestRef.current.overheadMessages) {
-                  latestRef.current.overheadMessages.push(newMsg);
+                  resolution: 2,
+                  style: {
+                    fill: 0xf2a33c, // Authentic warm Tibia spell orange
+                    stroke: { color: 0x000000, width: 2 },
+                    fontSize: 7.5,
+                    fontFamily: 'Verdana, Arial, sans-serif',
+                    fontWeight: '700',
+                  },
+                });
+                speechText.position.set(iconWidth, 0);
+                speechContainer.addChild(speechText);
+
+                let targetPx = { x: currentPixelX, y: currentPixelY };
+                if ('targetPosition' in ev && (ev as any).targetPosition) {
+                  const tp = (ev as any).targetPosition;
+                  targetPx = { x: tp.x * TILE_SIZE + 16, y: tp.y * TILE_SIZE + 16 };
                 }
+                const totalWidth = iconWidth + speechText.width;
+                const startY = targetPx.y - 24;
+                speechContainer.position.set(targetPx.x - totalWidth / 2, startY);
+                effectsLayer.addChild(speechContainer);
+                timedCityVisuals.push({
+                  root: speechContainer,
+                  startedAt: now,
+                  durationMs: 1200,
+                  kind: 'float',
+                  startY,
+                });
               }
             } else if (ev.type === 'training-action') {
               // Direct training action event from domain training system
@@ -1222,6 +1253,10 @@ export function ThaisCityArena({
               vis.from.x + (vis.to.x - vis.from.x) * progress,
               vis.from.y + (vis.to.y - vis.from.y) * progress
             );
+          } else if (vis.kind === 'float') {
+            const startY = vis.startY ?? vis.root.position.y;
+            vis.root.position.y = startY - progress * 14;
+            vis.root.alpha = 1 - progress * 0.25;
           } else if (vis.kind === 'effect' && vis.frames && vis.frames.length > 0) {
             const frameIdx = Math.min(
               vis.frames.length - 1,
@@ -1530,6 +1565,7 @@ export function ThaisCityArena({
       });
 
       cleanup = () => {
+        unsubZoom();
         appRef.current = null;
         unsubNetworkCombat?.();
         hideGlobalPlayerTooltip();
