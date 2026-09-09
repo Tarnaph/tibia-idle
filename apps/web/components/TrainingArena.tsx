@@ -31,6 +31,8 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
       const app = new Application();
       await app.init({ resizeTo: hostRef.current ?? undefined, antialias: false, background: 0x090b0c, resolution: Math.min(2, window.devicePixelRatio), autoDensity: true, roundPixels: true });
       if (disposed || !hostRef.current) { app.destroy(true, { children: true }); return; }
+      app.canvas.style.imageRendering = 'pixelated';
+      (app.canvas.style as any).imageRendering = 'crisp-edges';
       const floorUrl = visualAssets.assets.trainingFloor.frames[0].publicUrl;
       const wallUrl = visualAssets.assets.trainingWall.frames[0].publicUrl;
       const rugUrl = visualAssets.assets.trainingRug.frames[0].publicUrl;

@@ -3,10 +3,12 @@
 import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
 import thaisCityJson from '@/content/generated/thais-city.json';
+import huntRegionsJson from '@/content/generated/hunt-regions.json';
 import visualAssetsJson from '@/content/generated/tibia860-assets.json';
 import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
+import type { HuntRegionCatalog } from '@/packages/content-schema/src';
 import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
-import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import type { ItemVisualAssetMapping, Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
 import { getRecoloredCanvasSync, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
@@ -99,11 +101,12 @@ export function ThaisCityArena({
   const appRef = useRef<PixiApplication | null>(null);
 
   useEffect(() => {
-    if (!appRef.current) return;
+    const app = appRef.current;
+    if (!app || !app.ticker) return;
     if (active) {
-      if (!appRef.current.ticker.started) appRef.current.ticker.start();
+      if (!app.ticker.started) app.ticker.start();
     } else {
-      if (appRef.current.ticker.started) appRef.current.ticker.stop();
+      if (app.ticker.started) app.ticker.stop();
     }
   }, [active]);
 
@@ -158,6 +161,8 @@ export function ThaisCityArena({
       }
 
       appRef.current = app;
+      app.canvas.style.imageRendering = 'pixelated';
+      (app.canvas.style as any).imageRendering = 'crisp-edges';
       hostRef.current.appendChild(app.canvas);
       app.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
       app.canvas.addEventListener('webglcontextlost', (e) => {
@@ -215,6 +220,7 @@ export function ThaisCityArena({
         ...(visualAssets.effects['10']?.frames.map((f) => f.publicUrl) ?? []),
       ];
       const upperTilesList = (thaisData as { upperTiles?: typeof thaisData.tiles }).upperTiles ?? [];
+      const huntTilesList = (huntRegionsJson as HuntRegionCatalog).regions.flatMap((r) => r.tiles);
       const mapItemUrls = Array.from(new Set([
         ...thaisData.tiles.flatMap((t) =>
           t.serverItemIds.flatMap((id) => {
@@ -226,6 +232,15 @@ export function ThaisCityArena({
           })
         ),
         ...upperTilesList.flatMap((t) =>
+          t.serverItemIds.flatMap((id) => {
+            const mapping = visualAssets.mapItems[String(id)];
+            if (mapping?.frames && mapping.frames.length > 0) {
+              return mapping.frames.map((f) => f.publicUrl);
+            }
+            return mapping?.frame ? [mapping.frame.publicUrl] : [];
+          })
+        ),
+        ...huntTilesList.flatMap((t) =>
           t.serverItemIds.flatMap((id) => {
             const mapping = visualAssets.mapItems[String(id)];
             if (mapping?.frames && mapping.frames.length > 0) {
@@ -352,15 +367,35 @@ export function ThaisCityArena({
         });
       };
 
-      // Fast tile lookups for ground (z:7) and upper floor / dock (z:6)
-      const tileMapZ7 = new Map<string, typeof thaisData.tiles[0]>();
-      const tileMapZ6 = new Map<string, typeof thaisData.tiles[0]>();
+      // Multi-floor spatial tile map lookup (Z=6, Z=7, Z=8..Z=11 for Dragon Lair)
+      interface SpatialTileInfo {
+        x: number;
+        y: number;
+        z?: number;
+        walkable: boolean;
+        serverItemIds: number[];
+      }
+      const tileMapByZ = new Map<number, Map<string, SpatialTileInfo>>();
+      const getTileMapForZ = (z: number) => {
+        let map = tileMapByZ.get(z);
+        if (!map) {
+          map = new Map<string, SpatialTileInfo>();
+          tileMapByZ.set(z, map);
+        }
+        return map;
+      };
+
       for (const t of thaisData.tiles) {
-        tileMapZ7.set(`${t.x},${t.y}`, t);
+        getTileMapForZ(t.z ?? 7).set(`${t.x},${t.y}`, t);
       }
       const upperTiles = (thaisData as { upperTiles?: typeof thaisData.tiles }).upperTiles ?? [];
       for (const t of upperTiles) {
-        tileMapZ6.set(`${t.x},${t.y}`, t);
+        getTileMapForZ(t.z ?? 6).set(`${t.x},${t.y}`, t);
+      }
+      for (const region of (huntRegionsJson as HuntRegionCatalog).regions) {
+        for (const t of region.tiles) {
+          getTileMapForZ(t.z).set(`${t.x},${t.y}`, t);
+        }
       }
 
       // Training dummies placed in the training room on Z:7
@@ -374,37 +409,48 @@ export function ThaisCityArena({
         objectsLayerZ7.addChild(dummySprite);
       }
 
-      // Pre-render world tiles in the Thais bounding box and collect animated items
-      const minX = thaisData.bounds.minX;
-      const maxX = thaisData.bounds.maxX;
-      const minY = thaisData.bounds.minY;
-      const maxY = thaisData.bounds.maxY;
-
       const animatedMapSprites: Array<{
         sprite: InstanceType<typeof Sprite>;
         frames: string[];
         frameDurationMs: number;
       }> = [];
 
-      for (let y = minY; y <= maxY; y++) {
-        for (let x = minX; x <= maxX; x++) {
-          const tile7 = tileMapZ7.get(`${x},${y}`);
-          const tile6 = tileMapZ6.get(`${x},${y}`);
-          const px = x * TILE_SIZE;
-          const py = y * TILE_SIZE;
+      function resolveTileFrame(mapping: ItemVisualAssetMapping, tileX: number, tileY: number) {
+        if (!mapping) return null;
+        let frameToUse = mapping.frame;
+        if (mapping.frames && mapping.frames.length > 1 && mapping.appearance) {
+          const px = mapping.appearance.patternX > 1 ? Math.abs(tileX) % mapping.appearance.patternX : 0;
+          const py = mapping.appearance.patternY > 1 ? Math.abs(tileY) % mapping.appearance.patternY : 0;
+          const matchedFrame = mapping.frames.find((f: any) => f.pattern?.x === px && f.pattern?.y === py) ?? mapping.frames[0];
+          if (matchedFrame && loaded[matchedFrame.publicUrl]) {
+            frameToUse = matchedFrame;
+          }
+        }
+        if (!frameToUse || !loaded[frameToUse.publicUrl]) return null;
+        return frameToUse;
+      }
 
-          // Render Z: 7 (ground floor) in floor7Container
-          let hasGroundSprite7 = false;
-          if (tile7) {
-            for (const sId of tile7.serverItemIds) {
-              const mapping = visualAssets.mapItems[String(sId)];
-              if (mapping?.isGround && mapping.frame && loaded[mapping.frame.publicUrl]) {
-                const sp = new Sprite(loaded[mapping.frame.publicUrl]);
+      // Pre-render tiles for all registered Z floors (including Dragon Lair at Z=11)
+      tileMapByZ.forEach((zMap, zLevel) => {
+        const targetTerrain = zLevel === 6 ? terrainLayerZ6 : terrainLayerZ7;
+        const targetObjects = zLevel === 6 ? objectsLayerZ6 : objectsLayerZ7;
+
+        zMap.forEach((tile) => {
+          const px = tile.x * TILE_SIZE;
+          const py = tile.y * TILE_SIZE;
+
+          let hasGroundSprite = false;
+          for (const sId of tile.serverItemIds) {
+            const mapping = visualAssets.mapItems[String(sId)];
+            if (mapping?.isGround) {
+              const frameToUse = resolveTileFrame(mapping, tile.x, tile.y);
+              if (frameToUse && loaded[frameToUse.publicUrl]) {
+                const sp = new Sprite(loaded[frameToUse.publicUrl]);
                 sp.position.set(px, py);
                 sp.roundPixels = true;
-                terrainLayerZ7.addChild(sp);
-                hasGroundSprite7 = true;
-                if (mapping.frames && mapping.frames.length > 1) {
+                targetTerrain.addChild(sp);
+                hasGroundSprite = true;
+                if (mapping.frames && mapping.frames.length > 1 && mapping.appearance?.frames && mapping.appearance.frames > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
                     frames: mapping.frames.map((f) => f.publicUrl),
@@ -414,18 +460,21 @@ export function ThaisCityArena({
                 break;
               }
             }
+          }
 
-            for (const sId of tile7.serverItemIds) {
-              const mapping = visualAssets.mapItems[String(sId)];
-              if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
-                const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-                const offsetY = mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0;
-                const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
+          for (const sId of tile.serverItemIds) {
+            const mapping = visualAssets.mapItems[String(sId)];
+            if (mapping && !mapping.isGround) {
+              const frameToUse = resolveTileFrame(mapping, tile.x, tile.y);
+              if (frameToUse && loaded[frameToUse.publicUrl]) {
+                const sp = new Sprite(loaded[frameToUse.publicUrl]);
+                const offsetY = frameToUse.height > 32 ? -(frameToUse.height - 32) : 0;
+                const offsetX = frameToUse.width > 32 ? -(frameToUse.width - 32) : 0;
                 sp.position.set(px + offsetX, py + offsetY);
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
-                objectsLayerZ7.addChild(sp);
-                if (mapping.frames && mapping.frames.length > 1) {
+                targetObjects.addChild(sp);
+                if (mapping.frames && mapping.frames.length > 1 && mapping.appearance?.frames && mapping.appearance.frames > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
                     frames: mapping.frames.map((f) => f.publicUrl),
@@ -436,65 +485,15 @@ export function ThaisCityArena({
             }
           }
 
-          if (!hasGroundSprite7) {
-            const isWalkable = tile7?.walkable ?? false;
+          if (!hasGroundSprite) {
+            const isWalkable = tile.walkable;
             const floorSp = new Sprite(loaded[isWalkable ? floorUrl : wallUrl]);
             floorSp.position.set(px, py);
             floorSp.roundPixels = true;
-            terrainLayerZ7.addChild(floorSp);
+            targetTerrain.addChild(floorSp);
           }
-
-          // Render Z: 6 (upper floor / dock pier) in floor6Container
-          if (tile6) {
-            let hasGroundSprite6 = false;
-            for (const sId of tile6.serverItemIds) {
-              const mapping = visualAssets.mapItems[String(sId)];
-              if (mapping?.isGround && mapping.frame && loaded[mapping.frame.publicUrl]) {
-                const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-                sp.position.set(px, py);
-                sp.roundPixels = true;
-                terrainLayerZ6.addChild(sp);
-                hasGroundSprite6 = true;
-                if (mapping.frames && mapping.frames.length > 1) {
-                  animatedMapSprites.push({
-                    sprite: sp,
-                    frames: mapping.frames.map((f) => f.publicUrl),
-                    frameDurationMs: mapping.animDurationMs || 180,
-                  });
-                }
-                break;
-              }
-            }
-
-            for (const sId of tile6.serverItemIds) {
-              const mapping = visualAssets.mapItems[String(sId)];
-              if (!mapping?.isGround && mapping?.frame && loaded[mapping.frame.publicUrl]) {
-                const sp = new Sprite(loaded[mapping.frame.publicUrl]);
-                const offsetY = mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0;
-                const offsetX = mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0;
-                sp.position.set(px + offsetX, py + offsetY);
-                sp.roundPixels = true;
-                sp.zIndex = py + 32;
-                objectsLayerZ6.addChild(sp);
-                if (mapping.frames && mapping.frames.length > 1) {
-                  animatedMapSprites.push({
-                    sprite: sp,
-                    frames: mapping.frames.map((f) => f.publicUrl),
-                    frameDurationMs: mapping.animDurationMs || 180,
-                  });
-                }
-              }
-            }
-
-            if (!hasGroundSprite6 && tile6.walkable) {
-              const floorSp = new Sprite(loaded[floorUrl]);
-              floorSp.position.set(px, py);
-              floorSp.roundPixels = true;
-              terrainLayerZ6.addChild(floorSp);
-            }
-          }
-        }
-      }
+        });
+      });
 
       // Tile Hover Indicator Graphic
       const hoverCursor = new Graphics();
@@ -525,12 +524,17 @@ export function ThaisCityArena({
       let tickCount = 0;
       let currentPixelX = initialPos.x * TILE_SIZE + 16;
       let currentPixelY = initialPos.y * TILE_SIZE + 16;
+      let smoothCamX = 0;
+      let smoothCamY = 0;
+      let camInitialized = false;
       let hoveredPlayerId: string | null = null;
 
       const onPointerMove = (e: PointerEvent) => {
         const rect = app.canvas.getBoundingClientRect();
-        const clientX = e.clientX - rect.left;
-        const clientY = e.clientY - rect.top;
+        const scaleX = app.screen.width / (rect.width || 1);
+        const scaleY = app.screen.height / (rect.height || 1);
+        const clientX = (e.clientX - rect.left) * scaleX;
+        const clientY = (e.clientY - rect.top) * scaleY;
 
         const worldX = (clientX - world.position.x) / world.scale.x;
         const worldY = (clientY - world.position.y) / world.scale.y;
@@ -538,7 +542,10 @@ export function ThaisCityArena({
         const tileX = Math.floor(worldX / TILE_SIZE);
         const tileY = Math.floor(worldY / TILE_SIZE);
 
-        if (tileX >= minX && tileX <= maxX && tileY >= minY && tileY <= maxY) {
+        const activeZ = latestRef.current.cityPos.z;
+        const activeTileMap = tileMapByZ.get(activeZ);
+        const hoverTile = activeTileMap?.get(`${tileX},${tileY}`);
+        if (hoverTile ? hoverTile.walkable : true) {
           hoverCursor.position.set(tileX * TILE_SIZE, tileY * TILE_SIZE);
           hoverCursor.visible = true;
         } else {
@@ -546,7 +553,6 @@ export function ThaisCityArena({
         }
 
         // Hover detection over other players / characters in Thais
-        const activeZ = latestRef.current.cityPos.z;
         const curChars = latestRef.current.characters;
         let matchedPlayer: {
           id: string;
@@ -654,8 +660,10 @@ export function ThaisCityArena({
       const onPointerDown = (e: PointerEvent) => {
         if (e.button !== 0) return; // Only left click
         const rect = app.canvas.getBoundingClientRect();
-        const clientX = e.clientX - rect.left;
-        const clientY = e.clientY - rect.top;
+        const scaleX = app.screen.width / (rect.width || 1);
+        const scaleY = app.screen.height / (rect.height || 1);
+        const clientX = (e.clientX - rect.left) * scaleX;
+        const clientY = (e.clientY - rect.top) * scaleY;
 
         const worldX = (clientX - world.position.x) / world.scale.x;
         const worldY = (clientY - world.position.y) / world.scale.y;
@@ -664,9 +672,9 @@ export function ThaisCityArena({
         const tileY = Math.floor(worldY / TILE_SIZE);
 
         const activeZ = latestRef.current.cityPos.z;
-        const activeTileMap = activeZ === 6 ? tileMapZ6 : tileMapZ7;
-        const tile = activeTileMap.get(`${tileX},${tileY}`);
-        if (tile && tile.walkable) {
+        const activeTileMap = tileMapByZ.get(activeZ);
+        const tile = activeTileMap?.get(`${tileX},${tileY}`);
+        if (tile ? tile.walkable : true) {
           latestRef.current.onTileClick?.({ x: tileX, y: tileY, z: activeZ });
         }
       };
@@ -674,8 +682,10 @@ export function ThaisCityArena({
       const onContextMenu = (e: MouseEvent) => {
         e.preventDefault();
         const rect = app.canvas.getBoundingClientRect();
-        const clientX = e.clientX - rect.left;
-        const clientY = e.clientY - rect.top;
+        const scaleX = app.screen.width / (rect.width || 1);
+        const scaleY = app.screen.height / (rect.height || 1);
+        const clientX = (e.clientX - rect.left) * scaleX;
+        const clientY = (e.clientY - rect.top) * scaleY;
 
         const worldX = (clientX - world.position.x) / world.scale.x;
         const worldY = (clientY - world.position.y) / world.scale.y;
@@ -740,6 +750,10 @@ export function ThaisCityArena({
       const processedSpeechIds = new Set<string>();
 
       function getOutfitFrameUrl(vocationOrOutfit: string, direction: string, frame: number): string {
+        const lower = (vocationOrOutfit || '').toLowerCase();
+        if (lower === 'dragon' || lower === '34') {
+          return `/generated/tibia860/monster-dragon-${direction}-frame-${frame % 3}.png`;
+        }
         const normKey = vocationOrOutfit.includes('Sire')
           ? 'Sire'
           : vocationOrOutfit.includes('Sorcerer') || vocationOrOutfit.includes('Mage')
@@ -913,11 +927,19 @@ export function ThaisCityArena({
         // 3. Camera smoothly follows interpolated player position
         const camera = calculatePixelCamera(app.screen.width, app.screen.height, TILE_SIZE);
         if (Number.isFinite(camera.scale) && camera.scale > 0) {
+          const targetCamX = app.screen.width / 2 - currentPixelX * camera.scale;
+          const targetCamY = app.screen.height / 2 - currentPixelY * camera.scale;
+          if (!camInitialized) {
+            smoothCamX = targetCamX;
+            smoothCamY = targetCamY;
+            camInitialized = true;
+          } else {
+            const lerpFactor = 1 - Math.exp(-Math.max(0, app.ticker.deltaMS) / 80);
+            smoothCamX += (targetCamX - smoothCamX) * lerpFactor;
+            smoothCamY += (targetCamY - smoothCamY) * lerpFactor;
+          }
           world.scale.set(camera.scale);
-          world.position.set(
-            app.screen.width / 2 - currentPixelX * camera.scale,
-            app.screen.height / 2 - currentPixelY * camera.scale
-          );
+          world.position.set(smoothCamX, smoothCamY);
         }
 
         // Clean up removed actor views (local player, ambient, and remote players)
@@ -1074,6 +1096,65 @@ export function ThaisCityArena({
                   });
                 }
               }
+            } else if ((ev as any).type === 'spell-visual' || (ev as any).type === 'heal-applied' || (ev as any).type === 'spell') {
+              const effectId = 'effectId' in ev ? (ev as any).effectId : null;
+              if (effectId) {
+                const fxMapping = visualAssets.effects[String(effectId)];
+                if (fxMapping && fxMapping.frames.length > 0) {
+                  const fUrl = fxMapping.frames[0].publicUrl;
+                  if (loaded[fUrl]) {
+                    const sp = new Sprite(loaded[fUrl]);
+                    sp.anchor.set(0.5);
+                    let targetPx = { x: currentPixelX, y: currentPixelY };
+                    if ('targetPosition' in ev && (ev as any).targetPosition) {
+                      const tp = (ev as any).targetPosition;
+                      targetPx = { x: tp.x * TILE_SIZE + 16, y: tp.y * TILE_SIZE + 16 };
+                    }
+                    sp.position.set(targetPx.x, targetPx.y);
+                    effectsLayer.addChild(sp);
+                    timedCityVisuals.push({
+                      root: sp,
+                      startedAt: now,
+                      durationMs: Math.max(300, fxMapping.frames.length * 70),
+                      kind: 'effect',
+                      frames: fxMapping.frames.map((f) => f.publicUrl),
+                    });
+                  }
+                }
+              }
+              const speech = 'speech' in ev ? (ev as any).speech : 'text' in ev ? (ev as any).text : '';
+              if (speech) {
+                const myLeader = curChars[0];
+                const speakerName = myLeader ? myLeader.name : 'Você';
+                const msgId = `spell-speech-${Date.now()}-${Math.random()}`;
+                const newMsg: CityOverheadMessage = {
+                  id: msgId,
+                  senderName: speakerName,
+                  text: speech,
+                  channel: 'local',
+                  timestamp: Date.now(),
+                };
+                if (latestRef.current.overheadMessages) {
+                  latestRef.current.overheadMessages.push(newMsg);
+                }
+              }
+            } else if ((ev as any).type === 'spell-cast') {
+              const speech = 'speech' in ev ? (ev as any).speech : '';
+              if (speech) {
+                const myLeader = curChars[0];
+                const speakerName = myLeader ? myLeader.name : 'Você';
+                const msgId = `spell-speech-${Date.now()}-${Math.random()}`;
+                const newMsg: CityOverheadMessage = {
+                  id: msgId,
+                  senderName: speakerName,
+                  text: speech,
+                  channel: 'local',
+                  timestamp: Date.now(),
+                };
+                if (latestRef.current.overheadMessages) {
+                  latestRef.current.overheadMessages.push(newMsg);
+                }
+              }
             } else if (ev.type === 'training-action') {
               // Direct training action event from domain training system
               if (ev.projectileId) {
@@ -1127,6 +1208,7 @@ export function ThaisCityArena({
           if (progress < 0) continue;
           if (progress >= 1) {
             try {
+              if (vis.root.parent) vis.root.parent.removeChild(vis.root);
               vis.root.destroy({ children: true });
             } catch {}
             timedCityVisuals.splice(idx, 1);
@@ -1445,6 +1527,7 @@ export function ThaisCityArena({
       });
 
       cleanup = () => {
+        appRef.current = null;
         unsubNetworkCombat?.();
         hideGlobalPlayerTooltip();
         app.canvas.removeEventListener('pointermove', onPointerMove);

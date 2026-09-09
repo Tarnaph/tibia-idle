@@ -129,6 +129,8 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       app.canvas.style.display = 'block';
       app.canvas.style.position = 'absolute';
       app.canvas.style.inset = '0';
+      app.canvas.style.imageRendering = 'pixelated';
+      (app.canvas.style as any).imageRendering = 'crisp-edges';
       hostRef.current.appendChild(app.canvas);
       app.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
       app.canvas.addEventListener('webglcontextlost', (e) => {
@@ -184,6 +186,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       darkCanvas.height = 32;
       const darkCtx = darkCanvas.getContext('2d')!;
       const darkTexture = Texture.from(darkCanvas);
+      darkTexture.source.style.scaleMode = 'nearest';
       const darkSprite = new Sprite(darkTexture);
       darkSprite.position.set(0, 0);
 
