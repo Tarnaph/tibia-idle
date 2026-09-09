@@ -44,6 +44,7 @@ export async function POST(
       skills: body.skills,
       inventory: body.inventory,
       hotbar: body.hotbar,
+      hotbarConfigs: body.hotbarConfigs,
       vocationName: body.vocationName,
       promotion: body.promotion,
     });

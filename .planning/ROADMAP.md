@@ -57,6 +57,8 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 93: Ícones Oficiais de Magias de Sorcerer via Tibia 11 (graphics_resources.rcc)** - Extração dos ícones 32x32 oficiais do Tibia 11 RCC para todas as magias de Sorcerer, garantindo 100% de paridade visual em toda a interface.
 - [x] **Phase 94: Ícones e Sprites Autênticos de Runas via Tibia 10.98 Client** - Extração direta das 34 runas canônicas do Tibia 10.98, eliminando o reuso de ícones de magias e unificando o visual nas 4 áreas da interface.
 - [x] **Phase 95: Efeitos Visuais, Projéteis e Áreas de Impacto Autênticas de Runas via RealMap 11** - Correção autoritativa de effectId e projectileId de todas as 34 runas canônicas de acordo com realmap11 scripts e const.h (SD 18/32, Avalanche 42/29, GFB 7/4, Explosion 5/41, Thunderstorm 12/36, Stone Shower 45/30), detonação sincronizada de área no impacto (+240ms) na PixiArena e ThaisCityArena, preservando os ícones corrigidos e regras de combate.
+- [x] **Phase 96: Sincronização de Impacto de Projéteis, Números de Dano, Redução de HP e Área das Runas** - Adoção da duração única de 240ms para voo e impacto, sincronização simultânea de dano e área para alvos múltiplos, estabilidade na vida em golpes sucessivos e surgimento de corpo apenas no impacto em golpes fatais.
+- [x] **Phase 97: Correção do Sistema de Condições para Uso Automático de Poções, Magias e Runas** - Cada slot da hotbar respeita rigorosamente as condições customizadas salvas (alvo, métrica, operador, valor e % ou absoluto), eliminando hardcodes (como limite fixo de 50%), garantindo que slots desativados nunca executem, condições não interfiram entre slots, e persistência permanente no Prisma DB entre relogs.
 
 ---
 
@@ -1759,4 +1761,28 @@ Plans:
 
 Plans:
 - [x] 96-01-PLAN: Sincronização de Voo de Projéteis, Impacto Visual, Números de Dano e Redução de Vida das Runas.
+
+### Phase 97: Correção do Sistema de Condições para Uso Automático de Poções, Magias e Runas
+
+**Goal:** Corrigir integralmente o sistema de condições e regras de uso automático para todas as poções, magias, runas e consumíveis configuráveis na hotbar. Cada ação passa a respeitar exatamente as condições configuradas pelo jogador em seu slot: alvo (`self`, `target`, `leader`, `lowest_hp`), métrica (`hp`, `mana`, `monsters`), operador (`lte`, `gte`, `lt`, `gt`, `eq`), valor numérico e modo (% ou absoluto). Eliminar completamente regras hardcoded fixas (como 50% de HP/MP) que sobrepunham as escolhas do jogador, garantir isolamento total entre slots, desativação estrita (`enabled: false`), e persistência permanente no banco de dados Prisma (`hotbarConfigs` em `hotbarJson`) entre sessões e relogs.
+**Depends on:** Phase 96
+**Requirements:**
+1. Motor de avaliação determinístico de condições (`evaluateHotbarCondition` e `isHotbarSlotConditionsMet` em `packages/domain/src/hotbarActions.ts`) cobrindo alvos (`self`, `target`, `leader`, `lowest_hp`), métricas (`hp`, `mana`, `monsters`), operadores (`lte`, `gte`, `lt`, `gt`, `eq`) e valores percentuais ou absolutos.
+2. Refatoração do auto-cast em `packages/domain/src/combat.ts` (`castAutomaticSpells`), avaliando individualmente cada slot da hotbar com base em seu respectivo `hotbarConfigs[slotIndex]`, verificando desativação do slot (`enabled === false`), lista de monstros ignorados (`ignoredMonsters`), cooldowns individuais e de grupo.
+3. Eliminação de limites hardcoded (ex: fallback fixo de 50% de vida ou mana) que antes ignoravam ou substituíam os limiares configurados pelo jogador.
+4. Sincronização e controle no modal `HotbarConfigModal.tsx`, garantindo que edições salvas sejam imediatamente aplicadas no estado da caçada e persistidas.
+5. Persistência permanente via banco de dados Prisma (`PrismaPersistenceManager.ts`, `CharacterService.ts` e `/api/characters/[id]/save`), armazenando `{ hotbar, hotbarConfigs }` de forma retrocompatível em `hotbarJson`.
+6. Preservação estrita de todos os efeitos visuais, sprites de itens, animações, projéteis e fórmulas canônicas.
+**Success Criteria:**
+1. "Você → Mana → menor ou igual a → 75%" permite o uso da poção de mana ao atingir 75% ou menos, sem esperar 50%.
+2. Slots desativados (`enabled === false`) nunca disparam automaticamente sob nenhuma circunstância.
+3. Múltiplas condições em um mesmo slot combinam por conjunção lógica AND (todas devem ser verdadeiras).
+4. Condições de um slot não interferem nas condições de outros slots.
+5. Filtro de monstros ignorados (`ignoredMonsters`) é respeitado, impedindo o disparo de runas ou magias em criaturas excluídas.
+6. Configurações persistem após logout/login e reinicializações do servidor.
+7. 0 erros no typecheck e 100% dos testes Vitest passando (525/525 testes).
+
+Plans:
+- [x] 97-01-PLAN: Correção Integral do Sistema de Condições da Hotbar e Persistência Permanente.
+
 

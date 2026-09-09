@@ -33,6 +33,22 @@ export type EquipmentLoadout = Record<CharacterEquipmentSlot, number | null>;
 
 export type TargetSelectionStrategy = 'closest' | 'lowest-hp' | 'highest-hp';
 
+export interface HotbarCondition {
+  id: string;
+  target: 'self' | 'target' | 'leader' | 'lowest_hp' | 'party_leader';
+  metric: 'hp' | 'mana' | 'monsters';
+  operator: 'lte' | 'gte' | 'lt' | 'gt' | 'eq';
+  value: number;
+  isPercent: boolean;
+}
+
+export interface HotbarSlotConfig {
+  enabled: boolean;
+  healingTarget?: 'self' | 'lowest_hp' | 'party_leader';
+  ignoredMonsters?: string[];
+  conditions?: HotbarCondition[];
+}
+
 export interface CharacterState {
   id: string;
   name: string;
@@ -54,6 +70,7 @@ export interface CharacterState {
   inventory: { equipmentIds: number[] };
   spells: number[];
   hotbar: number[];
+  hotbarConfigs?: Record<number, HotbarSlotConfig>;
   combatState: {
     targetId: string | null;
     spellCooldowns: Record<string, number>;

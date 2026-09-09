@@ -574,6 +574,7 @@ function GamePrototypeContent() {
 
         // Characters only use spells configured in their hotbars; never force auto spells
         newChar.hotbar = existingChar ? [...existingChar.hotbar] : [];
+        newChar.hotbarConfigs = existingChar?.hotbarConfigs ? { ...existingChar.hotbarConfigs } : {};
         newChar.targetDistance = vocName === 'Knight' ? 1 : 3;
 
         updatedChars.push(newChar);
@@ -1165,6 +1166,8 @@ function GamePrototypeContent() {
               { skillId: 7, skillName: 'Magic Level', value: activeCharacter.skills.magicLevel, tries: activeCharacter.skillTries?.magicLevel ? Math.floor(activeCharacter.skillTries.magicLevel) : 0 },
             ],
             inventory: inventoryPayload,
+            hotbar: activeCharacter.hotbar,
+            hotbarConfigs: activeCharacter.hotbarConfigs,
           }),
         });
       } catch (err) {
@@ -1821,10 +1824,12 @@ function GamePrototypeContent() {
         const hotbarConfigs = { ...((char as any).hotbarConfigs || {}) };
         if (config) {
           hotbarConfigs[slotIndex] = config;
+        } else if (actionId === null) {
+          delete hotbarConfigs[slotIndex];
         }
 
-        targetChar = { ...char, hotbar, hotbarConfigs } as any;
-        return targetChar!;
+        targetChar = { ...char, hotbar, hotbarConfigs };
+        return targetChar;
       });
 
       if (targetChar) {
@@ -1835,6 +1840,7 @@ function GamePrototypeContent() {
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({
               hotbar: targetChar.hotbar,
+              hotbarConfigs: targetChar.hotbarConfigs,
             }),
           }).catch(() => {});
         }

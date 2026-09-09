@@ -1,5 +1,5 @@
 import type { SpellCombatType, SpellDefinition, VocationName } from '../../content-schema/src';
-import type { CharacterState, GameContent } from './types';
+import type { CharacterState, GameContent, GameState, PartyActorState, EnemyState, HotbarCondition, HotbarSlotConfig } from './types';
 
 export type HotbarActionKind = 'spell' | 'rune' | 'potion';
 
@@ -894,15 +894,162 @@ export function ensureHealthPotionInHotbar(character: CharacterState, content: G
   const bestPotion = getBestHealthPotionForCharacter(character);
   if (!bestPotion) return undefined;
 
+  let assignedIndex = -1;
   const emptyIndex = character.hotbar.findIndex((id) => typeof id !== 'number' || id === 0);
   if (emptyIndex !== -1) {
     character.hotbar[emptyIndex] = bestPotion.id;
+    assignedIndex = emptyIndex;
   } else if (character.hotbar.length < 20) {
+    assignedIndex = character.hotbar.length;
     character.hotbar.push(bestPotion.id);
   } else {
+    assignedIndex = 0;
     character.hotbar[0] = bestPotion.id;
+  }
+
+  if (assignedIndex >= 0) {
+    if (!character.hotbarConfigs) character.hotbarConfigs = {};
+    if (!character.hotbarConfigs[assignedIndex]) {
+      character.hotbarConfigs[assignedIndex] = {
+        enabled: true,
+        healingTarget: 'self',
+        conditions: [{ id: '1', target: 'self', metric: 'hp', operator: 'lte', value: 75, isPercent: true }],
+      };
+    }
   }
 
   return bestPotion.id;
 }
+
+export interface ConditionEvaluationContext {
+  actor: PartyActorState;
+  character: CharacterState;
+  state?: GameState;
+  primaryTarget?: EnemyState | null;
+  eligibleEnemies?: EnemyState[];
+}
+
+export function evaluateHotbarCondition(
+  condition: HotbarCondition,
+  context: ConditionEvaluationContext
+): boolean {
+  const { actor, character, state, primaryTarget, eligibleEnemies } = context;
+
+  // 1. Resolve current metric value
+  let currentValue = 0;
+
+  if (condition.metric === 'monsters') {
+    const aliveMonsters = eligibleEnemies
+      ? eligibleEnemies.filter((e) => e.alive).length
+      : (state?.encounter?.enemies.filter((e) => e.alive).length ?? 0);
+    currentValue = aliveMonsters;
+  } else if (condition.target === 'target') {
+    if (!primaryTarget || !primaryTarget.alive) {
+      return false;
+    }
+    if (condition.metric === 'hp') {
+      currentValue = condition.isPercent
+        ? (primaryTarget.maxHp > 0 ? (primaryTarget.hp / primaryTarget.maxHp) * 100 : 0)
+        : primaryTarget.hp;
+    } else if (condition.metric === 'mana') {
+      currentValue = 0;
+    }
+  } else if (condition.target === 'leader' || condition.target === 'party_leader') {
+    const leaderActor = state?.encounter?.partyActors.find(
+      (a) => a.alive && (a.characterId === state?.session?.leaderId || a.characterId === state?.session?.selectedCharacterId)
+    ) ?? actor;
+    const leaderChar = state?.session?.characters.find((c) => c.id === leaderActor.characterId) ?? character;
+
+    if (condition.metric === 'hp') {
+      currentValue = condition.isPercent
+        ? (leaderChar.maxHp > 0 ? (leaderActor.hp / leaderChar.maxHp) * 100 : 0)
+        : leaderActor.hp;
+    } else if (condition.metric === 'mana') {
+      currentValue = condition.isPercent
+        ? (leaderChar.maxMana > 0 ? (leaderActor.mana / leaderChar.maxMana) * 100 : 0)
+        : leaderActor.mana;
+    }
+  } else if (condition.target === 'lowest_hp') {
+    let lowestRatio = 1.0;
+    let lowestActor = actor;
+    let lowestChar = character;
+
+    if (state?.encounter?.partyActors && state.session?.characters) {
+      for (const a of state.encounter.partyActors) {
+        if (!a.alive) continue;
+        const c = state.session.characters.find((ch) => ch.id === a.characterId);
+        if (c && c.maxHp > 0) {
+          const ratio = a.hp / c.maxHp;
+          if (ratio < lowestRatio) {
+            lowestRatio = ratio;
+            lowestActor = a;
+            lowestChar = c;
+          }
+        }
+      }
+    }
+
+    if (condition.metric === 'hp') {
+      currentValue = condition.isPercent
+        ? (lowestChar.maxHp > 0 ? (lowestActor.hp / lowestChar.maxHp) * 100 : 0)
+        : lowestActor.hp;
+    } else if (condition.metric === 'mana') {
+      currentValue = condition.isPercent
+        ? (lowestChar.maxMana > 0 ? (lowestActor.mana / lowestChar.maxMana) * 100 : 0)
+        : lowestActor.mana;
+    }
+  } else {
+    // Default / 'self'
+    if (condition.metric === 'hp') {
+      currentValue = condition.isPercent
+        ? (character.maxHp > 0 ? (actor.hp / character.maxHp) * 100 : 0)
+        : actor.hp;
+    } else if (condition.metric === 'mana') {
+      currentValue = condition.isPercent
+        ? (character.maxMana > 0 ? (actor.mana / character.maxMana) * 100 : 0)
+        : actor.mana;
+    }
+  }
+
+  // 2. Evaluate operator
+  const targetVal = condition.value;
+  const EPSILON = 0.0001;
+
+  switch (condition.operator) {
+    case 'lte':
+      return currentValue <= targetVal + EPSILON;
+    case 'gte':
+      return currentValue >= targetVal - EPSILON;
+    case 'lt':
+      return currentValue < targetVal - EPSILON;
+    case 'gt':
+      return currentValue > targetVal + EPSILON;
+    case 'eq':
+      return Math.abs(currentValue - targetVal) < 0.01 || Math.round(currentValue) === Math.round(targetVal);
+    default:
+      return true;
+  }
+}
+
+export function isHotbarSlotConditionsMet(
+  config: HotbarSlotConfig | undefined,
+  context: ConditionEvaluationContext
+): boolean {
+  if (!config) {
+    return true;
+  }
+  if (config.enabled === false) {
+    return false;
+  }
+  if (!config.conditions || config.conditions.length === 0) {
+    return true;
+  }
+  for (const condition of config.conditions) {
+    if (!evaluateHotbarCondition(condition, context)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 

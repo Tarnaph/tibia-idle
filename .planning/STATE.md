@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T10:15:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 96: Sincronização do Impacto de Projéteis, Números de Dano, Redução de HP e Área das Runas."
+last_updated: "2026-09-09T10:55:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 97: Correção do Sistema de Condições para Uso Automático de Poções, Magias e Runas."
 progress:
-  total_phases: 96
-  completed_phases: 96
-  total_plans: 96
-  completed_plans: 96
+  total_phases: 97
+  completed_phases: 97
+  total_plans: 97
+  completed_plans: 97
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 96 concluída. Sincronização frame-perfect do voo do projétil (~240ms) com a explosão visual do efeito de impacto, o surgimento do número de dano e a dedução da barra de vida do monstro (tanto em alvos únicos quanto em todos os alvos atingidos em área), estabilidade de HP sem oscilações em golpes sucessivos e preservação do sprite em pé até o impacto em golpes fatais.
+**Current focus:** Fase 97 concluída. Sistema completo e determinístico de condições para hotbar (alvo, métrica, operador, valor, % ou absoluto), isolamento absoluto entre slots, slots desativados nunca executam, eliminação total de regras hardcoded (como o limite fixo de 50%), e persistência permanente no Prisma DB (`hotbarConfigs` em `hotbarJson`).
 
 ## Current Position
 
-Phase: 96 of 96 (Concluída)  
+Phase: 97 of 97 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 96.
+Last activity: 2026-09-09 — Conclusão da Phase 97.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 96
-- Total phases in roadmap: 96
-- Tests status: 97 test suites (512 testes aprovados)
+- Total phases completed: 97
+- Total phases in roadmap: 97
+- Tests status: 98 test suites (525 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

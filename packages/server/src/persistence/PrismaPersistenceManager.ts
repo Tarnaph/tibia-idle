@@ -48,9 +48,18 @@ export class PrismaPersistenceManager {
           staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
           isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,
           lastHuntId: typeof player.lastHuntId === 'string' && player.lastHuntId ? player.lastHuntId : undefined,
-          hotbarJson: Array.isArray((player as any).hotbar) ? JSON.stringify((player as any).hotbar) : undefined,
+          hotbarJson: (player as any).hotbarConfigs !== undefined
+            ? JSON.stringify({
+                hotbar: Array.isArray((player as any).hotbar) ? (player as any).hotbar : [],
+                hotbarConfigs: (player as any).hotbarConfigs,
+              })
+            : Array.isArray((player as any).hotbar)
+            ? JSON.stringify((player as any).hotbar)
+            : undefined,
+          vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
+          promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
           updatedAt: new Date(),
-        },
+        } as any,
       });
 
       if (typeof (player as any).magicLevel === 'number') {
@@ -133,10 +142,19 @@ export class PrismaPersistenceManager {
       });
       if (!char) return null;
       let hotbar: number[] = [];
+      let hotbarConfigs: any = undefined;
       if (char.hotbarJson) {
-        try { hotbar = JSON.parse(char.hotbarJson); } catch (e) { hotbar = []; }
+        try {
+          const parsed = JSON.parse(char.hotbarJson);
+          if (Array.isArray(parsed)) {
+            hotbar = parsed;
+          } else if (parsed && Array.isArray(parsed.hotbar)) {
+            hotbar = parsed.hotbar;
+            hotbarConfigs = parsed.hotbarConfigs;
+          }
+        } catch (e) { hotbar = []; }
       }
-      return { ...char, hotbar };
+      return { ...char, hotbar, hotbarConfigs };
     } catch (err: any) {
       console.warn(`[PrismaPersistenceManager] Failed to load character ${characterId}:`, err.message);
       return null;

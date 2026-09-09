@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
 import { Tibia11ActionIcon } from './Tibia11ActionIcon';
 import {
@@ -9,23 +9,11 @@ import {
   findHotbarAction,
   type CharacterState,
   type GameContent,
+  type HotbarCondition,
+  type HotbarSlotConfig,
 } from '@/packages/domain/src';
 
-export interface HotbarCondition {
-  id: string;
-  target: 'self' | 'target' | 'leader';
-  metric: 'hp' | 'mana' | 'monsters';
-  operator: 'lte' | 'gte' | 'lt';
-  value: number;
-  isPercent: boolean;
-}
-
-export interface HotbarSlotConfig {
-  enabled: boolean;
-  healingTarget?: 'self' | 'lowest_hp' | 'party_leader';
-  ignoredMonsters?: string[];
-  conditions?: HotbarCondition[];
-}
+export type { HotbarCondition, HotbarSlotConfig };
 
 interface HotbarConfigModalProps {
   open: boolean;
@@ -62,6 +50,42 @@ export function HotbarConfigModal({
   const [conditions, setConditions] = useState<HotbarCondition[]>([
     { id: '1', target: 'self', metric: 'hp', operator: 'lte', value: 75, isPercent: true },
   ]);
+
+  // Synchronize modal state with character's saved configuration whenever opened or slot changes
+  useEffect(() => {
+    if (!open) return;
+    const actionId = character.hotbar[slotIndex] ?? null;
+    setSelectedId(actionId);
+
+    if (actionId !== null) {
+      const action = findHotbarAction(actionId, content);
+      if (action) {
+        if (action.kind === 'spell') setActiveTab('spells');
+        else if (action.kind === 'rune') setActiveTab('runes');
+        else if (action.kind === 'potion') setActiveTab('items');
+      }
+    }
+
+    const existingConfig = character.hotbarConfigs?.[slotIndex];
+    if (existingConfig) {
+      setIsEnabled(existingConfig.enabled !== false);
+      setHealingTarget(existingConfig.healingTarget ?? 'self');
+      setIgnoredMonsters(existingConfig.ignoredMonsters ? [...existingConfig.ignoredMonsters] : []);
+      setConditions(existingConfig.conditions ? existingConfig.conditions.map((c) => ({ ...c })) : []);
+    } else {
+      setIsEnabled(true);
+      setHealingTarget('self');
+      setIgnoredMonsters([]);
+      const action = actionId ? findHotbarAction(actionId, content) : null;
+      if (action?.kind === 'potion' && action.potion.category === 'mana') {
+        setConditions([{ id: '1', target: 'self', metric: 'mana', operator: 'lte', value: 75, isPercent: true }]);
+      } else if (action?.kind === 'potion' || (action?.kind === 'spell' && action.spell.group === 'healing') || (action?.kind === 'rune' && action.rune.category === 'healing')) {
+        setConditions([{ id: '1', target: 'self', metric: 'hp', operator: 'lte', value: 75, isPercent: true }]);
+      } else {
+        setConditions([]);
+      }
+    }
+  }, [open, slotIndex, character.id]);
 
   if (!open) return null;
 
@@ -522,9 +546,11 @@ export function HotbarConfigModal({
                                 value={cond.operator}
                                 onChange={(e) => handleUpdateCondition(cond.id, { operator: e.target.value as any })}
                               >
-                                <option value="lte">menor ou igual a</option>
-                                <option value="gte">maior ou igual a</option>
-                                <option value="lt">menor que</option>
+                                <option value="lte">menor ou igual a (&lt;=)</option>
+                                <option value="gte">maior ou igual a (&gt;=)</option>
+                                <option value="lt">menor que (&lt;)</option>
+                                <option value="gt">maior que (&gt;)</option>
+                                <option value="eq">igual a (=)</option>
                               </select>
 
                               <div className="hotbar-stepper">

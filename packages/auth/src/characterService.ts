@@ -331,6 +331,7 @@ export class CharacterService {
       skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }>;
       inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
       hotbar?: any;
+      hotbarConfigs?: any;
       vocationName?: string;
       promotion?: string;
     }
@@ -355,8 +356,22 @@ export class CharacterService {
     if (data.posY !== undefined) updateData.posY = data.posY;
     if (data.posZ !== undefined) updateData.posZ = data.posZ;
     if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
-    if (data.hotbar !== undefined) updateData.hotbarJson = typeof data.hotbar === 'string' ? data.hotbar : JSON.stringify(data.hotbar);
-    if (data.vocationName !== undefined) updateData.vocationName = data.vocationName;
+    if (data.hotbar !== undefined || data.hotbarConfigs !== undefined) {
+      if (data.hotbarConfigs !== undefined) {
+        updateData.hotbarJson = JSON.stringify({
+          hotbar: Array.isArray(data.hotbar) ? data.hotbar : [],
+          hotbarConfigs: data.hotbarConfigs,
+        });
+      } else {
+        updateData.hotbarJson = typeof data.hotbar === 'string' ? data.hotbar : JSON.stringify(data.hotbar);
+      }
+    }
+    if (data.vocationName !== undefined) {
+      updateData.vocationName = data.vocationName;
+      const VOC_ID_MAP: Record<string, number> = { sorcerer: 1, 'master sorcerer': 1, druid: 2, 'elder druid': 2, paladin: 3, 'royal paladin': 3, knight: 4, 'elite knight': 4 };
+      const vocId = VOC_ID_MAP[data.vocationName.toLowerCase()];
+      if (vocId) updateData.vocationId = vocId;
+    }
     if (data.promotion !== undefined) updateData.promotion = data.promotion;
 
     // Update skills if provided

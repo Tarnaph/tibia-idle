@@ -35,6 +35,20 @@ export function starterFor(content: GameContent, name: BaseVocationName): Starte
   return starter;
 }
 
+export function calculateStatsForLevel(vocationName: string, level: number): { maxHp: number; maxMana: number; maxCap: number } {
+  const isKnight = vocationName === 'Knight' || vocationName === 'Elite Knight';
+  const isPaladin = vocationName === 'Paladin' || vocationName === 'Royal Paladin';
+  const gainHp = isKnight ? 15 : isPaladin ? 10 : 5;
+  const gainMana = isKnight ? 5 : isPaladin ? 15 : 30;
+  const gainCap = isKnight ? 25 : isPaladin ? 20 : 10;
+  const levelsAboveOne = Math.max(0, level - 1);
+  return {
+    maxHp: 150 + levelsAboveOne * gainHp,
+    maxMana: 35 + levelsAboveOne * gainMana,
+    maxCap: 400 + levelsAboveOne * gainCap,
+  };
+}
+
 export function createCharacter(id: string, name: string, vocationName: BaseVocationName = 'None', content: GameContent, gender: 'male' | 'female' = 'male'): CharacterState {
   const isNone = vocationName === 'None';
   const vocation = !isNone ? vocationFor(content, vocationName) : null;
@@ -54,6 +68,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
     skills: { ...(baseSkills[vocationName] ?? baseSkills.None) }, skillTries: emptyTries(),
     equipment: { ...starter.equipped },
     inventory: { equipmentIds: content.equipment.map((item) => item.id) }, spells, hotbar: [],
+    hotbarConfigs: {},
     stance: 'offensive', targetDistance: (vocationName === 'Paladin' || vocationName === 'Sorcerer' || vocationName === 'Druid') ? 2 : 1,
     combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
     trainingState: { skillRemainderMs: 0, shieldingRemainderMs: 0, manaSpent: 0, manaSimulationRemainderMs: 0 },
@@ -144,15 +159,17 @@ export function getTakenAccountVocations(
   return taken;
 }
 
-export function chooseCharacterVocation(
+export function changeCharacterVocation(
   state: GameState,
   characterId: string,
   newVocation: BaseVocationName,
-  content: GameContent,
+  content: GameContent
 ): { ok: boolean; state: GameState; error?: string } {
   if (newVocation === 'None') return { ok: false, state, error: 'Selecione uma vocação válida.' };
   const charIndex = state.session.characters.findIndex((c) => c.id === characterId);
-  if (charIndex === -1) return { ok: false, state, error: 'Personagem não encontrado.' };
+  if (charIndex === -1) {
+    return { ok: false, state, error: 'Personagem não encontrado.' };
+  }
 
   const char = state.session.characters[charIndex];
   if (char.level < 8) {
@@ -168,6 +185,10 @@ export function chooseCharacterVocation(
     };
   }
 
+  if (char.vocation === newVocation) {
+    return { ok: true, state };
+  }
+
   const vocationDef = vocationFor(content, newVocation);
   const importedForVocation = new Set(
     content.spells.filter((spell) => spell.vocations.includes(newVocation)).map((spell) => spell.spellId)
@@ -176,11 +197,9 @@ export function chooseCharacterVocation(
     new Set([...char.spells, ...(starterSpellBooks[newVocation] ?? []).filter((spellId) => importedForVocation.has(spellId))])
   );
 
-  const gainHp = vocationDef.gainHp ?? 5;
-  const gainMana = vocationDef.gainMana ?? 5;
-  const levelsAboveOne = char.level - 1;
-  const newMaxHp = Math.max(150, 150 + levelsAboveOne * gainHp);
-  const newMaxMana = Math.max(0, levelsAboveOne * gainMana);
+  const stats = calculateStatsForLevel(newVocation, char.level);
+  const newMaxHp = stats.maxHp;
+  const newMaxMana = stats.maxMana;
 
   const updatedChar: CharacterState = {
     ...char,
@@ -209,6 +228,8 @@ export function chooseCharacterVocation(
     },
   };
 }
+
+export const chooseCharacterVocation = changeCharacterVocation;
 
 export function resetCharacterVocation(
   state: GameState,

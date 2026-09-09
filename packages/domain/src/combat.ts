@@ -8,7 +8,7 @@ import { createSeededRng, rollInteger } from './rng';
 import { getSpellAreaTiles, spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
-import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked } from './hotbarActions';
+import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { isMeleeRange, meleeDistance } from './spatial/pathfinding';
 import { createRoomState, roomDefinitionAt } from './spatial/rooms';
@@ -473,7 +473,7 @@ export function consumePotionFromInventory(state: GameState, potionId: number): 
   return false;
 }
 
-function castAutomaticSpells(state: GameState, content: GameContent, allowOffensive = true): void {
+export function castAutomaticSpells(state: GameState, content: GameContent, allowOffensive = true): void {
   const encounter = state.encounter;
   const leaderActor = encounter.partyActors.find((a) => a.alive && (a.characterId === state.session.leaderId || a.characterId === state.session.selectedCharacterId)) ?? encounter.partyActors.find((a) => a.alive);
 
@@ -491,19 +491,39 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
 
     ensureHealthPotionInHotbar(character, content);
 
-    for (const actionId of character.hotbar) {
+    for (let slotIndex = 0; slotIndex < character.hotbar.length; slotIndex++) {
+      const actionId = character.hotbar[slotIndex];
       if (typeof actionId !== 'number' || actionId === 0) continue;
       const action = findHotbarAction(actionId, content);
       if (!action || !isHotbarActionUnlocked(character, action)) continue;
+
+      const slotConfig = character.hotbarConfigs?.[slotIndex];
+      // 0. DISABLED SLOT CHECK
+      if (slotConfig && slotConfig.enabled === false) {
+        continue;
+      }
+
+      const ignoredList = (slotConfig?.ignoredMonsters || []).map((m) => m.trim().toLowerCase()).filter(Boolean);
+      const isIgnored = (name: string) => ignoredList.length > 0 && ignoredList.includes(name.trim().toLowerCase());
 
       // 1. POTIONS AUTO-TRIGGER
       if (action.kind === 'potion' && !usedPotionThisTick) {
         const potion = action.potion;
         if ((actor.groupCooldowns['potion'] ?? 0) <= encounter.elapsedMs) {
-          const needsHp = typeof potion.healMin === 'number' && (actor.hp / character.maxHp <= 0.50);
-          const needsMana = typeof potion.manaMin === 'number' && character.maxMana > 0 && (actor.mana / character.maxMana <= 0.50);
+          let conditionMet = false;
+          if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+            conditionMet = isHotbarSlotConditionsMet(slotConfig, {
+              actor,
+              character,
+              state,
+            });
+          } else {
+            const needsHp = typeof potion.healMin === 'number' && actor.hp < character.maxHp;
+            const needsMana = typeof potion.manaMin === 'number' && character.maxMana > 0 && actor.mana < character.maxMana;
+            conditionMet = needsHp || needsMana;
+          }
 
-          if (needsHp || needsMana) {
+          if (conditionMet) {
             const consumed = consumePotionFromInventory(state, potion.id);
             if (!consumed) continue;
             const rng = createSeededRng(encounter.rngState);
@@ -556,121 +576,208 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
       }
 
       // 2. RUNES AUTO-TRIGGER
-      if (action.kind === 'rune' && !usedOffensiveActionThisTick) {
-        if (!allowOffensive) continue;
-        // Strict Party Target Logic: In multiplayer party, secondary members only attack leader's target
-        if (encounter.isMultiplayerParty && !isLeader && !leaderTarget) continue;
+      if (action.kind === 'rune') {
         const rune = action.rune;
-        const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns['attack'] ?? 0) <= encounter.elapsedMs;
-        if (runeReady) {
-          const eligibleEnemies = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
-            ? [leaderTarget]
-            : encounter.enemies.filter((enemy) => enemy.alive);
-
-          const inRange = eligibleEnemies
-            .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
-            .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
-
-          if (inRange.length > 0) {
-            const primaryTarget = inRange[0];
-            const centerPos = primaryTarget.position;
-            const offsets = rune.area === 'circle-3x3'
-              ? CIRCLE_3X3_OFFSETS
-              : rune.area === 'cross-1x1'
-              ? CROSS_1X1_OFFSETS
-              : rune.area === 'square-1x1'
-              ? SQUARE_1X1_OFFSETS
-              : null;
-
-            let targets: EnemyState[] = [primaryTarget];
-            if (offsets) {
-              const areaTileKeys = new Set(offsets.map((o) => `${centerPos.x + o.dx},${centerPos.y + o.dy},${centerPos.z}`));
-              const secondaryEnemies = eligibleEnemies.filter((enemy) =>
-                enemy.alive && enemy.id !== primaryTarget.id && areaTileKeys.has(`${enemy.position.x},${enemy.position.y},${enemy.position.z}`)
-              );
-              targets = [primaryTarget, ...secondaryEnemies];
+        if (rune.category === 'healing' && !usedSpellThisTick) {
+          const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs;
+          if (runeReady) {
+            const healTargetType = slotConfig?.healingTarget ?? 'self';
+            let targetActor: PartyActorState | undefined;
+            if (healTargetType === 'party_leader') {
+              targetActor = leaderActor;
+            } else if (healTargetType === 'lowest_hp') {
+              targetActor = encounter.partyActors
+                .filter((candidate) => {
+                  if (!candidate.alive) return false;
+                  const memberChar = state.session.characters.find((m) => m.id === candidate.characterId);
+                  return memberChar ? candidate.hp < memberChar.maxHp : false;
+                })
+                .sort((a, b) => {
+                  const charA = state.session.characters.find((m) => m.id === a.characterId);
+                  const charB = state.session.characters.find((m) => m.id === b.characterId);
+                  const ratioA = charA ? a.hp / charA.maxHp : 1;
+                  const ratioB = charB ? b.hp / charB.maxHp : 1;
+                  return ratioA - ratioB || a.hp - b.hp;
+                })[0] ?? actor;
+            } else {
+              targetActor = actor;
             }
 
-            const rng = createSeededRng(encounter.rngState);
+            const targetCharacter = state.session.characters.find((c) => c.id === targetActor?.characterId);
+            if (targetActor && targetCharacter) {
+              let conditionMet = false;
+              if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+                conditionMet = isHotbarSlotConditionsMet(slotConfig, {
+                  actor,
+                  character,
+                  state,
+                  primaryTarget: null,
+                });
+              } else {
+                conditionMet = targetActor.hp < targetCharacter.maxHp;
+              }
 
-            let minDmg = character.level * 0.2 + character.skills.magicLevel * 2.5 + 15;
-            let maxDmg = character.level * 0.2 + character.skills.magicLevel * 4.0 + 30;
+              if (conditionMet) {
+                const rng = createSeededRng(encounter.rngState);
+                const minHeal = character.level * 0.2 + character.skills.magicLevel * 3.0 + 168;
+                const maxHeal = character.level * 0.2 + character.skills.magicLevel * 5.0 + 272;
+                const rawHeal = rollInteger(rng, Math.floor(minHeal), Math.max(Math.floor(minHeal), Math.ceil(maxHeal)));
+                const healed = Math.min(rawHeal, targetCharacter.maxHp - targetActor.hp);
+                targetActor.hp += healed;
+                encounter.rngState = rng.state;
+                actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
 
-            if (rune.id === 2268) {
-              minDmg = character.level * 0.2 + character.skills.magicLevel * 7.0 + 40;
-              maxDmg = character.level * 0.2 + character.skills.magicLevel * 9.5 + 65;
-            } else if (rune.id === 2311) {
-              minDmg = character.level * 0.2 + character.skills.magicLevel * 1.6 + 10;
-              maxDmg = character.level * 0.2 + character.skills.magicLevel * 2.4 + 18;
-            } else if (rune.id === 2304 || rune.id === 2274 || rune.id === 2288 || rune.id === 2315) {
-              minDmg = character.level * 0.2 + character.skills.magicLevel * 2.2 + 15;
-              maxDmg = character.level * 0.2 + character.skills.magicLevel * 3.5 + 25;
-            }
-
-            const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
-            encounter.rngState = rng.state;
-            actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
-            actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
-            actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
-
-            const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
-
-            // 1. Launch missile to primary target if projectileId > 0
-            if (rune.projectileId > 0) {
-              encounter.events.push({
-                type: 'spell-visual',
-                sourceId: actor.characterId,
-                targetId: primaryTarget.id,
-                spellId: rune.id,
-                effectId: rune.area === 'target' && rune.effectId > 0 ? rune.effectId : null,
-                projectileId: rune.projectileId,
-              });
-            }
-
-            // 2. For area runes, detonate impact effect across blast area tiles at missile arrival (+240ms if missile, 0ms otherwise)
-            if (offsets && rune.effectId > 0) {
-              for (const offset of offsets) {
+                encounter.events.push({
+                  type: 'spell-cast',
+                  sourceId: actor.characterId,
+                  targetId: targetActor.characterId,
+                  spellId: rune.id,
+                  amount: healed,
+                  healing: true,
+                  speech: rune.name,
+                });
                 encounter.events.push({
                   type: 'spell-visual',
                   sourceId: actor.characterId,
-                  targetPosition: { x: centerPos.x + offset.dx, y: centerPos.y + offset.dy, z: centerPos.z },
+                  targetId: targetActor.characterId,
                   spellId: rune.id,
                   effectId: rune.effectId,
                   projectileId: null,
-                  delayMs: impactDelay,
+                });
+                addLog(state, `${character.name} usou ${rune.name} em ${targetCharacter.name} e curou ${healed}.`);
+                syncCharacterResources(state, targetActor);
+                usedSpellThisTick = true;
+              }
+            }
+          }
+        } else if (rune.category !== 'healing' && !usedOffensiveActionThisTick) {
+          if (!allowOffensive) continue;
+          // Strict Party Target Logic: In multiplayer party, secondary members only attack leader's target
+          if (encounter.isMultiplayerParty && !isLeader && !leaderTarget) continue;
+          const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns['attack'] ?? 0) <= encounter.elapsedMs;
+          if (runeReady) {
+            const rawEligible = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
+              ? [leaderTarget]
+              : encounter.enemies.filter((enemy) => enemy.alive);
+
+            const eligibleEnemies = rawEligible.filter((enemy) => !isIgnored(enemy.name));
+
+            const inRange = eligibleEnemies
+              .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
+              .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+
+            if (inRange.length > 0) {
+              const primaryTarget = inRange[0];
+
+              if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+                const condMet = isHotbarSlotConditionsMet(slotConfig, {
+                  actor,
+                  character,
+                  state,
+                  primaryTarget,
+                  eligibleEnemies: inRange,
+                });
+                if (!condMet) continue;
+              }
+
+              const centerPos = primaryTarget.position;
+              const offsets = rune.area === 'circle-3x3'
+                ? CIRCLE_3X3_OFFSETS
+                : rune.area === 'cross-1x1'
+                ? CROSS_1X1_OFFSETS
+                : rune.area === 'square-1x1'
+                ? SQUARE_1X1_OFFSETS
+                : null;
+
+              let targets: EnemyState[] = [primaryTarget];
+              if (offsets) {
+                const areaTileKeys = new Set(offsets.map((o) => `${centerPos.x + o.dx},${centerPos.y + o.dy},${centerPos.z}`));
+                const secondaryEnemies = eligibleEnemies.filter((enemy) =>
+                  enemy.alive && enemy.id !== primaryTarget.id && areaTileKeys.has(`${enemy.position.x},${enemy.position.y},${enemy.position.z}`)
+                );
+                targets = [primaryTarget, ...secondaryEnemies];
+              }
+
+              const rng = createSeededRng(encounter.rngState);
+
+              let minDmg = character.level * 0.2 + character.skills.magicLevel * 2.5 + 15;
+              let maxDmg = character.level * 0.2 + character.skills.magicLevel * 4.0 + 30;
+
+              if (rune.id === 2268) {
+                minDmg = character.level * 0.2 + character.skills.magicLevel * 7.0 + 40;
+                maxDmg = character.level * 0.2 + character.skills.magicLevel * 9.5 + 65;
+              } else if (rune.id === 2311) {
+                minDmg = character.level * 0.2 + character.skills.magicLevel * 1.6 + 10;
+                maxDmg = character.level * 0.2 + character.skills.magicLevel * 2.4 + 18;
+              } else if (rune.id === 2304 || rune.id === 2274 || rune.id === 2288 || rune.id === 2315) {
+                minDmg = character.level * 0.2 + character.skills.magicLevel * 2.2 + 15;
+                maxDmg = character.level * 0.2 + character.skills.magicLevel * 3.5 + 25;
+              }
+
+              const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
+              encounter.rngState = rng.state;
+              actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
+              actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
+              actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
+
+              const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
+
+              // 1. Launch missile to primary target if projectileId > 0
+              if (rune.projectileId > 0) {
+                encounter.events.push({
+                  type: 'spell-visual',
+                  sourceId: actor.characterId,
+                  targetId: primaryTarget.id,
+                  spellId: rune.id,
+                  effectId: rune.area === 'target' && rune.effectId > 0 ? rune.effectId : null,
+                  projectileId: rune.projectileId,
                 });
               }
-            } else if (rune.area === 'target' && rune.projectileId === 0 && rune.effectId > 0) {
-              // Single target instant effect without projectile (e.g. UH, Paralyze)
-              encounter.events.push({
-                type: 'spell-visual',
-                sourceId: actor.characterId,
-                targetId: primaryTarget.id,
-                spellId: rune.id,
-                effectId: rune.effectId,
-                projectileId: null,
-              });
-            }
 
-            for (const target of targets) {
-              const damage = resistedDamage(rawDamage, target, rune.combatType, content);
-              target.hp = Math.max(0, target.hp - damage);
-              encounter.events.push({
-                type: 'spell-cast',
-                sourceId: actor.characterId,
-                targetId: target.id,
-                spellId: rune.id,
-                amount: damage,
-                healing: false,
-                speech: rune.name,
-                delayMs: impactDelay,
-              });
-              addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
-              if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
-            }
+              // 2. For area runes, detonate impact effect across blast area tiles at missile arrival (+240ms if missile, 0ms otherwise)
+              if (offsets && rune.effectId > 0) {
+                for (const offset of offsets) {
+                  encounter.events.push({
+                    type: 'spell-visual',
+                    sourceId: actor.characterId,
+                    targetPosition: { x: centerPos.x + offset.dx, y: centerPos.y + offset.dy, z: centerPos.z },
+                    spellId: rune.id,
+                    effectId: rune.effectId,
+                    projectileId: null,
+                    delayMs: impactDelay,
+                  });
+                }
+              } else if (rune.area === 'target' && rune.projectileId === 0 && rune.effectId > 0) {
+                encounter.events.push({
+                  type: 'spell-visual',
+                  sourceId: actor.characterId,
+                  targetId: primaryTarget.id,
+                  spellId: rune.id,
+                  effectId: rune.effectId,
+                  projectileId: null,
+                });
+              }
 
-            syncCharacterResources(state, actor);
-            usedOffensiveActionThisTick = true;
+              for (const target of targets) {
+                const damage = resistedDamage(rawDamage, target, rune.combatType, content);
+                target.hp = Math.max(0, target.hp - damage);
+                encounter.events.push({
+                  type: 'spell-cast',
+                  sourceId: actor.characterId,
+                  targetId: target.id,
+                  spellId: rune.id,
+                  amount: damage,
+                  healing: false,
+                  speech: rune.name,
+                  delayMs: impactDelay,
+                });
+                addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
+                if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
+              }
+
+              syncCharacterResources(state, actor);
+              usedOffensiveActionThisTick = true;
+            }
           }
         }
       }
@@ -692,37 +799,71 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
           let targetActor: PartyActorState | undefined;
           let targets: EnemyState[] = [];
           let waveTiles: Array<{ x: number; y: number; z: number }> = [];
-          const tookRecentHit = (encounter.elapsedMs - actor.lastHitTakenAt) < 3000 && actor.hp < character.maxHp;
 
           if (spell.group === 'healing') {
-            const needsHealing = actor.hp / character.maxHp < 0.88 || tookRecentHit;
-            targetActor = spell.name === 'Heal Friend'
-              ? encounter.partyActors.filter((candidate) => {
-                  if (!candidate.alive) return false;
-                  const memberChar = state.session.characters.find((member) => member.id === candidate.characterId);
-                  return memberChar ? candidate.hp / memberChar.maxHp < 0.75 : false;
-                })
-                  .sort((left, right) => left.hp - right.hp || left.characterId.localeCompare(right.characterId))[0]
-              : needsHealing ? actor : undefined;
-            if (!targetActor) continue;
+            const healTargetType = slotConfig?.healingTarget ?? (spell.name === 'Heal Friend' ? 'lowest_hp' : 'self');
+            if (healTargetType === 'party_leader') {
+              targetActor = leaderActor;
+            } else if (healTargetType === 'lowest_hp' || spell.name === 'Heal Friend') {
+              targetActor = encounter.partyActors.filter((candidate) => {
+                if (!candidate.alive) return false;
+                const memberChar = state.session.characters.find((member) => member.id === candidate.characterId);
+                return memberChar ? candidate.hp < memberChar.maxHp : false;
+              }).sort((left, right) => {
+                const charL = state.session.characters.find((m) => m.id === left.characterId);
+                const charR = state.session.characters.find((m) => m.id === right.characterId);
+                const ratioL = charL ? left.hp / charL.maxHp : 1;
+                const ratioR = charR ? right.hp / charR.maxHp : 1;
+                return ratioL - ratioR || left.hp - right.hp;
+              })[0] ?? actor;
+            } else {
+              targetActor = actor;
+            }
+
+            const targetChar = state.session.characters.find((c) => c.id === targetActor?.characterId);
+            if (!targetActor || !targetChar) continue;
+
+            let conditionMet = false;
+            if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+              conditionMet = isHotbarSlotConditionsMet(slotConfig, {
+                actor,
+                character,
+                state,
+              });
+            } else {
+              const tookRecentHit = (encounter.elapsedMs - actor.lastHitTakenAt) < 3000 && actor.hp < character.maxHp;
+              conditionMet = targetActor.hp / targetChar.maxHp < 0.88 || tookRecentHit;
+            }
+
+            if (!conditionMet) continue;
           } else if (spell.group === 'support') {
             const isHaste = spell.name === 'Haste' || spell.name === 'Strong Haste' || spell.words.includes('hur');
             const isMagicShield = spell.words.includes('utamo') || spell.name.toLowerCase().includes('shield');
             const isBloodRage = spell.words.includes('tempo') || spell.name.toLowerCase().includes('rage');
 
-            if (isHaste && actor.hasteUntil <= encounter.elapsedMs) {
-              targetActor = actor;
-            } else if (isMagicShield && actor.magicShieldUntil <= encounter.elapsedMs) {
-              targetActor = actor;
-            } else if (isBloodRage && actor.bloodRageUntil <= encounter.elapsedMs && encounter.enemies.some((enemy) => enemy.alive)) {
-              targetActor = actor;
-            } else {
+            let buffActive = false;
+            if (isHaste && actor.hasteUntil > encounter.elapsedMs) buffActive = true;
+            else if (isMagicShield && actor.magicShieldUntil > encounter.elapsedMs) buffActive = true;
+            else if (isBloodRage && actor.bloodRageUntil > encounter.elapsedMs) buffActive = true;
+
+            if (buffActive) continue;
+
+            if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+              const condMet = isHotbarSlotConditionsMet(slotConfig, {
+                actor,
+                character,
+                state,
+              });
+              if (!condMet) continue;
+            } else if (isBloodRage && !encounter.enemies.some((enemy) => enemy.alive)) {
               continue;
             }
+            targetActor = actor;
           } else if (spell.area === 'wave-4') {
-            const eligibleEnemies = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
+            const rawEnemies = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
               ? [leaderTarget]
               : encounter.enemies.filter((enemy) => enemy.alive);
+            const eligibleEnemies = rawEnemies.filter((e) => !isIgnored(e.name));
             const nearby = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= 5);
             if (nearby.length === 0) continue;
             const primary = (actor.targetId ? nearby.find((e) => e.id === actor.targetId) : null) ?? nearby[0];
@@ -739,10 +880,22 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
             const waveTileMap = new Set(waveTiles.map((t) => `${t.x},${t.y}`));
             targets = nearby.filter((enemy) => waveTileMap.has(`${enemy.position.x},${enemy.position.y}`));
             if (targets.length === 0) continue;
+
+            if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+              const condMet = isHotbarSlotConditionsMet(slotConfig, {
+                actor,
+                character,
+                state,
+                primaryTarget: targets[0],
+                eligibleEnemies: targets,
+              });
+              if (!condMet) continue;
+            }
           } else {
-            const eligibleEnemies = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
+            const rawEnemies = (encounter.isMultiplayerParty && !isLeader && leaderTarget)
               ? [leaderTarget]
               : encounter.enemies.filter((enemy) => enemy.alive);
+            const eligibleEnemies = rawEnemies.filter((e) => !isIgnored(e.name));
             const range = Math.max(1, spell.range);
             const inRange = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
               .sort((left, right) => {
@@ -752,7 +905,20 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
                 return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
               });
             if (inRange.length === 0) continue;
-            targets = spell.area === 'square-1x1' ? inRange.slice(0, 8) : [inRange[0]];
+            const primaryTarget = inRange[0];
+
+            if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+              const condMet = isHotbarSlotConditionsMet(slotConfig, {
+                actor,
+                character,
+                state,
+                primaryTarget,
+                eligibleEnemies: inRange,
+              });
+              if (!condMet) continue;
+            }
+
+            targets = spell.area === 'square-1x1' ? inRange.slice(0, 8) : [primaryTarget];
           }
 
           const rng = createSeededRng(encounter.rngState);
