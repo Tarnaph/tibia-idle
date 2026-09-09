@@ -11,14 +11,54 @@ export interface AudioState {
   isPlayingCityBgm: boolean;
 }
 
+export interface MusicTrackInfo {
+  id: string;
+  title: string;
+  subtitle?: string;
+  location?: string;
+}
+
+export const THAIS_THEME_TRACK: MusicTrackInfo = {
+  id: 'thais-theme',
+  title: 'Thais Theme',
+  subtitle: 'Sunset in the Village',
+  location: 'Cidade de Thais',
+};
+
 type AudioCallback = (state: AudioState) => void;
+type TrackNotificationCallback = (track: MusicTrackInfo) => void;
+
 const listeners = new Set<AudioCallback>();
+const trackNotificationListeners = new Set<TrackNotificationCallback>();
 
 let cachedVolume: number | null = null;
 let cachedMuted: boolean | null = null;
 let cityAudioElement: HTMLAudioElement | null = null;
 let isCityBgmActive = false;
 let unlockerAttached = false;
+let currentTrack: MusicTrackInfo | null = null;
+
+export function onTrackNotification(cb: TrackNotificationCallback): () => void {
+  trackNotificationListeners.add(cb);
+  return () => {
+    trackNotificationListeners.delete(cb);
+  };
+}
+
+export function triggerTrackNotification(track: MusicTrackInfo = THAIS_THEME_TRACK): void {
+  currentTrack = track;
+  trackNotificationListeners.forEach((cb) => {
+    try {
+      cb(track);
+    } catch (e) {
+      console.error('[audioManager] Track notification callback error:', e);
+    }
+  });
+}
+
+export function getCurrentTrack(): MusicTrackInfo | null {
+  return currentTrack;
+}
 
 function notifyListeners(): void {
   const state: AudioState = {
@@ -91,6 +131,9 @@ export function setAudioMuted(muted: boolean): void {
     cityAudioElement.volume = cachedMuted ? 0 : getAudioVolume();
   }
   notifyListeners();
+  if (!cachedMuted && isCityBgmActive) {
+    triggerTrackNotification(THAIS_THEME_TRACK);
+  }
 }
 
 export function toggleAudioMuted(): boolean {
@@ -137,6 +180,8 @@ function setupAutoplayUnlocker(): void {
 export function playCityBgm(): void {
   if (typeof window === 'undefined') return;
   isCityBgmActive = true;
+  triggerTrackNotification(THAIS_THEME_TRACK);
+
   const audio = getOrCreateCityAudio();
   if (!audio) return;
 

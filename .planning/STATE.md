@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T14:35:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 103: Trilha Sonora de Thais em Loop (Sunset in the Village), Opções de Volume no Menu Sanduíche e Botão Rápido de Mute."
+last_updated: "2026-09-09T14:50:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 104: Notificação Flutuante de Música Atual (\"Thais Theme\") com Transição Deslizante da Direita."
 progress:
-  total_phases: 103
-  completed_phases: 103
-  total_plans: 103
-  completed_plans: 103
+  total_phases: 104
+  completed_phases: 104
+  total_plans: 104
+  completed_plans: 104
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 103 concluída. (1) Trilha oficial de Thais `Sunset in the Village.mp3` iniciando na tela de loading e tocando em loop contínuo durante a cidade, pausando em caçadas; (2) Controles de volume integrados ao menu sanduíche com slider, botões de predefinição rápida e status de reprodução; (3) Botão rápido de mute/desmutar com ícone dinâmico ao lado do botão de sair na barra superior com atalho 'M'.
+**Current focus:** Fase 104 concluída. Notificação flutuante elegante no canto superior direito ("Now Playing" toast) que desliza para a esquerda vindo da borda direita da tela quando a música de Thais ("Thais Theme") começa a tocar, exibindo equalizador animado com detalhes do autor, permanece visível com barra contadora e desliza suavemente para fora pela direita até desaparecer.
 
 ## Current Position
 
-Phase: 103 of 103 (Concluída)  
+Phase: 104 of 104 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 103.
+Last activity: 2026-09-09 — Conclusão da Phase 104.
 
 Progress: [██████████] 100%
 

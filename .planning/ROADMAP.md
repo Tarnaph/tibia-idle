@@ -1849,4 +1849,18 @@ Plans:
 **Plans:**
 - [x] 103-01-PLAN: Trilha Sonora de Thais em Loop, Controles de Volume no Menu Sanduíche e Botão de Mute Rápido.
 
+### Phase 104: Notificação Flutuante de Música Atual ("Thais Theme") com Transição Deslizante da Direita
+
+**Goal:** Implementar uma caixa/banner elegante ("Now Playing" toast) que desliza suavemente a partir do lado direito da tela ao iniciar uma música (no caso de Thais, "Thais Theme"), permanece visível por um intervalo (~4.5s) com animação de equalizador e barra de contagem regressiva, e em seguida desliza suavemente para fora da tela pela direita até sumir completamente.
+**Depends on:** Phase 103
+**Requirements:**
+1. Módulo `MusicTrackToast.tsx` conectado ao barramento de eventos do `audioManager.ts` através de `onTrackNotification` e `triggerTrackNotification`.
+2. Identificação da trilha de Thais como "Thais Theme" com subtítulo "Sunset in the Village" e localização "Cidade de Thais".
+3. Animações CSS em `app/globals.css`: `@keyframes music-toast-slide-in` (desliza da direita de 125% para 0%), `@keyframes music-toast-slide-out` (desliza para fora pela direita de 0% para 130%), animação do equalizador em vinil pulsante e linha de progresso (`music-timer-drain`).
+4. Possibilidade de re-exibir a notificação ao desmutar o áudio ou clicando na trilha de áudio no menu de opções.
+5. 0 erros de TypeScript no `typecheck` e 100% dos testes Vitest passando.
+**Plans:**
+- [x] 104-01-PLAN: Caixa Flutuante de Notificação da Música "Thais Theme" com Animação Deslizante da Direita.
+
+
 

@@ -12,6 +12,8 @@ import {
   toggleAudioMuted,
   onAudioChange,
   stopCityBgm,
+  triggerTrackNotification,
+  THAIS_THEME_TRACK,
   type AudioState,
 } from '@/apps/web/lib/audioManager';
 
@@ -407,9 +409,14 @@ export function WindowDockBar({
                   {audioState.isMuted ? '🔊 Ativar Som do Jogo' : '🔇 Silenciar Som do Jogo'}
                 </button>
 
-                <div className="audio-track-status">
+                <div
+                  className="audio-track-status"
+                  onClick={() => !inHunt && triggerTrackNotification(THAIS_THEME_TRACK)}
+                  style={{ cursor: !inHunt ? 'pointer' : 'default' }}
+                  title="Clique para exibir a notificação de música tocando"
+                >
                   <span>🎵</span>
-                  <span>{inHunt ? 'Trilha pausada (Em Caçada)' : 'Sunset in the Village (Thais Loop)'}</span>
+                  <span>{inHunt ? 'Trilha pausada (Em Caçada)' : 'Thais Theme (Sunset in the Village)'}</span>
                 </div>
               </div>
             </div>
