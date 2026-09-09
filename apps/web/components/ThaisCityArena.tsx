@@ -213,9 +213,14 @@ export function ThaisCityArena({
         ...(visualAssets.missiles['5']?.frames.map((f) => f.publicUrl) ?? []),
         ...(visualAssets.missiles['29']?.frames.map((f) => f.publicUrl) ?? []),
         ...(visualAssets.missiles['3']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.missiles['4']?.frames.map((f) => f.publicUrl) ?? []),
       ];
       const coreEffectUrls = [
         ...(visualAssets.effects['12']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.effects['13']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.effects['15']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.effects['37']?.frames.map((f) => f.publicUrl) ?? []),
+        ...(visualAssets.effects['38']?.frames.map((f) => f.publicUrl) ?? []),
         ...(visualAssets.effects['43']?.frames.map((f) => f.publicUrl) ?? []),
         ...(visualAssets.effects['10']?.frames.map((f) => f.publicUrl) ?? []),
       ];

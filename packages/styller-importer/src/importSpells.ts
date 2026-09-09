@@ -79,25 +79,34 @@ const combatTypes: Record<string, SpellDefinition['combatType']> = {
 };
 
 const effectIds: Record<string, number> = {
-  CONST_ME_MAGIC_BLUE: 12,
-  CONST_ME_MAGIC_RED: 13,
+  CONST_ME_MAGIC_BLUE: 13,
+  CONST_ME_MAGIC_RED: 14,
+  CONST_ME_MAGIC_GREEN: 15,
+  CONST_ME_FIREATTACK: 37,
   CONST_ME_HITBYFIRE: 16,
-  CONST_ME_FIREAREA: 6,
+  CONST_ME_FIREAREA: 7,
   CONST_ME_TELEPORT: 11,
-  CONST_ME_ENERGYAREA: 11,
-  CONST_ME_ENERGYHIT: 11,
-  CONST_ME_MORTAREA: 10,
-  CONST_ME_HITBYPOISON: 14,
-  CONST_ME_POISONAREA: 14,
+  CONST_ME_ENERGYAREA: 38,
+  CONST_ME_ENERGYHIT: 12,
+  CONST_ME_MORTAREA: 18,
+  CONST_ME_HITBYPOISON: 17,
+  CONST_ME_POISONAREA: 21,
   CONST_ME_HITAREA: 10,
-  CONST_ME_GROUNDSHAKER: 10,
+  CONST_ME_GROUNDSHAKER: 35,
+  CONST_ME_ICETORNADO: 43,
+  CONST_ME_ICEAREA: 42,
+  CONST_ME_HOLYAREA: 50,
 };
 
 const projectileIds: Record<string, number | 'weapon-type'> = {
   CONST_ANI_ENERGY: 5,
-  CONST_ANI_FIRE: 3,
+  CONST_ANI_FIRE: 4,
   CONST_ANI_WEAPONTYPE: 'weapon-type',
-  CONST_ANI_DEATH: 29,
+  CONST_ANI_DEATH: 11,
+  CONST_ANI_POISON: 15,
+  CONST_ANI_ICE: 29,
+  CONST_ANI_HOLY: 31,
+  CONST_ANI_ETHEREALSPEAR: 28,
 };
 
 const asArray = <T>(value: T | T[] | undefined): T[] => (value === undefined ? [] : Array.isArray(value) ? value : [value]);
