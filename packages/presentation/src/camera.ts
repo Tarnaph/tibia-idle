@@ -10,7 +10,7 @@ export interface PixelCameraLayout {
 }
 
 export function calculatePixelCamera(viewportWidth: number, viewportHeight: number, tileSize = 32): PixelCameraLayout {
-  const scale = 1.20;
+  const scale = 1.0;
   const tilePixelSize = tileSize * scale;
   const visibleColumns = Math.ceil(viewportWidth / tilePixelSize) + 2;
   const visibleRows = Math.ceil(viewportHeight / tilePixelSize) + 2;
@@ -30,7 +30,7 @@ export interface WorldCameraInput {
 }
 
 export function desiredWorldCamera(input: WorldCameraInput): WorldCameraState {
-  const zoom = Math.max(1, input.fixedZoom ?? 1.20);
+  const zoom = Math.max(1, input.fixedZoom ?? 2);
   // The viewport may reveal backing outside a small imported region. Clamping
   // the camera center itself keeps the followed actor centered at map edges.
   const x = Math.max(0, Math.min(input.worldWidth, input.targetX));
