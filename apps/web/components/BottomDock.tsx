@@ -55,13 +55,15 @@ export function BottomDock({
     onExitHunt?.();
   };
 
-  const hasteUntil = actor?.hasteUntil ?? character.combatState?.hasteUntil ?? 0;
-  const magicShieldUntil = actor?.magicShieldUntil ?? character.combatState?.magicShieldUntil ?? 0;
+  const hasteUntil = actor?.hasteUntil ?? character.combatState?.hasteUntil ?? (character as any)?.hasteUntil ?? 0;
+  const magicShieldUntil = actor?.magicShieldUntil ?? character.combatState?.magicShieldUntil ?? (character as any)?.magicShieldUntil ?? 0;
   const bloodRageUntil = actor?.bloodRageUntil ?? character.combatState?.bloodRageUntil ?? 0;
 
   const getRemainingSec = (untilTime: number) => {
-    if (!untilTime || untilTime <= elapsedMs) return 0;
-    return (untilTime - elapsedMs) / 1000;
+    if (!untilTime) return 0;
+    const nowMs = untilTime > 1_000_000_000_000 ? Date.now() : elapsedMs;
+    if (untilTime <= nowMs) return 0;
+    return (untilTime - nowMs) / 1000;
   };
 
   const formatBuffTime = (seconds: number) => {

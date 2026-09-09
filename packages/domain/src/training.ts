@@ -78,7 +78,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
         if (weapon) {
           if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) {
             projectileId = 5;
-            effectId = 13; // energy magic spark
+            effectId = 12; // CONST_ME_ENERGYHIT
           } else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire') || nameLower.includes('inferno')) {
             projectileId = 4;
             effectId = 16;
@@ -93,7 +93,7 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
             effectId = 43;
           } else {
             projectileId = 5;
-            effectId = 13;
+            effectId = 12;
           }
         }
         next.encounter.visualEvents.push({ type: 'training-action', sourceId: character.id, style: 'magic', effectId, projectileId });

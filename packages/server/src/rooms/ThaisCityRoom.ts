@@ -5,7 +5,7 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
-import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, type TrainableSkill, type GameContent } from '../../../domain/src';
+import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, getHuntWorldEntrance, type TrainableSkill, type GameContent } from '../../../domain/src';
 import vocationsJson from '../../../../content/generated/vocations.json';
 import equipmentJson from '../../../../content/generated/equipment.json';
 import monstersJson from '../../../../content/generated/monsters.json';
@@ -181,7 +181,7 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     this.onMessage('player:teleport', (client, data: { x: number; y: number; z?: number }) => {
       const player = this.state.players.get(client.sessionId);
-      if (player && (player.role === 'ADMIN' || player.role === 'admin') && typeof data.x === 'number' && typeof data.y === 'number') {
+      if (player && player.role === 'ADMIN' && typeof data.x === 'number' && typeof data.y === 'number') {
         player.posX = data.x;
         player.posY = data.y;
         player.posZ = data.z ?? player.posZ;
@@ -353,10 +353,13 @@ export class ThaisCityRoom extends Room<WorldState> {
           return;
         }
         player.inHunt = wantsHunt;
-        if (wantsHunt && data.huntId === 'dragon-lair') {
-          player.posX = 32741;
-          player.posY = 31294;
-          player.posZ = 11;
+        if (wantsHunt && data.huntId) {
+          const entrance = getHuntWorldEntrance(data.huntId, gameContent);
+          player.posX = entrance.worldPosition.x;
+          player.posY = entrance.worldPosition.y;
+          player.posZ = entrance.worldPosition.z;
+          player.isWalking = false;
+          player.lastStepTime = 0;
         }
       }
     });
@@ -730,21 +733,62 @@ export class ThaisCityRoom extends Room<WorldState> {
     const player = this.state.players.get(client.sessionId);
     if (!player) return;
 
-    if (spellId === 'exura' || spellId === 'exura-ico') {
+    const lowerSpell = spellId.toLowerCase().trim();
+
+    if (lowerSpell === 'exura' || lowerSpell === 'exura-ico' || lowerSpell === 'exura ico') {
       const manaCost = 20;
       if (player.mp >= manaCost) {
         player.mp -= manaCost;
         const heal = 30 + Math.floor(Math.random() * 20);
         player.hp = Math.min(player.maxHp, player.hp + heal);
 
-        this.pushCombatEvent('heal', player.id, player.id, heal, player.posX, player.posY, `+${heal}`, '#33ff33');
+        this.pushCombatEvent('heal', player.id, player.id, heal, player.posX, player.posY, 'Exura', '#33ff33', null, 12);
       }
-    } else if (spellId === 'exevo-flam-hur' || spellId === '19' || spellId === 'exevo flam hur' || spellId === 'fire-wave') {
+    } else if (lowerSpell === 'exura gran' || lowerSpell === 'exura-gran') {
+      const manaCost = 70;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+        const heal = 80 + Math.floor(Math.random() * 60);
+        player.hp = Math.min(player.maxHp, player.hp + heal);
+
+        this.pushCombatEvent('spell', player.id, player.id, heal, player.posX, player.posY, 'Exura Gran', '#55ff55', null, 12);
+      }
+    } else if (lowerSpell === 'exura vita' || lowerSpell === 'exura-vita') {
+      const manaCost = 160;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+        const heal = player.maxHp;
+        player.hp = Math.min(player.maxHp, player.hp + heal);
+
+        this.pushCombatEvent('spell', player.id, player.id, heal, player.posX, player.posY, 'Exura Vita', '#55ff55', null, 12);
+      }
+    } else if (lowerSpell === 'utani hur' || lowerSpell === 'utani-hur' || lowerSpell === 'speed' || lowerSpell === 'haste') {
+      const manaCost = 60;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+        player.hasteUntil = Date.now() + 33000;
+        this.pushCombatEvent('spell', player.id, player.id, 0, player.posX, player.posY, 'Utani Hur', '#ffff00', null, 13);
+      }
+    } else if (lowerSpell === 'utani gran hur' || lowerSpell === 'utani-gran-hur' || lowerSpell === 'strong haste') {
+      const manaCost = 100;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+        player.hasteUntil = Date.now() + 33000;
+        this.pushCombatEvent('spell', player.id, player.id, 0, player.posX, player.posY, 'Utani Gran Hur', '#ffff00', null, 13);
+      }
+    } else if (lowerSpell === 'utamo vita' || lowerSpell === 'utamo-vita' || lowerSpell === 'magic shield' || lowerSpell === '44') {
+      const manaCost = 50;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+        player.magicShieldUntil = Date.now() + 200000;
+        this.pushCombatEvent('spell', player.id, player.id, 0, player.posX, player.posY, 'Utamo Vita', '#33ffff', null, 13);
+      }
+    } else if (lowerSpell === 'exevo-flam-hur' || lowerSpell === '19' || lowerSpell === 'exevo flam hur' || lowerSpell === 'fire-wave') {
       const manaCost = 25;
       if (player.mp >= manaCost) {
         player.mp -= manaCost;
 
-        this.pushCombatEvent('spell', player.id, '', 0, player.posX, player.posY, 'Exevo flam hur!', '#ff6600');
+        this.pushCombatEvent('spell', player.id, '', 0, player.posX, player.posY, 'Exevo flam hur!', '#ff6600', null, 16);
 
         const dir = (player.direction || 'south') as 'north' | 'south' | 'east' | 'west';
         const waveTiles = getWave4Tiles({ x: player.posX, y: player.posY, z: player.posZ }, dir);
@@ -782,12 +826,12 @@ export class ThaisCityRoom extends Room<WorldState> {
           }
         }
       }
-    } else if (spellId === 'exori') {
+    } else if (lowerSpell === 'exori' || lowerSpell === 'berserk') {
       const manaCost = 115;
       if (player.mp >= manaCost) {
         player.mp -= manaCost;
 
-        this.pushCombatEvent('spell', player.id, '', 0, player.posX, player.posY, 'Exori!', '#ffff33');
+        this.pushCombatEvent('spell', player.id, '', 0, player.posX, player.posY, 'Exori!', '#ffff33', null, 10);
 
         // Hit all adjacent monsters in 3x3
         this.state.monsters.forEach((monster: MonsterState) => {
@@ -801,6 +845,67 @@ export class ThaisCityRoom extends Room<WorldState> {
             }
           }
         });
+      }
+    } else if (
+      lowerSpell === 'exori vis' ||
+      lowerSpell === 'exori-vis' ||
+      lowerSpell === 'energy strike' ||
+      lowerSpell === '25' ||
+      lowerSpell === '88'
+    ) {
+      const manaCost = 20;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+
+        let targetMonster: MonsterState | null = null;
+        if (player.targetId) {
+          const m = this.state.monsters.get(player.targetId);
+          if (m && !m.isDead && Math.hypot(m.posX - player.posX, m.posY - player.posY) <= 4) {
+            targetMonster = m;
+          }
+        }
+        if (!targetMonster) {
+          let minDist = 99;
+          this.state.monsters.forEach((m) => {
+            if (!m.isDead) {
+              const d = Math.hypot(m.posX - player.posX, m.posY - player.posY);
+              if (d <= 3 && d < minDist) {
+                minDist = d;
+                targetMonster = m;
+              }
+            }
+          });
+        }
+
+        const targetX = targetMonster ? targetMonster.posX : player.posX;
+        const targetY = targetMonster ? targetMonster.posY : player.posY;
+        const targetId = targetMonster ? targetMonster.id : player.id;
+
+        this.pushCombatEvent('spell', player.id, targetId, 0, targetX, targetY, 'Exori Vis', '#33ffff', 5, 12, player.posX, player.posY);
+
+        if (targetMonster) {
+          const rawDamage = 30 + Math.floor(Math.random() * 25) + Math.floor(player.level * 0.2);
+          const damage = Math.max(1, rawDamage - (targetMonster as MonsterState).armorPower);
+          (targetMonster as MonsterState).hp -= damage;
+
+          this.pushCombatEvent('damage', player.id, (targetMonster as MonsterState).id, damage, targetX, targetY, `${damage}`, '#33ffff', 5, 12, player.posX, player.posY);
+
+          if ((targetMonster as MonsterState).hp <= 0) {
+            this.killMonster(targetMonster as MonsterState, player);
+          }
+        }
+
+        const vocName = (player.vocationName || 'Sorcerer') as VocationName;
+        const vocDef = vocationFor(gameContent, vocName);
+        const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+        const magicTries = manaCost * gameContent.rateMagic * skillRate;
+        let charSkills = (player as any).skills;
+        if (Array.isArray(charSkills)) {
+          let mlObj = charSkills.find((s: any) => s.skillId === 7);
+          if (mlObj) {
+            mlObj.tries = (mlObj.tries || 0) + magicTries;
+          }
+        }
       }
     }
   }
@@ -1008,6 +1113,8 @@ export class ThaisCityRoom extends Room<WorldState> {
     event.posY = posY;
     event.text = text;
     event.color = color;
+    if (typeof projectileId === 'number') event.projectileId = projectileId;
+    if (typeof effectId === 'number') event.effectId = effectId;
     event.timestamp = Date.now();
 
     this.state.combatEvents.push(event);
@@ -1062,6 +1169,30 @@ export class ThaisCityRoom extends Room<WorldState> {
     rotworm.posY = 32245;
     rotworm.posZ = 7;
     this.state.monsters.set(rotworm.id, rotworm);
+
+    // Spawn monsters from all imported hunt regions (including Dragon Lair at Z=11)
+    let monsterIndex = 1;
+    const monsterCatalog = (monstersJson as MonsterCatalog).monsters;
+    const monsterMap = new Map(monsterCatalog.map((m) => [m.id.toLowerCase(), m]));
+
+    for (const region of (huntRegionsJson as HuntRegionCatalog).regions) {
+      const monsterTypeId = region.monsterName.toLowerCase().replace(/\s+/g, '-');
+      const monsterDef = monsterMap.get(monsterTypeId) || monsterMap.get(region.monsterName.toLowerCase());
+
+      for (const spawn of region.spawnPositions) {
+        const monster = new MonsterState();
+        monster.id = `${monsterTypeId}-${monsterIndex++}`;
+        monster.name = monsterDef?.name || region.monsterName;
+        monster.monsterTypeId = monsterDef?.id || monsterTypeId;
+        monster.lookType = monsterDef?.lookType || (monsterTypeId === 'dragon' ? 34 : 26);
+        monster.hp = monsterDef?.maxHp || (monsterTypeId === 'dragon' ? 1000 : 65);
+        monster.maxHp = monster.hp;
+        monster.posX = spawn.x;
+        monster.posY = spawn.y;
+        monster.posZ = spawn.z;
+        this.state.monsters.set(monster.id, monster);
+      }
+    }
   }
 
   private killMonster(monster: MonsterState, killer: PlayerState) {
@@ -1085,7 +1216,13 @@ export class ThaisCityRoom extends Room<WorldState> {
       'carrion-worm': 70,
     };
 
-    const baseExp = baseExperienceMap[monster.monsterTypeId] ?? (monster.monsterTypeId === 'rotworm' ? 40 : 5);
+    const isDummy = Boolean(
+      monster.monsterTypeId.includes('dummy') ||
+      monster.id.includes('dummy') ||
+      monster.name.toLowerCase().includes('dummy')
+    );
+
+    const baseExp = isDummy ? 0 : (baseExperienceMap[monster.monsterTypeId] ?? (monster.monsterTypeId === 'rotworm' ? 40 : 5));
     const expRate = serverConfigManager.getConfig().expRate ?? 1.0;
     const xpGain = baseExp === 0 ? 0 : Math.max(1, Math.round(baseExp * expRate));
 
@@ -1184,10 +1321,22 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
 
 
-      if (this.state.serverTick % 3 === 0 && player.mp < player.maxMp) {
-        const regenRate = serverConfigManager.getConfig().regenRate ?? 1.0;
-        const regenAmount = Math.max(1, Math.round(1 * regenRate));
-        player.mp = Math.min(player.maxMp, player.mp + regenAmount);
+      // Vocation-based HP & MP Regeneration
+      const vocName = (player.vocationName || 'Knight') as VocationName;
+      try {
+        const vocDef = vocationFor(gameContent, vocName);
+        const hpTicks = Math.max(1, vocDef.healthGainTicks ?? 6);
+        const mpTicks = Math.max(1, vocDef.manaGainTicks ?? 3);
+        if (this.state.serverTick % hpTicks === 0 && player.hp < player.maxHp) {
+          player.hp = Math.min(player.maxHp, player.hp + (vocDef.healthGainAmount ?? 1));
+        }
+        if (this.state.serverTick % mpTicks === 0 && player.mp < player.maxMp) {
+          player.mp = Math.min(player.maxMp, player.mp + (vocDef.manaGainAmount ?? 2));
+        }
+      } catch {
+        if (this.state.serverTick % 3 === 0 && player.mp < player.maxMp) {
+          player.mp = Math.min(player.maxMp, player.mp + 2);
+        }
       }
 
       if (player.targetId && now - player.lastAttackTime >= player.attackCooldownMs) {

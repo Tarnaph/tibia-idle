@@ -33,8 +33,8 @@ describe('Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em
     expect(room.state.regionName).toBe('thais-city');
     expect(room.state.serverTick).toBe(0);
 
-    // Initial spawns: Target Dummy and Rotworm
-    expect(room.state.monsters.size).toBe(2);
+    // Initial spawns: Target Dummy, Rotworm, and Hunt Region monsters (Dragons, etc.)
+    expect(room.state.monsters.size).toBeGreaterThanOrEqual(2);
     const dummy = room.state.monsters.get('dummy-1');
     expect(dummy).toBeDefined();
     expect(dummy?.name).toBe('Target Dummy');
@@ -181,5 +181,31 @@ describe('Phase 43: Servidor de Jogo Autoritativo com Colyseus.js & Game Loop em
     // Test player leave (consented logout code 1000)
     await room.onLeave(mockClient, 1000);
     expect(room.state.players.size).toBe(0);
+  });
+
+  it('casts Utamo Vita and sets magicShieldUntil on PlayerState in ThaisCityRoom', () => {
+    const room = new ThaisCityRoom();
+    room.onCreate({});
+
+    const mockClient: any = { sessionId: 'session-sorcerer-1', send: () => {} };
+    room.onJoin(mockClient, {
+      mockCharacter: {
+        id: 'char-sorcerer-1',
+        accountId: 'acc-2',
+        name: 'MageMaster',
+        vocationId: 1,
+        level: 50,
+      },
+    });
+
+    const player = room.state.players.get('session-sorcerer-1')!;
+    player.mp = 100;
+    player.magicShieldUntil = 0;
+
+    // Cast Utamo Vita
+    (room as any).handleCastSpell(mockClient, 'utamo vita');
+
+    expect(player.mp).toBe(50);
+    expect(player.magicShieldUntil).toBeGreaterThan(Date.now());
   });
 });
