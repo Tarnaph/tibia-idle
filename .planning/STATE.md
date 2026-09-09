@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T14:10:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 101: Correção Visual da Tela de Loading Exura (Vanilla CSS) e Restauração do Mapa Autêntico de Thais com Dynamic Texture Binding."
+last_updated: "2026-09-09T14:18:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 102: Visibilidade da Barra de Progresso de Loading (Magma Vibrante & Centelha) e Duração Expandida para 10 Segundos."
 progress:
-  total_phases: 101
-  completed_phases: 101
-  total_plans: 101
-  completed_plans: 101
+  total_phases: 102
+  completed_phases: 102
+  total_plans: 102
+  completed_plans: 102
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 101 concluída. (1) Solução definitiva da exibição da tela de loading Exura migrando de classes do Tailwind para Vanilla CSS puro e estilos inline absolutos (`position: fixed; inset: 0; zIndex: 999999999`); (2) Restauração do mapa autêntico da cidade de Thais via ordenação por proximidade ao Templo (32369, 32241, 7) e Dynamic Texture Binding, eliminando qualquer substituição indevida de pisos por dummy floors de madeira; (3) Remoção de `object-fit: cover` eliminando distorções de resolução nos canvas PixiJS v8.
+**Current focus:** Fase 102 concluída. (1) Calibração visual completa do preenchimento da barra de loading Exura (`loading-bar-frame.png`) com gradiente magma de alta luminosidade, realce especular de topo, centelha de brasa na ponta e porcentagem em tempo real (`XX%`); (2) Duração universal de 10 segundos (`10000ms`) aplicada em entradas de jogo, transições de caçada e no preview `/game-preview`.
 
 ## Current Position
 
-Phase: 101 of 101 (Concluída)  
+Phase: 102 of 102 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 101.
+Last activity: 2026-09-09 — Conclusão da Phase 102.
 
 Progress: [██████████] 100%
 

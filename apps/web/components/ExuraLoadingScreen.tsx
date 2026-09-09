@@ -23,7 +23,7 @@ export interface ExuraLoadingScreenProps {
 
 export function ExuraLoadingScreen({
   active,
-  durationMs = 5000,
+  durationMs = 10000,
   message = 'Carregando o mundo de Thais...',
   onFinish,
 }: ExuraLoadingScreenProps) {
@@ -65,7 +65,7 @@ export function ExuraLoadingScreen({
       if (pct < 100) {
         animationFrameId = requestAnimationFrame(tick);
       } else {
-        // Bar reached 100% after durationMs (5s)
+        // Bar reached 100% after durationMs (10s)
         setIsFadingOut(true);
         finishTimeoutId = setTimeout(() => {
           setIsVisible(false);
@@ -144,23 +144,23 @@ export function ExuraLoadingScreen({
             justifyContent: 'center',
           }}
         >
-          {/* 1. Inner Cavity Slot (Dark Groove) */}
+          {/* 1. Inner Cavity Slot (Dark Obsidian Groove) */}
           <div
             className="exura-loading-cavity"
             style={{
               position: 'absolute',
-              left: '7.5%',
-              width: '85.0%',
-              top: '39.8%',
-              height: '15.2%',
-              background: 'linear-gradient(180deg, #0d0202 0%, #1a0404 50%, #080101 100%)',
-              boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.95), inset 0 0 8px rgba(0,0,0,0.85)',
-              borderRadius: '2px',
+              left: '7.8%',
+              width: '84.4%',
+              top: '40.2%',
+              height: '14.8%',
+              background: '#0a0303',
+              boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.98), inset 0 0 10px rgba(0,0,0,0.95)',
+              borderRadius: '3px',
               overflow: 'hidden',
               zIndex: 10,
             }}
           >
-            {/* 2. Red Progress Fill */}
+            {/* 2. Vibrant Magma Red/Orange Progress Fill */}
             <div
               className="exura-bar-glow exura-loading-progress-fill"
               style={{
@@ -170,11 +170,25 @@ export function ExuraLoadingScreen({
                 overflow: 'hidden',
                 transition: 'width 0.08s linear',
                 background:
-                  'linear-gradient(90deg, #600303 0%, #a81010 20%, #ef2323 50%, #ff5252 80%, #ef2323 100%)',
+                  'linear-gradient(180deg, #ffe066 0%, #ff5e00 25%, #ff2200 55%, #c80000 85%, #7a0000 100%)',
                 boxShadow:
-                  '0 0 14px rgba(255, 30, 30, 0.9), inset 0 1px 2px rgba(255, 220, 220, 0.65)',
+                  '0 0 16px rgba(255, 60, 0, 0.95), 0 0 32px rgba(255, 30, 0, 0.75), inset 0 1px 3px rgba(255, 255, 240, 0.9)',
               }}
             >
+              {/* Top specular highlight edge line */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '2px',
+                  background:
+                    'linear-gradient(90deg, rgba(255,255,255,0.85) 0%, rgba(255,235,170,0.9) 50%, rgba(255,255,255,0.85) 100%)',
+                  opacity: 0.85,
+                }}
+              />
+
               {/* Animated Magma / Fiery Shimmer */}
               <div
                 className="exura-loading-shimmer"
@@ -182,24 +196,25 @@ export function ExuraLoadingScreen({
                   position: 'absolute',
                   inset: 0,
                   background:
-                    'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%)',
-                  width: '60%',
+                    'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%)',
+                  width: '50%',
                   pointerEvents: 'none',
                 }}
               />
 
-              {/* Glowing tip / ember spark */}
-              {progress > 2 && progress < 99 && (
+              {/* Glowing leading spark / ember head */}
+              {progress > 1 && progress < 99.8 && (
                 <div
                   style={{
                     position: 'absolute',
                     right: 0,
                     top: 0,
                     bottom: 0,
-                    width: '3px',
+                    width: '6px',
                     background: '#ffffff',
-                    boxShadow: '0 0 10px #ffffff, 0 0 20px #ff3333',
-                    opacity: 0.9,
+                    boxShadow: '0 0 10px #ffffff, 0 0 20px #ffaa00, 0 0 32px #ff2200',
+                    borderRadius: '2px',
+                    opacity: 1,
                   }}
                 />
               )}
@@ -224,21 +239,21 @@ export function ExuraLoadingScreen({
           />
         </div>
 
-        {/* Text label below the frame */}
-        <div style={{ marginTop: '0.75rem', textAlign: 'center', zIndex: 30 }}>
+        {/* Text label below the frame with percentage */}
+        <div style={{ marginTop: '0.85rem', textAlign: 'center', zIndex: 30 }}>
           <p
             className="exura-loading-text"
             style={{
               fontFamily: 'serif',
               color: '#e0c9a6',
-              fontSize: '0.9rem',
+              fontSize: '0.95rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               filter: 'drop-shadow(0 2px 4px rgba(0,0,0,1))',
               margin: 0,
             }}
           >
-            {message}
+            {message} ({Math.round(progress)}%)
           </p>
         </div>
       </div>

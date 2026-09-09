@@ -204,7 +204,12 @@ function GamePrototypeContent() {
     return false;
   });
   const [isLoadingCharacter, setIsLoadingCharacter] = useState(false);
-  const [initialLoadingActive, setInitialLoadingActive] = useState(false);
+  const [initialLoadingActive, setInitialLoadingActive] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/game-preview') {
+      return true;
+    }
+    return false;
+  });
   const [transitionLoading, setTransitionLoading] = useState<{
     active: boolean;
     message: string;
@@ -1607,12 +1612,12 @@ function GamePrototypeContent() {
     setIsTrainingAtDummy(false);
     setWalkingPath(null);
 
-    // Phase 99: Save progress and trigger 5-second Exura loading screen
+    // Phase 102: Save progress and trigger 10-second Exura loading screen
     void saveProgressRef.current?.();
     setTransitionLoading({
       active: true,
       message: `Viajando para ${targetHunt.name}...`,
-      durationMs: 5000,
+      durationMs: 10000,
     });
 
     const beforePos = { ...cityPos };
@@ -1649,7 +1654,7 @@ function GamePrototypeContent() {
   startSelectedHuntRef.current = startSelectedHunt;
 
   const exitHunt = () => {
-    followSuppressedUntilRef.current = Date.now() + 5500;
+    followSuppressedUntilRef.current = Date.now() + 10500;
     const party = multiplayerPartyRef.current;
     if (party && party.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntExit();
@@ -1657,14 +1662,14 @@ function GamePrototypeContent() {
     gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
     gameNetwork.sendSetInHunt(false);
 
-    // Phase 99: Save progress immediately with 100% accumulated XP, level and loot
+    // Phase 99/102: Save progress immediately with 100% accumulated XP, level and loot
     void saveProgressRef.current?.();
 
-    // Phase 99: Trigger 5-second Exura loading screen for tranquil transition and safe saving
+    // Phase 102: Trigger 10-second Exura loading screen for tranquil transition and safe saving
     setTransitionLoading({
       active: true,
       message: 'Salvando progresso e retornando a Thais...',
-      durationMs: 5000,
+      durationMs: 10000,
     });
 
     setGame((current) => {
@@ -2551,10 +2556,10 @@ function GamePrototypeContent() {
         />
       )}
 
-      {/* Phase 99/100: Authentic Exura 5s Cinematic Loading Screen for Login & Transitions */}
+      {/* Phase 99/100/102: Authentic Exura 10s Cinematic Loading Screen for Login & Transitions */}
       <ExuraLoadingScreen
         active={initialLoadingActive || Boolean(transitionLoading?.active)}
-        durationMs={transitionLoading?.durationMs ?? 5000}
+        durationMs={transitionLoading?.durationMs ?? 10000}
         message={
           transitionLoading?.message ||
           (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')

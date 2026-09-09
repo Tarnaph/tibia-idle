@@ -61,6 +61,10 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 97: Correção do Sistema de Condições para Uso Automático de Poções, Magias e Runas** - Cada slot da hotbar respeita rigorosamente as condições customizadas salvas (alvo, métrica, operador, valor e % ou absoluto), eliminando hardcodes (como limite fixo de 50%), garantindo que slots desativados nunca executem, condições não interfiram entre slots, e persistência permanente no Prisma DB entre relogs.
 - [x] **Phase 98: Sprites Autênticos de Monstros, Ícones Canônicos de Magias Tibia 11, Efeitos Visuais das Magias e Coordenadas da Caçada dos Ratos** - Geração de thumbnails 32x32 nítidos e centralizados para todos os 13 monstros do jogo com suporte a `thumbUrl` no `HuntSelector`, alinhamento de 146 ícones oficiais 32x32 do Tibia 11 para todas as vocações, importação autoritativa de `effectId` e `projectileId` do `realmap11/src/const.h` para 86+ magias, e garantia estrita da caçada dos ratos iniciando em (32102, 32205, 8) com HUD de coordenadas RealMap e inicialização instantânea sem congelamento na `PixiArena`.
 - [x] **Phase 99: Tela Épica de Carregamento Exura (5s), Prevenção da Perda de XP ao Sair da Hunt e Persistência Atômica de Transição** - Implementação da tela de loading oficial de 5 segundos utilizando os assets Exura Idle Adventures (`loading-bg.jpg` e `loading-bar-frame.png`), com barra vermelha pulsante/magma dentro da moldura ornamental, ativação nas 3 transições (login/seleção, saída da caçada e início/troca de caçada), correção da causa raiz da perda indevida de XP ao sair de hunts (substituição de `respawnInTemple` por `leaveHunt`, 0% perda de XP/skills) e sincronização atômica imediata via `saveProgress()` no Prisma DB.
+- [x] **Phase 100: Correção Crítica da Inicialização de Jogo, Remoção de Bloqueio de Tela Preta e Exibição Confiável da Tela de Loading Exura na Cidade e Hunts** - Inicialização imediata do PixiJS sem display: none, ResizeObserver dinâmico, eliminação de race conditions na troca de tela e conversão segura de BigInt no save.
+- [x] **Phase 101: Correção Visual da Tela de Loading Exura (Vanilla CSS) e Restauração Integral do Mapa de Thais com Dynamic Texture Binding** - Loading screen com Vanilla CSS puro inline e global, ordenação de texturas por proximidade ao Templo (32369, 32241, 7) e Dynamic Texture Binding sem pisos substitutos de madeira.
+- [x] **Phase 102: Visibilidade da Barra de Progresso de Loading e Duração de 10 Segundos** - Calibração visual da barra de preenchimento (gradiente de magma vibrante, realce de topo, centelha incandescente frontal e porcentagem em tempo real) e expansão da duração da tela de loading para 10 segundos (10000ms) no login, transições de caçada e /game-preview.
+
 
 ---
 
@@ -1829,4 +1833,12 @@ Plans:
 **Depends on:** Phase 100
 **Plans:**
 - [x] 101-01-PLAN: Loading Screen com Vanilla CSS, Ordenação por Proximidade e Restauração Autêntica de Thais com Dynamic Texture Binding.
+
+### Phase 102: Visibilidade da Barra de Progresso de Loading e Duração de 10 Segundos
+
+**Goal:** Calibrar o preenchimento visual da barra de carregamento dentro da moldura ornamental `loading-bar-frame.png` para que o jogador veja nitidamente a barra de magma enchendo de 0% a 100% (gradiente de alta luminosidade, realce especular de 2px, centelha de brasa incandescente na frente do preenchimento e contador de porcentagem numérico em tempo real), além de aumentar a duração universal do loading para 10 segundos (10000ms) em todas as entradas de jogo, preview e transições de caçada.
+**Depends on:** Phase 101
+**Plans:**
+- [x] 102-01-PLAN: Barra de Loading Magma Visível, Centelha Incandescente, Contador Numérico e Duração de 10 Segundos.
+
 

@@ -7410,13 +7410,13 @@ h1, h2, h3, p { margin: 0; }
 
 .exura-loading-cavity {
   position: absolute !important;
-  left: 7.5% !important;
-  width: 85.0% !important;
-  top: 39.8% !important;
-  height: 15.2% !important;
-  background: linear-gradient(180deg, #0d0202 0%, #1a0404 50%, #080101 100%) !important;
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.95), inset 0 0 8px rgba(0,0,0,0.85) !important;
-  border-radius: 2px !important;
+  left: 7.8% !important;
+  width: 84.4% !important;
+  top: 40.2% !important;
+  height: 14.8% !important;
+  background: #0a0303 !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.98), inset 0 0 10px rgba(0, 0, 0, 0.95) !important;
+  border-radius: 3px !important;
   overflow: hidden !important;
   z-index: 10 !important;
 }
@@ -7425,8 +7425,8 @@ h1, h2, h3, p { margin: 0; }
   height: 100% !important;
   position: relative !important;
   overflow: hidden !important;
-  background: linear-gradient(90deg, #600303 0%, #a81010 20%, #ef2323 50%, #ff5252 80%, #ef2323 100%) !important;
-  box-shadow: 0 0 14px rgba(255, 30, 30, 0.9), inset 0 1px 2px rgba(255, 220, 220, 0.65) !important;
+  background: linear-gradient(180deg, #ffe066 0%, #ff5e00 25%, #ff2200 55%, #c80000 85%, #7a0000 100%) !important;
+  box-shadow: 0 0 16px rgba(255, 60, 0, 0.95), 0 0 32px rgba(255, 30, 0, 0.75), inset 0 1px 3px rgba(255, 255, 240, 0.9) !important;
   transition: width 0.08s linear !important;
 }
 
