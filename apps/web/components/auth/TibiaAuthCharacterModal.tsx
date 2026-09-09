@@ -293,34 +293,13 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
     };
 
     const video = videoRef.current;
-    const fadeDuration = 750;
-    const startTime = performance.now();
-    const initialVolume = video ? video.volume : 0.8;
+    if (video) {
+      try {
+        video.pause();
+      } catch {}
+    }
 
-    const fadeInterval = setInterval(() => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / fadeDuration, 1);
-
-      if (video) {
-        try {
-          video.volume = Math.max(0, initialVolume * (1 - progress));
-        } catch {
-          // Ignore
-        }
-      }
-
-      if (progress >= 1) {
-        clearInterval(fadeInterval);
-        if (video) {
-          try {
-            video.pause();
-          } catch {
-            // Ignore
-          }
-        }
-        onSelectCharacter(currentToken, char, currentAccount);
-      }
-    }, 30);
+    onSelectCharacter(currentToken, char, currentAccount);
   };
 
   return (

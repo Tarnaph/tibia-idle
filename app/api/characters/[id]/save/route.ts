@@ -12,6 +12,18 @@ function getAuthAccountId(request: Request): string {
   return decoded.accountId;
 }
 
+function safeBigInt(value: any): bigint | undefined {
+  if (value === undefined || value === null) return undefined;
+  try {
+    if (typeof value === 'bigint') return value;
+    const num = Number(value);
+    if (!isNaN(num)) return BigInt(Math.floor(num));
+    return BigInt(value);
+  } catch {
+    return undefined;
+  }
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -31,7 +43,7 @@ export async function POST(
 
     const updated = await service.saveCharacterProgress(id, {
       level: body.level,
-      experience: body.experience !== undefined ? BigInt(body.experience) : undefined,
+      experience: safeBigInt(body.experience),
       health: body.health,
       maxHealth: body.maxHealth,
       mana: body.mana,

@@ -191,10 +191,20 @@ function GamePrototypeContent() {
   const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
   const auth = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(true);
-  const [isCharacterReady, setIsCharacterReady] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/game-preview') {
+      return false;
+    }
+    return true;
+  });
+  const [isCharacterReady, setIsCharacterReady] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/game-preview') {
+      return true;
+    }
+    return false;
+  });
   const [isLoadingCharacter, setIsLoadingCharacter] = useState(false);
-  const [initialLoadingActive, setInitialLoadingActive] = useState(true);
+  const [initialLoadingActive, setInitialLoadingActive] = useState(false);
   const [transitionLoading, setTransitionLoading] = useState<{
     active: boolean;
     message: string;
@@ -1058,13 +1068,9 @@ function GamePrototypeContent() {
         console.error('Falha ao conectar ao servidor Colyseus:', err);
       });
 
-    // Ensure character state and saved position are fully committed before displaying character
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setIsCharacterReady(true);
-        setIsLoadingCharacter(false);
-      });
-    });
+    // Set character readiness and clear loading flag
+    setIsCharacterReady(true);
+    setIsLoadingCharacter(false);
   }, [content]);
 
   const leader = leaderOf(game);
@@ -1078,7 +1084,7 @@ function GamePrototypeContent() {
   // Periodic & On-Unload Auto-Save of active character progress, inventory, gold, and position to Database
   useEffect(() => {
     const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
-    if (!token || !activeCharacter) return;
+    if (!token || !activeCharacter || !onlineCharacter || activeCharacter.id !== onlineCharacter.id) return;
 
     const saveProgress = async () => {
       try {
@@ -1195,7 +1201,7 @@ function GamePrototypeContent() {
       window.removeEventListener('beforeunload', handleUnload);
       void saveProgress();
     };
-  }, [activeCharacter, cityPos, game.session.gold, game.session.loot, game.session.bag, content.equipment]);
+  }, [activeCharacter, onlineCharacter, cityPos, game.session.gold, game.session.loot, game.session.bag, content.equipment]);
 
   const activeActor = game.encounter.partyActors.find((a) => a.characterId === activeCharacter.id);
   const hasteBonus = (activeActor?.hasteUntil ?? 0) > game.encounter.elapsedMs ? 50 : 0;
@@ -2092,7 +2098,7 @@ function GamePrototypeContent() {
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
           />
         </div>
-        <div style={{ display: (mode !== 'hunt' && isCharacterReady && !showAuthModal) ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+        <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
           <ThaisCityArena
             characters={game.session.characters}
             cityPos={cityPos}
@@ -2106,10 +2112,10 @@ function GamePrototypeContent() {
             remotePlayers={remotePlayers}
             localPlayerId={gameNetwork.LocalPlayerId}
             overheadMessages={overheadMessages}
-            active={mode !== 'hunt' && isCharacterReady && !showAuthModal}
+            active={mode !== 'hunt' && !showAuthModal}
           />
         </div>
-        {mode !== 'hunt' && isCharacterReady && !showAuthModal && (
+        {mode !== 'hunt' && !showAuthModal && (
           <div className="city-location-hud">
             <div className="city-hud-header">
               <span className="city-tag">CIDADE DE THAIS</span>
@@ -2136,7 +2142,7 @@ function GamePrototypeContent() {
             </div>
           </div>
         )}
-        {mode === 'hunt' && isCharacterReady && (
+        {mode === 'hunt' && !showAuthModal && (
           <div className="city-location-hud hunt-location-hud">
             <div className="city-hud-header">
               <span className="city-tag" style={{ background: '#3b1c1c', borderColor: '#7f1d1d', color: '#fca5a5' }}>
@@ -2169,7 +2175,7 @@ function GamePrototypeContent() {
       </div>
 
       {/* Top HUD Dock Bar */}
-      {isCharacterReady && !showAuthModal && (
+      {!showAuthModal && (
         <WindowDockBar
           gold={game.session.gold}
           accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
@@ -2545,16 +2551,13 @@ function GamePrototypeContent() {
         />
       )}
 
-      {/* Phase 99: Authentic Exura 5s Cinematic Loading Screen for Login & Transitions */}
+      {/* Phase 99/100: Authentic Exura 5s Cinematic Loading Screen for Login & Transitions */}
       <ExuraLoadingScreen
-        active={
-          (!showAuthModal && (!isCharacterReady || isLoadingCharacter || initialLoadingActive)) ||
-          Boolean(transitionLoading?.active)
-        }
+        active={initialLoadingActive || Boolean(transitionLoading?.active)}
         durationMs={transitionLoading?.durationMs ?? 5000}
         message={
           transitionLoading?.message ||
-          (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Loading, please wait...')
+          (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
         }
         onFinish={() => {
           if (initialLoadingActive) {

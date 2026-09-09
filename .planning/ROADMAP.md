@@ -1809,5 +1809,16 @@ Plans:
 Plans:
 - [x] 98-01-PLAN: Sprites de Monstros, Ícones Canônicos Tibia 11, Efeitos de Magias e Coordenadas RealMap da Caçada dos Ratos.
 
+### Phase 99: Tela de Carregamento Exura (5s), Prevenção de Perda de XP ao Sair da Hunt e Persistência Atômica
 
+**Goal:** Implementar tela de loading ornamental de 5 segundos utilizando os assets oficiais Exura Idle Adventures (`loading-bg.jpg` e `loading-bar-frame.png`) com barra de magma animada avermelhada, ativação ao entrar no jogo e nas transições cidade ↔ caçada, substituição do método `respawnInTemple` por `leaveHunt` (garantindo 0% perda de XP e 0% perda de skills ao sair da caçada) e persistência imediata atômica no banco de dados Prisma via `saveProgress()`.
+**Depends on:** Phase 98
+**Plans:**
+- [x] 99-01-PLAN: Tela de Carregamento Exura 5s, Prevenção de Perda de XP e Persistência de Transição.
 
+### Phase 100: Correção Crítica da Inicialização de Jogo, Remoção de Bloqueio de Tela Preta e Exibição Confiável da Tela de Loading Exura na Cidade e Hunts
+
+**Goal:** Eliminar a causa raiz da tela preta na inicialização de `/game`, garantindo que: (1) O container do WebGL canvas em `ThaisCityArena` nunca seja inicializado com `display: none` ou dimensões zero, acoplando `ResizeObserver` com `app.resize()`; (2) A transição da seleção de personagem transfira o controle imediatamente para a `ExuraLoadingScreen` de 5s, eliminando o intervalo escuro intermediário; (3) O ticker do PixiJS nunca fique parado por race conditions; (4) O endpoint `/api/characters/[id]/save` converta `BigInt` com segurança via `safeBigInt` sem lançar erro 400; e (5) O personagem surja renderizado com perfeição no Templo de Thais após os 5 segundos da tela de carregamento.
+**Depends on:** Phase 99
+**Plans:**
+- [x] 100-01-PLAN: Resolução de Tela Preta, Redimensionamento Dinâmico PixiJS, Exibição Imediata do Loading Exura e Inicialização Garantida do Personagem em Thais.

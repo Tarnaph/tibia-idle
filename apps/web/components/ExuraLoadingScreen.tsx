@@ -24,7 +24,7 @@ export interface ExuraLoadingScreenProps {
 export function ExuraLoadingScreen({
   active,
   durationMs = 5000,
-  message = 'Loading, please wait...',
+  message = 'Carregando o mundo de Thais...',
   onFinish,
 }: ExuraLoadingScreenProps) {
   const [progress, setProgress] = useState(0);
@@ -36,9 +36,15 @@ export function ExuraLoadingScreen({
 
   useEffect(() => {
     if (!active) {
-      setIsFadingOut(false);
-      setIsVisible(false);
-      setProgress(0);
+      if (isVisible && !isFadingOut) {
+        setIsFadingOut(true);
+        const timeout = setTimeout(() => {
+          setIsVisible(false);
+          setIsFadingOut(false);
+          setProgress(0);
+        }, 350);
+        return () => clearTimeout(timeout);
+      }
       return;
     }
 
@@ -63,8 +69,9 @@ export function ExuraLoadingScreen({
         setIsFadingOut(true);
         finishTimeoutId = setTimeout(() => {
           setIsVisible(false);
+          setIsFadingOut(false);
           onFinishRef.current?.();
-        }, 350);
+        }, 400);
       }
     };
 
@@ -76,7 +83,7 @@ export function ExuraLoadingScreen({
     };
   }, [active, durationMs]);
 
-  if (!isVisible) return null;
+  if (!isVisible && !active) return null;
 
   return (
     <div
@@ -85,7 +92,7 @@ export function ExuraLoadingScreen({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label="Carregando o jogo"
-      className={`fixed inset-0 z-[999999] select-none pointer-events-auto flex flex-col items-center justify-end pb-12 md:pb-16 transition-opacity duration-350 ease-in-out ${
+      className={`fixed inset-0 z-[9999999] select-none pointer-events-auto flex flex-col items-center justify-end pb-12 md:pb-16 transition-opacity duration-300 ease-in-out ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       style={{

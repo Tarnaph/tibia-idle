@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T13:10:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 99: Tela Épica de Carregamento Exura (5s), Prevenção da Perda de XP ao Sair da Hunt e Persistência Atômica de Transição."
+last_updated: "2026-09-09T13:40:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 100: Resolução da Tela Preta, Exibição Imediata do Loading Exura de 5s, Redimensionamento Dinâmico PixiJS e Inicialização Garantida em Thais."
 progress:
-  total_phases: 99
-  completed_phases: 99
-  total_plans: 99
-  completed_plans: 99
+  total_phases: 100
+  completed_phases: 100
+  total_plans: 100
+  completed_plans: 100
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 99 concluída. Tela de loading oficial de 5 segundos utilizando os assets Exura Idle Adventures (loading-bg.jpg e loading-bar-frame.png) com barra vermelha pulsante/magma dentro da moldura ornamental, ativação nas 3 transições (login/seleção, saída da caçada e início/troca de caçada), correção da causa raiz da perda indevida de XP ao sair de hunts (substituição de respawnInTemple por leaveHunt, 0% perda de XP/skills) e sincronização atômica imediata via saveProgress() no Prisma DB.
+**Current focus:** Fase 100 concluída. Diagnóstico e resolução integral da tela preta na inicialização: (1) Desacoplamento da montagem oculta com display:none que mantinha o WebGL canvas do PixiJS em 0x0; (2) Adição de ResizeObserver e sincronização reativa do ticker para renderização imediata do mundo; (3) Handoff instantâneo do login para a ExuraLoadingScreen de 5s, eliminando intervalos vazios; (4) Blindagem de save de progresso com safeBigInt eliminando erros 400; (5) Inicialização impecável do personagem na Cidade de Thais (32369, 32241, 7).
 
 ## Current Position
 
-Phase: 99 of 99 (Concluída)  
+Phase: 100 of 100 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 99.
+Last activity: 2026-09-09 — Conclusão da Phase 100.
 
 Progress: [██████████] 100%
 

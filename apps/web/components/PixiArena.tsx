@@ -60,7 +60,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const syncRef = useRef<((state: GameState, showDebug: boolean) => void) | null>(null);
-  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu });
+  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active });
 
   useEffect(() => {
     const app = appRef.current;
@@ -98,8 +98,13 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       app.canvas.addEventListener('webglcontextlost', (e) => {
         e.preventDefault();
       });
-      if (!active) {
+      if (!latestRef.current.active) {
         app.ticker.stop();
+      } else {
+        if (!app.ticker.started) app.ticker.start();
+        try {
+          app.resize();
+        } catch {}
       }
 
       const loaded: Record<string, Texture> = {};
@@ -828,7 +833,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };
   }, []);
 
-  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu]);
+  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active]);
   return (
     <div
       ref={hostRef}

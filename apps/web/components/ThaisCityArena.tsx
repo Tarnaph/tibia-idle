@@ -107,6 +107,9 @@ export function ThaisCityArena({
     if (!app || !app.ticker) return;
     if (active) {
       if (!app.ticker.started) app.ticker.start();
+      try {
+        app.resize();
+      } catch {}
     } else {
       if (app.ticker.started) app.ticker.stop();
     }
@@ -125,6 +128,7 @@ export function ThaisCityArena({
     localPlayerId,
     overheadMessages,
     visualEvents,
+    active,
   });
   latestRef.current = {
     characters,
@@ -139,6 +143,7 @@ export function ThaisCityArena({
     localPlayerId,
     overheadMessages,
     visualEvents,
+    active,
   };
 
   useEffect(() => {
@@ -149,7 +154,7 @@ export function ThaisCityArena({
       const { Application, Assets, Container, Graphics, Sprite, Text, Texture } = await import('pixi.js');
       const app = new Application();
       await app.init({
-        resizeTo: hostRef.current ?? undefined,
+        resizeTo: hostRef.current ?? window,
         antialias: false,
         background: 0x07090b,
         resolution: Math.min(2, window.devicePixelRatio),
@@ -163,6 +168,11 @@ export function ThaisCityArena({
       }
 
       appRef.current = app;
+      app.canvas.style.width = '100%';
+      app.canvas.style.height = '100%';
+      app.canvas.style.display = 'block';
+      app.canvas.style.position = 'absolute';
+      app.canvas.style.inset = '0';
       app.canvas.style.imageRendering = 'pixelated';
       (app.canvas.style as any).imageRendering = 'crisp-edges';
       hostRef.current.appendChild(app.canvas);
@@ -170,8 +180,26 @@ export function ThaisCityArena({
       app.canvas.addEventListener('webglcontextlost', (e) => {
         e.preventDefault();
       });
-      if (!active) {
+
+      let resizeObserver: ResizeObserver | null = null;
+      if (typeof ResizeObserver !== 'undefined' && hostRef.current) {
+        resizeObserver = new ResizeObserver(() => {
+          if (!disposed && app.renderer) {
+            try {
+              app.resize();
+            } catch {}
+          }
+        });
+        resizeObserver.observe(hostRef.current);
+      }
+
+      if (!latestRef.current.active) {
         app.ticker.stop();
+      } else {
+        if (!app.ticker.started) app.ticker.start();
+        try {
+          app.resize();
+        } catch {}
       }
 
       const world = new Container();
@@ -282,7 +310,8 @@ export function ThaisCityArena({
         ...coreEffectUrls,
       ];
       try {
-        await loadBatch(priorityUrls, 50);
+        await loadBatch(priorityUrls.slice(0, 12), 12);
+        void loadBatch(priorityUrls.slice(12), 40);
       } catch (err) {
         console.warn('Priority asset loading error:', err);
       }
@@ -1589,6 +1618,7 @@ export function ThaisCityArena({
       });
 
       cleanup = () => {
+        resizeObserver?.disconnect();
         unsubZoom();
         appRef.current = null;
         unsubNetworkCombat?.();
