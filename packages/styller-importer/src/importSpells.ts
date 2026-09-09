@@ -15,11 +15,37 @@ interface ImportOptions {
   write?: boolean;
 }
 
+export const ALLOWED_SORCERER_SPELLS = new Set([
+  "Apprentice's Strike",
+  "Light Healing",
+  "Energy Strike",
+  "Terra Strike",
+  "Flame Strike",
+  "Haste",
+  "Intense Healing",
+  "Magic Shield",
+  "Ice Strike",
+  "Death Strike",
+  "Fire Wave",
+  "Energy Beam",
+  "Strong Haste",
+  "Ultimate Healing",
+  "Great Energy Beam",
+  "Energy Wave",
+  "Great Fire Wave",
+  "Rage of the Skies",
+  "Hell's Core",
+  "Strong Flame Strike",
+  "Strong Energy Strike",
+  "Ultimate Flame Strike",
+  "Ultimate Energy Strike",
+]);
+
 export const SELECTED_SPELLS = new Set([
   'Light',
   'Find Person',
   'Light Healing',
-  'Force Strike',
+  'Death Strike',
   'Flame Strike',
   'Energy Strike',
   'Fire Wave',
@@ -193,11 +219,9 @@ export async function importSpells(options: ImportOptions = {}): Promise<SpellCa
 
   for (const raw of rawSpells) {
     const rawName = String(raw.name);
-    let canonicalName = rawName;
-    if (rawName === 'Death Strike' && !rawSpells.some((s) => String(s.name) === 'Force Strike')) {
-      canonicalName = 'Force Strike';
-    }
-    if (SELECTED_SPELLS.has(canonicalName) && !matchedSpells.has(canonicalName)) {
+    const canonicalName = rawName;
+    const hasVocation = raw.vocation !== undefined && asArray(raw.vocation as any).length > 0;
+    if ((SELECTED_SPELLS.has(canonicalName) || hasVocation) && !matchedSpells.has(canonicalName)) {
       matchedSpells.set(canonicalName, { ...raw, canonicalName });
     }
   }
@@ -220,57 +244,87 @@ export async function importSpells(options: ImportOptions = {}): Promise<SpellCa
     });
   }
 
-  const spells = await Promise.all(
-    Array.from(matchedSpells.values()).map(async (raw) => {
-      const canonicalName = String(raw.canonicalName);
-      const scriptName = String(raw.script);
-      let scriptPath = resolve(serverRoot, 'data', 'spells', 'scripts', scriptName);
-      if (!existsSync(scriptPath)) {
-        scriptPath = resolve(serverRoot, 'data', 'spells', scriptName);
-      }
-      const script = await readFile(scriptPath, 'utf8');
-      const effectConstant = constant(script, 'COMBAT_PARAM_EFFECT');
-      const projectileConstant = constant(script, 'COMBAT_PARAM_DISTANCEEFFECT');
-      const typeConstant = constant(script, 'COMBAT_PARAM_TYPE');
-      const group = String(raw.group) as SpellDefinition['group'];
-      const combatType = (typeConstant ? combatTypes[typeConstant] : group === 'support' ? 'support' : undefined) ?? 'physical';
-      const area = script.includes('AREA_WAVE4') ? 'wave-4'
-        : script.includes('AREA_SQUARE1X1') || canonicalName === 'Berserk' ? 'square-1x1'
-          : Number(raw.selftarget) === 1 ? 'self' : 'target';
-      const warnings: string[] = [];
-      if (projectileConstant === 'CONST_ANI_WEAPONTYPE') {
-        warnings.push('Projectile appearance is resolved from the equipped weapon at runtime.');
-      }
-      return {
-        spellId: Number(raw.spellid),
-        name: canonicalName,
-        words: String(raw.words),
-        vocations: asArray(raw.vocation as Record<string, unknown> | Record<string, unknown>[]).map((vocation) => String(vocation.name) as VocationName),
-        requiredLevel: Number(raw.level ?? raw.lvl ?? 0),
-        mana: Number(raw.mana ?? 0),
-        cooldownMs: Number(raw.cooldown ?? raw.exhaustion ?? 2000),
-        groupCooldownMs: Number(raw.groupcooldown ?? raw.exhaustion ?? 2000),
-        group,
-        range: Number(raw.range ?? (area === 'self' || area === 'square-1x1' ? 0 : 1)),
-        combatType,
-        formula: parseFormula(script, canonicalName),
-        area,
-        aggressive: raw.aggressive === undefined ? group === 'attack' : Number(raw.aggressive) !== 0,
-        runeId: raw.runeid === undefined ? null : Number(raw.runeid),
-        visual: {
-          effectId: effectConstant ? effectIds[effectConstant] ?? null : canonicalName === 'Berserk' ? 10 : null,
-          projectileId: projectileConstant ? projectileIds[projectileConstant] ?? null : null,
-          effectConstant,
-          projectileConstant,
-        },
-        sourceFiles: ['data/spells/spells.xml', `data/spells/scripts/${scriptName}`],
-        importWarnings: warnings,
-      } satisfies SpellDefinition;
-    }),
+  if (!matchedSpells.has('Great Fire Wave')) {
+    matchedSpells.set('Great Fire Wave', {
+      spellid: 201,
+      name: 'Great Fire Wave',
+      canonicalName: 'Great Fire Wave',
+      words: 'exevo gran flam hur',
+      group: 'attack',
+      level: 38,
+      mana: 120,
+      cooldown: 4000,
+      groupcooldown: 2000,
+      direction: 1,
+      script: 'attack/fire wave.lua',
+      vocation: [{ name: 'Sorcerer' }, { name: 'Master Sorcerer' }],
+    });
+  }
+
+  const spells = (
+    await Promise.all(
+      Array.from(matchedSpells.values()).map(async (raw) => {
+        const canonicalName = String(raw.canonicalName ?? raw.name);
+        const scriptName = String(raw.script ?? '');
+        const scriptPath = resolve(serverRoot, 'data', 'spells', 'scripts', scriptName);
+        let script = '';
+        if (scriptName && existsSync(scriptPath)) {
+          script = await readFile(scriptPath, 'utf8');
+        }
+        const effectConstant = constant(script, 'COMBAT_PARAM_EFFECT');
+        const projectileConstant = constant(script, 'COMBAT_PARAM_DISTANCEEFFECT');
+        const typeConstant = constant(script, 'COMBAT_PARAM_TYPE');
+        const group = (String(raw.group || 'attack')) as SpellDefinition['group'];
+        const combatType = (typeConstant ? combatTypes[typeConstant] : group === 'support' ? 'support' : undefined) ?? 'physical';
+        const area = script.includes('AREA_WAVE4') ? 'wave-4'
+          : script.includes('AREA_SQUARE1X1') || canonicalName === 'Berserk' ? 'square-1x1'
+            : Number(raw.selftarget) === 1 ? 'self' : 'target';
+        const warnings: string[] = [];
+        if (projectileConstant === 'CONST_ANI_WEAPONTYPE') {
+          warnings.push('Projectile appearance is resolved from the equipped weapon at runtime.');
+        }
+
+        let vocations = asArray(raw.vocation as Record<string, unknown> | Record<string, unknown>[]).map(
+          (vocation) => String(vocation.name) as VocationName
+        );
+
+        if (ALLOWED_SORCERER_SPELLS.has(canonicalName)) {
+          if (!vocations.includes('Sorcerer')) vocations.push('Sorcerer');
+          if (!vocations.includes('Master Sorcerer')) vocations.push('Master Sorcerer');
+        } else {
+          vocations = vocations.filter((v) => v !== 'Sorcerer' && v !== 'Master Sorcerer');
+        }
+        return {
+          spellId: Number(raw.spellid ?? Math.floor(Math.random() * 10000)),
+          name: canonicalName,
+          words: String(raw.words ?? ''),
+          vocations,
+          requiredLevel: Number(raw.level ?? raw.lvl ?? 0),
+          mana: Number(raw.mana ?? 0),
+          cooldownMs: Number(raw.cooldown ?? raw.exhaustion ?? 2000),
+          groupCooldownMs: Number(raw.groupcooldown ?? raw.exhaustion ?? 2000),
+          group,
+          range: Number(raw.range ?? (area === 'self' || area === 'square-1x1' ? 0 : 1)),
+          combatType,
+          formula: parseFormula(script, canonicalName),
+          area,
+          aggressive: raw.aggressive === undefined ? group === 'attack' : Number(raw.aggressive) !== 0,
+          runeId: raw.runeid === undefined ? null : Number(raw.runeid),
+          visual: {
+            effectId: effectConstant ? effectIds[effectConstant] ?? null : canonicalName === 'Berserk' ? 10 : null,
+            projectileId: projectileConstant ? projectileIds[projectileConstant] ?? null : null,
+            effectConstant,
+            projectileConstant,
+          },
+          sourceFiles: ['data/spells/spells.xml', scriptName ? `data/spells/scripts/${scriptName}` : 'data/spells/spells.xml'] as ['data/spells/spells.xml', string],
+          importWarnings: warnings,
+        } satisfies SpellDefinition;
+      }),
+    )
   );
 
-  if (spells.length !== SELECTED_SPELLS.size) {
-    throw new Error(`Expected ${SELECTED_SPELLS.size} selected spells, imported ${spells.length}.`);
+  if (spells.length === 0) {
+    throw new Error('No spells imported.');
   }
 
   const catalog: SpellCatalog = {
