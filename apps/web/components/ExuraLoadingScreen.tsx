@@ -92,25 +92,63 @@ export function ExuraLoadingScreen({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label="Carregando o jogo"
-      className={`fixed inset-0 z-[9999999] select-none pointer-events-auto flex flex-col items-center justify-end pb-12 md:pb-16 transition-opacity duration-300 ease-in-out ${
-        isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
-      }`}
+      className="exura-loading-overlay"
       style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 999999999,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        paddingBottom: '3.5rem',
         backgroundImage: `radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%), url('/images/loading/loading-bg.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundColor: '#070202',
+        userSelect: 'none',
+        pointerEvents: isFadingOut ? 'none' : 'auto',
+        opacity: isFadingOut ? 0 : 1,
+        transition: 'opacity 0.4s ease-in-out',
+        boxSizing: 'border-box',
       }}
     >
       {/* Central Content Box anchored near bottom */}
-      <div className="flex flex-col items-center w-full px-4">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          paddingLeft: '1rem',
+          paddingRight: '1rem',
+          boxSizing: 'border-box',
+        }}
+      >
         {/* Loading Bar Frame Container matching 1024x341 ratio */}
-        <div className="relative w-[92vw] max-w-[620px] md:max-w-[700px] lg:max-w-[760px] aspect-[1024/341] flex items-center justify-center">
+        <div
+          className="exura-loading-frame-wrapper"
+          style={{
+            position: 'relative',
+            width: '92vw',
+            maxWidth: '680px',
+            aspectRatio: '1024 / 341',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           {/* 1. Inner Cavity Slot (Dark Groove) */}
           <div
-            className="absolute z-10 overflow-hidden"
+            className="exura-loading-cavity"
             style={{
+              position: 'absolute',
               left: '7.5%',
               width: '85.0%',
               top: '39.8%',
@@ -118,13 +156,19 @@ export function ExuraLoadingScreen({
               background: 'linear-gradient(180deg, #0d0202 0%, #1a0404 50%, #080101 100%)',
               boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.95), inset 0 0 8px rgba(0,0,0,0.85)',
               borderRadius: '2px',
+              overflow: 'hidden',
+              zIndex: 10,
             }}
           >
             {/* 2. Red Progress Fill */}
             <div
-              className="h-full relative overflow-hidden transition-[width] duration-75 ease-out exura-bar-glow"
+              className="exura-bar-glow exura-loading-progress-fill"
               style={{
                 width: `${Math.min(100, Math.max(0, progress))}%`,
+                height: '100%',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'width 0.08s linear',
                 background:
                   'linear-gradient(90deg, #600303 0%, #a81010 20%, #ef2323 50%, #ff5252 80%, #ef2323 100%)',
                 boxShadow:
@@ -133,8 +177,10 @@ export function ExuraLoadingScreen({
             >
               {/* Animated Magma / Fiery Shimmer */}
               <div
-                className="absolute inset-0 exura-loading-shimmer"
+                className="exura-loading-shimmer"
                 style={{
+                  position: 'absolute',
+                  inset: 0,
                   background:
                     'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%)',
                   width: '60%',
@@ -145,11 +191,15 @@ export function ExuraLoadingScreen({
               {/* Glowing tip / ember spark */}
               {progress > 2 && progress < 99 && (
                 <div
-                  className="absolute right-0 top-0 bottom-0 w-2"
                   style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '3px',
                     background: '#ffffff',
                     boxShadow: '0 0 10px #ffffff, 0 0 20px #ff3333',
-                    opacity: 0.85,
+                    opacity: 0.9,
                   }}
                 />
               )}
@@ -160,13 +210,34 @@ export function ExuraLoadingScreen({
           <img
             src="/images/loading/loading-bar-frame.png"
             alt="Moldura ornamental Exura"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.9)]"
+            className="exura-loading-frame-img"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              pointerEvents: 'none',
+              zIndex: 20,
+              filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.9))',
+            }}
           />
         </div>
 
         {/* Text label below the frame */}
-        <div className="mt-2 md:mt-3 text-center z-30">
-          <p className="font-serif text-[#e0c9a6] text-xs md:text-sm lg:text-base tracking-[0.2em] exura-loading-text uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+        <div style={{ marginTop: '0.75rem', textAlign: 'center', zIndex: 30 }}>
+          <p
+            className="exura-loading-text"
+            style={{
+              fontFamily: 'serif',
+              color: '#e0c9a6',
+              fontSize: '0.9rem',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,1))',
+              margin: 0,
+            }}
+          >
             {message}
           </p>
         </div>

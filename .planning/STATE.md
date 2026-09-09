@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T13:40:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 100: Resolução da Tela Preta, Exibição Imediata do Loading Exura de 5s, Redimensionamento Dinâmico PixiJS e Inicialização Garantida em Thais."
+last_updated: "2026-09-09T14:10:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 101: Correção Visual da Tela de Loading Exura (Vanilla CSS) e Restauração do Mapa Autêntico de Thais com Dynamic Texture Binding."
 progress:
-  total_phases: 100
-  completed_phases: 100
-  total_plans: 100
-  completed_plans: 100
+  total_phases: 101
+  completed_phases: 101
+  total_plans: 101
+  completed_plans: 101
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 100 concluída. Diagnóstico e resolução integral da tela preta na inicialização: (1) Desacoplamento da montagem oculta com display:none que mantinha o WebGL canvas do PixiJS em 0x0; (2) Adição de ResizeObserver e sincronização reativa do ticker para renderização imediata do mundo; (3) Handoff instantâneo do login para a ExuraLoadingScreen de 5s, eliminando intervalos vazios; (4) Blindagem de save de progresso com safeBigInt eliminando erros 400; (5) Inicialização impecável do personagem na Cidade de Thais (32369, 32241, 7).
+**Current focus:** Fase 101 concluída. (1) Solução definitiva da exibição da tela de loading Exura migrando de classes do Tailwind para Vanilla CSS puro e estilos inline absolutos (`position: fixed; inset: 0; zIndex: 999999999`); (2) Restauração do mapa autêntico da cidade de Thais via ordenação por proximidade ao Templo (32369, 32241, 7) e Dynamic Texture Binding, eliminando qualquer substituição indevida de pisos por dummy floors de madeira; (3) Remoção de `object-fit: cover` eliminando distorções de resolução nos canvas PixiJS v8.
 
 ## Current Position
 
-Phase: 100 of 100 (Concluída)  
+Phase: 101 of 101 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 100.
+Last activity: 2026-09-09 — Conclusão da Phase 101.
 
 Progress: [██████████] 100%
 

@@ -1822,3 +1822,11 @@ Plans:
 **Depends on:** Phase 99
 **Plans:**
 - [x] 100-01-PLAN: Resolução de Tela Preta, Redimensionamento Dinâmico PixiJS, Exibição Imediata do Loading Exura e Inicialização Garantida do Personagem em Thais.
+
+### Phase 101: Correção Visual da Tela de Loading Exura (Vanilla CSS) e Restauração Integral do Mapa de Thais com Dynamic Texture Binding
+
+**Goal:** Diagnosticar e solucionar em definitivo a ausência da tela de carregamento e o mapa bugado de Thais: (1) Reestruturação integral de `ExuraLoadingScreen.tsx` e `app/globals.css` com Vanilla CSS puro (`position: fixed; inset: 0; zIndex: 999999999`), garantindo exibição instantânea no login e em transições de caçada de forma 100% resiliente a classes do Tailwind; (2) Ordenação por proximidade das texturas de Thais (spawn no Templo `32369, 32241, 7`), assegurando que as ~450 texturas imediatas da área visível sejam pré-carregadas durante a tela de loading de 5s; (3) Implementação de Dynamic Texture Binding em `ThaisCityArena.tsx` eliminando qualquer substituição indevida de pisos autênticos por dummy floors de madeira; (4) Remoção de `object-fit: cover` dos canvas PixiJS para eliminar distorções de resolução e desalinhamentos de câmera.
+**Depends on:** Phase 100
+**Plans:**
+- [x] 101-01-PLAN: Loading Screen com Vanilla CSS, Ordenação por Proximidade e Restauração Autêntica de Thais com Dynamic Texture Binding.
+
