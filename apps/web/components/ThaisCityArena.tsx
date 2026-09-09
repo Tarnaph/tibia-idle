@@ -924,23 +924,21 @@ export function ThaisCityArena({
           currentPixelY = curPos.y * TILE_SIZE + 16;
         }
 
-        // 3. Camera smoothly follows interpolated player position
-        const camera = calculatePixelCamera(app.screen.width, app.screen.height, TILE_SIZE);
-        if (Number.isFinite(camera.scale) && camera.scale > 0) {
-          const targetCamX = app.screen.width / 2 - currentPixelX * camera.scale;
-          const targetCamY = app.screen.height / 2 - currentPixelY * camera.scale;
-          if (!camInitialized) {
-            smoothCamX = targetCamX;
-            smoothCamY = targetCamY;
-            camInitialized = true;
-          } else {
-            const lerpFactor = 1 - Math.exp(-Math.max(0, app.ticker.deltaMS) / 80);
-            smoothCamX += (targetCamX - smoothCamX) * lerpFactor;
-            smoothCamY += (targetCamY - smoothCamY) * lerpFactor;
-          }
-          world.scale.set(camera.scale);
-          world.position.set(smoothCamX, smoothCamY);
+        // 3. Camera smoothly follows interpolated player position with 2.0x scale (matching Hunt screen)
+        const cameraScale = 2;
+        const targetCamX = app.screen.width / 2 - currentPixelX * cameraScale;
+        const targetCamY = app.screen.height / 2 - currentPixelY * cameraScale;
+        if (!camInitialized) {
+          smoothCamX = targetCamX;
+          smoothCamY = targetCamY;
+          camInitialized = true;
+        } else {
+          const lerpFactor = 1 - Math.exp(-Math.max(0, app.ticker.deltaMS) / 80);
+          smoothCamX += (targetCamX - smoothCamX) * lerpFactor;
+          smoothCamY += (targetCamY - smoothCamY) * lerpFactor;
         }
+        world.scale.set(cameraScale);
+        world.position.set(smoothCamX, smoothCamY);
 
         // Clean up removed actor views (local player, ambient, and remote players)
         const validActorIds = new Set<string>();
