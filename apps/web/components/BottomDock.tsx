@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
-import type { CharacterState, CombatLogEntry, CombatStance, HuntEncounterState, PartyActorState } from '@/packages/domain/src';
+import type { CharacterState, CombatLogEntry, CombatStance, HuntEncounterState, PartyActorState, TargetSelectionStrategy } from '@/packages/domain/src';
 import { BottomConsoleHUD } from './BottomConsoleHUD';
 
 interface BottomDockProps {
@@ -27,6 +27,7 @@ interface BottomDockProps {
   onSelectHunt?: () => void;
   onChangeStance?: (stance: CombatStance) => void;
   onChangeTargetDistance?: (distance: number) => void;
+  onChangeTargetStrategy?: (strategy: TargetSelectionStrategy) => void;
 }
 
 export function BottomDock({
@@ -47,11 +48,65 @@ export function BottomDock({
   onSelectHunt,
   onChangeStance,
   onChangeTargetDistance,
+  onChangeTargetStrategy,
 }: BottomDockProps) {
   const [logOpen, setLogOpen] = useState(false);
   const handleExitClick = () => {
     onExitHunt?.();
   };
+
+  const hasteUntil = actor?.hasteUntil ?? character.combatState?.hasteUntil ?? 0;
+  const magicShieldUntil = actor?.magicShieldUntil ?? character.combatState?.magicShieldUntil ?? 0;
+  const bloodRageUntil = actor?.bloodRageUntil ?? character.combatState?.bloodRageUntil ?? 0;
+
+  const getRemainingSec = (untilTime: number) => {
+    if (!untilTime || untilTime <= elapsedMs) return 0;
+    return (untilTime - elapsedMs) / 1000;
+  };
+
+  const formatBuffTime = (seconds: number) => {
+    const total = Math.max(0, Math.ceil(seconds));
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const hasteSec = getRemainingSec(hasteUntil);
+  const magicShieldSec = getRemainingSec(magicShieldUntil);
+  const bloodRageSec = getRemainingSec(bloodRageUntil);
+
+  const activeBuffs: Array<{ id: string; name: string; icon: string; remainingSec: number; formattedTime: string }> = [];
+
+  if (hasteSec > 0) {
+    const isGranHur = (character as any)?.lastHasteSpell === 'utani gran hur';
+    activeBuffs.push({
+      id: 'haste',
+      name: isGranHur ? 'Utani Gran Hur' : 'Utani Hur',
+      icon: isGranHur ? '/spells/utani-gran-hur.png' : '/spells/utani-hur.png',
+      remainingSec: hasteSec,
+      formattedTime: formatBuffTime(hasteSec),
+    });
+  }
+
+  if (magicShieldSec > 0) {
+    activeBuffs.push({
+      id: 'magic-shield',
+      name: 'Utamo Vita',
+      icon: '/spells/utamo-vita.png',
+      remainingSec: magicShieldSec,
+      formattedTime: formatBuffTime(magicShieldSec),
+    });
+  }
+
+  if (bloodRageSec > 0) {
+    activeBuffs.push({
+      id: 'blood-rage',
+      name: 'Utito Tempo',
+      icon: '/spells/utito-tempo.png',
+      remainingSec: bloodRageSec,
+      formattedTime: formatBuffTime(bloodRageSec),
+    });
+  }
 
   return (
     <footer className="bottom-dock-wrapper" aria-label="Console de Batalha e Ações">
@@ -71,6 +126,68 @@ export function BottomDock({
             ))}
           </ol>
         </section>
+      )}
+
+      {/* Floating Active Support Spell Duration Counters (Centered Above Hotbar) */}
+      {activeBuffs.length > 0 && (
+        <div
+          className="active-buff-counters-floating"
+          aria-label="Contadores de Magias de Suporte Ativas"
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '4px',
+            pointerEvents: 'auto',
+            zIndex: 40,
+          }}
+        >
+          {activeBuffs.map((buff) => (
+            <div
+              key={buff.id}
+              className="active-buff-badge"
+              title={`${buff.name}: ${buff.formattedTime} restante`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '7px',
+                padding: '3px 10px 3px 4px',
+                backgroundColor: 'rgba(14, 20, 29, 0.94)',
+                border: '1.5px solid #2d3b4e',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(4px)',
+              }}
+            >
+              <img
+                src={buff.icon}
+                alt={buff.name}
+                width={22}
+                height={22}
+                style={{
+                  borderRadius: '3px',
+                  border: '1px solid #4a5a6e',
+                  display: 'block',
+                  imageRendering: 'pixelated',
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: 'Verdana, Arial, sans-serif',
+                  fontSize: '13.5px',
+                  fontWeight: 800,
+                  color: '#e3d5b0',
+                  textShadow: '1px 1px 2px #000, 0 0 4px rgba(0, 0, 0, 0.9)',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                {buff.formattedTime}
+              </span>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Top Quick Action Bar above console centered matching Image 4 */}
@@ -148,6 +265,7 @@ export function BottomDock({
         logCount={logs.length}
         onChangeStance={onChangeStance}
         onChangeTargetDistance={onChangeTargetDistance}
+        onChangeTargetStrategy={onChangeTargetStrategy}
       />
     </footer>
   );

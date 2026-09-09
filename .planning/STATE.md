@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-08T13:55:00.000Z"
-last_activity: "2026-09-08 — Inicialização da Phase 85: Início Direto de Caçada, Alinhamento de Magias de Knight e Modal Avançado Configurar Ação."
+status: in_progress
+last_updated: "2026-09-08T22:46:00.000Z"
+last_activity: "2026-09-08 — Conclusão com Sucesso da Phase 90: Perseguição Universal de Monstros e Seleção Dinâmica de Alvos (ALVO)."
 progress:
-  total_phases: 85
-  completed_phases: 84
-  total_plans: 85
-  completed_plans: 84
-  percent: 99
+  total_phases: 90
+  completed_phases: 90
+  total_plans: 90
+  completed_plans: 90
+  percent: 100
 ---
 
 # Project State
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Início direto de caçada sem caminhada prévia ao cais, alinhamento completo de magias de Knight e redesenho do modal Configurar Ação com suporte a regras, filtros, monstros ignorados e condições de disparo.
+**Current focus:** Fase 90 concluída. Perseguição agressiva universal de monstros por todo o mapa e seleção de alvos funcional via dropdown ALVO no BottomConsoleHUD ('closest', 'lowest-hp', 'highest-hp').
 
 ## Current Position
 
-Phase: 85 of 85 (Início Direto de Caçada, Alinhamento de Magias de Knight e Modal Avançado Configurar Ação)  
+Phase: 90 of 90 (Concluída)  
 Plan: 1 of 1 in current phase  
-Status: In_Progress  
-Last activity: 2026-09-08 — Inicialização da Phase 85.
+Status: Complete  
+Last activity: 2026-09-08 — Conclusão da Phase 90.
 
-Progress: [█████████░] 99%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 84
-- Total phases in roadmap: 84
-- Tests status: 86 test suites (470 testes aprovados)
+- Total phases completed: 90
+- Total phases in roadmap: 90
+- Tests status: 91 test suites (487 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

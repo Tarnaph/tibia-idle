@@ -101,14 +101,15 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
   const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu });
 
   useEffect(() => {
-    if (!appRef.current) return;
+    const app = appRef.current;
+    if (!app || !app.ticker) return;
     if (active) {
-      if (!appRef.current.ticker.started) appRef.current.ticker.start();
+      if (!app.ticker.started) app.ticker.start();
       try {
-        appRef.current.resize();
+        app.resize();
       } catch {}
     } else {
-      if (appRef.current.ticker.started) appRef.current.ticker.stop();
+      if (app.ticker.started) app.ticker.stop();
     }
   }, [active]);
 
@@ -141,7 +142,12 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       for (const asset of [...Object.values(visualAssets.creatures), ...Object.values(visualAssets.outfits), ...Object.values(visualAssets.effects), ...Object.values(visualAssets.missiles)]) {
         for (const frame of asset.frames) urls.add(frame.publicUrl);
       }
-      for (const item of [...Object.values(visualAssets.corpses), ...Object.values(visualAssets.mapItems)]) if (item.frame) urls.add(item.frame.publicUrl);
+      for (const item of [...Object.values(visualAssets.corpses), ...Object.values(visualAssets.mapItems)]) {
+        if (item.frame) urls.add(item.frame.publicUrl);
+        if (item.frames) {
+          for (const frame of item.frames) urls.add(frame.publicUrl);
+        }
+      }
       for (const url of ALL_SPELL_ICON_URLS) urls.add(url);
       urls.add('/generated/mounts/donkey_rider_south.png');
       for (const o of ['citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate', 'oriental', 'beggar']) {
@@ -199,7 +205,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       let activeRoom = '';
       let mapOffsetX = 0;
       let mapOffsetY = 0;
-      let camera: WorldCameraState = { x: 0, y: 0, zoom: 2 };
+      let camera: WorldCameraState = { x: 0, y: 0, zoom: 1 };
       let cameraInitialized = false;
 
       const worldPoint = (position: { x: number; y: number }) => ({
@@ -225,12 +231,30 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           let rendered = false;
           for (const serverId of tile.serverItemIds ?? []) {
             const mapping = visualAssets.mapItems[String(serverId)];
-            if (!mapping?.frame || !loaded[mapping.frame.publicUrl]) continue;
-            const sprite = new Sprite(loaded[mapping.frame.publicUrl]);
-            sprite.anchor.set(0.5, 0.5); sprite.position.set(point.x, point.y); sprite.roundPixels = true;
-            terrain.addChild(sprite); rendered = true;
+            if (!mapping) {
+              if (debug) console.warn(`Unresolved map item ID ${serverId} on tile (${tile.position.x}, ${tile.position.y})`);
+              continue;
+            }
+            let frameToUse = mapping.frame;
+            if (mapping.frames && mapping.frames.length > 1 && mapping.appearance) {
+              const px = mapping.appearance.patternX > 1 ? Math.abs(tile.position.x) % mapping.appearance.patternX : 0;
+              const py = mapping.appearance.patternY > 1 ? Math.abs(tile.position.y) % mapping.appearance.patternY : 0;
+              const matchedFrame = mapping.frames.find((f: any) => f.pattern?.x === px && f.pattern?.y === py) ?? mapping.frames[0];
+              if (matchedFrame && loaded[matchedFrame.publicUrl]) frameToUse = matchedFrame;
+            }
+            if (!frameToUse || !loaded[frameToUse.publicUrl]) continue;
+            const sprite = new Sprite(loaded[frameToUse.publicUrl]);
+            if (mapping.appearance && (mapping.appearance.width > 1 || mapping.appearance.height > 1)) {
+              sprite.anchor.set(0, 0);
+              sprite.position.set(point.x - 16 - (mapping.appearance.width - 1) * 32, point.y - 16 - (mapping.appearance.height - 1) * 32);
+            } else {
+              sprite.anchor.set(0, 0);
+              sprite.position.set(point.x - 16, point.y - 16);
+            }
+            sprite.roundPixels = true;
+            terrain.addChild(sprite);
+            rendered = true;
           }
-          if (!rendered) terrain.addChild(new Graphics().rect(point.x - 16, point.y - 16, 32, 32).fill({ color: tile.walkable ? 0x3a3527 : 0x211d18 }));
           if (showDebug) terrain.addChild(new Graphics().rect(point.x - 16, point.y - 16, 32, 32).stroke({ color: tile.walkable ? 0x7cb487 : 0xcf6d65, width: 0.5, alpha: 0.45 }));
         }
         if (showDebug && state.encounter.expedition) {
@@ -582,7 +606,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           const visual = timed[index]; const progress = (now - visual.startedAt) / visual.durationMs;
           visual.root.visible = progress >= 0;
           if (progress < 0) continue;
-          if (progress >= 1) { visual.root.destroy({ children: true }); timed.splice(index, 1); continue; }
+          if (progress >= 1) { if (visual.root.parent) visual.root.parent.removeChild(visual.root); visual.root.destroy({ children: true }); timed.splice(index, 1); continue; }
           if (visual.kind === 'float') { visual.root.y -= app.ticker.deltaMS * 0.025; visual.root.alpha = 1 - progress; }
           if (visual.kind === 'missile' && visual.from && visual.to) {
             const from = worldPoint(visual.from); const to = worldPoint(visual.to);
@@ -624,7 +648,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         if (target) {
           const visualPosition = views.get(target.characterId)?.track.sample(now).renderPosition ?? target.position;
           const point = worldPoint(visualPosition);
-          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 2 });
+          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 1.0 });
           camera = cameraInitialized ? smoothWorldCamera(camera, desired, app.ticker.deltaMS) : desired; cameraInitialized = true;
           world.scale.set(camera.zoom); world.position.set(Math.round(app.screen.width / 2 - camera.x * camera.zoom), Math.round(app.screen.height / 2 - camera.y * camera.zoom));
           const debugText = overlay.getChildByLabel('camera-debug') as Text | null;

@@ -47,6 +47,11 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 82: Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer** - Polyfill/blindagem universal de `TexturePool.returnTexture` no PixiJS v8 (eliminando o crash `Cannot read properties of undefined (reading 'push')` na troca/criação de personagem), inclusão canônica de projéteis (`projectileId = 5` / `CONST_ANI_ENERGY`) e impactos (`effectId = 12` / `CONST_ME_ENERGYHIT`) de Wands (Wand of Vortex), pré-carregamento e renderização de projéteis no `ThaisCityArena`, range de ataque para vocações mágicas na cidade e avanço de `magicLevel` para Sorcerers nos dummies.
 - [x] **Phase 84: Migração dos Importadores para Dados Autorizativos do Tibia 11 e Pré-Carregamento das Texturas do Mapa de Thais** - Atualização de `packages/styller-importer` para ler diretamente arquivos do Tibia 11 / `realmap11` (`items.otb`, `items.xml`, `monsters.xml`, `spells.xml`, `vocations.xml`, `npc/`), importação de magias e fórmulas do TFS 1.x, e correção do carregamento visual das texturas dos itens de mapa (pisos, paralelepípedos, paredes e telhados) no `ThaisCityArena.tsx`.
 - [ ] **Phase 85: Início Direto de Caçada sem Caminhada Prévia, Alinhamento de Magias de Knight e Modal de Configuração de Ação Avançado com Regras/Condições Customizadas** - Eliminação da caminhada prévia até o cais ao clicar em "Iniciar Caçada" (transição imediata), alinhamento completo do catálogo de magias de Knight no importador e motor de jogo, e reformulação visual/funcional do modal `Configurar ação` (`HotbarConfigModal.tsx`) com abas (Magias/Runas/Itens), busca, detalhes do poder/fórmula, monstros ignorados e regras de disparo/condições por slot com suporte a persistência no Prisma DB.
+- [x] **Phase 86: Botão de Remover Slot em Hotkeys, Trava de Nível Mínimo para Magias/Runas, Catálogo Completo e Correção de Ícones** - Adição do botão de remoção/limpeza de ação do slot na hotbar, restrição estrita de nivelamento mínimo (não permite equipar magias/runas sem level necessário), auditoria e inclusão de todas as magias ausentes da vocação no catálogo e correção dos mapeamentos de ícones das magias no `Tibia11ActionIcon`.
+- [x] **Phase 87: Acionamento Manual de Magias por Hotkeys (F1 a F10 / F12) em Thais e Caçadas** - Habilitação do disparo manual de magias de cura (`exura`, `exura gran`), buffs (`utani hur`, `utamo vita`), poções e magias ofensivas pressionando F1 a F10 (e 1-0) via teclado tanto na cidade de Thais quanto nas caçadas com animação de slot e acionamento de cooldown.
+- [x] **Phase 88: Sincronização Dinâmica da Barra de Progresso de XP (XP Progress Bar Tracking)** - Substituição dos cálculos estáticos/lineares pela fórmula autoritativa `experienceProgress(level, experience) * 100` do domínio no `BottomConsoleHUD`, `SkillsWindow`, `LeftSidebar` e `RightSidebar`, garantindo que a barra de XP atualize em tempo real a cada monstro derrotado e ganho de experiência.
+- [x] **Phase 89: Tela de Carregamento de Login e Sincronização Atômica de Estado do Personagem** - Ocultação total do personagem provisório no templo de Thais durante a entrada no jogo, exibição de tela de carregamento autêntica estilo Tibia e inicialização direta com nome, outfit e coordenadas salvas do banco de dados.
+- [x] **Phase 90: Perseguição Universal de Monstros e Seleção Dinâmica de Alvos (ALVO - Mais próximo, Menor vida, Maior vida)** - Expansão do raio de detecção de monstros para 50+ tiles garantindo perseguição agressiva de todos as criaturas no mapa, e implementação funcional do dropdown ALVO no BottomConsoleHUD integrando as estratégias `'closest'`, `'lowest-hp'` e `'highest-hp'` na ordenação de alvos no combate.
 
 ---
 
@@ -1475,7 +1480,7 @@ Plans: Concluído com sucesso.
    - Botão de alternância proeminente `"🤖 MODO AUTO-IDLE"` no HUD com indicador de status (`Ativo` / `Inativo`), estado do loop (`Caçando`, `Abastecendo Loja`, `Treinando Dummies`) e modal de configurações de auto-loop.
 5. **Qualidade e Testes:**
    - Suíte de testes Vitest validando a máquina de estados do loop autônomo, persistência Prisma, rotação por estamina e compra/venda automática de itens.
-   - `npm run typecheck` com 0 erros.
+   - 0 erros no `npm run typecheck` com 0 erros.
 
 **Success Criteria:**
 1. Botão de ativar/desativar Modo Auto-Idle na interface visual do jogo.
@@ -1519,5 +1524,98 @@ Plans: Concluído com sucesso.
 - [x] 83-01-PLAN: Correção de Tela Preta e Magias Direcionais em Onda.
 - Resumo de entrega: `.planning/phases/phase-83-directional-wave-spells-and-viewport-fix/83-SUMMARY.md`
 
+### Phase 86: Botão de Remover Slot em Hotkeys, Trava de Nível Mínimo para Magias/Runas, Catálogo Completo e Correção de Ícones
 
+**Goal:** Aprimorar a UX e integridade da Hotbar e do modal `HotbarConfigModal`: adicionar o botão de remover/limpar slot de hotkey, impor trava estrita prevenindo adicionar magias e runas quando o personagem não possuir o nível mínimo necessário (`minLevel`), auditando e garantindo que nenhuma magia da vocação esteja ausente da listagem e corrigindo os mapeamentos e ícones visuais em `Tibia11ActionIcon.tsx`.
+**Depends on:** Phase 85
+**Requirements:**
+1. **Botão de Remover/Limpar Slot:**
+   - Adicionar botão explícito `[ 🗑️ Remover do Slot ]` / `[ Limpar Slot ]` em `HotbarConfigModal.tsx`.
+   - Ao ser clicado, limpa a ação associada ao slot (`onSave(slotIndex, null)`) e fecha o modal.
+2. **Trava Estrita de Nível Mínimo (`minLevel`):**
+   - Verificar se `character.level >= spell.minLevel` (ou `rune.minLevel`).
+   - Se o nível do personagem for menor que o exigido, desabilitar o card/seleção da magia ou runa no modal, exibindo um badge vermelho indicando `🔒 Requer Nível X`.
+3. **Catálogo Completo de Magias:**
+   - Auditar todas as magias cadastradas em `spells.json` / `realmap11` e garantir que todas as magias pertencentes à vocação (e promoções) do personagem apareçam na listagem.
+4. **Correção de Ícones Visuais (`Tibia11ActionIcon`):**
+   - Corrigir o mapeamento de ícones de magias em `Tibia11ActionIcon.tsx` para que cada magia renderize o ícone canônico oficial correto.
+**Success Criteria:**
+1. Botão de remover ação do slot funcional no modal.
+2. Magias e runas com nível superior ao do herói ficam travadas e desabilitadas para equipar.
+3. Todas as magias do arquivo de conteúdo são exibidas no catálogo.
+4. Todos os ícones visuais de magias estão fiéis e corretos.
+5. 0 erros no `npm run typecheck` e 100% de testes aprovados no Vitest.
 
+Plans: 0 plans
+- [ ] TBD (run /gsd-plan-phase 86 to break down)
+
+### Phase 87: Acionamento Manual de Magias por Hotkeys (F1 a F10 / F12) em Thais e Caçadas
+
+**Goal:** Habilitar a execução manual instantânea de magias, runas e poções associadas às hotkeys pressionando as teclas F1 a F10 (e F1-F12 / 1-0) no teclado, permitindo ao jogador se curar (`exura`, `exura gran`, `exura vita`), usar suporte (`utani hur`, `utamo vita`) e disparar magias de combate em tempo real tanto na cidade de Thais quanto durante as caçadas.
+**Depends on:** Phase 86
+**Requirements:**
+1. **Captura Global de Teclas de Atalho (F1 a F10 / F12 & 1-0):**
+   - Ouvir eventos de teclado `keydown` quando não houver foco em elementos de entrada de texto (`input`, `textarea`).
+2. **Disparo Manual Unificado em Qualquer Ambiente (Cidade / Caçada):**
+   - Executar `triggerManualHotbarAction` no personagem ativo para a ação configurada no slot correspondente (F1 -> Slot 0, F2 -> Slot 1, etc.).
+   - Suporte imediato a magias de cura, buffs de movimento (`utani hur`), escudos (`utamo vita`), poções e magias de ataque.
+3. **Feedback Visual de Tecla Pressionada e Cooldown:**
+   - Destacar o slot da hotbar com a classe de animação visual `tibia11-slot-pressed` ao ser disparado pelo teclado e acionar o sweep de cooldown da ação.
+4. **Qualidade e Testes:**
+   - Suíte de testes no Vitest validando o acionamento de hotkeys via teclado em Thais e em caçadas.
+   - 0 erros de TypeScript (`npm run typecheck`).
+
+**Success Criteria:**
+1. Pressionar F1 a F10 (e 1-0) dispara instantaneamente a magia ou poção do slot configurado.
+2. Magias de cura e buffs (`utani hur`) funcionam perfeitamente na cidade de Thais e nas áreas de caça.
+3. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: 0 plans
+- [ ] TBD (run /gsd-plan-phase 87 to break down)
+
+### Phase 88: Sincronização Dinâmica da Barra de Progresso de XP (XP Progress Bar Tracking)
+
+**Goal:** Integrar a fórmula autoritativa cúbica do Tibia 11 (`experienceProgress(level, experience) * 100`) em todas as barras de experiência do frontend (`BottomConsoleHUD.tsx`, `SkillsWindow.tsx`, `LeftSidebar.tsx`, `RightSidebar.tsx`), garantindo que o progresso da barra avance de forma precisa e fluida à medida que os personagens sobem de nível e ganham experiência.
+**Depends on:** Phase 87
+**Requirements:**
+1. **Fórmula Autoritativa de Progresso de XP:**
+   - Importar e utilizar `experienceProgress(character.level, character.experience)` do pacote `@/packages/domain`.
+2. **Atualização da Barra do Console Inferior (`BottomConsoleHUD.tsx`):**
+   - Substituir o cálculo linear obsoleto pela fórmula de progresso cúbica e formatar a porcentagem com 1 casa decimal.
+3. **Atualização da Janela de Skills (`SkillsWindow.tsx`):**
+   - Substituir a largura estática/hardcoded (`width: '45%'`) da barra de level pelo progresso real `experienceProgress(level, experience) * 100`.
+4. **Qualidade e Testes:**
+   - Suíte de testes dedicada no Vitest validando a cálculo e sincronização da barra de XP em tempo real.
+   - 0 erros no `npm run typecheck`.
+
+**Success Criteria:**
+1. A barra de XP no HUD central e na janela de Skills avança proporcionalmente com o ganho de experiência.
+2. Ao subir de nível, a barra reinicia em 0% para o novo nível.
+3. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans: Concluído com sucesso.
+- [x] 88-01-PLAN: Sincronização Dinâmica da Barra de Progresso de XP.
+
+### Phase 89: Tela de Carregamento de Login e Sincronização Atômica de Estado do Personagem
+
+**Goal:** Ocultar o personagem provisório ("Hero" Knight no Templo de Thais) durante a transição do modal de login/seleção de personagem, exibindo uma tela de carregamento retrô estilo Tibia até que os dados autoritativos reais (nome, vocação, outfit, e posição salva x/y/z) estejam 100% commitados no canvas PixiJS.
+**Depends on:** Phase 88
+**Requirements:**
+1. **Ocultação do Personagem Provisório:**
+   - `<ThaisCityArena>` só fica visível e ativo (`active={true}`) quando `isCharacterReady === true` e `showAuthModal === false`.
+2. **Tela de Carregamento Autêntica Tibia:**
+   - Exibir overlay full-screen com design escuro, detalhes ornamentados, ícone giratório de escudo e barra de progresso pulsante durante a sincronização dos dados do personagem (`(!isCharacterReady || isLoadingCharacter) && !showAuthModal`).
+3. **Commit Sincronizado do Estado:**
+   - Transição fluida utilizando `requestAnimationFrame` duplo após atualizar `cityPos` e `userChar`, garantindo 0 saltos de câmera ou flickers visuais de outfit.
+4. **Qualidade e Testes:**
+   - Suíte de testes `tests/phase89-login-hydration-loading.test.ts` (3/3 testes aprovados).
+   - 0 erros no `npm run typecheck`.
+
+**Success Criteria:**
+1. Personagem provisório nunca aparece visualmente no Templo de Thais ao entrar no jogo.
+2. Tela de carregamento exibida durante a sincronização de dados.
+3. Personagem aparece diretamente na sua posição salva com nome e outfit corretos.
+4. 0 erros no typecheck e 100% dos testes aprovados.
+
+Plans: Concluído com sucesso.
+- [x] 89-01-PLAN: Tela de Carregamento de Login e Sincronização Atômica do Personagem.

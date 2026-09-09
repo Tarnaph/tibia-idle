@@ -3,7 +3,7 @@ import { adaptWaveHuntToExpedition } from './expedition';
 import { experienceForLevel, levelForExperience } from './experience';
 import { huntById } from './hunt';
 import { createContinuousHuntRoute } from './huntRoute';
-import { createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
+import { calculateStatsForLevel, createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
 import { createSeededRng, rollInteger } from './rng';
 import { getSpellAreaTiles, spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
@@ -16,7 +16,7 @@ import { clonePosition, samePosition } from './spatial/tileMap';
 import type { GridPosition } from './spatial/types';
 import type {
   CharacterState, CombatEvent, CombatLogEntry, CombatStance, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
-  LootStack, MonsterVariantDefinition, PartyActorState, SessionState,
+  LootStack, MonsterVariantDefinition, PartyActorState, SessionState, TargetSelectionStrategy,
 } from './types';
 import type { MonsterDefinition } from '../../content-schema/src';
 import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
@@ -123,7 +123,7 @@ function spawnRoom(state: GameState, content: GameContent): void {
     defense: resolved.defense, armor: resolved.armor, alive: true,
     position: clonePosition(spawn), previousPosition: clonePosition(spawn), direction: 'west', path: [], targetId: null,
     nextAttackAt: 0, attackIntervalMs: monster.attacks[0].intervalMs, speed: monster.speed,
-    behavior: 'idle', nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: 5, variant,
+    behavior: 'idle', nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: 50, variant,
   }); });
   synchronizeEncounterOccupancy(encounter);
   addLog(state, `Wave ${wave.number}: ${wave.count} ${monster.name}(s)${wave.boss ? ` + ${wave.boss.name}` : ''}.`);
@@ -151,7 +151,7 @@ function spawnExpeditionEncounter(state: GameState, content: GameContent): void 
       hp: resolved.maxHp, maxHp: resolved.maxHp, attackMax: resolved.attackMax, defense: resolved.defense, armor: resolved.armor,
       alive: true, position: clonePosition(tile.position), previousPosition: clonePosition(tile.position), direction: 'west', path: [], targetId: null,
       nextAttackAt: 0, attackIntervalMs: monster.attacks[0].intervalMs, speed: monster.speed, behavior: 'idle',
-      nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: 5, variant,
+      nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: 50, variant,
     };
   });
   if (definition.boss) progress.bossState = 'active';
@@ -193,7 +193,7 @@ function populateRespawnZone(state: GameState, content: GameContent, zoneIndex: 
       hp: resolved.maxHp, maxHp: resolved.maxHp, attackMax: resolved.attackMax, defense: resolved.defense, armor: resolved.armor,
       alive: true, position: clonePosition(tile.position), previousPosition: clonePosition(tile.position), direction: 'west', path: [], targetId: null,
       nextAttackAt: 0, attackIntervalMs: monster.attacks[0].intervalMs, speed: monster.speed, behavior: 'idle',
-      nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: 5, variant, respawnZoneId: zone.id,
+      nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: 50, variant, respawnZoneId: zone.id,
     });
   }
   encounter.rngState = rng.state; encounter.enemies.push(...spawned);
@@ -353,6 +353,9 @@ function syncCharacterResources(state: GameState, actor: PartyActorState): void 
   character.combatState.targetId = actor.targetId;
   character.combatState.spellCooldowns = { ...actor.spellCooldowns };
   character.combatState.groupCooldowns = { ...actor.groupCooldowns };
+  character.combatState.hasteUntil = actor.hasteUntil;
+  character.combatState.magicShieldUntil = actor.magicShieldUntil;
+  character.combatState.bloodRageUntil = actor.bloodRageUntil;
   if (actor.stance) character.stance = actor.stance;
   if (typeof actor.targetDistance === 'number') character.targetDistance = actor.targetDistance;
 }
@@ -360,10 +363,11 @@ function syncCharacterResources(state: GameState, actor: PartyActorState): void 
 function regenerateParty(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   for (const actor of encounter.partyActors.filter((candidate) => candidate.alive)) {
-    const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
+    const character = state.session.characters.find((candidate) => candidate.id === actor.characterId);
+    if (!character) continue;
     const vocation = vocationFor(content, character.vocation);
-    const manaInterval = Math.max(1, vocation.manaGainTicks * 2_000);
-    const healthInterval = Math.max(1, vocation.healthGainTicks * 2_000);
+    const manaInterval = Math.max(1, vocation.manaGainTicks * 1_000);
+    const healthInterval = Math.max(1, vocation.healthGainTicks * 1_000);
     while (encounter.elapsedMs >= actor.nextManaRegenAt) {
       actor.mana = Math.min(character.maxMana, actor.mana + vocation.manaGainAmount);
       actor.nextManaRegenAt += manaInterval;
@@ -438,14 +442,15 @@ export function consumePotionFromInventory(state: GameState, potionId: number): 
   return false;
 }
 
-function castAutomaticSpells(state: GameState, content: GameContent): void {
+function castAutomaticSpells(state: GameState, content: GameContent, allowOffensive = true): void {
   const encounter = state.encounter;
   const leaderActor = encounter.partyActors.find((a) => a.alive && (a.characterId === state.session.leaderId || a.characterId === state.session.selectedCharacterId)) ?? encounter.partyActors.find((a) => a.alive);
 
   for (const actor of encounter.partyActors.filter((candidate) => candidate.alive)) {
     const isLeader = actor.characterId === leaderActor?.characterId;
     const leaderTarget = leaderActor?.targetId ? encounter.enemies.find((e) => e.id === leaderActor.targetId && e.alive) : null;
-    const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
+    const character = state.session.characters.find((candidate) => candidate.id === actor.characterId);
+    if (!character) continue;
     const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
     const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
 
@@ -521,6 +526,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
 
       // 2. RUNES AUTO-TRIGGER
       if (action.kind === 'rune' && !usedOffensiveActionThisTick) {
+        if (!allowOffensive) continue;
         // Strict Party Target Logic: In multiplayer party, secondary members only attack leader's target
         if (encounter.isMultiplayerParty && !isLeader && !leaderTarget) continue;
         const rune = action.rune;
@@ -577,7 +583,7 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
       if (action.kind === 'spell' && !usedSpellThisTick) {
         const spell = action.spell;
         const isOffensive = spell.group === 'attack';
-        if (isOffensive && usedOffensiveActionThisTick) continue;
+        if (isOffensive && (!allowOffensive || usedOffensiveActionThisTick)) continue;
         // Strict Party Target Logic: In multiplayer party, secondary members only attack leader's target
         if (encounter.isMultiplayerParty && isOffensive && !isLeader && !leaderTarget) continue;
 
@@ -595,7 +601,11 @@ function castAutomaticSpells(state: GameState, content: GameContent): void {
           if (spell.group === 'healing') {
             const needsHealing = actor.hp / character.maxHp < 0.88 || tookRecentHit;
             targetActor = spell.name === 'Heal Friend'
-              ? encounter.partyActors.filter((candidate) => candidate.alive && candidate.hp / state.session.characters.find((member) => member.id === candidate.characterId)!.maxHp < 0.75)
+              ? encounter.partyActors.filter((candidate) => {
+                  if (!candidate.alive) return false;
+                  const memberChar = state.session.characters.find((member) => member.id === candidate.characterId);
+                  return memberChar ? candidate.hp / memberChar.maxHp < 0.75 : false;
+                })
                   .sort((left, right) => left.hp - right.hp || left.characterId.localeCompare(right.characterId))[0]
               : needsHealing ? actor : undefined;
             if (!targetActor) continue;
@@ -754,12 +764,65 @@ export function triggerManualHotbarAction(
   content: GameContent,
 ): boolean {
   const encounter = state.encounter;
-  const actor = encounter.partyActors.find((candidate) => candidate.characterId === characterId && candidate.alive);
-  if (!actor) return false;
   const character = state.session.characters.find((candidate) => candidate.id === characterId);
   if (!character) return false;
   const action = findHotbarAction(actionId, content);
   if (!action || !isHotbarActionUnlocked(character, action)) return false;
+
+  const actor = encounter.partyActors.find((candidate) => candidate.characterId === characterId && candidate.alive);
+  if (!actor) {
+    // City Mode (Thais) Fallback: Execute potions and non-aggressive healing/support spells directly
+    if (action.kind === 'potion') {
+      const potion = action.potion;
+      const consumed = consumePotionFromInventory(state, potion.id);
+      if (!consumed) return false;
+      const rng = createSeededRng(encounter.rngState);
+      if (typeof potion.healMin === 'number' && typeof potion.healMax === 'number') {
+        const rawHeal = rollInteger(rng, potion.healMin, potion.healMax);
+        const healed = Math.min(rawHeal, character.maxHp - character.currentHp);
+        character.currentHp += healed;
+      }
+      if (typeof potion.manaMin === 'number' && typeof potion.manaMax === 'number') {
+        const rawMana = rollInteger(rng, potion.manaMin, potion.manaMax);
+        const restoredMana = Math.min(rawMana, character.maxMana - character.currentMana);
+        character.currentMana += restoredMana;
+      }
+      addLog(state, `${character.name} usou ${potion.name}.`);
+      return true;
+    }
+    if (action.kind === 'spell') {
+      const spell = action.spell;
+      if (character.currentMana < spell.mana) return false;
+      character.currentMana -= spell.mana;
+      if (spell.group === 'healing') {
+        const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
+        const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
+        const rng = createSeededRng(encounter.rngState);
+        const formulaRange = spellFormulaRange(spell, character, stats.activeSkillLevel, weapon?.attack ?? stats.attack);
+        const amount = rollInteger(rng, Math.floor(formulaRange.min), Math.max(Math.floor(formulaRange.min), Math.ceil(formulaRange.max)));
+        const healed = Math.min(amount, character.maxHp - character.currentHp);
+        character.currentHp += healed;
+        addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
+        return true;
+      }
+      if (spell.group === 'support') {
+        const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
+        if (!character.combatState) {
+          character.combatState = { targetId: null, spellCooldowns: {}, groupCooldowns: {}, hasteUntil: 0, magicShieldUntil: 0, bloodRageUntil: 0 };
+        }
+        if (spell.words.includes('utamo')) {
+          character.combatState.magicShieldUntil = encounter.elapsedMs + duration;
+        } else if (spell.words.includes('tempo')) {
+          character.combatState.bloodRageUntil = encounter.elapsedMs + duration;
+        } else {
+          character.combatState.hasteUntil = encounter.elapsedMs + duration;
+        }
+        addLog(state, `${character.name} usou ${spell.name}.`);
+        return true;
+      }
+    }
+    return false;
+  }
 
   // 1. Potion manual trigger
   if (action.kind === 'potion') {
@@ -1202,8 +1265,9 @@ function enemyAttacks(state: GameState, content: GameContent): void {
       damage = Math.max(0, Math.round(damage * (1 - stats.physicalDamageMitigationPercent / 100)));
     }
     enemy.nextAttackAt = encounter.elapsedMs + enemy.attackIntervalMs;
-    // Progress shielding skill when defending with shield
-    const hasShield = getEquippedItems(character, content.equipment).some((item) => item.weaponType === 'shield');
+    const hasShield = getEquippedItems(character, content.equipment).some(
+      (item) => item.weaponType === 'shield' || (item as any).slot === 'shield' || item.defense > 0
+    );
     if (hasShield) {
       const vocation = vocationFor(content, character.vocation);
       const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
@@ -1282,7 +1346,9 @@ function advanceSpatialCombat(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   encounter.room.reservations = new Map();
   const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-  movePartyTowardTargets(encounter, ranges, undefined, state.session.selectedCharacterId); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
+  const activeChar = state.session.characters.find((candidate) => candidate.id === state.session.selectedCharacterId);
+  const targetStrategy = activeChar?.targetStrategy ?? 'closest';
+  movePartyTowardTargets(encounter, ranges, undefined, state.session.selectedCharacterId, targetStrategy); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
   castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content); unlockExit(state);
 }
 
@@ -1293,7 +1359,9 @@ function advanceExpedition(state: GameState, content: GameContent): void {
   const current = expedition.encounters[progress.activeEncounterIndex];
   if (encounter.enemies.some((enemy) => enemy.alive)) {
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    movePartyTowardTargets(encounter, ranges, undefined, state.session.selectedCharacterId); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
+    const activeChar = state.session.characters.find((candidate) => candidate.id === state.session.selectedCharacterId);
+    const targetStrategy = activeChar?.targetStrategy ?? 'closest';
+    movePartyTowardTargets(encounter, ranges, undefined, state.session.selectedCharacterId, targetStrategy); moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
     castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content);
     return;
   }
@@ -1544,9 +1612,14 @@ export function calculateDeathPenaltyReport(
   options?: DeathPenaltyOptions,
 ): DeathPenaltyReport {
   const cfg = serverConfigManager.getConfig();
-  const expPercent = options?.expLossPercent ?? cfg.deathPenaltyExpPercent ?? 10;
-  const skillPercent = options?.skillLossPercent ?? cfg.deathPenaltySkillPercent ?? 10;
+  const rawExpPercent = options?.expLossPercent ?? cfg.deathPenaltyExpPercent ?? 10;
+  const rawSkillPercent = options?.skillLossPercent ?? cfg.deathPenaltySkillPercent ?? 10;
   const loseLootEnabled = options?.loseLoot ?? cfg.deathPenaltyLoseLoot ?? true;
+
+  const isPromoted = Boolean(character.promotion) || ['Master Sorcerer', 'Elder Druid', 'Royal Paladin', 'Elite Knight'].includes(character.vocation);
+  const promoMultiplier = isPromoted ? 0.70 : 1.0;
+  const expPercent = Math.max(0, rawExpPercent * promoMultiplier);
+  const skillPercent = Math.max(0, rawSkillPercent * promoMultiplier);
 
   const currentExp = character.experience;
   const lostExp = expPercent > 0 && currentExp > 0 ? Math.floor(currentExp * (expPercent / 100)) : 0;
@@ -1618,13 +1691,18 @@ export function respawnInTemple(
 ): GameState {
   const next = cloneState(state);
   const cfg = serverConfigManager.getConfig();
-  const expLossPercent = options?.expLossPercent ?? cfg.deathPenaltyExpPercent ?? 10;
-  const skillLossPercent = options?.skillLossPercent ?? cfg.deathPenaltySkillPercent ?? 10;
+  const rawExpLossPercent = options?.expLossPercent ?? cfg.deathPenaltyExpPercent ?? 10;
+  const rawSkillLossPercent = options?.skillLossPercent ?? cfg.deathPenaltySkillPercent ?? 10;
   const loseLoot = options?.loseLoot ?? cfg.deathPenaltyLoseLoot ?? true;
 
   const charMap = new Map(next.session.characters.map((c) => [c.id, c]));
   for (const character of next.session.characters) {
-    // 1. XP Penalty: lose configured % of experience (default 10%)
+    const isPromoted = Boolean(character.promotion) || ['Master Sorcerer', 'Elder Druid', 'Royal Paladin', 'Elite Knight'].includes(character.vocation);
+    const promoMultiplier = isPromoted ? 0.70 : 1.0;
+    const expLossPercent = Math.max(0, rawExpLossPercent * promoMultiplier);
+    const skillLossPercent = Math.max(0, rawSkillLossPercent * promoMultiplier);
+
+    // 1. XP Penalty: lose configured % of experience (default 10%, 7% if promoted)
     if (expLossPercent > 0 && character.experience > 0) {
       const expLost = Math.floor(character.experience * (expLossPercent / 100));
       character.experience = Math.max(0, character.experience - expLost);
@@ -1634,15 +1712,9 @@ export function respawnInTemple(
       const newLevel = levelForExperience(character.experience);
       if (newLevel < prevLevel) {
         character.level = newLevel;
-        if (content) {
-          try {
-            const vocation = vocationFor(content, character.vocation);
-            const baseHp = 150 + (newLevel - 1) * vocation.gainHp;
-            const baseMana = (newLevel - 1) * vocation.gainMana;
-            character.maxHp = Math.max(150, baseHp);
-            character.maxMana = Math.max(0, baseMana);
-          } catch {}
-        }
+        const stats = calculateStatsForLevel(character.vocation, newLevel);
+        character.maxHp = stats.maxHp;
+        character.maxMana = stats.maxMana;
       }
     }
 
@@ -1685,7 +1757,7 @@ export function respawnInTemple(
   }
   next.encounter.status = 'completed';
   next.encounter.events.push({ type: 'hunt-complete' });
-  addLog(next, `Alas! Você morreu e renasceu no Templo de Thais. Penalidade: -${expLossPercent}% XP, -${skillLossPercent}% Skills${loseLoot ? `, e o loot da caçada foi perdido (${lostLootCount} itens)` : ''}.`);
+  addLog(next, `Alas! Você morreu e renasceu no Templo de Thais. Penalidade: -${rawExpLossPercent}% XP, -${rawSkillLossPercent}% Skills${loseLoot ? `, e o loot da caçada foi perdido (${lostLootCount} itens)` : ''}.`);
   return next;
 }
 
@@ -1729,5 +1801,70 @@ export function setActorTarget(state: GameState, characterId: string, targetId: 
   if (character) character.combatState.targetId = targetId;
   return next;
 }
+
+export function setCharacterTargetStrategy(state: GameState, characterId: string, strategy: TargetSelectionStrategy): GameState {
+  const next = cloneState(state);
+  const character = next.session.characters.find((candidate) => candidate.id === characterId);
+  if (character) character.targetStrategy = strategy;
+  const actor = next.encounter.partyActors.find((candidate) => candidate.characterId === characterId);
+  if (actor) actor.targetStrategy = strategy;
+  return next;
+}
+
+export function advanceCityAutoSpells(state: GameState, content: GameContent, deltaMs: number): GameState {
+  const next = cloneState(state);
+  next.encounter.elapsedMs += deltaMs;
+
+  for (const character of next.session.characters) {
+    let actor = next.encounter.partyActors.find((a) => a.characterId === character.id);
+    if (!actor) {
+      const voc = vocationFor(content, character.vocation);
+      actor = {
+        characterId: character.id,
+        hp: character.currentHp,
+        mana: character.currentMana,
+        alive: true,
+        position: { x: THAIS_TEMPLE_POSITION.x, y: THAIS_TEMPLE_POSITION.y, z: THAIS_TEMPLE_POSITION.z },
+        previousPosition: { x: THAIS_TEMPLE_POSITION.x, y: THAIS_TEMPLE_POSITION.y, z: THAIS_TEMPLE_POSITION.z },
+        direction: 'south',
+        path: [],
+        targetId: null,
+        nextAttackAt: 0,
+        attackIntervalMs: 2000,
+        speed: 200,
+        nextMoveAt: 0,
+        nextSpellAt: 0,
+        spellCooldowns: {},
+        groupCooldowns: {},
+        hasteUntil: 0,
+        magicShieldUntil: 0,
+        bloodRageUntil: 0,
+        lastHitTakenAt: -99_999,
+        nextManaRegenAt: next.encounter.elapsedMs + voc.manaGainTicks * 2000,
+        nextHealthRegenAt: next.encounter.elapsedMs + voc.healthGainTicks * 2000,
+        pendingAttack: null,
+      };
+      next.encounter.partyActors.push(actor);
+    } else {
+      actor.hp = character.currentHp;
+      actor.mana = character.currentMana;
+    }
+  }
+
+  regenerateParty(next, content);
+  castAutomaticSpells(next, content, false);
+
+  for (const actor of next.encounter.partyActors) {
+    const character = next.session.characters.find((c) => c.id === actor.characterId);
+    if (character) {
+      character.currentHp = actor.hp;
+      character.currentMana = actor.mana;
+    }
+  }
+
+  return next;
+}
+
+
 
 

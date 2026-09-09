@@ -20,7 +20,7 @@ describe('world camera', () => {
   it('smooths and clamps camera without mutating game logic', () => {
     const game = createIdleGame('camera-pure', content); const snapshot = structuredClone(game);
     const desired = desiredWorldCamera({ viewportWidth: 640, viewportHeight: 480, worldWidth: 320, worldHeight: 240, targetX: -999, targetY: 999 });
-    expect(desired).toMatchObject({ x: 0, y: 240, zoom: 2 });
+    expect(desired).toMatchObject({ x: 0, y: 240, zoom: 1 });
     expect(smoothWorldCamera({ x: 0, y: 0, zoom: 1 }, desired, 16).y).toBeGreaterThan(0);
     expect(game).toEqual(snapshot);
   });

@@ -31,6 +31,8 @@ export interface CharacterSkills {
 export type SkillTries = Record<TrainableSkill, number>;
 export type EquipmentLoadout = Record<CharacterEquipmentSlot, number | null>;
 
+export type TargetSelectionStrategy = 'closest' | 'lowest-hp' | 'highest-hp';
+
 export interface CharacterState {
   id: string;
   name: string;
@@ -56,9 +58,13 @@ export interface CharacterState {
     targetId: string | null;
     spellCooldowns: Record<string, number>;
     groupCooldowns: Record<string, number>;
+    hasteUntil?: number;
+    magicShieldUntil?: number;
+    bloodRageUntil?: number;
   };
   stance?: CombatStance;
   targetDistance?: number;
+  targetStrategy?: TargetSelectionStrategy;
   gender?: 'male' | 'female';
   outfit?: string;
   mount?: string;
@@ -103,6 +109,7 @@ export interface PartyActorState {
   nextHealthRegenAt: number;
   stance?: CombatStance;
   targetDistance?: number;
+  targetStrategy?: TargetSelectionStrategy;
   pendingAttack: PendingBasicAttack | null;
 }
 
@@ -181,7 +188,7 @@ export interface HuntDefinition {
   roomDefinitions: string[];
   environment: { regionId: string; label: string; source: 'styller-otbm' };
   rewardProfile: 'xp';
-  status: 'available';
+  status: 'available' | 'unavailable' | 'maintenance';
   waves: WaveDefinition[];
 }
 

@@ -10,14 +10,14 @@ import spellsJson from '@/content/generated/spells.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
 import type { BaseVocationName, EquipmentCatalog, EquipmentDefinition, HuntRegionCatalog, ItemEconomyCatalog, MonsterCatalog, SpellCatalog, StarterLoadoutCatalog, VocationCatalog } from '@/packages/content-schema/src';
 import {
-  addPartyMember, advanceCombat, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter,
+  addPartyMember, advanceCombat, advanceCityAutoSpells, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, levelForExperience, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem, useTestConsumable,
-  setCharacterStance, setCharacterTargetDistance,
+  setCharacterStance, setCharacterTargetDistance, setCharacterTargetStrategy,
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
-  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations,
+  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations, getHuntWorldEntrance,
   calculateDeathPenaltyReport, type DeathPenaltyReport,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
@@ -191,6 +191,8 @@ function GamePrototypeContent() {
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
   const auth = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(true);
+  const [isCharacterReady, setIsCharacterReady] = useState(false);
+  const [isLoadingCharacter, setIsLoadingCharacter] = useState(false);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   const roleUpper = ((auth.viewer?.role || onlineAccount?.role) || '').toUpperCase();
   const isAdmin = roleUpper === 'ADMIN' || roleUpper === 'GM';
@@ -611,8 +613,34 @@ function GamePrototypeContent() {
   }, []);
 
   useEffect(() => {
-    const unsub = gameNetwork.onStateChange((players) => {
+    const unsubState = gameNetwork.onStateChange((players) => {
       setRemotePlayers(players);
+    });
+
+    const unsubCombat = gameNetwork.onCombatEvent((evt) => {
+      if ((evt.type === 'spell' || evt.type === 'spell-cast') && (evt.sourceId === gameNetwork.LocalPlayerId || evt.sourceId === activeCharacter.id)) {
+        const txt = (evt.text || '').toLowerCase();
+        setGame((cur) => {
+          const char = cur.session.characters.find((c) => c.id === activeCharacter.id) || cur.session.characters[0];
+          if (!char) return cur;
+          if (!char.combatState) {
+            char.combatState = { targetId: null, spellCooldowns: {}, groupCooldowns: {}, hasteUntil: 0, magicShieldUntil: 0, bloodRageUntil: 0 };
+          }
+          const nowMs = cur.encounter.elapsedMs;
+          if (txt.includes('utani gran hur') || txt.includes('strong haste')) {
+            char.combatState.hasteUntil = nowMs + 33_000;
+            (char as any).lastHasteSpell = 'utani gran hur';
+          } else if (txt.includes('utani hur') || txt.includes('haste')) {
+            char.combatState.hasteUntil = nowMs + 33_000;
+            (char as any).lastHasteSpell = 'utani hur';
+          } else if (txt.includes('utamo vita') || txt.includes('magic shield')) {
+            char.combatState.magicShieldUntil = nowMs + 200_000;
+          } else if (txt.includes('utito tempo') || txt.includes('blood rage')) {
+            char.combatState.bloodRageUntil = nowMs + 10_000;
+          }
+          return { ...cur };
+        });
+      }
     });
 
     const unsubChat = gameNetwork.onChatMessage((netMsg) => {
@@ -767,7 +795,8 @@ function GamePrototypeContent() {
     });
 
     return () => {
-      unsub();
+      unsubState();
+      unsubCombat();
       unsubChat();
       unsubInvitation();
       unsubPartySync();
@@ -802,6 +831,7 @@ function GamePrototypeContent() {
   }, [mode, openWindow, bringToFront]);
 
   const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
+    setIsLoadingCharacter(true);
     setOnlineAccount(acc);
     setOnlineCharacter(charItem);
     setShowAuthModal(false);
@@ -1017,6 +1047,14 @@ function GamePrototypeContent() {
       .catch((err) => {
         console.error('Falha ao conectar ao servidor Colyseus:', err);
       });
+
+    // Ensure character state and saved position are fully committed before displaying character
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsCharacterReady(true);
+        setIsLoadingCharacter(false);
+      });
+    });
   }, [content]);
 
   const leader = leaderOf(game);
@@ -1145,8 +1183,10 @@ function GamePrototypeContent() {
     };
   }, [activeCharacter, cityPos, game.session.gold, game.session.loot, game.session.bag, content.equipment]);
 
+  const activeActor = game.encounter.partyActors.find((a) => a.characterId === activeCharacter.id);
+  const hasteBonus = (activeActor?.hasteUntil ?? 0) > game.encounter.elapsedMs ? 50 : 0;
   const mountBonus = activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none' ? 20 : 0;
-  const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus;
+  const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus + hasteBonus;
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
   // +100 points of speed for players when in the city
   const citySpeedBonus = 100;
@@ -1329,6 +1369,17 @@ function GamePrototypeContent() {
   }, [mode, encounter.status, content]);
 
   useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running');
+
+  const lastCityAutoSpellsTimeRef = useRef(performance.now());
+  const tickCityAutoSpells = useCallback(() => {
+    if (mode === 'hunt') return;
+    const now = performance.now();
+    const delta = Math.min(now - lastCityAutoSpellsTimeRef.current, 500);
+    lastCityAutoSpellsTimeRef.current = now;
+    setGame((current) => advanceCityAutoSpells(current, content, delta > 0 ? Math.round(delta) : 150));
+  }, [mode, content]);
+
+  useGameTicker(tickCityAutoSpells, 150, mode !== 'hunt');
 
   // When defeated in hunt or dead, open authentic "You are dead" modal
   useEffect(() => {
@@ -1536,13 +1587,32 @@ function GamePrototypeContent() {
     setIsTrainingAtDummy(false);
     setWalkingPath(null);
 
+    const beforePos = { ...cityPos };
+    const entrance = getHuntWorldEntrance(huntId, content);
+    const region = content.huntRegions.find((r) => r.huntId === targetHunt.id);
+
+    console.log(`[HUNT] selectedHunt: ${huntId}`);
+    console.log(`[HUNT] mapId: ${region?.huntId ?? huntId}`);
+    console.log(`[HUNT] configured entrance: (${region?.sourceCenter.x ?? 32369}, ${region?.sourceCenter.y ?? 32241}, ${region?.sourceCenter.z ?? 7})`);
+    console.log(`[HUNT] map bounds: x:${entrance.bounds.x} y:${entrance.bounds.y} w:${entrance.bounds.width} h:${entrance.bounds.height} z:${entrance.bounds.z}`);
+    console.log(`[HUNT] converted/local entrance: (${entrance.localPosition.x}, ${entrance.localPosition.y}, ${entrance.localPosition.z})`);
+    console.log(`[HUNT] isTileInsideMap: ${entrance.isInsideMap}`);
+    console.log(`[HUNT] isWalkable: ${entrance.isWalkable}`);
+    console.log(`[HUNT] finalSpawn: (${entrance.worldPosition.x}, ${entrance.worldPosition.y}, ${entrance.worldPosition.z})`);
+    console.log(`[HUNT] player position before: (${beforePos.x}, ${beforePos.y}, ${beforePos.z})`);
+    console.log(`[HUNT] player position after: (${entrance.worldPosition.x}, ${entrance.worldPosition.y}, ${entrance.worldPosition.z})`);
+
     const nextSeed = seed.trim() || defaultSeed;
     setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
     setMode('hunt');
+
+    // Immediately snap cityPos / camera to the validated world entrance
+    setCityPos(entrance.worldPosition);
+
+    // Send authoritative Colyseus hunt and teleport messages
     gameNetwork.sendSetInHunt(true, huntId);
-    if (huntId === 'dragon-lair') {
-      gameNetwork.sendTeleport(32741, 31294, 11);
-    }
+    gameNetwork.sendTeleport(entrance.worldPosition.x, entrance.worldPosition.y, entrance.worldPosition.z);
+
     if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntSync(huntId, nextSeed);
     }
@@ -1973,7 +2043,7 @@ function GamePrototypeContent() {
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
           />
         </div>
-        <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+        <div style={{ display: (mode !== 'hunt' && isCharacterReady && !showAuthModal) ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
           <ThaisCityArena
             characters={game.session.characters}
             cityPos={cityPos}
@@ -1982,15 +2052,15 @@ function GamePrototypeContent() {
             stepDurationMs={cityStepDurationMs}
             onTileClick={handleTileClick}
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
-            visualEvents={encounter.visualEvents}
+            visualEvents={[...(encounter.events || []), ...(encounter.visualEvents || [])] as any}
             debug={debugGrid}
             remotePlayers={remotePlayers}
             localPlayerId={gameNetwork.LocalPlayerId}
             overheadMessages={overheadMessages}
-            active={mode !== 'hunt'}
+            active={mode !== 'hunt' && isCharacterReady && !showAuthModal}
           />
         </div>
-        {mode !== 'hunt' && (
+        {mode !== 'hunt' && isCharacterReady && !showAuthModal && (
           <div className="city-location-hud">
             <div className="city-hud-header">
               <span className="city-tag">CIDADE DE THAIS</span>
@@ -2025,37 +2095,39 @@ function GamePrototypeContent() {
       </div>
 
       {/* Top HUD Dock Bar */}
-      <WindowDockBar
-        gold={game.session.gold}
-        accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
-        characterName={activeCharacter.name}
-        debug={debugGrid}
-        isAdmin={isAdmin}
-        isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
-        inHunt={mode === 'hunt'}
-        isTraining={false}
-        staminaMinutes={activeCharacter.staminaMinutes ?? 15}
-        maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
-        onToggleAutoIdle={() => {
-          const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
-          setGame((cur) => {
-            const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
-            if (char) {
-              (char as any).isAutoIdle = nextEnabled;
-            }
-            return { ...cur };
-          });
-          gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
-        }}
-        onToggleDebug={() => setDebugGrid((value) => !value)}
-        onSelectHunt={() => setHuntSelectorOpen(true)}
-        onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
-        onOpenShop={() => setShopOpen((prev) => !prev)}
-        onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
-        onExitGame={() => {
-          window.location.href = '/';
-        }}
-      />
+      {isCharacterReady && !showAuthModal && (
+        <WindowDockBar
+          gold={game.session.gold}
+          accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
+          characterName={activeCharacter.name}
+          debug={debugGrid}
+          isAdmin={isAdmin}
+          isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
+          inHunt={mode === 'hunt'}
+          isTraining={false}
+          staminaMinutes={activeCharacter.staminaMinutes ?? 15}
+          maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
+          onToggleAutoIdle={() => {
+            const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
+            setGame((cur) => {
+              const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
+              if (char) {
+                (char as any).isAutoIdle = nextEnabled;
+              }
+              return { ...cur };
+            });
+            gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
+          }}
+          onToggleDebug={() => setDebugGrid((value) => !value)}
+          onSelectHunt={() => setHuntSelectorOpen(true)}
+          onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
+          onOpenShop={() => setShopOpen((prev) => !prev)}
+          onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
+          onExitGame={() => {
+            window.location.href = '/';
+          }}
+        />
+      )}
 
       {/* Window 1: Classic Skills Window (acessada pelo nome do personagem) */}
       <SkillsWindow
@@ -2181,6 +2253,7 @@ function GamePrototypeContent() {
         onSelectHunt={() => setHuntSelectorOpen(true)}
         onChangeStance={(stance) => setGame((cur) => setCharacterStance(cur, activeCharacter.id, stance))}
         onChangeTargetDistance={(dist) => setGame((cur) => setCharacterTargetDistance(cur, activeCharacter.id, dist))}
+        onChangeTargetStrategy={(strat) => setGame((cur) => setCharacterTargetStrategy(cur, activeCharacter.id, strat))}
       />
 
       {/* Modals & Drawers */}
@@ -2396,6 +2469,42 @@ function GamePrototypeContent() {
             window.location.href = '/';
           }}
         />
+      )}
+
+      {/* Loading Overlay while character data is being hydrated / synchronized */}
+      {(!isCharacterReady || isLoadingCharacter) && !showAuthModal && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#07090b] text-amber-100 font-sans select-none animate-in fade-in duration-300">
+          <div className="relative flex flex-col items-center p-8 bg-[#11161b] border-2 border-[#5c4a30] rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.9)] max-w-md w-full mx-4 text-center">
+            {/* Decorative Golden Corner Accents */}
+            <div className="absolute top-1 left-1 text-[#8c734b] text-xs font-serif">◆</div>
+            <div className="absolute top-1 right-1 text-[#8c734b] text-xs font-serif">◆</div>
+            <div className="absolute bottom-1 left-1 text-[#8c734b] text-xs font-serif">◆</div>
+            <div className="absolute bottom-1 right-1 text-[#8c734b] text-xs font-serif">◆</div>
+
+            {/* Tibia Shield / Spinner Icon */}
+            <div className="w-16 h-16 mb-5 relative flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-[#3a2e1d] border-t-[#d4a359] animate-spin"></div>
+              <div className="text-2xl animate-pulse">🛡️</div>
+            </div>
+
+            {/* Loading Titles */}
+            <h2 className="text-xl font-bold tracking-wide text-[#d4a359] mb-1 font-serif">
+              {onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Entrando em Thais...'}
+            </h2>
+            <p className="text-xs text-[#a0927d] mb-4">
+              Sincronizando posição, outfit e inventário autoritativo
+            </p>
+
+            {/* Animated Loading Bar */}
+            <div className="w-full h-2 bg-[#1b222a] border border-[#443622] rounded-full overflow-hidden mb-3">
+              <div className="h-full bg-gradient-to-r from-[#8c6527] via-[#d4a359] to-[#8c6527] animate-pulse w-full"></div>
+            </div>
+
+            <span className="text-[11px] text-[#6b5c47] italic">
+              Aguarde alguns instantes...
+            </span>
+          </div>
+        </div>
       )}
 
       {/* Duplicate Session Error Modal Overlay */}
