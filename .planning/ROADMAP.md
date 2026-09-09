@@ -1650,3 +1650,47 @@ Plans: Concluído com sucesso.
 
 Plans:
 - [x] 91-01-PLAN: Extração e Correção de Sprites Autênticas de Poções.
+
+### Phase 92: Animação Autêntica de Poções (APNG), Remoção de Quantidade no Menu de Ações e Requisitos de Nível Canônicos
+
+**Goal:** Implementar animações nativas APNG de 12 frames para todas as poções e elixires do jogo (com cintilação de frascos e brilhos estelares autênticos do Tibia 10.98), remover o indicador numérico de quantidade no menu de configuração de ações e aplicar travas de nível e vocação fiéis ao Tibia.
+**Depends on:** Phase 91
+**Requirements:**
+1. Remoção de badges de quantidade no modal de configurar ação (`HotbarConfigModal.tsx`).
+2. Mapeamento dos requisitos de nível canônicos por vocação para todas as poções.
+3. Bloqueio visual e funcional para equipar poções acima do nível do personagem.
+4. Geração e codificação de APNG (Animated PNG) de 12 frames no pacote `tibia1098-assets` para animações fluidas sem overhead de CPU.
+**Success Criteria:**
+1. Menu de ações não exibe contagem estática de poções.
+2. Poções de nível superior ao do personagem são travadas com indicação de level necessário.
+3. Poções exibem animações cintilantes nativas de 12 frames na interface.
+4. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans:
+- [x] 92-01-PLAN: Animações APNG, Remoção de Quantidade e Requisitos de Nível de Poções.
+
+### Phase 93: Ícones Oficiais de Magias de Sorcerer via Tibia 11 (graphics_resources.rcc)
+
+**Goal:** Extrair diretamente do arquivo local `graphics_resources.rcc` do Tibia 11 todos os ícones canônicos de 32x32 pixels das magias e corrigir as magias do Sorcerer para que tenham a aparência exata da referência oficial na lista, nos detalhes e na barra de ações.
+**Depends on:** Phase 92
+**Requirements:**
+1. Extração da spritesheet oficial `fonts/images/spells/spell-icons-32x32.png` do binário Qt RCC (`graphics_resources.rcc`).
+2. Mapeamento das magias de Sorcerer com seus índices e nomes canônicos:
+   - Apprentice's Strike (`exori min flam`): ícone #126 com o capelo de formando no canto.
+   - Light Healing (`exura`): ícone #5 (cruz radiante com frasco vermelho).
+   - Energy Strike (`exori vis`): ícone #28 (redemoinho de energia magenta).
+   - Terra Strike (`exori tera`): ícone #34 (mão canalizando terra e folhas).
+   - Flame Strike (`exori flam`): ícone #25 (mão disparando labareda concentrada).
+   - Haste (`utani hur`): ícone #100 (silhueta correndo com rastro ciano).
+   - Magic Shield (`utamo vita`): ícone #123 (escudo dourado com aura ciano).
+   - E todas as demais magias de Sorcerer (Waves, Beams, Strikes, Ultimates).
+3. Atualização de `Tibia11ActionIcon.tsx` e substituição dos assets em `public/spells/` pelos PNGs 32x32 canônicos.
+4. Preservação estrita do mapa OTBM, arquivos DAT/SPR de simulação e regras/fórmulas de dano.
+**Success Criteria:**
+1. Magias de Sorcerer exibem exatamente a mesma aparência do print de referência na lista, no painel de detalhes e na hotbar/action bar.
+2. Apprentice's Strike exibe o ícone #126 oficial com capelo integrado.
+3. O mapa do jogo, DAT/SPR do motor e regras de magias permanecem intactos.
+4. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans:
+- [x] 93-01-PLAN: Extração de Ícones do Tibia 11 RCC e Alinhamento Visual das Magias de Sorcerer.

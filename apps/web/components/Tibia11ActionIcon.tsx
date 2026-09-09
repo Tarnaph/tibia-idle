@@ -33,7 +33,18 @@ export const ALL_SPELL_ICON_URLS: string[] = [
   '/spells/exori-mort.png',
   '/spells/exori-san.png',
   '/spells/energy-beam.png',
-  '/spells/physical-strike.png',
+  '/spells/exori-min-flam.png',
+  '/spells/exori-gran-flam.png',
+  '/spells/exori-max-flam.png',
+  '/spells/exori-gran-vis.png',
+  '/spells/exori-max-vis.png',
+  '/spells/exori-gran-tera.png',
+  '/spells/exori-max-tera.png',
+  '/spells/exori-gran-frigo.png',
+  '/spells/exori-max-frigo.png',
+  '/spells/exevo-vis-lux.png',
+  '/spells/exevo-gran-vis-lux.png',
+  '/spells/exevo-gran-frigo-hur.png',
   '/spells/3g.png',
   '/spells/3h.png',
   '/spells/3i.png',
@@ -129,80 +140,80 @@ export function resolveActionImagePath(id?: number, kind?: string, name?: string
 
   // 3. Spells (Mapped to official CipSoft Spell Icons)
   // Healing
-  if (lower.includes('mas res') || lower.includes('mass healing') || id === 7) return '/spells/exura-gran-mas-res.png';
+  if (lower.includes('mas res') || lower.includes('mass healing') || id === 82 || id === 7) return '/spells/exura-gran-mas-res.png';
   if (lower.includes('exura vita') || lower.includes('ultimate healing') || id === 3) return '/spells/exura-vita.png';
   if (lower.includes('exura gran') || lower.includes('intense healing') || id === 2) return '/spells/exura-gran.png';
-  if (lower.includes('exura sio') || lower.includes('heal friend') || id === 4) return '/spells/exura-sio.png';
-  if (lower.includes('exura san') || lower.includes('divine healing') || id === 6) return '/spells/exura-san.png';
-  if (lower.includes('exura ico') || lower.includes('wound cleansing') || id === 5) return '/spells/exura-ico.png';
+  if (lower.includes('exura sio') || lower.includes('heal friend') || id === 84 || id === 4) return '/spells/exura-sio.png';
+  if (lower.includes('exura san') || lower.includes('divine healing') || id === 125) return '/spells/exura-san.png';
+  if (lower.includes('exura ico') || lower.includes('wound cleansing') || id === 123) return '/spells/exura-ico.png';
   if (lower.includes('exura') || lower.includes('light healing') || id === 1) return '/spells/exura.png';
 
   // Support & Haste
-  if (lower.includes('strong haste') || lower.includes('utani gran hur') || id === 17) return '/spells/utani-gran-hur.png';
-  if (lower.includes('haste') || lower.includes('utani hur') || id === 16) return '/spells/utani-hur.png';
-  if (lower.includes('magic shield') || lower.includes('utamo vita') || id === 18) return '/spells/utamo-vita.png';
-  if (lower.includes('blood rage') || lower.includes('utito tempo') || id === 15) return '/spells/utito-tempo.png';
-  if (lower.includes('protector') || lower.includes('utamo tempo')) return '/spells/utito-tempo.png';
-  if (lower.includes('charge') || lower.includes('swift foot') || lower.includes('tempo hur')) return '/spells/utani-tempo-hur.png';
-  if (lower.includes('invisible') || lower.includes('utana vid')) return '/spells/utana-vid.png';
-  if (lower.includes('challenge') || lower.includes('exeta res') || id === 8) return '/spells/exeta-res.png';
+  if (lower.includes('strong haste') || lower.includes('utani gran hur') || id === 39 || id === 17) return '/spells/utani-gran-hur.png';
+  if (lower.includes('haste') || lower.includes('utani hur') || id === 6 || id === 16) return '/spells/utani-hur.png';
+  if (lower.includes('magic shield') || lower.includes('utamo vita') || id === 44 || id === 18) return '/spells/utamo-vita.png';
+  if (lower.includes('blood rage') || lower.includes('utito tempo') || id === 133 || id === 15) return '/spells/utito-tempo.png';
+  if (lower.includes('protector') || lower.includes('utamo tempo') || id === 132) return '/spells/utito-tempo.png';
+  if (lower.includes('charge') || lower.includes('swift foot') || lower.includes('tempo hur') || id === 131) return '/spells/utani-tempo-hur.png';
+  if (lower.includes('invisible') || lower.includes('utana vid') || id === 45) return '/spells/utana-vid.png';
+  if (lower.includes('challenge') || lower.includes('exeta res') || id === 93 || id === 8) return '/spells/exeta-res.png';
 
   // Sorcerer & Master Sorcerer - Specific Strikes (Check Ultimate & Strong first to prevent prefix collisions)
-  if (lower.includes("apprentice's strike") || lower.includes("apprentice strike") || lower.includes("exori min flam")) return '/spells/exori-flam.png';
+  if (lower.includes("apprentice's strike") || lower.includes("apprentice strike") || lower.includes("exori min flam") || id === 169) return '/spells/exori-min-flam.png';
 
-  if (lower.includes('ultimate flame strike') || lower.includes('exori max flam')) return '/spells/3i.png';
-  if (lower.includes('strong flame strike') || lower.includes('exori gran flam')) return '/spells/3h.png';
-  if (lower === 'flame strike' || lower.includes('exori flam') || id === 19) return '/spells/exori-flam.png';
+  if (lower.includes('ultimate flame strike') || lower.includes('exori max flam') || id === 154) return '/spells/exori-max-flam.png';
+  if (lower.includes('strong flame strike') || lower.includes('exori gran flam') || id === 150) return '/spells/exori-gran-flam.png';
+  if (lower === 'flame strike' || lower.includes('exori flam') || id === 89) return '/spells/exori-flam.png';
 
-  if (lower.includes('ultimate energy strike') || lower.includes('exori max vis')) return '/spells/4j.png';
-  if (lower.includes('strong energy strike') || lower.includes('exori gran vis')) return '/spells/4h.png';
-  if (lower === 'energy strike' || lower.includes('exori vis') || id === 25) return '/spells/exori-vis.png';
+  if (lower.includes('ultimate energy strike') || lower.includes('exori max vis') || id === 155) return '/spells/exori-max-vis.png';
+  if (lower.includes('strong energy strike') || lower.includes('exori gran vis') || id === 151) return '/spells/exori-gran-vis.png';
+  if (lower === 'energy strike' || lower.includes('exori vis') || id === 88) return '/spells/exori-vis.png';
 
-  if (lower.includes('ultimate ice strike') || lower.includes('exori max frigo')) return '/spells/2i.png';
-  if (lower.includes('strong ice strike') || lower.includes('exori gran frigo')) return '/spells/2h.png';
-  if (lower === 'ice strike' || lower.includes('exori frigo') || id === 22) return '/spells/exori-frigo.png';
+  if (lower.includes('ultimate ice strike') || lower.includes('exori max frigo') || id === 156) return '/spells/exori-max-frigo.png';
+  if (lower.includes('strong ice strike') || lower.includes('exori gran frigo') || id === 152) return '/spells/exori-gran-frigo.png';
+  if (lower === 'ice strike' || lower.includes('exori frigo') || id === 112) return '/spells/exori-frigo.png';
 
-  if (lower.includes('ultimate terra strike') || lower.includes('exori max tera')) return '/spells/3j.png';
-  if (lower.includes('strong terra strike') || lower.includes('exori gran tera')) return '/spells/3l.png';
-  if (lower === 'terra strike' || lower.includes('exori tera') || id === 28) return '/spells/exori-tera.png';
+  if (lower.includes('ultimate terra strike') || lower.includes('exori max tera') || id === 157) return '/spells/exori-max-tera.png';
+  if (lower.includes('strong terra strike') || lower.includes('exori gran tera') || id === 153) return '/spells/exori-gran-tera.png';
+  if (lower === 'terra strike' || lower.includes('exori tera') || id === 113) return '/spells/exori-tera.png';
 
   if (lower.includes('death strike') || lower.includes('exori mort') || id === 87) return '/spells/exori-mort.png';
-  if (lower.includes('physical strike') || lower.includes('exori moe ico')) return '/spells/physical-strike.png';
+  if (lower.includes('physical strike') || lower.includes('exori moe ico') || id === 148) return '/spells/physical-strike.png';
 
   // Knight Strikes
-  if (lower.includes('annihilation') || lower.includes('exori gran ico')) return '/spells/exori-gran.png';
-  if (lower.includes('exori gran') || lower.includes('fierce berserk') || id === 10) return '/spells/exori-gran.png';
-  if (lower.includes('exori mas') || lower.includes('groundshaker') || id === 12) return '/spells/exori-mas.png';
-  if (lower.includes('exori ico') || lower.includes('brutal strike') || id === 11) return '/spells/exori-ico.png';
-  if (lower.includes('exori hur') || lower.includes('whirlwind') || id === 13) return '/spells/exori-hur.png';
-  if (lower.includes('exori min') || lower.includes('front sweep') || lower.includes('lesser front sweep') || id === 14) return '/spells/exori-min.png';
-  if (lower.includes('exori') || lower.includes('berserk') || id === 9) return '/spells/exori.png';
+  if (lower.includes('annihilation') || lower.includes('exori gran ico') || id === 62) return '/spells/exori-gran.png';
+  if (lower.includes('exori gran') || lower.includes('fierce berserk') || id === 105) return '/spells/exori-gran.png';
+  if (lower.includes('exori mas') || lower.includes('groundshaker') || id === 106) return '/spells/exori-mas.png';
+  if (lower.includes('exori ico') || lower.includes('brutal strike') || id === 61) return '/spells/exori-ico.png';
+  if (lower.includes('exori hur') || lower.includes('whirlwind') || id === 107) return '/spells/exori-hur.png';
+  if (lower.includes('exori min') || lower.includes('front sweep') || lower.includes('lesser front sweep') || id === 59) return '/spells/exori-min.png';
+  if (lower.includes('exori') || lower.includes('berserk') || id === 80) return '/spells/exori.png';
 
   // Beams & Waves
-  if (lower.includes('great energy beam') || lower.includes('exevo gran vis lux')) return '/spells/4g.png';
-  if (lower.includes('energy beam') || lower.includes('exevo vis lux')) return '/spells/energy-beam.png';
+  if (lower.includes('great energy beam') || lower.includes('exevo gran vis lux') || id === 23) return '/spells/exevo-gran-vis-lux.png';
+  if (lower.includes('energy beam') || lower.includes('exevo vis lux') || id === 22) return '/spells/exevo-vis-lux.png';
 
-  if (lower.includes('great fire wave') || lower.includes('exevo gran flam hur')) return '/spells/3g.png';
-  if (lower.includes('fire wave') || lower.includes('flam hur') || id === 20) return '/spells/exevo-flam-hur.png';
+  if (lower.includes('great fire wave') || lower.includes('exevo gran flam hur') || id === 201) return '/spells/exevo-gran-flam-hur.png';
+  if (lower.includes('fire wave') || lower.includes('flam hur') || id === 19 || id === 20) return '/spells/exevo-flam-hur.png';
 
-  if (lower.includes('ultimate ice wave') || lower.includes('exevo gran frigo hur')) return '/spells/2g.png';
-  if (lower.includes('ice wave') || lower.includes('frigo hur') || id === 23) return '/spells/exevo-frigo-hur.png';
+  if (lower.includes('ultimate ice wave') || lower.includes('exevo gran frigo hur') || id === 43) return '/spells/exevo-gran-frigo-hur.png';
+  if (lower.includes('ice wave') || lower.includes('frigo hur') || id === 121 || id === 23) return '/spells/exevo-frigo-hur.png';
 
-  if (lower.includes('energy wave') || lower.includes('vis hur') || id === 26) return '/spells/exevo-vis-hur.png';
-  if (lower.includes('terra wave') || lower.includes('tera hur') || id === 29) return '/spells/exevo-tera-hur.png';
+  if (lower.includes('energy wave') || lower.includes('vis hur') || id === 13 || id === 26) return '/spells/exevo-vis-hur.png';
+  if (lower.includes('terra wave') || lower.includes('tera hur') || id === 120 || id === 29) return '/spells/exevo-tera-hur.png';
 
   // Ultimate Area Spells
-  if (lower.includes("hell's core") || lower.includes('hells core') || lower.includes('exevo gran mas flam') || id === 21) return '/spells/exevo-gran-mas-flam.png';
-  if (lower.includes('rage of the skies') || lower.includes('exevo gran mas vis') || id === 27) return '/spells/exevo-gran-mas-vis.png';
-  if (lower.includes('eternal winter') || lower.includes('exevo gran mas frigo') || id === 24) return '/spells/exevo-gran-mas-frigo.png';
-  if (lower.includes('wrath of nature') || lower.includes('exevo gran mas tera') || id === 30) return '/spells/exevo-gran-mas-tera.png';
+  if (lower.includes("hell's core") || lower.includes('hells core') || lower.includes('exevo gran mas flam') || id === 24 || id === 21) return '/spells/exevo-gran-mas-flam.png';
+  if (lower.includes('rage of the skies') || lower.includes('exevo gran mas vis') || id === 119 || id === 27) return '/spells/exevo-gran-mas-vis.png';
+  if (lower.includes('eternal winter') || lower.includes('exevo gran mas frigo') || id === 118 || id === 24) return '/spells/exevo-gran-mas-frigo.png';
+  if (lower.includes('wrath of nature') || lower.includes('exevo gran mas tera') || id === 56 || id === 30) return '/spells/exevo-gran-mas-tera.png';
 
-  if (lower.includes('divine caldera') || lower.includes('mas san') || id === 32) return '/spells/exevo-mas-san.png';
-  if (lower.includes('holy strike') || lower.includes('divine missile') || lower.includes('exori san') || id === 31) return '/spells/exori-san.png';
+  if (lower.includes('divine caldera') || lower.includes('mas san') || id === 124 || id === 32) return '/spells/exevo-mas-san.png';
+  if (lower.includes('holy strike') || lower.includes('divine missile') || lower.includes('exori san') || id === 122 || id === 31) return '/spells/exori-san.png';
 
-  if (lower.includes('exana pox') || id === 33) return '/spells/exana-pox.png';
-  if (lower.includes('exana flam') || id === 34) return '/spells/exana-flam.png';
-  if (lower.includes('exana vis') || id === 35) return '/spells/exana-vis.png';
+  if (lower.includes('exana pox') || id === 29 || id === 33) return '/spells/exana-pox.png';
+  if (lower.includes('exana flam') || id === 145 || id === 34) return '/spells/exana-flam.png';
+  if (lower.includes('exana vis') || id === 146 || id === 35) return '/spells/exana-vis.png';
   if (lower.includes('exana frigo') || id === 36) return '/spells/exana-frigo.png';
   if (lower.includes('exana kor') || id === 37) return '/spells/exana-kor.png';
 

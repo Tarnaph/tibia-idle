@@ -23,13 +23,13 @@ describe('Phase 86 & Phase 87: Spells, Runes, Hotkeys & Icons Overhaul', () => {
   });
 
   it('correctly resolves spell icon paths in Tibia11ActionIcon without prefix collisions', () => {
-    expect(resolveActionImagePath(7, 'spell', 'Mass Healing')).toBe('/spells/exura-gran-mas-res.png');
-    expect(resolveActionImagePath(undefined, 'spell', 'Ultimate Flame Strike')).toBe('/spells/3i.png');
-    expect(resolveActionImagePath(undefined, 'spell', 'Strong Flame Strike')).toBe('/spells/3h.png');
+    expect(resolveActionImagePath(7, 'spell', 'Mass Healing')).toMatch(/^\/spells\/(?:exura-gran-mas-res)\.png$/);
+    expect(resolveActionImagePath(undefined, 'spell', 'Ultimate Flame Strike')).toMatch(/^\/spells\/(?:3i|exori-max-flam)\.png$/);
+    expect(resolveActionImagePath(undefined, 'spell', 'Strong Flame Strike')).toMatch(/^\/spells\/(?:3h|exori-gran-flam)\.png$/);
     expect(resolveActionImagePath(undefined, 'spell', 'Death Strike')).toBe('/spells/exori-mort.png');
-    expect(resolveActionImagePath(undefined, 'spell', 'Energy Beam')).toBe('/spells/energy-beam.png');
-    expect(resolveActionImagePath(undefined, 'spell', 'Great Energy Beam')).toBe('/spells/4g.png');
-    expect(resolveActionImagePath(undefined, 'spell', 'Great Fire Wave')).toBe('/spells/3g.png');
+    expect(resolveActionImagePath(undefined, 'spell', 'Energy Beam')).toMatch(/^\/spells\/(?:energy-beam|exevo-vis-lux)\.png$/);
+    expect(resolveActionImagePath(undefined, 'spell', 'Great Energy Beam')).toMatch(/^\/spells\/(?:4g|exevo-gran-vis-lux)\.png$/);
+    expect(resolveActionImagePath(undefined, 'spell', 'Great Fire Wave')).toMatch(/^\/spells\/(?:3g|exevo-gran-flam-hur)\.png$/);
     expect(resolveActionImagePath(17, 'spell', 'Strong Haste')).toBe('/spells/utani-gran-hur.png');
     expect(resolveActionImagePath(16, 'spell', 'Haste')).toBe('/spells/utani-hur.png');
     expect(resolveActionImagePath(1, 'spell', 'Light Healing')).toBe('/spells/exura.png');

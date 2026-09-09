@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T08:42:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 92: Animação Autêntica de Poções (APNG Star Glint), Remoção de Quantidade no Menu de Ações e Travas de Nível por Vocação."
+last_updated: "2026-09-09T09:00:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 93: Ícones Oficiais de Magias de Sorcerer via Tibia 11 (graphics_resources.rcc) na Lista, Detalhes e Barra de Ações."
 progress:
-  total_phases: 92
-  completed_phases: 92
-  total_plans: 92
-  completed_plans: 92
+  total_phases: 93
+  completed_phases: 93
+  total_plans: 93
+  completed_plans: 93
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 92 concluída. Animações nativas APNG de 12 frames extraídas de Tibia 10.98 (brilhos estelares e cintilação de frascos), remoção das contagens numéricas de quantidade no modal de configurar ação e travas de nível canônicas por vocação.
+**Current focus:** Fase 93 concluída. Extração dos 146 ícones oficiais 32x32 do Tibia 11 a partir do `graphics_resources.rcc` e correção da aparência de todas as magias de Sorcerer (Apprentice's Strike #126 com capelo, Light Healing #5, Energy Strike #28, Terra Strike #34, Flame Strike #25, Haste #100, etc.) na lista, detalhes e barra de ações.
 
 ## Current Position
 
-Phase: 92 of 92 (Concluída)  
+Phase: 93 of 93 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 92.
+Last activity: 2026-09-09 — Conclusão da Phase 93.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 92
-- Total phases in roadmap: 92
-- Tests status: 93 test suites (488 testes aprovados)
+- Total phases completed: 93
+- Total phases in roadmap: 93
+- Tests status: 94 test suites (492 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
