@@ -402,6 +402,10 @@ export class CharacterService {
 
     if (skillList.length > 0) {
       for (const sk of skillList) {
+        const safeTries = sk.tries !== undefined
+          ? (typeof sk.tries === 'bigint' ? sk.tries : BigInt(Math.floor(Number(sk.tries))))
+          : undefined;
+
         await this.prisma.characterSkill.upsert({
           where: {
             characterId_skillId: {
@@ -411,14 +415,14 @@ export class CharacterService {
           },
           update: {
             value: sk.value,
-            tries: sk.tries !== undefined ? sk.tries : undefined,
+            tries: safeTries !== undefined ? safeTries : undefined,
           },
           create: {
             characterId,
             skillId: sk.skillId,
             skillName: sk.skillName,
             value: sk.value,
-            tries: sk.tries !== undefined ? sk.tries : BigInt(0),
+            tries: safeTries !== undefined ? safeTries : BigInt(0),
           },
         });
       }

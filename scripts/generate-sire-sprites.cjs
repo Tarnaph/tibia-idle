@@ -10,7 +10,7 @@ const USER_INPUTS = {
   west:  'C:/Users/desig/.gemini/antigravity-ide/brain/897680f6-8d91-4c69-aa75-f4c650caea80/.user_uploaded/media_1788482377796.png'
 };
 
-const OUTPUT_DIR = path.resolve(__dirname, '../public/generated/tibia860');
+const OUTPUT_DIR = path.resolve(__dirname, '../public/generated/tibia1098');
 const SIRE_EXPORT_DIR = path.resolve(OUTPUT_DIR, 'sire');
 const SIRE_32_DIR = path.resolve(SIRE_EXPORT_DIR, 'raw-32x32');
 const SIRE_HIRES_DIR = path.resolve(SIRE_EXPORT_DIR, 'hires-cutouts');
@@ -121,8 +121,8 @@ async function processSprites() {
         pattern: { x: 0, y: 0, z: 0 },
         layer: 0,
         spriteIds: [99900 + f, 0, 0, 0],
-        file: `public/generated/tibia860/${fileName}`,
-        publicUrl: `/generated/tibia860/${fileName}`,
+        file: `public/generated/tibia1098/${fileName}`,
+        publicUrl: `/generated/tibia1098/${fileName}`,
         sha256,
         width: 64,
         height: 64
@@ -173,8 +173,8 @@ async function processSprites() {
   .toFile(path.join(SIRE_EXPORT_DIR, 'sire-spritesheet-32x32.png'));
   console.log('Generated Object Builder Sprite Sheet: sire-spritesheet-32x32.png');
 
-  // 7. Update content/generated/tibia860-assets.json
-  const assetsJsonPath = path.resolve(__dirname, '../content/generated/tibia860-assets.json');
+  // 7. Update content/generated/tibia1098-assets.json
+  const assetsJsonPath = path.resolve(__dirname, '../content/generated/tibia1098-assets.json');
   const assets = JSON.parse(fs.readFileSync(assetsJsonPath, 'utf-8'));
 
   assets.outfits['Sire'] = {
@@ -205,7 +205,7 @@ async function processSprites() {
   };
 
   fs.writeFileSync(assetsJsonPath, JSON.stringify(assets, null, 2), 'utf-8');
-  console.log('Updated tibia860-assets.json with Sire outfit mapping!');
+  console.log('Updated tibia1098-assets.json with Sire outfit mapping!');
 }
 
 processSprites().catch(err => {

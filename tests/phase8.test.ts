@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import visualAssetsJson from '../content/generated/tibia860-assets.json';
+import visualAssetsJson from '../content/generated/tibia1098-assets.json';
 import type { ItemEconomyDefinition } from '../packages/content-schema/src';
 import {
   PROMOTION_COST,
@@ -21,7 +21,7 @@ import {
   trainingSkillFor,
   vocationFor,
 } from '../packages/domain/src';
-import type { Tibia860AssetManifest } from '../packages/tibia860-assets/src/types';
+import type { Tibia1098AssetManifest } from '../packages/tibia1098-assets/src/types';
 import { content } from './fixture';
 
 function fourMemberParty(seed = 'phase8-party') {
@@ -112,7 +112,7 @@ describe('Phase 8 clocks and spells', () => {
   });
 
   it('has extracted DAT/SPR assets for every numeric effect and projectile in the selected catalog', () => {
-    const assets = visualAssetsJson as Tibia860AssetManifest;
+    const assets = visualAssetsJson as Tibia1098AssetManifest;
     for (const spell of content.spells) {
       if (spell.visual.effectId !== null) expect(assets.effects[String(spell.visual.effectId)]?.frames.length).toBeGreaterThan(0);
       if (typeof spell.visual.projectileId === 'number') expect(assets.missiles[String(spell.visual.projectileId)]?.frames.length).toBeGreaterThan(0);
@@ -172,24 +172,24 @@ describe('Phase 8 hunts and economy', () => {
       const variant = deriveMonsterVariantStats(base, final.boss!);
       expect(variant).toMatchObject({ maxHp: base.maxHp * 4, experience: base.experience * 3, lootMultiplier: 2 });
       expect(base.corpseId).toBeTypeOf('number');
-      expect(content.huntRegions.some((region) => region.huntId === hunt.id && region.sourceFiles.includes('data/world/styller.otbm'))).toBe(true);
+      expect(content.huntRegions.some((region) => region.huntId === hunt.id && region.sourceFiles.some((f) => f.endsWith('.otbm')))).toBe(true);
     }
   });
 
   it('keeps identical seeded spatial snapshots deterministic', () => {
-    let first = restartHunt(fourMemberParty('hunt-snapshot'), 'hunt-snapshot', content, 'spider-burrow');
-    let second = restartHunt(fourMemberParty('hunt-snapshot'), 'hunt-snapshot', content, 'spider-burrow');
+    let first = restartHunt(fourMemberParty('hunt-snapshot'), 'hunt-snapshot', content, 'rat-cellars');
+    let second = restartHunt(fourMemberParty('hunt-snapshot'), 'hunt-snapshot', content, 'rat-cellars');
     for (let tick = 0; tick < 80; tick += 1) { first = advanceCombat(first, content, 120); second = advanceCombat(second, content, 120); }
     expect(second.encounter).toEqual(first.encounter);
   });
 
-  it('prioritizes internal STYLLER prices, marks web fallback and never invents unknown prices', () => {
+  it('prioritizes internal RealMap 11 prices, marks web fallback and never invents unknown prices', () => {
     const webOffer = { price: 100, sourceType: 'web', sourceKind: 'web-reference', sourceUrl: 'https://example.test/item', sourceName: 'Historical fixture', retrievedAt: '2026-09-02', tibiaVersionContext: '8.60 fixture' } as const;
-    const internalOffer = { price: 25, sourceType: 'styller', sourceKind: 'npc-xml-shop-sellable', sourceNpc: 'Mad', sourceFile: 'data/npc/Mad.xml' } as const;
+    const internalOffer = { price: 25, sourceType: 'realmap11', sourceKind: 'npc-xml-shop-sellable', sourceNpc: 'Mad', sourceFile: 'data/npc/Mad.xml' } as const;
     const internalFirst: ItemEconomyDefinition = { itemId: 2376, canonicalSellPrice: 25, status: 'sellable', offers: [webOffer, internalOffer], warnings: [] };
     const fallback: ItemEconomyDefinition = { itemId: 9998, canonicalSellPrice: 100, status: 'sellable', offers: [webOffer], warnings: [] };
     const unknown: ItemEconomyDefinition = { itemId: 9999, canonicalSellPrice: null, status: 'priceUnknown', offers: [], warnings: ['No proven price.'] };
-    expect(preferredSellPrice(internalFirst)).toMatchObject({ price: 25, sourceType: 'styller' });
+    expect(preferredSellPrice(internalFirst)).toMatchObject({ price: 25, sourceType: 'realmap11' });
     expect(preferredSellPrice(fallback)).toMatchObject({ price: 100, sourceType: 'web', offer: { sourceUrl: 'https://example.test/item', tibiaVersionContext: '8.60 fixture' } });
     expect(preferredSellPrice(unknown)).toBeNull();
   });

@@ -1,7 +1,7 @@
 {
   "id": "rotworm",
   "source": {
-    "format": "styller-monster-xml",
+    "format": "realmap11-monster-xml",
     "relativePath": "data/monster/invertebrates/annelids/rotworm.xml"
   },
   "name": "Rotworm",

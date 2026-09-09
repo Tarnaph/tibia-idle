@@ -1,6 +1,6 @@
 {
   "importedAtBuildTime": true,
-  "selectionReason": "Curated Knight development set plus four vocation starter loadouts, verified in items.otb and enriched from items.lua/items.xml.",
+  "selectionReason": "Curated Knight development set plus four vocation starter loadouts, verified in items.otb.",
   "items": [
     {
       "id": 2376,
@@ -40,10 +40,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2388,
@@ -83,11 +80,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2398,
@@ -127,11 +120,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2512,
@@ -171,11 +160,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2526,
@@ -215,11 +200,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2458,
@@ -259,10 +240,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2461,
@@ -302,10 +280,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2464,
@@ -345,10 +320,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2467,
@@ -388,10 +360,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2648,
@@ -431,10 +400,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2649,
@@ -474,10 +440,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2643,
@@ -517,10 +480,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2645,
@@ -560,10 +520,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2457,
@@ -603,10 +560,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2463,
@@ -646,10 +600,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2647,
@@ -689,10 +640,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2525,
@@ -732,11 +680,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 8601,
@@ -776,11 +720,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2389,
@@ -820,11 +760,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2190,
@@ -864,11 +800,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     },
     {
       "id": 2182,
@@ -908,11 +840,7 @@
           "line": 1
         }
       },
-      "importWarnings": [
-        "slotPosition is absent in items.lua; using the ItemType engine default SLOTP_HAND.",
-        "extraDefense is absent in items.lua; using the ItemType engine default 0.",
-        "No level, vocation, skill bonus, magic-level bonus or absorption fields are declared by this Lua entry; normalized as unrestricted/empty."
-      ]
+      "importWarnings": []
     }
   ]
 }

@@ -48,14 +48,14 @@ describe('Phase 39: Integração de mapaserver.otbm, Resposta Instantânea do Te
     const projectRoot = resolve(__dirname, '..');
     const arenaSrc = readFileSync(resolve(projectRoot, 'apps/web/components/ThaisCityArena.tsx'), 'utf8');
 
-    expect(arenaSrc).toContain('mapping.frame.height > 32 ? -(mapping.frame.height - 32) : 0');
-    expect(arenaSrc).toContain('mapping.frame.width > 32 ? -(mapping.frame.width - 32) : 0');
+    expect(arenaSrc).toContain('frameToUse.height > 32 ? -(frameToUse.height - 32) : 0');
+    expect(arenaSrc).toContain('frameToUse.width > 32 ? -(frameToUse.width - 32) : 0');
     expect(arenaSrc).toContain('sp.position.set(px + offsetX, py + offsetY)');
   });
 
   it('verifies that authentic PNG sprites for Thais items are present on disk', () => {
     const projectRoot = resolve(__dirname, '..');
-    const assetsPath = resolve(projectRoot, 'content/generated/tibia860-assets.json');
+    const assetsPath = resolve(projectRoot, 'content/generated/tibia1098-assets.json');
     const visualAssets = JSON.parse(readFileSync(assetsPath, 'utf8'));
 
     let existingPngCount = 0;

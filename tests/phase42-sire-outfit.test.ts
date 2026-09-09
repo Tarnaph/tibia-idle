@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import visualAssetsJson from '../content/generated/tibia860-assets.json';
-import type { Tibia860AssetManifest, ExtractedFrame } from '../packages/tibia860-assets/src/types';
+import visualAssetsJson from '../content/generated/tibia1098-assets.json';
+import type { Tibia1098AssetManifest, ExtractedFrame } from '../packages/tibia1098-assets/src/types';
 
-const assets = visualAssetsJson as unknown as Tibia860AssetManifest;
+const assets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 
 describe('Sire Custom Outfit Integration', () => {
   it('registers Sire outfit in visualAssets manifest with complete metadata', () => {
@@ -36,7 +36,7 @@ describe('Sire Custom Outfit Integration', () => {
   });
 
   it('verifies export sprite sheets and 32x32 raw sprites exist for external server/editor use', () => {
-    const exportDir = path.resolve(process.cwd(), 'public/generated/tibia860/sire');
+    const exportDir = path.resolve(process.cwd(), 'public/generated/tibia1098/sire');
     expect(fs.existsSync(path.join(exportDir, 'sire-spritesheet-64x64.png'))).toBe(true);
     expect(fs.existsSync(path.join(exportDir, 'sire-spritesheet-32x32.png'))).toBe(true);
 

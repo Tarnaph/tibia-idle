@@ -40,7 +40,7 @@ describe('Phase 38: Fontes da Caçada Unificadas, Movimento Fluído com VisualMo
 
   it('verifies that item PNG assets on disk cover more than 1,150 unique Thais items', () => {
     const projectRoot = resolve(__dirname, '..');
-    const assetsPath = resolve(projectRoot, 'content/generated/tibia860-assets.json');
+    const assetsPath = resolve(projectRoot, 'content/generated/tibia1098-assets.json');
     const visualAssets = JSON.parse(readFileSync(assetsPath, 'utf8'));
 
     let existingPngCount = 0;

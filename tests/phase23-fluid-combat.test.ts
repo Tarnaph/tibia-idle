@@ -46,25 +46,24 @@ describe('Phase 23: Cooldowns, Fluidez Inicial, Target Inteligente, XP 50k e Cav
     let state = startGame(createIdleGame('test-target-selection', content, 'rat-cellars'), content);
     const actor = state.encounter.partyActors[0];
 
-    // Find 2 walkable tiles near the actor
-    const approaches = findMeleeApproachTiles(state.encounter.room.map, actor.position, new Set(state.encounter.room.occupancy.keys()));
+    actor.position = { ...state.encounter.room.entrance };
+    actor.previousPosition = { ...state.encounter.room.entrance };
+
+    const occupancySet = new Set([`${actor.position.x},${actor.position.y}`]);
+    const approaches = findMeleeApproachTiles(state.encounter.room.map, actor.position, occupancySet);
     expect(approaches.length).toBeGreaterThan(0);
     const frontTile = approaches[0];
-
-    const frontRat = state.encounter.enemies[0];
-    frontRat.alive = true;
-    frontRat.position = { ...frontTile };
-    frontRat.previousPosition = { ...frontTile };
-
-    // Rear rat placed behind
     const rearApproaches = findMeleeApproachTiles(state.encounter.room.map, frontTile, new Set([`${actor.position.x},${actor.position.y}`, `${frontTile.x},${frontTile.y}`]));
-    const rearTile = rearApproaches.length > 0 ? rearApproaches[0] : frontTile;
+    const rearTile = rearApproaches.length > 0 ? rearApproaches[0] : { x: frontTile.x + 1, y: frontTile.y, z: frontTile.z };
 
-    const rearRat = state.encounter.enemies[1];
-    rearRat.alive = true;
-    rearRat.position = { ...rearTile };
-    rearRat.previousPosition = { ...rearTile };
-
+    const frontRat = { ...state.encounter.enemies[0], position: { ...frontTile }, previousPosition: { ...frontTile }, alive: true };
+    const rearRat = { ...state.encounter.enemies[1], position: { ...rearTile }, previousPosition: { ...rearTile }, alive: true };
+    state.encounter.enemies = [frontRat, rearRat];
+    if (state.encounter.continuousProgress) {
+      state.encounter.continuousProgress.zones.forEach((z, idx) => {
+        z.activeEnemyIds = idx === 0 ? [frontRat.id, rearRat.id] : [];
+      });
+    }
     synchronizeEncounterOccupancy(state.encounter);
 
     // Advance combat by one tick
@@ -77,27 +76,29 @@ describe('Phase 23: Cooldowns, Fluidez Inicial, Target Inteligente, XP 50k e Cav
   it('switches target to front monster if previous target gets blocked or moves behind', () => {
     let state = startGame(createIdleGame('test-target-switch', content, 'rat-cellars'), content);
     const actor = state.encounter.partyActors[0];
+    actor.position = { ...state.encounter.room.entrance };
+    actor.previousPosition = { ...state.encounter.room.entrance };
 
-    const approaches = findMeleeApproachTiles(state.encounter.room.map, actor.position, new Set(state.encounter.room.occupancy.keys()));
+    const occupancySet = new Set([`${actor.position.x},${actor.position.y}`]);
+    const approaches = findMeleeApproachTiles(state.encounter.room.map, actor.position, occupancySet);
     expect(approaches.length).toBeGreaterThan(0);
     const frontTile = approaches[0];
 
-    const frontRat = state.encounter.enemies[0];
-    frontRat.alive = true;
-    frontRat.position = { ...frontTile };
-    frontRat.previousPosition = { ...frontTile };
+    const dx = frontTile.x - actor.position.x;
+    const dy = frontTile.y - actor.position.y;
+    const rearTile = { x: frontTile.x + dx, y: frontTile.y + dy, z: actor.position.z };
 
-    const rearApproaches = findMeleeApproachTiles(state.encounter.room.map, frontTile, new Set([`${actor.position.x},${actor.position.y}`, `${frontTile.x},${frontTile.y}`]));
-    const rearTile = rearApproaches.length > 0 ? rearApproaches[0] : frontTile;
-
-    const rearRat = state.encounter.enemies[1];
-    rearRat.alive = true;
-    rearRat.position = { ...rearTile };
-    rearRat.previousPosition = { ...rearTile };
+    const frontRat = { ...state.encounter.enemies[0], position: { ...frontTile }, previousPosition: { ...frontTile }, alive: true };
+    const rearRat = { ...state.encounter.enemies[1], position: { ...rearTile }, previousPosition: { ...rearTile }, alive: true };
 
     // Previous target was rearRat
     actor.targetId = rearRat.id;
-
+    state.encounter.enemies = [frontRat, rearRat];
+    if (state.encounter.continuousProgress) {
+      state.encounter.continuousProgress.zones.forEach((z, idx) => {
+        z.activeEnemyIds = idx === 0 ? [frontRat.id, rearRat.id] : [];
+      });
+    }
     synchronizeEncounterOccupancy(state.encounter);
 
     state = advanceCombat(state, content, 120);

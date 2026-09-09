@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { advanceCombat, advanceTraining, createIdleGame, addPartyMember, restartHunt, positionKey, synchronizePartyWithEncounter } from '../packages/domain/src';
+import { advanceCombat, advanceTraining, createIdleGame, addPartyMember, restartHunt, positionKey, synchronizePartyWithEncounter, synchronizeEncounterOccupancy } from '../packages/domain/src';
 import { content } from './fixture';
 
 describe('Phase 82 - Pixi Cleanup Safety & Sorcerer Wand Visuals', () => {
@@ -21,6 +21,7 @@ describe('Phase 82 - Pixi Cleanup Safety & Sorcerer Wand Visuals', () => {
 
     target.position = { ...rangedTile.position };
     target.previousPosition = { ...rangedTile.position };
+    synchronizeEncounterOccupancy(game.encounter);
 
     // Advance combat to start attack
     game = advanceCombat(game, content, 120);
@@ -30,7 +31,7 @@ describe('Phase 82 - Pixi Cleanup Safety & Sorcerer Wand Visuals', () => {
     expect((projectileEvent as any).projectileId).toBe(5);
 
     // Advance combat to impact
-    game = advanceCombat(game, content, 240);
+    game = advanceCombat(game, content, 2000);
     const hitEvent = game.encounter.visualEvents.find((e) => e.type === 'projectile-hit');
     expect(hitEvent).toBeDefined();
     // Wand of Vortex impact effect is CONST_ME_ENERGYHIT (12)

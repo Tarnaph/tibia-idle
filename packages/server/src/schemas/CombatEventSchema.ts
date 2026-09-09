@@ -10,5 +10,7 @@ export class CombatEventSchema extends Schema {
   @type('number') posY: number = 0;
   @type('string') text: string = '';
   @type('string') color: string = '#ff3333';
+  @type('number') projectileId: number = 0;
+  @type('number') effectId: number = 0;
   @type('number') timestamp: number = 0;
 }

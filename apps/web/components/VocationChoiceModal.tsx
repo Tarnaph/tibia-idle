@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import type { BaseVocationName } from '@/packages/content-schema/src';
-import visualAssetsJson from '@/content/generated/tibia860-assets.json';
-import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
+import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 
-const assets = visualAssetsJson as Tibia860AssetManifest;
+const assets = visualAssetsJson as Tibia1098AssetManifest;
 
 interface VocationChoiceModalProps {
   open: boolean;

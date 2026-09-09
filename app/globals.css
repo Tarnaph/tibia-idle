@@ -2920,8 +2920,8 @@ h1, h2, h3, p { margin: 0; }
 .hunt-window-container.hunt-exura-frame {
   width: 920px;
   max-width: 96vw;
-  height: 560px;
-  max-height: 94vh;
+  height: 660px;
+  max-height: 95vh;
   background: radial-gradient(ellipse at 50% 20%, #181b22 0%, #0d0f14 100%);
   border: 3px solid #6b5329;
   outline: 2px solid #232730;
@@ -3114,7 +3114,7 @@ h1, h2, h3, p { margin: 0; }
   border: 2px solid #947133;
   border-radius: 4px;
   width: 36px;
-  height: 54px;
+  height: 64px;
   color: #eab308;
   font-size: 18px;
   display: flex;
@@ -3165,10 +3165,10 @@ h1, h2, h3, p { margin: 0; }
   justify-content: center;
 }
 
-/* Hunt Card Structure */
+/* Hunt Card Structure (Vertical 800x1200 / 2:3 Ratio) */
 .hunt-card {
   width: 220px;
-  height: 350px;
+  height: 450px;
   background: linear-gradient(180deg, #181d26 0%, #0d1016 100%);
   border: 2px solid #544122;
   border-radius: 5px;
@@ -3226,9 +3226,9 @@ h1, h2, h3, p { margin: 0; }
   left: calc(50% - 5px);
 }
 
-/* Top Illustration Area */
+/* Top Illustration Area (Calibrated for 800x1200 / 2:3 vertical images) */
 .hunt-card-art-box {
-  height: 155px;
+  height: 310px;
   position: relative;
   overflow: hidden;
   background: #080a0e;
@@ -3274,20 +3274,21 @@ h1, h2, h3, p { margin: 0; }
   line-height: 1;
 }
 
-/* Creature Sprite */
+/* Creature Sprite (Grounded on dungeon floor) */
 .hunt-card-sprite-wrapper {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  padding-bottom: 24px;
   z-index: 4;
   pointer-events: none;
 }
 
 .hunt-card-creature-sprite {
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   image-rendering: pixelated;
   object-fit: contain;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.9));

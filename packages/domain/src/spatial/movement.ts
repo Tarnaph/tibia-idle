@@ -1,4 +1,4 @@
-import type { EnemyState, HuntEncounterState, PartyActorState } from '../types';
+import type { EnemyState, HuntEncounterState, PartyActorState, TargetSelectionStrategy } from '../types';
 import { findPath, findMeleeApproachTiles, findRangedApproachTiles, isMeleeRange, meleeDistance, surroundingPositions } from './pathfinding';
 import type { CardinalDirection, GridPosition } from './types';
 import { buildOccupancyMap, clonePosition, isTileWalkable, positionKey, tileAt } from './tileMap';
@@ -81,18 +81,25 @@ function destinationAvailable(encounter: HuntEncounterState, position: GridPosit
     && !reserved.has(positionKey(position));
 }
 
-function nearestEnemy(actor: PartyActorState, encounter: HuntEncounterState, range: number, reserved: ReadonlySet<string>, allowedEnemyIds?: Set<string>) {
+function nearestEnemy(
+  actor: PartyActorState,
+  encounter: HuntEncounterState,
+  range: number,
+  reserved: ReadonlySet<string>,
+  allowedEnemyIds?: Set<string>,
+  strategy: TargetSelectionStrategy = 'closest'
+) {
   const occupied = occupiedKeys(encounter);
   const candidates = encounter.enemies.filter((enemy) => enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id)));
   if (candidates.length === 0) return undefined;
 
-  const blocked = new Set(occupied);
+  const partyKeys = new Set(encounter.partyActors.filter((a) => a.alive).map((a) => positionKey(a.position)));
+  const blocked = new Set([...occupied].filter((k) => !partyKeys.has(k)));
   for (const key of reserved) blocked.add(key);
-  blocked.delete(positionKey(actor.position));
 
   const evaluated = candidates.map((enemy) => {
     const directDist = meleeDistance(actor.position, enemy.position);
-    const alreadyInRange = range <= 1 ? directDist <= 1 : directDist === range;
+    const alreadyInRange = directDist <= range;
     const goals = range <= 1
       ? findMeleeApproachTiles(encounter.room.map, enemy.position, blocked)
       : findRangedApproachTiles(encounter.room.map, enemy.position, range, blocked);
@@ -113,17 +120,50 @@ function nearestEnemy(actor: PartyActorState, encounter: HuntEncounterState, ran
   if (reachable.length === 0) return undefined;
 
   return reachable.sort((a, b) => {
+    if (strategy === 'lowest-hp') {
+      if (a.alreadyInRange !== b.alreadyInRange) return a.alreadyInRange ? -1 : 1;
+      const hpPctA = a.enemy.hp / a.enemy.maxHp;
+      const hpPctB = b.enemy.hp / b.enemy.maxHp;
+      if (Math.abs(hpPctA - hpPctB) > 0.001) return hpPctA - hpPctB;
+      if (a.enemy.hp !== b.enemy.hp) return a.enemy.hp - b.enemy.hp;
+      if (a.isCurrentTarget !== b.isCurrentTarget) return a.isCurrentTarget ? -1 : 1;
+      const pathA = a.alreadyInRange ? 0 : a.path.length;
+      const pathB = b.alreadyInRange ? 0 : b.path.length;
+      if (pathA !== pathB) return pathA - pathB;
+      return a.directDist - b.directDist;
+    }
+
+    if (strategy === 'highest-hp') {
+      if (a.alreadyInRange !== b.alreadyInRange) return a.alreadyInRange ? -1 : 1;
+      const hpPctA = a.enemy.hp / a.enemy.maxHp;
+      const hpPctB = b.enemy.hp / b.enemy.maxHp;
+      if (Math.abs(hpPctA - hpPctB) > 0.001) return hpPctB - hpPctA;
+      if (a.enemy.hp !== b.enemy.hp) return b.enemy.hp - a.enemy.hp;
+      if (a.isCurrentTarget !== b.isCurrentTarget) return a.isCurrentTarget ? -1 : 1;
+      const pathA = a.alreadyInRange ? 0 : a.path.length;
+      const pathB = b.alreadyInRange ? 0 : b.path.length;
+      if (pathA !== pathB) return pathA - pathB;
+      return a.directDist - b.directDist;
+    }
+
+    // Default 'closest'
     if (a.alreadyInRange !== b.alreadyInRange) return a.alreadyInRange ? -1 : 1;
-    if (a.isCurrentTarget !== b.isCurrentTarget) return a.isCurrentTarget ? -1 : 1;
     const pathA = a.alreadyInRange ? 0 : a.path.length;
     const pathB = b.alreadyInRange ? 0 : b.path.length;
     if (pathA !== pathB) return pathA - pathB;
     if (a.directDist !== b.directDist) return a.directDist - b.directDist;
+    if (a.isCurrentTarget !== b.isCurrentTarget) return a.isCurrentTarget ? -1 : 1;
     return a.enemy.id.localeCompare(b.enemy.id);
   })[0];
 }
 
-export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Map<string, number>, allowedEnemyIds?: Set<string>, mainCharacterId?: string): void {
+export function movePartyTowardTargets(
+  encounter: HuntEncounterState,
+  ranges: Map<string, number>,
+  allowedEnemyIds?: Set<string>,
+  mainCharacterId?: string,
+  targetStrategy: TargetSelectionStrategy = 'closest'
+): void {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
   const mainActor = (mainCharacterId ? encounter.partyActors.find((candidate) => candidate.alive && candidate.characterId === mainCharacterId) : undefined)
@@ -140,14 +180,13 @@ export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Ma
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
     const range = ranges.get(actor.characterId) ?? 1;
 
-    // Strict Party Target Logic:
-    // If actor is a secondary member (not main/leader) in a multiplayer party, it ONLY targets the leader's active target.
-    // If the leader has no target or the target is dead, the secondary member waits and follows the leader!
+    const activeStrategy = actor.targetStrategy || targetStrategy;
+
     let selected;
     if (encounter.isMultiplayerParty && actor.characterId !== mainActor?.characterId) {
       if (mainTargetEnemy) {
         actor.targetId = mainTargetEnemy.id;
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]));
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy);
       } else {
         // Leader has no active target: secondary actor waits and follows leader
         actor.targetId = null;
@@ -173,10 +212,13 @@ export function movePartyTowardTargets(encounter: HuntEncounterState, ranges: Ma
       }
     } else {
       if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]));
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy);
+      }
+      if (!selected && allowedEnemyIds) {
+        selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy);
       }
       if (!selected) {
-        selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds);
+        selected = nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy);
       }
       actor.targetId = selected?.enemy.id ?? null;
     }
@@ -250,7 +292,8 @@ export function moveEnemiesTowardParty(encounter: HuntEncounterState): void {
     if (encounter.elapsedMs < enemy.nextMoveAt) continue;
     const target = nearestActor(enemy, encounter);
     const targetDistance = target ? meleeDistance(enemy.position, target.position) : Number.POSITIVE_INFINITY;
-    if (!target || targetDistance > enemy.detectionRange) {
+    const maxDetectionRange = Math.max(50, enemy.detectionRange || 50);
+    if (!target || targetDistance > maxDetectionRange) {
       enemy.targetId = null;
       enemy.behavior = encounter.elapsedMs >= enemy.nextRoamAt ? 'roam' : 'idle';
       enemy.path = [];
@@ -273,14 +316,22 @@ export function moveEnemiesTowardParty(encounter: HuntEncounterState): void {
       continue;
     }
     enemy.targetId = target.characterId;
-    enemy.behavior = isMeleeRange(enemy.position, target.position) ? 'attack' : targetDistance <= enemy.detectionRange ? 'chase' : 'detect';
+    enemy.behavior = isMeleeRange(enemy.position, target.position) ? 'attack' : targetDistance <= maxDetectionRange ? 'chase' : 'detect';
     if (isMeleeRange(enemy.position, target.position)) { enemy.path = []; continue; }
     const blocked = new Set(occupied);
     for (const key of reserved) blocked.add(key);
     blocked.delete(positionKey(enemy.position));
     for (const key of reservedGoals) blocked.add(key);
-    const goals = surroundingPositions(target.position).filter((goal) => !blocked.has(positionKey(goal)));
-    const path = findPath(encounter.room.map, enemy.position, goals, blocked);
+
+    let goals = surroundingPositions(target.position).filter((goal) => isTileWalkable(encounter.room.map, goal) && !blocked.has(positionKey(goal)));
+    let effectiveBlocked = blocked;
+    if (goals.length === 0) {
+      goals = surroundingPositions(target.position).filter((goal) => isTileWalkable(encounter.room.map, goal));
+      const goalKeys = new Set(goals.map(positionKey));
+      effectiveBlocked = new Set([...blocked].filter((k) => !goalKeys.has(k)));
+    }
+
+    const path = findPath(encounter.room.map, enemy.position, goals, effectiveBlocked);
     enemy.path = path.map(clonePosition);
     const goal = path.at(-1);
     if (goal) reservedGoals.add(positionKey(goal));

@@ -2,15 +2,15 @@
 
 import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
-import visualAssetsJson from '@/content/generated/tibia860-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
 import type { CharacterState, CombatVisualEvent, TrainableSkill } from '@/packages/domain/src';
 import { calculatePixelCamera, creatureVisualLayout } from '@/packages/presentation/src';
-import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 
 interface TrainingMember { character: CharacterState; skill: TrainableSkill; progress: number }
 interface TrainingArenaProps { members: TrainingMember[]; visualEvents: CombatVisualEvent[]; debug: boolean }
-const visualAssets = visualAssetsJson as Tibia860AssetManifest;
+const visualAssets = visualAssetsJson as Tibia1098AssetManifest;
 const TILE_SIZE = 32;
 
 export function TrainingArena({ members, visualEvents, debug }: TrainingArenaProps) {

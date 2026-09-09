@@ -1,5 +1,5 @@
 export interface ContentSource {
-  format: 'styller-monster-xml';
+  format: 'realmap11-monster-xml';
   relativePath: string;
 }
 
@@ -72,7 +72,7 @@ export interface EquipmentDefinition {
   skillBonuses: Partial<Record<EquipmentSkill, number>>;
   magicLevelBonus: number | null;
   elementalAbsorption: Record<string, number>;
-  sourceFile: ['data/items/items.otb', 'data/items/items.lua'];
+  sourceFile: string[];
   sourceId: number;
   source: EquipmentSource;
   importWarnings: string[];
@@ -186,12 +186,14 @@ export interface HuntRegionTileDefinition {
 
 export interface HuntRegionDefinition {
   huntId: string;
+  name?: string;
   monsterName: string;
+  available?: boolean;
   sourceCenter: { x: number; y: number; z: number; radius: number };
   bounds: { x: number; y: number; z: number; width: number; height: number };
   spawnPositions: Array<{ x: number; y: number; z: number; spawntime?: number }>;
   tiles: HuntRegionTileDefinition[];
-  sourceFiles: ['data/world/spawn.xml', 'data/world/styller.otbm'];
+  sourceFiles: string[];
   importWarnings: string[];
 }
 
@@ -205,13 +207,15 @@ export interface StarterLoadoutCatalog {
   loadouts: StarterLoadoutDefinition[];
 }
 
-export interface StyllerItemSellOffer {
+export interface RealMapItemSellOffer {
   price: number;
-  sourceType?: 'styller';
+  sourceType?: 'realmap11';
   sourceNpc: string;
   sourceFile: string;
   sourceKind: 'npc-xml-shop-sellable' | 'npc-lua-sell-table';
 }
+
+export type StyllerItemSellOffer = RealMapItemSellOffer;
 
 export interface WebItemSellOffer {
   price: number;
@@ -225,7 +229,7 @@ export interface WebItemSellOffer {
   sourceFile?: never;
 }
 
-export type ItemSellOffer = StyllerItemSellOffer | WebItemSellOffer;
+export type ItemSellOffer = RealMapItemSellOffer | WebItemSellOffer;
 
 export interface ItemEconomyDefinition {
   itemId: number;
@@ -237,7 +241,7 @@ export interface ItemEconomyDefinition {
 
 export interface ItemEconomyCatalog {
   importedAtBuildTime: true;
-  canonicalRule: 'highest-proven-npc-sell-price' | 'styller-first-then-web-highest-proven-sell-price';
+  canonicalRule: 'highest-proven-npc-sell-price' | 'realmap11-first-then-web-highest-proven-sell-price';
   items: ItemEconomyDefinition[];
 }
 

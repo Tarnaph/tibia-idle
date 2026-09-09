@@ -4,7 +4,7 @@
     {
       "id": "rat",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/mammals/glires/rat.xml"
       },
       "name": "Rat",
@@ -50,7 +50,7 @@
     {
       "id": "cave-rat",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/mammals/glires/cave_rat.xml"
       },
       "name": "Cave Rat",
@@ -105,7 +105,7 @@
     {
       "id": "spider",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/invertebrates/arachnids/spider.xml"
       },
       "name": "Spider",
@@ -148,7 +148,7 @@
     {
       "id": "bug",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/invertebrates/insects/bug.xml"
       },
       "name": "Bug",
@@ -191,7 +191,7 @@
     {
       "id": "poison-spider",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/invertebrates/arachnids/poison_spider.xml"
       },
       "name": "Poison Spider",
@@ -236,7 +236,7 @@
     {
       "id": "troll",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/humanoids/trolls/troll.xml"
       },
       "name": "Troll",
@@ -342,7 +342,7 @@
     {
       "id": "swamp-troll",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/humanoids/trolls/swamp_troll.xml"
       },
       "name": "Swamp Troll",
@@ -440,7 +440,7 @@
     {
       "id": "rotworm",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/invertebrates/annelids/rotworm.xml"
       },
       "name": "Rotworm",
@@ -511,7 +511,7 @@
     {
       "id": "skeleton",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/theundead/skeletons/skeleton.xml"
       },
       "name": "Skeleton",
@@ -612,7 +612,7 @@
     {
       "id": "minotaur",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/humanoids/minotaurs/minotaur.xml"
       },
       "name": "Minotaur",
@@ -719,7 +719,7 @@
     {
       "id": "dwarf",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/humanoids/dwarves/dwarf.xml"
       },
       "name": "Dwarf",
@@ -818,7 +818,7 @@
     {
       "id": "carrion-worm",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/invertebrates/annelids/carrion_worm.xml"
       },
       "name": "Carrion Worm",
@@ -882,7 +882,7 @@
     {
       "id": "dragon",
       "source": {
-        "format": "styller-monster-xml",
+        "format": "realmap11-monster-xml",
         "relativePath": "data/monster/reptiles/dragons/dragon.xml"
       },
       "name": "Dragon",

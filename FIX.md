@@ -1,8 +1,3 @@
 # CORREÇÕES
 
-Os efeitos das magias ainda estão errado
-
-o nome da magia que aparecia em cima da cabeça dos personagens com o icone sumiu precisa ajustar estava certo 
-
-Faça um menu sanduiche do lado do sair e adicione uma ferramenta que permite tirar aumentar ou diminuir zoom da tela para o jogador escolher como quer
-
+Agora que estamos usando outra versão do tibia vai ser necessário colocar novamente os monstros os, que estão todos sem sprite/imagem, verificar novamente os icones das magias por que estão erradas, aproveitando ver se consegue importar corretamente o efeito de cada magia agora seja de suporte ou ataque e verificar o mapa se está correto por que a caçada que eu testei que foi a dos ratos está indo para o lugar errado, tem que ir para aquelas coordenadas que eu tinha passado.

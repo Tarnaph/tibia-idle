@@ -87,8 +87,8 @@ async function run() {
   }
   console.log(`Loaded ${itemFlags.size} item definitions from items.otb`);
 
-  console.log('Loading mapaserver.otbm (145MB)...');
-  const otbm = await readFile('mapaserver.otbm');
+  console.log('Loading realmap.otbm from realmap11...');
+  const otbm = await readFile('C:/Users/desig/OneDrive/Documentos/TibiaWeb/realmap11/data/world/world/realmap.otbm');
   console.log('Parsing mapaserver.otbm stream...');
 
   // Bounds for Thais:

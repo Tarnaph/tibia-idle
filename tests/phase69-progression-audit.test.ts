@@ -10,6 +10,7 @@ import {
   addTrainingTries,
   vocationFor,
   advanceCombat,
+  findMeleeApproachTiles,
   triggerManualHotbarAction,
 } from '../packages/domain/src';
 import { content } from './fixture';
@@ -151,7 +152,9 @@ describe('Phase 69: Comprehensive Character Progression Audit and Integration', 
       // Position player next to enemy
       const actor = game.encounter.partyActors.find((a) => a.characterId === char.id) ?? game.encounter.partyActors[0];
       const enemy = game.encounter.enemies[0];
-      actor.position = { ...enemy.position, x: enemy.position.x + 1 };
+      const approaches = findMeleeApproachTiles(game.encounter.room.map, enemy.position, new Set());
+      expect(approaches.length).toBeGreaterThan(0);
+      actor.position = { ...approaches[0] };
       actor.nextAttackAt = 0;
       actor.groupCooldowns['attack'] = 0;
       actor.targetId = enemy.id;

@@ -55,7 +55,7 @@ describe('Phase 31: Tibia 10.98 DAT/SPR Asset Pipeline and Authentic Thais Rende
   });
 
   it('verifies that the Temple of Thais spawn tile (32369, 32241) resolves an authentic ground sprite', () => {
-    const assetsJsonPath = resolve(projectRoot, 'content/generated/tibia860-assets.json');
+    const assetsJsonPath = resolve(projectRoot, 'content/generated/tibia1098-assets.json');
     const visualAssets = JSON.parse(readFileSync(assetsJsonPath, 'utf8'));
 
     const spawnTile = thaisCityJson.tiles.find(
@@ -71,7 +71,7 @@ describe('Phase 31: Tibia 10.98 DAT/SPR Asset Pipeline and Authentic Thais Rende
   });
 
   it('verifies ground vs non-ground classification for proper depth sorting in the city arena', () => {
-    const assetsJsonPath = resolve(projectRoot, 'content/generated/tibia860-assets.json');
+    const assetsJsonPath = resolve(projectRoot, 'content/generated/tibia1098-assets.json');
     const visualAssets = JSON.parse(readFileSync(assetsJsonPath, 'utf8'));
 
     // Floor 406, 407 must be ground

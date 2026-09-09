@@ -49,7 +49,7 @@ describe('Phase 37: Movimento Fluído na Cidade (+50% Velocidade) e Mapa Complet
 
   it('verifies that all extracted items for Floor 6 have authentic PNG sprites on disk', () => {
     const projectRoot = resolve(__dirname, '..');
-    const assetsPath = resolve(projectRoot, 'content/generated/tibia860-assets.json');
+    const assetsPath = resolve(projectRoot, 'content/generated/tibia1098-assets.json');
     const visualAssets = JSON.parse(readFileSync(assetsPath, 'utf8'));
 
     const upperTiles = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];

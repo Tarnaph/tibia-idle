@@ -26,7 +26,7 @@ export function IdleHeader({ activeSkill, activeSkillLevel, previousResult }: Id
         <strong>ÁREA SEGURA</strong>
         <small>{previousResultText[previousResult]}</small>
       </div>
-      <span className="loop-indicator" title="Progressão baseada nas curvas do STYLLER">SKILL GAIN · ATIVO</span>
+      <span className="loop-indicator" title="Progressão baseada nas curvas do RealMap 11">SKILL GAIN · ATIVO</span>
     </header>
   );
 }

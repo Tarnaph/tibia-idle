@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import visualAssetsJson from '@/content/generated/tibia860-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
 import type { BaseVocationName, VocationName } from '@/packages/content-schema/src';
-import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 
-const assets = visualAssetsJson as Tibia860AssetManifest;
+const assets = visualAssetsJson as Tibia1098AssetManifest;
 
 export type Gender = 'Masculino' | 'Feminino';
 export type SelectableVocation = BaseVocationName | 'Monk';

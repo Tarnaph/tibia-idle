@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import visualAssetsJson from '../content/generated/tibia860-assets.json';
+import visualAssetsJson from '../content/generated/tibia1098-assets.json';
 import thaisCatalogJson from '../content/generated/tibia1098-thais-assets.json';
 
 describe('Phase 32: Thais Alive - Character Nameplates, Green HP Bars, Walking Animations & Map Item Animations', () => {

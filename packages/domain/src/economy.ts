@@ -1,20 +1,20 @@
 import type { ItemEconomyDefinition, ItemSellOffer } from '../../content-schema/src';
 import type { GameContent, GameState, ItemLootPreference, LootStack, CharacterState, CharacterSkills } from './types';
 import { experienceForLevel } from './experience';
-import { vocationFor, resetCharacterVocation } from './party';
+import { vocationFor, resetCharacterVocation, calculateStatsForLevel } from './party';
 
 export interface SellLootResult { state: GameState; goldEarned: number; soldStacks: number; unsoldStacks: number }
 
-export interface ResolvedSellPrice { price: number; sourceType: 'styller' | 'web'; offer: ItemSellOffer }
+export interface ResolvedSellPrice { price: number; sourceType: 'realmap11' | 'web'; offer: ItemSellOffer }
 
-/** STYLLER is authoritative. Web provenance is considered only when no internal sell offer exists. */
+/** RealMap 11 is authoritative. Web provenance is considered only when no internal sell offer exists. */
 export function preferredSellPrice(item: ItemEconomyDefinition): ResolvedSellPrice | null {
   const internal = item.offers.filter((offer) => offer.sourceKind !== 'web-reference');
   const web = item.offers.filter((offer) => offer.sourceKind === 'web-reference');
   const candidates = internal.length > 0 ? internal : web;
   if (candidates.length === 0) return null;
   const offer = candidates.reduce((best, candidate) => candidate.price > best.price ? candidate : best);
-  return { price: offer.price, sourceType: offer.sourceKind === 'web-reference' ? 'web' : 'styller', offer };
+  return { price: offer.price, sourceType: offer.sourceKind === 'web-reference' ? 'web' : 'realmap11', offer };
 }
 
 export function sellAllLoot(state: GameState, content: GameContent): SellLootResult {
@@ -181,41 +181,16 @@ export function applyCharacterLevelAdvance(
 ): CharacterState {
   const newLevel = character.level + levels;
   const newExp = experienceForLevel(newLevel);
-  let gainHp = 5;
-  let gainMana = 5;
-  if (content) {
-    try {
-      const voc = vocationFor(content, character.vocation);
-      gainHp = voc.gainHp ?? 5;
-      gainMana = voc.gainMana ?? 5;
-    } catch {
-      // Fallback
-    }
-  } else {
-    // Canonical TFS defaults
-    if (character.baseVocation === 'Knight') {
-      gainHp = 15;
-      gainMana = 5;
-    } else if (character.baseVocation === 'Paladin') {
-      gainHp = 10;
-      gainMana = 15;
-    } else {
-      gainHp = 5;
-      gainMana = 30;
-    }
-  }
-
-  const newMaxHp = Math.max(150, character.maxHp + levels * gainHp);
-  const newMaxMana = Math.max(0, character.maxMana + levels * gainMana);
+  const stats = calculateStatsForLevel(character.vocation, newLevel);
 
   return {
     ...character,
     level: newLevel,
     experience: newExp,
-    maxHp: newMaxHp,
-    currentHp: newMaxHp,
-    maxMana: newMaxMana,
-    currentMana: newMaxMana,
+    maxHp: stats.maxHp,
+    currentHp: stats.maxHp,
+    maxMana: stats.maxMana,
+    currentMana: stats.maxMana,
   };
 }
 

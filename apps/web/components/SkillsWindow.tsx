@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import type { CharacterState, DerivedStats, GameContent, SkillTooltipInfo } from '@/packages/domain/src';
-import { skillProgress, vocationFor, characterCapacity, inventoryWeight, getSkillTooltipInfo, formatStaminaTime, getStaminaPercentage } from '@/packages/domain/src';
+import { experienceProgress, skillProgress, vocationFor, characterCapacity, inventoryWeight, getSkillTooltipInfo, formatStaminaTime, getStaminaPercentage } from '@/packages/domain/src';
 
 interface SkillsWindowProps {
   open: boolean;
@@ -119,8 +119,8 @@ export function SkillsWindow({
             <span className="skills-label">Level</span>
             <span className="skills-val bold">{level}</span>
           </div>
-          <div className="skills-meter-track">
-            <div className="skills-meter-fill red" style={{ width: '45%' }} />
+          <div className="skills-meter-track" title={`Progresso do Level: ${Math.round(experienceProgress(level, currentExp) * 100)}%`}>
+            <div className="skills-meter-fill red" style={{ width: `${Math.round(experienceProgress(level, currentExp) * 100)}%` }} />
           </div>
 
           <div className="skills-row">

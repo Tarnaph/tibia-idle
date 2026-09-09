@@ -37,6 +37,9 @@ function groundForHunt(huntId: string): GroundId {
 }
 
 export function roomDefinitionAt(hunt: HuntDefinition, index: number, region?: HuntRegionDefinition): RoomDefinition {
+  if (region && region.available === false) {
+    throw new Error(`${hunt.name} (region: ${hunt.id}) está temporariamente indisponível.`);
+  }
   if (region) {
     const { bounds } = region;
     const byPosition = new Map(region.tiles.map((tile) => [`${tile.x},${tile.y}`, tile]));
@@ -62,9 +65,12 @@ export function roomDefinitionAt(hunt: HuntDefinition, index: number, region?: H
       return distance < bestDistance ? tile.position : best;
     }, walkable[0].position) });
     const sourceSpawns = region.spawnPositions.map((spawn) => nearestWalkable({ x: spawn.x - bounds.x, y: spawn.y - bounds.y, z: bounds.z }));
+    const configuredLocalEntrance = region.sourceCenter
+      ? nearestWalkable({ x: region.sourceCenter.x - bounds.x, y: region.sourceCenter.y - bounds.y, z: bounds.z })
+      : nearestWalkable(sourceSpawns[0] ?? walkable[0].position);
     const walkableKeys = new Set(walkable.map((tile) => `${tile.position.x},${tile.position.y}`));
     const componentKeys = new Set<string>();
-    const queue = [sourceSpawns[0] ?? walkable[0].position];
+    const queue = [configuredLocalEntrance];
     while (queue.length > 0) {
       const current = queue.shift()!;
       const key = `${current.x},${current.y}`;
@@ -77,13 +83,8 @@ export function roomDefinitionAt(hunt: HuntDefinition, index: number, region?: H
     }
     const component = walkable.filter((tile) => componentKeys.has(`${tile.position.x},${tile.position.y}`));
     if (component.length < 8) throw new Error(`${hunt.name} selected spawn is in an unusable OTBM component.`);
-    const spawnAnchor = sourceSpawns[0] ?? component[0].position;
-    const entrance = hunt.id === 'dragon-lair'
-      ? { ...spawnAnchor }
-      : { ...component.reduce((best, tile) => (
-          Math.abs(tile.position.x - spawnAnchor.x) + Math.abs(tile.position.y - spawnAnchor.y)
-            > Math.abs(best.x - spawnAnchor.x) + Math.abs(best.y - spawnAnchor.y) ? tile.position : best
-        ), component[0].position) };
+    const spawnAnchor = sourceSpawns.find((spawn) => componentKeys.has(`${spawn.x},${spawn.y}`)) ?? component[0].position;
+    const entrance = configuredLocalEntrance;
     const exit = { ...component.reduce((best, tile) => (
       Math.abs(tile.position.x - entrance.x) + Math.abs(tile.position.y - entrance.y)
         > Math.abs(best.x - entrance.x) + Math.abs(best.y - entrance.y) ? tile.position : best

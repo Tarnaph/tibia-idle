@@ -3,12 +3,14 @@
 import React, { useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
 import {
+  experienceProgress,
   findHotbarAction,
   formatStaminaTime,
   getStaminaPercentage,
   type CharacterState,
   type CombatStance,
   type PartyActorState,
+  type TargetSelectionStrategy,
 } from '@/packages/domain/src';
 import { Tibia11ActionIcon } from './Tibia11ActionIcon';
 
@@ -26,6 +28,7 @@ interface BottomConsoleHUDProps {
   logCount?: number;
   onChangeStance?: (stance: CombatStance) => void;
   onChangeTargetDistance?: (distance: number) => void;
+  onChangeTargetStrategy?: (strategy: TargetSelectionStrategy) => void;
 }
 
 export function BottomConsoleHUD({
@@ -42,6 +45,7 @@ export function BottomConsoleHUD({
   logCount = 0,
   onChangeStance,
   onChangeTargetDistance,
+  onChangeTargetStrategy,
 }: BottomConsoleHUDProps) {
   // Stances: 'offensive' | 'balanced' | 'defensive'
   const [stance, setStance] = useState<CombatStance>('offensive');
@@ -52,6 +56,21 @@ export function BottomConsoleHUD({
   const currentStance = character.stance ?? stance;
   const currentTargetDistance = character.targetDistance ?? targetCount;
 
+  const strategyMapUI: Record<string, TargetSelectionStrategy> = {
+    'Mais próximo': 'closest',
+    'Menor vida': 'lowest-hp',
+    'Maior vida': 'highest-hp',
+  };
+  const strategyMapValue: Record<TargetSelectionStrategy, string> = {
+    'closest': 'Mais próximo',
+    'lowest-hp': 'Menor vida',
+    'highest-hp': 'Maior vida',
+  };
+
+  const currentTargetMode = character.targetStrategy
+    ? strategyMapValue[character.targetStrategy] || 'Mais próximo'
+    : targetMode;
+
   const maxHp = character.maxHp || 2555;
   const currentHp = actor?.hp ?? character.currentHp;
   const hpPercent = Math.max(0, Math.min(100, (currentHp / maxHp) * 100));
@@ -60,17 +79,8 @@ export function BottomConsoleHUD({
   const currentMana = actor?.mana ?? character.currentMana;
   const manaPercent = Math.max(0, Math.min(100, (currentMana / maxMana) * 100));
 
-  // Calculate XP percentage to next level
-  const xpCurrent = character.experience;
-  const xpCurrentLevelBase = (character.level - 1) * 1000;
-  const xpNextLevelBase = character.level * 1000;
-  const xpProgress = Math.max(
-    0,
-    Math.min(
-      99.9,
-      ((xpCurrent - xpCurrentLevelBase) / Math.max(1, xpNextLevelBase - xpCurrentLevelBase)) * 100
-    )
-  );
+  // Calculate XP percentage to next level using canonical domain cubic experience curve
+  const xpProgress = Math.max(0, Math.min(100, experienceProgress(character.level, character.experience) * 100));
 
   // Border colors corresponding to action categories
   const topRowBorderColors: Record<number, string> = {
@@ -288,8 +298,13 @@ export function BottomConsoleHUD({
           <span className="hud-dropdown-label">ALVO</span>
           <select
             className="hud-select"
-            value={targetMode}
-            onChange={(e) => setTargetMode(e.target.value)}
+            value={currentTargetMode}
+            onChange={(e) => {
+              const val = e.target.value;
+              setTargetMode(val);
+              const strategy = strategyMapUI[val] || 'closest';
+              onChangeTargetStrategy?.(strategy);
+            }}
           >
             <option value="Mais próximo">Mais próximo</option>
             <option value="Menor vida">Menor vida</option>

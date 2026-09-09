@@ -3,9 +3,9 @@ import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { deflateSync } from 'node:zlib';
 
-const DAT_PATH = 'C:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia 11/Tibia 11/Tibia 11/Tibia.dat';
-const SPR_PATH = 'C:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia 11/Tibia 11/Tibia 11/Tibia.spr';
-const OTB_PATH = 'C:/Users/desig/OneDrive/Documentos/TibiaWeb/realmap11/data/items/items.otb';
+const DAT_PATH = 'Tibia 10/tibia/Tibia.dat';
+const SPR_PATH = 'Tibia 10/tibia/Tibia.spr';
+const OTB_PATH = '../realmap11/data/items/items.otb';
 
 const START = 0xfe;
 const END = 0xff;
@@ -287,8 +287,8 @@ async function run() {
       source: {
         serverId,
         otb: 'realmap11/data/items/items.otb',
-        dat: 'Tibia 11/Tibia 11/Tibia 11/Tibia.dat',
-        spr: 'Tibia 11/Tibia 11/Tibia 11/Tibia.spr',
+        dat: 'Tibia 10/tibia/Tibia.dat',
+        spr: 'Tibia 10/tibia/Tibia.spr',
       },
       appearanceId: otb.clientId,
       isGround: otb.isGround,
@@ -323,13 +323,12 @@ async function run() {
     JSON.stringify({ generatedAt: new Date().toISOString(), itemsCount: savedCount, items: extractedMap }, null, 2),
   );
 
-  // Also merge into content/generated/tibia860-assets.json mapItems so existing components benefit immediately
-  const existingAssets = JSON.parse(await readFile('content/generated/tibia860-assets.json', 'utf8'));
-  for (const [id, item] of Object.entries(extractedMap)) {
-    existingAssets.mapItems[id] = item;
-  }
-  await writeFile('content/generated/tibia860-assets.json', JSON.stringify(existingAssets, null, 2));
-  console.log(`Updated content/generated/tibia860-assets.json with 10.98 items!`);
+  // Also merge into content/generated/tibia1098-assets.json mapItems so existing components benefit immediately
+  const existingAssets = JSON.parse(await readFile('content/generated/tibia1098-assets.json', 'utf8'));
+  existingAssets.mapItems = existingAssets.mapItems || {};
+  Object.assign(existingAssets.mapItems, extractedMap);
+  await writeFile('content/generated/tibia1098-assets.json', JSON.stringify(existingAssets, null, 2));
+  console.log(`Updated content/generated/tibia1098-assets.json with 10.98 items!`);
 
   console.log('Extraction completed successfully!');
 }

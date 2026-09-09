@@ -14,7 +14,7 @@
       "sourceFile": "data/creaturescripts/scripts/custom/firstitems.lua",
       "sourceVocationId": 1,
       "warnings": [
-        "Complex wand/rod spell damage is deferred; the real starter item is equipped for training identity only."
+        "The real starter item is equipped for training identity."
       ]
     },
     {
@@ -30,7 +30,7 @@
       "sourceFile": "data/creaturescripts/scripts/custom/firstitems.lua",
       "sourceVocationId": 2,
       "warnings": [
-        "Complex wand/rod spell damage is deferred; the real starter item is equipped for training identity only."
+        "The real starter item is equipped for training identity."
       ]
     },
     {
@@ -46,7 +46,7 @@
       "sourceFile": "data/creaturescripts/scripts/custom/firstitems.lua",
       "sourceVocationId": 3,
       "warnings": [
-        "The firstitems.lua backpack bow/arrows are deferred; the directly granted spear is used for this slice."
+        "The backpack bow/arrows are deferred; the directly granted spear is used for this slice."
       ]
     },
     {

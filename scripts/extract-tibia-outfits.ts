@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { parseTibia860Dat, spriteIndex } from '../packages/tibia860-assets/src/dat.ts';
-import { parseTibia860Spr } from '../packages/tibia860-assets/src/spr.ts';
+import { parseTibia1098Dat, spriteIndex } from '../packages/tibia1098-assets/src/dat.ts';
+import { parseTibia1098Spr } from '../packages/tibia1098-assets/src/spr.ts';
 
 const PROJECT_ROOT = process.cwd();
-const DAT_PATH = path.resolve(PROJECT_ROOT, '..', 'tibia-860-client', 'Tibia.dat');
-const SPR_PATH = path.resolve(PROJECT_ROOT, '..', 'tibia-860-client', 'Tibia.spr');
+const DAT_PATH = path.resolve(PROJECT_ROOT, 'Tibia 10', 'tibia', 'Tibia.dat');
+const SPR_PATH = path.resolve(PROJECT_ROOT, 'Tibia 10', 'tibia', 'Tibia.spr');
 
 const OUTPUT_DIR = path.resolve(PROJECT_ROOT, 'public/generated/outfits');
 const THUMBS_DIR = path.resolve(PROJECT_ROOT, 'public/generated/outfit-thumbs');
@@ -14,11 +14,11 @@ const THUMBS_DIR = path.resolve(PROJECT_ROOT, 'public/generated/outfit-thumbs');
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 fs.mkdirSync(THUMBS_DIR, { recursive: true });
 
-console.log('Loading Tibia 8.60 DAT and SPR...');
+console.log('Loading Tibia 10.98 DAT and SPR...');
 const datBuf = fs.readFileSync(DAT_PATH);
 const sprBuf = fs.readFileSync(SPR_PATH);
-const dat = parseTibia860Dat(datBuf);
-const spr = parseTibia860Spr(sprBuf);
+const dat = parseTibia1098Dat(datBuf);
+const spr = parseTibia1098Spr(sprBuf);
 console.log('Loaded DAT & SPR successfully.');
 
 const OUTFIT_MAP: Record<string, { male: number; female: number }> = {
@@ -180,7 +180,7 @@ async function extractAll() {
   }
 
   // Handle Sire:
-  // Sire already has transparent cutouts in public/generated/tibia860/outfit-sire-*-frame-*.png
+  // Sire already has transparent cutouts in public/generated/tibia1098/outfit-sire-*-frame-*.png
   console.log('Processing Sire outfit layers...');
   manifest['sire'] = {
     id: 'sire',
@@ -194,7 +194,7 @@ async function extractAll() {
   for (const gender of ['male', 'female'] as const) {
     for (const dir of DIRECTIONS) {
       for (let frame = 0; frame < 3; frame++) {
-        const sireSrc = path.resolve(PROJECT_ROOT, `public/generated/tibia860/outfit-sire-${dir.name}-frame-${frame}.png`);
+        const sireSrc = path.resolve(PROJECT_ROOT, `public/generated/tibia1098/outfit-sire-${dir.name}-frame-${frame}.png`);
         const baseFile = path.join(OUTPUT_DIR, `sire-${gender}-${dir.name}-f${frame}-base.png`);
         const maskFile = path.join(OUTPUT_DIR, `sire-${gender}-${dir.name}-f${frame}-mask.png`);
 

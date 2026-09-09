@@ -233,19 +233,59 @@ export class GameClientNetworkManager {
       }
     }
 
-    // 2. Room-wide state updates for real-time player updates without duplicate listeners
+    // 2. Room-wide state updates for real-time player and monster updates
     this.room.onStateChange((state: any) => {
-      if (state && state.players) {
+      if (state) {
         let hasChanges = false;
-        state.players.forEach((player: any, key: string) => {
-          if (!monitoredPlayers.has(key)) {
-            bindPlayer(player, key);
-            hasChanges = true;
-          } else {
-            this.updatePlayerSnapshot(key, player);
-            hasChanges = true;
-          }
-        });
+        if (state.players) {
+          state.players.forEach((player: any, key: string) => {
+            if (!monitoredPlayers.has(key)) {
+              bindPlayer(player, key);
+              hasChanges = true;
+            } else {
+              this.updatePlayerSnapshot(key, player);
+              hasChanges = true;
+            }
+          });
+        }
+        if (state.monsters) {
+          state.monsters.forEach((monster: any, key: string) => {
+            if (!monster.isDead) {
+              this.playersMap.set(key, {
+                id: key,
+                characterId: key,
+                name: monster.name || 'Monster',
+                vocationId: 0,
+                level: 1,
+                hp: monster.hp || 100,
+                maxHp: monster.maxHp || 100,
+                mp: 0,
+                maxMp: 0,
+                x: monster.posX ?? 32369,
+                y: monster.posY ?? 32241,
+                z: monster.posZ ?? 7,
+                direction: monster.direction || 'south',
+                isMoving: Boolean(monster.isMoving),
+                outfit: {
+                  outfit: monster.monsterTypeId || 'dragon',
+                  lookType: monster.lookType || 34,
+                  lookHead: 0,
+                  lookBody: 0,
+                  lookLegs: 0,
+                  lookFeet: 0,
+                  addons: 0,
+                },
+                mount: 'none',
+                mountActive: false,
+                inHunt: true,
+              });
+              hasChanges = true;
+            } else if (this.playersMap.has(key)) {
+              this.playersMap.delete(key);
+              hasChanges = true;
+            }
+          });
+        }
         if (hasChanges) {
           this.notifyStateChange();
         }
