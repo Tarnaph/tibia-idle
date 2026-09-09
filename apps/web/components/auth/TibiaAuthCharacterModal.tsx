@@ -1151,11 +1151,6 @@ function BardChromaVideo({
     void startAudio();
 
     const renderFrame = () => {
-      if (video.paused || video.ended) {
-        animId = requestAnimationFrame(renderFrame);
-        return;
-      }
-
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (ctx && video.videoWidth > 0 && video.videoHeight > 0) {
         if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
@@ -1211,12 +1206,21 @@ function BardChromaVideo({
         autoPlay
         loop
         playsInline
+        preload="auto"
+        crossOrigin="anonymous"
         onLoadedMetadata={(e) => {
           if (e.currentTarget.currentTime < 14) {
             e.currentTarget.currentTime = 14;
           }
         }}
-        style={{ display: 'none' }}
+        style={{
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          opacity: 0,
+          pointerEvents: 'none',
+          zIndex: -1,
+        }}
       />
       <canvas
         ref={canvasRef}
