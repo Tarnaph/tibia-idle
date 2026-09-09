@@ -5,7 +5,7 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
-import { experienceForLevel, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, getHuntWorldEntrance, type TrainableSkill, type GameContent } from '../../../domain/src';
+import { experienceForLevel, levelForExperience, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, getHuntWorldEntrance, type TrainableSkill, type GameContent } from '../../../domain/src';
 import vocationsJson from '../../../../content/generated/vocations.json';
 import equipmentJson from '../../../../content/generated/equipment.json';
 import monstersJson from '../../../../content/generated/monsters.json';
@@ -391,6 +391,26 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     });
 
+    this.onMessage('player:syncProgress', (client, data: { level?: number; experience?: number; hp?: number; mp?: number }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player) {
+        if (typeof data.experience === 'number' && data.experience >= player.experience) {
+          player.experience = data.experience;
+          player.level = Math.max(data.level || 1, levelForExperience(data.experience));
+        }
+        if (typeof data.hp === 'number') player.hp = data.hp;
+        if (typeof data.mp === 'number') player.mp = data.mp;
+      }
+    });
+
+    this.onMessage('player:setAvatar', (client, data: { avatarId: number }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player && typeof data?.avatarId === 'number') {
+        player.avatarId = Math.max(1, Math.min(5, Math.floor(data.avatarId)));
+        void persistenceManager.saveCharacter(player);
+      }
+    });
+
 
     this.onMessage('party:targetSync', (client, data: { targetId: string | null }) => {
       const leaderId = this.playerPartyLeader.get(client.sessionId);
@@ -431,6 +451,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     let loadedStaminaMinutes: number | undefined;
     let loadedIsAutoIdle: boolean | undefined;
     let loadedLastHuntId: string | undefined;
+    let loadedAvatarId = 1;
 
     let accountRole = 'PLAYER';
     if (options.token) {
@@ -455,6 +476,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     let mount = (options as any).mount || 'none';
     let mountActive = Boolean((options as any).mountActive);
     let loadedSkills: any[] = [];
+    let loadedExperience = experienceForLevel(level);
 
     if (options.characterId) {
       const dbChar = await persistenceManager.loadCharacter(options.characterId);
@@ -474,12 +496,17 @@ export class ThaisCityRoom extends Room<WorldState> {
         posX = dbChar.posX;
         posY = dbChar.posY;
         posZ = dbChar.posZ;
-        let loadedExperience = dbChar.experience !== undefined && dbChar.experience !== null
+        loadedExperience = dbChar.experience !== undefined && dbChar.experience !== null
           ? Number(dbChar.experience)
           : experienceForLevel(level);
+        const minExpForLevel = experienceForLevel(level);
+        if (loadedExperience < minExpForLevel) {
+          loadedExperience = minExpForLevel;
+        }
         loadedStaminaMinutes = dbChar.staminaMinutes ?? 15;
         loadedIsAutoIdle = dbChar.isAutoIdle ?? false;
         loadedLastHuntId = dbChar.lastHuntId ?? '';
+        loadedAvatarId = (dbChar as any).avatarId ?? 1;
         outfitLookType = (options as any).outfitLookType ?? dbChar.outfitLookType ?? 128;
         if (dbChar.vocationName && !(options as any).outfit) {
           outfitName = dbChar.vocationName;
@@ -534,7 +561,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.name = charName || 'Hero';
     player.vocationId = safeVocationId;
     player.vocationName = vocation.name || 'Knight';
-    player.level = level;
+    player.level = Math.max(level, levelForExperience(loadedExperience));
+    player.experience = loadedExperience;
+    player.avatarId = loadedAvatarId;
     player.hp = hp ?? vocation.baseHp;
     player.maxHp = maxHp ?? vocation.baseHp;
     player.mp = mp ?? vocation.baseMp;

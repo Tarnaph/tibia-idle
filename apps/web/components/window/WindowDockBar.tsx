@@ -30,6 +30,8 @@ interface WindowDockBarProps {
   isTraining?: boolean;
   staminaMinutes?: number;
   maxStaminaMinutes?: number;
+  avatarId?: number;
+  onOpenProfile?: () => void;
   onToggleAutoIdle?: () => void;
   onToggleDebug: () => void;
   onSelectHunt: () => void;
@@ -51,6 +53,8 @@ export function WindowDockBar({
   isTraining = false,
   staminaMinutes = 15,
   maxStaminaMinutes = 15,
+  avatarId = 1,
+  onOpenProfile,
   onToggleAutoIdle,
   onToggleDebug,
   onSelectHunt,
@@ -110,9 +114,18 @@ export function WindowDockBar({
       </div>
 
       {/* Account Profile Card */}
-      <div className="huntera-profile-card" title="Conta Conectada">
-        <div className="huntera-avatar-box">
-          <div className="avatar-sprite-placeholder" />
+      <div
+        className="huntera-profile-card"
+        title="Conta Conectada — Clique para abrir o Perfil do Personagem"
+        onClick={onOpenProfile}
+        style={{ cursor: onOpenProfile ? 'pointer' : 'default' }}
+      >
+        <div className="huntera-avatar-box" title="Avatar do Personagem">
+          <img
+            src={`/images/avatars/avatar-${avatarId || 1}.svg`}
+            alt={`Avatar ${avatarId || 1}`}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '2px' }}
+          />
         </div>
         <div className="huntera-profile-info">
           <span className="huntera-account-tag">CONTA</span>

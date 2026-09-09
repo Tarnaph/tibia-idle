@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bg1" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2a1f18" />
+      <stop offset="60%" stop-color="#140c08" />
+      <stop offset="100%" stop-color="#050302" />
+    </radialGradient>
+    <linearGradient id="gold1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff0a0" />
+      <stop offset="40%" stop-color="#d4af37" />
+      <stop offset="80%" stop-color="#8a6515" />
+      <stop offset="100%" stop-color="#4a3005" />
+    </linearGradient>
+    <linearGradient id="steel1" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#e0e8f5" />
+      <stop offset="35%" stop-color="#8ba0b8" />
+      <stop offset="70%" stop-color="#3d4f63" />
+      <stop offset="100%" stop-color="#1f2833" />
+    </linearGradient>
+    <filter id="glow1" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="128" height="128" rx="14" fill="url(#bg1)" />
+  <rect width="126" height="126" x="1" y="1" rx="13" fill="none" stroke="url(#gold1)" stroke-width="2" opacity="0.85" />
+
+  <!-- Shield / Crest Silhouette behind -->
+  <path d="M64 12 L96 24 V64 C96 86 64 108 64 108 C64 108 32 86 32 64 V24 Z" fill="#20130e" stroke="#5a3d1c" stroke-width="2" opacity="0.6" />
+
+  <!-- Shoulders & Pauldrons -->
+  <path d="M22 116 C22 96 40 84 64 84 C88 84 106 96 106 116 Z" fill="url(#steel1)" stroke="#1a2530" stroke-width="2" />
+  <path d="M24 106 C24 92 38 88 48 88 L44 116 Z" fill="#54667a" />
+  <path d="M104 106 C104 92 90 88 80 88 L84 116 Z" fill="#303f50" />
+  <circle cx="64" cy="94" r="5" fill="url(#gold1)" stroke="#503508" stroke-width="1.5" />
+
+  <!-- Knight Greathelm Face -->
+  <path d="M42 38 C42 22 52 16 64 16 C76 16 86 22 86 38 V66 C86 78 76 88 64 88 C52 88 42 78 42 66 Z" fill="url(#steel1)" stroke="#121820" stroke-width="2" />
+  <!-- Helmet Ridge Crown -->
+  <path d="M61 14 H67 V48 H61 Z" fill="url(#gold1)" stroke="#5a3d1c" stroke-width="1" />
+
+  <!-- Visor Plate -->
+  <path d="M40 48 H88 V66 C88 74 76 80 64 80 C52 80 40 74 40 66 Z" fill="#232e3b" stroke="#121820" stroke-width="1.5" />
+  <path d="M46 54 H82 V58 H46 Z" fill="#0c1117" />
+
+  <!-- Visor Breathing Slits -->
+  <line x1="56" y1="64" x2="56" y2="72" stroke="#0c1117" stroke-width="2" stroke-linecap="round" />
+  <line x1="61" y1="63" x2="61" y2="73" stroke="#0c1117" stroke-width="2" stroke-linecap="round" />
+  <line x1="67" y1="63" x2="67" y2="73" stroke="#0c1117" stroke-width="2" stroke-linecap="round" />
+  <line x1="72" y1="64" x2="72" y2="72" stroke="#0c1117" stroke-width="2" stroke-linecap="round" />
+
+  <!-- Glowing Blue Eyes inside Visor -->
+  <rect x="49" y="55" width="11" height="2.5" rx="1" fill="#00e5ff" filter="url(#glow1)" />
+  <rect x="68" y="55" width="11" height="2.5" rx="1" fill="#00e5ff" filter="url(#glow1)" />
+</svg>

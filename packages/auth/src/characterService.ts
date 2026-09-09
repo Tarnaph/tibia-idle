@@ -334,18 +334,37 @@ export class CharacterService {
       hotbarConfigs?: any;
       vocationName?: string;
       promotion?: string;
+      avatarId?: number;
     }
   ) {
     const updateData: any = {};
-    if (data.level !== undefined) updateData.level = data.level;
-    if (data.experience !== undefined) {
-      updateData.experience = data.experience;
-      const expLevel = levelForExperience(Number(data.experience));
-      if (updateData.level === undefined || updateData.level < expLevel) {
-        updateData.level = expLevel;
+    if (data.avatarId !== undefined) updateData.avatarId = data.avatarId;
+    if (data.level !== undefined || data.experience !== undefined) {
+      const existing = await this.prisma.character.findUnique({
+        where: { id: characterId },
+        select: { level: true, experience: true },
+      });
+      const existingLevel = existing?.level ?? 1;
+      const existingExp = Number(existing?.experience ?? 0);
+      const incomingExp = data.experience !== undefined ? Number(data.experience) : existingExp;
+      const incomingLevel = data.level !== undefined ? data.level : existingLevel;
+
+      const isDeath = (data as any).isDeathPenalty === true;
+      let targetExp = incomingExp;
+      let targetLevel = incomingLevel;
+
+      if (!isDeath) {
+        targetExp = Math.max(incomingExp, existingExp);
+        if (targetExp === 0) {
+          targetExp = Math.max(experienceForLevel(incomingLevel), experienceForLevel(existingLevel));
+        }
+        targetLevel = Math.max(incomingLevel, existingLevel);
+      } else {
+        targetLevel = Math.max(1, incomingLevel);
       }
-    } else if (data.level !== undefined) {
-      updateData.experience = BigInt(experienceForLevel(data.level));
+
+      updateData.level = targetLevel;
+      updateData.experience = BigInt(Math.floor(targetExp));
     }
     if (data.health !== undefined) updateData.health = data.health;
     if (data.maxHealth !== undefined) updateData.maxHealth = data.maxHealth;

@@ -29,6 +29,7 @@ export interface RemotePlayerSnapshot {
   mount?: string;
   mountActive?: boolean;
   inHunt?: boolean;
+  avatarId?: number;
 }
 
 export interface NetworkCombatEvent {
@@ -436,6 +437,7 @@ export class GameClientNetworkManager {
       mount,
       mountActive,
       inHunt: Boolean(player.inHunt),
+      avatarId: Number(player.avatarId ?? 1),
     });
   }
 
@@ -590,6 +592,16 @@ export class GameClientNetworkManager {
   sendAutoIdleToggle(enabled: boolean, huntId?: string): void {
     if (!this.room) return;
     this.room.send('player:toggleAutoIdle', { enabled, huntId });
+  }
+
+  sendSetAvatar(avatarId: number): void {
+    if (!this.room) return;
+    this.room.send('player:setAvatar', { avatarId });
+  }
+
+  sendSyncProgress(experience: number, level: number): void {
+    if (!this.room) return;
+    this.room.send('player:syncProgress', { experience, level });
   }
 
   sendPartyRejectHuntProposal(): void {

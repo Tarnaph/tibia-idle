@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bg4" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1b2e2b" />
+      <stop offset="60%" stop-color="#0c1a17" />
+      <stop offset="100%" stop-color="#020807" />
+    </radialGradient>
+    <linearGradient id="antler4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c4a572" />
+      <stop offset="50%" stop-color="#7a5d35" />
+      <stop offset="100%" stop-color="#3b2b14" />
+    </linearGradient>
+    <filter id="healGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="128" height="128" rx="14" fill="url(#bg4)" />
+  <rect width="126" height="126" x="1" y="1" rx="13" fill="none" stroke="#25c49b" stroke-width="1.8" opacity="0.8" />
+
+  <!-- Antlers (Druidic Horns) -->
+  <path d="M42 34 C36 24 24 20 18 12 C18 18 24 24 28 28 C22 28 16 26 12 24 C14 30 22 34 32 38 Z" fill="url(#antler4)" stroke="#261b0d" stroke-width="1" />
+  <path d="M86 34 C92 24 104 20 110 12 C110 18 104 24 100 28 C106 28 112 26 116 24 C114 30 106 34 96 38 Z" fill="url(#antler4)" stroke="#261b0d" stroke-width="1" />
+
+  <!-- Shoulders & Bear Fur Mantle -->
+  <path d="M20 118 C22 96 38 84 64 84 C90 84 106 96 108 118 Z" fill="#2c221c" stroke="#140f0c" stroke-width="2" />
+  <circle cx="64" cy="98" r="6" fill="#14e39d" filter="url(#healGlow)" />
+  <circle cx="64" cy="98" r="2.5" fill="#ffffff" />
+
+  <!-- Druid Shaman Hood -->
+  <path d="M64 22 C48 22 38 34 38 52 C38 72 48 82 64 86 C80 82 90 72 90 52 C90 34 80 22 64 22 Z" fill="#1a3b34" stroke="#081412" stroke-width="2" />
+
+  <!-- Shamanic Bone Headband -->
+  <path d="M40 38 Q64 30 88 38" stroke="#d9cdb8" stroke-width="3" fill="none" />
+  <circle cx="64" cy="34" r="3" fill="#14e39d" />
+
+  <!-- Darkened Face Silhouette -->
+  <path d="M44 44 C44 34 52 28 64 28 C76 28 84 34 84 44 C84 62 76 72 64 72 C52 72 44 62 44 44 Z" fill="#101715" />
+
+  <!-- Radiant Emerald Green Eyes -->
+  <ellipse cx="53" cy="48" rx="4" ry="2" fill="#2affb2" filter="url(#healGlow)" />
+  <ellipse cx="75" cy="48" rx="4" ry="2" fill="#2affb2" filter="url(#healGlow)" />
+  <circle cx="53" cy="48" r="1.5" fill="#ffffff" />
+  <circle cx="75" cy="48" r="1.5" fill="#ffffff" />
+</svg>

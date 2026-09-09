@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-last_updated: "2026-09-09T19:53:00.000Z"
-last_activity: "2026-09-09 — Conclusão da Phase 111: Telas de Carregamento Modulares por Caçada & Loading de Dragon Lair."
+status: complete
+last_updated: "2026-09-09T20:35:00.000Z"
+last_activity: "2026-09-09 — Conclusão da Phase 112: Correção de Nível/XP Autoritativo, Acessibilidade de Respawns do Dragon Lair e Modal de Ficha do Personagem com 5 Avatares."
 progress:
-  total_phases: 111
-  completed_phases: 111
-  total_plans: 111
-  completed_plans: 111
+  total_phases: 112
+  completed_phases: 112
+  total_plans: 112
+  completed_plans: 112
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 111 Concluída com sucesso! Telas de carregamento modulares implementadas com suporte a imagens e curiosidades temáticas por caçada. Dragon Lair totalmente configurado com nova arte e lore de Garsharak / Dragon Lords, mantendo fallback elegante para Thais.
+**Current focus:** Phase 112 concluída com sucesso. Todos os 3 itens do FIX.md foram implementados e verificados: 1) Sincronização e autoridade monótona de Nível e XP no banco e servidor Colyseus, 2) Validação A* de acessibilidade e desocultação de entidades no Dragon Lair, 3) Ficha de Perfil do Personagem com abas, atributos, skills, progressão, combate, última morte e 5 avatares persistidos.
 
 ## Current Position
 
-Phase: 111 of 111 (Concluída)  
+Phase: 112 of 112 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 111.
+Last activity: 2026-09-09 — Conclusão da Phase 112.
 
 Progress: [██████████] 100%
 

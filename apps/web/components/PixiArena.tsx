@@ -264,6 +264,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       const pendingImpacts: PendingImpact[] = [];
       let terrainKey = '';
       let activeRoom = '';
+      let lastElapsedMs = 0;
       let mapOffsetX = 0;
       let mapOffsetY = 0;
       let camera: WorldCameraState = { x: 0, y: 0, zoom: 1 };
@@ -457,8 +458,12 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             line.stroke({ color: 0x55e6ff, width: 1, alpha: 0.8 }); spatialDebug.addChild(line);
           }
         }
-        if (activeRoom !== state.encounter.room.definitionId) {
-          activeRoom = state.encounter.room.definitionId;
+        const currentEncounterKey = `${state.encounter.room.definitionId}:${state.encounter.hunt?.id ?? ''}`;
+        const isReset = state.encounter.elapsedMs < lastElapsedMs;
+        lastElapsedMs = state.encounter.elapsedMs;
+
+        if (activeRoom !== currentEncounterKey || isReset) {
+          activeRoom = currentEncounterKey;
           cameraInitialized = false;
           for (const view of views.values()) view.root.destroy({ children: true });
           views.clear(); effects.removeChildren().forEach((child) => child.destroy({ children: true })); timed.length = 0; pendingImpacts.length = 0;
@@ -488,6 +493,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const view = views.get(enemy.id) ?? createView(enemy.id, mapping, enemy.previousPosition, enemy.direction, enemy.name, true);
           view.label.text = enemy.name; view.label.style.fill = enemy.variant?.visualModifier === 'rare-aura' ? 0xd694ff : enemy.variant ? 0xffc857 : 0xe6ded0;
           view.sprite.scale.set(enemy.variant?.scale ?? 1);
+          view.root.visible = enemy.alive;
+          view.sprite.alpha = enemy.alive ? 1 : 0;
+          view.sprite.visible = enemy.alive;
         }
         for (const movement of committedMovements) views.get(movement.actorId)?.track.commit(movement.from, movement.to, now, movement.durationMs);
         for (const actor of state.encounter.partyActors) views.get(actor.characterId)?.track.reconcileCommitted(actor.position, actor.direction);

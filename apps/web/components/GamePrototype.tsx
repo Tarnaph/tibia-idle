@@ -42,6 +42,7 @@ import { VocationChoiceModal } from './VocationChoiceModal';
 import { OutfitModal } from './OutfitModal';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
+import { CharacterProfileModal } from './CharacterProfileModal';
 import { PixiArena } from './PixiArena';
 import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
@@ -184,6 +185,7 @@ function GamePrototypeContent() {
   const [confirmSale, setConfirmSale] = useState(false);
   const [levelUpMessage, setLevelUpMessage] = useState<{ text: string; timestamp: number } | null>(null);
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [hotbarConfigSlot, setHotbarConfigSlot] = useState<number | null>(null);
   const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>(THAIS_TEMPLE_POSITION);
   const [walkingPath, setWalkingPath] = useState<{
@@ -991,6 +993,7 @@ function GamePrototypeContent() {
     if (charItem.maxHealth) userChar.maxHp = charItem.maxHealth;
     if (charItem.mana) userChar.currentMana = charItem.mana;
     if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
+    (userChar as any).avatarId = (charItem as any).avatarId ?? 1;
 
     // Hydrate skills, gold, loot, bag, and inventory items from DB if available
     let loadedGold = 0;
@@ -1259,6 +1262,7 @@ function GamePrototypeContent() {
             inventory: inventoryPayload,
             hotbar: activeCharacter.hotbar,
             hotbarConfigs: activeCharacter.hotbarConfigs,
+            avatarId: (activeCharacter as any).avatarId ?? 1,
           }),
         });
       } catch (err) {
@@ -2283,6 +2287,8 @@ function GamePrototypeContent() {
           isTraining={false}
           staminaMinutes={activeCharacter.staminaMinutes ?? 15}
           maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
+          avatarId={(activeCharacter as any).avatarId ?? 1}
+          onOpenProfile={() => setIsProfileModalOpen(true)}
           onToggleAutoIdle={() => {
             const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
             setGame((cur) => {
@@ -2636,6 +2642,36 @@ function GamePrototypeContent() {
 
       {/* Global Item Tooltip & Player Inspection (Highest z-index, always on top) */}
       <GlobalItemTooltip />
+
+      {/* Character Profile Modal & Sheet (matching user reference mockup) */}
+      <CharacterProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        characters={game.session.characters}
+        selectedCharacterId={activeCharacter.id}
+        onSelectCharacter={(charId) => {
+          setGame((cur) => selectCharacter(cur, charId));
+        }}
+        onOpenOutfit={() => {
+          setIsProfileModalOpen(false);
+          handleOpenOutfitModal(activeCharacter.id);
+        }}
+        content={content}
+        avatarId={(activeCharacter as any).avatarId ?? 1}
+        onSelectAvatar={(newAvatarId) => {
+          setGame((cur) => {
+            const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
+            if (char) {
+              (char as any).avatarId = newAvatarId;
+            }
+            return { ...cur };
+          });
+          gameNetwork.sendSetAvatar(newAvatarId);
+          if (saveProgressRef.current) {
+            saveProgressRef.current();
+          }
+        }}
+      />
 
       {/* Phase 104/105: Now Playing Music Track Notification Toast (Slides in from right strictly after loading) */}
       <MusicTrackToast isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />

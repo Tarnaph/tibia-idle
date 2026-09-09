@@ -1,0 +1,12 @@
+{
+  "name": "tibia1098-assets",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/types.ts",
+  "scripts": {
+    "extract": "node --loader ts-node/esm src/cli.ts"
+  },
+  "dependencies": {
+    "content-schema": "workspace:*"
+  }
+}

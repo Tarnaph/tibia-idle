@@ -10,6 +10,7 @@ export class PlayerState extends Schema {
   @type('string') vocationName: string = 'Knight';
   @type('number') level: number = 1;
   @type('number') experience: number = 0;
+  @type('number') avatarId: number = 1;
 
   @type('number') hp: number = 150;
   @type('number') maxHp: number = 150;

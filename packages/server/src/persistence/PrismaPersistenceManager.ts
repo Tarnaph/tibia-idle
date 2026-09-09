@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma as defaultPrisma } from '../../../database/src';
-import { levelForExperience } from '../../../domain/src';
+import { experienceForLevel, levelForExperience } from '../../../domain/src';
 import type { PlayerState } from '../schemas/PlayerState';
 
 export class PrismaPersistenceManager {
@@ -21,16 +21,33 @@ export class PrismaPersistenceManager {
     }
 
     try {
-      const expVal = typeof player.experience === 'number' && player.experience >= 0 ? player.experience : 0;
-      const validLevel = Math.max(player.level || 1, levelForExperience(expVal));
+      const existing = typeof this.db?.character?.findUnique === 'function'
+        ? await this.db.character.findUnique({
+            where: { id: player.characterId },
+            select: { level: true, experience: true },
+          })
+        : null;
+
+      const existingLevel = existing?.level ?? 1;
+      const existingExp = Number(existing?.experience ?? 0);
+      const playerExp = typeof player.experience === 'number' && player.experience >= 0 ? player.experience : 0;
+      const playerLevel = player.level || 1;
+
+      // Monotonic non-decreasing progress reconciliation
+      let effectiveExp = Math.max(playerExp, existingExp);
+      if (effectiveExp === 0) {
+        effectiveExp = Math.max(experienceForLevel(playerLevel), experienceForLevel(existingLevel));
+      }
+      const effectiveLevel = Math.max(playerLevel, existingLevel);
+      const finalExp = effectiveExp;
 
       const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
 
       await this.db.character.update({
         where: { id: player.characterId },
         data: {
-          level: validLevel,
-          experience: typeof player.experience === 'number' && player.experience >= 0 ? BigInt(Math.floor(player.experience)) : undefined,
+          level: effectiveLevel,
+          experience: BigInt(Math.floor(finalExp)),
           health: player.hp,
           maxHealth: player.maxHp,
           mana: player.mp,
@@ -44,6 +61,7 @@ export class PrismaPersistenceManager {
           outfitBody: player.outfitBody,
           outfitLegs: player.outfitLegs,
           outfitFeet: player.outfitFeet,
+          avatarId: typeof player.avatarId === 'number' ? player.avatarId : undefined,
           capacity: player.capacity,
           staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
           isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,

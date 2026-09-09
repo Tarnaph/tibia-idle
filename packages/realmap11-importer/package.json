@@ -1,0 +1,13 @@
+{
+  "name": "realmap11-importer",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/cli.ts",
+  "scripts": {
+    "import": "node --experimental-strip-types src/cli.ts"
+  },
+  "dependencies": {
+    "content-schema": "workspace:*",
+    "fast-xml-parser": "^5.11.1"
+  }
+}

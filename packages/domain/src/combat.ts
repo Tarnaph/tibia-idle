@@ -10,7 +10,7 @@ import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
-import { isMeleeRange, meleeDistance } from './spatial/pathfinding';
+import { findPath, isMeleeRange, meleeDistance } from './spatial/pathfinding';
 import { createRoomState, roomDefinitionAt } from './spatial/rooms';
 import { clonePosition, samePosition } from './spatial/tileMap';
 import type { GridPosition } from './spatial/types';
@@ -190,7 +190,7 @@ function spawnExpeditionEncounter(state: GameState, content: GameContent): void 
   addLog(state, `Encontro ${progress.activeEncounterIndex + 1}: ${definition.count} ${monster.name}(s)${definition.boss ? ` + ${definition.boss.name}` : ''}.`);
 }
 
-function populateRespawnZone(state: GameState, content: GameContent, zoneIndex: number): void {
+export function populateRespawnZone(state: GameState, content: GameContent, zoneIndex: number): void {
   const encounter = state.encounter; const route = encounter.huntRoute; const progress = encounter.continuousProgress;
   if (!route || !progress) return;
   const zone = route.respawnZones[zoneIndex]; const zoneState = progress.zones[zoneIndex];
@@ -200,15 +200,21 @@ function populateRespawnZone(state: GameState, content: GameContent, zoneIndex: 
   const partyPositions = encounter.partyActors.filter((actor) => actor.alive).map((actor) => actor.position);
   const occupiedEnemyPositions = encounter.enemies.filter((enemy) => enemy.alive).map((enemy) => enemy.position);
   const preferredKeys = new Set(zone.positions.map((position) => `${position.x},${position.y}`));
+  const isAccessible = (pos: GridPosition) => {
+    if (pos.x === zone.center.x && pos.y === zone.center.y) return true;
+    return findPath(encounter.room.map, pos, [zone.center], new Set()).length > 0;
+  };
   const valid = encounter.room.map.tiles.filter((tile) => tile.walkable
     && (preferredKeys.has(`${tile.position.x},${tile.position.y}`) || meleeDistance(tile.position, zone.center) <= zone.radius)
     && partyPositions.every((position) => meleeDistance(tile.position, position) >= 3)
-    && occupiedEnemyPositions.every((position) => meleeDistance(tile.position, position) >= 1))
+    && occupiedEnemyPositions.every((position) => meleeDistance(tile.position, position) >= 1)
+    && isAccessible(tile.position))
     .sort((a, b) => b.position.y - a.position.y || b.position.x - a.position.x);
   const fallback = encounter.room.map.tiles.filter((tile) => tile.walkable && partyPositions.every((position) => meleeDistance(tile.position, position) >= 2)
-    && occupiedEnemyPositions.every((position) => meleeDistance(tile.position, position) >= 1))
+    && occupiedEnemyPositions.every((position) => meleeDistance(tile.position, position) >= 1)
+    && isAccessible(tile.position))
     .sort((a, b) => meleeDistance(a.position, zone.center) - meleeDistance(b.position, zone.center));
-  const candidates = valid.length >= count ? valid : fallback;
+  const candidates = valid.length >= count ? valid : (fallback.length > 0 ? fallback : [encounter.room.map.tiles.find((t) => t.position.x === zone.center.x && t.position.y === zone.center.y) || encounter.room.map.tiles[0]]);
   const spawned: EnemyState[] = [];
   const used = new Set<string>();
   for (let index = 0; index < count && candidates.length > used.size; index += 1) {

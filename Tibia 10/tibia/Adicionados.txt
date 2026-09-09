@@ -1,0 +1,14 @@
+11.80
+Novos Efeitos
+
+Cliente id = 191
+Cliente id = 193
+Cliente id = 194
+Cliente id = 195
+
+Outfit
+Cliete id = 1058
+Cliete id = 1059
+Cliete id = 1060
+Cliete id = 1061
+Cliete id = 1062
