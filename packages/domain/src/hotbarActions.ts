@@ -3,6 +3,8 @@ import type { CharacterState, GameContent } from './types';
 
 export type HotbarActionKind = 'spell' | 'rune' | 'potion';
 
+export const RUNE_PROJECTILE_FLIGHT_MS = 240;
+
 export interface HotbarRuneDefinition {
   id: number;
   name: string;

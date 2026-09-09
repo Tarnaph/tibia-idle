@@ -8,7 +8,7 @@ import { createSeededRng, rollInteger } from './rng';
 import { getSpellAreaTiles, spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
-import { HOTBAR_POTIONS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked } from './hotbarActions';
+import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked } from './hotbarActions';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { isMeleeRange, meleeDistance } from './spatial/pathfinding';
 import { createRoomState, roomDefinitionAt } from './spatial/rooms';
@@ -613,6 +613,8 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
             actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
             actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
+            const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
+
             // 1. Launch missile to primary target if projectileId > 0
             if (rune.projectileId > 0) {
               encounter.events.push({
@@ -627,7 +629,6 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
 
             // 2. For area runes, detonate impact effect across blast area tiles at missile arrival (+240ms if missile, 0ms otherwise)
             if (offsets && rune.effectId > 0) {
-              const impactDelay = rune.projectileId > 0 ? 240 : 0;
               for (const offset of offsets) {
                 encounter.events.push({
                   type: 'spell-visual',
@@ -654,7 +655,16 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
             for (const target of targets) {
               const damage = resistedDamage(rawDamage, target, rune.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
-              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false, speech: rune.name });
+              encounter.events.push({
+                type: 'spell-cast',
+                sourceId: actor.characterId,
+                targetId: target.id,
+                spellId: rune.id,
+                amount: damage,
+                healing: false,
+                speech: rune.name,
+                delayMs: impactDelay,
+              });
               addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
               if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
             }
@@ -1021,6 +1031,8 @@ export function triggerManualHotbarAction(
     actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
     actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
+    const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
+
     // 1. Launch missile to primary target if projectileId > 0
     if (rune.projectileId > 0) {
       encounter.events.push({
@@ -1035,7 +1047,6 @@ export function triggerManualHotbarAction(
 
     // 2. For area runes, detonate impact effect across blast area tiles at missile arrival (+240ms if missile, 0ms otherwise)
     if (offsets && rune.effectId > 0) {
-      const impactDelay = rune.projectileId > 0 ? 240 : 0;
       for (const offset of offsets) {
         encounter.events.push({
           type: 'spell-visual',
@@ -1061,7 +1072,16 @@ export function triggerManualHotbarAction(
     for (const target of targets) {
       const damage = resistedDamage(rawDamage, target, rune.combatType, content);
       target.hp = Math.max(0, target.hp - damage);
-      encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false, speech: rune.name });
+      encounter.events.push({
+        type: 'spell-cast',
+        sourceId: actor.characterId,
+        targetId: target.id,
+        spellId: rune.id,
+        amount: damage,
+        healing: false,
+        speech: rune.name,
+        delayMs: impactDelay,
+      });
       addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
       if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
     }

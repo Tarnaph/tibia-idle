@@ -1738,3 +1738,25 @@ Plans:
 
 Plans:
 - [x] 95-01-PLAN: Alinhamento de Efeitos Visuais, Projéteis e Detonação em Área das Runas.
+
+### Phase 96: Sincronização de Impacto de Projéteis, Números de Dano, Redução de HP e Área das Runas
+
+**Goal:** Sincronizar o impacto do projétil no alvo com a explosão visual do efeito, o surgimento do número flutuante de dano e a redução da barra de vida no momento exato em que o míssil atinge a criatura alvo (~240ms). Em ataques em área, sincronizar todos os monstros atingidos no raio da explosão. Em ataques seguidos, manter a barra de vida estável sem oscilações, e em golpes fatais, exibir o corpo no chão somente no momento do impacto.
+**Depends on:** Phase 95
+**Requirements:**
+1. Adoção da constante única compartilhada `RUNE_PROJECTILE_FLIGHT_MS = 240` entre domínio e camada visual WebGL.
+2. Atualização do contrato de eventos `spell-cast` para incluir `delayMs?: number`, propagando a latência de chegada do projétil para todos os alvos afetados (alvo único e alvos múltiplos em área).
+3. Adaptação do `PixiArena.tsx` para postergar a visibilidade e subida do texto de dano até o instante `now >= startedAt` (+240ms).
+4. Implementação de amortecedor de dano pendente (`pendingDamage`) para preservar a barra de vida no valor anterior durante o trajeto do míssil e deduze-la sem oscilações.
+5. Retardo visual da renderização de corpos (`corpses`) e preservação do sprite do monstro vivo em pé até a colisão do projétil fatal.
+6. Preservação estrita dos efeitos da Phase 95, sprites da Phase 94, ícones da Phase 93 e fórmulas de dano/cooldowns.
+**Success Criteria:**
+1. O míssil chega ao alvo exatamente junto com a explosão visual, número flutuante de dano e redução do HP.
+2. Em ataques em área (Great Fireball, Avalanche, Explosion), todos os alvos atingidos no raio têm seus danos e barras de vida atualizados simultaneamente.
+3. Ataques seguidos no mesmo alvo não causam oscilação na barra de vida.
+4. Em mortes, o monstro fica em pé durante o voo e o corpo só aparece no impacto.
+5. 0 erros no typecheck e 100% dos testes Vitest passando (512/512 testes).
+
+Plans:
+- [x] 96-01-PLAN: Sincronização de Voo de Projéteis, Impacto Visual, Números de Dano e Redução de Vida das Runas.
+

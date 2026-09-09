@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
 import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
-import type { CardinalDirection, GameState, GridPosition } from '@/packages/domain/src';
+import { RUNE_PROJECTILE_FLIGHT_MS, type CardinalDirection, type GameState, type GridPosition } from '@/packages/domain/src';
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
 import type { Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
@@ -31,6 +31,7 @@ interface ActorView {
   attackUntil: number;
 }
 interface TimedVisual { root: Container | Sprite | Text; startedAt: number; durationMs: number; kind: 'float' | 'effect' | 'missile'; from?: GridPosition; to?: GridPosition; frames?: string[] }
+interface PendingImpact { targetId: string; amount: number; impactAt: number }
 
 const visualAssets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 const TILE_SIZE = 32;
@@ -165,6 +166,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
       app.stage.addChild(world, overlay);
       const views = new Map<string, ActorView>();
       const timed: TimedVisual[] = [];
+      const pendingImpacts: PendingImpact[] = [];
       let terrainKey = '';
       let activeRoom = '';
       let mapOffsetX = 0;
@@ -285,7 +287,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           const frame = mapping?.frames.find((candidate) => candidate.direction === direction) ?? mapping?.frames[0];
           if (frame) {
             const sprite = new Sprite(loaded[frame.publicUrl]); sprite.anchor.set(0.5); effects.addChild(sprite);
-            timed.push({ root: sprite, startedAt: now, durationMs: 320, kind: 'missile', from: { ...from }, to: { ...to } });
+            timed.push({ root: sprite, startedAt: now, durationMs: RUNE_PROJECTILE_FLIGHT_MS, kind: 'missile', from: { ...from }, to: { ...to } });
           }
         }
         if (event.effectId !== null && event.effectId > 0) {
@@ -293,7 +295,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           if (mapping) {
             const root = new Container(); const point = worldPoint(to); root.position.set(point.x, point.y);
             const sprite = new Sprite(loaded[mapping.frames[0].publicUrl]); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root);
-            const effectDelay = typeof event.delayMs === 'number' ? event.delayMs : (projectileId === null ? 0 : 240);
+            const effectDelay = typeof event.delayMs === 'number' ? event.delayMs : (projectileId === null ? 0 : RUNE_PROJECTILE_FLIGHT_MS);
             root.visible = effectDelay <= 0;
             timed.push({ root, startedAt: now + effectDelay, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) });
           }
@@ -340,7 +342,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           activeRoom = state.encounter.room.definitionId;
           cameraInitialized = false;
           for (const view of views.values()) view.root.destroy({ children: true });
-          views.clear(); effects.removeChildren().forEach((child) => child.destroy({ children: true })); timed.length = 0;
+          views.clear(); effects.removeChildren().forEach((child) => child.destroy({ children: true })); timed.length = 0; pendingImpacts.length = 0;
           lastProcessedEvents = null;
           lastProcessedVisualEvents = null;
         }
@@ -357,7 +359,9 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           }
           view.label.text = character.name; view.sprite.alpha = actor.alive ? 1 : 0.45;
         }
-        for (const enemy of state.encounter.enemies.filter((candidate) => candidate.alive)) {
+        for (const enemy of state.encounter.enemies) {
+          const hasPending = pendingImpacts.some((p) => p.targetId === enemy.id && now < p.impactAt);
+          if (!enemy.alive && !hasPending) continue;
           liveIds.add(enemy.id);
           const mapping = visualAssets.creatures[enemy.monsterId] || ((enemy as any).lookType ? visualAssets.creatures[String((enemy as any).lookType)] : null) || visualAssets.creatures['rotworm'] || Object.values(visualAssets.creatures)[0];
           if (!mapping) continue;
@@ -367,13 +371,22 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         }
         for (const movement of committedMovements) views.get(movement.actorId)?.track.commit(movement.from, movement.to, now, movement.durationMs);
         for (const actor of state.encounter.partyActors) views.get(actor.characterId)?.track.reconcileCommitted(actor.position, actor.direction);
-        for (const enemy of state.encounter.enemies.filter((candidate) => candidate.alive)) views.get(enemy.id)?.track.reconcileCommitted(enemy.position, enemy.direction);
+        for (const enemy of state.encounter.enemies.filter((candidate) => candidate.alive || pendingImpacts.some((p) => p.targetId === candidate.id && now < p.impactAt))) views.get(enemy.id)?.track.reconcileCommitted(enemy.position, enemy.direction);
         for (const [id, view] of views) if (!liveIds.has(id)) { view.root.destroy({ children: true }); views.delete(id); }
         for (const layer of [corpses]) layer.removeChildren().forEach((child) => child.destroy({ children: true }));
         for (const corpse of state.encounter.corpses) {
           const mapping = visualAssets.corpses[corpse.monsterId]; if (!mapping?.frame) continue;
           const sprite = new Sprite(loaded[mapping.frame.publicUrl]); const point = worldPoint(corpse.position);
-          sprite.anchor.set(0.5, 1); sprite.position.set(point.x, point.y); sprite.zIndex = corpse.position.y * 10; corpses.addChild(sprite);
+          sprite.anchor.set(0.5, 1); sprite.position.set(point.x, point.y); sprite.zIndex = corpse.position.y * 10;
+          const dyingEnemy = state.encounter.enemies.find(
+            (e) => !e.alive && e.position.x === corpse.position.x && e.position.y === corpse.position.y
+          );
+          const pending = dyingEnemy ? pendingImpacts.find((p) => p.targetId === dyingEnemy.id && now < p.impactAt) : null;
+          if (pending) {
+            (sprite as any).visibleAfter = pending.impactAt;
+            sprite.visible = false;
+          }
+          corpses.addChild(sprite);
         }
         if (lastProcessedEvents !== state.encounter.events) {
           lastProcessedEvents = state.encounter.events;
@@ -456,6 +469,10 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
             if (amount > 0) {
               const isHealing = event.type === 'spell-cast' && event.healing;
               const prefix = isHealing ? '+' : '';
+              const delay = (event.type === 'spell-cast' && typeof event.delayMs === 'number') ? event.delayMs : 0;
+              if (delay > 0 && !isHealing) {
+                pendingImpacts.push({ targetId, amount, impactAt: now + delay });
+              }
               const text = new Text({
                 text: `${prefix}${amount}`,
                 resolution: 2,
@@ -467,8 +484,10 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
                   fontWeight: '700',
                 },
               });
-              text.anchor.set(0.5); const point = worldPoint(targetPosition); text.position.set(point.x, point.y - 18); effects.addChild(text);
-              timed.push({ root: text, startedAt: now, durationMs: 700, kind: 'float' });
+              text.anchor.set(0.5); const point = worldPoint(targetPosition); text.position.set(point.x, point.y - 18);
+              text.visible = delay <= 0;
+              effects.addChild(text);
+              timed.push({ root: text, startedAt: now + delay, durationMs: 700, kind: 'float' });
             }
             const sourceView = views.get(event.sourceId);
             if (sourceView) sourceView.attackUntil = now + 160;
@@ -539,7 +558,10 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
             if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
           }
           view.sprite.tint = view.attackUntil > now ? 0xffd0a0 : 0xffffff;
-          const hpRatio = enemy ? enemy.hp / enemy.maxHp : actor && character ? actor.hp / character.maxHp : 0;
+          const pendingDamage = enemy ? pendingImpacts.filter((p) => p.targetId === enemy.id && now < p.impactAt).reduce((sum, p) => sum + p.amount, 0) : 0;
+          const visualHp = enemy ? Math.min(enemy.maxHp, Math.max(0, enemy.hp + pendingDamage)) : actor && character ? actor.hp : 0;
+          const visualMaxHp = enemy ? enemy.maxHp : actor && character ? character.maxHp : 1;
+          const hpRatio = Math.max(0, Math.min(1, visualHp / visualMaxHp));
           const variantColor = enemy?.variant?.visualModifier === 'rare-aura' ? 0xb66cff : 0xffb52e;
           view.label.position.set(0, creatureVisualLayout.nameplateY); view.bar.clear().rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3).fill({ color: 0x251010 }).rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3).fill({ color: enemy?.variant ? variantColor : enemy ? 0xd3564d : 0x4fc977 });
           const logical = actor?.position ?? enemy?.position;
@@ -547,6 +569,10 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
           view.debugLabel.position.set(0, 18);
           view.debugLabel.text = logical ? `${id}\ntile ${logical.x},${logical.y}\nrender ${sample.renderPosition.x.toFixed(2)},${sample.renderPosition.y.toFixed(2)}` : '';
           view.aura.clear(); if (enemy?.variant) view.aura.circle(0, 4, 17 + Math.sin(now / 180) * 2).stroke({ color: variantColor, width: 1, alpha: 0.7 });
+          if (enemy && !enemy.alive) {
+            const stillFlying = pendingImpacts.some((p) => p.targetId === enemy.id && now < p.impactAt);
+            view.root.visible = stillFlying;
+          }
         }
 
         // Classic Tibia Solid Red Target Rectangle around focused target matching reference
@@ -555,7 +581,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         const targetId = activeActor?.targetId ?? state.session.characters.find((c) => c.id === activeActor?.characterId)?.combatState.targetId;
         if (targetId) {
           const targetView = views.get(targetId);
-          const targetEnemy = state.encounter.enemies.find((e) => e.id === targetId && e.alive);
+          const targetEnemy = state.encounter.enemies.find((e) => e.id === targetId && (e.alive || pendingImpacts.some((p) => p.targetId === e.id && now < p.impactAt)));
           if (targetView && targetEnemy) {
             const p = targetView.root.position;
             const half = 16;
@@ -566,6 +592,16 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
             targetReticle
               .rect(left, top, 32, 32)
               .stroke({ color: red, width: 2, alpha: 1.0 });
+          }
+        }
+        for (const child of corpses.children) {
+          if (typeof (child as any).visibleAfter === 'number') {
+            child.visible = now >= (child as any).visibleAfter;
+          }
+        }
+        for (let i = pendingImpacts.length - 1; i >= 0; i--) {
+          if (now >= pendingImpacts[i].impactAt + 1200) {
+            pendingImpacts.splice(i, 1);
           }
         }
         for (let index = timed.length - 1; index >= 0; index -= 1) {

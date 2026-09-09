@@ -209,7 +209,7 @@ export type CombatEvent =
   | { type: 'room-transition'; room: number }
   | { type: 'hunt-complete' }
   | { type: 'player-death'; characterId: string }
-  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string }
+  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string; delayMs?: number }
   | { type: 'spell-visual'; sourceId: string; targetId?: string; targetPosition?: GridPosition; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null; delayMs?: number };
 
 export type CombatVisualEvent =
