@@ -33,7 +33,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -161,7 +161,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -288,7 +288,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -510,7 +510,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -557,7 +557,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -651,7 +651,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -694,7 +694,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -833,7 +833,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -1066,7 +1066,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -1328,7 +1328,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -1413,7 +1413,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -1460,7 +1460,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -1548,7 +1548,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -1811,7 +1811,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -1894,7 +1894,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2025,7 +2025,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2070,7 +2070,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2110,7 +2110,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2153,7 +2153,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2196,7 +2196,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2239,7 +2239,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2408,7 +2408,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2451,7 +2451,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2494,7 +2494,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -2799,7 +2799,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -3316,7 +3316,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -3614,7 +3614,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null
@@ -3657,7 +3657,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": 12,
+        "effectId": 13,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_BLUE",
         "projectileConstant": null

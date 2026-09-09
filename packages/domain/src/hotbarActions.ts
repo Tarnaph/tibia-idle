@@ -144,7 +144,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'healing',
     cooldownMs: 2000,
-    effectId: 12,
+    effectId: 13,
     projectileId: 0,
     description: 'Runa de cura — lançada em você ou em um aliado por perto.',
   },
