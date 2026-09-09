@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T19:17:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 109: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento."
+last_updated: "2026-09-09T19:37:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 110: Tela de Carregamento de Thais (Nova Ilustração do Templo) e Sistema de Curiosidades Rotativas (\"Você Sabia?\")."
 progress:
-  total_phases: 109
-  completed_phases: 109
-  total_plans: 109
-  completed_plans: 109
+  total_phases: 110
+  completed_phases: 110
+  total_plans: 110
+  completed_plans: 110
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 109 concluída com sucesso. Integração da trilha sonora oficial "Dragons Pride" (`songs/Dragons pride.mp3`) iniciando imediatamente na tela de carregamento de 10s ao entrar na caçada de Dragon Lair (`dragon-lair`), pausando suavemente a trilha de Thais, e exibindo a caixa de notificação musical "Now Playing: Dragons Pride" com equalizador animado estritamente após a conclusão do loading, momento em que o personagem torna-se visível no mapa.
+**Current focus:** Fase 110 concluída com sucesso. Substituição da arte de fundo da tela de carregamento de Thais pela nova ilustração oficial do Templo de Thais (`thais-loading.jpg`) e implementação do sistema dinâmico de curiosidades históricas/lore de Tibia ("Você Sabia?") que alternam aleatoriamente a cada 3 segundos com transições suaves (fade) acima da barra de carregamento de magma.
 
 ## Current Position
 
-Phase: 109 of 109 (Concluída)  
+Phase: 110 of 110 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 109.
+Last activity: 2026-09-09 — Conclusão da Phase 110.
 
 Progress: [██████████] 100%
 

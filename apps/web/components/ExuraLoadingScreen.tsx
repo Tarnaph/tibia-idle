@@ -2,13 +2,19 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 
+export const THAIS_LORE_CURIOSITIES: string[] = [
+  'Você sabia? Thais é considerada a cidade mais antiga de Tibia e foi a primeira cidade do jogo.',
+  'Antes de se chamar Thais, o local era conhecido como Tradespot, um pequeno posto comercial que cresceu até se tornar a capital do reino.',
+  'O nome Thais vem de um guerreiro. Após sua morte defendendo Tradespot dos orcs, seu filho Tibianus I renomeou a cidade em homenagem ao pai.',
+];
+
 export interface ExuraLoadingScreenProps {
   /**
    * Controls visibility of the loading screen.
    */
   active: boolean;
   /**
-   * Total duration in milliseconds for the loading bar to fill 0% -> 100%. Default: 5000ms.
+   * Total duration in milliseconds for the loading bar to fill 0% -> 100%. Default: 10000ms.
    */
   durationMs?: number;
   /**
@@ -19,6 +25,14 @@ export interface ExuraLoadingScreenProps {
    * Optional callback triggered when the 5s loading period finishes and the fade-out completes.
    */
   onFinish?: () => void;
+  /**
+   * Background image path for the loading screen. Default: "/images/loading/thais-loading.jpg".
+   */
+  bgImage?: string;
+  /**
+   * List of lore curiosities to rotate every 3 seconds in random order.
+   */
+  curiosities?: string[];
 }
 
 export function ExuraLoadingScreen({
@@ -26,13 +40,49 @@ export function ExuraLoadingScreen({
   durationMs = 10000,
   message = 'Carregando o mundo de Thais...',
   onFinish,
+  bgImage = '/images/loading/thais-loading.jpg',
+  curiosities = THAIS_LORE_CURIOSITIES,
 }: ExuraLoadingScreenProps) {
   const [progress, setProgress] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isVisible, setIsVisible] = useState(active);
+  const [curiosityIndex, setCuriosityIndex] = useState(() =>
+    curiosities && curiosities.length > 0 ? Math.floor(Math.random() * curiosities.length) : 0
+  );
+  const [curiosityFade, setCuriosityFade] = useState<'in' | 'out'>('in');
 
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
+
+  // Sorteia uma curiosidade inicial aleatória toda vez que a tela de loading é ativada
+  useEffect(() => {
+    if (active && curiosities && curiosities.length > 0) {
+      setCuriosityIndex(Math.floor(Math.random() * curiosities.length));
+      setCuriosityFade('in');
+    }
+  }, [active, curiosities]);
+
+  // Rotaciona as curiosidades a cada 3 segundos (3000ms) em ordem aleatória sem repetição consecutiva
+  useEffect(() => {
+    if (!active) return;
+    if (!curiosities || curiosities.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCuriosityFade('out');
+      setTimeout(() => {
+        setCuriosityIndex((prev) => {
+          let next = Math.floor(Math.random() * curiosities.length);
+          while (next === prev && curiosities.length > 1) {
+            next = Math.floor(Math.random() * curiosities.length);
+          }
+          return next;
+        });
+        setCuriosityFade('in');
+      }, 200);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [active, curiosities]);
 
   useEffect(() => {
     if (!active) {
@@ -107,7 +157,7 @@ export function ExuraLoadingScreen({
         alignItems: 'center',
         justifyContent: 'flex-end',
         paddingBottom: '3.5rem',
-        backgroundImage: `radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%), url('/images/loading/loading-bg.jpg')`,
+        backgroundImage: `radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.65) 100%), url('${bgImage || '/images/loading/thais-loading.jpg'}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -131,6 +181,91 @@ export function ExuraLoadingScreen({
           boxSizing: 'border-box',
         }}
       >
+        {/* Curiosidades Rotativas ("Você sabia?") a cada 3 segundos */}
+        {curiosities && curiosities.length > 0 && (
+          <div
+            className="exura-loading-curiosity-box"
+            style={{
+              marginBottom: '1.25rem',
+              width: '92vw',
+              maxWidth: '680px',
+              background: 'linear-gradient(180deg, rgba(22, 13, 10, 0.9) 0%, rgba(12, 7, 6, 0.95) 100%)',
+              border: '1.5px solid #d4a737',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.85), inset 0 0 16px rgba(212, 167, 55, 0.15)',
+              borderRadius: '8px',
+              padding: '0.85rem 1.35rem',
+              textAlign: 'center',
+              position: 'relative',
+              boxSizing: 'border-box',
+              backdropFilter: 'blur(5px)',
+              zIndex: 35,
+            }}
+          >
+            {/* Cantoneiras ornamentais em ouro */}
+            <div style={{ position: 'absolute', top: '-3px', left: '-3px', width: '7px', height: '7px', backgroundColor: '#ffd875', border: '1px solid #784c16' }} />
+            <div style={{ position: 'absolute', top: '-3px', right: '-3px', width: '7px', height: '7px', backgroundColor: '#ffd875', border: '1px solid #784c16' }} />
+            <div style={{ position: 'absolute', bottom: '-3px', left: '-3px', width: '7px', height: '7px', backgroundColor: '#ffd875', border: '1px solid #784c16' }} />
+            <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '7px', height: '7px', backgroundColor: '#ffd875', border: '1px solid #784c16' }} />
+
+            {/* Cabeçalho "Você sabia?" */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '2px 12px',
+                borderRadius: '12px',
+                background: 'rgba(212, 167, 55, 0.2)',
+                border: '1px solid rgba(255, 216, 117, 0.45)',
+                marginBottom: '0.45rem',
+              }}
+            >
+              <span style={{ fontSize: '0.8rem' }}>📜</span>
+              <span
+                style={{
+                  fontFamily: 'serif',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  color: '#ffd875',
+                  textShadow: '0 1px 2px #000',
+                }}
+              >
+                Você Sabia?
+              </span>
+            </div>
+
+            {/* Texto da curiosidade com fade suave */}
+            <div
+              style={{
+                minHeight: '42px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: curiosityFade === 'in' ? 1 : 0,
+                transform: curiosityFade === 'in' ? 'translateY(0)' : 'translateY(2px)',
+                transition: 'opacity 0.22s ease-in-out, transform 0.22s ease-in-out',
+              }}
+            >
+              <p
+                className="exura-loading-curiosity-text"
+                style={{
+                  margin: 0,
+                  fontFamily: 'serif',
+                  fontSize: '0.96rem',
+                  lineHeight: '1.45',
+                  color: '#fbf1dc',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 8px rgba(0, 0, 0, 0.8)',
+                  letterSpacing: '0.015em',
+                }}
+              >
+                {curiosities[curiosityIndex] || curiosities[0]}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Loading Bar Frame Container matching 1024x341 ratio */}
         <div
           className="exura-loading-frame-wrapper"

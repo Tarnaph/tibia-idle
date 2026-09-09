@@ -71,6 +71,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 107: Diferimento da Entrada e Visibilidade do Personagem até o Fim do Loading (Spawn Seguro Pós-Loading e Proteção Anti-Morte em Caçadas)** - Bloqueio do loop de combate durante o loading, ocultação do personagem até 100% da barra e inicialização segura da hunt somente ao término do loading para evitar mortes precoces.
 - [x] **Phase 108: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico)** - Refatoração visual completa da janela de caçadas para carrossel horizontal de 3 cards simultâneos com design medieval autêntico, ilustrações temáticas em pixel art, sprites pixelados, medalhões de nível, coloração dinâmica de dificuldade, botão de mochila com tooltip flutuante de loot e botão principal "INICIAR CAÇADA".
 - [x] **Phase 109: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento** - Reprodução de "Dragons Pride" iniciando imediatamente na tela de loading ao entrar no Dragon Lair, pausa da trilha de Thais, e exibição da caixa de notificação musical deslizante ("Dragons Pride") estritamente após a conclusão do carregamento com o personagem já visível no mapa.
+- [x] **Phase 110: Tela de Carregamento de Thais (Nova Ilustração do Templo) e Sistema de Curiosidades Rotativas ("Você Sabia?")** - Integração da nova arte oficial do Templo de Thais no loading, e introdução do sistema de curiosidades/lore de Tibia que alternam aleatoriamente a cada 3 segundos com transições suaves acima da barra de carregamento.
 
 
 ---
@@ -1932,6 +1933,20 @@ Plans:
 6. Cobertura de testes automatizados via Vitest e 0 erros de TypeScript.
 **Plans:**
 - [x] 109-01-PLAN: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento.
+
+### Phase 110: Tela de Carregamento de Thais (Nova Ilustração do Templo) e Sistema de Curiosidades Rotativas ("Você Sabia?")
+
+**Goal:** Substituir a imagem de fundo da tela de carregamento de Thais pela nova arte oficial do Templo de Thais (`public/images/loading/thais-loading.jpg`) e introduzir um sistema dinâmico de curiosidades históricas/lore de Tibia na tela de carregamento, alternando aleatoriamente a cada 3 segundos com transições suaves.
+**Depends on:** Phase 109, Phase 106, Phase 102
+**Requirements:**
+1. Publicação e vinculação da nova ilustração oficial do Templo de Thais em `public/images/loading/thais-loading.jpg` e `public/images/loading/loading-bg.jpg`.
+2. Array canônico `THAIS_LORE_CURIOSITIES` contendo os 3 fatos históricos de Thais/Tradespot/Tibianus I.
+3. Rotação randômica periódica de curiosidades a cada 3000ms (3 segundos) com fade suave e sem repetição consecutiva imediata.
+4. Placa medieval estilizada com moldura dourada e tipografia marfim serifada posicionada harmonicamente acima da barra de carregamento.
+5. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 110-01-PLAN: Tela de Carregamento de Thais (Nova Ilustração do Templo) e Sistema de Curiosidades Rotativas ("Você Sabia?").
+
 
 
 
