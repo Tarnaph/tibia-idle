@@ -61,6 +61,7 @@ import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from '.
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
 import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
+import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
 import { MusicTrackToast } from './audio/MusicTrackToast';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
@@ -2574,8 +2575,8 @@ function GamePrototypeContent() {
       {/* Global Item Tooltip & Player Inspection (Highest z-index, always on top) */}
       <GlobalItemTooltip />
 
-      {/* Phase 104: Now Playing Music Track Notification Toast (Slides in from right) */}
-      <MusicTrackToast />
+      {/* Phase 104/105: Now Playing Music Track Notification Toast (Slides in from right strictly after loading) */}
+      <MusicTrackToast isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />
 
       {/* Tibia Auth & Character Selection Modal */}
       {showAuthModal && (
@@ -2601,6 +2602,10 @@ function GamePrototypeContent() {
           }
           if (transitionLoading?.active) {
             setTransitionLoading(null);
+          }
+          // Phase 105: Music track notification box appears strictly after loading finishes
+          if (mode === 'training') {
+            triggerTrackNotification(THAIS_THEME_TRACK);
           }
         }}
       />

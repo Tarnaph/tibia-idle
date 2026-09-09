@@ -68,7 +68,7 @@ describe('Phase 104 - Now Playing Music Track Toast Banner (Slide In/Out from Ri
     const content = fs.readFileSync(gamePrototypePath, 'utf8');
 
     expect(content).toContain("import { MusicTrackToast } from './audio/MusicTrackToast'");
-    expect(content).toContain('<MusicTrackToast />');
+    expect(content).toContain('<MusicTrackToast');
   });
 
   it('verifies WindowDockBar wires triggerTrackNotification with THAIS_THEME_TRACK', () => {

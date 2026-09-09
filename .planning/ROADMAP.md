@@ -1862,5 +1862,19 @@ Plans:
 **Plans:**
 - [x] 104-01-PLAN: Caixa Flutuante de Notificação da Música "Thais Theme" com Animação Deslizante da Direita.
 
+### Phase 105: Exibição da Caixa de Notificação de Música ("Thais Theme") Estritamente Após a Tela de Carregamento (Loading)
+
+**Goal:** Assegurar que a caixa de notificação da música ("Now Playing" toast de "Thais Theme") nunca seja exibida sobre a tela de carregamento (loading), mas sim apareça estritamente depois que a tela de loading de 10s (login inicial ou retorno da caçada) é finalizada e o jogador já está com visão total de Thais.
+**Depends on:** Phase 104
+**Requirements:**
+1. Parametrização do componente `MusicTrackToast.tsx` com a prop `isLoading?: boolean`, silenciando qualquer renderização visual e enfileirando a trilha recebida em `queuedTrackRef` enquanto `isLoading` for `true`.
+2. Detecção de transição de loading (`prevLoadingRef.current && !isLoading`) em `MusicTrackToast.tsx`, disparando o toast enfileirado com um breve delay estético (350ms) após o sumiço do loading.
+3. Passagem de `isLoading={initialLoadingActive || Boolean(transitionLoading?.active)}` em `GamePrototype.tsx`.
+4. Disparo autoritativo de `triggerTrackNotification(THAIS_THEME_TRACK)` no callback `onFinish` da `ExuraLoadingScreen` quando `mode === 'training'`.
+5. 0 erros no `typecheck` e 100% de aprovação nos testes Vitest (18/18 testes em 103, 104 e 105).
+**Plans:**
+- [x] 105-01-PLAN: Enfileiramento e Exibição Pós-Loading da Caixa de Notificação de Música "Thais Theme".
+
+
 
 

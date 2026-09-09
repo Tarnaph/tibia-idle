@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T14:50:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 104: Notificação Flutuante de Música Atual (\"Thais Theme\") com Transição Deslizante da Direita."
+last_updated: "2026-09-09T16:20:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 105: Exibição da Caixa de Notificação de Música (\"Thais Theme\") Estritamente Após a Tela de Carregamento (Loading)."
 progress:
-  total_phases: 104
-  completed_phases: 104
-  total_plans: 104
-  completed_plans: 104
+  total_phases: 105
+  completed_phases: 105
+  total_plans: 105
+  completed_plans: 105
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 104 concluída. Notificação flutuante elegante no canto superior direito ("Now Playing" toast) que desliza para a esquerda vindo da borda direita da tela quando a música de Thais ("Thais Theme") começa a tocar, exibindo equalizador animado com detalhes do autor, permanece visível com barra contadora e desliza suavemente para fora pela direita até desaparecer.
+**Current focus:** Fase 105 concluída. Notificação da música "Thais Theme" silenciada e ocultada durante a tela de loading de 10s, sendo enfileirada e disparada estritamente quando a tela de carregamento termina e o jogador já está em Thais com a visão do jogo limpa.
 
 ## Current Position
 
-Phase: 104 of 104 (Concluída)  
+Phase: 105 of 105 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 104.
+Last activity: 2026-09-09 — Conclusão da Phase 105.
 
 Progress: [██████████] 100%
 

@@ -3,38 +3,82 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { onTrackNotification, type MusicTrackInfo } from '../../lib/audioManager';
 
-export function MusicTrackToast() {
+export interface MusicTrackToastProps {
+  isLoading?: boolean;
+}
+
+export function MusicTrackToast({ isLoading = false }: MusicTrackToastProps) {
   const [track, setTrack] = useState<MusicTrackInfo | null>(null);
   const [animStage, setAnimStage] = useState<'in' | 'visible' | 'out' | 'idle'>('idle');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const dismissTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const queuedTrackRef = useRef<MusicTrackInfo | null>(null);
+  const prevLoadingRef = useRef<boolean>(isLoading);
+  const currentTrackRef = useRef<MusicTrackInfo | null>(null);
+
+  const startToastAnimation = (trackToShow: MusicTrackInfo) => {
+    // Clear existing timers if any
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+
+    currentTrackRef.current = trackToShow;
+    setTrack(trackToShow);
+    setAnimStage('in');
+
+    // After slide-in animation finishes (550ms)
+    timerRef.current = setTimeout(() => {
+      setAnimStage('visible');
+
+      // Stay on screen for 4.5 seconds then start slide-out
+      dismissTimerRef.current = setTimeout(() => {
+        setAnimStage('out');
+
+        // After slide-out animation finishes (500ms), unmount
+        setTimeout(() => {
+          setAnimStage('idle');
+          setTrack(null);
+          currentTrackRef.current = null;
+        }, 500);
+      }, 4500);
+    }, 550);
+  };
 
   useEffect(() => {
     return onTrackNotification((newTrack) => {
-      // Clear existing timers if any
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+      // Phase 105: If loading is active, suppress immediate display and queue for post-loading
+      if (isLoading) {
+        queuedTrackRef.current = newTrack;
+        return;
+      }
 
-      setTrack(newTrack);
-      setAnimStage('in');
+      // Avoid restarting if the same track is already showing
+      if (
+        currentTrackRef.current &&
+        currentTrackRef.current.id === newTrack.id &&
+        (animStage === 'in' || animStage === 'visible')
+      ) {
+        return;
+      }
 
-      // After slide-in animation finishes (550ms)
-      timerRef.current = setTimeout(() => {
-        setAnimStage('visible');
-
-        // Stay on screen for 4.5 seconds then start slide-out
-        dismissTimerRef.current = setTimeout(() => {
-          setAnimStage('out');
-
-          // After slide-out animation finishes (500ms), unmount
-          setTimeout(() => {
-            setAnimStage('idle');
-            setTrack(null);
-          }, 500);
-        }, 4500);
-      }, 550);
+      startToastAnimation(newTrack);
     });
-  }, []);
+  }, [isLoading, animStage]);
+
+  // Phase 105: Trigger queued track strictly after loading transitions from true to false
+  useEffect(() => {
+    if (prevLoadingRef.current && !isLoading) {
+      if (queuedTrackRef.current) {
+        const queued = queuedTrackRef.current;
+        queuedTrackRef.current = null;
+        // Brief graceful delay (350ms) so the world renders before toast slides in
+        const delayTimer = setTimeout(() => {
+          startToastAnimation(queued);
+        }, 350);
+        return () => clearTimeout(delayTimer);
+      }
+    }
+    prevLoadingRef.current = isLoading;
+  }, [isLoading]);
 
   const handleManualClose = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -43,10 +87,12 @@ export function MusicTrackToast() {
     setTimeout(() => {
       setAnimStage('idle');
       setTrack(null);
+      currentTrackRef.current = null;
     }, 500);
   };
 
-  if (animStage === 'idle' || !track) {
+  // Phase 105: Strictly do not render while loading is active or when idle
+  if (isLoading || animStage === 'idle' || !track) {
     return null;
   }
 
