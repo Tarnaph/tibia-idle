@@ -36,11 +36,46 @@ export function setCharacterHotbar(character: CharacterState, spellIds: number[]
 }
 
 export function reorderHotbar(character: CharacterState, fromIndex: number, toIndex: number): CharacterState {
-  if (fromIndex < 0 || toIndex < 0 || fromIndex >= character.hotbar.length || toIndex >= character.hotbar.length) return character;
-  const hotbar = [...character.hotbar];
-  const [moved] = hotbar.splice(fromIndex, 1);
-  hotbar.splice(toIndex, 0, moved);
-  return { ...character, hotbar };
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return character;
+  if (fromIndex > 19 || toIndex > 19) return character;
+
+  // Ensure hotbar array can comfortably hold both indices and standard action bar slots
+  const targetLength = Math.max(fromIndex + 1, toIndex + 1, character.hotbar?.length ?? 0, 20);
+  const hotbar = [...(character.hotbar ?? [])];
+  while (hotbar.length < targetLength) {
+    hotbar.push(0);
+  }
+
+  // Swap action IDs between fromIndex and toIndex
+  const fromAction = hotbar[fromIndex] ?? 0;
+  const toAction = hotbar[toIndex] ?? 0;
+  hotbar[fromIndex] = toAction;
+  hotbar[toIndex] = fromAction;
+
+  // Swap hotbarConfigs if present
+  const hotbarConfigs = character.hotbarConfigs ? { ...character.hotbarConfigs } : undefined;
+  if (hotbarConfigs) {
+    const fromConfig = hotbarConfigs[fromIndex];
+    const toConfig = hotbarConfigs[toIndex];
+
+    if (toConfig !== undefined) {
+      hotbarConfigs[fromIndex] = toConfig;
+    } else {
+      delete hotbarConfigs[fromIndex];
+    }
+
+    if (fromConfig !== undefined) {
+      hotbarConfigs[toIndex] = fromConfig;
+    } else {
+      delete hotbarConfigs[toIndex];
+    }
+  }
+
+  return {
+    ...character,
+    hotbar,
+    ...(hotbarConfigs ? { hotbarConfigs } : {}),
+  };
 }
 
 export type FacingDirection = 'north' | 'east' | 'south' | 'west';

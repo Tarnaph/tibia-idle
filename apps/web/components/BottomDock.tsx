@@ -40,6 +40,7 @@ export function BottomDock({
   isAutoIdle = false,
   onToggleAutoIdle,
   onExitHunt,
+  onReorderSpell,
   onConfigureSlot,
   onSlotClick,
   onToggleBackpack,
@@ -262,6 +263,7 @@ export function BottomDock({
         onToggleAutoIdle={onToggleAutoIdle}
         onConfigureSlot={onConfigureSlot}
         onSlotClick={onSlotClick}
+        onReorderSpell={onReorderSpell}
         onToggleBackpack={onToggleBackpack}
         onToggleCombatLog={() => setLogOpen((v) => !v)}
         logCount={logs.length}

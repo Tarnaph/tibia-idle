@@ -1629,8 +1629,25 @@ h1, h2, h3, p { margin: 0; }
   transition: transform 60ms ease;
 }
 
+.hud-action-slot > * {
+  pointer-events: none;
+}
+
 .hud-action-slot:hover {
   transform: scale(1.04);
+}
+
+.hud-action-slot.dragging {
+  opacity: 0.4;
+  border-style: dashed !important;
+  transform: scale(0.92);
+}
+
+.hud-action-slot.drag-over {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8), inset 0 0 6px rgba(255, 215, 0, 0.4) !important;
+  transform: scale(1.08) !important;
+  z-index: 20;
 }
 
 .hud-action-slot.empty-plus-slot {

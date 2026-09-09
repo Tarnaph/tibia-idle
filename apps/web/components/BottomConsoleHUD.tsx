@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
 import {
   experienceProgress,
@@ -23,6 +23,7 @@ interface BottomConsoleHUDProps {
   onToggleAutoIdle?: () => void;
   onConfigureSlot?: (slotIndex: number) => void;
   onSlotClick?: (slotIndex: number) => void;
+  onReorderSpell?: (fromIndex: number, toIndex: number) => void;
   onToggleBackpack?: () => void;
   onToggleCombatLog?: () => void;
   logCount?: number;
@@ -40,6 +41,7 @@ export function BottomConsoleHUD({
   onToggleAutoIdle,
   onConfigureSlot,
   onSlotClick,
+  onReorderSpell,
   onToggleBackpack,
   onToggleCombatLog,
   logCount = 0,
@@ -52,6 +54,11 @@ export function BottomConsoleHUD({
   const [presetSet, setPresetSet] = useState('Default');
   const [targetMode, setTargetMode] = useState('Mais próximo');
   const [targetCount, setTargetCount] = useState(1);
+
+  // Drag-and-Drop hotbar states
+  const [draggingSlot, setDraggingSlot] = useState<number | null>(null);
+  const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
+  const isDraggingRef = useRef(false);
 
   const currentStance = character.stance ?? stance;
   const currentTargetDistance = character.targetDistance ?? targetCount;
@@ -102,14 +109,36 @@ export function BottomConsoleHUD({
 
     // If empty slot
     if (!hasAction || !action) {
+      const isDragOver = dragOverSlot === slotIndex;
       return (
         <button
           type="button"
           key={`slot-${slotIndex}`}
           id={`hud-slot-${slotIndex}`}
-          className="hud-action-slot empty-plus-slot"
-          title={`Slot ${slotIndex + 1} [${hotkeyLabel}] Vazio · Clique para configurar magia/poção`}
-          onClick={() => onConfigureSlot?.(slotIndex)}
+          className={`hud-action-slot empty-plus-slot ${isDragOver ? 'drag-over' : ''}`}
+          title={`Slot ${slotIndex + 1} [${hotkeyLabel}] Vazio · Arraste uma ação aqui ou clique para configurar`}
+          onClick={() => {
+            if (isDraggingRef.current) return;
+            onConfigureSlot?.(slotIndex);
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (dragOverSlot !== slotIndex) setDragOverSlot(slotIndex);
+          }}
+          onDragLeave={() => {
+            if (dragOverSlot === slotIndex) setDragOverSlot(null);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            const raw = e.dataTransfer.getData('text/plain');
+            const fromIndex = Number.parseInt(raw, 10);
+            if (!Number.isNaN(fromIndex) && fromIndex !== slotIndex) {
+              onReorderSpell?.(fromIndex, slotIndex);
+            }
+            setDragOverSlot(null);
+            setDraggingSlot(null);
+          }}
         >
           <span className="empty-dots" style={{ opacity: 0.45, fontSize: '9px', letterSpacing: '1px' }}>▫ ▫ ▫ ▫</span>
           <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#7e8781' }}>{hotkeyLabel}</span>
@@ -134,22 +163,59 @@ export function BottomConsoleHUD({
     const isOnCooldown = cooldownUntil > elapsedMs;
     const remainingSec = isOnCooldown ? ((cooldownUntil - elapsedMs) / 1000).toFixed(1) : null;
 
+    const isDragging = draggingSlot === slotIndex;
+    const isDragOver = dragOverSlot === slotIndex;
+
     return (
       <div
         key={`slot-${slotIndex}`}
         id={`hud-slot-${slotIndex}`}
-        className={`hud-action-slot occupied-slot ${borderColorClass}`}
+        className={`hud-action-slot occupied-slot ${borderColorClass} ${isDragging ? 'dragging' : ''} ${isDragOver ? 'drag-over' : ''}`}
+        draggable
+        onDragStart={(e) => {
+          isDraggingRef.current = true;
+          e.dataTransfer.setData('text/plain', String(slotIndex));
+          e.dataTransfer.effectAllowed = 'move';
+          setDraggingSlot(slotIndex);
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (dragOverSlot !== slotIndex) setDragOverSlot(slotIndex);
+        }}
+        onDragLeave={() => {
+          if (dragOverSlot === slotIndex) setDragOverSlot(null);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const raw = e.dataTransfer.getData('text/plain');
+          const fromIndex = Number.parseInt(raw, 10);
+          if (!Number.isNaN(fromIndex) && fromIndex !== slotIndex) {
+            onReorderSpell?.(fromIndex, slotIndex);
+          }
+          setDragOverSlot(null);
+          setDraggingSlot(null);
+        }}
+        onDragEnd={() => {
+          setDraggingSlot(null);
+          setDragOverSlot(null);
+          setTimeout(() => {
+            isDraggingRef.current = false;
+          }, 100);
+        }}
         onClick={() => {
+          if (isDraggingRef.current) return;
           if (isOnCooldown) return;
           if (onSlotClick) onSlotClick(slotIndex);
           else onConfigureSlot?.(slotIndex);
         }}
         onContextMenu={(e) => {
           e.preventDefault();
+          if (isDraggingRef.current) return;
           onConfigureSlot?.(slotIndex);
         }}
-        title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] ${isOnCooldown ? `(Cooldown: ${remainingSec}s)` : '(Clique para usar · Botão direito para configurar)'}`}
-        style={{ cursor: isOnCooldown ? 'not-allowed' : 'pointer', position: 'relative' }}
+        title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] ${isOnCooldown ? `(Cooldown: ${remainingSec}s)` : '(Clique para usar · Arraste para trocar · Botão direito para configurar)'}`}
+        style={{ cursor: isOnCooldown ? 'not-allowed' : 'grab', position: 'relative' }}
       >
         {/* Hotkey Indicator */}
         <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#c7d6cc', zIndex: 7, textShadow: '1px 1px 0 #000' }}>

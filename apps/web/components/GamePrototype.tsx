@@ -1936,11 +1936,34 @@ function GamePrototypeContent() {
 
   const reorderSelectedHotbar = (fromIndex: number, toIndex: number) => setGame((current) => {
     const selected = selectedCharacterOf(current);
+    let updatedChar: CharacterState | undefined;
+    const nextCharacters = current.session.characters.map((character) => {
+      if (character.id === selected.id) {
+        updatedChar = reorderHotbar(character, fromIndex, toIndex);
+        return updatedChar;
+      }
+      return character;
+    });
+
+    if (updatedChar) {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+      if (token && updatedChar.id && !updatedChar.id.startsWith('char-guest')) {
+        fetch(`/api/characters/${updatedChar.id}/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            hotbar: updatedChar.hotbar,
+            hotbarConfigs: updatedChar.hotbarConfigs,
+          }),
+        }).catch(() => {});
+      }
+    }
+
     return {
       ...current,
       session: {
         ...current.session,
-        characters: current.session.characters.map((character) => character.id === selected.id ? reorderHotbar(character, fromIndex, toIndex) : character),
+        characters: nextCharacters,
       },
     };
   });

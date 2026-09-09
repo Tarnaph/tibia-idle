@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-09T20:45:00.000Z"
-last_activity: "2026-09-09 — Conclusão da Phase 113: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition)."
+last_updated: "2026-09-09T21:00:00.000Z"
+last_activity: "2026-09-09 — Conclusão da Phase 114: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop (Arrastar e Soltar Slots F1 a F12)."
 progress:
-  total_phases: 113
-  completed_phases: 113
-  total_plans: 113
-  completed_plans: 113
+  total_phases: 114
+  completed_phases: 114
+  total_plans: 114
+  completed_plans: 114
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 113 concluída com sucesso. Implementada a transição cinematográfica de 10 segundos da tela de carregamento de Thais com arte do templo e curiosidades históricas ao morrer e confirmar o respawn, com controle de áudio imersivo, teleport do servidor e pausa de caminhada até o carregamento finalizar.
+**Current focus:** Phase 114 concluída com sucesso. Implementado sistema nativo de drag-and-drop para os slots de ação da hotbar (F1 a F12 e 1 a 0), permitindo troca rápida (swap) de magias, runas e poções entre slots ocupados ou movimentação para slots vazios com preservação de condições de auto-uso e sincronização persistente imediata no Prisma DB.
 
 ## Current Position
 
-Phase: 113 of 113 (Concluída)  
+Phase: 114 of 114 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 113.
+Last activity: 2026-09-09 — Conclusão da Phase 114.
 
 Progress: [██████████] 100%
 
