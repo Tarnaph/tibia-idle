@@ -151,16 +151,16 @@ export function ExuraLoadingScreen({
               position: 'absolute',
               left: '7.8%',
               width: '84.4%',
-              top: '40.2%',
-              height: '14.8%',
-              background: '#0a0303',
-              boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.98), inset 0 0 10px rgba(0,0,0,0.95)',
+              top: '40.5%',
+              height: '17.2%',
+              background: 'linear-gradient(180deg, #140a08 0%, #070303 50%, #140a08 100%)',
+              boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.99), inset 0 0 14px rgba(0,0,0,0.95), 0 0 2px rgba(255,120,0,0.25)',
               borderRadius: '3px',
               overflow: 'hidden',
               zIndex: 10,
             }}
           >
-            {/* 2. Vibrant Magma Red/Orange Progress Fill */}
+            {/* 2. Vibrant Magma Red/Orange Progress Fill - Fills in sync with percentage */}
             <div
               className="exura-bar-glow exura-loading-progress-fill"
               style={{
@@ -168,11 +168,10 @@ export function ExuraLoadingScreen({
                 height: '100%',
                 position: 'relative',
                 overflow: 'hidden',
-                transition: 'width 0.08s linear',
                 background:
-                  'linear-gradient(180deg, #ffe066 0%, #ff5e00 25%, #ff2200 55%, #c80000 85%, #7a0000 100%)',
+                  'linear-gradient(180deg, #fff799 0%, #ffe066 15%, #ff5e00 40%, #ff2200 70%, #990000 100%)',
                 boxShadow:
-                  '0 0 16px rgba(255, 60, 0, 0.95), 0 0 32px rgba(255, 30, 0, 0.75), inset 0 1px 3px rgba(255, 255, 240, 0.9)',
+                  '0 0 22px rgba(255, 90, 0, 1), 0 0 45px rgba(255, 40, 0, 0.85), inset 0 2px 4px rgba(255, 255, 240, 0.95)',
               }}
             >
               {/* Top specular highlight edge line */}
@@ -203,21 +202,47 @@ export function ExuraLoadingScreen({
               />
 
               {/* Glowing leading spark / ember head */}
-              {progress > 1 && progress < 99.8 && (
+              {progress > 0.5 && progress < 99.8 && (
                 <div
                   style={{
                     position: 'absolute',
                     right: 0,
                     top: 0,
                     bottom: 0,
-                    width: '6px',
+                    width: '8px',
                     background: '#ffffff',
-                    boxShadow: '0 0 10px #ffffff, 0 0 20px #ffaa00, 0 0 32px #ff2200',
+                    boxShadow: '0 0 12px #ffffff, 0 0 24px #ffbb00, 0 0 36px #ff3300',
                     borderRadius: '2px',
                     opacity: 1,
                   }}
                 />
               )}
+            </div>
+
+            {/* In-bar Numeric Percentage Display */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+                zIndex: 15,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'sans-serif',
+                  fontWeight: 900,
+                  fontSize: '0.82rem',
+                  color: '#ffffff',
+                  textShadow: '0 1px 3px #000000, 0 0 8px #000000, 0 0 12px rgba(0, 0, 0, 0.95)',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                {Math.round(progress)}%
+              </span>
             </div>
           </div>
 
@@ -234,7 +259,7 @@ export function ExuraLoadingScreen({
               objectFit: 'contain',
               pointerEvents: 'none',
               zIndex: 20,
-              filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.9))',
+              filter: 'drop-shadow(0 4px 10px rgba(0, 0, 0, 0.65))',
             }}
           />
         </div>

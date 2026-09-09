@@ -1875,6 +1875,19 @@ Plans:
 **Plans:**
 - [x] 105-01-PLAN: Enfileiramento e Exibição Pós-Loading da Caixa de Notificação de Música "Thais Theme".
 
+### Phase 106: Preenchimento Proporcional Contínuo e Visual da Barra de Loading Conforme a Porcentagem
+
+**Goal:** Calibrar e sincronizar perfeitamente a barra de carregamento dentro da moldura ornamental `loading-bar-frame.png` para que o jogador veja nitidamente a barra de magma enchendo continuamente da esquerda para a direita em tempo real conforme a porcentagem aumenta de 0% a 100%: (1) Eliminação do `transition: width 0.08s` no CSS e componente, permitindo renderização a 60fps sem cancelamentos de transição; (2) Calibração geométrica estrita da cavidade interna (`top: 40.5%`, `height: 17.2%`, `left: 7.8%`, `width: 84.4%`) preenchendo exatamente o vão transparente da moldura de 1024x341; (3) Inclusão do indicador numérico de porcentagem `{Math.round(progress)}%` centralizado diretamente dentro da cavidade da barra em harmonia com o texto descritivo inferior; (4) Magma incandescente com gradiente de alta luminosidade, ponta de brasa incandescente (`ember head`) e redução do drop-shadow interno da moldura.
+**Depends on:** Phase 105
+**Requirements:**
+1. Ajuste em `apps/web/components/ExuraLoadingScreen.tsx` removendo CSS transition inline e sincronizando a largura da barra `width: ${Math.min(100, Math.max(0, progress))}%` em tempo real.
+2. Inclusão de indicador numérico de porcentagem centralizado dentro do slot da barra.
+3. Ajuste em `app/globals.css` eliminando `transition: width 0.08s linear !important;` e calibrando `top: 40.5% !important;`, `height: 17.2% !important;`.
+4. 0 erros no `typecheck` e 100% de sucesso nos testes automatizados Vitest (40/40 testes nas fases 100-106).
+**Plans:**
+- [x] 106-01-PLAN: Preenchimento Contínuo da Barra de Loading em Sincronia com a Porcentagem e Centralização Geométrica.
+
+
 
 
 

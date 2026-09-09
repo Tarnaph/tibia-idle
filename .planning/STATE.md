@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T16:20:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 105: Exibição da Caixa de Notificação de Música (\"Thais Theme\") Estritamente Após a Tela de Carregamento (Loading)."
+last_updated: "2026-09-09T17:08:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 106: Preenchimento Proporcional Contínuo e Visual da Barra de Loading Conforme a Porcentagem."
 progress:
-  total_phases: 105
-  completed_phases: 105
-  total_plans: 105
-  completed_plans: 105
+  total_phases: 106
+  completed_phases: 106
+  total_plans: 106
+  completed_plans: 106
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 105 concluída. Notificação da música "Thais Theme" silenciada e ocultada durante a tela de loading de 10s, sendo enfileirada e disparada estritamente quando a tela de carregamento termina e o jogador já está em Thais com a visão do jogo limpa.
+**Current focus:** Fase 106 concluída. Sincronização e calibração estrita da barra de progresso da tela de carregamento Exura (`ExuraLoadingScreen.tsx`), com preenchimento contínuo e nítido de magma a 60fps frame a frame em sincronia com a porcentagem, indicador numérico dentro da própria barra e eliminação de atrasos por transição CSS.
 
 ## Current Position
 
-Phase: 105 of 105 (Concluída)  
+Phase: 106 of 106 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 105.
+Last activity: 2026-09-09 — Conclusão da Phase 106.
 
 Progress: [██████████] 100%
 
