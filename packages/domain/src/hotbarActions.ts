@@ -25,7 +25,7 @@ export interface HotbarPotionDefinition {
   id: number;
   name: string;
   kind: 'potion';
-  category: 'healing' | 'mana';
+  category: 'healing' | 'mana' | 'support';
   requiredLevel: number;
   vocations: VocationName[];
   cooldownMs: number;
@@ -383,6 +383,50 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     manaMin: 350,
     manaMax: 450,
     description: 'Poção mística suprema do Tibia 11 para paladinos, recupera HP e MP simultaneamente.',
+  },
+  {
+    id: 8474,
+    name: 'Antidote Potion',
+    kind: 'potion',
+    category: 'healing',
+    requiredLevel: 1,
+    vocations: ALL_VOCATIONS,
+    cooldownMs: 1000,
+    effectId: 15,
+    description: 'Cura envenenamento e restaura o organismo.',
+  },
+  {
+    id: 7439,
+    name: 'Berserk Potion',
+    kind: 'potion',
+    category: 'support',
+    requiredLevel: 1,
+    vocations: ['Knight', 'Elite Knight', 'Paladin', 'Royal Paladin'],
+    cooldownMs: 2000,
+    effectId: 15,
+    description: 'Aumenta habilidades corpo a corpo temporariamente.',
+  },
+  {
+    id: 7440,
+    name: 'Mastermind Potion',
+    kind: 'potion',
+    category: 'support',
+    requiredLevel: 1,
+    vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid'],
+    cooldownMs: 2000,
+    effectId: 13,
+    description: 'Aumenta temporariamente o Magic Level.',
+  },
+  {
+    id: 7443,
+    name: 'Bullseye Potion',
+    kind: 'potion',
+    category: 'support',
+    requiredLevel: 1,
+    vocations: ['Paladin', 'Royal Paladin'],
+    cooldownMs: 2000,
+    effectId: 15,
+    description: 'Aumenta a precisão de combate à distância.',
   },
 ];
 

@@ -82,8 +82,14 @@ export function HotbarConfigModal({
 
   const selectedAction = selectedId !== null ? findHotbarAction(selectedId, content) : null;
 
-  const handleSelect = (id: number) => {
+  const handleSelect = (id: number, isLocked: boolean) => {
+    if (isLocked) return;
     setSelectedId(id);
+  };
+
+  const handleClearSlot = () => {
+    onSave(slotIndex, null);
+    onClose();
   };
 
   const handleSave = () => {
@@ -136,10 +142,32 @@ export function HotbarConfigModal({
       <div className="hotbar-config-window" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="hotbar-config-header">
-          <span className="hotbar-config-title">Configurar ação</span>
-          <button type="button" className="hotbar-config-close" onClick={onClose} title="Fechar">
-            ✕
-          </button>
+          <span className="hotbar-config-title">Configurar ação (Slot {slotIndex + 1})</span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {currentActionId !== null && (
+              <button
+                type="button"
+                className="hotbar-clear-slot-btn"
+                onClick={handleClearSlot}
+                title="Remover ação deste slot"
+                style={{
+                  background: '#7a1818',
+                  color: '#ffffff',
+                  border: '1px solid #d94242',
+                  borderRadius: '3px',
+                  padding: '2px 8px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                }}
+              >
+                🗑️ Remover do Slot
+              </button>
+            )}
+            <button type="button" className="hotbar-config-close" onClick={onClose} title="Fechar">
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* Top Tabs */}
@@ -174,14 +202,25 @@ export function HotbarConfigModal({
             {activeTab === 'spells' &&
               availableSpells.map((spell) => {
                 const isSelected = selectedId === spell.spellId;
+                const reqLevel = spell.requiredLevel ?? 0;
+                const isLocked = character.level < reqLevel;
                 return (
                   <div
                     key={spell.spellId}
-                    className={`hotbar-list-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => handleSelect(spell.spellId)}
+                    className={`hotbar-list-card ${isSelected ? 'selected' : ''} ${isLocked ? 'locked' : ''}`}
+                    onClick={() => handleSelect(spell.spellId, isLocked)}
+                    style={isLocked ? { opacity: 0.5, cursor: 'not-allowed', filter: 'grayscale(0.6)' } : {}}
+                    title={isLocked ? `Nível ${reqLevel} necessário (Você está no Nível ${character.level})` : spell.name}
                   >
                     <Tibia11ActionIcon id={spell.spellId} kind="spell" name={spell.name} size={32} />
-                    <span className="hotbar-card-name">{spell.name}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                      <span className="hotbar-card-name">{spell.name}</span>
+                      {isLocked && (
+                        <span style={{ fontSize: '10px', color: '#ff6b6b', fontWeight: 'bold' }}>
+                          🔒 Requer Lv {reqLevel}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -189,6 +228,8 @@ export function HotbarConfigModal({
             {activeTab === 'runes' &&
               availableRunes.map((rune) => {
                 const isSelected = selectedId === rune.id;
+                const reqLevel = rune.requiredLevel ?? 0;
+                const isLocked = character.level < reqLevel;
                 const goldBadge =
                   rune.id === 2273 ? '160'
                   : rune.id === 2311 ? '15'
@@ -199,14 +240,23 @@ export function HotbarConfigModal({
                 return (
                   <div
                     key={rune.id}
-                    className={`hotbar-list-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => handleSelect(rune.id)}
+                    className={`hotbar-list-card ${isSelected ? 'selected' : ''} ${isLocked ? 'locked' : ''}`}
+                    onClick={() => handleSelect(rune.id, isLocked)}
+                    style={isLocked ? { opacity: 0.5, cursor: 'not-allowed', filter: 'grayscale(0.6)' } : {}}
+                    title={isLocked ? `Nível ${reqLevel} necessário (Você está no Nível ${character.level})` : rune.name}
                   >
                     <div className="hotbar-icon-container">
                       <Tibia11ActionIcon id={rune.id} kind="rune" name={rune.name} size={32} />
                       <span className="hotbar-rune-badge">{goldBadge}</span>
                     </div>
-                    <span className="hotbar-card-name">{rune.name}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                      <span className="hotbar-card-name">{rune.name}</span>
+                      {isLocked && (
+                        <span style={{ fontSize: '10px', color: '#ff6b6b', fontWeight: 'bold' }}>
+                          🔒 Requer Lv {reqLevel}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -214,24 +264,31 @@ export function HotbarConfigModal({
             {activeTab === 'items' &&
               availablePotions.map((potion) => {
                 const isSelected = selectedId === potion.id;
-                const badge =
-                  potion.id === 8704 ? 'Grátis'
-                  : potion.id === 7618 ? '50'
-                  : potion.id === 7620 ? '56'
-                  : potion.id === 7589 ? '108'
-                  : potion.id === 7588 ? '115'
-                  : '225';
+                const reqLevel = potion.requiredLevel ?? 0;
+                const isLocked = character.level < reqLevel;
                 return (
                   <div
                     key={potion.id}
-                    className={`hotbar-list-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => handleSelect(potion.id)}
+                    className={`hotbar-list-card ${isSelected ? 'selected' : ''} ${isLocked ? 'locked' : ''}`}
+                    onClick={() => handleSelect(potion.id, isLocked)}
+                    style={isLocked ? { opacity: 0.5, cursor: 'not-allowed', filter: 'grayscale(0.6)' } : {}}
+                    title={isLocked ? `Nível ${reqLevel} necessário (Você está no Nível ${character.level})` : potion.name}
                   >
                     <div className="hotbar-icon-container">
                       <Tibia11ActionIcon id={potion.id} kind="potion" name={potion.name} size={32} />
-                      <span className={`hotbar-potion-badge ${badge === 'Grátis' ? 'free' : ''}`}>{badge}</span>
                     </div>
-                    <span className="hotbar-card-name">{potion.name}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                      <span className="hotbar-card-name">{potion.name}</span>
+                      {isLocked ? (
+                        <span style={{ fontSize: '10px', color: '#ff6b6b', fontWeight: 'bold' }}>
+                          🔒 Requer Lv {reqLevel}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '10px', color: '#8ec07c' }}>
+                          Lv {reqLevel}+
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -353,7 +410,10 @@ export function HotbarConfigModal({
                     <div className="hotbar-req-line">
                       {selectedAction.kind === 'spell' && `Requer: knight only, level ${selectedAction.spell.requiredLevel}+`}
                       {selectedAction.kind === 'rune' && `Requer: level ${selectedAction.rune.requiredLevel}+`}
-                      {selectedAction.kind === 'potion' && (selectedAction.potion.id === 8704 ? 'Uso gratuito — não custa gold.' : `Requer: level ${selectedAction.potion.requiredLevel}+`)}
+                      {selectedAction.kind === 'potion' &&
+                        `Requer: level ${selectedAction.potion.requiredLevel}+ · ${
+                          selectedAction.potion.vocations.length === 8 ? 'Todas as vocações' : selectedAction.potion.vocations.join(', ')
+                        }`}
                     </div>
 
                     {/* Monstros ignorados (for area spells) */}
@@ -529,9 +589,30 @@ export function HotbarConfigModal({
                 <span>Ativada</span>
               </label>
 
-              <button type="button" className="hotbar-save-btn" onClick={handleSave}>
-                Salvar
-              </button>
+              <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+                {currentActionId !== null && (
+                  <button
+                    type="button"
+                    className="hotbar-clear-btn"
+                    onClick={handleClearSlot}
+                    style={{
+                      background: '#4a1515',
+                      color: '#ff9999',
+                      border: '1px solid #7a2828',
+                      borderRadius: '3px',
+                      padding: '4px 10px',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Limpar Slot
+                  </button>
+                )}
+                <button type="button" className="hotbar-save-btn" onClick={handleSave}>
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
         </div>

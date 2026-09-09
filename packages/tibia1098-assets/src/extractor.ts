@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { parseTibia1098Dat, spriteIndex } from './dat.ts';
 import { findOtbClientId, tryFindOtbClientId } from './otb.ts';
-import { encodeRgbaPng } from './png.ts';
+import { encodeRgbaPng, encodeRgbaApng, generateSparkleApng } from './png.ts';
 import { parseTibia1098Spr, type TibiaSprFile } from './spr.ts';
 import type {
   ExtractionResult,
@@ -57,14 +57,35 @@ function fingerprint(sourceFile: string, buffer: Buffer): SourceFingerprint {
   return { sourceFile, byteLength: buffer.length, sha256: sha256(buffer) };
 }
 
-function copySprite(target: Buffer, targetWidth: number, source: Buffer, targetX: number, targetY: number): void {
+export const CANONICAL_POTION_SERVER_IDS = [
+  8704,  // small health potion
+  7618,  // health potion
+  7588,  // strong health potion
+  7591,  // great health potion
+  8473,  // ultimate health potion
+  26031, // supreme health potion
+  7620,  // mana potion
+  7589,  // strong mana potion
+  7590,  // great mana potion
+  26029, // ultimate mana potion
+  8472,  // great spirit potion
+  26030, // ultimate spirit potion
+  8474,  // antidote potion
+  10089, // antidote potion
+  7439,  // berserk potion
+  7440,  // mastermind potion
+  7443,  // bullseye potion
+  7634,  // small potion flask
+  7635,  // strong potion flask
+  7636,  // great potion flask
+];
+const CANONICAL_POTION_IDS = new Set(CANONICAL_POTION_SERVER_IDS);
+
+function copySprite(target: Buffer, targetWidth: number, sprite: Buffer, offsetX: number, offsetY: number): void {
   for (let y = 0; y < 32; y += 1) {
-    for (let x = 0; x < 32; x += 1) {
-      const sourceOffset = (y * 32 + x) * 4;
-      if (source[sourceOffset + 3] === 0) continue;
-      const targetOffset = ((targetY + y) * targetWidth + targetX + x) * 4;
-      source.copy(target, targetOffset, sourceOffset, sourceOffset + 4);
-    }
+    const srcOffset = y * 32 * 4;
+    const dstOffset = ((offsetY + y) * targetWidth + offsetX) * 4;
+    sprite.copy(target, dstOffset, srcOffset, srcOffset + 32 * 4);
   }
 }
 
@@ -72,11 +93,12 @@ function renderFrame(
   appearance: TibiaAppearance,
   spr: TibiaSprFile,
   coordinates: { layer: number; x: number; y: number; z: number; frame: number },
-): { png: Buffer; spriteIds: number[]; width: number; height: number } {
+): { png: Buffer; rgba: Buffer; spriteIds: number[]; width: number; height: number } {
   const width = appearance.width * 32;
   const height = appearance.height * 32;
   const rgba = Buffer.alloc(width * height * 4);
   const spriteIds: number[] = [];
+
   for (let tileWidth = 0; tileWidth < appearance.width; tileWidth += 1) {
     for (let tileHeight = 0; tileHeight < appearance.height; tileHeight += 1) {
       const index = spriteIndex(appearance, {
@@ -95,7 +117,7 @@ function renderFrame(
       );
     }
   }
-  return { png: encodeRgbaPng(width, height, rgba), spriteIds, width, height };
+  return { png: encodeRgbaPng(width, height, rgba), rgba, spriteIds, width, height };
 }
 
 function extractAppearanceFrames(
@@ -242,6 +264,7 @@ export function extractItemVisualAsset(
   }
 
   const animFrames: ExtractedFrame[] = [];
+  const defaultPhaseRgba: Buffer[] = [];
   const totalPhases = Math.max(1, appearance.frames);
   const patX = Math.max(1, appearance.patternX);
   const patY = Math.max(1, appearance.patternY);
@@ -251,6 +274,9 @@ export function extractItemVisualAsset(
       for (let f = 0; f < totalPhases; f += 1) {
         const rendered = renderFrame(appearance, spr, { layer: 0, x: px, y: py, z: 0, frame: f });
         const isDefault = px === 0 && py === 0 && f === 0;
+        if (px === 0 && py === 0) {
+          defaultPhaseRgba.push(rendered.rgba);
+        }
         const hasPattern = patX > 1 || patY > 1;
         const fileName = (isDefault && totalPhases <= 1)
           ? `item-${serverId}.png`
@@ -282,7 +308,24 @@ export function extractItemVisualAsset(
     }
   }
 
-  const defaultFrame = animFrames[0];
+  // Generate fluid APNG animations for items with multiple phases or canonical potions
+  const primaryItemFile = `public/generated/tibia1098/items/item-${serverId}.png`;
+  const primaryPublicUrl = `/generated/tibia1098/items/item-${serverId}.png`;
+
+  if (totalPhases > 1 && patX === 1 && patY === 1 && defaultPhaseRgba.length === totalPhases) {
+    const apng = encodeRgbaApng(appearance.width * 32, appearance.height * 32, defaultPhaseRgba, 120);
+    files.set(primaryItemFile, apng);
+  } else if (totalPhases === 1 && CANONICAL_POTION_IDS.has(serverId) && defaultPhaseRgba.length > 0) {
+    const apng = generateSparkleApng(appearance.width * 32, appearance.height * 32, defaultPhaseRgba[0], 120);
+    files.set(primaryItemFile, apng);
+  }
+
+  const defaultFrame: ExtractedFrame = {
+    ...animFrames[0],
+    file: primaryItemFile,
+    publicUrl: primaryPublicUrl,
+    sha256: files.has(primaryItemFile) ? sha256(files.get(primaryItemFile)!) : animFrames[0].sha256,
+  };
   const isGround = otbInfo.group === 1;
   return {
     mapping: {
