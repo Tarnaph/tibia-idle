@@ -2,10 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
-import visualAssetsJson from '@/content/generated/tibia860-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
 import type { CardinalDirection, GameState, GridPosition } from '@/packages/domain/src';
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
-import type { Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
+import type { Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getRecoloredCanvasSync, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
@@ -32,7 +32,7 @@ interface ActorView {
 }
 interface TimedVisual { root: Container | Sprite | Text; startedAt: number; durationMs: number; kind: 'float' | 'effect' | 'missile'; from?: GridPosition; to?: GridPosition; frames?: string[] }
 
-const visualAssets = visualAssetsJson as unknown as Tibia860AssetManifest;
+const visualAssets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 const TILE_SIZE = 32;
 
 function baseVocation(vocation: string): 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid' | 'Sire' {
@@ -288,12 +288,14 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
             timed.push({ root: sprite, startedAt: now, durationMs: 320, kind: 'missile', from: { ...from }, to: { ...to } });
           }
         }
-        if (event.effectId !== null) {
+        if (event.effectId !== null && event.effectId > 0) {
           const mapping = visualAssets.effects[String(event.effectId)];
           if (mapping) {
             const root = new Container(); const point = worldPoint(to); root.position.set(point.x, point.y);
             const sprite = new Sprite(loaded[mapping.frames[0].publicUrl]); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root);
-            timed.push({ root, startedAt: now + (projectileId === null ? 0 : 240), durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) });
+            const effectDelay = typeof event.delayMs === 'number' ? event.delayMs : (projectileId === null ? 0 : 240);
+            root.visible = effectDelay <= 0;
+            timed.push({ root, startedAt: now + effectDelay, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) });
           }
         }
       };
@@ -357,7 +359,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         }
         for (const enemy of state.encounter.enemies.filter((candidate) => candidate.alive)) {
           liveIds.add(enemy.id);
-          const mapping = visualAssets.creatures[enemy.monsterId] || visualAssets.creatures['dragon'] || visualAssets.creatures['rotworm'] || Object.values(visualAssets.creatures)[0];
+          const mapping = visualAssets.creatures[enemy.monsterId] || ((enemy as any).lookType ? visualAssets.creatures[String((enemy as any).lookType)] : null) || visualAssets.creatures['rotworm'] || Object.values(visualAssets.creatures)[0];
           if (!mapping) continue;
           const view = views.get(enemy.id) ?? createView(enemy.id, mapping, enemy.previousPosition, enemy.direction, enemy.name, true);
           view.label.text = enemy.name; view.label.style.fill = enemy.variant?.visualModifier === 'rare-aura' ? 0xd694ff : enemy.variant ? 0xffc857 : 0xe6ded0;

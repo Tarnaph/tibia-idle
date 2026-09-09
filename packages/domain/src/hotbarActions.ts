@@ -13,7 +13,7 @@ export interface HotbarRuneDefinition {
   requiredMagicLevel: number;
   vocations: VocationName[];
   range: number;
-  area: 'target' | 'square-1x1';
+  area: 'target' | 'square-1x1' | 'cross-1x1' | 'circle-3x3';
   combatType: SpellCombatType;
   cooldownMs: number;
   effectId: number;
@@ -61,8 +61,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'physical',
     cooldownMs: 2000,
-    effectId: 16,
-    projectileId: 5,
+    effectId: 18, // CONST_ME_MORTAREA (realmap11 attack/sudden death.lua)
+    projectileId: 32, // CONST_ANI_SUDDENDEATH (realmap11 attack/sudden death.lua)
     description: 'Dispara uma descarga massiva de energia da morte em alvo único.',
   },
   {
@@ -78,8 +78,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'energy',
     cooldownMs: 2000,
-    effectId: 38,
-    projectileId: 5,
+    effectId: 38, // CONST_ME_ENERGYAREA (realmap11 attack/heavy magic missile.lua)
+    projectileId: 5, // CONST_ANI_ENERGY (realmap11 attack/heavy magic missile.lua)
     description: 'Dispara um projétil concentrado de energia arcana no alvo.',
   },
   {
@@ -92,11 +92,11 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     requiredMagicLevel: 4,
     vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid'],
     range: 4,
-    area: 'square-1x1',
+    area: 'circle-3x3', // AREA_CIRCLE3X3 (realmap11 attack/great fireball.lua)
     combatType: 'fire',
     cooldownMs: 2000,
-    effectId: 37,
-    projectileId: 4,
+    effectId: 7, // CONST_ME_FIREAREA (realmap11 attack/great fireball.lua)
+    projectileId: 4, // CONST_ANI_FIRE (realmap11 attack/great fireball.lua)
     description: 'Bola de fogo explosiva que queima todos os monstros em área.',
   },
   {
@@ -109,11 +109,11 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     requiredMagicLevel: 4,
     vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid'],
     range: 4,
-    area: 'square-1x1',
+    area: 'circle-3x3', // AREA_CIRCLE3X3 (realmap11 attack/avalanche.lua)
     combatType: 'ice',
     cooldownMs: 2000,
-    effectId: 42,
-    projectileId: 37,
+    effectId: 42, // CONST_ME_ICEAREA (realmap11 attack/avalanche.lua)
+    projectileId: 29, // CONST_ANI_ICE (realmap11 attack/avalanche.lua)
     description: 'Tempestade glacial congelante que causa dano de gelo em área.',
   },
   {
@@ -129,11 +129,11 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
       'Paladin', 'Royal Paladin', 'Knight', 'Elite Knight'
     ],
     range: 4,
-    area: 'square-1x1',
+    area: 'cross-1x1', // AREA_CROSS1X1 (realmap11 attack/explosion.lua)
     combatType: 'physical',
     cooldownMs: 2000,
-    effectId: 10,
-    projectileId: 5,
+    effectId: 5, // CONST_ME_EXPLOSIONAREA (realmap11 attack/explosion.lua)
+    projectileId: 41, // CONST_ANI_EXPLOSION (realmap11 attack/explosion.lua)
     description: 'Detonação de impacto cinético que estilhaça inimigos em área.',
   },
   {
@@ -149,7 +149,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'healing',
     cooldownMs: 2000,
-    effectId: 13,
+    effectId: 13, // CONST_ME_MAGIC_BLUE (realmap11 healing/ultimate healing rune.lua)
     projectileId: 0,
     description: 'Runa de cura — lançada em você ou em um aliado por perto.',
   },
@@ -166,8 +166,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'fire',
     cooldownMs: 2000,
-    effectId: 37,
-    projectileId: 4,
+    effectId: 37, // CONST_ME_FIREATTACK (realmap11 attack/fireball.lua)
+    projectileId: 4, // CONST_ANI_FIRE (realmap11 attack/fireball.lua)
     description: 'Bola de fogo de alvo único.',
   },
   {
@@ -183,8 +183,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'ice',
     cooldownMs: 2000,
-    effectId: 42,
-    projectileId: 37,
+    effectId: 42, // CONST_ME_ICEAREA (realmap11 attack/icicle.lua)
+    projectileId: 29, // CONST_ANI_ICE (realmap11 attack/icicle.lua)
     description: 'Projétil gélido de gelo.',
   },
   {
@@ -197,11 +197,11 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     requiredMagicLevel: 4,
     vocations: ['Druid', 'Elder Druid', 'Sorcerer', 'Master Sorcerer'],
     range: 4,
-    area: 'square-1x1',
+    area: 'circle-3x3', // AREA_CIRCLE3X3 (realmap11 attack/stone shower.lua)
     combatType: 'earth',
     cooldownMs: 2000,
-    effectId: 14,
-    projectileId: 5,
+    effectId: 45, // CONST_ME_STONES (realmap11 attack/stone shower.lua)
+    projectileId: 30, // CONST_ANI_EARTH (realmap11 attack/stone shower.lua)
     description: 'Chuva de pedras e terra em área.',
   },
   {
@@ -214,11 +214,11 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     requiredMagicLevel: 4,
     vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid'],
     range: 4,
-    area: 'square-1x1',
+    area: 'circle-3x3', // AREA_CIRCLE3X3 (realmap11 attack/thunderstorm.lua)
     combatType: 'energy',
     cooldownMs: 2000,
-    effectId: 11,
-    projectileId: 5,
+    effectId: 12, // CONST_ME_ENERGYHIT (realmap11 attack/thunderstorm.lua)
+    projectileId: 36, // CONST_ANI_ENERGYBALL (realmap11 attack/thunderstorm.lua)
     description: 'Tempestade elétrica em área.',
   },
   {
@@ -234,8 +234,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'energy',
     cooldownMs: 2000,
-    effectId: 38,
-    projectileId: 5,
+    effectId: 38, // CONST_ME_ENERGYAREA (realmap11 attack/light magic missile.lua)
+    projectileId: 5, // CONST_ANI_ENERGY (realmap11 attack/light magic missile.lua)
     description: 'Míssil mágico leve de energia.',
   },
   {
@@ -251,8 +251,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'earth',
     cooldownMs: 2000,
-    effectId: 14,
-    projectileId: 5,
+    effectId: 45, // CONST_ME_STONES (realmap11 attack/stalagmite.lua)
+    projectileId: 30, // CONST_ANI_EARTH (realmap11 attack/stalagmite.lua)
     description: 'Espinho de rocha que perfura o alvo com dano de terra.',
   },
   {
@@ -268,8 +268,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'holy',
     cooldownMs: 2000,
-    effectId: 49,
-    projectileId: 38,
+    effectId: 40, // CONST_ME_HOLYDAMAGE (realmap11 attack/holy missile.lua)
+    projectileId: 31, // CONST_ANI_HOLY (realmap11 attack/holy missile.lua)
     description: 'Projétil de luz sagrada divino exclusivo de paladinos.',
   },
   {
@@ -285,8 +285,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 14,
-    projectileId: 5,
+    effectId: 0, // In realmap11 it creates ITEM_MAGICWALL without impact effect
+    projectileId: 5, // CONST_ANI_ENERGY (realmap11 support/magic wall rune.lua)
     description: 'Cria uma muralha de energia intransponível por tempo limitado.',
   },
   {
@@ -302,8 +302,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 45,
-    projectileId: 5,
+    effectId: 0, // In realmap11 it creates ITEM_WILDGROWTH without impact effect
+    projectileId: 30, // CONST_ANI_EARTH (realmap11 support/wild growth rune.lua)
     description: 'Cria um arbusto vivo que bloqueia a passagem.',
   },
   {
@@ -319,7 +319,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 13,
+    effectId: 14, // CONST_ME_MAGIC_RED (realmap11 support/paralyze rune.lua)
     projectileId: 0,
     description: 'Reduz severamente a velocidade de movimento do alvo.',
   },
@@ -336,7 +336,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 10,
+    effectId: 3, // CONST_ME_POFF (realmap11 support/destroy field rune.lua)
     projectileId: 0,
     description: 'Remove campos de fogo, veneno ou energia do chão.',
   },
@@ -353,7 +353,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 10,
+    effectId: 3, // CONST_ME_POFF (realmap11 support/desintegrate rune.lua)
     projectileId: 0,
     description: 'Desintegra itens ou corpos do chão adjacente.',
   },
@@ -370,7 +370,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 10,
+    effectId: 14, // CONST_ME_MAGIC_RED (realmap11 support/chameleon.lua)
     projectileId: 0,
     description: 'Assume a aparência de um item no chão.',
   },
@@ -387,7 +387,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 10,
+    effectId: 13, // CONST_ME_MAGIC_BLUE (realmap11 support/convince_creature.lua)
     projectileId: 0,
     description: 'Convença uma criatura a lutar ao seu lado.',
   },
@@ -404,7 +404,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'healing',
     cooldownMs: 2000,
-    effectId: 12,
+    effectId: 13, // CONST_ME_MAGIC_BLUE (realmap11 healing/antidote rune.lua)
     projectileId: 0,
     description: 'Cura envenenamento em você ou em um aliado.',
   },
@@ -421,7 +421,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'healing',
     cooldownMs: 2000,
-    effectId: 13,
+    effectId: 13, // CONST_ME_MAGIC_BLUE (realmap11 healing/intense healing rune.lua)
     projectileId: 0,
     description: 'Cura intermediária para você ou um aliado.',
   },
@@ -438,7 +438,7 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'support',
     cooldownMs: 2000,
-    effectId: 16,
+    effectId: 13, // CONST_ME_MAGIC_BLUE (realmap11 support/animate dead rune.lua)
     projectileId: 0,
     description: 'Ergue esqueletos a partir de corpos de criaturas.',
   },
@@ -455,8 +455,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'fire',
     cooldownMs: 2000,
-    effectId: 37,
-    projectileId: 4,
+    effectId: 16, // CONST_ME_HITBYFIRE (realmap11 attack/soul fire.lua)
+    projectileId: 4, // CONST_ANI_FIRE (realmap11 attack/soul fire.lua)
     description: 'Queima a alma do alvo causando dano contínuo.',
   },
   {
@@ -472,8 +472,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'fire',
     cooldownMs: 2000,
-    effectId: 37,
-    projectileId: 4,
+    effectId: 16, // CONST_ME_HITBYFIRE (realmap11 attack/fire field.lua)
+    projectileId: 4, // CONST_ANI_FIRE (realmap11 attack/fire field.lua)
     description: 'Cria um campo de chamas ardentes.',
   },
   {
@@ -489,8 +489,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'fire',
     cooldownMs: 2000,
-    effectId: 37,
-    projectileId: 4,
+    effectId: 16, // CONST_ME_HITBYFIRE (realmap11 attack/fire wall.lua)
+    projectileId: 4, // CONST_ANI_FIRE (realmap11 attack/fire wall.lua)
     description: 'Cria uma parede de fogo contínua.',
   },
   {
@@ -503,11 +503,11 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     requiredMagicLevel: 5,
     vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid'],
     range: 4,
-    area: 'square-1x1',
+    area: 'square-1x1', // AREA_SQUARE1X1 (realmap11 attack/fire bomb.lua)
     combatType: 'fire',
     cooldownMs: 2000,
-    effectId: 37,
-    projectileId: 4,
+    effectId: 16, // CONST_ME_HITBYFIRE (realmap11 attack/fire bomb.lua)
+    projectileId: 4, // CONST_ANI_FIRE (realmap11 attack/fire bomb.lua)
     description: 'Explosão de fogo que incendeia 9 quadrantes.',
   },
   {
@@ -523,8 +523,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'energy',
     cooldownMs: 2000,
-    effectId: 38,
-    projectileId: 5,
+    effectId: 12, // CONST_ME_ENERGYHIT (realmap11 attack/energy field.lua)
+    projectileId: 36, // CONST_ANI_ENERGYBALL (realmap11 attack/energy field.lua)
     description: 'Cria um campo de energia elétrica.',
   },
   {
@@ -540,8 +540,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'energy',
     cooldownMs: 2000,
-    effectId: 38,
-    projectileId: 5,
+    effectId: 12, // CONST_ME_ENERGYHIT (realmap11 attack/energy wall.lua)
+    projectileId: 36, // CONST_ANI_ENERGYBALL (realmap11 attack/energy wall.lua)
     description: 'Cria uma parede de raios elétricos.',
   },
   {
@@ -554,11 +554,11 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     requiredMagicLevel: 10,
     vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid'],
     range: 4,
-    area: 'square-1x1',
+    area: 'square-1x1', // AREA_SQUARE1X1 (realmap11 attack/energy bomb.lua)
     combatType: 'energy',
     cooldownMs: 2000,
-    effectId: 38,
-    projectileId: 5,
+    effectId: 12, // CONST_ME_ENERGYHIT (realmap11 attack/energy bomb.lua)
+    projectileId: 36, // CONST_ANI_ENERGYBALL (realmap11 attack/energy bomb.lua)
     description: 'Bomba de energia elétrica que eletrifica 9 quadrantes.',
   },
   {
@@ -574,8 +574,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'earth',
     cooldownMs: 2000,
-    effectId: 12,
-    projectileId: 5,
+    effectId: 9, // CONST_ME_GREEN_RINGS (realmap11 attack/poison field.lua)
+    projectileId: 15, // CONST_ANI_POISON (realmap11 attack/poison field.lua)
     description: 'Cria um campo de poça de veneno.',
   },
   {
@@ -591,8 +591,8 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     area: 'target',
     combatType: 'earth',
     cooldownMs: 2000,
-    effectId: 12,
-    projectileId: 5,
+    effectId: 9, // CONST_ME_GREEN_RINGS (realmap11 attack/poison wall.lua)
+    projectileId: 15, // CONST_ANI_POISON (realmap11 attack/poison wall.lua)
     description: 'Cria uma barreira de gás venenoso.',
   },
   {
@@ -605,12 +605,29 @@ export const HOTBAR_RUNES: HotbarRuneDefinition[] = [
     requiredMagicLevel: 4,
     vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid'],
     range: 4,
-    area: 'square-1x1',
+    area: 'square-1x1', // AREA_SQUARE1X1 (realmap11 attack/poison bomb.lua)
     combatType: 'earth',
     cooldownMs: 2000,
-    effectId: 12,
-    projectileId: 5,
+    effectId: 9, // CONST_ME_GREEN_RINGS (realmap11 attack/poison bomb.lua)
+    projectileId: 15, // CONST_ANI_POISON (realmap11 attack/poison bomb.lua)
     description: 'Detonação de veneno tóxico em área.',
+  },
+  {
+    id: 2260,
+    name: 'Blank Rune',
+    words: 'adori blank',
+    kind: 'rune',
+    category: 'support',
+    requiredLevel: 20,
+    requiredMagicLevel: 0,
+    vocations: ['Sorcerer', 'Master Sorcerer', 'Druid', 'Elder Druid', 'Paladin', 'Royal Paladin'],
+    range: 1,
+    area: 'target',
+    combatType: 'support',
+    cooldownMs: 2000,
+    effectId: 13, // CONST_ME_MAGIC_BLUE
+    projectileId: 0,
+    description: 'Pedra mística em branco usada para conjuração de runas.',
   },
 ];
 

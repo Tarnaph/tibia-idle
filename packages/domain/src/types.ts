@@ -186,7 +186,7 @@ export interface HuntDefinition {
   minimumLevel: number;
   monsters: string[];
   roomDefinitions: string[];
-  environment: { regionId: string; label: string; source: 'styller-otbm' };
+  environment: { regionId: string; label: string; source: 'realmap11-otbm' };
   rewardProfile: 'xp';
   status: 'available' | 'unavailable' | 'maintenance';
   waves: WaveDefinition[];
@@ -210,7 +210,7 @@ export type CombatEvent =
   | { type: 'hunt-complete' }
   | { type: 'player-death'; characterId: string }
   | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string }
-  | { type: 'spell-visual'; sourceId: string; targetId?: string; targetPosition?: GridPosition; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null };
+  | { type: 'spell-visual'; sourceId: string; targetId?: string; targetPosition?: GridPosition; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null; delayMs?: number };
 
 export type CombatVisualEvent =
   | { type: 'basic-attack-started'; sourceId: string; targetId: string; ranged: boolean }

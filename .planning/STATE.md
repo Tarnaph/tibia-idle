@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T09:14:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 94: Ícones e Sprites Autênticos de Runas via Tibia 10.98 Client na Lista, Detalhes, Inventário e Barra de Ações."
+last_updated: "2026-09-09T09:38:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 95: Efeitos Visuais, Projéteis e Áreas de Impacto Autênticas de Runas via RealMap 11."
 progress:
-  total_phases: 94
-  completed_phases: 94
-  total_plans: 94
-  completed_plans: 94
+  total_phases: 95
+  completed_phases: 95
+  total_plans: 95
+  completed_plans: 95
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 94 concluída. Extração de todas as 34 runas canônicas do Tibia 10.98 diretamente do client oficial, eliminando o reuso de ícones de magias e unificando a aparência das runas em 100% de paridade entre a lista do modal, painel de detalhes, inventário (ItemSprite) e barra de ações (Tibia11ActionIcon).
+**Current focus:** Fase 95 concluída. Alinhamento de 100% das 34 runas canônicas aos scripts de `realmap11/data/spells/scripts/` e constantes de `realmap11/src/const.h`, com correção de IDs de efeitos visuais e mísseis/projéteis (Sudden Death com efeito 18 e projétil 32, Avalanche com projétil 29 e efeito 42, Great Fireball com projétil 4 e efeito 7, Explosion com projétil 41 e efeito 5, etc.), cálculo de explosões em área sincronizadas (+240ms no pouso do projétil) e pré-carregamento total de texturas WebGL na PixiArena e ThaisCityArena.
 
 ## Current Position
 
-Phase: 94 of 94 (Concluída)  
+Phase: 95 of 95 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 94.
+Last activity: 2026-09-09 — Conclusão da Phase 95.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 94
-- Total phases in roadmap: 94
-- Tests status: 95 test suites (497 testes aprovados)
+- Total phases completed: 95
+- Total phases in roadmap: 95
+- Tests status: 96 test suites (505 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

@@ -25,6 +25,37 @@ export const MOVEMENT_TICK_MS = 120;
 export const BASE_TILE_TRAVEL_MS = 720;
 const MAX_LOG_ENTRIES = 100;
 
+export const SQUARE_1X1_OFFSETS = [
+  { dx:  0, dy:  0 },
+  { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
+  { dx: -1, dy:  0 },                     { dx:  1, dy:  0 },
+  { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
+];
+
+export const CROSS_1X1_OFFSETS = [
+  { dx:  0, dy:  0 },
+  { dx:  0, dy: -1 },
+  { dx: -1, dy:  0 }, { dx:  1, dy:  0 },
+  { dx:  0, dy:  1 },
+];
+
+export const CIRCLE_3X3_OFFSETS = [
+  // dy = -3
+  { dx: -1, dy: -3 }, { dx: 0, dy: -3 }, { dx: 1, dy: -3 },
+  // dy = -2
+  { dx: -2, dy: -2 }, { dx: -1, dy: -2 }, { dx: 0, dy: -2 }, { dx: 1, dy: -2 }, { dx: 2, dy: -2 },
+  // dy = -1
+  { dx: -3, dy: -1 }, { dx: -2, dy: -1 }, { dx: -1, dy: -1 }, { dx: 0, dy: -1 }, { dx: 1, dy: -1 }, { dx: 2, dy: -1 }, { dx: 3, dy: -1 },
+  // dy = 0
+  { dx: -3, dy: 0 }, { dx: -2, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: 0 }, { dx: 1, dy: 0 }, { dx: 2, dy: 0 }, { dx: 3, dy: 0 },
+  // dy = 1
+  { dx: -3, dy: 1 }, { dx: -2, dy: 1 }, { dx: -1, dy: 1 }, { dx: 0, dy: 1 }, { dx: 1, dy: 1 }, { dx: 2, dy: 1 }, { dx: 3, dy: 1 },
+  // dy = 2
+  { dx: -2, dy: 2 }, { dx: -1, dy: 2 }, { dx: 0, dy: 2 }, { dx: 1, dy: 2 }, { dx: 2, dy: 2 },
+  // dy = 3
+  { dx: -1, dy: 3 }, { dx: 0, dy: 3 }, { dx: 1, dy: 3 },
+];
+
 const monsterFor = (content: GameContent, id: string) => {
   const monster = content.monsters.find((candidate) => candidate.id === id);
   if (!monster) throw new Error(`Missing monster ${id}.`);
@@ -541,7 +572,25 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
             .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
 
           if (inRange.length > 0) {
-            const targets = rune.area === 'square-1x1' ? inRange.slice(0, 8) : [inRange[0]];
+            const primaryTarget = inRange[0];
+            const centerPos = primaryTarget.position;
+            const offsets = rune.area === 'circle-3x3'
+              ? CIRCLE_3X3_OFFSETS
+              : rune.area === 'cross-1x1'
+              ? CROSS_1X1_OFFSETS
+              : rune.area === 'square-1x1'
+              ? SQUARE_1X1_OFFSETS
+              : null;
+
+            let targets: EnemyState[] = [primaryTarget];
+            if (offsets) {
+              const areaTileKeys = new Set(offsets.map((o) => `${centerPos.x + o.dx},${centerPos.y + o.dy},${centerPos.z}`));
+              const secondaryEnemies = eligibleEnemies.filter((enemy) =>
+                enemy.alive && enemy.id !== primaryTarget.id && areaTileKeys.has(`${enemy.position.x},${enemy.position.y},${enemy.position.z}`)
+              );
+              targets = [primaryTarget, ...secondaryEnemies];
+            }
+
             const rng = createSeededRng(encounter.rngState);
 
             let minDmg = character.level * 0.2 + character.skills.magicLevel * 2.5 + 15;
@@ -553,7 +602,7 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
             } else if (rune.id === 2311) {
               minDmg = character.level * 0.2 + character.skills.magicLevel * 1.6 + 10;
               maxDmg = character.level * 0.2 + character.skills.magicLevel * 2.4 + 18;
-            } else if (rune.id === 2304 || rune.id === 2274) {
+            } else if (rune.id === 2304 || rune.id === 2274 || rune.id === 2288 || rune.id === 2315) {
               minDmg = character.level * 0.2 + character.skills.magicLevel * 2.2 + 15;
               maxDmg = character.level * 0.2 + character.skills.magicLevel * 3.5 + 25;
             }
@@ -564,11 +613,48 @@ function castAutomaticSpells(state: GameState, content: GameContent, allowOffens
             actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
             actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
+            // 1. Launch missile to primary target if projectileId > 0
+            if (rune.projectileId > 0) {
+              encounter.events.push({
+                type: 'spell-visual',
+                sourceId: actor.characterId,
+                targetId: primaryTarget.id,
+                spellId: rune.id,
+                effectId: rune.area === 'target' && rune.effectId > 0 ? rune.effectId : null,
+                projectileId: rune.projectileId,
+              });
+            }
+
+            // 2. For area runes, detonate impact effect across blast area tiles at missile arrival (+240ms if missile, 0ms otherwise)
+            if (offsets && rune.effectId > 0) {
+              const impactDelay = rune.projectileId > 0 ? 240 : 0;
+              for (const offset of offsets) {
+                encounter.events.push({
+                  type: 'spell-visual',
+                  sourceId: actor.characterId,
+                  targetPosition: { x: centerPos.x + offset.dx, y: centerPos.y + offset.dy, z: centerPos.z },
+                  spellId: rune.id,
+                  effectId: rune.effectId,
+                  projectileId: null,
+                  delayMs: impactDelay,
+                });
+              }
+            } else if (rune.area === 'target' && rune.projectileId === 0 && rune.effectId > 0) {
+              // Single target instant effect without projectile (e.g. UH, Paralyze)
+              encounter.events.push({
+                type: 'spell-visual',
+                sourceId: actor.characterId,
+                targetId: primaryTarget.id,
+                spellId: rune.id,
+                effectId: rune.effectId,
+                projectileId: null,
+              });
+            }
+
             for (const target of targets) {
               const damage = resistedDamage(rawDamage, target, rune.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
               encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false, speech: rune.name });
-              encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, effectId: rune.effectId, projectileId: rune.projectileId });
               addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
               if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
             }
@@ -895,7 +981,25 @@ export function triggerManualHotbarAction(
       });
 
     if (inRange.length === 0) return false;
-    const targets = rune.area === 'square-1x1' ? inRange.slice(0, 8) : [inRange[0]];
+    const primaryTarget = inRange[0];
+    const centerPos = primaryTarget.position;
+    const offsets = rune.area === 'circle-3x3'
+      ? CIRCLE_3X3_OFFSETS
+      : rune.area === 'cross-1x1'
+      ? CROSS_1X1_OFFSETS
+      : rune.area === 'square-1x1'
+      ? SQUARE_1X1_OFFSETS
+      : null;
+
+    let targets: EnemyState[] = [primaryTarget];
+    if (offsets) {
+      const areaTileKeys = new Set(offsets.map((o) => `${centerPos.x + o.dx},${centerPos.y + o.dy},${centerPos.z}`));
+      const secondaryEnemies = inRange.filter((enemy) =>
+        enemy.alive && enemy.id !== primaryTarget.id && areaTileKeys.has(`${enemy.position.x},${enemy.position.y},${enemy.position.z}`)
+      );
+      targets = [primaryTarget, ...secondaryEnemies];
+    }
+
     const rng = createSeededRng(encounter.rngState);
 
     let minDmg = character.level * 0.2 + character.skills.magicLevel * 2.5 + 15;
@@ -903,6 +1007,12 @@ export function triggerManualHotbarAction(
     if (rune.id === 2268) {
       minDmg = character.level * 0.2 + character.skills.magicLevel * 7.0 + 40;
       maxDmg = character.level * 0.2 + character.skills.magicLevel * 9.5 + 65;
+    } else if (rune.id === 2311) {
+      minDmg = character.level * 0.2 + character.skills.magicLevel * 1.6 + 10;
+      maxDmg = character.level * 0.2 + character.skills.magicLevel * 2.4 + 18;
+    } else if (rune.id === 2304 || rune.id === 2274 || rune.id === 2288 || rune.id === 2315) {
+      minDmg = character.level * 0.2 + character.skills.magicLevel * 2.2 + 15;
+      maxDmg = character.level * 0.2 + character.skills.magicLevel * 3.5 + 25;
     }
 
     const rawDamage = rollInteger(rng, Math.floor(minDmg), Math.max(Math.floor(minDmg), Math.ceil(maxDmg)));
@@ -911,11 +1021,47 @@ export function triggerManualHotbarAction(
     actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
     actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
+    // 1. Launch missile to primary target if projectileId > 0
+    if (rune.projectileId > 0) {
+      encounter.events.push({
+        type: 'spell-visual',
+        sourceId: actor.characterId,
+        targetId: primaryTarget.id,
+        spellId: rune.id,
+        effectId: rune.area === 'target' && rune.effectId > 0 ? rune.effectId : null,
+        projectileId: rune.projectileId,
+      });
+    }
+
+    // 2. For area runes, detonate impact effect across blast area tiles at missile arrival (+240ms if missile, 0ms otherwise)
+    if (offsets && rune.effectId > 0) {
+      const impactDelay = rune.projectileId > 0 ? 240 : 0;
+      for (const offset of offsets) {
+        encounter.events.push({
+          type: 'spell-visual',
+          sourceId: actor.characterId,
+          targetPosition: { x: centerPos.x + offset.dx, y: centerPos.y + offset.dy, z: centerPos.z },
+          spellId: rune.id,
+          effectId: rune.effectId,
+          projectileId: null,
+          delayMs: impactDelay,
+        });
+      }
+    } else if (rune.area === 'target' && rune.projectileId === 0 && rune.effectId > 0) {
+      encounter.events.push({
+        type: 'spell-visual',
+        sourceId: actor.characterId,
+        targetId: primaryTarget.id,
+        spellId: rune.id,
+        effectId: rune.effectId,
+        projectileId: null,
+      });
+    }
+
     for (const target of targets) {
       const damage = resistedDamage(rawDamage, target, rune.combatType, content);
       target.hp = Math.max(0, target.hp - damage);
       encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, amount: damage, healing: false, speech: rune.name });
-      encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: rune.id, effectId: rune.effectId, projectileId: rune.projectileId });
       addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
       if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
     }
@@ -1417,15 +1563,23 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   if (!route || !progress) return;
   encounter.room.reservations = new Map();
   populateReadyRespawns(state, content);
-  let zone = route.respawnZones[progress.currentZoneIndex]; let zoneState = progress.zones[progress.currentZoneIndex];
-  const activeEnemies = zoneState.activeEnemyIds.filter((id) => encounter.enemies.some((enemy) => enemy.id === id && enemy.alive));
-  if (zoneState.activeEnemyIds.length > 0 && activeEnemies.length === 0) {
-    zoneState.activeEnemyIds = []; zoneState.lastClearedAt = encounter.elapsedMs;
-    zoneState.nextRespawnAt = encounter.elapsedMs + zone.gameRespawnSeconds * 1_000;
-    progress.currentZoneIndex += 1;
-    if (progress.currentZoneIndex >= route.respawnZones.length) { progress.currentZoneIndex = 0; progress.loopCount += 1; }
-    addLog(state, `${zone.id} limpa. A party continua a rota.`);
-    zone = route.respawnZones[progress.currentZoneIndex]; zoneState = progress.zones[progress.currentZoneIndex];
+  for (let checked = 0; checked < route.respawnZones.length; checked += 1) {
+    const zone = route.respawnZones[progress.currentZoneIndex];
+    const zoneState = progress.zones[progress.currentZoneIndex];
+    const activeEnemies = zoneState.activeEnemyIds.filter((id) => encounter.enemies.some((enemy) => enemy.id === id && enemy.alive));
+    if (zoneState.activeEnemyIds.length > 0 && activeEnemies.length === 0) {
+      zoneState.activeEnemyIds = [];
+      zoneState.lastClearedAt = encounter.elapsedMs;
+      zoneState.nextRespawnAt = encounter.elapsedMs + zone.gameRespawnSeconds * 1_000;
+      progress.currentZoneIndex += 1;
+      if (progress.currentZoneIndex >= route.respawnZones.length) {
+        progress.currentZoneIndex = 0;
+        progress.loopCount += 1;
+      }
+      addLog(state, `${zone.id} limpa. A party continua a rota.`);
+    } else {
+      break;
+    }
   }
   const objective = resolveNextHuntObjective(state);
   if (!objective) {

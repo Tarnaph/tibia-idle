@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
 import thaisCityJson from '@/content/generated/thais-city.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
-import visualAssetsJson from '@/content/generated/tibia860-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
 import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
 import type { HuntRegionCatalog } from '@/packages/content-schema/src';
 import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
-import type { ItemVisualAssetMapping, Tibia860AssetManifest, VisualAssetMapping } from '@/packages/tibia860-assets/src/types';
+import type { ExtractedFrame, ItemVisualAssetMapping, Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
 import { getRecoloredCanvasSync, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
@@ -58,7 +58,7 @@ interface Props {
   active?: boolean;
 }
 
-const visualAssets = visualAssetsJson as Tibia860AssetManifest;
+const visualAssets = visualAssetsJson as Tibia1098AssetManifest;
 const thaisData = thaisCityJson as {
   bounds: { minX: number; maxX: number; minY: number; maxY: number; z: number };
   temple: { x: number; y: number; z: number };
@@ -211,21 +211,12 @@ export function ThaisCityArena({
       );
       const teleportEffectUrls = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
       const fireEffectUrls = visualAssets.effects['16']?.frames.map((f) => f.publicUrl) ?? [];
-      const coreMissileUrls = [
-        ...(visualAssets.missiles['5']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.missiles['29']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.missiles['3']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.missiles['4']?.frames.map((f) => f.publicUrl) ?? []),
-      ];
-      const coreEffectUrls = [
-        ...(visualAssets.effects['12']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.effects['13']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.effects['15']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.effects['37']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.effects['38']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.effects['43']?.frames.map((f) => f.publicUrl) ?? []),
-        ...(visualAssets.effects['10']?.frames.map((f) => f.publicUrl) ?? []),
-      ];
+      const coreMissileUrls = Object.values(visualAssets.missiles).flatMap((m) =>
+        m.frames.map((f) => f.publicUrl)
+      );
+      const coreEffectUrls = Object.values(visualAssets.effects).flatMap((e) =>
+        e.frames.map((f) => f.publicUrl)
+      );
       const upperTilesList = (thaisData as { upperTiles?: typeof thaisData.tiles }).upperTiles ?? [];
       const huntTilesList = (huntRegionsJson as HuntRegionCatalog).regions.flatMap((r) => r.tiles);
       const mapItemUrls = Array.from(new Set([
@@ -768,7 +759,7 @@ export function ThaisCityArena({
       function getOutfitFrameUrl(vocationOrOutfit: string, direction: string, frame: number): string {
         const lower = (vocationOrOutfit || '').toLowerCase();
         if (lower === 'dragon' || lower === '34') {
-          return `/generated/tibia860/monster-dragon-${direction}-frame-${frame % 3}.png`;
+          return `/generated/tibia1098/monster-dragon-${direction}-frame-${frame % 3}.png`;
         }
         const normKey = vocationOrOutfit.includes('Sire')
           ? 'Sire'
@@ -1111,8 +1102,35 @@ export function ThaisCityArena({
                 }
               }
             } else if ((ev as any).type === 'spell-visual' || (ev as any).type === 'heal-applied' || (ev as any).type === 'spell' || (ev as any).type === 'spell-cast') {
+              const projectileId = 'projectileId' in ev && typeof (ev as any).projectileId === 'number'
+                ? (ev as any).projectileId
+                : 'projectileId' in ev && (ev as any).projectileId === 'weapon-type' ? 24 : null;
+              if (projectileId) {
+                const mMapping = visualAssets.missiles[String(projectileId)];
+                if (mMapping && mMapping.frames.length > 0) {
+                  const fUrl = mMapping.frames[0].publicUrl;
+                  if (loaded[fUrl]) {
+                    const sp = new Sprite(loaded[fUrl]);
+                    sp.anchor.set(0.5);
+                    effectsLayer.addChild(sp);
+                    let toPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
+                    if ('targetPosition' in ev && (ev as any).targetPosition) {
+                      const tp = (ev as any).targetPosition;
+                      toPx = { x: tp.x * TILE_SIZE + 16, y: tp.y * TILE_SIZE + 16 };
+                    }
+                    timedCityVisuals.push({
+                      root: sp,
+                      startedAt: now,
+                      durationMs: 320,
+                      kind: 'missile',
+                      from: { x: currentPixelX, y: currentPixelY },
+                      to: toPx,
+                    });
+                  }
+                }
+              }
               const effectId = 'effectId' in ev ? (ev as any).effectId : null;
-              if (effectId) {
+              if (effectId && effectId > 0) {
                 const fxMapping = visualAssets.effects[String(effectId)];
                 if (fxMapping && fxMapping.frames.length > 0) {
                   const fUrl = fxMapping.frames[0].publicUrl;
@@ -1123,12 +1141,18 @@ export function ThaisCityArena({
                     if ('targetPosition' in ev && (ev as any).targetPosition) {
                       const tp = (ev as any).targetPosition;
                       targetPx = { x: tp.x * TILE_SIZE + 16, y: tp.y * TILE_SIZE + 16 };
+                    } else if (projectileId) {
+                      targetPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
                     }
                     sp.position.set(targetPx.x, targetPx.y);
                     effectsLayer.addChild(sp);
+                    const effectDelay = typeof (ev as any).delayMs === 'number'
+                      ? (ev as any).delayMs
+                      : (projectileId === null ? 0 : 240);
+                    sp.visible = effectDelay <= 0;
                     timedCityVisuals.push({
                       root: sp,
-                      startedAt: now,
+                      startedAt: now + effectDelay,
                       durationMs: Math.max(300, fxMapping.frames.length * 70),
                       kind: 'effect',
                       frames: fxMapping.frames.map((f) => f.publicUrl),

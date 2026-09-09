@@ -54,6 +54,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 90: Perseguição Universal de Monstros e Seleção Dinâmica de Alvos (ALVO - Mais próximo, Menor vida, Maior vida)** - Expansão do raio de detecção de monstros para 50+ tiles garantindo perseguição agressiva de todos as criaturas no mapa, e implementação funcional do dropdown ALVO no BottomConsoleHUD integrando as estratégias `'closest'`, `'lowest-hp'` e `'highest-hp'` na ordenação de alvos no combate.
 - [x] **Phase 91: Extração e Correção de Sprites Autênticas de Poções (Health, Mana, Spirit e Variações) via Tibia 10.98 & RealMap 11** - Mapeamento e extração determinística via items.otb e Tibia.dat/Tibia.spr de todas as poções de cura, mana, spirit e elixires do jogo (7618, 7620, 7588, 7589, 7590, 7591, 8472, 8473, 26029, 26030, 26031, 8704, 7439, 7440, 7443, 8474), substituição dos ícones sintéticos/embaçados no Tibia11ActionIcon e ItemSprite pelas sprites transparentes originais e integração total na Action Bar, Hotbar e Loja.
 - [x] **Phase 92: Animação Autêntica de Poções (APNG Star Glint), Remoção de Quantidade no Menu de Ações e Travas de Nível por Vocação** - Geração de PNGs animados nativos (APNG) com 12 frames de brilho estelar autêntico extraídos do Tibia.spr para poções de alto nível (Ultimate/Supreme) e loop de brilho no vidro para poções canônicas, remoção das badges numéricas de quantidade no modal de configurar ação e aplicação estrita de nível mínimo e vocação para seleção/uso de poções.
+- [x] **Phase 93: Ícones Oficiais de Magias de Sorcerer via Tibia 11 (graphics_resources.rcc)** - Extração dos ícones 32x32 oficiais do Tibia 11 RCC para todas as magias de Sorcerer, garantindo 100% de paridade visual em toda a interface.
+- [x] **Phase 94: Ícones e Sprites Autênticos de Runas via Tibia 10.98 Client** - Extração direta das 34 runas canônicas do Tibia 10.98, eliminando o reuso de ícones de magias e unificando o visual nas 4 áreas da interface.
+- [x] **Phase 95: Efeitos Visuais, Projéteis e Áreas de Impacto Autênticas de Runas via RealMap 11** - Correção autoritativa de effectId e projectileId de todas as 34 runas canônicas de acordo com realmap11 scripts e const.h (SD 18/32, Avalanche 42/29, GFB 7/4, Explosion 5/41, Thunderstorm 12/36, Stone Shower 45/30), detonação sincronizada de área no impacto (+240ms) na PixiArena e ThaisCityArena, preservando os ícones corrigidos e regras de combate.
 
 ---
 
@@ -1713,3 +1716,25 @@ Plans:
 
 Plans:
 - [x] 94-01-PLAN: Extração de Sprites de Runas do Tibia 10.98 e Unificação Visual em Toda a Interface.
+
+### Phase 95: Efeitos Visuais, Projéteis e Áreas de Impacto Autênticas de Runas via RealMap 11
+
+**Goal:** Alinhar com 100% de fidelidade aos scripts de `realmap11/data/spells/scripts/` e constantes de `realmap11/src/const.h` todos os efeitos visuais (`effectId`) e projéteis (`projectileId`) das 34 runas canônicas do jogo, corrigindo associações incorretas (SD com efeito 18/projétil 32, Avalanche com projétil 29/efeito 42, Great Fireball com projétil 4/efeito 7, Explosion com projétil 41/efeito 5, etc.) e implementando a sincronização visual de impacto em área (+240ms no pouso do projétil) tanto na PixiArena quanto na ThaisCityArena.
+**Depends on:** Phase 94
+**Requirements:**
+1. Correção de `effectId` e `projectileId` no catálogo `HOTBAR_RUNES` em `packages/domain/src/hotbarActions.ts` para todas as 34 runas canônicas de acordo com `realmap11/src/const.h`.
+2. Mapeamento de tipos de área (`target`, `circle-3x3`, `cross-1x1`, `square-1x1`) e cálculo de coordenadas de detonação em área (`packages/domain/src/combat.ts`).
+3. Suporte a `delayMs` em eventos visuais (`spell-visual`), permitindo que as detonações em área de runas com projétil aconteçam exatamente no impacto (+240ms) nos renderizadores WebGL `PixiArena` e `ThaisCityArena`.
+4. Pré-carregamento universal de todas as spritesheets de mísseis e efeitos visuais no `ThaisCityArena.tsx` para evitar frames vazios no WebGL.
+5. Inclusão das constantes completas de efeitos e projéteis em `packages/realmap11-importer/src/importSpells.ts`.
+6. Preservação estrita dos ícones de runas corrigidos na Phase 94, das magias de Sorcerer da Phase 93, das poções das Phases 91-92 e das fórmulas de dano/regras de combate.
+**Success Criteria:**
+1. Sudden Death emite projétil 32 e efeito 18 no alvo.
+2. Great Fireball emite projétil 4 e efeito 7 em área 3x3 circular sincronizada com a chegada do projétil (+240ms).
+3. Avalanche emite projétil 29 e efeito 42 em área 3x3 circular sincronizada com a chegada do projétil (+240ms).
+4. Explosion emite projétil 41 e efeito 5 em cruz 1x1 sincronizada (+240ms).
+5. Todas as 34 runas possuem mapeamentos autênticos verificados contra realmap11.
+6. 0 erros no typecheck e 100% dos testes Vitest passando (505/505 testes).
+
+Plans:
+- [x] 95-01-PLAN: Alinhamento de Efeitos Visuais, Projéteis e Detonação em Área das Runas.
