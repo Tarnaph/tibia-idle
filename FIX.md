@@ -1,3 +1,3 @@
 # CORREÇÕES
 
-Ao entrar na hunt do dragon, ele está indo para um lugar nada ver, lá se chama Dragon de Yalahar o começo é igual o do print, as coordenadas estão na imagem e lá estava sem dragon, algo invisível estava me atacando verifique o por que do erro.
+Precisamos corrigir os icones das magias e os nomes dela, vamos começar pelo sorcerer, master sorcerer vou mandar prints com elas para auxiliar correção
