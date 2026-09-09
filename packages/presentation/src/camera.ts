@@ -10,7 +10,7 @@ export interface PixelCameraLayout {
 }
 
 export function calculatePixelCamera(viewportWidth: number, viewportHeight: number, tileSize = 32): PixelCameraLayout {
-  const scale = 1.0;
+  const scale = 1.20;
   const tilePixelSize = tileSize * scale;
   const visibleColumns = Math.ceil(viewportWidth / tilePixelSize) + 2;
   const visibleRows = Math.ceil(viewportHeight / tilePixelSize) + 2;
