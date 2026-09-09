@@ -43,6 +43,7 @@ import { OutfitModal } from './OutfitModal';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { PixiArena } from './PixiArena';
+import { ExuraLoadingScreen } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
 import { ThaisCityArena, type CityOverheadMessage } from './ThaisCityArena';
 import { WorldNavigation } from './WorldNavigation';
@@ -193,6 +194,13 @@ function GamePrototypeContent() {
   const [showAuthModal, setShowAuthModal] = useState(true);
   const [isCharacterReady, setIsCharacterReady] = useState(false);
   const [isLoadingCharacter, setIsLoadingCharacter] = useState(false);
+  const [initialLoadingActive, setInitialLoadingActive] = useState(true);
+  const [transitionLoading, setTransitionLoading] = useState<{
+    active: boolean;
+    message: string;
+    durationMs?: number;
+  } | null>(null);
+  const saveProgressRef = useRef<() => Promise<void>>(async () => {});
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   const roleUpper = ((auth.viewer?.role || onlineAccount?.role) || '').toUpperCase();
   const isAdmin = roleUpper === 'ADMIN' || roleUpper === 'GM';
@@ -833,6 +841,7 @@ function GamePrototypeContent() {
 
   const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
     setIsLoadingCharacter(true);
+    setInitialLoadingActive(true);
     setOnlineAccount(acc);
     setOnlineCharacter(charItem);
     setShowAuthModal(false);
@@ -1174,6 +1183,8 @@ function GamePrototypeContent() {
         // Auto-save silent error handling
       }
     };
+
+    saveProgressRef.current = saveProgress;
 
     const timer = setInterval(saveProgress, 5000);
     const handleUnload = () => { void saveProgress(); };
@@ -1590,6 +1601,14 @@ function GamePrototypeContent() {
     setIsTrainingAtDummy(false);
     setWalkingPath(null);
 
+    // Phase 99: Save progress and trigger 5-second Exura loading screen
+    void saveProgressRef.current?.();
+    setTransitionLoading({
+      active: true,
+      message: `Viajando para ${targetHunt.name}...`,
+      durationMs: 5000,
+    });
+
     const beforePos = { ...cityPos };
     const entrance = getHuntWorldEntrance(huntId, content);
     const region = content.huntRegions.find((r) => r.huntId === targetHunt.id);
@@ -1624,21 +1643,45 @@ function GamePrototypeContent() {
   startSelectedHuntRef.current = startSelectedHunt;
 
   const exitHunt = () => {
-    followSuppressedUntilRef.current = Date.now() + 2500;
+    followSuppressedUntilRef.current = Date.now() + 5500;
     const party = multiplayerPartyRef.current;
     if (party && party.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntExit();
     }
     gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
     gameNetwork.sendSetInHunt(false);
+
+    // Phase 99: Save progress immediately with 100% accumulated XP, level and loot
+    void saveProgressRef.current?.();
+
+    // Phase 99: Trigger 5-second Exura loading screen for tranquil transition and safe saving
+    setTransitionLoading({
+      active: true,
+      message: 'Salvando progresso e retornando a Thais...',
+      durationMs: 5000,
+    });
+
     setGame((current) => {
-      const respawned = respawnInTemple(current);
+      // Phase 99: Use leaveHunt instead of respawnInTemple to eliminate death penalty (0% XP loss, 0% skill loss)
+      const left = leaveHunt(current);
       const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
-      const localOnly = mainId ? respawned.session.characters.filter((c: CharacterState) => c.id === mainId) : [respawned.session.characters[0]];
+      const localOnly = mainId ? left.session.characters.filter((c: CharacterState) => c.id === mainId) : [left.session.characters[0]];
+
+      // Restore full health & mana and reset combat states for peaceful Thais city return
+      for (const char of localOnly) {
+        if (char) {
+          char.currentHp = char.maxHp;
+          char.currentMana = char.maxMana;
+          char.combatState.targetId = null;
+          char.combatState.spellCooldowns = {};
+          char.combatState.groupCooldowns = {};
+        }
+      }
+
       return {
-        ...respawned,
+        ...left,
         session: {
-          ...respawned.session,
+          ...left.session,
           characters: localOnly,
           isMultiplayerParty: false,
         },
@@ -1664,7 +1707,7 @@ function GamePrototypeContent() {
         setSaleMessage('Chegou em Thais (32345, 32224, 7). Ande livremente com as setas do teclado!');
       },
     });
-    setSaleMessage('Renasceu no Templo de Thais e caminhando pela cidade...');
+    setSaleMessage('Retornou a Thais. Progresso e experiência salvos com sucesso!');
   };
   exitHuntRef.current = exitHunt;
 
@@ -2502,41 +2545,26 @@ function GamePrototypeContent() {
         />
       )}
 
-      {/* Loading Overlay while character data is being hydrated / synchronized */}
-      {(!isCharacterReady || isLoadingCharacter) && !showAuthModal && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#07090b] text-amber-100 font-sans select-none animate-in fade-in duration-300">
-          <div className="relative flex flex-col items-center p-8 bg-[#11161b] border-2 border-[#5c4a30] rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.9)] max-w-md w-full mx-4 text-center">
-            {/* Decorative Golden Corner Accents */}
-            <div className="absolute top-1 left-1 text-[#8c734b] text-xs font-serif">◆</div>
-            <div className="absolute top-1 right-1 text-[#8c734b] text-xs font-serif">◆</div>
-            <div className="absolute bottom-1 left-1 text-[#8c734b] text-xs font-serif">◆</div>
-            <div className="absolute bottom-1 right-1 text-[#8c734b] text-xs font-serif">◆</div>
-
-            {/* Tibia Shield / Spinner Icon */}
-            <div className="w-16 h-16 mb-5 relative flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border-4 border-[#3a2e1d] border-t-[#d4a359] animate-spin"></div>
-              <div className="text-2xl animate-pulse">🛡️</div>
-            </div>
-
-            {/* Loading Titles */}
-            <h2 className="text-xl font-bold tracking-wide text-[#d4a359] mb-1 font-serif">
-              {onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Entrando em Thais...'}
-            </h2>
-            <p className="text-xs text-[#a0927d] mb-4">
-              Sincronizando posição, outfit e inventário autoritativo
-            </p>
-
-            {/* Animated Loading Bar */}
-            <div className="w-full h-2 bg-[#1b222a] border border-[#443622] rounded-full overflow-hidden mb-3">
-              <div className="h-full bg-gradient-to-r from-[#8c6527] via-[#d4a359] to-[#8c6527] animate-pulse w-full"></div>
-            </div>
-
-            <span className="text-[11px] text-[#6b5c47] italic">
-              Aguarde alguns instantes...
-            </span>
-          </div>
-        </div>
-      )}
+      {/* Phase 99: Authentic Exura 5s Cinematic Loading Screen for Login & Transitions */}
+      <ExuraLoadingScreen
+        active={
+          (!showAuthModal && (!isCharacterReady || isLoadingCharacter || initialLoadingActive)) ||
+          Boolean(transitionLoading?.active)
+        }
+        durationMs={transitionLoading?.durationMs ?? 5000}
+        message={
+          transitionLoading?.message ||
+          (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Loading, please wait...')
+        }
+        onFinish={() => {
+          if (initialLoadingActive) {
+            setInitialLoadingActive(false);
+          }
+          if (transitionLoading?.active) {
+            setTransitionLoading(null);
+          }
+        }}
+      />
 
       {/* Duplicate Session Error Modal Overlay */}
       {duplicateSessionError && (

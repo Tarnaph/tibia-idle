@@ -128,78 +128,79 @@ export const ALL_SPELL_ICON_URLS: string[] = [
 /**
  * Resolves an action to an authentic official CipSoft image path extracted in Phase 20 / Phase 91 / Phase 93 / Phase 94
  */
-export function resolveActionImagePath(id?: number, kind?: string, name?: string): string | null {
+export function resolveActionImagePath(id?: number | string, kind?: string, name?: string): string | null {
+  const numId = typeof id === 'number' ? id : typeof id === 'string' && !isNaN(Number(id)) && id.trim() !== '' ? Number(id) : undefined;
   const lower = (name || '').toLowerCase();
 
   // 1. Potions (Authentic transparent flacons from Tibia 10.98 client)
   if (kind === 'potion' || lower.includes('potion') || lower.includes('flask')) {
-    if (id === 26031 || lower.includes('supreme health') || (id === undefined && lower.includes('supreme') && !lower.includes('mana') && !lower.includes('spirit'))) return '/potions/supreme-health-potion.png';
-    if (lower.includes('spirit') || id === 8472 || id === 26030) {
-      if (id === 26030 || lower.includes('ultimate') || lower.includes('supreme')) return '/potions/ultimate-spirit-potion.png';
+    if (numId === 26031 || lower.includes('supreme health') || (numId === undefined && lower.includes('supreme') && !lower.includes('mana') && !lower.includes('spirit'))) return '/potions/supreme-health-potion.png';
+    if (lower.includes('spirit') || numId === 8472 || numId === 26030) {
+      if (numId === 26030 || lower.includes('ultimate') || lower.includes('supreme')) return '/potions/ultimate-spirit-potion.png';
       return '/potions/great-spirit-potion.png';
     }
-    if (lower.includes('mana') || id === 7620 || id === 7589 || id === 7590 || id === 26029) {
-      if (id === 26029 || lower.includes('ultimate') || lower.includes('supreme')) return '/potions/ultimate-mana-potion.png';
-      if (id === 7590 || lower.includes('great')) return '/potions/great-mana-potion.png';
-      if (id === 7589 || lower.includes('strong')) return '/potions/strong-mana-potion.png';
+    if (lower.includes('mana') || numId === 7620 || numId === 7589 || numId === 7590 || numId === 26029) {
+      if (numId === 26029 || lower.includes('ultimate') || lower.includes('supreme')) return '/potions/ultimate-mana-potion.png';
+      if (numId === 7590 || lower.includes('great')) return '/potions/great-mana-potion.png';
+      if (numId === 7589 || lower.includes('strong')) return '/potions/strong-mana-potion.png';
       if (lower.includes('small')) return '/potions/small-mana-potion.png';
       return '/potions/mana-potion.png';
     }
-    if (id === 8474 || id === 10089 || lower.includes('antidote')) return '/potions/antidote-potion.png';
-    if (id === 7439 || lower.includes('berserk')) return '/potions/berserk-potion.png';
-    if (id === 7440 || lower.includes('mastermind')) return '/potions/mastermind-potion.png';
-    if (id === 7443 || lower.includes('bullseye')) return '/potions/bullseye-potion.png';
-    if (id === 7634) return '/potions/empty-potion-flask-small.png';
-    if (id === 7635) return '/potions/empty-potion-flask-medium.png';
-    if (id === 7636 || lower.includes('flask')) return '/potions/empty-potion-flask.png';
+    if (numId === 8474 || numId === 10089 || lower.includes('antidote')) return '/potions/antidote-potion.png';
+    if (numId === 7439 || lower.includes('berserk')) return '/potions/berserk-potion.png';
+    if (numId === 7440 || lower.includes('mastermind')) return '/potions/mastermind-potion.png';
+    if (numId === 7443 || lower.includes('bullseye')) return '/potions/bullseye-potion.png';
+    if (numId === 7634) return '/potions/empty-potion-flask-small.png';
+    if (numId === 7635) return '/potions/empty-potion-flask-medium.png';
+    if (numId === 7636 || lower.includes('flask')) return '/potions/empty-potion-flask.png';
 
     // Health Potions
-    if (id === 8473 || lower.includes('ultimate')) return '/potions/ultimate-health-potion.png';
-    if (id === 7591 || lower.includes('great')) return '/potions/great-health-potion.png';
-    if (id === 7588 || lower.includes('strong')) return '/potions/strong-health-potion.png';
-    if (id === 8704 || lower.includes('small')) return '/potions/small-health-potion.png';
+    if (numId === 8473 || lower.includes('ultimate')) return '/potions/ultimate-health-potion.png';
+    if (numId === 7591 || lower.includes('great')) return '/potions/great-health-potion.png';
+    if (numId === 7588 || lower.includes('strong')) return '/potions/strong-health-potion.png';
+    if (numId === 8704 || lower.includes('small')) return '/potions/small-health-potion.png';
     return '/potions/health-potion.png';
   }
 
   // 2. Runes (Authentic Tibia 10.98 Rune Item Sprites)
-  if (kind === 'rune' || (id !== undefined && id >= 2260 && id <= 2316) || lower.includes('rune')) {
-    if (id === 2268 || lower.includes('sudden death')) return '/runes/sudden-death-rune.png';
-    if (id === 2304 || lower.includes('great fireball')) return '/runes/great-fireball-rune.png';
-    if (id === 2274 || lower.includes('avalanche')) return '/runes/avalanche-rune.png';
-    if (id === 2311 || lower.includes('heavy magic missile')) return '/runes/heavy-magic-missile-rune.png';
-    if (id === 2287 || lower.includes('light magic missile')) return '/runes/light-magic-missile-rune.png';
-    if (id === 2313 || lower.includes('explosion')) return '/runes/explosion-rune.png';
-    if (id === 2273 || lower.includes('ultimate healing rune') || (lower.includes('ultimate healing') && kind === 'rune')) return '/runes/ultimate-healing-rune.png';
-    if (id === 2265 || lower.includes('intense healing rune')) return '/runes/intense-healing-rune.png';
-    if (id === 2266 || lower.includes('cure poison rune')) return '/runes/cure-poison-rune.png';
-    if (id === 2302 || lower.includes('fireball rune') || lower === 'fireball') return '/runes/fireball-rune.png';
-    if (id === 2271 || lower.includes('icicle')) return '/runes/icicle-rune.png';
-    if (id === 2288 || lower.includes('stone shower')) return '/runes/stone-shower-rune.png';
-    if (id === 2315 || lower.includes('thunderstorm')) return '/runes/thunderstorm-rune.png';
-    if (id === 2293 || lower.includes('magic wall')) return '/runes/magic-wall-rune.png';
-    if (id === 2269 || lower.includes('wild growth')) return '/runes/wild-growth-rune.png';
-    if (id === 2278 || lower.includes('paralyze')) return '/runes/paralyze-rune.png';
-    if (id === 2295 || lower.includes('holy missile')) return '/runes/holy-missile-rune.png';
-    if (id === 2292 || lower.includes('stalagmite')) return '/runes/stalagmite-rune.png';
-    if (id === 2261 || lower.includes('destroy field')) return '/runes/destroy-field-rune.png';
-    if (id === 2310 || lower.includes('desintegrate')) return '/runes/desintegrate-rune.png';
-    if (id === 2290 || lower.includes('convince creature')) return '/runes/convince-creature-rune.png';
-    if (id === 2291 || lower.includes('chameleon')) return '/runes/chameleon-rune.png';
-    if (id === 2316 || lower.includes('animate dead')) return '/runes/animate-dead-rune.png';
-    if (id === 2308 || lower.includes('soulfire')) return '/runes/soulfire-rune.png';
-    if (id === 2301 || lower.includes('fire field')) return '/runes/fire-field-rune.png';
-    if (id === 2303 || lower.includes('fire wall')) return '/runes/fire-wall-rune.png';
-    if (id === 2305 || lower.includes('fire bomb')) return '/runes/fire-bomb-rune.png';
-    if (id === 2277 || lower.includes('energy field')) return '/runes/energy-field-rune.png';
-    if (id === 2279 || lower.includes('energy wall')) return '/runes/energy-wall-rune.png';
-    if (id === 2262 || lower.includes('energy bomb')) return '/runes/energy-bomb-rune.png';
-    if (id === 2285 || lower.includes('poison field')) return '/runes/poison-field-rune.png';
-    if (id === 2289 || lower.includes('poison wall')) return '/runes/poison-wall-rune.png';
-    if (id === 2286 || lower.includes('poison bomb')) return '/runes/poison-bomb-rune.png';
-    if (id === 2260 || lower.includes('blank rune')) return '/runes/blank-rune.png';
+  if (kind === 'rune' || (numId !== undefined && numId >= 2260 && numId <= 2316) || lower.includes('rune')) {
+    if (numId === 2268 || lower.includes('sudden death')) return '/runes/sudden-death-rune.png';
+    if (numId === 2304 || lower.includes('great fireball')) return '/runes/great-fireball-rune.png';
+    if (numId === 2274 || lower.includes('avalanche')) return '/runes/avalanche-rune.png';
+    if (numId === 2311 || lower.includes('heavy magic missile')) return '/runes/heavy-magic-missile-rune.png';
+    if (numId === 2287 || lower.includes('light magic missile')) return '/runes/light-magic-missile-rune.png';
+    if (numId === 2313 || lower.includes('explosion')) return '/runes/explosion-rune.png';
+    if (numId === 2273 || lower.includes('ultimate healing rune') || (lower.includes('ultimate healing') && kind === 'rune')) return '/runes/ultimate-healing-rune.png';
+    if (numId === 2265 || lower.includes('intense healing rune')) return '/runes/intense-healing-rune.png';
+    if (numId === 2266 || lower.includes('cure poison rune')) return '/runes/cure-poison-rune.png';
+    if (numId === 2302 || lower.includes('fireball rune') || lower === 'fireball') return '/runes/fireball-rune.png';
+    if (numId === 2271 || lower.includes('icicle')) return '/runes/icicle-rune.png';
+    if (numId === 2288 || lower.includes('stone shower')) return '/runes/stone-shower-rune.png';
+    if (numId === 2315 || lower.includes('thunderstorm')) return '/runes/thunderstorm-rune.png';
+    if (numId === 2293 || lower.includes('magic wall')) return '/runes/magic-wall-rune.png';
+    if (numId === 2269 || lower.includes('wild growth')) return '/runes/wild-growth-rune.png';
+    if (numId === 2278 || lower.includes('paralyze')) return '/runes/paralyze-rune.png';
+    if (numId === 2295 || lower.includes('holy missile')) return '/runes/holy-missile-rune.png';
+    if (numId === 2292 || lower.includes('stalagmite')) return '/runes/stalagmite-rune.png';
+    if (numId === 2261 || lower.includes('destroy field')) return '/runes/destroy-field-rune.png';
+    if (numId === 2310 || lower.includes('desintegrate')) return '/runes/desintegrate-rune.png';
+    if (numId === 2290 || lower.includes('convince creature')) return '/runes/convince-creature-rune.png';
+    if (numId === 2291 || lower.includes('chameleon')) return '/runes/chameleon-rune.png';
+    if (numId === 2316 || lower.includes('animate dead')) return '/runes/animate-dead-rune.png';
+    if (numId === 2308 || lower.includes('soulfire')) return '/runes/soulfire-rune.png';
+    if (numId === 2301 || lower.includes('fire field')) return '/runes/fire-field-rune.png';
+    if (numId === 2303 || lower.includes('fire wall')) return '/runes/fire-wall-rune.png';
+    if (numId === 2305 || lower.includes('fire bomb')) return '/runes/fire-bomb-rune.png';
+    if (numId === 2277 || lower.includes('energy field')) return '/runes/energy-field-rune.png';
+    if (numId === 2279 || lower.includes('energy wall')) return '/runes/energy-wall-rune.png';
+    if (numId === 2262 || lower.includes('energy bomb')) return '/runes/energy-bomb-rune.png';
+    if (numId === 2285 || lower.includes('poison field')) return '/runes/poison-field-rune.png';
+    if (numId === 2289 || lower.includes('poison wall')) return '/runes/poison-wall-rune.png';
+    if (numId === 2286 || lower.includes('poison bomb')) return '/runes/poison-bomb-rune.png';
+    if (numId === 2260 || lower.includes('blank rune')) return '/runes/blank-rune.png';
 
-    if (id !== undefined && id >= 2260 && id <= 2316) {
-      return `/runes/item-${id}.png`;
+    if (numId !== undefined && numId >= 2260 && numId <= 2316) {
+      return `/runes/item-${numId}.png`;
     }
   }
 

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T12:10:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 98: Sprites Autênticos de Monstros, Ícones Canônicos de Magias Tibia 11, Efeitos Visuais das Magias e Coordenadas da Caçada dos Ratos."
+last_updated: "2026-09-09T13:10:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 99: Tela Épica de Carregamento Exura (5s), Prevenção da Perda de XP ao Sair da Hunt e Persistência Atômica de Transição."
 progress:
-  total_phases: 98
-  completed_phases: 98
-  total_plans: 98
-  completed_plans: 98
+  total_phases: 99
+  completed_phases: 99
+  total_plans: 99
+  completed_plans: 99
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 98 concluída. Sprites e miniaturas 32x32 centralizadas e nítidas para todos os 13 monstros do jogo, 146 ícones oficiais 32x32 do Tibia 11 para todas as vocações, importação autoritativa de 86+ efeitos e projéteis de magias a partir de realmap11/src/const.h, e garantia estrita da caçada dos ratos iniciando em (32102, 32205, 8) com HUD RealMap e carregamento resiliente sem congelamento na PixiArena.
+**Current focus:** Fase 99 concluída. Tela de loading oficial de 5 segundos utilizando os assets Exura Idle Adventures (loading-bg.jpg e loading-bar-frame.png) com barra vermelha pulsante/magma dentro da moldura ornamental, ativação nas 3 transições (login/seleção, saída da caçada e início/troca de caçada), correção da causa raiz da perda indevida de XP ao sair de hunts (substituição de respawnInTemple por leaveHunt, 0% perda de XP/skills) e sincronização atômica imediata via saveProgress() no Prisma DB.
 
 ## Current Position
 
-Phase: 98 of 98 (Concluída)  
+Phase: 99 of 99 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 98.
+Last activity: 2026-09-09 — Conclusão da Phase 99.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 98
-- Total phases in roadmap: 98
-- Tests status: 99 test suites (531 testes aprovados)
+- Total phases completed: 99
+- Total phases in roadmap: 99
+- Tests status: 100 test suites (538 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

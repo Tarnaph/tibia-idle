@@ -7335,6 +7335,51 @@ h1, h2, h3, p { margin: 0; }
   color: #f1dfa3;
 }
 
+/* ==========================================================================
+   Phase 99: Exura Epic Loading Screen Styles
+   ========================================================================== */
+@keyframes exura-bar-shimmer {
+  0% {
+    transform: translateX(-150%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes exura-pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(255, 30, 30, 0.75));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(255, 60, 60, 0.95));
+  }
+}
+
+@keyframes exura-text-breathe {
+  0%, 100% {
+    opacity: 0.85;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 1), 0 0 10px rgba(212, 175, 55, 0.25);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 1), 0 0 16px rgba(255, 180, 80, 0.55);
+  }
+}
+
+.exura-loading-shimmer {
+  animation: exura-bar-shimmer 2.2s infinite ease-in-out;
+}
+
+.exura-bar-glow {
+  animation: exura-pulse-glow 2.5s infinite ease-in-out;
+}
+
+.exura-loading-text {
+  animation: exura-text-breathe 2.4s infinite ease-in-out;
+}
+
+
 
 
 
