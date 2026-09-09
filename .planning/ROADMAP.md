@@ -64,6 +64,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 100: Correção Crítica da Inicialização de Jogo, Remoção de Bloqueio de Tela Preta e Exibição Confiável da Tela de Loading Exura na Cidade e Hunts** - Inicialização imediata do PixiJS sem display: none, ResizeObserver dinâmico, eliminação de race conditions na troca de tela e conversão segura de BigInt no save.
 - [x] **Phase 101: Correção Visual da Tela de Loading Exura (Vanilla CSS) e Restauração Integral do Mapa de Thais com Dynamic Texture Binding** - Loading screen com Vanilla CSS puro inline e global, ordenação de texturas por proximidade ao Templo (32369, 32241, 7) e Dynamic Texture Binding sem pisos substitutos de madeira.
 - [x] **Phase 102: Visibilidade da Barra de Progresso de Loading e Duração de 10 Segundos** - Calibração visual da barra de preenchimento (gradiente de magma vibrante, realce de topo, centelha incandescente frontal e porcentagem em tempo real) e expansão da duração da tela de loading para 10 segundos (10000ms) no login, transições de caçada e /game-preview.
+- [x] **Phase 103: Trilha Sonora de Thais em Loop (Sunset in the Village), Opções de Volume e Botão de Mute Rápido** - Reprodução da música Sunset in the Village iniciando ainda na tela de carregamento, loop contínuo durante toda a estadia em Thais, pausa em caçadas, seção de volume completa dentro do menu sanduíche e botão de mute/desmutar rápido (🔊 / 🔇) ao lado do botão de sair com atalho de teclado 'M'.
 
 
 ---
@@ -1840,5 +1841,12 @@ Plans:
 **Depends on:** Phase 101
 **Plans:**
 - [x] 102-01-PLAN: Barra de Loading Magma Visível, Centelha Incandescente, Contador Numérico e Duração de 10 Segundos.
+
+### Phase 103: Trilha Sonora de Thais em Loop (Sunset in the Village), Opções de Volume e Botão de Mute Rápido
+
+**Goal:** Integrar a música temática de Thais `Sunset in the Village.mp3`: (1) Iniciar a música ainda durante a tela de loading ao entrar no jogo ou retornar a Thais; (2) Manter a música tocando em loop infinito enquanto o jogador estiver em Thais, pausando ao entrar em caçadas e retomando ao retornar à cidade; (3) Inserir controles completos de volume dentro do menu sanduíche (slider de 0% a 100%, badges de porcentagem, botões de predefinição rápida e status da trilha); (4) Inserir botão de silenciamento rápido (🔊 / 🔇) ao lado do botão de sair na barra superior com atalho 'M'; (5) Persistência de volume e mute no localStorage.
+**Depends on:** Phase 102
+**Plans:**
+- [x] 103-01-PLAN: Trilha Sonora de Thais em Loop, Controles de Volume no Menu Sanduíche e Botão de Mute Rápido.
 
 

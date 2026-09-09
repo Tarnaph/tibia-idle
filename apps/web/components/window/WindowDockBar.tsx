@@ -4,6 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { useWindowManager, type WindowId } from './WindowManagerContext';
 import { AutoIdleButton } from '../AutoIdleButton';
 import { getZoomMultiplier, setZoomMultiplier, resetZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
+import {
+  getAudioVolume,
+  setAudioVolume,
+  isAudioMuted,
+  setAudioMuted,
+  toggleAudioMuted,
+  onAudioChange,
+  stopCityBgm,
+  type AudioState,
+} from '@/apps/web/lib/audioManager';
 
 interface WindowDockBarProps {
   gold: number;
@@ -49,6 +59,11 @@ export function WindowDockBar({
   const { windows, toggleWindow, resetLayout } = useWindowManager();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [zoom, setZoom] = useState(() => getZoomMultiplier());
+  const [audioState, setAudioState] = useState<AudioState>(() => ({
+    volume: getAudioVolume(),
+    isMuted: isAudioMuted(),
+    isPlayingCityBgm: false,
+  }));
 
   useEffect(() => {
     return onZoomChange((newZoom) => {
@@ -56,7 +71,27 @@ export function WindowDockBar({
     });
   }, []);
 
+  useEffect(() => {
+    return onAudioChange((nextAudio) => {
+      setAudioState(nextAudio);
+    });
+  }, []);
+
+  // Quick shortcut: Press 'M' (when not in input) to toggle mute
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+      if (e.key === 'm' || e.key === 'M') {
+        toggleAudioMuted();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleExit = () => {
+    stopCityBgm();
     if (onExitGame) {
       onExitGame();
     } else {
@@ -312,9 +347,96 @@ export function WindowDockBar({
                   ↺ Resetar Zoom (Padrão 125%)
                 </button>
               </div>
+
+              {/* Phase 103: Audio & Volume Section inside Hamburger Menu */}
+              <div className="menu-section" style={{ marginTop: '12px', borderTop: '1px solid #3d403c', paddingTop: '10px' }}>
+                <div className="menu-section-title">🔊 Volume & Áudio</div>
+
+                <div className="audio-controls-row">
+                  <span className="audio-icon-label">{audioState.isMuted ? '🔇' : '🔊'}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={audioState.isMuted ? 0 : Math.round(audioState.volume * 100)}
+                    onChange={(e) => {
+                      const val = Number(e.target.value) / 100;
+                      if (audioState.isMuted) setAudioMuted(false);
+                      setAudioVolume(val);
+                    }}
+                    className="audio-volume-slider"
+                    title={`Volume: ${Math.round(audioState.volume * 100)}%`}
+                    aria-label="Controle de volume de áudio"
+                  />
+                  <div className="audio-percentage-badge">
+                    {audioState.isMuted ? '0%' : `${Math.round(audioState.volume * 100)}%`}
+                  </div>
+                </div>
+
+                <div className="zoom-presets-grid" style={{ marginBottom: '8px' }}>
+                  {[
+                    { label: '0%', val: 0 },
+                    { label: '25%', val: 0.25 },
+                    { label: '50%', val: 0.5 },
+                    { label: '75%', val: 0.75 },
+                    { label: '100%', val: 1.0 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      className={`zoom-preset-btn ${!audioState.isMuted && Math.abs(audioState.volume - preset.val) < 0.05 ? 'selected' : ''}`}
+                      onClick={() => {
+                        if (preset.val === 0) {
+                          setAudioMuted(true);
+                        } else {
+                          setAudioMuted(false);
+                          setAudioVolume(preset.val);
+                        }
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="zoom-reset-btn"
+                  onClick={() => toggleAudioMuted()}
+                >
+                  {audioState.isMuted ? '🔊 Ativar Som do Jogo' : '🔇 Silenciar Som do Jogo'}
+                </button>
+
+                <div className="audio-track-status">
+                  <span>🎵</span>
+                  <span>{inHunt ? 'Trilha pausada (Em Caçada)' : 'Sunset in the Village (Thais Loop)'}</span>
+                </div>
+              </div>
             </div>
           )}
         </div>
+
+        {/* Phase 103: Quick Mute / Unmute Button beside Exit Button */}
+        <button
+          type="button"
+          className={`huntera-square-btn mute-btn ${audioState.isMuted ? 'muted' : ''}`}
+          onClick={() => toggleAudioMuted()}
+          title={audioState.isMuted ? 'Desmutar Áudio (Som Desativado) [Atalho: M]' : 'Mutar Áudio (Som Ativado) [Atalho: M]'}
+          aria-label={audioState.isMuted ? 'Desmutar Áudio' : 'Mutar Áudio'}
+        >
+          {audioState.isMuted ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 5L6 9H2v6h4l5 4V5z" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 5L6 9H2v6h4l5 4V5z" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+          )}
+        </button>
 
         <button
           type="button"

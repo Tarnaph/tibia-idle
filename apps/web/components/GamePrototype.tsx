@@ -60,6 +60,7 @@ import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
+import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
 const thaisTilesZ7 = thaisCityJson.tiles;
@@ -854,12 +855,34 @@ function GamePrototypeContent() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [mode, openWindow, bringToFront]);
 
+  // Phase 103: Loop 'Sunset in the Village' while player is in Thais; pause in hunt
+  useEffect(() => {
+    if (mode === 'training') {
+      const isPreview = typeof window !== 'undefined' && window.location.pathname === '/game-preview';
+      if (isCharacterReady || initialLoadingActive || isPreview) {
+        playCityBgm();
+      }
+    } else {
+      pauseCityBgm();
+    }
+  }, [mode, isCharacterReady, initialLoadingActive]);
+
+  // Clean up audio on unmount
+  useEffect(() => {
+    return () => {
+      stopCityBgm();
+    };
+  }, []);
+
   const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
     setIsLoadingCharacter(true);
     setInitialLoadingActive(true);
     setOnlineAccount(acc);
     setOnlineCharacter(charItem);
     setShowAuthModal(false);
+
+    // Phase 103: Start Thais BGM immediately during loading screen!
+    playCityBgm();
 
     let targetX = (charItem as any).posX ?? charItem.positionX ?? 32369;
     let targetY = (charItem as any).posY ?? charItem.positionY ?? 32241;
@@ -1638,6 +1661,7 @@ function GamePrototypeContent() {
     const nextSeed = seed.trim() || defaultSeed;
     setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
     setMode('hunt');
+    pauseCityBgm();
 
     // Immediately snap cityPos / camera to the validated world entrance
     setCityPos(entrance.worldPosition);
@@ -1664,6 +1688,9 @@ function GamePrototypeContent() {
 
     // Phase 99/102: Save progress immediately with 100% accumulated XP, level and loot
     void saveProgressRef.current?.();
+
+    // Phase 103: Start Thais BGM immediately during transition loading screen!
+    playCityBgm();
 
     // Phase 102: Trigger 10-second Exura loading screen for tranquil transition and safe saving
     setTransitionLoading({

@@ -7337,6 +7337,90 @@ h1, h2, h3, p { margin: 0; }
 }
 
 /* ==========================================================================
+   Phase 103: Audio & Volume Controls in WindowDockBar
+   ========================================================================== */
+.audio-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #111311;
+  border: 1px solid #3d403c;
+  padding: 6px 10px;
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+
+.audio-icon-label {
+  font-size: 15px;
+  user-select: none;
+}
+
+.audio-volume-slider {
+  flex: 1;
+  height: 5px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #232522;
+  outline: none;
+  border-radius: 3px;
+  cursor: pointer;
+  accent-color: #ffd875;
+}
+
+.audio-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffd875;
+  border: 1px solid #332316;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(255, 216, 117, 0.6);
+}
+
+.audio-percentage-badge {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffd875;
+  font-family: monospace, sans-serif;
+  text-shadow: 0 1px 2px #000;
+  min-width: 38px;
+  text-align: right;
+}
+
+.audio-track-status {
+  font-size: 10px;
+  color: #8c9688;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 4px 6px;
+  background: #141614;
+  border: 1px solid #2d302c;
+  border-radius: 2px;
+  font-style: italic;
+}
+
+.huntera-square-btn.mute-btn {
+  border-color: #5a4325;
+}
+
+.huntera-square-btn.mute-btn.muted {
+  border-color: #8b2828;
+  background: #201010;
+  color: #ff6b6b;
+}
+
+.huntera-square-btn.mute-btn.muted:hover {
+  background: #3b1414;
+  border-color: #ff4d4d;
+  box-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
+}
+
+/* ==========================================================================
    Phase 99: Exura Epic Loading Screen Styles
    ========================================================================== */
 @keyframes exura-bar-shimmer {

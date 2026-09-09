@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T14:18:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 102: Visibilidade da Barra de Progresso de Loading (Magma Vibrante & Centelha) e Duração Expandida para 10 Segundos."
+last_updated: "2026-09-09T14:35:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 103: Trilha Sonora de Thais em Loop (Sunset in the Village), Opções de Volume no Menu Sanduíche e Botão Rápido de Mute."
 progress:
-  total_phases: 102
-  completed_phases: 102
-  total_plans: 102
-  completed_plans: 102
+  total_phases: 103
+  completed_phases: 103
+  total_plans: 103
+  completed_plans: 103
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 102 concluída. (1) Calibração visual completa do preenchimento da barra de loading Exura (`loading-bar-frame.png`) com gradiente magma de alta luminosidade, realce especular de topo, centelha de brasa na ponta e porcentagem em tempo real (`XX%`); (2) Duração universal de 10 segundos (`10000ms`) aplicada em entradas de jogo, transições de caçada e no preview `/game-preview`.
+**Current focus:** Fase 103 concluída. (1) Trilha oficial de Thais `Sunset in the Village.mp3` iniciando na tela de loading e tocando em loop contínuo durante a cidade, pausando em caçadas; (2) Controles de volume integrados ao menu sanduíche com slider, botões de predefinição rápida e status de reprodução; (3) Botão rápido de mute/desmutar com ícone dinâmico ao lado do botão de sair na barra superior com atalho 'M'.
 
 ## Current Position
 
-Phase: 102 of 102 (Concluída)  
+Phase: 103 of 103 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 102.
+Last activity: 2026-09-09 — Conclusão da Phase 103.
 
 Progress: [██████████] 100%
 
