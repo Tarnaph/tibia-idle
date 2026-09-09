@@ -1694,3 +1694,22 @@ Plans:
 
 Plans:
 - [x] 93-01-PLAN: Extração de Ícones do Tibia 11 RCC e Alinhamento Visual das Magias de Sorcerer.
+
+### Phase 94: Ícones e Sprites Autênticos de Runas via Tibia 10.98 Client
+
+**Goal:** Extrair diretamente do client oficial Tibia 10.98 (`Tibia.dat`, `Tibia.spr`, `items.otb`) todas as imagens reais dos itens de runa com seus Server IDs canônicos, eliminando o reuso de ícones de magias e garantindo aparência 100% idêntica na lista de ações, nos detalhes, no inventário e na barra de ações, com reprodutibilidade permanente no pipeline de assets.
+**Depends on:** Phase 93
+**Requirements:**
+1. Extração de todas as 34 runas canônicas do Tibia 10.98 (Sudden Death, Great Fireball, Avalanche, Explosion, HMM, UH, Fireball, Icicle, Stone Shower, Thunderstorm, Magic Wall, Paralyze, Holy Missile, Blank Rune, etc.) diretamente das tabelas binárias do client.
+2. Eliminação do reuso de ícones de magias (`/spells/*-rune.png` e `/spells/ice-storm.png`), mapeando cada runa para seu sprite autêntico de item em `/runes/${slug}.png` e `/generated/tibia1098/items/item-${id}.png`.
+3. Integração das runas no manifesto `content/generated/tibia1098-assets.json`, permitindo que o `ItemSprite` no inventário, loja, trade, depot e tooltips exiba o item com total fidelidade sem fallback (`?`).
+4. Atualização de `packages/tibia1098-assets/src/extractor.ts` com `CANONICAL_RUNE_SERVER_IDS` e `CANONICAL_RUNE_METADATA`, garantindo que regenerar assets preserve os arquivos automaticamente.
+5. Preservação estrita das magias, poções e regras/fórmulas de combate.
+**Success Criteria:**
+1. Todas as runas exibem a sprite oficial do item de runa nas 4 áreas: lista do modal, painel de detalhes, inventário e barra de ações.
+2. Nenhuma runa reutiliza ícone de magia.
+3. A reconstrução de assets via `npm run extract:tibia1098` gera e preserva todas as runas.
+4. 0 erros no typecheck e 100% dos testes Vitest passando.
+
+Plans:
+- [x] 94-01-PLAN: Extração de Sprites de Runas do Tibia 10.98 e Unificação Visual em Toda a Interface.

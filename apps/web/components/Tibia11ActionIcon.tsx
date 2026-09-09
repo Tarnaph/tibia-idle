@@ -70,11 +70,40 @@ export const ALL_SPELL_ICON_URLS: string[] = [
   '/spells/exevo-gran-mas-vis.png',
   '/spells/exevo-gran-mas-tera.png',
   '/spells/exevo-mas-san.png',
-  '/spells/sd-rune.png',
-  '/spells/gfb-rune.png',
-  '/spells/explosion-rune.png',
-  '/spells/hmm-rune.png',
-  '/spells/ice-storm.png',
+  '/runes/sudden-death-rune.png',
+  '/runes/great-fireball-rune.png',
+  '/runes/avalanche-rune.png',
+  '/runes/heavy-magic-missile-rune.png',
+  '/runes/light-magic-missile-rune.png',
+  '/runes/explosion-rune.png',
+  '/runes/ultimate-healing-rune.png',
+  '/runes/fireball-rune.png',
+  '/runes/icicle-rune.png',
+  '/runes/stone-shower-rune.png',
+  '/runes/thunderstorm-rune.png',
+  '/runes/magic-wall-rune.png',
+  '/runes/wild-growth-rune.png',
+  '/runes/paralyze-rune.png',
+  '/runes/holy-missile-rune.png',
+  '/runes/stalagmite-rune.png',
+  '/runes/destroy-field-rune.png',
+  '/runes/desintegrate-rune.png',
+  '/runes/convince-creature-rune.png',
+  '/runes/chameleon-rune.png',
+  '/runes/animate-dead-rune.png',
+  '/runes/cure-poison-rune.png',
+  '/runes/intense-healing-rune.png',
+  '/runes/energy-field-rune.png',
+  '/runes/energy-wall-rune.png',
+  '/runes/energy-bomb-rune.png',
+  '/runes/fire-field-rune.png',
+  '/runes/fire-wall-rune.png',
+  '/runes/fire-bomb-rune.png',
+  '/runes/poison-field-rune.png',
+  '/runes/poison-wall-rune.png',
+  '/runes/poison-bomb-rune.png',
+  '/runes/soulfire-rune.png',
+  '/runes/blank-rune.png',
   '/potions/small-health-potion.png',
   '/potions/health-potion.png',
   '/potions/strong-health-potion.png',
@@ -96,7 +125,7 @@ export const ALL_SPELL_ICON_URLS: string[] = [
 ];
 
 /**
- * Resolves an action to an authentic official CipSoft image path extracted in Phase 20 / Phase 91
+ * Resolves an action to an authentic official CipSoft image path extracted in Phase 20 / Phase 91 / Phase 93 / Phase 94
  */
 export function resolveActionImagePath(id?: number, kind?: string, name?: string): string | null {
   const lower = (name || '').toLowerCase();
@@ -131,12 +160,47 @@ export function resolveActionImagePath(id?: number, kind?: string, name?: string
     return '/potions/health-potion.png';
   }
 
-  // 2. Runes (Authentic CipSoft Rune/Spell Icons)
-  if (id === 2268 || lower.includes('sudden death')) return '/spells/sd-rune.png';
-  if (id === 2313 || lower.includes('explosion')) return '/spells/explosion-rune.png';
-  if (id === 2304 || lower.includes('great fireball')) return '/spells/gfb-rune.png';
-  if (id === 2287 || lower.includes('light magic missile') || lower.includes('heavy magic missile')) return '/spells/hmm-rune.png';
-  if (id === 2274 || lower.includes('avalanche')) return '/spells/ice-storm.png';
+  // 2. Runes (Authentic Tibia 10.98 Rune Item Sprites)
+  if (kind === 'rune' || (id !== undefined && id >= 2260 && id <= 2316) || lower.includes('rune')) {
+    if (id === 2268 || lower.includes('sudden death')) return '/runes/sudden-death-rune.png';
+    if (id === 2304 || lower.includes('great fireball')) return '/runes/great-fireball-rune.png';
+    if (id === 2274 || lower.includes('avalanche')) return '/runes/avalanche-rune.png';
+    if (id === 2311 || lower.includes('heavy magic missile')) return '/runes/heavy-magic-missile-rune.png';
+    if (id === 2287 || lower.includes('light magic missile')) return '/runes/light-magic-missile-rune.png';
+    if (id === 2313 || lower.includes('explosion')) return '/runes/explosion-rune.png';
+    if (id === 2273 || lower.includes('ultimate healing rune') || (lower.includes('ultimate healing') && kind === 'rune')) return '/runes/ultimate-healing-rune.png';
+    if (id === 2265 || lower.includes('intense healing rune')) return '/runes/intense-healing-rune.png';
+    if (id === 2266 || lower.includes('cure poison rune')) return '/runes/cure-poison-rune.png';
+    if (id === 2302 || lower.includes('fireball rune') || lower === 'fireball') return '/runes/fireball-rune.png';
+    if (id === 2271 || lower.includes('icicle')) return '/runes/icicle-rune.png';
+    if (id === 2288 || lower.includes('stone shower')) return '/runes/stone-shower-rune.png';
+    if (id === 2315 || lower.includes('thunderstorm')) return '/runes/thunderstorm-rune.png';
+    if (id === 2293 || lower.includes('magic wall')) return '/runes/magic-wall-rune.png';
+    if (id === 2269 || lower.includes('wild growth')) return '/runes/wild-growth-rune.png';
+    if (id === 2278 || lower.includes('paralyze')) return '/runes/paralyze-rune.png';
+    if (id === 2295 || lower.includes('holy missile')) return '/runes/holy-missile-rune.png';
+    if (id === 2292 || lower.includes('stalagmite')) return '/runes/stalagmite-rune.png';
+    if (id === 2261 || lower.includes('destroy field')) return '/runes/destroy-field-rune.png';
+    if (id === 2310 || lower.includes('desintegrate')) return '/runes/desintegrate-rune.png';
+    if (id === 2290 || lower.includes('convince creature')) return '/runes/convince-creature-rune.png';
+    if (id === 2291 || lower.includes('chameleon')) return '/runes/chameleon-rune.png';
+    if (id === 2316 || lower.includes('animate dead')) return '/runes/animate-dead-rune.png';
+    if (id === 2308 || lower.includes('soulfire')) return '/runes/soulfire-rune.png';
+    if (id === 2301 || lower.includes('fire field')) return '/runes/fire-field-rune.png';
+    if (id === 2303 || lower.includes('fire wall')) return '/runes/fire-wall-rune.png';
+    if (id === 2305 || lower.includes('fire bomb')) return '/runes/fire-bomb-rune.png';
+    if (id === 2277 || lower.includes('energy field')) return '/runes/energy-field-rune.png';
+    if (id === 2279 || lower.includes('energy wall')) return '/runes/energy-wall-rune.png';
+    if (id === 2262 || lower.includes('energy bomb')) return '/runes/energy-bomb-rune.png';
+    if (id === 2285 || lower.includes('poison field')) return '/runes/poison-field-rune.png';
+    if (id === 2289 || lower.includes('poison wall')) return '/runes/poison-wall-rune.png';
+    if (id === 2286 || lower.includes('poison bomb')) return '/runes/poison-bomb-rune.png';
+    if (id === 2260 || lower.includes('blank rune')) return '/runes/blank-rune.png';
+
+    if (id !== undefined && id >= 2260 && id <= 2316) {
+      return `/runes/item-${id}.png`;
+    }
+  }
 
   // 3. Spells (Mapped to official CipSoft Spell Icons)
   // Healing

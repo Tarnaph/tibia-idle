@@ -81,6 +81,51 @@ export const CANONICAL_POTION_SERVER_IDS = [
 ];
 const CANONICAL_POTION_IDS = new Set(CANONICAL_POTION_SERVER_IDS);
 
+export interface CanonicalRuneInfo {
+  name: string;
+  slug: string;
+  words?: string;
+}
+
+export const CANONICAL_RUNE_METADATA: Record<number, CanonicalRuneInfo> = {
+  2260: { name: 'Blank Rune', slug: 'blank-rune' },
+  2261: { name: 'Destroy Field Rune', slug: 'destroy-field-rune', words: 'adito grav' },
+  2262: { name: 'Energy Bomb Rune', slug: 'energy-bomb-rune', words: 'adevo mas vis' },
+  2265: { name: 'Intense Healing Rune', slug: 'intense-healing-rune', words: 'adura gran' },
+  2266: { name: 'Cure Poison Rune', slug: 'cure-poison-rune', words: 'adana pox' },
+  2268: { name: 'Sudden Death Rune', slug: 'sudden-death-rune', words: 'adori gran mort' },
+  2269: { name: 'Wild Growth Rune', slug: 'wild-growth-rune', words: 'adevo grav vita' },
+  2271: { name: 'Icicle Rune', slug: 'icicle-rune', words: 'adori frigo' },
+  2273: { name: 'Ultimate Healing Rune', slug: 'ultimate-healing-rune', words: 'adura vita' },
+  2274: { name: 'Avalanche Rune', slug: 'avalanche-rune', words: 'adori mas frigo' },
+  2277: { name: 'Energy Field Rune', slug: 'energy-field-rune', words: 'adevo grav vis' },
+  2278: { name: 'Paralyze Rune', slug: 'paralyze-rune', words: 'adana ani' },
+  2279: { name: 'Energy Wall Rune', slug: 'energy-wall-rune', words: 'adevo mas grav vis' },
+  2285: { name: 'Poison Field Rune', slug: 'poison-field-rune', words: 'adevo grav pox' },
+  2286: { name: 'Poison Bomb Rune', slug: 'poison-bomb-rune', words: 'adevo mas pox' },
+  2287: { name: 'Light Magic Missile Rune', slug: 'light-magic-missile-rune', words: 'adori min vis' },
+  2288: { name: 'Stone Shower Rune', slug: 'stone-shower-rune', words: 'adori mas tera' },
+  2289: { name: 'Poison Wall Rune', slug: 'poison-wall-rune', words: 'adevo mas grav pox' },
+  2290: { name: 'Convince Creature Rune', slug: 'convince-creature-rune', words: 'adeta sio' },
+  2291: { name: 'Chameleon Rune', slug: 'chameleon-rune', words: 'adevo ina' },
+  2292: { name: 'Stalagmite Rune', slug: 'stalagmite-rune', words: 'adori tera' },
+  2293: { name: 'Magic Wall Rune', slug: 'magic-wall-rune', words: 'adevo grav tera' },
+  2295: { name: 'Holy Missile Rune', slug: 'holy-missile-rune', words: 'adori san' },
+  2301: { name: 'Fire Field Rune', slug: 'fire-field-rune', words: 'adevo grav flam' },
+  2302: { name: 'Fireball Rune', slug: 'fireball-rune', words: 'adori flam' },
+  2303: { name: 'Fire Wall Rune', slug: 'fire-wall-rune', words: 'adevo mas grav flam' },
+  2304: { name: 'Great Fireball Rune', slug: 'great-fireball-rune', words: 'adori mas flam' },
+  2305: { name: 'Fire Bomb Rune', slug: 'fire-bomb-rune', words: 'adevo mas flam' },
+  2308: { name: 'Soulfire Rune', slug: 'soulfire-rune', words: 'adevo res flam' },
+  2310: { name: 'Desintegrate Rune', slug: 'desintegrate-rune', words: 'adito tera' },
+  2311: { name: 'Heavy Magic Missile Rune', slug: 'heavy-magic-missile-rune', words: 'adori vis' },
+  2313: { name: 'Explosion Rune', slug: 'explosion-rune', words: 'adevo mas hur' },
+  2315: { name: 'Thunderstorm Rune', slug: 'thunderstorm-rune', words: 'adori mas vis' },
+  2316: { name: 'Animate Dead Rune', slug: 'animate-dead-rune', words: 'adana mort' },
+};
+export const CANONICAL_RUNE_SERVER_IDS = Object.keys(CANONICAL_RUNE_METADATA).map(Number);
+export const CANONICAL_RUNE_IDS = new Set(CANONICAL_RUNE_SERVER_IDS);
+
 function copySprite(target: Buffer, targetWidth: number, sprite: Buffer, offsetX: number, offsetY: number): void {
   for (let y = 0; y < 32; y += 1) {
     const srcOffset = y * 32 * 4;
@@ -549,13 +594,27 @@ export async function extractTibia1098Assets(options: ExtractOptions = {}): Prom
   ];
   for (const id of potionServerIds) allServerIds.add(id);
 
+  // 8. Canonical Runes (Tibia 10.98 client visual assets)
+  for (const id of CANONICAL_RUNE_SERVER_IDS) allServerIds.add(id);
+
   const itemsResult: Record<string, ItemVisualAssetMapping> = {};
   for (const sId of allServerIds) {
-    const ext = extractItemVisualAsset(sId, `Item ${sId}`, otbBuf, dat, spr);
+    const runeMeta = CANONICAL_RUNE_METADATA[sId];
+    const label = runeMeta ? runeMeta.name : `Item ${sId}`;
+    const ext = extractItemVisualAsset(sId, label, otbBuf, dat, spr);
     for (const [k, v] of ext.files) allFiles.set(k, v);
     if (ext.mapping.resolved) {
       itemsResult[String(sId)] = ext.mapping;
       mapItemsResult[String(sId)] = ext.mapping;
+
+      // Also copy rune items to public/runes/ for clean semantic access
+      if (runeMeta) {
+        const primaryPng = ext.files.get(`public/generated/tibia1098/items/item-${sId}.png`);
+        if (primaryPng) {
+          allFiles.set(`public/runes/${runeMeta.slug}.png`, primaryPng);
+          allFiles.set(`public/runes/item-${sId}.png`, primaryPng);
+        }
+      }
     }
   }
 
