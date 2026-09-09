@@ -33,6 +33,10 @@ export interface ExuraLoadingScreenProps {
    * List of lore curiosities to rotate every 3 seconds in random order.
    */
   curiosities?: string[];
+  /**
+   * Interval in milliseconds between curiosity rotations. Default: 5000ms (5 seconds).
+   */
+  curiosityIntervalMs?: number;
 }
 
 export function ExuraLoadingScreen({
@@ -42,6 +46,7 @@ export function ExuraLoadingScreen({
   onFinish,
   bgImage = '/images/loading/thais-loading.jpg',
   curiosities = THAIS_LORE_CURIOSITIES,
+  curiosityIntervalMs = 5000,
 }: ExuraLoadingScreenProps) {
   const [progress, setProgress] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -62,7 +67,7 @@ export function ExuraLoadingScreen({
     }
   }, [active, curiosities]);
 
-  // Rotaciona as curiosidades a cada 3 segundos (3000ms) em ordem aleatória sem repetição consecutiva
+  // Rotaciona as curiosidades a cada 5 segundos (5000ms) em ordem aleatória sem repetição consecutiva
   useEffect(() => {
     if (!active) return;
     if (!curiosities || curiosities.length <= 1) return;
@@ -78,11 +83,11 @@ export function ExuraLoadingScreen({
           return next;
         });
         setCuriosityFade('in');
-      }, 200);
-    }, 3000);
+      }, 250);
+    }, curiosityIntervalMs);
 
     return () => clearInterval(interval);
-  }, [active, curiosities]);
+  }, [active, curiosities, curiosityIntervalMs]);
 
   useEffect(() => {
     if (!active) {

@@ -41,10 +41,11 @@ describe('Phase 110 - Thais Loading Screen Background & 3-Second Random Curiosit
     expect(code).toContain('curiosities = THAIS_LORE_CURIOSITIES');
   });
 
-  it('verifies ExuraLoadingScreen rotates curiosities on a 3000ms timer with randomized non-repeating logic', () => {
+  it('verifies ExuraLoadingScreen rotates curiosities with configurable timer (default 5000ms) and randomized non-repeating logic', () => {
     const code = fs.readFileSync(exuraComponentPath, 'utf8');
 
-    expect(code).toContain('3000);');
+    expect(code).toContain('curiosityIntervalMs = 5000');
+    expect(code).toContain('curiosityIntervalMs);');
     expect(code).toContain('Math.random() * curiosities.length');
     expect(code).toContain('while (next === prev && curiosities.length > 1)');
     expect(code).toContain("setCuriosityFade('out')");
