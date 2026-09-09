@@ -648,7 +648,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         if (target) {
           const visualPosition = views.get(target.characterId)?.track.sample(now).renderPosition ?? target.position;
           const point = worldPoint(visualPosition);
-          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 1.0 });
+          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 1.20 });
           camera = cameraInitialized ? smoothWorldCamera(camera, desired, app.ticker.deltaMS) : desired; cameraInitialized = true;
           world.scale.set(camera.zoom); world.position.set(Math.round(app.screen.width / 2 - camera.x * camera.zoom), Math.round(app.screen.height / 2 - camera.y * camera.zoom));
           const debugText = overlay.getChildByLabel('camera-debug') as Text | null;

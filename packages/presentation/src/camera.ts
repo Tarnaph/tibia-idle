@@ -30,7 +30,7 @@ export interface WorldCameraInput {
 }
 
 export function desiredWorldCamera(input: WorldCameraInput): WorldCameraState {
-  const zoom = Math.max(1, input.fixedZoom ?? 1.0);
+  const zoom = Math.max(1, input.fixedZoom ?? 1.20);
   // The viewport may reveal backing outside a small imported region. Clamping
   // the camera center itself keeps the followed actor centered at map edges.
   const x = Math.max(0, Math.min(input.worldWidth, input.targetX));
