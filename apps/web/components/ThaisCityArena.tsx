@@ -941,7 +941,7 @@ export function ThaisCityArena({
         }
 
         // 3. Camera smoothly follows interpolated player position with scale matching user zoom preference
-        const cameraScale = 2 * zoomMult;
+        const cameraScale = 2 * getZoomMultiplier();
         const targetCamX = app.screen.width / 2 - currentPixelX * cameraScale;
         const targetCamY = app.screen.height / 2 - currentPixelY * cameraScale;
         if (!camInitialized) {

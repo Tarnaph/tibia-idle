@@ -612,17 +612,23 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         if (target) {
           const visualPosition = views.get(target.characterId)?.track.sample(now).renderPosition ?? target.position;
           const point = worldPoint(visualPosition);
-          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 2 * zoomMult });
+          const currentZoomMult = getZoomMultiplier();
+          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 2 * currentZoomMult });
           camera = cameraInitialized ? smoothWorldCamera(camera, desired, app.ticker.deltaMS) : desired; cameraInitialized = true;
           world.scale.set(camera.zoom); world.position.set(Math.round(app.screen.width / 2 - camera.x * camera.zoom), Math.round(app.screen.height / 2 - camera.y * camera.zoom));
           const debugText = overlay.getChildByLabel('camera-debug') as Text | null;
           if (debugText) {
             debugText.visible = latestRef.current.debug;
             const respawns = state.encounter.continuousProgress?.zones.map((zone) => `${zone.zoneId}: ${zone.activeEnemyIds.length ? `alive [${zone.activeEnemyIds.join(',')}]` : state.encounter.elapsedMs >= zone.nextRespawnAt ? 'ready/safe-wait' : `cooldown ${Math.ceil((zone.nextRespawnAt - state.encounter.elapsedMs) / 1000)}s`}`).join('\n') ?? '';
-            debugText.text = `CAM ${state.session.cameraTargetCharacterId} · world ${camera.x.toFixed(1)},${camera.y.toFixed(1)} · viewport ${app.screen.width}×${app.screen.height} · fixed ${camera.zoom.toFixed(0)}x\nGRID red=blocked · blue=occupied · yellow=reserved · cyan=path\nSAFE RESPAWN 7 tiles\n${respawns}`;
+            debugText.text = `CAM ${state.session.cameraTargetCharacterId} · world ${camera.x.toFixed(1)},${camera.y.toFixed(1)} · viewport ${app.screen.width}×${app.screen.height} · fixed ${camera.zoom.toFixed(2)}x\nGRID red=blocked · blue=occupied · yellow=reserved · cyan=path\nSAFE RESPAWN 7 tiles\n${respawns}`;
           }
         }
       };
+
+      const unsubZoom = onZoomChange(() => {
+        cameraInitialized = false;
+      });
+
       app.ticker.add(render);
       syncRef.current = sync; sync(latestRef.current.game, latestRef.current.debug);
       const onResize = () => {
@@ -641,12 +647,6 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         });
         resizeObserver.observe(hostRef.current);
       }
-
-      let zoomMult = getZoomMultiplier();
-      const unsubZoom = onZoomChange((val) => {
-        zoomMult = val;
-        cameraInitialized = false;
-      });
 
       cleanup = () => {
         unsubZoom();
