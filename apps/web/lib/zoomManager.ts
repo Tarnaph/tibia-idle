@@ -1,7 +1,7 @@
 'use client';
 
 const STORAGE_KEY = 'tibia_camera_zoom';
-const DEFAULT_ZOOM = 1.0;
+const DEFAULT_ZOOM = 1.25;
 const MIN_ZOOM = 0.5; // 50% (Zoom out - view wider map)
 const MAX_ZOOM = 2.0; // 200% (Zoom in - closer view)
 

@@ -292,7 +292,7 @@ export function WindowDockBar({
                 </div>
 
                 <div className="zoom-presets-grid">
-                  {[0.7, 0.85, 1.0, 1.15, 1.3, 1.5].map((preset) => (
+                  {[0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((preset) => (
                     <button
                       key={preset}
                       type="button"
@@ -309,7 +309,7 @@ export function WindowDockBar({
                   className="zoom-reset-btn"
                   onClick={() => resetZoomMultiplier()}
                 >
-                  ↺ Resetar Zoom (100%)
+                  ↺ Resetar Zoom (Padrão 125%)
                 </button>
               </div>
             </div>
