@@ -4,11 +4,13 @@ const STORAGE_KEY_VOLUME = 'tibia_audio_volume';
 const STORAGE_KEY_MUTED = 'tibia_audio_muted';
 const DEFAULT_VOLUME = 0.5; // 50%
 const CITY_SONG_URL = '/songs/sunset-in-the-village.mp3';
+const DRAGON_LAIR_SONG_URL = '/songs/dragons-pride.mp3';
 
 export interface AudioState {
   volume: number; // 0.0 to 1.0
   isMuted: boolean;
   isPlayingCityBgm: boolean;
+  isPlayingDragonBgm?: boolean;
 }
 
 export interface MusicTrackInfo {
@@ -25,6 +27,13 @@ export const THAIS_THEME_TRACK: MusicTrackInfo = {
   location: 'Cidade de Thais',
 };
 
+export const DRAGONS_PRIDE_TRACK: MusicTrackInfo = {
+  id: 'dragons-pride',
+  title: 'Dragons Pride',
+  subtitle: "Dragon's Lair",
+  location: 'Profundezas Chamuscadas',
+};
+
 type AudioCallback = (state: AudioState) => void;
 type TrackNotificationCallback = (track: MusicTrackInfo) => void;
 
@@ -34,7 +43,9 @@ const trackNotificationListeners = new Set<TrackNotificationCallback>();
 let cachedVolume: number | null = null;
 let cachedMuted: boolean | null = null;
 let cityAudioElement: HTMLAudioElement | null = null;
+let dragonAudioElement: HTMLAudioElement | null = null;
 let isCityBgmActive = false;
+let isDragonBgmActive = false;
 let unlockerAttached = false;
 let currentTrack: MusicTrackInfo | null = null;
 
@@ -65,6 +76,7 @@ function notifyListeners(): void {
     volume: getAudioVolume(),
     isMuted: isAudioMuted(),
     isPlayingCityBgm: isCityBgmActive && Boolean(cityAudioElement && !cityAudioElement.paused),
+    isPlayingDragonBgm: isDragonBgmActive && Boolean(dragonAudioElement && !dragonAudioElement.paused),
   };
   listeners.forEach((cb) => {
     try {
@@ -100,8 +112,12 @@ export function setAudioVolume(value: number): void {
       localStorage.setItem(STORAGE_KEY_VOLUME, clamped.toString());
     } catch {}
   }
+  const effectiveVol = isAudioMuted() ? 0 : clamped;
   if (cityAudioElement) {
-    cityAudioElement.volume = isAudioMuted() ? 0 : clamped;
+    cityAudioElement.volume = effectiveVol;
+  }
+  if (dragonAudioElement) {
+    dragonAudioElement.volume = effectiveVol;
   }
   notifyListeners();
 }
@@ -127,12 +143,20 @@ export function setAudioMuted(muted: boolean): void {
       localStorage.setItem(STORAGE_KEY_MUTED, cachedMuted ? 'true' : 'false');
     } catch {}
   }
+  const effectiveVol = cachedMuted ? 0 : getAudioVolume();
   if (cityAudioElement) {
-    cityAudioElement.volume = cachedMuted ? 0 : getAudioVolume();
+    cityAudioElement.volume = effectiveVol;
+  }
+  if (dragonAudioElement) {
+    dragonAudioElement.volume = effectiveVol;
   }
   notifyListeners();
-  if (!cachedMuted && isCityBgmActive) {
-    triggerTrackNotification(THAIS_THEME_TRACK);
+  if (!cachedMuted) {
+    if (isCityBgmActive) {
+      triggerTrackNotification(THAIS_THEME_TRACK);
+    } else if (isDragonBgmActive) {
+      triggerTrackNotification(DRAGONS_PRIDE_TRACK);
+    }
   }
 }
 
@@ -156,6 +180,20 @@ function getOrCreateCityAudio(): HTMLAudioElement | null {
   return cityAudioElement;
 }
 
+function getOrCreateDragonAudio(): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null;
+  if (!dragonAudioElement) {
+    dragonAudioElement = new Audio(DRAGON_LAIR_SONG_URL);
+    dragonAudioElement.loop = true;
+    dragonAudioElement.preload = 'auto';
+    dragonAudioElement.volume = isAudioMuted() ? 0 : getAudioVolume();
+    dragonAudioElement.addEventListener('play', () => notifyListeners());
+    dragonAudioElement.addEventListener('pause', () => notifyListeners());
+    dragonAudioElement.addEventListener('ended', () => notifyListeners());
+  }
+  return dragonAudioElement;
+}
+
 /**
  * Autoplay unlocker: If browser rejects play() due to lack of prior user gesture,
  * this sets a one-time window interaction listener to immediately resume playback upon click/key.
@@ -168,6 +206,9 @@ function setupAutoplayUnlocker(): void {
     if (isCityBgmActive && cityAudioElement && cityAudioElement.paused) {
       cityAudioElement.play().catch(() => {});
     }
+    if (isDragonBgmActive && dragonAudioElement && dragonAudioElement.paused) {
+      dragonAudioElement.play().catch(() => {});
+    }
     window.removeEventListener('pointerdown', handleInteraction);
     window.removeEventListener('keydown', handleInteraction);
     unlockerAttached = false;
@@ -179,6 +220,13 @@ function setupAutoplayUnlocker(): void {
 
 export function playCityBgm(): void {
   if (typeof window === 'undefined') return;
+  // Stop Dragon Lair BGM so songs don't collide
+  isDragonBgmActive = false;
+  if (dragonAudioElement && !dragonAudioElement.paused) {
+    dragonAudioElement.pause();
+    dragonAudioElement.currentTime = 0;
+  }
+
   isCityBgmActive = true;
   triggerTrackNotification(THAIS_THEME_TRACK);
 
@@ -221,6 +269,55 @@ export function resumeCityBgm(): void {
   }
 }
 
+export function playDragonLairBgm(): void {
+  if (typeof window === 'undefined') return;
+  // Pause city BGM so it doesn't overlap
+  isCityBgmActive = false;
+  if (cityAudioElement && !cityAudioElement.paused) {
+    cityAudioElement.pause();
+  }
+
+  isDragonBgmActive = true;
+  currentTrack = DRAGONS_PRIDE_TRACK;
+
+  const audio = getOrCreateDragonAudio();
+  if (!audio) return;
+
+  audio.volume = isAudioMuted() ? 0 : getAudioVolume();
+  audio.loop = true;
+
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      // Browser autoplay policy prevented playback without gesture; arm unlocker
+      setupAutoplayUnlocker();
+    });
+  }
+  notifyListeners();
+}
+
+export function pauseDragonLairBgm(): void {
+  isDragonBgmActive = false;
+  if (dragonAudioElement && !dragonAudioElement.paused) {
+    dragonAudioElement.pause();
+  }
+  notifyListeners();
+}
+
+export function stopDragonLairBgm(): void {
+  isDragonBgmActive = false;
+  if (dragonAudioElement) {
+    dragonAudioElement.pause();
+    dragonAudioElement.currentTime = 0;
+  }
+  notifyListeners();
+}
+
+export function stopAllAudio(): void {
+  stopCityBgm();
+  stopDragonLairBgm();
+}
+
 export function onAudioChange(cb: AudioCallback): () => void {
   listeners.add(cb);
   // Emit current state immediately
@@ -229,6 +326,7 @@ export function onAudioChange(cb: AudioCallback): () => void {
       volume: getAudioVolume(),
       isMuted: isAudioMuted(),
       isPlayingCityBgm: isCityBgmActive && Boolean(cityAudioElement && !cityAudioElement.paused),
+      isPlayingDragonBgm: isDragonBgmActive && Boolean(dragonAudioElement && !dragonAudioElement.paused),
     });
   } catch {}
   return () => {

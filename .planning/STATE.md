@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T18:10:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 108: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico)."
+last_updated: "2026-09-09T19:17:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 109: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento."
 progress:
-  total_phases: 108
-  completed_phases: 108
-  total_plans: 108
-  completed_plans: 108
+  total_phases: 109
+  completed_phases: 109
+  total_plans: 109
+  completed_plans: 109
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 108 concluída com sucesso. Refatoração completa da interface do seletor de caçadas do Exura (`HuntSelector.tsx`) para carrossel horizontal de 3 cards simultâneos com destaque no card central selecionado (`scale(1.045)`, borda dourada radiante e gemas de rubi), navegação contínua por setas `<` e `>`, subcomponentes modulares `HuntCarousel.tsx`, `HuntCard.tsx` e `HuntLootTooltip.tsx`, ilustrações temáticas de masmorras em pixel art, sprites pixelados, medalhões circulares de nível, coloração dinâmica de dificuldade em tempo real relativa ao nível do personagem, botão de mochila com tooltip flutuante de drops sem corte por overflow e botão principal 'INICIAR CAÇADA', preservando 100% da lógica e dados existentes.
+**Current focus:** Fase 109 concluída com sucesso. Integração da trilha sonora oficial "Dragons Pride" (`songs/Dragons pride.mp3`) iniciando imediatamente na tela de carregamento de 10s ao entrar na caçada de Dragon Lair (`dragon-lair`), pausando suavemente a trilha de Thais, e exibindo a caixa de notificação musical "Now Playing: Dragons Pride" com equalizador animado estritamente após a conclusão do loading, momento em que o personagem torna-se visível no mapa.
 
 ## Current Position
 
-Phase: 108 of 108 (Concluída)  
+Phase: 109 of 109 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 108.
+Last activity: 2026-09-09 — Conclusão da Phase 109.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 100
-- Total phases in roadmap: 100
-- Tests status: 110 test suites (593 testes aprovados)
+- Total phases completed: 109
+- Total phases in roadmap: 109
+- Tests status: 111 test suites (602 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

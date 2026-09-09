@@ -62,6 +62,7 @@ import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyI
 import { useAuth } from '../auth/AuthProvider';
 import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
+import { playDragonLairBgm, stopDragonLairBgm, stopAllAudio, DRAGONS_PRIDE_TRACK } from '../lib/audioManager';
 import { MusicTrackToast } from './audio/MusicTrackToast';
 import thaisCityJson from '@/content/generated/thais-city.json';
 
@@ -768,6 +769,14 @@ function GamePrototypeContent() {
       const targetHunt = content.hunts.find((h) => h.id === data.huntId) ?? encounter.hunt;
       const entrance = getHuntWorldEntrance(data.huntId, content);
 
+      // Phase 109: Start Dragon Lair music immediately during loading screen for party follower
+      if (data.huntId === 'dragon-lair') {
+        pauseCityBgm();
+        playDragonLairBgm();
+      } else {
+        stopDragonLairBgm();
+      }
+
       // Phase 107: Save progress and trigger 10-second Exura loading screen for follower
       void saveProgressRef.current?.();
       setTransitionLoading({
@@ -792,6 +801,8 @@ function GamePrototypeContent() {
     const unsubHuntExit = gameNetwork.onPartyHuntExit((coords) => {
       setSaleMessage('O líder encerrou a caçada. Retornando ao Templo de Thais...');
       followSuppressedUntilRef.current = Date.now() + 2500;
+      stopDragonLairBgm();
+      playCityBgm();
       const temple = coords?.x && coords?.y ? { x: coords.x, y: coords.y, z: coords.z ?? 7 } : THAIS_TEMPLE_POSITION;
       setCityPos(temple);
       gameNetwork.sendTeleport(temple.x, temple.y, temple.z);
@@ -883,22 +894,29 @@ function GamePrototypeContent() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [mode, openWindow, bringToFront]);
 
-  // Phase 103: Loop 'Sunset in the Village' while player is in Thais; pause in hunt
+  // Phase 103/109: Loop 'Sunset in the Village' while player is in Thais; pause in hunt and dragon lair transition
   useEffect(() => {
     if (mode === 'training') {
+      // Do not restart city BGM if transitioning to dragon-lair
+      if (pendingHuntTransitionRef.current?.huntId === 'dragon-lair') {
+        return;
+      }
       const isPreview = typeof window !== 'undefined' && window.location.pathname === '/game-preview';
       if (isCharacterReady || initialLoadingActive || isPreview) {
         playCityBgm();
       }
     } else {
       pauseCityBgm();
+      if (game.encounter?.hunt?.id === 'dragon-lair') {
+        playDragonLairBgm();
+      }
     }
-  }, [mode, isCharacterReady, initialLoadingActive]);
+  }, [mode, isCharacterReady, initialLoadingActive, game.encounter?.hunt?.id]);
 
-  // Clean up audio on unmount
+  // Clean up all audio on unmount
   useEffect(() => {
     return () => {
-      stopCityBgm();
+      stopAllAudio();
     };
   }, []);
 
@@ -1667,6 +1685,14 @@ function GamePrototypeContent() {
     setIsTrainingAtDummy(false);
     setWalkingPath(null);
 
+    // Phase 109: Start Dragon Lair music immediately during loading screen if entering dragon-lair!
+    if (huntId === 'dragon-lair') {
+      pauseCityBgm();
+      playDragonLairBgm();
+    } else {
+      stopDragonLairBgm();
+    }
+
     // Phase 102: Save progress and trigger 10-second Exura loading screen
     void saveProgressRef.current?.();
     setTransitionLoading({
@@ -1720,7 +1746,8 @@ function GamePrototypeContent() {
     // Phase 99/102: Save progress immediately with 100% accumulated XP, level and loot
     void saveProgressRef.current?.();
 
-    // Phase 103: Start Thais BGM immediately during transition loading screen!
+    // Phase 103/109: Stop hunt BGM and start Thais BGM immediately during transition loading screen!
+    stopDragonLairBgm();
     playCityBgm();
 
     // Phase 102: Trigger 10-second Exura loading screen for tranquil transition and safe saving
@@ -2642,6 +2669,11 @@ function GamePrototypeContent() {
             }
             setSaleMessage(`Você viajou para ${pending.targetHunt.name}!`);
             lastCombatTimeRef.current = performance.now();
+
+            // Phase 109: Dragon Lair music notification box appears strictly after loading finishes and character is visible!
+            if (pending.huntId === 'dragon-lair') {
+              triggerTrackNotification(DRAGONS_PRIDE_TRACK);
+            }
           }
           if (initialLoadingActive) {
             setInitialLoadingActive(false);

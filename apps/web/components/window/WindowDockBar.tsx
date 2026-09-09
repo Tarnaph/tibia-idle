@@ -12,6 +12,7 @@ import {
   toggleAudioMuted,
   onAudioChange,
   stopCityBgm,
+  stopAllAudio,
   triggerTrackNotification,
   THAIS_THEME_TRACK,
   type AudioState,
@@ -93,7 +94,7 @@ export function WindowDockBar({
   }, []);
 
   const handleExit = () => {
-    stopCityBgm();
+    stopAllAudio();
     if (onExitGame) {
       onExitGame();
     } else {

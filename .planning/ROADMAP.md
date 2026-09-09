@@ -70,6 +70,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 106: Preenchimento Proporcional Contínuo e Visual da Barra de Loading Conforme a Porcentagem** - Sincronização e calibração estrita da barra de progresso da tela de carregamento Exura a 60fps em sincronia com a porcentagem, indicador numérico interno e cavidade geométrica alinhada.
 - [x] **Phase 107: Diferimento da Entrada e Visibilidade do Personagem até o Fim do Loading (Spawn Seguro Pós-Loading e Proteção Anti-Morte em Caçadas)** - Bloqueio do loop de combate durante o loading, ocultação do personagem até 100% da barra e inicialização segura da hunt somente ao término do loading para evitar mortes precoces.
 - [x] **Phase 108: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico)** - Refatoração visual completa da janela de caçadas para carrossel horizontal de 3 cards simultâneos com design medieval autêntico, ilustrações temáticas em pixel art, sprites pixelados, medalhões de nível, coloração dinâmica de dificuldade, botão de mochila com tooltip flutuante de loot e botão principal "INICIAR CAÇADA".
+- [x] **Phase 109: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento** - Reprodução de "Dragons Pride" iniciando imediatamente na tela de loading ao entrar no Dragon Lair, pausa da trilha de Thais, e exibição da caixa de notificação musical deslizante ("Dragons Pride") estritamente após a conclusão do carregamento com o personagem já visível no mapa.
 
 
 ---
@@ -1917,6 +1918,21 @@ Plans:
 5. Cobertura de testes automatizados via Vitest e 0 erros de TypeScript no `npm run typecheck`.
 **Plans:**
 - [x] 108-01-PLAN: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico).
+
+### Phase 109: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento
+
+**Goal:** Integrar a música "Dragons Pride" (`songs/Dragons pride.mp3`) para que comece a tocar imediatamente na tela de loading ao entrar na caçada de Dragon Lair (`dragon-lair`), pausando a música de Thais, e após a conclusão do carregamento com o personagem já visível no mapa, exibir a caixa de notificação musical deslizante ("Dragons Pride").
+**Depends on:** Phase 108, Phase 105, Phase 107
+**Requirements:**
+1. Cópia e publicação de `songs/Dragons pride.mp3` para `public/songs/`.
+2. Extensão do `audioManager.ts` com a faixa `DRAGONS_PRIDE_TRACK` e controle de reprodução (`playDragonLairBgm`, `pauseDragonLairBgm`, `stopDragonLairBgm`).
+3. Disparo imediato da reprodução da música durante a tela de loading ao entrar no Dragon Lair (líder e membros de party).
+4. Disparo da notificação flutuante de faixa musical estritamente após a conclusão do carregamento e aparecimento do personagem no mapa.
+5. Retomada harmônica da música da cidade ao sair da caçada ou retornar ao templo.
+6. Cobertura de testes automatizados via Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 109-01-PLAN: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento.
+
 
 
 
