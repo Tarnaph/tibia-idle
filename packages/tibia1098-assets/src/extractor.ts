@@ -134,6 +134,64 @@ function copySprite(target: Buffer, targetWidth: number, sprite: Buffer, offsetX
   }
 }
 
+function createThumbnailRgba(rgba: Buffer, srcW: number, srcH: number, targetSize = 32): Buffer {
+  let minX = srcW, maxX = -1, minY = srcH, maxY = -1;
+  for (let y = 0; y < srcH; y++) {
+    for (let x = 0; x < srcW; x++) {
+      const a = rgba[(y * srcW + x) * 4 + 3];
+      if (a > 0) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+
+  const out = Buffer.alloc(targetSize * targetSize * 4);
+  if (maxX < minX || maxY < minY) {
+    return encodeRgbaPng(targetSize, targetSize, out);
+  }
+
+  const spanW = maxX - minX + 1;
+  const spanH = maxY - minY + 1;
+
+  if (spanW <= targetSize && spanH <= targetSize) {
+    const offX = Math.floor((targetSize - spanW) / 2);
+    const offY = Math.floor((targetSize - spanH) / 2);
+    for (let y = 0; y < spanH; y++) {
+      for (let x = 0; x < spanW; x++) {
+        const srcIdx = ((minY + y) * srcW + (minX + x)) * 4;
+        const dstIdx = ((offY + y) * targetSize + (offX + x)) * 4;
+        out[dstIdx] = rgba[srcIdx];
+        out[dstIdx + 1] = rgba[srcIdx + 1];
+        out[dstIdx + 2] = rgba[srcIdx + 2];
+        out[dstIdx + 3] = rgba[srcIdx + 3];
+      }
+    }
+  } else {
+    const scale = Math.min(targetSize / spanW, targetSize / spanH);
+    const fitW = Math.max(1, Math.round(spanW * scale));
+    const fitH = Math.max(1, Math.round(spanH * scale));
+    const offX = Math.floor((targetSize - fitW) / 2);
+    const offY = Math.floor((targetSize - fitH) / 2);
+    for (let y = 0; y < fitH; y++) {
+      const srcY = minY + Math.min(spanH - 1, Math.floor(y / scale));
+      for (let x = 0; x < fitW; x++) {
+        const srcX = minX + Math.min(spanW - 1, Math.floor(x / scale));
+        const srcIdx = (srcY * srcW + srcX) * 4;
+        const dstIdx = ((offY + y) * targetSize + (offX + x)) * 4;
+        out[dstIdx] = rgba[srcIdx];
+        out[dstIdx + 1] = rgba[srcIdx + 1];
+        out[dstIdx + 2] = rgba[srcIdx + 2];
+        out[dstIdx + 3] = rgba[srcIdx + 3];
+      }
+    }
+  }
+
+  return encodeRgbaPng(targetSize, targetSize, out);
+}
+
 function renderFrame(
   appearance: TibiaAppearance,
   spr: TibiaSprFile,
@@ -440,6 +498,10 @@ export async function extractTibia1098Assets(options: ExtractOptions = {}): Prom
     patterns: Array.from(CREATURE_DIRECTIONS),
   });
   for (const [k, v] of rotwormExt.files) allFiles.set(k, v);
+  const rotwormThumb = createThumbnailRgba(renderFrame(rotwormApp, spr, { layer: 0, x: 2, y: 0, z: 0, frame: 0 }).rgba, rotwormApp.width * 32, rotwormApp.height * 32, 32);
+  const rotwormThumbFile = `public/generated/tibia1098/rotworm-thumb.png`;
+  allFiles.set(rotwormThumbFile, rotwormThumb);
+  rotwormExt.mapping.thumbUrl = `/generated/tibia1098/rotworm-thumb.png`;
 
   // Extract Aldric
   const aldricApp = dat.appearances.creature.get(128) ?? Array.from(dat.appearances.creature.values())[0];
@@ -451,6 +513,10 @@ export async function extractTibia1098Assets(options: ExtractOptions = {}): Prom
     patterns: Array.from(CREATURE_DIRECTIONS),
   });
   for (const [k, v] of aldricExt.files) allFiles.set(k, v);
+  const aldricThumb = createThumbnailRgba(renderFrame(aldricApp, spr, { layer: 0, x: 2, y: 0, z: 0, frame: 0 }).rgba, aldricApp.width * 32, aldricApp.height * 32, 32);
+  const aldricThumbFile = `public/generated/tibia1098/aldric-thumb.png`;
+  allFiles.set(aldricThumbFile, aldricThumb);
+  aldricExt.mapping.thumbUrl = `/generated/tibia1098/aldric-thumb.png`;
 
   // Core Map Tile items
   const mapItemConfigs: Array<[VisualAssetMapping['key'], string, number]> = [
@@ -651,6 +717,10 @@ export async function extractTibia1098Assets(options: ExtractOptions = {}): Prom
       sourceFile: 'realmap11',
       patterns: Array.from(CREATURE_DIRECTIONS),
     });
+    const outfitThumb = createThumbnailRgba(renderFrame(app, spr, { layer: 0, x: 2, y: 0, z: 0, frame: 0 }).rgba, app.width * 32, app.height * 32, 32);
+    const outfitThumbFile = `public/generated/tibia1098/outfit-${lookType}-thumb.png`;
+    allFiles.set(outfitThumbFile, outfitThumb);
+    ext.mapping.thumbUrl = `/generated/tibia1098/outfit-${lookType}-thumb.png`;
     for (const [k, v] of ext.files) allFiles.set(k, v);
     outfitsResult[String(lookType)] = ext.mapping;
     const vocName = outfitVocationMap[lookType];
@@ -693,6 +763,12 @@ export async function extractTibia1098Assets(options: ExtractOptions = {}): Prom
       sourceFile: `realmap11/data/monster/${entry.id}.xml`,
       patterns: Array.from(CREATURE_DIRECTIONS),
     });
+    const thumbRendered = renderFrame(app, spr, { layer: 0, x: 2, y: 0, z: 0, frame: 0 });
+    const thumbPng = createThumbnailRgba(thumbRendered.rgba, app.width * 32, app.height * 32, 32);
+    const thumbFile = `public/generated/tibia1098/monster-${entry.id}-thumb.png`;
+    allFiles.set(thumbFile, thumbPng);
+    ext.mapping.thumbUrl = `/generated/tibia1098/monster-${entry.id}-thumb.png`;
+
     for (const [k, v] of ext.files) allFiles.set(k, v);
     creaturesResult[entry.id] = ext.mapping;
     creaturesResult[String(entry.lookType)] = ext.mapping;

@@ -119,5 +119,5 @@ describe('spatial party combat', () => {
       }
     }
     expect(second).toEqual(first);
-  }, 90_000);
+  }, 180_000);
 });

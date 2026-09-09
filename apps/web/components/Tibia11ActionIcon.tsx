@@ -122,6 +122,7 @@ export const ALL_SPELL_ICON_URLS: string[] = [
   '/potions/mastermind-potion.png',
   '/potions/bullseye-potion.png',
   '/potions/empty-potion-flask.png',
+  ...Array.from({ length: 146 }, (_, i) => `/spells/canonical/spell-${i}.png`),
 ];
 
 /**
@@ -205,20 +206,24 @@ export function resolveActionImagePath(id?: number, kind?: string, name?: string
   // 3. Spells (Mapped to official CipSoft Spell Icons)
   // Healing
   if (lower.includes('mas res') || lower.includes('mass healing') || id === 82 || id === 7) return '/spells/exura-gran-mas-res.png';
+  if (lower.includes('exura gran san') || lower.includes('salvation')) return '/spells/exura-gran-san.png';
+  if (lower.includes('exura san') || lower.includes('divine healing') || id === 125) return '/spells/exura-san.png';
+  if (lower.includes('exura gran ico') || lower.includes('intense wound cleansing')) return '/spells/exura-gran-ico.png';
+  if (lower.includes('exura ico') || lower.includes('wound cleansing') || id === 123) return '/spells/exura-ico.png';
   if (lower.includes('exura vita') || lower.includes('ultimate healing') || id === 3) return '/spells/exura-vita.png';
   if (lower.includes('exura gran') || lower.includes('intense healing') || id === 2) return '/spells/exura-gran.png';
   if (lower.includes('exura sio') || lower.includes('heal friend') || id === 84 || id === 4) return '/spells/exura-sio.png';
-  if (lower.includes('exura san') || lower.includes('divine healing') || id === 125) return '/spells/exura-san.png';
-  if (lower.includes('exura ico') || lower.includes('wound cleansing') || id === 123) return '/spells/exura-ico.png';
   if (lower.includes('exura') || lower.includes('light healing') || id === 1) return '/spells/exura.png';
 
   // Support & Haste
   if (lower.includes('strong haste') || lower.includes('utani gran hur') || id === 39 || id === 17) return '/spells/utani-gran-hur.png';
   if (lower.includes('haste') || lower.includes('utani hur') || id === 6 || id === 16) return '/spells/utani-hur.png';
+  if (lower.includes('charge') || lower.includes('utani tempo hur') || id === 131) return '/spells/utani-tempo-hur.png';
   if (lower.includes('magic shield') || lower.includes('utamo vita') || id === 44 || id === 18) return '/spells/utamo-vita.png';
+  if (lower.includes('sharpshooter') || lower.includes('utito tempo san')) return '/spells/utito-tempo-san.png';
+  if (lower.includes('swift foot') || lower.includes('utamo tempo san')) return '/spells/utamo-tempo-san.png';
   if (lower.includes('blood rage') || lower.includes('utito tempo') || id === 133 || id === 15) return '/spells/utito-tempo.png';
-  if (lower.includes('protector') || lower.includes('utamo tempo') || id === 132) return '/spells/utito-tempo.png';
-  if (lower.includes('charge') || lower.includes('swift foot') || lower.includes('tempo hur') || id === 131) return '/spells/utani-tempo-hur.png';
+  if (lower.includes('protector') || lower.includes('utamo tempo') || id === 132) return '/spells/utamo-tempo.png';
   if (lower.includes('invisible') || lower.includes('utana vid') || id === 45) return '/spells/utana-vid.png';
   if (lower.includes('challenge') || lower.includes('exeta res') || id === 93 || id === 8) return '/spells/exeta-res.png';
 
@@ -245,7 +250,7 @@ export function resolveActionImagePath(id?: number, kind?: string, name?: string
   if (lower.includes('physical strike') || lower.includes('exori moe ico') || id === 148) return '/spells/physical-strike.png';
 
   // Knight Strikes
-  if (lower.includes('annihilation') || lower.includes('exori gran ico') || id === 62) return '/spells/exori-gran.png';
+  if (lower.includes('annihilation') || lower.includes('exori gran ico') || id === 62) return '/spells/exori-gran-ico.png';
   if (lower.includes('exori gran') || lower.includes('fierce berserk') || id === 105) return '/spells/exori-gran.png';
   if (lower.includes('exori mas') || lower.includes('groundshaker') || id === 106) return '/spells/exori-mas.png';
   if (lower.includes('exori ico') || lower.includes('brutal strike') || id === 61) return '/spells/exori-ico.png';
@@ -274,6 +279,9 @@ export function resolveActionImagePath(id?: number, kind?: string, name?: string
 
   if (lower.includes('divine caldera') || lower.includes('mas san') || id === 124 || id === 32) return '/spells/exevo-mas-san.png';
   if (lower.includes('holy strike') || lower.includes('divine missile') || lower.includes('exori san') || id === 122 || id === 31) return '/spells/exori-san.png';
+  if (lower.includes('strong ethereal spear') || lower.includes('exori gran con')) return '/spells/exori-gran-con.png';
+  if (lower.includes('ethereal spear') || lower.includes('exori con')) return '/spells/exori-con.png';
+  if (lower.includes('holy flash') || lower.includes('utori san')) return '/spells/utori-san.png';
 
   if (lower.includes('exana pox') || id === 29 || id === 33) return '/spells/exana-pox.png';
   if (lower.includes('exana flam') || id === 145 || id === 34) return '/spells/exana-flam.png';

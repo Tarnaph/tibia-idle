@@ -2093,6 +2093,31 @@ function GamePrototypeContent() {
             </div>
           </div>
         )}
+        {mode === 'hunt' && isCharacterReady && (
+          <div className="city-location-hud hunt-location-hud">
+            <div className="city-hud-header">
+              <span className="city-tag" style={{ background: '#3b1c1c', borderColor: '#7f1d1d', color: '#fca5a5' }}>
+                ⚔️ CAÇADA: {encounter.hunt?.name || 'Caçada Ativa'}
+              </span>
+              <span className="city-coords">
+                {(() => {
+                  const reg = (content.huntRegions as any[])?.find((r: any) => r.huntId === encounter.hunt?.id);
+                  const originX = reg?.bounds?.x ?? 32077;
+                  const originY = reg?.bounds?.y ?? 32180;
+                  const originZ = reg?.bounds?.z ?? 8;
+                  const curX = originX + (currentActor?.position.x ?? 25);
+                  const curY = originY + (currentActor?.position.y ?? 25);
+                  return `X: ${curX} · Y: ${curY} · Z: ${originZ}`;
+                })()}
+              </span>
+            </div>
+            <div className="city-hud-status">
+              <span className="city-idle-badge" style={{ background: 'rgba(20, 25, 36, 0.85)', borderColor: '#374151' }}>
+                🗺️ RealMap OTBM · Entrada: (32102, 32205, 8) · Sala: {encounter.room.definitionId}
+              </span>
+            </div>
+          </div>
+        )}
         {levelUpMessage && (
           <div className="tibia-advancement-banner" key={levelUpMessage.timestamp}>
             {levelUpMessage.text}

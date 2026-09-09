@@ -3099,6 +3099,7 @@ h1, h2, h3, p { margin: 0; }
   width: 32px;
   height: 32px;
   image-rendering: pixelated;
+  object-fit: contain;
 }
 
 .hunt-card-info {
@@ -3239,6 +3240,7 @@ h1, h2, h3, p { margin: 0; }
   width: 48px;
   height: 48px;
   image-rendering: pixelated;
+  object-fit: contain;
   margin-bottom: 6px;
 }
 

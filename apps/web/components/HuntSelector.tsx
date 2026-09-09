@@ -1,13 +1,13 @@
 'use client';
 
 import { useMemo, useState, useEffect, useRef } from 'react';
-import visualAssetsJson from '@/content/generated/tibia860-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
 import type { HuntDefinition } from '@/packages/domain/src';
 import type { MonsterDefinition } from '@/packages/content-schema/src';
-import type { Tibia860AssetManifest } from '@/packages/tibia860-assets/src/types';
+import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 import { ItemSprite } from './ItemSprite';
 
-const assets = visualAssetsJson as Tibia860AssetManifest;
+const assets = visualAssetsJson as Tibia1098AssetManifest;
 
 interface Props {
   open: boolean;
@@ -268,7 +268,7 @@ export function HuntSelector({
                       <div className="hunt-card-sprite-box">
                         {frame ? (
                           <img
-                            src={frame.publicUrl}
+                            src={assets.creatures[monsterId]?.thumbUrl || frame.publicUrl}
                             alt={monster?.name ?? monsterId}
                             className="hunt-creature-sprite"
                           />
@@ -319,9 +319,10 @@ export function HuntSelector({
                       onMouseEnter={() => setShowBestiaryTooltip(true)}
                       onMouseLeave={() => setShowBestiaryTooltip(false)}
                     >
-                      {primaryMonster && assets.creatures[primaryMonster.id]?.frames[0] ? (
+                      {primaryMonster && (assets.creatures[primaryMonster.id]?.thumbUrl || assets.creatures[primaryMonster.id]?.frames[0]) ? (
                         <img
                           src={
+                            assets.creatures[primaryMonster.id]?.thumbUrl ??
                             assets.creatures[primaryMonster.id]?.frames.find(
                               (f) => f.direction === 'south'
                             )?.publicUrl ?? assets.creatures[primaryMonster.id]?.frames[0].publicUrl

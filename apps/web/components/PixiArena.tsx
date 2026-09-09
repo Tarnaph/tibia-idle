@@ -102,24 +102,113 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         app.ticker.stop();
       }
 
-      const urls = new Set<string>();
-      for (const asset of [...Object.values(visualAssets.creatures), ...Object.values(visualAssets.outfits), ...Object.values(visualAssets.effects), ...Object.values(visualAssets.missiles)]) {
-        for (const frame of asset.frames) urls.add(frame.publicUrl);
-      }
-      for (const item of [...Object.values(visualAssets.corpses), ...Object.values(visualAssets.mapItems)]) {
-        if (item.frame) urls.add(item.frame.publicUrl);
-        if (item.frames) {
-          for (const frame of item.frames) urls.add(frame.publicUrl);
+      const loaded: Record<string, Texture> = {};
+
+      const loadBatch = async (urlList: string[], chunkSize = 35) => {
+        for (let i = 0; i < urlList.length; i += chunkSize) {
+          if (disposed) break;
+          const chunk = urlList.slice(i, i + chunkSize);
+          await Promise.allSettled(
+            chunk.map(async (url) => {
+              if (!url || loaded[url]) return;
+              try {
+                const texture = await Assets.load<Texture>(url);
+                if (texture) {
+                  texture.source.style.scaleMode = 'nearest';
+                  loaded[url] = texture;
+                }
+              } catch {}
+            })
+          );
+        }
+      };
+
+      const ensureTexture = async (url: string): Promise<Texture | undefined> => {
+        if (loaded[url]) return loaded[url];
+        try {
+          const texture = await Assets.load<Texture>(url);
+          if (texture) {
+            texture.source.style.scaleMode = 'nearest';
+            loaded[url] = texture;
+            return texture;
+          }
+        } catch {}
+        return undefined;
+      };
+
+      // 1. Gather high-priority immediate assets for current encounter
+      const priorityUrls = new Set<string>();
+
+      // Base terrain assets
+      for (const assetKey of ['floor', 'caveGround', 'caveWall', 'obstacle', 'entrance', 'exit'] as const) {
+        const a = visualAssets.assets[assetKey];
+        if (a?.frames) {
+          for (const f of a.frames) priorityUrls.add(f.publicUrl);
         }
       }
-      for (const url of ALL_SPELL_ICON_URLS) urls.add(url);
-      urls.add('/generated/mounts/donkey_rider_south.png');
-      for (const o of ['citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate', 'oriental', 'beggar']) {
-        urls.add(`/generated/outfit-thumbs/${o}.png`);
+
+      // Current room map items
+      for (const tile of game.encounter.room.map.tiles) {
+        for (const sId of tile.serverItemIds ?? []) {
+          const m = visualAssets.mapItems[String(sId)];
+          if (m?.frame) priorityUrls.add(m.frame.publicUrl);
+          if (m?.frames) {
+            for (const f of m.frames) priorityUrls.add(f.publicUrl);
+          }
+        }
       }
-      const loaded = await Assets.load([...urls]) as Record<string, Texture>;
+
+      // Encounter monsters
+      for (const enemy of game.encounter.enemies) {
+        const mapping = visualAssets.creatures[enemy.monsterId] || ((enemy as any).lookType ? visualAssets.creatures[String((enemy as any).lookType)] : null);
+        if (mapping) {
+          for (const f of mapping.frames) priorityUrls.add(f.publicUrl);
+        }
+      }
+
+      // Outfits & Vocations
+      for (const voc of ['Knight', 'Paladin', 'Sorcerer', 'Druid', 'Sire']) {
+        const out = visualAssets.outfits[voc];
+        if (out) {
+          for (const f of out.frames) priorityUrls.add(f.publicUrl);
+        }
+      }
+
+      // Spell action icons & mounts
+      for (const url of ALL_SPELL_ICON_URLS) priorityUrls.add(url);
+      priorityUrls.add('/generated/mounts/donkey_rider_south.png');
+
+      // Core effects & missiles
+      for (const effId of ['11', '16', '1', '2', '3', '4']) {
+        const eff = visualAssets.effects[effId];
+        if (eff) for (const f of eff.frames) priorityUrls.add(f.publicUrl);
+      }
+      for (const misId of ['1', '2', '3', '24', '37', '39']) {
+        const mis = visualAssets.missiles[misId];
+        if (mis) for (const f of mis.frames) priorityUrls.add(f.publicUrl);
+      }
+
+      await loadBatch(Array.from(priorityUrls), 35);
       if (disposed) { app.destroy(true, { children: true }); return; }
-      for (const texture of Object.values(loaded)) texture.source.style.scaleMode = 'nearest';
+
+      // Stream remaining map items and creature frames in background without blocking
+      void (async () => {
+        const backgroundUrls = new Set<string>();
+        for (const asset of [...Object.values(visualAssets.creatures), ...Object.values(visualAssets.outfits), ...Object.values(visualAssets.effects), ...Object.values(visualAssets.missiles)]) {
+          for (const frame of asset.frames) {
+            if (!loaded[frame.publicUrl]) backgroundUrls.add(frame.publicUrl);
+          }
+        }
+        for (const item of [...Object.values(visualAssets.corpses), ...Object.values(visualAssets.mapItems)]) {
+          if (item.frame && !loaded[item.frame.publicUrl]) backgroundUrls.add(item.frame.publicUrl);
+          if (item.frames) {
+            for (const frame of item.frames) {
+              if (!loaded[frame.publicUrl]) backgroundUrls.add(frame.publicUrl);
+            }
+          }
+        }
+        await loadBatch(Array.from(backgroundUrls), 40);
+      })();
 
       // Pre-render the 4-tile torch hole stamp
       // Up to 4 tiles (4 * 32px = 128px): 100% transparent (clear vision, zero darkness)
@@ -208,8 +297,26 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
               const matchedFrame = mapping.frames.find((f: any) => f.pattern?.x === px && f.pattern?.y === py) ?? mapping.frames[0];
               if (matchedFrame && loaded[matchedFrame.publicUrl]) frameToUse = matchedFrame;
             }
-            if (!frameToUse || !loaded[frameToUse.publicUrl]) continue;
-            const sprite = new Sprite(loaded[frameToUse.publicUrl]);
+            if (!frameToUse) continue;
+            const tex = loaded[frameToUse.publicUrl];
+            if (!tex) {
+              const reqUrl = frameToUse.publicUrl;
+              void ensureTexture(reqUrl).then((loadedTex) => {
+                if (!loadedTex || disposed) return;
+                const sprite = new Sprite(loadedTex);
+                if (mapping.appearance && (mapping.appearance.width > 1 || mapping.appearance.height > 1)) {
+                  sprite.anchor.set(0, 0);
+                  sprite.position.set(point.x - 16 - (mapping.appearance.width - 1) * 32, point.y - 16 - (mapping.appearance.height - 1) * 32);
+                } else {
+                  sprite.anchor.set(0, 0);
+                  sprite.position.set(point.x - 16, point.y - 16);
+                }
+                sprite.roundPixels = true;
+                terrain.addChild(sprite);
+              });
+              continue;
+            }
+            const sprite = new Sprite(tex);
             if (mapping.appearance && (mapping.appearance.width > 1 || mapping.appearance.height > 1)) {
               sprite.anchor.set(0, 0);
               sprite.position.set(point.x - 16 - (mapping.appearance.width - 1) * 32, point.y - 16 - (mapping.appearance.height - 1) * 32);
@@ -263,7 +370,13 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         }
         const initialUrl = frameUrl(mapping, direction, 0);
         const aura = new Graphics();
-        const sprite = new Sprite(loaded[initialUrl]); sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY); sprite.position.set(creatureVisualLayout.spriteOffsetX, creatureVisualLayout.spriteOffsetY); sprite.roundPixels = true;
+        const initialTex = loaded[initialUrl] || Texture.WHITE;
+        const sprite = new Sprite(initialTex); sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY); sprite.position.set(creatureVisualLayout.spriteOffsetX, creatureVisualLayout.spriteOffsetY); sprite.roundPixels = true;
+        if (!loaded[initialUrl]) {
+          void ensureTexture(initialUrl).then((tex) => {
+            if (tex && !sprite.destroyed) sprite.texture = tex;
+          });
+        }
         const label = new Text({ text: labelText, resolution: 2, style: { fill: 0x67de82, stroke: { color: 0x08120a, width: 2 }, fontSize: 8, fontFamily: 'Arial', fontWeight: '700' } }); label.anchor.set(0.5); label.roundPixels = true;
         const debugLabel = new Text({ text: '', style: { fill: 0xffffff, stroke: { color: 0x000000, width: 2 }, fontSize: 5, fontFamily: 'monospace' } }); debugLabel.anchor.set(0.5, 0);
         const bar = new Graphics(); root.addChild(aura, sprite, label, bar, debugLabel); actors.addChild(root);
@@ -376,7 +489,12 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
         for (const layer of [corpses]) layer.removeChildren().forEach((child) => child.destroy({ children: true }));
         for (const corpse of state.encounter.corpses) {
           const mapping = visualAssets.corpses[corpse.monsterId]; if (!mapping?.frame) continue;
-          const sprite = new Sprite(loaded[mapping.frame.publicUrl]); const point = worldPoint(corpse.position);
+          const tex = loaded[mapping.frame.publicUrl];
+          if (!tex) {
+            void ensureTexture(mapping.frame.publicUrl);
+            continue;
+          }
+          const sprite = new Sprite(tex); const point = worldPoint(corpse.position);
           sprite.anchor.set(0.5, 1); sprite.position.set(point.x, point.y); sprite.zIndex = corpse.position.y * 10;
           const dyingEnemy = state.encounter.enemies.find(
             (e) => !e.alive && e.position.x === corpse.position.x && e.position.y === corpse.position.y
@@ -555,7 +673,16 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
             }
           } else {
             const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
-            if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
+            if (nextUrl !== view.lastFrameUrl) {
+              if (loaded[nextUrl]) {
+                view.sprite.texture = loaded[nextUrl];
+              } else {
+                void ensureTexture(nextUrl).then((tex) => {
+                  if (tex && !view.sprite.destroyed) view.sprite.texture = tex;
+                });
+              }
+              view.lastFrameUrl = nextUrl;
+            }
           }
           view.sprite.tint = view.attackUntil > now ? 0xffd0a0 : 0xffffff;
           const pendingDamage = enemy ? pendingImpacts.filter((p) => p.targetId === enemy.id && now < p.impactAt).reduce((sum, p) => sum + p.amount, 0) : 0;

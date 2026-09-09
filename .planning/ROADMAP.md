@@ -59,6 +59,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 95: Efeitos Visuais, Projéteis e Áreas de Impacto Autênticas de Runas via RealMap 11** - Correção autoritativa de effectId e projectileId de todas as 34 runas canônicas de acordo com realmap11 scripts e const.h (SD 18/32, Avalanche 42/29, GFB 7/4, Explosion 5/41, Thunderstorm 12/36, Stone Shower 45/30), detonação sincronizada de área no impacto (+240ms) na PixiArena e ThaisCityArena, preservando os ícones corrigidos e regras de combate.
 - [x] **Phase 96: Sincronização de Impacto de Projéteis, Números de Dano, Redução de HP e Área das Runas** - Adoção da duração única de 240ms para voo e impacto, sincronização simultânea de dano e área para alvos múltiplos, estabilidade na vida em golpes sucessivos e surgimento de corpo apenas no impacto em golpes fatais.
 - [x] **Phase 97: Correção do Sistema de Condições para Uso Automático de Poções, Magias e Runas** - Cada slot da hotbar respeita rigorosamente as condições customizadas salvas (alvo, métrica, operador, valor e % ou absoluto), eliminando hardcodes (como limite fixo de 50%), garantindo que slots desativados nunca executem, condições não interfiram entre slots, e persistência permanente no Prisma DB entre relogs.
+- [x] **Phase 98: Sprites Autênticos de Monstros, Ícones Canônicos de Magias Tibia 11, Efeitos Visuais das Magias e Coordenadas da Caçada dos Ratos** - Geração de thumbnails 32x32 nítidos e centralizados para todos os 13 monstros do jogo com suporte a `thumbUrl` no `HuntSelector`, alinhamento de 146 ícones oficiais 32x32 do Tibia 11 para todas as vocações, importação autoritativa de `effectId` e `projectileId` do `realmap11/src/const.h` para 86+ magias, e garantia estrita da caçada dos ratos iniciando em (32102, 32205, 8) com HUD de coordenadas RealMap e inicialização instantânea sem congelamento na `PixiArena`.
 
 ---
 
@@ -1784,5 +1785,28 @@ Plans:
 
 Plans:
 - [x] 97-01-PLAN: Correção Integral do Sistema de Condições da Hotbar e Persistência Permanente.
+
+### Phase 98: Sprites Autênticos de Monstros, Ícones Canônicos de Magias Tibia 11, Efeitos Visuais das Magias e Coordenadas da Caçada dos Ratos
+
+**Goal:** Restaurar e calibrar com precisão os 4 pilares solicitados na transição de versão do Tibia: (1) Sprites e imagens de todos os 13 monstros do jogo (`rat`, `cave-rat`, `spider`, `bug`, `poison-spider`, `troll`, `swamp-troll`, `rotworm`, `skeleton`, `minotaur`, `dwarf`, `carrion-worm`, `dragon`), gerando miniaturas 32x32 perfeitamente centralizadas e pixeladas via detecção de bounding-box alpha e exibição nítida com `object-fit: contain;` no `HuntSelector`; (2) Mapeamento e alinhamento universal de 146 ícones canônicos 32x32 do Tibia 11 extraídos diretamente de `graphics_resources.rcc` para todas as vocações (Knight, Paladin, Sorcerer, Druid); (3) Importação de efeitos de impacto (`effectId`) e projéteis (`projectileId`) canônicos para todas as magias de ataque e suporte a partir das 175 constantes `CONST_ME_*` e 54 constantes `CONST_ANI_*` de `realmap11/src/const.h`; (4) Fixação estrita do spawn e entrada da caçada dos ratos nas coordenadas canônicas `X=32102, Y=32205, Z=8` com tiles e pisos autênticos do RealMap OTBM, HUD em tempo real de coordenadas da caçada e eliminação do congelamento de carregamento de texturas na `PixiArena.tsx` via streaming e carregamento em lotes resilientes.
+**Depends on:** Phase 97
+**Requirements:**
+1. Algoritmo de thumbnail centralizado `createThumbnailRgba` no extrator de assets `packages/tibia1098-assets/src/extractor.ts`, gerando `monster-${entry.id}-thumb.png` com recorte nos pixels visíveis e dimensionamento pixel-art 32x32 para todos os 13 monstros e outfits.
+2. Atualização de `packages/tibia1098-assets/src/types.ts` com o campo opcional `thumbUrl?: string` em `VisualAssetMapping` e integração nos cards e box de detalhes de `apps/web/components/HuntSelector.tsx`.
+3. Extração e catalogação dos 146 ícones oficiais 32x32 do Tibia 11 para `public/spells/canonical/` e sincronização de todos os 84 nomes de slugs em `public/spells/`, com mapeamento completo de Knight, Paladin, Sorcerer e Druid em `apps/web/components/Tibia11ActionIcon.tsx`.
+4. Mapeamento de efeitos (`effectId`) e projéteis (`projectileId`) para 86+ magias em `packages/realmap11-importer/src/importSpells.ts` e `content/generated/spells.json` lidos de `realmap11/src/const.h`.
+5. Validação das coordenadas da Caçada dos Ratos em `(32102, 32205, 8)` e inclusão do HUD de localização RealMap no topo da viewport quando `mode === 'hunt'`.
+6. Refatoração do carregamento de texturas na `PixiArena.tsx`, substituindo o `Assets.load` síncrono de milhares de itens pelo pré-carregamento imediato dos itens da sala ativa e streaming não-bloqueante em segundo plano.
+**Success Criteria:**
+1. Todos os 13 monstros exibem miniaturas centralizadas, proporcionais e nítidas no seletor de caçadas e na arena.
+2. Ícones de magias de Knight, Paladin, Sorcerer e Druid correspondem exatamente aos oficiais do Tibia 11.
+3. Magias de ataque e suporte disparam com seus respectivos efeitos e projéteis canônicos (ex: Terra Strike com carniphila 47 / terra 39; Ice Strike com ice 44 / ice projectile 37).
+4. A caçada dos ratos inicia em (32102, 32205, 8) com pisos autênticos e HUD exibindo a coordenada RealMap.
+5. `npm.cmd run typecheck` passa com 0 erros.
+6. `npm.cmd test` passa com 100% de sucesso em todas as 99 suítes (531 testes aprovados).
+
+Plans:
+- [x] 98-01-PLAN: Sprites de Monstros, Ícones Canônicos Tibia 11, Efeitos de Magias e Coordenadas RealMap da Caçada dos Ratos.
+
 
 

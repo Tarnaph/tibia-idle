@@ -73,7 +73,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 38,
         "projectileId": 5,
         "effectConstant": "CONST_ME_ENERGYAREA",
         "projectileConstant": "CONST_ANI_ENERGY"
@@ -116,7 +116,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 42,
         "projectileId": null,
         "effectConstant": "CONST_ME_ICEAREA",
         "projectileConstant": null
@@ -204,8 +204,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 47,
+        "projectileId": 39,
         "effectConstant": "CONST_ME_CARNIPHILA",
         "projectileConstant": "CONST_ANI_SMALLEARTH"
       },
@@ -373,8 +373,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": 3,
+        "effectId": 37,
+        "projectileId": 4,
         "effectConstant": "CONST_ME_FIREATTACK",
         "projectileConstant": "CONST_ANI_FIRE"
       },
@@ -739,7 +739,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 38,
         "projectileId": 5,
         "effectConstant": "CONST_ME_ENERGYAREA",
         "projectileConstant": "CONST_ANI_ENERGY"
@@ -878,8 +878,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 47,
+        "projectileId": 39,
         "effectConstant": "CONST_ME_CARNIPHILA",
         "projectileConstant": "CONST_ANI_SMALLEARTH"
       },
@@ -923,8 +923,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": 3,
+        "effectId": 37,
+        "projectileId": 4,
         "effectConstant": "CONST_ME_FIREATTACK",
         "projectileConstant": "CONST_ANI_FIRE"
       },
@@ -1020,7 +1020,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -1111,8 +1111,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 44,
+        "projectileId": 37,
         "effectConstant": "CONST_ME_ICEATTACK",
         "projectileConstant": "CONST_ANI_SMALLICE"
       },
@@ -1199,8 +1199,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 10,
-        "projectileId": 29,
+        "effectId": 18,
+        "projectileId": 11,
         "effectConstant": "CONST_ME_MORTAREA",
         "projectileConstant": "CONST_ANI_DEATH"
       },
@@ -1242,8 +1242,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 5,
+        "projectileId": 41,
         "effectConstant": "CONST_ME_EXPLOSIONAREA",
         "projectileConstant": "CONST_ANI_EXPLOSION"
       },
@@ -1371,7 +1371,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 42,
         "projectileId": null,
         "effectConstant": "CONST_ME_ICEAREA",
         "projectileConstant": null
@@ -1505,7 +1505,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -1634,7 +1634,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 12,
         "projectileId": null,
         "effectConstant": "CONST_ME_ENERGYHIT",
         "projectileConstant": null
@@ -1678,7 +1678,7 @@
       "runeId": null,
       "visual": {
         "effectId": 10,
-        "projectileId": null,
+        "projectileId": 28,
         "effectConstant": "CONST_ME_HITAREA",
         "projectileConstant": "CONST_ANI_ETHEREALSPEAR"
       },
@@ -1725,7 +1725,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -1852,7 +1852,7 @@
       "runeId": null,
       "visual": {
         "effectId": null,
-        "projectileId": 3,
+        "projectileId": 4,
         "effectConstant": null,
         "projectileConstant": "CONST_ANI_FIRE"
       },
@@ -1982,7 +1982,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 38,
         "projectileId": null,
         "effectConstant": "CONST_ME_ENERGYAREA",
         "projectileConstant": null
@@ -2282,7 +2282,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 10,
+        "effectId": 35,
         "projectileId": null,
         "effectConstant": "CONST_ME_GROUNDSHAKER",
         "projectileConstant": null
@@ -2322,7 +2322,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 12,
         "projectileId": 5,
         "effectConstant": "CONST_ME_ENERGYHIT",
         "projectileConstant": "CONST_ANI_ENERGY"
@@ -2537,7 +2537,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 38,
         "projectileId": 5,
         "effectConstant": "CONST_ME_ENERGYAREA",
         "projectileConstant": "CONST_ANI_ENERGY"
@@ -2623,7 +2623,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 46,
         "projectileId": null,
         "effectConstant": "CONST_ME_SMALLPLANTS",
         "projectileConstant": null
@@ -2666,8 +2666,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 40,
+        "projectileId": 38,
         "effectConstant": "CONST_ME_HOLYDAMAGE",
         "projectileConstant": "CONST_ANI_SMALLHOLY"
       },
@@ -2709,7 +2709,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 1,
         "projectileId": "weapon-type",
         "effectConstant": "CONST_ME_DRAWBLOOD",
         "projectileConstant": "CONST_ANI_WEAPONTYPE"
@@ -2754,7 +2754,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 42,
         "projectileId": null,
         "effectConstant": "CONST_ME_ICEAREA",
         "projectileConstant": null
@@ -2842,7 +2842,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 50,
         "projectileId": null,
         "effectConstant": "CONST_ME_HOLYAREA",
         "projectileConstant": null
@@ -2885,8 +2885,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 46,
+        "projectileId": 30,
         "effectConstant": "CONST_ME_SMALLPLANTS",
         "projectileConstant": "CONST_ANI_EARTH"
       },
@@ -2930,7 +2930,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -2970,7 +2970,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 38,
         "projectileId": 5,
         "effectConstant": "CONST_ME_ENERGYAREA",
         "projectileConstant": "CONST_ANI_ENERGY"
@@ -3014,7 +3014,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -3057,7 +3057,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 41,
         "projectileId": null,
         "effectConstant": "CONST_ME_BIGCLOUDS",
         "projectileConstant": null
@@ -3100,7 +3100,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -3143,7 +3143,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 55,
         "projectileId": null,
         "effectConstant": "CONST_ME_PLANTATTACK",
         "projectileConstant": null
@@ -3187,7 +3187,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -3230,7 +3230,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 43,
         "projectileId": null,
         "effectConstant": "CONST_ME_ICETORNADO",
         "projectileConstant": null
@@ -3273,7 +3273,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 6,
+        "effectId": 7,
         "projectileId": null,
         "effectConstant": "CONST_ME_FIREAREA",
         "projectileConstant": null
@@ -3359,7 +3359,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -3446,7 +3446,7 @@
       "runeId": null,
       "visual": {
         "effectId": null,
-        "projectileId": null,
+        "projectileId": 38,
         "effectConstant": null,
         "projectileConstant": "CONST_ANI_SMALLHOLY"
       },
@@ -3488,8 +3488,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": 3,
+        "effectId": 37,
+        "projectileId": 4,
         "effectConstant": "CONST_ME_FIREATTACK",
         "projectileConstant": "CONST_ANI_FIRE"
       },
@@ -3531,8 +3531,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 47,
+        "projectileId": 39,
         "effectConstant": "CONST_ME_CARNIPHILA",
         "projectileConstant": "CONST_ANI_SMALLEARTH"
       },
@@ -3571,8 +3571,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": 29,
+        "effectId": 39,
+        "projectileId": 11,
         "effectConstant": "CONST_ME_SMALLCLOUDS",
         "projectileConstant": "CONST_ANI_DEATH"
       },
@@ -3700,7 +3700,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 38,
         "projectileId": 5,
         "effectConstant": "CONST_ME_ENERGYAREA",
         "projectileConstant": "CONST_ANI_ENERGY"
@@ -3743,8 +3743,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 44,
+        "projectileId": 37,
         "effectConstant": "CONST_ME_ICEATTACK",
         "projectileConstant": "CONST_ANI_SMALLICE"
       },
@@ -3830,7 +3830,7 @@
       "runeId": null,
       "visual": {
         "effectId": 10,
-        "projectileId": null,
+        "projectileId": 28,
         "effectConstant": "CONST_ME_HITAREA",
         "projectileConstant": "CONST_ANI_ETHEREALSPEAR"
       },
@@ -3872,8 +3872,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": 3,
+        "effectId": 37,
+        "projectileId": 4,
         "effectConstant": "CONST_ME_FIREATTACK",
         "projectileConstant": "CONST_ANI_FIRE"
       },
@@ -3915,8 +3915,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 47,
+        "projectileId": 39,
         "effectConstant": "CONST_ME_CARNIPHILA",
         "projectileConstant": "CONST_ANI_SMALLEARTH"
       },
@@ -3960,7 +3960,7 @@
       "aggressive": false,
       "runeId": null,
       "visual": {
-        "effectId": null,
+        "effectId": 15,
         "projectileId": null,
         "effectConstant": "CONST_ME_MAGIC_GREEN",
         "projectileConstant": null
@@ -4003,7 +4003,7 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": 11,
+        "effectId": 38,
         "projectileId": 5,
         "effectConstant": "CONST_ME_ENERGYAREA",
         "projectileConstant": "CONST_ANI_ENERGY"
@@ -4046,8 +4046,8 @@
       "aggressive": true,
       "runeId": null,
       "visual": {
-        "effectId": null,
-        "projectileId": null,
+        "effectId": 44,
+        "projectileId": 37,
         "effectConstant": "CONST_ME_ICEATTACK",
         "projectileConstant": "CONST_ANI_SMALLICE"
       },

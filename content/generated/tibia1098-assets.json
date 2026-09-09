@@ -970,7 +970,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/rotworm-thumb.png"
     },
     "aldric": {
       "key": "aldric",
@@ -3212,7 +3213,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/aldric-thumb.png"
     },
     "floor": {
       "key": "floor",
@@ -5379,7 +5381,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-troll-thumb.png"
     },
     "21": {
       "key": "monster-rat",
@@ -6211,7 +6214,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-rat-thumb.png"
     },
     "25": {
       "key": "monster-minotaur",
@@ -6853,7 +6857,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-minotaur-thumb.png"
     },
     "26": {
       "key": "monster-rotworm",
@@ -7787,7 +7792,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-rotworm-thumb.png"
     },
     "30": {
       "key": "monster-spider",
@@ -8427,7 +8433,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-spider-thumb.png"
     },
     "33": {
       "key": "monster-skeleton",
@@ -9261,7 +9268,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-skeleton-thumb.png"
     },
     "34": {
       "key": "monster-dragon",
@@ -10093,7 +10101,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-dragon-thumb.png"
     },
     "36": {
       "key": "monster-poison-spider",
@@ -10925,7 +10934,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-poison-spider-thumb.png"
     },
     "45": {
       "key": "monster-bug",
@@ -11565,7 +11575,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-bug-thumb.png"
     },
     "56": {
       "key": "monster-cave-rat",
@@ -12397,7 +12408,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-cave-rat-thumb.png"
     },
     "69": {
       "key": "monster-dwarf",
@@ -13039,7 +13051,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-dwarf-thumb.png"
     },
     "76": {
       "key": "monster-swamp-troll",
@@ -13873,7 +13886,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-swamp-troll-thumb.png"
     },
     "205": {
       "key": "monster-carrion-worm",
@@ -14189,7 +14203,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-carrion-worm-thumb.png"
     },
     "rat": {
       "key": "monster-rat",
@@ -15021,7 +15036,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-rat-thumb.png"
     },
     "cave-rat": {
       "key": "monster-cave-rat",
@@ -15853,7 +15869,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-cave-rat-thumb.png"
     },
     "spider": {
       "key": "monster-spider",
@@ -16493,7 +16510,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-spider-thumb.png"
     },
     "bug": {
       "key": "monster-bug",
@@ -17133,7 +17151,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-bug-thumb.png"
     },
     "poison-spider": {
       "key": "monster-poison-spider",
@@ -17965,7 +17984,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-poison-spider-thumb.png"
     },
     "troll": {
       "key": "monster-troll",
@@ -18799,7 +18819,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-troll-thumb.png"
     },
     "swamp-troll": {
       "key": "monster-swamp-troll",
@@ -19633,7 +19654,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-swamp-troll-thumb.png"
     },
     "rotworm": {
       "key": "monster-rotworm",
@@ -20567,7 +20589,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-rotworm-thumb.png"
     },
     "skeleton": {
       "key": "monster-skeleton",
@@ -21401,7 +21424,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-skeleton-thumb.png"
     },
     "minotaur": {
       "key": "monster-minotaur",
@@ -22043,7 +22067,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-minotaur-thumb.png"
     },
     "dwarf": {
       "key": "monster-dwarf",
@@ -22685,7 +22710,8 @@
           "height": 32
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-dwarf-thumb.png"
     },
     "carrion-worm": {
       "key": "monster-carrion-worm",
@@ -23001,7 +23027,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-carrion-worm-thumb.png"
     },
     "dragon": {
       "key": "monster-dragon",
@@ -23833,7 +23860,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/monster-dragon-thumb.png"
     }
   },
   "outfits": {
@@ -26077,7 +26105,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-128-thumb.png"
     },
     "129": {
       "key": "outfit-129",
@@ -28319,7 +28348,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-129-thumb.png"
     },
     "130": {
       "key": "outfit-130",
@@ -30561,7 +30591,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-130-thumb.png"
     },
     "131": {
       "key": "outfit-131",
@@ -32803,7 +32834,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-131-thumb.png"
     },
     "136": {
       "key": "outfit-136",
@@ -35045,7 +35077,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-136-thumb.png"
     },
     "137": {
       "key": "outfit-137",
@@ -37287,7 +37320,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-137-thumb.png"
     },
     "138": {
       "key": "outfit-138",
@@ -39529,7 +39563,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-138-thumb.png"
     },
     "139": {
       "key": "outfit-139",
@@ -41771,7 +41806,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-139-thumb.png"
     },
     "140": {
       "key": "outfit-140",
@@ -44013,7 +44049,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-140-thumb.png"
     },
     "141": {
       "key": "outfit-141",
@@ -46255,7 +46292,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-141-thumb.png"
     },
     "142": {
       "key": "outfit-142",
@@ -48497,7 +48535,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-142-thumb.png"
     },
     "Knight": {
       "key": "outfit-128",
@@ -50739,7 +50778,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-128-thumb.png"
     },
     "Paladin": {
       "key": "outfit-129",
@@ -52981,7 +53021,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-129-thumb.png"
     },
     "Sorcerer": {
       "key": "outfit-130",
@@ -55223,7 +55264,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-130-thumb.png"
     },
     "Druid": {
       "key": "outfit-131",
@@ -57465,7 +57507,8 @@
           "height": 64
         }
       ],
-      "notes": []
+      "notes": [],
+      "thumbUrl": "/generated/tibia1098/outfit-131-thumb.png"
     },
     "Sire": {
       "key": "outfit-sire",

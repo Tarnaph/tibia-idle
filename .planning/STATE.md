@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T10:55:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 97: Correção do Sistema de Condições para Uso Automático de Poções, Magias e Runas."
+last_updated: "2026-09-09T12:10:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 98: Sprites Autênticos de Monstros, Ícones Canônicos de Magias Tibia 11, Efeitos Visuais das Magias e Coordenadas da Caçada dos Ratos."
 progress:
-  total_phases: 97
-  completed_phases: 97
-  total_plans: 97
-  completed_plans: 97
+  total_phases: 98
+  completed_phases: 98
+  total_plans: 98
+  completed_plans: 98
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 97 concluída. Sistema completo e determinístico de condições para hotbar (alvo, métrica, operador, valor, % ou absoluto), isolamento absoluto entre slots, slots desativados nunca executam, eliminação total de regras hardcoded (como o limite fixo de 50%), e persistência permanente no Prisma DB (`hotbarConfigs` em `hotbarJson`).
+**Current focus:** Fase 98 concluída. Sprites e miniaturas 32x32 centralizadas e nítidas para todos os 13 monstros do jogo, 146 ícones oficiais 32x32 do Tibia 11 para todas as vocações, importação autoritativa de 86+ efeitos e projéteis de magias a partir de realmap11/src/const.h, e garantia estrita da caçada dos ratos iniciando em (32102, 32205, 8) com HUD RealMap e carregamento resiliente sem congelamento na PixiArena.
 
 ## Current Position
 
-Phase: 97 of 97 (Concluída)  
+Phase: 98 of 98 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 97.
+Last activity: 2026-09-09 — Conclusão da Phase 98.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 97
-- Total phases in roadmap: 97
-- Tests status: 98 test suites (525 testes aprovados)
+- Total phases completed: 98
+- Total phases in roadmap: 98
+- Tests status: 99 test suites (531 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
