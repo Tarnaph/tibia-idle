@@ -72,6 +72,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 108: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico)** - Refatoração visual completa da janela de caçadas para carrossel horizontal de 3 cards simultâneos com design medieval autêntico, ilustrações temáticas em pixel art, sprites pixelados, medalhões de nível, coloração dinâmica de dificuldade, botão de mochila com tooltip flutuante de loot e botão principal "INICIAR CAÇADA".
 - [x] **Phase 109: Trilha Sonora do Dragon Lair (Dragons Pride) no Loading e Notificação Pós-Carregamento** - Reprodução de "Dragons Pride" iniciando imediatamente na tela de loading ao entrar no Dragon Lair, pausa da trilha de Thais, e exibição da caixa de notificação musical deslizante ("Dragons Pride") estritamente após a conclusão do carregamento com o personagem já visível no mapa.
 - [x] **Phase 110: Tela de Carregamento de Thais (Nova Ilustração do Templo) e Sistema de Curiosidades Rotativas ("Você Sabia?")** - Integração da nova arte oficial do Templo de Thais no loading, e introdução do sistema de curiosidades/lore de Tibia que alternam aleatoriamente a cada 3 segundos com transições suaves acima da barra de carregamento.
+- [x] **Phase 111: Telas de Carregamento Modulares por Caçada & Loading de Dragon Lair** - Arquitetura de loadings temáticos individuais por caçada com fallback para Thais, e configuração do Dragon Lair com a nova ilustração do Dragão na caverna e curiosidades sobre Garsharak e Dragon Lords.
 
 
 ---
@@ -1946,6 +1947,20 @@ Plans:
 5. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
 **Plans:**
 - [x] 110-01-PLAN: Tela de Carregamento de Thais (Nova Ilustração do Templo) e Sistema de Curiosidades Rotativas ("Você Sabia?").
+
+### Phase 111: Telas de Carregamento Modulares por Caçada & Loading de Dragon Lair
+
+**Goal:** Permitir que cada caçada possua sua própria tela de carregamento com imagem de fundo temática e curiosidades históricas exclusivas, mantendo o fallback padrão para a tela de Thais, e configurar imediatamente o Dragon Lair (`dragon-lair`) com a nova arte do dragão verde na caverna e suas 3 curiosidades sobre Garsharak e Dragon Lords.
+**Depends on:** Phase 110, Phase 109
+**Requirements:**
+1. Publicação e vinculação da ilustração do Dragão na caverna em `public/images/loading/dragon-lair-loading.jpg`.
+2. Criação do catálogo `DRAGON_LAIR_LORE_CURIOSITIES` e dicionário modular `HUNT_LOADING_CONFIGS`.
+3. Função auxiliar `getLoadingConfigForHunt(huntId)` provendo a arte e as curiosidades apropriadas com fallback limpo para Thais.
+4. Vinculação do `activeHuntId` no `GamePrototype.tsx` ao invocar `ExuraLoadingScreen`.
+5. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 111-01-PLAN: Telas de Carregamento Modulares por Caçada & Loading de Dragon Lair.
+
 
 
 

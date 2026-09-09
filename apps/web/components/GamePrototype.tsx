@@ -43,7 +43,7 @@ import { OutfitModal } from './OutfitModal';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { PixiArena } from './PixiArena';
-import { ExuraLoadingScreen } from './ExuraLoadingScreen';
+import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
 import { ThaisCityArena, type CityOverheadMessage } from './ThaisCityArena';
 import { WorldNavigation } from './WorldNavigation';
@@ -218,6 +218,7 @@ function GamePrototypeContent() {
     active: boolean;
     message: string;
     durationMs?: number;
+    huntId?: string;
   } | null>(null);
   const saveProgressRef = useRef<() => Promise<void>>(async () => {});
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
@@ -783,6 +784,7 @@ function GamePrototypeContent() {
         active: true,
         message: `Viajando para ${targetHunt.name} com a party...`,
         durationMs: 10000,
+        huntId: data.huntId,
       });
 
       if (modeRef.current === 'hunt') {
@@ -1699,6 +1701,7 @@ function GamePrototypeContent() {
       active: true,
       message: `Viajando para ${targetHunt.name}...`,
       durationMs: 10000,
+      huntId,
     });
 
     const beforePos = { ...cityPos };
@@ -1755,6 +1758,7 @@ function GamePrototypeContent() {
       active: true,
       message: 'Salvando progresso e retornando a Thais...',
       durationMs: 10000,
+      huntId: undefined,
     });
 
     setGame((current) => {
@@ -2646,47 +2650,56 @@ function GamePrototypeContent() {
         />
       )}
 
-      {/* Phase 99/100/102: Authentic Exura 10s Cinematic Loading Screen for Login & Transitions */}
-      <ExuraLoadingScreen
-        active={initialLoadingActive || Boolean(transitionLoading?.active)}
-        durationMs={transitionLoading?.durationMs ?? 10000}
-        message={
-          transitionLoading?.message ||
-          (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
-        }
-        onFinish={() => {
-          const pending = pendingHuntTransitionRef.current;
-          if (pending) {
-            pendingHuntTransitionRef.current = null;
-            setGame((current) => restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId));
-            setMode('hunt');
-            pauseCityBgm();
-            setCityPos(pending.entrance.worldPosition);
-            gameNetwork.sendSetInHunt(true, pending.huntId);
-            gameNetwork.sendTeleport(pending.entrance.worldPosition.x, pending.entrance.worldPosition.y, pending.entrance.worldPosition.z);
-            if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
-              gameNetwork.sendPartyHuntSync(pending.huntId, pending.nextSeed);
-            }
-            setSaleMessage(`Você viajou para ${pending.targetHunt.name}!`);
-            lastCombatTimeRef.current = performance.now();
+      {/* Phase 99/100/102/111: Authentic Exura 10s Cinematic Loading Screen for Login & Transitions */}
+      {(() => {
+        const activeHuntId = transitionLoading?.huntId || pendingHuntTransitionRef.current?.huntId;
+        const loadingConfig = getLoadingConfigForHunt(activeHuntId);
 
-            // Phase 109: Dragon Lair music notification box appears strictly after loading finishes and character is visible!
-            if (pending.huntId === 'dragon-lair') {
-              triggerTrackNotification(DRAGONS_PRIDE_TRACK);
+        return (
+          <ExuraLoadingScreen
+            active={initialLoadingActive || Boolean(transitionLoading?.active)}
+            durationMs={transitionLoading?.durationMs ?? 10000}
+            message={
+              transitionLoading?.message ||
+              (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
             }
-          }
-          if (initialLoadingActive) {
-            setInitialLoadingActive(false);
-          }
-          if (transitionLoading?.active) {
-            setTransitionLoading(null);
-          }
-          // Phase 105: Music track notification box appears strictly after loading finishes in Thais
-          if (!pending && mode === 'training') {
-            triggerTrackNotification(THAIS_THEME_TRACK);
-          }
-        }}
-      />
+            bgImage={loadingConfig.bgImage}
+            curiosities={loadingConfig.curiosities}
+            onFinish={() => {
+              const pending = pendingHuntTransitionRef.current;
+              if (pending) {
+                pendingHuntTransitionRef.current = null;
+                setGame((current) => restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId));
+                setMode('hunt');
+                pauseCityBgm();
+                setCityPos(pending.entrance.worldPosition);
+                gameNetwork.sendSetInHunt(true, pending.huntId);
+                gameNetwork.sendTeleport(pending.entrance.worldPosition.x, pending.entrance.worldPosition.y, pending.entrance.worldPosition.z);
+                if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+                  gameNetwork.sendPartyHuntSync(pending.huntId, pending.nextSeed);
+                }
+                setSaleMessage(`Você viajou para ${pending.targetHunt.name}!`);
+                lastCombatTimeRef.current = performance.now();
+
+                // Phase 109: Dragon Lair music notification box appears strictly after loading finishes and character is visible!
+                if (pending.huntId === 'dragon-lair') {
+                  triggerTrackNotification(DRAGONS_PRIDE_TRACK);
+                }
+              }
+              if (initialLoadingActive) {
+                setInitialLoadingActive(false);
+              }
+              if (transitionLoading?.active) {
+                setTransitionLoading(null);
+              }
+              // Phase 105: Music track notification box appears strictly after loading finishes in Thais
+              if (!pending && mode === 'training') {
+                triggerTrackNotification(THAIS_THEME_TRACK);
+              }
+            }}
+          />
+        );
+      })()}
 
       {/* Duplicate Session Error Modal Overlay */}
       {duplicateSessionError && (

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-09-09T19:37:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 110: Tela de Carregamento de Thais (Nova Ilustração do Templo) e Sistema de Curiosidades Rotativas (\"Você Sabia?\")."
+status: completed
+last_updated: "2026-09-09T19:53:00.000Z"
+last_activity: "2026-09-09 — Conclusão da Phase 111: Telas de Carregamento Modulares por Caçada & Loading de Dragon Lair."
 progress:
-  total_phases: 110
-  completed_phases: 110
-  total_plans: 110
-  completed_plans: 110
+  total_phases: 111
+  completed_phases: 111
+  total_plans: 111
+  completed_plans: 111
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 110 concluída com sucesso. Substituição da arte de fundo da tela de carregamento de Thais pela nova ilustração oficial do Templo de Thais (`thais-loading.jpg`) e implementação do sistema dinâmico de curiosidades históricas/lore de Tibia ("Você Sabia?") que alternam aleatoriamente a cada 3 segundos com transições suaves (fade) acima da barra de carregamento de magma.
+**Current focus:** Phase 111 Concluída com sucesso! Telas de carregamento modulares implementadas com suporte a imagens e curiosidades temáticas por caçada. Dragon Lair totalmente configurado com nova arte e lore de Garsharak / Dragon Lords, mantendo fallback elegante para Thais.
 
 ## Current Position
 
-Phase: 110 of 110 (Concluída)  
+Phase: 111 of 111 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 110.
+Last activity: 2026-09-09 — Conclusão da Phase 111.
 
 Progress: [██████████] 100%
 
