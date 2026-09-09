@@ -2913,675 +2913,687 @@ h1, h2, h3, p { margin: 0; }
   justify-content: center;
 }
 
-.hunt-window-container {
-  width: 860px;
-  max-width: 95vw;
-  height: 590px;
-  max-height: 92vh;
-  background: #11151e;
-  border: 1.5px solid #2d3b52;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+/* ==========================================================================
+   Phase 108: Novo Seletor de Caçadas em Carrossel Horizontal de Cards Medieval
+   ========================================================================== */
+
+.hunt-window-container.hunt-exura-frame {
+  width: 920px;
+  max-width: 96vw;
+  height: 560px;
+  max-height: 94vh;
+  background: radial-gradient(ellipse at 50% 20%, #181b22 0%, #0d0f14 100%);
+  border: 3px solid #6b5329;
+  outline: 2px solid #232730;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95), inset 0 0 30px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 215, 0, 0.25);
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   user-select: none;
   font-family: inherit;
   color: #c9d1d9;
+  position: relative;
 }
 
-.hunt-window-header {
-  height: 32px;
-  background: linear-gradient(180deg, #1b2332 0%, #131822 100%);
-  border-bottom: 1.5px solid #2d3b52;
+/* Modal Top Bar */
+.hunt-modal-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
+  padding: 10px 16px 6px 16px;
+  border-bottom: 1.5px solid #3d2f19;
+  background: linear-gradient(180deg, #1d212a 0%, #12141a 100%);
+  position: relative;
+  z-index: 20;
 }
 
-.hunt-window-title {
-  font-size: 12px;
+/* Medieval Top Tabs */
+.hunt-top-tabs-medieval {
+  display: flex;
+  gap: 6px;
+}
+
+.hunt-tab-pill {
+  background: #131720;
+  border: 1.5px solid #3d4a5d;
+  color: #8b9bb4;
+  font-size: 10.5px;
   font-weight: 700;
-  color: #6da2ed;
+  letter-spacing: 0.8px;
+  padding: 4px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hunt-tab-pill:hover {
+  background: #1c2230;
+  color: #cbd5e1;
+  border-color: #556985;
+}
+
+.hunt-tab-pill.active {
+  background: linear-gradient(180deg, #7c2d12 0%, #451a03 100%);
+  border: 1.5px solid #d97706;
+  color: #fef08a;
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.35);
+}
+
+/* Central Octagonal Plaque */
+.hunt-header-plaque-wrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hunt-header-plaque {
+  background: linear-gradient(180deg, #3d0707 0%, #1f0303 100%);
+  border: 2px solid #d4af37;
+  clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px);
+  padding: 5px 28px;
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.3), inset 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.hunt-header-plaque-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #fce79a;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+}
+
+.hunt-header-plaque-gem-top,
+.hunt-header-plaque-gem-bottom {
+  width: 8px;
+  height: 8px;
+  background: #dc2626;
+  border: 1px solid #facc15;
+  transform: rotate(45deg);
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.8);
+}
+
+.hunt-header-plaque-gem-top {
+  margin-bottom: -4px;
+  z-index: 2;
+}
+
+.hunt-header-plaque-gem-bottom {
+  margin-top: -4px;
+  z-index: 2;
+}
+
+/* Right Cluster: Level Badge & Close Button */
+.hunt-top-right-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hunt-level-range-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f131a;
+  border: 1.5px solid #856123;
+  border-radius: 4px;
+  padding: 3px 10px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.hunt-level-range-icon {
+  font-size: 10px;
+}
+
+.hunt-level-range-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fde047;
   letter-spacing: 0.5px;
 }
 
-.hunt-window-close-btn {
-  background: transparent;
-  border: 1px solid #364661;
-  color: #9ab;
-  width: 20px;
-  height: 20px;
+.hunt-modal-close-btn {
+  background: #141720;
+  border: 1.5px solid #544122;
+  color: #d4af37;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
   border-radius: 3px;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
-.hunt-window-close-btn:hover {
-  background: #2a384e;
-  color: #fff;
-  border-color: #516b94;
-}
-
-.hunt-top-tabs {
-  display: flex;
-  gap: 4px;
-  padding: 8px 10px 6px 10px;
-  background: #0f131a;
-  border-bottom: 1.5px solid #253042;
-}
-
-.hunt-top-tab-btn {
-  padding: 5px 18px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: #7a8a9e;
-  background: #151b24;
-  border: 1px solid #2b384c;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.hunt-top-tab-btn.active {
+.hunt-modal-close-btn:hover:not(:disabled) {
+  background: #251c0e;
+  border-color: #eab308;
   color: #ffffff;
-  background: #173868;
-  border: 1.5px solid #3c7de8;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 8px rgba(60, 125, 232, 0.4);
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.4);
 }
 
-.hunt-top-tab-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.hunt-window-body {
+/* Carousel Body */
+.hunt-carousel-body {
   flex: 1;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
   overflow: hidden;
-  background: #0e1219;
 }
 
-/* Coluna 1: Lista e Busca */
-.hunt-col-list {
-  width: 260px;
-  border-right: 1.5px solid #253042;
-  display: flex;
-  flex-direction: column;
-  background: #10141c;
-  padding: 8px;
-}
-
-.hunt-search-bar {
+.hunt-carousel-container {
   display: flex;
   align-items: center;
-  background: #090c12;
-  border: 1px solid #28364c;
-  border-radius: 3px;
-  padding: 4px 8px;
-  gap: 6px;
-  margin-bottom: 6px;
-}
-
-.hunt-search-icon {
-  font-size: 11px;
-  opacity: 0.6;
-}
-
-.hunt-search-input {
-  background: transparent;
-  border: none;
-  color: #e6edf3;
-  font-size: 11px;
+  justify-content: center;
+  gap: 16px;
   width: 100%;
+  max-width: 860px;
+  position: relative;
+}
+
+.hunt-carousel-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* Chevron Navigation Arrows */
+.hunt-carousel-nav-btn {
+  background: linear-gradient(180deg, #242936 0%, #12151c 100%);
+  border: 2px solid #947133;
+  border-radius: 4px;
+  width: 36px;
+  height: 54px;
+  color: #eab308;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  flex-shrink: 0;
+  z-index: 15;
+}
+
+.hunt-carousel-nav-btn:hover:not(:disabled) {
+  border-color: #facc15;
+  color: #ffffff;
+  transform: scale(1.08);
+  box-shadow: 0 0 14px rgba(234, 179, 8, 0.5);
+  background: linear-gradient(180deg, #333a4d 0%, #1a1e28 100%);
+}
+
+.hunt-carousel-nav-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.hunt-carousel-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: #4a3e2e;
+}
+
+.hunt-nav-arrow {
+  line-height: 1;
+}
+
+/* 3-Card Carousel Stage */
+.hunt-carousel-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex: 1;
+  perspective: 1000px;
+}
+
+.hunt-card-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hunt Card Structure */
+.hunt-card {
+  width: 220px;
+  height: 350px;
+  background: linear-gradient(180deg, #181d26 0%, #0d1016 100%);
+  border: 2px solid #544122;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s ease, opacity 0.25s ease, filter 0.25s ease, border-color 0.25s ease;
   outline: none;
 }
 
-.hunt-available-count {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #596b82;
-  margin-bottom: 6px;
-  padding-left: 2px;
+/* Center Selected Card Highlight */
+.hunt-card.hunt-card-selected {
+  transform: scale(1.045);
+  border: 2px solid #eab308;
+  box-shadow: 0 0 24px rgba(234, 179, 8, 0.45), inset 0 0 12px rgba(234, 179, 8, 0.25), 0 12px 30px rgba(0, 0, 0, 0.9);
+  z-index: 10;
 }
 
-.hunt-scroll-list {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-right: 2px;
-}
-
-.hunt-list-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  background: #141924;
-  border: 1px solid #232c3d;
-  border-radius: 4px;
+/* Lateral Cards */
+.hunt-card.hunt-card-adjacent {
+  transform: scale(0.92);
+  opacity: 0.82;
+  filter: brightness(0.85);
   cursor: pointer;
-  transition: all 0.15s;
 }
 
-.hunt-list-card:hover {
-  background: #1a2232;
-  border-color: #384964;
+.hunt-card.hunt-card-adjacent:hover {
+  opacity: 0.96;
+  filter: brightness(0.96);
+  transform: scale(0.95);
+  border-color: #947133;
 }
 
-.hunt-list-card.selected {
-  background: #192a47;
-  border: 1.5px solid #3c7de8;
-  box-shadow: inset 0 0 8px rgba(60, 125, 232, 0.25);
+/* Decorative Ruby Jewels on Selected Card */
+.hunt-card-gem {
+  width: 10px;
+  height: 10px;
+  background: #dc2626;
+  border: 1px solid #facc15;
+  transform: rotate(45deg);
+  position: absolute;
+  z-index: 12;
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.8);
 }
 
-.hunt-card-sprite-box {
-  width: 36px;
-  height: 36px;
-  background: #090c12;
-  border: 1px solid #232e42;
-  border-radius: 3px;
+.hunt-card-gem-top {
+  top: -5px;
+  left: calc(50% - 5px);
+}
+
+.hunt-card-gem-bottom {
+  bottom: -5px;
+  left: calc(50% - 5px);
+}
+
+/* Top Illustration Area */
+.hunt-card-art-box {
+  height: 155px;
+  position: relative;
+  overflow: hidden;
+  background: #080a0e;
+}
+
+.hunt-card-art-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hunt-card-art-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.75) 100%);
+  pointer-events: none;
+}
+
+/* Level Medallion in Top-Left */
+.hunt-level-medallion {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0e1e32 0%, #060910 100%);
+  border: 2px solid #d4af37;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  z-index: 5;
 }
 
-.hunt-creature-sprite {
-  width: 32px;
-  height: 32px;
-  image-rendering: pixelated;
-  object-fit: contain;
+.hunt-level-medallion-num {
+  font-family: Georgia, serif;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 13px;
+  text-shadow: 0 1px 2px #000;
+  line-height: 1;
 }
 
-.hunt-card-info {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.hunt-card-name {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #e6edf3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.hunt-card-monster {
-  font-size: 10px;
-  color: #8b9bb4;
-}
-
-.hunt-card-drops {
-  font-size: 9px;
-  color: #63758e;
-  margin-top: 1px;
-}
-
-/* Coluna 2: Detalhes da Hunt Selecionada */
-.hunt-col-details {
-  flex: 1;
-  border-right: 1.5px solid #253042;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  position: relative;
-}
-
-.hunt-selected-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #6da2ed;
-  margin: 0 0 10px 0;
-}
-
-.hunt-record-card {
-  background: #121824;
-  border: 1px solid #263347;
-  border-radius: 4px;
-  padding: 8px 10px;
-  margin-bottom: 12px;
-}
-
-.hunt-record-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10.5px;
-  color: #8b9bb4;
-  margin-bottom: 4px;
-}
-
-.hunt-record-reset-btn {
-  background: transparent;
-  border: 1px solid #2b394f;
-  color: #7b8fa9;
-  width: 18px;
-  height: 18px;
+/* Creature Sprite */
+.hunt-card-sprite-wrapper {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  cursor: pointer;
-  border-radius: 2px;
+  z-index: 4;
+  pointer-events: none;
 }
 
-.hunt-record-reset-btn:hover {
-  background: #202b3d;
-  color: #fff;
-}
-
-.hunt-record-metrics {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.hunt-record-badge {
-  font-size: 10px;
-  font-weight: 700;
-  background: #1a273b;
-  border: 1px solid #2d4160;
-  color: #9ac2f7;
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-
-.hunt-record-xp {
-  font-size: 11px;
-  font-weight: 700;
-  color: #7ee787;
-}
-
-.hunt-record-gp {
-  font-size: 11px;
-  font-weight: 700;
-  color: #e5b741;
-}
-
-.hunt-monster-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 6px;
-  position: relative;
-}
-
-.hunt-monster-preview-box {
-  width: 130px;
-  background: #090c12;
-  border: 1px solid #28364c;
-  border-radius: 4px;
-  padding: 10px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.15s;
-}
-
-.hunt-monster-preview-box:hover {
-  border-color: #3c7de8;
-}
-
-.hunt-large-creature-sprite {
+.hunt-card-creature-sprite {
   width: 48px;
   height: 48px;
   image-rendering: pixelated;
   object-fit: contain;
-  margin-bottom: 6px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.9));
 }
 
-.hunt-monster-details-btn {
-  background: #182334;
-  border: 1px solid #2e4363;
-  color: #8cb6f5;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 2px 8px;
-  border-radius: 2px;
-  cursor: pointer;
-  margin-bottom: 4px;
+.hunt-card-sprite-placeholder {
+  font-size: 24px;
 }
 
-.hunt-monster-details-btn:hover {
-  background: #23344e;
-  color: #fff;
-}
-
-.hunt-monster-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #e6edf3;
-}
-
-.hunt-monster-lore {
-  font-size: 11px;
-  line-height: 1.45;
-  color: #8b9bb4;
-  text-align: center;
-  margin-top: 10px;
-  max-width: 90%;
-}
-
-/* Tooltip de Bestiary & Danos Recebidos (Imagem 3) */
-.monster-bestiary-tooltip {
-  position: absolute;
-  top: 10px;
-  left: 140px;
-  width: 250px;
-  background: #0e121a;
-  border: 1.5px solid #2f3e57;
-  border-radius: 4px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.95);
-  padding: 10px 12px;
-  z-index: 1600;
-  pointer-events: auto;
-  user-select: none;
-}
-
-.bestiary-tooltip-header h4 {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: #6da2ed;
-}
-
-.bestiary-subtitle {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  color: #657791;
-  display: block;
-  margin-top: 2px;
-  margin-bottom: 6px;
-}
-
-.bestiary-elements-list {
+/* Card Body Section */
+.hunt-card-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3.5px;
-}
-
-.bestiary-element-row {
-  display: flex;
   align-items: center;
-  font-size: 10px;
-  color: #c9d1d9;
+  padding: 10px 10px 10px 10px;
+  border-top: 1.5px solid #4a3a1f;
+  background: linear-gradient(180deg, #141820 0%, #0c0e14 100%);
 }
 
-.bestiary-elem-icon {
-  width: 14px;
-  font-size: 9px;
+.hunt-card-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fce79a;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  margin: 0 0 4px 0;
   text-align: center;
-}
-
-.bestiary-elem-label {
-  width: 65px;
-  font-size: 9.5px;
-  color: #8b9bb4;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.bestiary-bar-track {
-  flex: 1;
-  height: 6px;
-  background: #06080d;
+.hunt-card-desc {
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: #cbd5e1;
+  text-align: center;
+  margin: 0 0 6px 0;
+  height: 2.7em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.hunt-card-suggested-level {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.hunt-suggested-label {
+  color: #94a3b8;
+}
+
+.hunt-suggested-val {
+  font-weight: 800;
+}
+
+/* Mini Loot & Backpack Row */
+.hunt-card-loot-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid #202735;
+}
+
+.hunt-card-loot-previews {
+  display: flex;
+  flex-direction: column;
+}
+
+.hunt-card-loot-caption {
+  font-size: 8.5px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.hunt-card-mini-icons {
+  display: flex;
+  gap: 3px;
+}
+
+.hunt-mini-loot-slot {
+  width: 24px;
+  height: 24px;
+  background: #090c12;
+  border: 1px solid #2d3748;
   border-radius: 3px;
-  margin: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hunt-mini-no-loot {
+  font-size: 10px;
+  color: #475569;
+}
+
+.hunt-backpack-btn {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(180deg, #382414 0%, #1c120a 100%);
+  border: 1.5px solid #947133;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.hunt-backpack-btn:hover {
+  border-color: #facc15;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
+  transform: scale(1.06);
+}
+
+.hunt-backpack-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* Floating Loot Tooltip (Fixed to Viewport to Avoid Any Overflow Clipping) */
+.hunt-loot-floating-popover {
+  background: linear-gradient(180deg, #181d28 0%, #0d1017 100%);
+  border: 2px solid #947133;
+  border-radius: 5px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 12px rgba(212, 175, 55, 0.3);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.bestiary-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.2s;
-}
-
-.bestiary-bar-fill.fill-resistant {
-  background: #6eb77a; /* Verde */
-}
-
-.bestiary-bar-fill.fill-vulnerable {
-  background: #ea6472; /* Vermelho / Rosa */
-}
-
-.bestiary-bar-fill.fill-drain {
-  background: #5078c8; /* Azul */
-}
-
-.bestiary-elem-val {
-  width: 32px;
-  text-align: right;
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #e6edf3;
-  font-family: monospace;
-}
-
-.bestiary-section-divider {
-  height: 1px;
-  background: #253042;
-  margin: 8px 0;
-}
-
-.bestiary-progress-section {
+.hunt-loot-popover-header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2d3748;
 }
 
-.bestiary-progress-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9.5px;
-  color: #8b9bb4;
-}
-
-.bestiary-progress-header span {
+.hunt-loot-popover-title {
+  font-family: Georgia, serif;
+  font-size: 11.5px;
   font-weight: 700;
+  color: #fde047;
   letter-spacing: 0.5px;
 }
 
-.bestiary-progress-track {
-  width: 100%;
-  height: 7px;
-  background: #06080d;
-  border-radius: 3px;
-  overflow: hidden;
+.hunt-loot-popover-hunt {
+  font-size: 9.5px;
+  color: #94a3b8;
 }
 
-.bestiary-progress-fill {
-  height: 100%;
-  background: #7ee787;
-  border-radius: 3px;
-}
-
-.bestiary-completed-badge {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7ee787;
+.hunt-loot-popover-list {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 4px;
-  margin-top: 2px;
-}
-
-.bestiary-click-caption {
-  font-size: 8.5px;
-  color: #55667d;
-  margin-top: 2px;
-}
-
-/* Coluna 3: Loot Possível */
-.hunt-col-loot {
-  width: 240px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  background: #10141c;
-}
-
-.hunt-loot-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #e6edf3;
-  margin: 0 0 8px 0;
-}
-
-.hunt-loot-scroll {
-  flex: 1;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding-right: 2px;
+  max-height: 250px;
 }
 
-.hunt-loot-row {
+.hunt-loot-popover-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px;
-  background: #141924;
-  border: 1px solid #232c3d;
+  padding: 2px 4px;
+  background: #10141d;
+  border: 1px solid #1f2735;
   border-radius: 3px;
 }
 
-.hunt-loot-icon-box {
-  width: 28px;
-  height: 28px;
+.hunt-loot-popover-icon {
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.hunt-loot-name {
+.hunt-loot-popover-name {
   flex: 1;
   font-size: 10.5px;
-  color: #c9d1d9;
+  color: #e2e8f0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.hunt-loot-rarity-tag {
+.hunt-loot-popover-rarity {
   font-size: 8.5px;
-  font-weight: 600;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 2px;
+  letter-spacing: 0.3px;
   text-transform: lowercase;
   font-family: monospace;
 }
 
-.hunt-loot-rarity-tag.rarity-always {
-  color: #f1c40f;
-}
-
-.hunt-loot-rarity-tag.rarity-common {
-  color: #8b9bb4;
-}
-
-.hunt-loot-rarity-tag.rarity-semirare {
-  color: #79c0ff;
-}
-
-.hunt-loot-rarity-tag.rarity-rare {
-  color: #d2a8ff;
-}
-
-.hunt-loot-rarity-tag.rarity-veryrare {
-  color: #ff7b72;
-}
-
-.hunt-loot-checkbox {
-  width: 13px;
-  height: 13px;
-  accent-color: #3c7de8;
-  cursor: pointer;
-}
-
-/* Rodapé da Janela de Caçadas */
-.hunt-window-footer {
-  height: 44px;
-  background: #0d1017;
-  border-top: 1.5px solid #253042;
+/* Modal Bottom Actions Bar */
+.hunt-modal-footer {
+  padding: 10px 16px 14px 16px;
+  border-top: 1.5px solid #3d2f19;
+  background: linear-gradient(180deg, #12151c 0%, #090b0e 100%);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 0 12px;
-  gap: 8px;
+  justify-content: center;
 }
 
-.hunt-btn-switch {
-  padding: 6px 14px;
-  background: #1b447a;
-  border: 1px solid #3472ca;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 3px;
+.hunt-footer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Primary Ruby Red Action Button */
+.hunt-btn-ruby-primary {
+  background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 50%, #450a0a 100%);
+  border: 2px solid #eab308;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(185, 28, 28, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.5);
+  padding: 8px 36px;
   cursor: pointer;
-  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  min-width: 220px;
 }
 
-.hunt-btn-switch:hover:not(:disabled) {
-  background: #255da6;
-  border-color: #4a8ee8;
+.hunt-btn-ruby-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 50%, #5c0b0b 100%);
+  border-color: #fde047;
+  box-shadow: 0 0 22px rgba(234, 179, 8, 0.5), 0 4px 20px rgba(220, 38, 38, 0.8);
+  transform: translateY(-1px);
 }
 
-.hunt-btn-switch.counting {
-  background: #875a13;
-  border-color: #d49528;
-  color: #fff9e6;
+.hunt-btn-ruby-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.hunt-btn-ruby-primary.counting {
+  background: linear-gradient(180deg, #b45309 0%, #78350f 50%, #451a03 100%);
+  border-color: #fbbf24;
   animation: pulse 1s infinite alternate;
 }
 
-.hunt-btn-party {
-  padding: 6px 14px;
-  background: #1e2634;
-  border: 1px solid #334259;
-  color: #c9d1d9;
+.hunt-btn-ruby-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #fef08a;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.hunt-btn-ruby-gem {
+  width: 7px;
+  height: 7px;
+  background: #facc15;
+  transform: rotate(45deg);
+  box-shadow: 0 0 5px rgba(250, 204, 21, 0.8);
+}
+
+/* Secondary Medieval Buttons */
+.hunt-btn-medieval-team,
+.hunt-btn-medieval-party {
+  background: #141822;
+  border: 1.5px solid #3b4d66;
+  color: #94a3b8;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
+  padding: 6px 14px;
   border-radius: 3px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
-.hunt-btn-party:hover {
-  background: #283347;
-  color: #fff;
-  border-color: #455a79;
+.hunt-btn-medieval-team:hover,
+.hunt-btn-medieval-party:hover {
+  background: #1e2433;
+  color: #ffffff;
+  border-color: #60a5fa;
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.25);
 }
 
-.hunt-btn-close {
-  padding: 6px 14px;
-  background: #191c22;
-  border: 1px solid #2f343e;
-  color: #8b9bb4;
-  font-size: 11px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.hunt-btn-close:hover {
-  background: #242932;
-  color: #fff;
+.hunt-btn-medieval-team {
+  border-color: #2563eb;
+  color: #93c5fd;
 }
 
 /* ==========================================================================

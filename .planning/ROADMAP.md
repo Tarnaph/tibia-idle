@@ -69,6 +69,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 105: Exibição da Caixa de Notificação de Música ("Thais Theme") Estritamente Após a Tela de Carregamento (Loading)** - Enfileiramento e exibição do banner de música somente após a tela de carregamento de 10s terminar.
 - [x] **Phase 106: Preenchimento Proporcional Contínuo e Visual da Barra de Loading Conforme a Porcentagem** - Sincronização e calibração estrita da barra de progresso da tela de carregamento Exura a 60fps em sincronia com a porcentagem, indicador numérico interno e cavidade geométrica alinhada.
 - [x] **Phase 107: Diferimento da Entrada e Visibilidade do Personagem até o Fim do Loading (Spawn Seguro Pós-Loading e Proteção Anti-Morte em Caçadas)** - Bloqueio do loop de combate durante o loading, ocultação do personagem até 100% da barra e inicialização segura da hunt somente ao término do loading para evitar mortes precoces.
+- [x] **Phase 108: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico)** - Refatoração visual completa da janela de caçadas para carrossel horizontal de 3 cards simultâneos com design medieval autêntico, ilustrações temáticas em pixel art, sprites pixelados, medalhões de nível, coloração dinâmica de dificuldade, botão de mochila com tooltip flutuante de loot e botão principal "INICIAR CAÇADA".
 
 
 ---
@@ -1903,6 +1904,19 @@ Plans:
 5. 0 erros de tipagem no `npm run typecheck` e 100% de sucesso nos testes Vitest.
 **Plans:**
 - [x] 107-01-PLAN: Diferimento da Entrada e Visibilidade do Personagem até o Término da Tela de Carregamento.
+
+### Phase 108: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico)
+
+**Goal:** Refatorar completamente a interface do seletor de caçadas do Exura (`HuntSelector.tsx`), substituindo a janela azul de 3 colunas por um carrossel horizontal de cards baseado na referência visual medieval clássica com 3 cards simultâneos (`[ card anterior ] [ CARD SELECIONADO ] [ card seguinte ]`), destacando o card central com moldura dourada radiante e gemas de rubi, navegação contínua por setas `<` e `>`, clique direto para centralizar cards laterais, topo com placa octagonal "ESCOLHA SUA CAÇADA" e badge de nível dinâmica, cards individuais com ilustração de cenário temática, sprite pixelado, medalhão de nível, nome e descrição, nível sugerido com indicador de dificuldade por cor e botão de mochila com tooltip flutuante de possíveis drops (sem corte de overflow), além do botão principal de ação "INICIAR CAÇADA", preservando 100% da lógica e dados existentes.
+**Depends on:** Phase 107
+**Requirements:**
+1. Extensão de `HuntDefinition` com `displayName?: string;` e `shortDescription?: string;` e enriquecimento de `initialHunts` com títulos em português e níveis canônicos sem alterar IDs, regras ou tabelas de combate.
+2. Componentes modulares `HuntCard.tsx`, `HuntCarousel.tsx` e `HuntLootTooltip.tsx` sob `apps/web/components/hunts/` sem duplicação ou hardcodes fixos de hunts.
+3. Posicionamento dinâmico de `HuntLootTooltip.tsx` garantindo visibilidade total sem corte por `overflow: hidden`.
+4. Estilização Vanilla CSS em `app/globals.css` fiel à estética medieval clássica do Exura (pedra escura, ouro envelhecido, vermelho profundo e transições de 200–300ms).
+5. Cobertura de testes automatizados via Vitest e 0 erros de TypeScript no `npm run typecheck`.
+**Plans:**
+- [x] 108-01-PLAN: Seletor de Caçadas em Carrossel Horizontal de Cards (Design Exura Medieval / RPG Clássico).
 
 
 

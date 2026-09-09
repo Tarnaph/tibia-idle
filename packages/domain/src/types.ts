@@ -198,7 +198,9 @@ export interface MonsterVariantDefinition {
 export interface HuntDefinition {
   id: string;
   name: string;
+  displayName?: string;
   description: string;
+  shortDescription?: string;
   recommendedLevel: number;
   minimumLevel: number;
   monsters: string[];
