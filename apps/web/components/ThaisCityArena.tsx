@@ -56,6 +56,7 @@ interface Props {
   localPlayerId?: string | null;
   overheadMessages?: CityOverheadMessage[];
   active?: boolean;
+  isCharacterVisible?: boolean;
 }
 
 const visualAssets = visualAssetsJson as Tibia1098AssetManifest;
@@ -98,6 +99,7 @@ export function ThaisCityArena({
   localPlayerId,
   overheadMessages,
   active = true,
+  isCharacterVisible = true,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
@@ -129,6 +131,7 @@ export function ThaisCityArena({
     overheadMessages,
     visualEvents,
     active,
+    isCharacterVisible,
   });
   latestRef.current = {
     characters,
@@ -144,6 +147,7 @@ export function ThaisCityArena({
     overheadMessages,
     visualEvents,
     active,
+    isCharacterVisible,
   };
 
   useEffect(() => {
@@ -1107,6 +1111,7 @@ export function ThaisCityArena({
 
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
+            view.root.visible = latestRef.current.isCharacterVisible !== false;
             view.label.position.set(0, creatureVisualLayout.nameplateY);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()

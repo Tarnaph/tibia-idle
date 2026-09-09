@@ -15,6 +15,7 @@ interface PixiArenaProps {
   game: GameState;
   debug: boolean;
   active?: boolean;
+  isCharacterVisible?: boolean;
   onSelectTarget?: (enemyId: string) => void;
   onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
 }
@@ -56,11 +57,11 @@ function projectileDirection(from: GridPosition, to: GridPosition): string {
   return vertical && horizontal ? `${vertical}-${horizontal}` : vertical || horizontal || 'south';
 }
 
-export function PixiArena({ game, debug, active = true, onSelectTarget, onCharacterContextMenu }: PixiArenaProps) {
+export function PixiArena({ game, debug, active = true, isCharacterVisible = true, onSelectTarget, onCharacterContextMenu }: PixiArenaProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const syncRef = useRef<((state: GameState, showDebug: boolean) => void) | null>(null);
-  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active });
+  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible });
 
   useEffect(() => {
     const app = appRef.current;
@@ -476,6 +477,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
             view.mapping = mapping;
           }
           view.label.text = character.name; view.sprite.alpha = actor.alive ? 1 : 0.45;
+          view.root.visible = latestRef.current.isCharacterVisible !== false && actor.alive;
         }
         for (const enemy of state.encounter.enemies) {
           const hasPending = pendingImpacts.some((p) => p.targetId === enemy.id && now < p.impactAt);
@@ -709,21 +711,23 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
 
         // Classic Tibia Solid Red Target Rectangle around focused target matching reference
         targetReticle.clear();
-        const activeActor = state.encounter.partyActors.find((a) => a.alive);
-        const targetId = activeActor?.targetId ?? state.session.characters.find((c) => c.id === activeActor?.characterId)?.combatState.targetId;
-        if (targetId) {
-          const targetView = views.get(targetId);
-          const targetEnemy = state.encounter.enemies.find((e) => e.id === targetId && (e.alive || pendingImpacts.some((p) => p.targetId === e.id && now < p.impactAt)));
-          if (targetView && targetEnemy) {
-            const p = targetView.root.position;
-            const half = 16;
-            const red = 0xff0000;
-            const left = p.x - half;
-            const top = p.y - half;
+        if (latestRef.current.isCharacterVisible !== false) {
+          const activeActor = state.encounter.partyActors.find((a) => a.alive);
+          const targetId = activeActor?.targetId ?? state.session.characters.find((c) => c.id === activeActor?.characterId)?.combatState.targetId;
+          if (targetId) {
+            const targetView = views.get(targetId);
+            const targetEnemy = state.encounter.enemies.find((e) => e.id === targetId && (e.alive || pendingImpacts.some((p) => p.targetId === e.id && now < p.impactAt)));
+            if (targetView && targetEnemy) {
+              const p = targetView.root.position;
+              const half = 16;
+              const red = 0xff0000;
+              const left = p.x - half;
+              const top = p.y - half;
 
-            targetReticle
-              .rect(left, top, 32, 32)
-              .stroke({ color: red, width: 2, alpha: 1.0 });
+              targetReticle
+                .rect(left, top, 32, 32)
+                .stroke({ color: red, width: 2, alpha: 1.0 });
+            }
           }
         }
         for (const child of corpses.children) {
@@ -833,7 +837,7 @@ export function PixiArena({ game, debug, active = true, onSelectTarget, onCharac
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };
   }, []);
 
-  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active]);
+  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible]);
   return (
     <div
       ref={hostRef}

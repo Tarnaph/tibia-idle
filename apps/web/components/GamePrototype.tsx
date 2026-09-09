@@ -248,6 +248,13 @@ function GamePrototypeContent() {
   seedRef.current = seed;
   const prepareHuntCharactersRef = useRef<(cur: any) => any>((cur) => cur);
   const exitHuntRef = useRef<() => void>(() => {});
+  const pendingHuntTransitionRef = useRef<{
+    huntId: string;
+    targetHunt: any;
+    nextSeed: string;
+    entrance: any;
+  } | null>(null);
+  const isCharacterVisible = !initialLoadingActive && !transitionLoading?.active;
 
   const { openWindow, closeWindow, bringToFront } = useWindowManager();
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
@@ -758,9 +765,28 @@ function GamePrototypeContent() {
       setWalkingPath(null);
       setIsTrainingAtDummy(false);
       const huntSeed = data.seed || seedRef.current.trim() || defaultSeed;
-      setGame((current) => restartHunt(prepareHuntCharactersRef.current(current), huntSeed, content, data.huntId));
-      setMode('hunt');
-      gameNetwork.sendSetInHunt(true);
+      const targetHunt = content.hunts.find((h) => h.id === data.huntId) ?? encounter.hunt;
+      const entrance = getHuntWorldEntrance(data.huntId, content);
+
+      // Phase 107: Save progress and trigger 10-second Exura loading screen for follower
+      void saveProgressRef.current?.();
+      setTransitionLoading({
+        active: true,
+        message: `Viajando para ${targetHunt.name} com a party...`,
+        durationMs: 10000,
+      });
+
+      if (modeRef.current === 'hunt') {
+        setGame((current) => leaveHunt(current));
+        setMode('training');
+      }
+
+      pendingHuntTransitionRef.current = {
+        huntId: data.huntId,
+        targetHunt,
+        nextSeed: huntSeed,
+        entrance,
+      };
     });
 
     const unsubHuntExit = gameNetwork.onPartyHuntExit((coords) => {
@@ -1411,23 +1437,27 @@ function GamePrototypeContent() {
 
   const lastCombatTimeRef = useRef(performance.now());
   const tickCombat = useCallback(() => {
+    // Phase 107: Prevent monsters from moving, attacking, or dealing damage during loading screen
+    if (initialLoadingActive || Boolean(transitionLoading?.active)) return;
     if (mode !== 'hunt' || encounter.status !== 'running') return;
     const now = performance.now();
     const delta = Math.min(now - lastCombatTimeRef.current, 500);
     lastCombatTimeRef.current = now;
     setGame((current) => advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120));
-  }, [mode, encounter.status, content]);
+  }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active]);
 
   useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running');
 
   const lastCityAutoSpellsTimeRef = useRef(performance.now());
   const tickCityAutoSpells = useCallback(() => {
+    // Phase 107: Prevent city auto spells from firing during loading screen
+    if (initialLoadingActive || Boolean(transitionLoading?.active)) return;
     if (mode === 'hunt') return;
     const now = performance.now();
     const delta = Math.min(now - lastCityAutoSpellsTimeRef.current, 500);
     lastCityAutoSpellsTimeRef.current = now;
     setGame((current) => advanceCityAutoSpells(current, content, delta > 0 ? Math.round(delta) : 150));
-  }, [mode, content]);
+  }, [mode, content, initialLoadingActive, transitionLoading?.active]);
 
   useGameTicker(tickCityAutoSpells, 150, mode !== 'hunt');
 
@@ -1661,21 +1691,20 @@ function GamePrototypeContent() {
     console.log(`[HUNT] player position after: (${entrance.worldPosition.x}, ${entrance.worldPosition.y}, ${entrance.worldPosition.z})`);
 
     const nextSeed = seed.trim() || defaultSeed;
-    setGame((current) => restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId));
-    setMode('hunt');
-    pauseCityBgm();
 
-    // Immediately snap cityPos / camera to the validated world entrance
-    setCityPos(entrance.worldPosition);
-
-    // Send authoritative Colyseus hunt and teleport messages
-    gameNetwork.sendSetInHunt(true, huntId);
-    gameNetwork.sendTeleport(entrance.worldPosition.x, entrance.worldPosition.y, entrance.worldPosition.z);
-
-    if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
-      gameNetwork.sendPartyHuntSync(huntId, nextSeed);
+    // Phase 107: If currently in a hunt, safely exit it immediately so old monsters cannot attack while loading
+    if (mode === 'hunt') {
+      setGame((current) => leaveHunt(current));
+      setMode('training');
     }
-    setSaleMessage(`Você viajou para ${targetHunt.name}!`);
+
+    // Phase 107: Defer hunt spawn, authoritative teleport, and combat ticker until loading finishes!
+    pendingHuntTransitionRef.current = {
+      huntId,
+      targetHunt,
+      nextSeed,
+      entrance,
+    };
   };
   startSelectedHuntRef.current = startSelectedHunt;
 
@@ -2123,6 +2152,7 @@ function GamePrototypeContent() {
             game={game}
             debug={debugGrid}
             active={mode === 'hunt'}
+            isCharacterVisible={isCharacterVisible}
             onSelectTarget={(enemyId) => {
               setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
               if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
@@ -2147,6 +2177,7 @@ function GamePrototypeContent() {
             localPlayerId={gameNetwork.LocalPlayerId}
             overheadMessages={overheadMessages}
             active={mode !== 'hunt' && !showAuthModal}
+            isCharacterVisible={isCharacterVisible}
           />
         </div>
         {mode !== 'hunt' && !showAuthModal && (
@@ -2597,14 +2628,29 @@ function GamePrototypeContent() {
           (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
         }
         onFinish={() => {
+          const pending = pendingHuntTransitionRef.current;
+          if (pending) {
+            pendingHuntTransitionRef.current = null;
+            setGame((current) => restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId));
+            setMode('hunt');
+            pauseCityBgm();
+            setCityPos(pending.entrance.worldPosition);
+            gameNetwork.sendSetInHunt(true, pending.huntId);
+            gameNetwork.sendTeleport(pending.entrance.worldPosition.x, pending.entrance.worldPosition.y, pending.entrance.worldPosition.z);
+            if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
+              gameNetwork.sendPartyHuntSync(pending.huntId, pending.nextSeed);
+            }
+            setSaleMessage(`Você viajou para ${pending.targetHunt.name}!`);
+            lastCombatTimeRef.current = performance.now();
+          }
           if (initialLoadingActive) {
             setInitialLoadingActive(false);
           }
           if (transitionLoading?.active) {
             setTransitionLoading(null);
           }
-          // Phase 105: Music track notification box appears strictly after loading finishes
-          if (mode === 'training') {
+          // Phase 105: Music track notification box appears strictly after loading finishes in Thais
+          if (!pending && mode === 'training') {
             triggerTrackNotification(THAIS_THEME_TRACK);
           }
         }}

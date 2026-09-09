@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-09T17:08:00.000Z"
-last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 106: Preenchimento Proporcional Contínuo e Visual da Barra de Loading Conforme a Porcentagem."
+last_updated: "2026-09-09T17:26:00.000Z"
+last_activity: "2026-09-09 — Conclusão com Sucesso da Phase 107: Diferimento da Entrada e Visibilidade do Personagem até o Fim do Loading (Spawn Seguro Pós-Loading e Proteção Anti-Morte em Caçadas)."
 progress:
-  total_phases: 106
-  completed_phases: 106
-  total_plans: 106
-  completed_plans: 106
+  total_phases: 107
+  completed_phases: 107
+  total_plans: 107
+  completed_plans: 107
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 106 concluída. Sincronização e calibração estrita da barra de progresso da tela de carregamento Exura (`ExuraLoadingScreen.tsx`), com preenchimento contínuo e nítido de magma a 60fps frame a frame em sincronia com a porcentagem, indicador numérico dentro da própria barra e eliminação de atrasos por transição CSS.
+**Current focus:** Fase 107 concluída. Diferimento estrito do início da caçada e bloqueio determinístico do loop de combate (`tickCombat`) durante o carregamento via `pendingHuntTransitionRef`, garantindo 0 ticks de combate e 0 dano recebido em segundo plano. O personagem fica oculto durante o loading (`isCharacterVisible = false`) em Thais e caçadas, surgindo no mundo exatamente junto com a conclusão da barra de loading (100% / `onFinish`).
 
 ## Current Position
 
-Phase: 106 of 106 (Concluída)  
+Phase: 107 of 107 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 106.
+Last activity: 2026-09-09 — Conclusão da Phase 107.
 
 Progress: [██████████] 100%
 

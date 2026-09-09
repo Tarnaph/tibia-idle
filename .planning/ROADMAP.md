@@ -65,6 +65,10 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 101: Correção Visual da Tela de Loading Exura (Vanilla CSS) e Restauração Integral do Mapa de Thais com Dynamic Texture Binding** - Loading screen com Vanilla CSS puro inline e global, ordenação de texturas por proximidade ao Templo (32369, 32241, 7) e Dynamic Texture Binding sem pisos substitutos de madeira.
 - [x] **Phase 102: Visibilidade da Barra de Progresso de Loading e Duração de 10 Segundos** - Calibração visual da barra de preenchimento (gradiente de magma vibrante, realce de topo, centelha incandescente frontal e porcentagem em tempo real) e expansão da duração da tela de loading para 10 segundos (10000ms) no login, transições de caçada e /game-preview.
 - [x] **Phase 103: Trilha Sonora de Thais em Loop (Sunset in the Village), Opções de Volume e Botão de Mute Rápido** - Reprodução da música Sunset in the Village iniciando ainda na tela de carregamento, loop contínuo durante toda a estadia em Thais, pausa em caçadas, seção de volume completa dentro do menu sanduíche e botão de mute/desmutar rápido (🔊 / 🔇) ao lado do botão de sair com atalho de teclado 'M'.
+- [x] **Phase 104: Notificação Flutuante de Música Atual ("Thais Theme") com Transição Deslizante da Direita** - Notificação com banner "Now Playing" para Thais Theme com animação deslizante lateral da direita, equalizador e barra de contagem regressiva.
+- [x] **Phase 105: Exibição da Caixa de Notificação de Música ("Thais Theme") Estritamente Após a Tela de Carregamento (Loading)** - Enfileiramento e exibição do banner de música somente após a tela de carregamento de 10s terminar.
+- [x] **Phase 106: Preenchimento Proporcional Contínuo e Visual da Barra de Loading Conforme a Porcentagem** - Sincronização e calibração estrita da barra de progresso da tela de carregamento Exura a 60fps em sincronia com a porcentagem, indicador numérico interno e cavidade geométrica alinhada.
+- [x] **Phase 107: Diferimento da Entrada e Visibilidade do Personagem até o Fim do Loading (Spawn Seguro Pós-Loading e Proteção Anti-Morte em Caçadas)** - Bloqueio do loop de combate durante o loading, ocultação do personagem até 100% da barra e inicialização segura da hunt somente ao término do loading para evitar mortes precoces.
 
 
 ---
@@ -1886,6 +1890,20 @@ Plans:
 4. 0 erros no `typecheck` e 100% de sucesso nos testes automatizados Vitest (40/40 testes nas fases 100-106).
 **Plans:**
 - [x] 106-01-PLAN: Preenchimento Contínuo da Barra de Loading em Sincronia com a Porcentagem e Centralização Geométrica.
+
+### Phase 107: Diferimento da Entrada e Visibilidade do Personagem até o Fim do Loading (Spawn Seguro Pós-Loading e Proteção Anti-Morte em Caçadas)
+
+**Goal:** Resolver a vulnerabilidade crítica de combate e renderização em que o personagem carregava e iniciava o combate em segundo plano sob a tela de loading de 10 segundos, expondo o jogador a ataques e morte por monstros antes mesmo da barra carregar: (1) Ocultação integral do personagem (`isCharacterVisible = !initialLoadingActive && !transitionLoading?.active`) em `ThaisCityArena` e `PixiArena`, fazendo com que ele só apareça visualmente junto com o término da tela de carregamento; (2) Diferimento estrito do início da caçada (`startSelectedHunt` e `onPartyHuntStart`) via `pendingHuntTransitionRef`, mantendo o jogador em estado pacífico seguro durante os 10s e executando `restartHunt(...)`, `setMode('hunt')` e o teleporte autoritativo apenas no callback `onFinish`; (3) Bloqueio determinístico do ticker de combate (`tickCombat`) enquanto qualquer loading estiver ativo, garantindo 0 ticks de combate e 0 dano recebido enquanto a tela de loading estiver visível; (4) Reinicialização do relógio de combate no primeiro tick pós-loading para transição fluida.
+**Depends on:** Phase 106
+**Requirements:**
+1. Parametrização de `PixiArena.tsx` e `ThaisCityArena.tsx` com `isCharacterVisible?: boolean`, ocultando o container de visualização (`view.root.visible = false`) e retículo de alvo enquanto `isCharacterVisible` for falso.
+2. Atualização de `GamePrototype.tsx` calculando `isCharacterVisible = !initialLoadingActive && !transitionLoading?.active`, travando o loop de combate em `tickCombat` e `tickCityAutoSpells` caso qualquer loading esteja ativo.
+3. Criação de `pendingHuntTransitionRef` em `GamePrototype.tsx` para enfileirar as informações da hunt e executá-las estritamente no `onFinish` da `ExuraLoadingScreen`.
+4. Suíte de testes automatizados `tests/phase107-character-spawn-post-loading-safety.test.ts` validando todas as garantias de segurança e visibilidade.
+5. 0 erros de tipagem no `npm run typecheck` e 100% de sucesso nos testes Vitest.
+**Plans:**
+- [x] 107-01-PLAN: Diferimento da Entrada e Visibilidade do Personagem até o Término da Tela de Carregamento.
+
 
 
 
