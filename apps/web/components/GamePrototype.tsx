@@ -222,7 +222,7 @@ function GamePrototypeContent() {
     durationMs?: number;
     huntId?: string;
   } | null>(null);
-  const saveProgressRef = useRef<() => Promise<void>>(async () => {});
+  const saveProgressRef = useRef<(isDeathPenalty?: boolean) => Promise<void>>(async () => {});
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   const roleUpper = ((auth.viewer?.role || onlineAccount?.role) || '').toUpperCase();
   const isAdmin = roleUpper === 'ADMIN' || roleUpper === 'GM';
@@ -1165,7 +1165,7 @@ function GamePrototypeContent() {
     const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
     if (!token || !activeCharacter || !onlineCharacter || activeCharacter.id !== onlineCharacter.id) return;
 
-    const saveProgress = async () => {
+    const saveProgress = async (isDeathPenalty = false) => {
       try {
         const inventoryPayload: Array<{ slot: string; serverId: number; name: string; count: number }> = [];
         const savedServerIds = new Set<number>();
@@ -1263,6 +1263,7 @@ function GamePrototypeContent() {
             hotbar: activeCharacter.hotbar,
             hotbarConfigs: activeCharacter.hotbarConfigs,
             avatarId: (activeCharacter as any).avatarId ?? 1,
+            isDeathPenalty,
           }),
         });
       } catch (err) {
@@ -1540,9 +1541,25 @@ function GamePrototypeContent() {
       };
     });
     setMode('training');
-    gameNetwork.sendSetInHunt(false);
     setIsTrainingAtDummy(false);
     setCityPos(THAIS_TEMPLE_POSITION);
+
+    // Phase 103/109/113: Stop hunt BGM and start Thais BGM immediately during death loading screen!
+    stopDragonLairBgm();
+    playCityBgm();
+
+    // Phase 113: Trigger 10-second Thais cinematic loading screen when character dies
+    setTransitionLoading({
+      active: true,
+      message: 'Renasceu no Templo de Thais...',
+      durationMs: 10000,
+      huntId: undefined,
+    });
+
+    gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
+    gameNetwork.sendSetInHunt(false);
+
+    void saveProgressRef.current?.(true);
     setWalkingPath({
       waypoints: [
         { x: 32368, y: 32215, z: 7 },
@@ -1574,7 +1591,7 @@ function GamePrototypeContent() {
 
   // Autonomous walking loop across coordinates in city with Web Worker ticker (runs at full speed even when minimized)
   const tickWalking = useCallback(() => {
-    if (!walkingPath || walkingPath.waypoints.length === 0 || mode === 'hunt') return;
+    if (!walkingPath || walkingPath.waypoints.length === 0 || mode === 'hunt' || initialLoadingActive || Boolean(transitionLoading?.active)) return;
     const now = performance.now();
     if (now - lastStepTimeRef.current < cityStepDurationMs) return;
 

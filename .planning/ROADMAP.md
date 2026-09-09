@@ -1976,6 +1976,20 @@ Plans:
 **Plans:**
 - [x] 112-01-PLAN: Correção de Nível/XP Autoritativo, Acessibilidade de Respawns do Dragon Lair e Modal de Ficha do Personagem com 5 Avatares.
 
+### Phase 113: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition)
+
+**Goal:** Quando o personagem morre em caçada e o jogador confirma o respawn, passar obrigatoriamente pela tela de carregamento de Thais (10 segundos, com a arte do Templo de Thais e as curiosidades de Thais), parando a trilha sonora da hunt, iniciando o tema de Thais, sincronizando penalidades autoritativamente e teleportando o personagem para o Templo de Thais.
+**Depends on:** Phase 112, Phase 111, Phase 102
+**Requirements:**
+1. Ativação de `setTransitionLoading` com duração de 10s (`durationMs: 10000`), `huntId: undefined` (fallback canônico para Thais) e mensagem "Renasceu no Templo de Thais..." ao confirmar a morte em `handleConfirmDeath`.
+2. Interrupção imediata da música da caçada (`stopDragonLairBgm()`) e início imediato do tema de Thais (`playCityBgm()`) durante o loading.
+3. Notificação do servidor Colyseus com `sendTeleport(THAIS_TEMPLE_POSITION)` e `sendSetInHunt(false)`.
+4. Salvamento de progresso com flag autoritativa de penalidade de morte (`saveProgressRef.current(true)`).
+5. Pausa de caminhada autônoma (`tickWalking`) enquanto a tela de loading estiver ativa, garantindo que o personagem só comece a se mover após o término do carregamento.
+6. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 113-01-PLAN: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition).
+
 
 
 

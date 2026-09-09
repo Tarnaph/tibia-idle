@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-09T20:35:00.000Z"
-last_activity: "2026-09-09 — Conclusão da Phase 112: Correção de Nível/XP Autoritativo, Acessibilidade de Respawns do Dragon Lair e Modal de Ficha do Personagem com 5 Avatares."
+last_updated: "2026-09-09T20:45:00.000Z"
+last_activity: "2026-09-09 — Conclusão da Phase 113: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition)."
 progress:
-  total_phases: 112
-  completed_phases: 112
-  total_plans: 112
-  completed_plans: 112
+  total_phases: 113
+  completed_phases: 113
+  total_plans: 113
+  completed_plans: 113
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 112 concluída com sucesso. Todos os 3 itens do FIX.md foram implementados e verificados: 1) Sincronização e autoridade monótona de Nível e XP no banco e servidor Colyseus, 2) Validação A* de acessibilidade e desocultação de entidades no Dragon Lair, 3) Ficha de Perfil do Personagem com abas, atributos, skills, progressão, combate, última morte e 5 avatares persistidos.
+**Current focus:** Phase 113 concluída com sucesso. Implementada a transição cinematográfica de 10 segundos da tela de carregamento de Thais com arte do templo e curiosidades históricas ao morrer e confirmar o respawn, com controle de áudio imersivo, teleport do servidor e pausa de caminhada até o carregamento finalizar.
 
 ## Current Position
 
-Phase: 112 of 112 (Concluída)  
+Phase: 113 of 113 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 112.
+Last activity: 2026-09-09 — Conclusão da Phase 113.
 
 Progress: [██████████] 100%
 

@@ -70,11 +70,33 @@ Implementação e validação completa das 3 correções especificadas em [FIX.m
 
 ---
 
-## 4. Verificação de Qualidade e Testes
+## 4. Item Adicional: Tela de Carregamento de Thais na Morte (Phase 113)
+
+### Requisito Solicitado
+- *"quando o personagem morre ele precisa passar pelo loading de thais também"*
+
+### Ações Implementadas
+1. **Ativação da Tela de Loading na Confirmação da Morte:**
+   - Em `handleConfirmDeath` no arquivo [GamePrototype.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/GamePrototype.tsx), ao confirmar o respawn no [DeathModal.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/DeathModal.tsx), `setTransitionLoading` é disparado com duração de 10s (`durationMs: 10000`), mensagem `"Renasceu no Templo de Thais..."` e `huntId: undefined`.
+   - O fallback canônico exibe a ilustração do Templo de Thais (`thais-loading.jpg`) e rotaciona as curiosidades históricas de Thais ("Você Sabia?").
+2. **Controle de Áudio na Morte:**
+   - A trilha da hunt ativa é imediatamente interrompida com `stopDragonLairBgm()`.
+   - O tema musical de Thais inicia imediatamente com `playCityBgm()`.
+   - Ao finalizar o carregamento, a notificação musical ("Sunset in the Village") é apresentada no canto inferior direito.
+3. **Pausa de Movimentação Durante o Loading:**
+   - Em `tickWalking`, a movimentação autônoma do personagem até o Depot é pausada enquanto a tela de carregamento estiver ativa (`initialLoadingActive || Boolean(transitionLoading?.active)`).
+   - O personagem permanece no Templo durante todo o carregamento e inicia o trajeto até o Depot estritamente após a tela de loading sumir.
+4. **Persistência de Penalidade:**
+   - O estado do personagem com penalidade de morte é salvo no banco de dados com a flag `isDeathPenalty: true`, preservando a coerência entre banco e memória.
+
+---
+
+## 5. Verificação de Qualidade e Testes
 
 - **Testes Automatizados (Vitest):**
-  - Executada a suíte dedicada `tests/phase112-level-xp-and-dragon-spawns.test.ts` (6/6 aprovados).
-  - Executada a suíte de persistência `tests/phase46-postgresql-persistence-reconnection-e2e.test.ts` (3/3 aprovados).
-  - Executada a suíte de auditoria completa `tests/phase68-full-persistence-audit.test.ts` (7/7 aprovados).
+  - Suíte `tests/phase113-death-loading-screen.test.ts` (3/3 aprovados).
+  - Suíte `tests/phase112-level-xp-and-dragon-spawns.test.ts` (6/6 aprovados).
+  - Suíte `tests/phase46-postgresql-persistence-reconnection-e2e.test.ts` (3/3 aprovados).
+  - Suíte `tests/phase68-full-persistence-audit.test.ts` (7/7 aprovados).
 - **TypeScript:**
   - `npm run typecheck` executado com **0 erros** de compilação.
