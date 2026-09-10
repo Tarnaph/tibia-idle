@@ -2060,6 +2060,19 @@ Plans:
 **Plans:**
 - [x] 118-01-PLAN: Identidade Visual Exura e Janela de Autenticação com Estilo Autêntico In-Game.
 
+### Phase 119: Substituição dos Avatares do Jogo pelas Novas Ilustrações
+
+**Goal:** Substituir os 5 avatares do perfil do personagem pelas novas ilustrações de alta resolução fornecidas pelo usuário, cobrindo as vocações e arquétipos do Exura (Knight com elmo de chifres, Sorcerer arquimago púrpura, Paladin valquíria alada, Druid feiticeira de chapéu azul e Champion guerreiro de Thais).
+**Depends on:** Phase 118, Phase 112
+**Requirements:**
+1. Instalar os novos assets ilustrados em `public/images/avatars/` nos formatos `.png`, `.jpg` e `.svg` com compatibilidade retroativa.
+2. Atualizar o catálogo de avatares `AVAILABLE_AVATARS` em `CharacterProfileModal.tsx` com as novas rotas, títulos e descrições.
+3. Atualizar a exibição na barra superior `WindowDockBar.tsx` para usar o novo avatar nativo.
+4. Manter 100% de aprovação na suíte de testes do Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 119-01-PLAN: Substituição dos Avatares do Jogo pelas Novas Ilustrações.
+
+
 
 
 

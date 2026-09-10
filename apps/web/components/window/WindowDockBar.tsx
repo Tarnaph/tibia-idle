@@ -123,7 +123,7 @@ export function WindowDockBar({
         >
           <div className="huntera-avatar-box" title="Avatar do Personagem">
             <img
-              src={`/images/avatars/avatar-${avatarId || 1}.svg`}
+              src={`/images/avatars/avatar-${avatarId || 1}.png`}
               alt={`Avatar ${avatarId || 1}`}
               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '2px' }}
             />

@@ -19,11 +19,11 @@ export interface AvatarItem {
 }
 
 export const AVAILABLE_AVATARS: AvatarItem[] = [
-  { id: 1, name: 'Cavaleiro de Aço', vocation: 'Knight', image: '/images/avatars/avatar-1.svg', description: 'Guerreiro de elmo forjado e brasão imperial.' },
-  { id: 2, name: 'Mago Arcano', vocation: 'Sorcerer', image: '/images/avatars/avatar-2.svg', description: 'Conjurador sombrio envolto em runas místicas.' },
-  { id: 3, name: 'Guardião Élfico', vocation: 'Paladin', image: '/images/avatars/avatar-3.svg', description: 'Atirador ágil da floresta com olhar penetrante.' },
-  { id: 4, name: 'Arquidruida Ancestral', vocation: 'Druid', image: '/images/avatars/avatar-4.svg', description: 'Protetor dos bosques com chifres sagrados da natureza.' },
-  { id: 5, name: 'Lorde de Thais', vocation: 'Champion', image: '/images/avatars/avatar-5.svg', description: 'Nobre paladino coroado em ouro e rubis do reino.' },
+  { id: 1, name: 'Cavaleiro de Aço', vocation: 'Knight', image: '/images/avatars/avatar-1.png', description: 'Guerreiro de elmo forjado, espada rúnica e brasão imperial.' },
+  { id: 2, name: 'Mago Arcano', vocation: 'Sorcerer', image: '/images/avatars/avatar-2.png', description: 'Conjurador sombrio envolto em mantos arcanos.' },
+  { id: 3, name: 'Guardiã Sagrada', vocation: 'Paladin', image: '/images/avatars/avatar-3.png', description: 'Guerreira sagrada com diadema alado e cetro dourado.' },
+  { id: 4, name: 'Feiticeira dos Bosques', vocation: 'Druid', image: '/images/avatars/avatar-4.png', description: 'Mística dos elementos com chapéu arcano e poderes ancestrais.' },
+  { id: 5, name: 'Lorde de Thais', vocation: 'Champion', image: '/images/avatars/avatar-5.png', description: 'Campeão veterano em armadura de guerra de Thais.' },
 ];
 
 export interface CharacterProfileModalProps {

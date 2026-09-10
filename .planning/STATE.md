@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-10T10:48:00.000Z"
-last_activity: "2026-09-10 — Conclusão da Phase 118: Identidade Visual Exura e Janela de Autenticação com Estilo Autêntico In-Game."
+last_updated: "2026-09-10T11:10:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 119: Substituição dos Avatares do Jogo pelas Novas Ilustrações."
 progress:
-  total_phases: 118
-  completed_phases: 118
-  total_plans: 118
-  completed_plans: 118
+  total_phases: 119
+  completed_phases: 119
+  total_plans: 119
+  completed_plans: 119
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 118 concluída com 100% de testes e 0 erros de tipagem. Janela de autenticação atualizada com logo oficial do Exura e estilização completa in-game do Tibia 11 (ardósia radial, moldura chanfrada de bronze/ouro, inputs escavados e botão dourado beveled).
+**Current focus:** Phase 119 concluída com 100% de testes e 0 erros de tipagem. Os 5 avatares do jogo foram substituídos pelas novas ilustrações de alta resolução (Knight, Sorcerer, Paladin, Druid e Champion) com compatibilidade retroativa (.png, .jpg e .svg).
 
 ## Current Position
 
-Phase: 118 of 118 (Concluída)  
+Phase: 119 of 119 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Conclusão da Phase 118.
+Last activity: 2026-09-10 — Conclusão da Phase 119.
 
 Progress: [██████████] 100%
 

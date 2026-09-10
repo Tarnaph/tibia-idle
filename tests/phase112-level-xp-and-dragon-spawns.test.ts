@@ -196,7 +196,7 @@ describe('Phase 112: Level/XP Inconsistency, Dragon Spawns and Character Profile
       for (const avatar of AVAILABLE_AVATARS) {
         expect(avatar.name).toBeTruthy();
         expect(avatar.vocation).toBeTruthy();
-        expect(avatar.image).toMatch(/^\/images\/avatars\/avatar-[1-5]\.svg$/);
+        expect(avatar.image).toMatch(/^\/images\/avatars\/avatar-[1-5]\.(svg|png|jpg)$/);
       }
     });
   });
