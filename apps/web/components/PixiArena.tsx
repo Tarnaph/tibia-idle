@@ -8,7 +8,7 @@ import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldC
 import type { Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
-import { getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
+import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 
 interface PixiArenaProps {
@@ -29,6 +29,8 @@ interface ActorView {
   track: VisualMotionTrack;
   mapping: VisualAssetMapping;
   lastFrameUrl: string;
+  lastCanvas?: HTMLCanvasElement;
+  lastOutfitSig?: string;
   attackUntil: number;
 }
 interface TimedVisual { root: Container | Sprite | Text; startedAt: number; durationMs: number; kind: 'float' | 'effect' | 'missile'; from?: GridPosition; to?: GridPosition; frames?: string[] }
@@ -664,8 +666,31 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             const charGender = character.gender === 'female' ? 'female' : 'male';
             const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
             const addons = character.addons || 0;
+
+            const outfitSig = `${outfitKey}_${charGender}_${isMounted ? (character.mount || 'none') : 'none'}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+            if (view.lastOutfitSig !== outfitSig) {
+              view.lastOutfitSig = outfitSig;
+              preloadOutfitAllFrames(
+                outfitKey,
+                charGender,
+                colors,
+                addons,
+                character.mount,
+                isMounted
+              ).catch(() => {});
+            }
+
             const walkFrame = sample.moving ? (1 + (Math.floor(framePhase * 8) % 8)) : 0;
-            const textureKey = `${outfitKey}_${charGender}_${sample.direction}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons}_m${isMounted ? character.mount : 'none'}`;
+            const textureKey = getCanvasCacheKey(
+              normalizeOutfitId(outfitKey),
+              charGender,
+              sample.direction,
+              walkFrame,
+              colors,
+              addons,
+              character.mount,
+              isMounted
+            );
             const isCached = isOutfitCanvasCached(
               outfitKey,
               charGender,
@@ -688,9 +713,12 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
                 isMounted
               );
               if (canvas) {
-                const tex = Texture.from(canvas);
-                tex.source.style.scaleMode = 'nearest';
-                view.sprite.texture = tex;
+                if (view.lastCanvas !== canvas) {
+                  view.lastCanvas = canvas;
+                  const tex = Texture.from(canvas);
+                  tex.source.style.scaleMode = 'nearest';
+                  view.sprite.texture = tex;
+                }
                 if (isCached) {
                   view.lastFrameUrl = textureKey;
                 }

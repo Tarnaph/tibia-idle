@@ -43,6 +43,7 @@ import { OutfitModal } from './OutfitModal';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { CharacterProfileModal } from './CharacterProfileModal';
+import { preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { PixiArena } from './PixiArena';
 import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
@@ -1413,9 +1414,13 @@ function GamePrototypeContent() {
 
   const handleToggleMount = useCallback((characterId: string) => {
     let nextMountActive = false;
+    let targetChar: CharacterState | undefined;
     setGame((cur) => {
       const target = cur.session.characters.find((c) => c.id === characterId);
-      if (target) nextMountActive = !target.mountActive;
+      if (target) {
+        nextMountActive = !target.mountActive;
+        targetChar = target;
+      }
       return {
         ...cur,
         session: {
@@ -1428,6 +1433,17 @@ function GamePrototypeContent() {
         },
       };
     });
+
+    if (targetChar) {
+      preloadOutfitAllFrames(
+        targetChar.outfit || targetChar.vocation || 'Knight',
+        targetChar.gender || 'male',
+        targetChar.outfitColors,
+        (targetChar as any).addons || (targetChar as any).outfitAddons || 0,
+        targetChar.mount,
+        nextMountActive
+      ).catch(() => {});
+    }
 
     gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
   }, []);

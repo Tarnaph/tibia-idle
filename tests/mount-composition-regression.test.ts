@@ -269,6 +269,48 @@ describe('Phase 120: Mount Composition, Layer Caching & Mounted Addons Regressio
       getRecoloredCanvasSync('citizen', 'male', 'south', 0, colors, 0, undefined, false);
       expect(isOutfitCanvasCached('citizen', 'male', 'south', 0, colors, 0, undefined, false)).toBe(true);
     });
+
+    it('garante que a animação de andar montado não pisca e não cai para pose a pé enquanto carrega frames', () => {
+      const makeReady = (url: string) => {
+        const img = new MockImage();
+        img.src = url;
+        img.complete = true;
+        img.naturalWidth = 64;
+        img.naturalHeight = 64;
+        registerCachedImage(url, img as any);
+      };
+
+      // Carrega frame 0 (idle) da montaria e do cavaleiro
+      const f0Urls = getOutfitLayerUrls('citizen', 'male', 'south', 0, 0, 'war-bear', true);
+      makeReady(f0Urls.base);
+      makeReady(f0Urls.mask);
+      makeReady(f0Urls.mountUrl!);
+
+      // Renderiza frame 0 -> definitivo
+      const f0Result = getRecoloredCanvasSync('citizen', 'male', 'south', 0, colors, 0, 'war-bear', true);
+      expect(f0Result).toBeDefined();
+      expect(isOutfitCanvasCached('citizen', 'male', 'south', 0, colors, 0, 'war-bear', true)).toBe(true);
+
+      // Agora o personagem começa a andar: solicita frame 1 montado
+      // Frame 1 da montaria AINDA NÃO terminou de carregar
+      const f1Fallback = getRecoloredCanvasSync('citizen', 'male', 'south', 1, colors, 0, 'war-bear', true);
+
+      // Invariante: O fallback retornado NUNCA é nulo e é a pose montada frame 0, JAMAIS a pé!
+      expect(f1Fallback).toBe(f0Result);
+
+      // Invariante: O cache definitivo de frame 1 continua falso até as camadas terminarem
+      expect(isOutfitCanvasCached('citizen', 'male', 'south', 1, colors, 0, 'war-bear', true)).toBe(false);
+
+      // Agora frame 1 termina de carregar
+      const f1Urls = getOutfitLayerUrls('citizen', 'male', 'south', 1, 0, 'war-bear', true);
+      makeReady(f1Urls.base);
+      makeReady(f1Urls.mask);
+      makeReady(f1Urls.mountUrl!);
+
+      const f1Definitive = getRecoloredCanvasSync('citizen', 'male', 'south', 1, colors, 0, 'war-bear', true);
+      expect(f1Definitive).toBeDefined();
+      expect(isOutfitCanvasCached('citizen', 'male', 'south', 1, colors, 0, 'war-bear', true)).toBe(true);
+    });
   });
 });
 

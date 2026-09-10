@@ -444,34 +444,39 @@ export async function preloadOutfitAllFrames(
   if (typeof window === 'undefined') return;
   const norm = normalizeOutfitId(outfitId);
   const directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'];
-  const frames = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-  const loadPromises: Promise<HTMLImageElement>[] = [];
+  const loadAndCacheFrame = async (dir: 'south' | 'east' | 'north' | 'west', f: number) => {
+    const urls = getOutfitLayerUrls(norm, gender, dir, f, addons, mount, isMounted);
+    const subPromises: Promise<any>[] = [
+      loadImage(urls.base).catch(() => null),
+      loadImage(urls.mask).catch(() => null),
+    ];
+    if (urls.addon1Base) subPromises.push(loadImage(urls.addon1Base).catch(() => null));
+    if (urls.addon1Mask) subPromises.push(loadImage(urls.addon1Mask).catch(() => null));
+    if (urls.addon2Base) subPromises.push(loadImage(urls.addon2Base).catch(() => null));
+    if (urls.addon2Mask) subPromises.push(loadImage(urls.addon2Mask).catch(() => null));
+    if (urls.mountUrl) subPromises.push(loadImage(urls.mountUrl).catch(() => null));
+
+    await Promise.allSettled(subPromises);
+    if (colors) {
+      getRecoloredCanvasSync(norm, gender, dir, f, colors, addons, mount, isMounted);
+    }
+  };
+
+  // 1. Prioritize frame 0 (idle) across all 4 directions immediately so standing pose is instantly ready
+  await Promise.allSettled(directions.map((dir) => loadAndCacheFrame(dir, 0)));
+
+  // 2. Preload walk frames (f1..f8) progressively in parallel
+  const walkPromises: Promise<void>[] = [];
   for (const dir of directions) {
-    for (const f of frames) {
-      const urls = getOutfitLayerUrls(norm, gender, dir, f, addons, mount, isMounted);
-      loadPromises.push(loadImage(urls.base).catch(() => null as any));
-      loadPromises.push(loadImage(urls.mask).catch(() => null as any));
-      if (urls.addon1Base) loadPromises.push(loadImage(urls.addon1Base).catch(() => null as any));
-      if (urls.addon1Mask) loadPromises.push(loadImage(urls.addon1Mask).catch(() => null as any));
-      if (urls.addon2Base) loadPromises.push(loadImage(urls.addon2Base).catch(() => null as any));
-      if (urls.addon2Mask) loadPromises.push(loadImage(urls.addon2Mask).catch(() => null as any));
-      if (urls.mountUrl) loadPromises.push(loadImage(urls.mountUrl).catch(() => null as any));
+    for (let f = 1; f <= 8; f++) {
+      walkPromises.push(loadAndCacheFrame(dir, f));
     }
   }
-
-  await Promise.allSettled(loadPromises);
-
-  if (colors) {
-    for (const dir of directions) {
-      for (const f of frames) {
-        getRecoloredCanvasSync(norm, gender, dir, f, colors, addons, mount, isMounted);
-      }
-    }
-  }
+  await Promise.allSettled(walkPromises);
 }
 
-function getCanvasCacheKey(
+export function getCanvasCacheKey(
   norm: string,
   gender: string,
   direction: string,
@@ -569,10 +574,28 @@ export function getRecoloredCanvasSync(
 
     // DO NOT cache under definitive key in recoloredCanvasCache!
     // Return provisional fallback so display doesn't flicker or become invisible
+    if (isMounted) {
+      // 1. Try mounted idle frame in current direction
+      const dirMountFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, addons, mount, true);
+      const dirMountFallback = recoloredCanvasCache.get(dirMountFallbackKey);
+      if (dirMountFallback) return dirMountFallback;
+
+      // 2. Try mounted idle frame in south direction
+      const southMountFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, addons, mount, true);
+      const southMountFallback = recoloredCanvasCache.get(southMountFallbackKey);
+      if (southMountFallback) return southMountFallback;
+
+      // 3. Try any provisional canvas for this key
+      const provFallback = provisionalCanvasCache.get(key);
+      if (provFallback) return provFallback;
+    }
+
+    // 4. Fallback for unmounted: current direction frame 0
     const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, 0, undefined, false);
     const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
     if (dirFallback) return dirFallback;
 
+    // 5. Fallback for unmounted: south frame 0
     const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, 0, undefined, false);
     const southFallback = recoloredCanvasCache.get(southFallbackKey);
     if (southFallback) return southFallback;
