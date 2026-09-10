@@ -69,7 +69,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
     equipment: { ...starter.equipped },
     inventory: { equipmentIds: content.equipment.map((item) => item.id) }, spells, hotbar: [],
     hotbarConfigs: {},
-    stance: 'offensive', targetDistance: (vocationName === 'Paladin' || vocationName === 'Sorcerer' || vocationName === 'Druid') ? 2 : 1,
+    stance: 'offensive', targetDistance: (vocationName === 'Paladin' || vocationName === 'Sorcerer' || vocationName === 'Druid') ? 4 : 1,
     combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
     trainingState: { skillRemainderMs: 0, shieldingRemainderMs: 0, manaSpent: 0, manaSimulationRemainderMs: 0 },
   };
@@ -211,7 +211,7 @@ export function changeCharacterVocation(
     maxMana: newMaxMana,
     currentMana: newMaxMana,
     spells: newSpells,
-    targetDistance: newVocation === 'Paladin' ? 2 : 1,
+    targetDistance: (newVocation === 'Paladin' || newVocation === 'Sorcerer' || newVocation === 'Druid') ? 4 : 1,
   };
 
   const nextCharacters = [...state.session.characters];

@@ -169,6 +169,8 @@ export interface EnemyState {
   detectionRange: number;
   variant: MonsterVariantDefinition | null;
   respawnZoneId?: string;
+  challengedTargetId?: string | null;
+  challengedUntil?: number;
 }
 
 export interface CorpseState {

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-10T19:26:00.000Z"
-last_activity: "2026-09-10 — Conclusão da Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente."
+last_updated: "2026-09-10T20:15:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 124: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid)."
 progress:
-  total_phases: 123
-  completed_phases: 123
-  total_plans: 123
-  completed_plans: 123
+  total_phases: 124
+  completed_phases: 124
+  total_plans: 124
+  completed_plans: 124
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 123 concluída com 100% de testes (124 arquivos / 696 testes) e 0 erros de tipagem. Normalização canônica do Noble para `noblewoman`, 0 arquivos faltantes em disco para todos os 76 outfits do jogo, ponte unificada entre `outfitAddons` do Prisma e `addons` do cliente, persistência permanente autoritativa no PostgreSQL via save REST endpoint e periodic autosave, proteção anti-envenenamento do cache de recolor e filtro de adquiridos respeitando status premium da conta.
+**Current focus:** Phase 124 Concluída: Sistema de Exhaust (intervalo e exclusão mútua entre gastar mana e beber poção), IA de Caçada Solo Inteligente (exploração ativa sem rotas vazias) e IA Tática Avançada de Party (Knight tank com Challenge/exeta res e foco no mais próximo, Druid curando Knight/party e atacando a 3-4 tiles, Sorcerer/Paladin DPS a 3-4 tiles e sincronização de alvo coletivo no Knight).
 
 ## Current Position
 
-Phase: 123 of 123 (Concluída)  
+Phase: 124 of 124 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente.
+Last activity: 2026-09-10 — Phase 124 Concluída com 100% de aprovação (705 testes).
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 123
-- Total phases in roadmap: 123
-- Tests status: 124 test suites (696 testes aprovados)
+- Total phases completed: 124
+- Total phases in roadmap: 124
+- Tests status: 125 test suites (705 testes aprovados - 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -45,13 +45,8 @@ Progress: [██████████] 100%
 | Phase | Plans | Total | Avg/Plan | Status |
 |-------|-------|-------|----------|--------|
 | 1 a 77. (Fases Anteriores Concluídas) | 77 | - | - | Complete |
-| 78. Auditoria de Progressão de Skills, Vantagens por Atributo e Tooltips na UI | 1 | - | - | Complete |
-| 79. Sistema de Estamina da Conta | 1 | - | - | Complete |
-| 80. Modo Caçada Auto-Idle Autônoma | 1 | - | - | Complete |
-| 81. Poção Automática Inteligente, Auto-Configuração de Hotbar e Cura de Emergência | 1 | - | - | Complete |
-| 82. Correção de Runtime TexturePool no PixiJS v8 e Efeitos Visuais das Wands de Sorcerer | 1 | - | - | Complete |
-| 83. Diagnóstico e Correção de Tela Preta no Viewport e Magias Direcionais em Onda (Exevo Flam Hur) | 1 | - | - | Complete |
-| 84. Migração dos Importadores para Dados Autorizativos do Tibia 11 e Pré-Carregamento do Mapa de Thais | 1 | - | - | Complete |
+| 78 a 123. (Fases Intermediárias Concluídas) | 46 | - | - | Complete |
+| 124. Sistema de Exhaust, IA de Exploração Solo e Táticas de Party | 1 | - | - | Complete |
 
 ## Accumulated Context
 

@@ -80,8 +80,10 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 117: Pipeline Autêntico de Animação Tibia 10.98 (Idle Frame 0 Canônico e Ciclo Completo de Caminhada com 8 Frames)** - Separação canônica entre FrameGroup 0 (Idle / Repouso com pés juntos) e FrameGroup 1 (Moving com 8 frames completos) no extrator de DAT/SPR, exportação dos assets f0 (idle) e f1..f8 (caminhada fluida), e sincronização dos motores de renderização PixiJS da cidade e caçada com o ciclo completo de 8 passos do Tibia 10.98.
 - [x] **Phase 118: Identidade Visual Exura e Janela de Autenticação Estilo Tibia** - Substituição do logo Cavebound pela nova marca Exura e estilização autêntica estilo Tibia para o modal de autenticação.
 - [x] **Phase 119: Substituição dos Avatares do Jogo pelas Novas Ilustrações** - Troca dos 5 avatares do perfil do jogador pelas artes ilustradas canônicas com suporte retroativo.
-- [x] **Phase 120: Correção de Montarias, Alinhamento Relativo por DAT Displacement, Cache Definitivo e Addons Montados** - Preservação do ThingAttrDisplacement (atributo 24) do Tibia.dat, extração completa de addons montados (z=1) em idle e walk cycle, cálculo de offset relativo sem constantes arbitrárias, e blindagem estrita contra cache poisoning no getRecoloredCanvasSync.
-
+- [x] **Phase 121: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server** - Compartilhamento de Promises em trânsito no `loadImage`, renderização atômica em buffer offscreen, eliminação de loops e suporte a montarias.
+- [x] **Phase 122: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência** - Navegação preservando selectedCharId, respeito às capabilities de addons/montarias por outfit, suporte ao Sire e cancelamento de previews desatualizados.
+- [x] **Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente** - Mapeamento canônico de Noble para noblewoman, ponte unificada entre outfitAddons do Prisma e addons do cliente, e persistência permanente autoritativa no PostgreSQL.
+- [x] **Phase 124: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid)** - Sistema canônico de exhaust entre gastar mana e beber poções (mutual exclusion no tick e delay de 1000ms), IA de exploração solo ativa procurando inimigos na caverna, e táticas avançadas de party com Knight liderando e usando Challenge (exeta res) para proteger o grupo e focando o monstro mais próximo, Druid mantendo 3-4 tiles curando o grupo e usando magias/runas, Sorcerer/Paladin DPS mantendo 3-4 tiles à distância, e sincronização coletiva de alvo no alvo do Knight.
 
 ---
 
@@ -2130,6 +2132,31 @@ Plans:
 **Plans:**
 - [x] 123-01-PLAN: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente.
 - Resumo de entrega: `.planning/phases/phase-123-outfit-addons-persistence-canonical-fix/123-SUMMARY.md`
+
+### Phase 124: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid)
+
+**Goal:** Implementar o sistema canônico de exhaust entre consumo de poções e lançamento de magias/runas eliminando uso simultâneo no mesmo tick, aprimorar a IA de exploração solo na caverna para busca ativa e inteligente de monstros evitando rotas vazias, e estabelecer a IA tática avançada de party com Knight como tank principal liderando, usando Challenge (`exeta res`) para proteger aliados e focando o alvo mais próximo, Druid curando ativamente o Knight/party e atacando a 3-4 tiles, Sorcerer e Paladin mantendo distância tática de 3-4 tiles como DPS, e sincronização universal de alvo em torno do alvo do Knight.
+**Depends on:** Phase 123
+**Requirements:**
+1. **Exhaust e Exclusão Mútua (Poção ↔ Magia/Runa):**
+   - Impedir estritamente que um personagem beba poção e lance magia/runa no mesmo tick do jogo (`usedPotionThisTick` e `usedSpellThisTick` com exclusão mútua).
+   - Aplicar exhaust de 1000ms após usar poções bloqueando novas poções e magias, e aplicar exhaust cruzado de 1000ms em poções ao lançar qualquer magia ou runa (`actor.groupCooldowns['potion']`).
+   - Aplicar as mesmas travas de exhaust no modo cidade/manual (`usePotion`, `castSpell`, `useRune`) e na cura de emergência.
+2. **IA de Caçada Solo Inteligente (Dynamic Cave Exploration):**
+   - Na caçada solo, inspecionar ativamente os monstros vivos na caverna.
+   - Quando o caminho imediato ou campo de visão (FoV) não tiver monstros vivos, não ficar ocioso nem caminhar às cegas até waypoints vazios; redirecionar a rota dinamicamente para a sala, corredor ou monstro mais próximo.
+   - Perseguir monstros vivos em qualquer ponto acessível da caverna até que todos estejam derrotados, momento em que a rota aguarda no respawn mais iminente.
+3. **IA Tática Avançada de Party (Tank Knight, Healer Druid e Ranged DPS):**
+   - **Knight (Main Tank):** Lidera o grupo na vanguarda (`movePartyTowardPoint` e combate); sempre escolhe e foca no inimigo mais próximo a ele; detecta quando qualquer inimigo começa a atacar ou focar um membro não-Knight da party e conjura `Challenge` (`exeta res`), forçando os monstros ao redor a virarem seu alvo (`challengedTargetId`, `challengedUntil`) para o Knight.
+   - **Druid (Healer & Support):** Mantém distância tática de 3 a 4 tiles dos monstros; prioriza continuamente curar o Knight (`exura sio` / cura quando Knight < 85% HP) e membros feridos da party (< 80% HP) antes de desferir ataques; ataca com magias ofensivas e runas à distância quando o grupo estiver seguro.
+   - **Sorcerer & Paladin (Ranged DPS):** Mantêm distância tática estrita de 3 a 4 tiles dos monstros, recuando/posicionando-se caso os inimigos se aproximem, e atacando à distância com magias, runas e armas de distância.
+   - **Foco Cooperativo de Alvo (Target Synchronization):** Em qualquer party (multiplayer ou squad), todos os membros (Druid, Sorcerer, Paladin) sincronizam e focam no mesmo monstro que o Knight está atacando.
+4. **Qualidade e Estabilidade:**
+   - Criar suíte de testes Vitest dedicada cobrindo todas as mecânicas (`phase124-exhaust-solo-exploration-party-tactics.test.ts`).
+   - Garantir 100% de aprovação em todos os testes e 0 erros no typecheck.
+**Plans:**
+- [x] 124-01-PLAN: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid).
+- Resumo de entrega: `.planning/phases/phase-124-exhaust-solo-ai-party-tactics/124-SUMMARY.md`
 
 
 

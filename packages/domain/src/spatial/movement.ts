@@ -87,7 +87,8 @@ function nearestEnemy(
   range: number,
   reserved: ReadonlySet<string>,
   allowedEnemyIds?: Set<string>,
-  strategy: TargetSelectionStrategy = 'closest'
+  strategy: TargetSelectionStrategy = 'closest',
+  minRange: number = 1
 ) {
   const occupied = occupiedKeys(encounter);
   const candidates = encounter.enemies.filter((enemy) => enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id)));
@@ -99,13 +100,15 @@ function nearestEnemy(
 
   const evaluated = candidates.map((enemy) => {
     const directDist = meleeDistance(actor.position, enemy.position);
-    const alreadyInRange = directDist <= range;
+    const minD = Math.max(1, minRange);
+    const maxD = Math.max(minD, range);
+    const alreadyInRange = directDist >= minD && directDist <= maxD;
     const goals = range <= 1
       ? findMeleeApproachTiles(encounter.room.map, enemy.position, blocked)
-      : findRangedApproachTiles(encounter.room.map, enemy.position, range, blocked);
+      : findRangedApproachTiles(encounter.room.map, enemy.position, maxD, blocked, minD);
     const fallbackGoals = goals.length === 0 && range <= 1
       ? surroundingPositions(enemy.position).filter((p) => isTileWalkable(encounter.room.map, p))
-      : goals;
+      : (goals.length === 0 ? findRangedApproachTiles(encounter.room.map, enemy.position, maxD, blocked, 1) : goals);
     const path = alreadyInRange ? [] : findPath(encounter.room.map, actor.position, fallbackGoals, blocked);
     return {
       enemy,
@@ -162,15 +165,16 @@ export function movePartyTowardTargets(
   ranges: Map<string, number>,
   allowedEnemyIds?: Set<string>,
   mainCharacterId?: string,
-  targetStrategy: TargetSelectionStrategy = 'closest'
+  targetStrategy: TargetSelectionStrategy = 'closest',
+  minRanges?: Map<string, number>
 ): void {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
   const mainActor = (mainCharacterId ? encounter.partyActors.find((candidate) => candidate.alive && candidate.characterId === mainCharacterId) : undefined)
     ?? encounter.partyActors.find((candidate) => candidate.alive);
   
-  const mainTargetId = mainActor?.targetId;
-  const mainTargetEnemy = mainTargetId ? encounter.enemies.find((e) => e.id === mainTargetId && e.alive) : undefined;
+  let mainTargetId = mainActor?.targetId;
+  let mainTargetEnemy = mainTargetId ? encounter.enemies.find((e) => e.id === mainTargetId && e.alive) : undefined;
 
   const ordered = encounter.partyActors.filter((candidate) => candidate.alive)
     .sort((a, b) => Number(b.characterId === mainActor?.characterId) - Number(a.characterId === mainActor?.characterId) || a.characterId.localeCompare(b.characterId));
@@ -179,19 +183,23 @@ export function movePartyTowardTargets(
     actor.previousPosition = clonePosition(actor.position);
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
     const range = ranges.get(actor.characterId) ?? 1;
+    const minRange = minRanges?.get(actor.characterId) ?? 1;
 
     const activeStrategy = actor.targetStrategy || targetStrategy;
 
     let selected;
+    const isMain = actor.characterId === mainActor?.characterId;
+
     if (encounter.isMultiplayerParty && actor.characterId !== mainActor?.characterId) {
       if (mainTargetEnemy) {
         actor.targetId = mainTargetEnemy.id;
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy);
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
       } else {
         // Leader has no active target: secondary actor waits and follows leader
         actor.targetId = null;
         actor.path = [];
-        if (mainActor && meleeDistance(actor.position, mainActor.position) > 1) {
+        const desiredFollowDist = minRange > 1 ? 3 : 1;
+        if (mainActor && meleeDistance(actor.position, mainActor.position) > desiredFollowDist) {
           const blocked = new Set([...occupied, ...reserved]);
           blocked.delete(positionKey(actor.position));
           blocked.delete(positionKey(mainActor.position));
@@ -212,15 +220,19 @@ export function movePartyTowardTargets(
       }
     } else {
       if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy);
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
       }
       if (!selected && allowedEnemyIds) {
-        selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy);
+        selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange);
       }
       if (!selected) {
-        selected = nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy);
+        selected = nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy, minRange);
       }
       actor.targetId = selected?.enemy.id ?? null;
+      if (isMain && selected) {
+        mainTargetId = selected.enemy.id;
+        mainTargetEnemy = selected.enemy;
+      }
     }
 
     actor.path = selected?.path.map(clonePosition) ?? [];
@@ -277,6 +289,16 @@ export function movePartyTowardPoint(encounter: HuntEncounterState, target: Grid
 }
 
 function nearestActor(enemy: EnemyState, encounter: HuntEncounterState): PartyActorState | undefined {
+  if (enemy.challengedUntil && enemy.challengedUntil > encounter.elapsedMs && enemy.challengedTargetId) {
+    const challenged = encounter.partyActors.find((actor) => actor.characterId === enemy.challengedTargetId && actor.alive);
+    if (challenged) return challenged;
+  }
+  if (enemy.targetId) {
+    const current = encounter.partyActors.find((actor) => actor.characterId === enemy.targetId && actor.alive);
+    if (current && meleeDistance(enemy.position, current.position) <= Math.max(50, enemy.detectionRange || 50)) {
+      return current;
+    }
+  }
   return encounter.partyActors.filter((actor) => actor.alive)
     .sort((left, right) => meleeDistance(enemy.position, left.position) - meleeDistance(enemy.position, right.position)
       || left.characterId.localeCompare(right.characterId))[0];

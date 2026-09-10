@@ -1,19 +1,16 @@
-# CORREÇÕES - CONCLUÍDAS (Phase 116)
+# MUDANÇAS - CONCLUÍDAS (Phase 124)
 
-Todas as correções foram implementadas e validadas com sucesso através do fluxo GSD do projeto (Phase 116).
+- [x] **1 - Exhaust Canônico (Mutual Delay Poção ↔ Magia/Runa):** [CONCLUÍDO]
+  - Adicionado intervalo de 1000ms entre gastar mana e usar poção.
+  - Exclusão mútua por tick (`usedPotionThisTick` e `usedSpellThisTick`), impedindo cast e poção no mesmo instante.
+  - Bloqueio mútuo em combate automático, acionamento manual (`triggerManualHotbarAction`) e poção de emergência.
 
-- [x] **1. Permissão de admin persiste na troca de conta** [RESOLVIDO]
-  - `handleLogout()` e `signOut()` expiram `colyseus_token` via `max-age=0` e purgam `localStorage`.
-  - `GamePrototype.tsx` deriva `isAdmin` estritamente da conta autenticada em jogo (`onlineAccount?.role`).
-  - Purga completa de tokens e desconexão de rede ao deslogar ou sair do jogo.
+- [x] **2 - IA de Caçada Solo Inteligente (Dynamic Cave Monster Seeking):** [CONCLUÍDO]
+  - Na caçada solo, quando não houver monstros no campo de visão imediato, a IA não anda para waypoints vazios nem fica parada.
+  - A rota busca dinamicamente o monstro vivo mais próximo em qualquer sala ou corredor da caverna e redireciona o caminho para engajá-lo.
 
-- [x] **2. Falha crítica adicional: cadastro público aceita criar admin** [RESOLVIDO]
-  - Rota `/api/auth/register` não aceita mais `body.role`.
-  - `AccountService.register` força `role = 'PLAYER'` incondicionalmente no banco de dados.
-  - `getJwtSecret()` valida e exige segredo forte configurado, protegido via `.env`.
-
-- [x] **3. Personagem parado com pose de caminhada** [RESOLVIDO]
-  - `ThaisCityArena.tsx` desacopla `charWalkFrame` de `curWalk`, dependendo estritamente de `charIsMoving` (se parado, frame é 0 de forma garantida).
-  - Eliminados callbacks assíncronos (`.then()`) que sobrescreviam texturas com frames antigos de caminhada.
-  - `isOutfitCanvasCached` agora previne o travamento da chave de textura quando é retornado um canvas de fallback provisório, garantindo atualização para a textura definitiva assim que carregada.
-  - Renderizadores de caça (`PixiArena.tsx`) alinhados com o mesmo padrão.
+- [x] **3 - Comportamento Tático Avançado em Party:** [CONCLUÍDO]
+  - **Knight (Main Tank):** Vai na frente da marcha liderando a vanguarda; foca sempre no monstro mais próximo; ao detectar inimigos atacando ou focando membros da party, conjura `Challenge` (`exeta res`) forçando os monstros a focarem nele por 6000ms.
+  - **Druid (Healer/Suporte):** Mantém distância tática de 3 a 4 tiles; prioriza curar o Knight com `Heal Friend` (`exura sio`) quando Knight < 85% HP e membros feridos < 80% HP antes de atacar; ataca à distância com magias e runas.
+  - **Sorcerer & Paladin (Ranged DPS):** Mantêm distância tática de 3 a 4 tiles atacando com magias, runas e armas de distância, reposicionando-se caso monstros se aproximem.
+  - **Target Sync:** Todos os membros secundários da party sincronizam e atacam o mesmo monstro que o Knight está atacando.

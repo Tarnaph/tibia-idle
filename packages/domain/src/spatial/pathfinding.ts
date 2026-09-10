@@ -40,16 +40,23 @@ export function findMeleeApproachTiles(map: TileMap, target: GridPosition, block
   return surroundingPositions(target).filter((position) => isTileWalkable(map, position) && !blocked.has(positionKey(position)));
 }
 
-export function findRangedApproachTiles(map: TileMap, target: GridPosition, desiredRange: number, blocked: ReadonlySet<string> = new Set()): GridPosition[] {
+export function findRangedApproachTiles(
+  map: TileMap,
+  target: GridPosition,
+  desiredRange: number,
+  blocked: ReadonlySet<string> = new Set(),
+  minRange: number = 1
+): GridPosition[] {
   const result: GridPosition[] = [];
-  const range = Math.max(1, Math.floor(desiredRange));
-  for (let y = target.y - range; y <= target.y + range; y += 1) for (let x = target.x - range; x <= target.x + range; x += 1) {
+  const maxRange = Math.max(1, Math.floor(desiredRange));
+  const min = Math.max(1, Math.floor(minRange));
+  for (let y = target.y - maxRange; y <= target.y + maxRange; y += 1) for (let x = target.x - maxRange; x <= target.x + maxRange; x += 1) {
     const position = { x, y, z: target.z };
     const distance = meleeDistance(position, target);
-    if (distance >= 1 && distance <= range && isTileWalkable(map, position) && !blocked.has(positionKey(position))) result.push(position);
+    if (distance >= min && distance <= maxRange && isTileWalkable(map, position) && !blocked.has(positionKey(position))) result.push(position);
   }
   return result.sort((left, right) => (
-    Math.abs(meleeDistance(left, target) - range) - Math.abs(meleeDistance(right, target) - range)
+    Math.abs(meleeDistance(left, target) - maxRange) - Math.abs(meleeDistance(right, target) - maxRange)
     || meleeDistance(left, target) - meleeDistance(right, target)
     || left.y - right.y || left.x - right.x
   ));

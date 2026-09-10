@@ -92,7 +92,8 @@ describe('Phase 22: Combat Authenticity (Whirlwind Throw, Speech, Regen, Chase, 
       expect(potionEvent.speech).toBe('Aaaah...');
     }
 
-    // 2. Spell speech (whirlwind throw with enemy in range)
+    // 2. Spell speech (whirlwind throw with enemy in range - advance past 1000ms potion exhaust)
+    state.encounter.elapsedMs += 1000;
     const enemy = state.encounter.enemies[0];
     const approach = findMeleeApproachTiles(state.encounter.room.map, enemy.position, new Set(state.encounter.room.occupancy.keys()));
     if (approach.length > 0) {
