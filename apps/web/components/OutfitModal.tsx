@@ -282,8 +282,9 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const currentColorIdx = colors[colorPart] ?? 0;
   const activePartHex = TIBIA_133_COLORS[currentColorIdx] || '#ffffff';
 
+  const isCharPremium = activeChar?.isPremium !== false;
   const outfitsToDisplay = filterAcquired
-    ? AVAILABLE_OUTFITS.filter((o) => !o.isPremium || o.id === activeChar.outfit)
+    ? AVAILABLE_OUTFITS.filter((o) => isCharPremium || !o.isPremium || o.id === activeChar.outfit)
     : AVAILABLE_OUTFITS;
 
   return (

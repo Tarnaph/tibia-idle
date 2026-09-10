@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-10T18:25:00.000Z"
-last_activity: "2026-09-10 — Conclusão da Phase 122: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência."
+last_updated: "2026-09-10T19:26:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente."
 progress:
-  total_phases: 122
-  completed_phases: 122
-  total_plans: 122
-  completed_plans: 122
+  total_phases: 123
+  completed_phases: 123
+  total_plans: 123
+  completed_plans: 123
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 122 concluída com 100% de testes (123 arquivos / 689 testes) e 0 erros de tipagem. Navegação bidirecional Personagem ↔ Outfit preservando personagem, respeito rigoroso a capabilities de trajes (`hasAddon1`, `hasAddon2`, `hasMountRider`), tolerância a 404s sem travar composição, suporte completo ao Sire (frames f0..f2 sem f3..f8 e recusa de montaria), token de cancelamento de preview contra concorrência e conversão dos avatares para PNG autêntico.
+**Current focus:** Phase 123 concluída com 100% de testes (124 arquivos / 696 testes) e 0 erros de tipagem. Normalização canônica do Noble para `noblewoman`, 0 arquivos faltantes em disco para todos os 76 outfits do jogo, ponte unificada entre `outfitAddons` do Prisma e `addons` do cliente, persistência permanente autoritativa no PostgreSQL via save REST endpoint e periodic autosave, proteção anti-envenenamento do cache de recolor e filtro de adquiridos respeitando status premium da conta.
 
 ## Current Position
 
-Phase: 122 of 122 (Concluída)  
+Phase: 123 of 123 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Phase 122: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência.
+Last activity: 2026-09-10 — Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 122
-- Total phases in roadmap: 122
-- Tests status: 123 test suites (689 testes aprovados)
+- Total phases completed: 123
+- Total phases in roadmap: 123
+- Tests status: 124 test suites (696 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

@@ -328,6 +328,14 @@ export class CharacterService {
       posY?: number;
       posZ?: number;
       outfitLookType?: number;
+      outfit?: string;
+      outfitHead?: number;
+      outfitBody?: number;
+      outfitLegs?: number;
+      outfitFeet?: number;
+      outfitAddons?: number;
+      mount?: string;
+      mountActive?: boolean;
       skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }>;
       inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
       hotbar?: any;
@@ -339,6 +347,14 @@ export class CharacterService {
   ) {
     const updateData: any = {};
     if (data.avatarId !== undefined) updateData.avatarId = data.avatarId;
+    if (data.outfit !== undefined) updateData.outfit = data.outfit;
+    if (data.outfitHead !== undefined) updateData.outfitHead = data.outfitHead;
+    if (data.outfitBody !== undefined) updateData.outfitBody = data.outfitBody;
+    if (data.outfitLegs !== undefined) updateData.outfitLegs = data.outfitLegs;
+    if (data.outfitFeet !== undefined) updateData.outfitFeet = data.outfitFeet;
+    if (data.outfitAddons !== undefined) updateData.outfitAddons = data.outfitAddons;
+    if (data.mount !== undefined) updateData.mount = data.mount;
+    if (data.mountActive !== undefined) updateData.mountActive = data.mountActive;
     if (data.level !== undefined || data.experience !== undefined) {
       const existing = await this.prisma.character.findUnique({
         where: { id: characterId },

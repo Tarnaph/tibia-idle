@@ -56,7 +56,7 @@ describe('Phase 44 - Functional Outfit Recoloring and Game Application System', 
     expect(normalizeOutfitId('Hunter')).toBe('hunter');
     expect(normalizeOutfitId('Mage')).toBe('mage');
     expect(normalizeOutfitId('Knight')).toBe('knight');
-    expect(normalizeOutfitId('Noble')).toBe('noble');
+    expect(normalizeOutfitId('Noble')).toBe('noblewoman');
     expect(normalizeOutfitId('Barbarian')).toBe('barbarian');
     expect(normalizeOutfitId('Sire')).toBe('sire');
     expect(normalizeOutfitId('Unknown')).toBe('knight');

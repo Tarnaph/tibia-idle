@@ -18,7 +18,8 @@
     "import:content": "node --experimental-strip-types packages/realmap11-importer/src/cli.ts",
     "extract:tibia1098": "node --experimental-strip-types packages/tibia1098-assets/src/cli.ts",
     "extract:tibia11:icons": "node scripts/extract-tibia11-icons.cjs",
-    "import:rotworm": "npm run import:content"
+    "import:rotworm": "npm run import:content",
+    "postinstall": "node scripts/patch-http-pipeline.cjs"
   },
   "dependencies": {
     "@colyseus/monitor": "0.15.6",

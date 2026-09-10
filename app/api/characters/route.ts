@@ -21,6 +21,14 @@ export async function GET(request: Request) {
     // Format characters ensuring bigints are serialized properly
     const formatted = characters.map((c) => ({
       ...c,
+      addons: c.outfitAddons ?? 0,
+      outfitAddons: c.outfitAddons ?? 0,
+      outfitColors: {
+        head: c.outfitHead ?? 0,
+        primary: c.outfitBody ?? 86,
+        secondary: c.outfitLegs ?? 114,
+        detail: c.outfitFeet ?? 76,
+      },
       positionX: c.posX,
       positionY: c.posY,
       positionZ: c.posZ,
@@ -51,6 +59,14 @@ export async function POST(request: Request) {
 
     const formatted = {
       ...character,
+      addons: character.outfitAddons ?? 0,
+      outfitAddons: character.outfitAddons ?? 0,
+      outfitColors: {
+        head: character.outfitHead ?? 0,
+        primary: character.outfitBody ?? 86,
+        secondary: character.outfitLegs ?? 114,
+        detail: character.outfitFeet ?? 76,
+      },
       experience: Number(character.experience),
       skills: character.skills.map((s) => ({ ...s, tries: Number(s.tries) })),
     };

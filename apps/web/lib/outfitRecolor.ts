@@ -104,7 +104,8 @@ export function normalizeOutfitId(outfitId: string): string {
       o.id === clean ||
       o.name.toLowerCase() === idLower ||
       o.femaleName.toLowerCase() === idLower ||
-      o.maleName.toLowerCase() === idLower
+      o.maleName.toLowerCase() === idLower ||
+      (idLower.includes('noble') && (o.id === 'noblewoman' || o.name.toLowerCase() === 'nobleman'))
   );
   if (found) return found.id;
 
@@ -113,7 +114,7 @@ export function normalizeOutfitId(outfitId: string): string {
   if (idLower.includes('hunter')) return 'hunter';
   if (idLower.includes('mage')) return 'mage';
   if (idLower.includes('knight')) return 'knight';
-  if (idLower.includes('noble')) return 'noble';
+  if (idLower.includes('noble')) return 'noblewoman';
   if (idLower.includes('summoner')) return 'summoner';
   if (idLower.includes('warrior')) return 'warrior';
   if (idLower.includes('barbarian')) return 'barbarian';
@@ -776,8 +777,18 @@ export function getRecoloredCanvasSync(
     drawRecoloredLayer(targetCtx, a2Base, a2Mask, colors, w, h, offset.x, offset.y);
   }
 
-  // Store ONLY the complete, definitive composition under the definitive key!
-  recoloredCanvasCache.set(key, targetCanvas);
-  provisionalCanvasCache.delete(key);
+  // If any requested layer failed (e.g. 404 or transient), do NOT poison recoloredCanvasCache!
+  // Cache in provisionalCanvasCache so it can be re-attempted or upgraded once available.
+  const hasIncompleteLayer =
+    (effectiveMounted && urls.mountUrl && !mountImg) ||
+    (urls.addon1Base && !a1Base) ||
+    (urls.addon2Base && !a2Base);
+
+  if (hasIncompleteLayer) {
+    provisionalCanvasCache.set(key, targetCanvas);
+  } else {
+    recoloredCanvasCache.set(key, targetCanvas);
+    provisionalCanvasCache.delete(key);
+  }
   return targetCanvas;
 }

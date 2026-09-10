@@ -52,7 +52,16 @@ export async function POST(
       posX: body.posX,
       posY: body.posY,
       posZ: body.posZ,
-      outfitLookType: body.outfitLookType,
+      outfitLookType: body.outfitLookType ?? body.lookType,
+      outfit: body.outfit,
+      outfitHead: body.outfitHead ?? body.outfitColors?.head,
+      outfitBody: body.outfitBody ?? body.outfitColors?.primary ?? body.outfitColors?.body,
+      outfitLegs: body.outfitLegs ?? body.outfitColors?.secondary ?? body.outfitColors?.legs,
+      outfitFeet: body.outfitFeet ?? body.outfitColors?.detail ?? body.outfitColors?.feet,
+      outfitAddons: body.outfitAddons !== undefined ? Number(body.outfitAddons) : body.addons !== undefined ? Number(body.addons) : undefined,
+      mount: body.mount,
+      mountActive: body.mountActive !== undefined ? Boolean(body.mountActive) : body.isMounted !== undefined ? Boolean(body.isMounted) : undefined,
+      avatarId: body.avatarId,
       skills: body.skills,
       inventory: body.inventory,
       hotbar: body.hotbar,
@@ -61,14 +70,18 @@ export async function POST(
       promotion: body.promotion,
     });
 
+    const sanitizedData = JSON.parse(
+      JSON.stringify(updated, (_key, value) =>
+        typeof value === 'bigint' ? Number(value) : value
+      )
+    );
+
     return NextResponse.json({
       success: true,
-      data: {
-        ...updated,
-        experience: Number(updated.experience),
-      },
+      data: sanitizedData,
     }, { status: 200 });
   } catch (error: any) {
+    try { await request.body?.cancel?.(); } catch {}
     return NextResponse.json(
       { success: false, error: error.message || 'Erro ao salvar progresso do personagem.' },
       { status: 400 }

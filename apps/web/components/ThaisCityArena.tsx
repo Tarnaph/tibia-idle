@@ -857,7 +857,7 @@ export function ThaisCityArena({
         return `/generated/outfit-thumbs/${idLower}.png`;
       }
 
-      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number }; x?: number; y?: number }): CityActorView | null {
+      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number }; addons?: number; outfitAddons?: number; x?: number; y?: number }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) {
           view.label.text = char.name;
@@ -895,7 +895,7 @@ export function ThaisCityArena({
         if (!tex) {
           const colors = char.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
           const charGender = char.gender === 'female' ? 'female' : 'male';
-          const canvas = getRecoloredCanvasSync(char.outfit || char.vocation, charGender, 'south', 0, colors);
+          const canvas = getRecoloredCanvasSync(char.outfit || char.vocation, charGender, 'south', 0, colors, addons, char.mount, isMounted);
           if (canvas) {
             tex = Texture.from(canvas);
             tex.source.style.scaleMode = 'nearest';
@@ -1507,6 +1507,8 @@ export function ThaisCityArena({
               outfitColors: colors,
               mount: p.mount,
               mountActive: p.mountActive,
+              addons: (p as any).outfitAddons ?? (p as any).addons ?? 0,
+              outfitAddons: (p as any).outfitAddons ?? (p as any).addons ?? 0,
               x: p.x,
               y: p.y,
             });

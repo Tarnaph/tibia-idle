@@ -665,7 +665,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             const outfitKey = character.outfit || character.vocation || 'Knight';
             const charGender = character.gender === 'female' ? 'female' : 'male';
             const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-            const addons = character.addons || 0;
+            const addons = (character as any).addons ?? (character as any).outfitAddons ?? 0;
 
             const outfitSig = `${outfitKey}_${charGender}_${isMounted ? (character.mount || 'none') : 'none'}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
             if (view.lastOutfitSig !== outfitSig) {

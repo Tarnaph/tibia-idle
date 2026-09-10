@@ -1113,6 +1113,10 @@ function GamePrototypeContent() {
       999: 'Sire',
     };
 
+    userChar.addons = (charItem as any).outfitAddons ?? (charItem as any).addons ?? 0;
+    userChar.mount = (charItem as any).mount ?? 'none';
+    userChar.mountActive = Boolean((charItem as any).mountActive);
+
     userChar.outfit =
       (charItem as any).outfit ||
       (charLookType && LOOKTYPE_NAME_MAP[charLookType]) ||
@@ -1141,6 +1145,7 @@ function GamePrototypeContent() {
         outfit: userChar.outfit,
         outfitLookType: charLookType || 128,
         outfitColors: userChar.outfitColors,
+        addons: userChar.addons,
         mount: userChar.mount,
         mountActive: userChar.mountActive,
       })
@@ -1267,6 +1272,14 @@ function GamePrototypeContent() {
             hotbar: activeCharacter.hotbar,
             hotbarConfigs: activeCharacter.hotbarConfigs,
             avatarId: (activeCharacter as any).avatarId ?? 1,
+            outfit: activeCharacter.outfit,
+            outfitHead: activeCharacter.outfitColors?.head,
+            outfitBody: activeCharacter.outfitColors?.primary,
+            outfitLegs: activeCharacter.outfitColors?.secondary,
+            outfitFeet: activeCharacter.outfitColors?.detail,
+            outfitAddons: (activeCharacter as any).addons ?? (activeCharacter as any).outfitAddons ?? 0,
+            mount: activeCharacter.mount,
+            mountActive: activeCharacter.mountActive,
             isDeathPenalty,
           }),
         });
@@ -1410,6 +1423,28 @@ function GamePrototypeContent() {
 
     // Broadcast outfit change to live Colyseus server so all remote players update instantly
     gameNetwork.sendChangeOutfit(customization);
+
+    // Persist permanently to database via save endpoint
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    if (token && characterId) {
+      fetch(`/api/characters/${characterId}/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          outfit: customization.outfit,
+          mount: customization.mount,
+          mountActive: customization.mountActive,
+          outfitAddons: customization.addons,
+          addons: customization.addons,
+          outfitColors: customization.outfitColors,
+        }),
+      }).catch((err) => {
+        console.warn('Falha ao salvar customização do outfit:', err);
+      });
+    }
   }, []);
 
   const handleToggleMount = useCallback((characterId: string) => {
@@ -1446,6 +1481,22 @@ function GamePrototypeContent() {
     }
 
     gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    if (token && characterId) {
+      fetch(`/api/characters/${characterId}/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          mountActive: nextMountActive,
+        }),
+      }).catch((err) => {
+        console.warn('Falha ao salvar estado de montaria:', err);
+      });
+    }
   }, []);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {

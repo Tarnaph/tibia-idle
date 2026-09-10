@@ -2115,6 +2115,23 @@ Plans:
 - [x] 122-01-PLAN: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência.
 - Resumo de entrega: `.planning/phases/phase-122-outfit-navigation-capabilities-sire-fix/122-SUMMARY.md`
 
+### Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente
+
+**Goal:** Identificar e corrigir integralmente as causas de addons invisíveis e de outfits que deixaram de aparecer, corrigindo a normalização canônica do traje Noble para `noblewoman`, eliminando a discrepância entre `outfitAddons` do Prisma e `addons` do frontend, garantindo persistência permanente de customizações no endpoint de save e na persistência autoritativa, e protegendo o cache de recolor contra poluição por falhas transitórias.
+**Depends on:** Phase 122
+**Requirements:**
+1. Mapear aliases de nobreza (`Noble`, `Nobleman`, `noble`) para o ID canônico DAT `noblewoman` em `normalizeOutfitId` e nos resolvers de capacidades e URLs.
+2. Unificar a ponte de dados entre `outfitAddons` do Prisma e `addons` do modelo de domínio na API `/api/characters`, em `GamePrototype.tsx`, `PixiArena.tsx` e `ThaisCityArena.tsx`.
+3. Estender `saveCharacterProgress` e a rota `/api/characters/[id]/save` para persistir permanentemente `outfit`, `outfitHead`, `outfitBody`, `outfitLegs`, `outfitFeet`, `outfitAddons`, `mount` e `mountActive`.
+4. Incluir campos de customização visual no autosave periódico (5s) e disparar persistência imediata ao confirmar alterações no `OutfitModal`.
+5. Prevenir envenenamento do `recoloredCanvasCache` quando camadas falharem ou estiverem incompletas, utilizando armazenamento provisório.
+6. Ajustar filtro `filterAcquired` no `OutfitModal` para respeitar status premium da conta/personagem.
+7. Criar suíte de testes Vitest dedicada (`phase123-outfit-addons-persistence-canonical-fix.test.ts`), garantir 100% de aprovação na suíte completa e 0 erros no typecheck.
+**Plans:**
+- [x] 123-01-PLAN: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente.
+- Resumo de entrega: `.planning/phases/phase-123-outfit-addons-persistence-canonical-fix/123-SUMMARY.md`
+
+
 
 
 
