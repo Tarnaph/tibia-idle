@@ -1076,35 +1076,36 @@ export function ThaisCityArena({
             const charIsMoving = isMoving;
             const charWalkFrame = charIsMoving || curWalk ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
 
+            view.sprite.scale.x = 1;
             const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
-            const mountUrl = (localChar.mount === 'donkey' || localChar.mount === 'Donkey')
-              ? '/generated/mounts/donkey_rider_south.png'
-              : `/generated/mounts/${localChar.mount}.png`;
-            if (isMounted && loaded[mountUrl]) {
-              view.sprite.texture = loaded[mountUrl];
-              view.sprite.scale.x = (charDirection === 'west' || charDirection === 'north') ? -1 : 1;
-              view.lastUrl = mountUrl;
-            } else {
-              view.sprite.scale.x = 1;
-              const outfitKey = localChar.outfit || localChar.vocation || 'Knight';
-              const colors = localChar.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-              const charGender = localChar.gender === 'female' ? 'female' : 'male';
-              const textureKey = `${outfitKey}_${charGender}_${charDirection}_${charWalkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
-              if (view.lastTextureKey !== textureKey) {
-                const canvas = getRecoloredCanvasSync(outfitKey, charGender, charDirection as any, charWalkFrame, colors);
-                if (canvas) {
-                  const tex = Texture.from(canvas);
-                  tex.source.style.scaleMode = 'nearest';
-                  view.sprite.texture = tex;
-                  view.lastTextureKey = textureKey;
-                  view.lastUrl = 'canvas';
-                } else if (!localChar.outfitColors) {
-                  const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
-                  if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
-                    view.sprite.texture = loaded[nextUrl];
-                    view.lastUrl = nextUrl;
-                    view.lastTextureKey = nextUrl;
-                  }
+            const outfitKey = localChar.outfit || localChar.vocation || 'Knight';
+            const colors = localChar.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+            const charGender = localChar.gender === 'female' ? 'female' : 'male';
+            const addons = (localChar as any).addons || (localChar as any).outfitAddons || 0;
+            const textureKey = `${outfitKey}_${charGender}_${charDirection}_${charWalkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons}_m${isMounted ? localChar.mount : 'none'}`;
+            if (view.lastTextureKey !== textureKey) {
+              const canvas = getRecoloredCanvasSync(
+                outfitKey,
+                charGender,
+                charDirection as any,
+                charWalkFrame,
+                colors,
+                addons,
+                localChar.mount,
+                isMounted
+              );
+              if (canvas) {
+                const tex = Texture.from(canvas);
+                tex.source.style.scaleMode = 'nearest';
+                view.sprite.texture = tex;
+                view.lastTextureKey = textureKey;
+                view.lastUrl = 'canvas';
+              } else if (!localChar.outfitColors && !isMounted) {
+                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
+                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                  view.sprite.texture = loaded[nextUrl];
+                  view.lastUrl = nextUrl;
+                  view.lastTextureKey = nextUrl;
                 }
               }
             }
@@ -1498,15 +1499,17 @@ export function ThaisCityArena({
             view.root.visible = (p.z ?? 7) === curPos.z;
             if (!view.root.visible) return;
 
+            const rMounted = Boolean(p.mountActive && p.mount && p.mount !== 'none');
+            const rAddons = p.outfitAddons || 0;
             const walkFrame = isMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
             const textureKey = colors
-              ? `${outfitKey}_male_${dir}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`
+              ? `${outfitKey}_male_${dir}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${rAddons}_m${rMounted ? p.mount : 'none'}`
               : `${outfitKey}_male_${dir}_${walkFrame}`;
 
             if (view.lastTextureKey !== textureKey) {
               let updated = false;
               if (colors) {
-                const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors);
+                const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted);
                 if (canvas) {
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
@@ -1515,8 +1518,8 @@ export function ThaisCityArena({
                   view.lastUrl = 'canvas';
                   updated = true;
                 } else {
-                  preloadOutfitAllFrames(outfitKey, 'male', colors).then(() => {
-                    const readyCanvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors);
+                  preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted).then(() => {
+                    const readyCanvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted);
                     if (readyCanvas && view.root && !view.root.destroyed) {
                       const tex = Texture.from(readyCanvas);
                       tex.source.style.scaleMode = 'nearest';
@@ -1527,7 +1530,7 @@ export function ThaisCityArena({
                   }).catch(() => {});
                 }
               }
-              if (!updated) {
+              if (!updated && !rMounted) {
                 const url = getOutfitFrameUrl(outfitKey, dir, walkFrame);
                 if (url && loaded[url]) {
                   view.sprite.texture = loaded[url];

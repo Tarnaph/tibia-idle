@@ -1,31 +1,45 @@
 # CORREÇÕES
 
-1 - Corrija a inconsistência de nível e experiência: meu personagem aparece nível 19, cai para 7 ao morrer e depois entra como 63.
+1 - Complete a importação de outfits, addons e montarias usando outfits.xml e mounts.xml do realmap11 e os sprites reais do cliente 10.98.
 
-Encontramos no código:
+Hoje os outfits estão limitados a listas fixas, os addons não estão integrados à extração/prévia e as montarias usam miniaturas genéricas.
 
-ThaisCityRoom calcula loadedExperience no login, mas não atribui a player.experience, que começa em zero.
+Importe todas as aparências disponíveis nesse conjunto, incluindo versões masculina/feminina, cores, addons existentes, direções e animações. Renderize o personagem corretamente sobre a montaria, sem substituir tudo por uma miniatura.
 
-Navegador e servidor salvam nível/XP por caminhos diferentes.
+Use o mesmo catálogo na seleção, na prévia, em Thais e nas caçadas. Preserve as escolhas após relogar e mostre a aparência correta aos outros jogadores. Mantenha as regras de desbloqueio existentes e informe quais entradas do servidor não possuem sprites compatíveis, sem inventar substitutos.
 
-O salvamento usa o maior nível informado, permitindo nível incompatível com a XP.
+2 - A caçada de Dragons continua com problema: às vezes entro na cave, nenhum dragon aparece e o personagem fica parado, sem andar.
 
-A morte recalcula o nível pela experiência e expõe essa diferença.
+Investigue o fluxo completo de entrada para descobrir se a simulação não iniciou, se os monstros não nasceram ou se não existe caminho válido. Confira também se a tela de carregamento terminou sem retomar o jogo e se a caçada está reaproveitando um estado antigo.
 
-Unifique a autoridade sobre o progresso, carregue a XP corretamente e impeça salvamentos antigos de sobrescrever estados recentes. Nível e experiência devem permanecer coerentes no login, durante a caça, após morrer e ao reconectar.
+Corrija a causa e teste entrar, sair e reentrar várias vezes, inclusive após morrer ou vir de outra caçada. O personagem deve conseguir andar e os dragons devem aparecer em posições acessíveis.
 
-Preserve o banco e o progresso existente. Antes de corrigir valores já inconsistentes, faça backup e identifique o progresso válido; não zere nem reduza personagens arbitrariamente.
+Preserve o mapa e a entrada 32741,31294,11. Não contorne o problema criando uma sala artificial ou teleportando o personagem para outro lugar.
 
-Valide a sequência completa de ganhar XP, morrer, sair e entrar novamente, inclusive com salvamentos simultâneos.
+3 - As poções de mana continuam falhando: às vezes o personagem não bebe mesmo quando a condição configurada é atingida. Investigue condições do slot, ativação, recarga compartilhada com poções de vida e disponibilidade da poção. O automático deve respeitar a condição salva, sem impor outro limite fixo.
 
-2 - Às vezes entro em Dragon Lair e nenhum dragon aparece. Verifique se eles não foram criados, nasceram fora da área acessível ou estão invisíveis.
+Quando uma poção for realmente consumida, sincronize:
+- Recuperação de vida/mana.
+- Texto “Aahhh...” acima da cabeça.
+- Ícone da poção usada.
+- Efeito visual no personagem correspondente à poção, conforme os scripts do realmap11 e os recursos do cliente 10.98.
 
-Dois pontos encontrados:
+Cada indicação deve aparecer uma única vez por uso, tanto no automático quanto no manual. Não confunda a animação do ícone com o efeito aplicado ao personagem.
 
-populateRespawnZone pode sortear posições no recorte inteiro sem validar caminho até o jogador.
+Teste em uma caçada prolongada, após receber loot e alternando poções de vida e mana. Preserve os ícones, requisitos e valores de recuperação já corrigidos.
 
-PixiArena reaproveita IDs ao reentrar na mesma caçada e só limpa as entidades quando muda o definitionId. Confira se monstros anteriormente ocultos continuam invisíveis.
+4 - A opção de Promotion na janela Skills deve aparecer somente quando o personagem atingir o level 20. Antes disso, mantenha-a oculta. Ao alcançar o nível necessário, ela deve aparecer automaticamente, sem precisar relogar.
 
-Corrija a causa e teste entrar, matar dragons, sair e entrar novamente várias vezes. Preserve o mapa e a coordenada de entrada; os dragons devem nascer em posições válidas e acessíveis, com a visibilidade reiniciada corretamente.
+Preserve os demais requisitos e regras da promoção.
 
-3 - Ao clicar ali no quadrado do lado de conta e nome do usuario deve abrir essa tela que mandei em anexo que é a tela do personagem ali do lado do nome voce pode deixar setas caso tenha mais personagens ativos no squad para trocar de personagem e editar, neste menu do lado esquerdo ali no quadrado ao invés de mostrar o outfit pode ser um avatar, vou disponibilizar 5 avatar depois para o player escolher qual quer usar e esse avatar vai ficar aparecendo la em cima no quadrado durante o jogo
+5 - Retire os emojis de "Você Sabia" das tela de loading, retire o emoji de loja e retire o botão caçadas que está ao lado de depot
+
+6 - Coloque aquela area que tem o avatar a escrita conta e o user mais para esquerda ao lado do logo deixe maior os icones de huntera coins e gold coins, no lugar daquele icone de estrela coloque um gold coin e no lugar do icone que esta ali nos huntera coins coloque o icone de tibia coins que tem nos arquivos do jogo 
+
+7 -Ao trocar de wand, o personagem deixou de atacar com ela. Investigue e corrija o funcionamento de todas as wands e rods disponíveis no jogo.
+
+Ao equipar uma arma válida, o ataque básico deve funcionar imediatamente, usando alcance, dano, elemento, consumo de mana, intervalo e efeitos correspondentes aos dados do realmap11 e do cliente 10.98.
+
+Respeite os requisitos de nível e vocação e informe quando faltar mana ou algum requisito impedir o ataque. A troca deve atualizar o combate sem precisar relogar ou reiniciar a caçada.
+
+Teste diferentes wands e rods, incluindo trocas durante a hunt. Preserve as magias e runas configuradas na barra.

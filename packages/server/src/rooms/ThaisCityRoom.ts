@@ -508,8 +508,19 @@ export class ThaisCityRoom extends Room<WorldState> {
         loadedLastHuntId = dbChar.lastHuntId ?? '';
         loadedAvatarId = (dbChar as any).avatarId ?? 1;
         outfitLookType = (options as any).outfitLookType ?? dbChar.outfitLookType ?? 128;
-        if (dbChar.vocationName && !(options as any).outfit) {
+        if ((dbChar as any).outfit) {
+          outfitName = (dbChar as any).outfit;
+        } else if (dbChar.vocationName && !(options as any).outfit) {
           outfitName = dbChar.vocationName;
+        }
+        if (typeof (dbChar as any).outfitAddons === 'number') {
+          outfitAddons = (dbChar as any).outfitAddons;
+        }
+        if ((dbChar as any).mount) {
+          mount = (dbChar as any).mount;
+        }
+        if (typeof (dbChar as any).mountActive === 'boolean') {
+          mountActive = (dbChar as any).mountActive;
         }
         if (typeof dbChar.outfitBody === 'number' && (dbChar.outfitBody > 0 || dbChar.outfitLegs > 0)) {
           outfitHead = dbChar.outfitHead;

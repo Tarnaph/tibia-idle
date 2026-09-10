@@ -190,7 +190,7 @@
   },
   {
     "mountId": 22,
-    "id": "rented-horse-22",
+    "id": "rented-horse",
     "clientId": 421,
     "name": "Rented Horse",
     "speedBonus": 20,

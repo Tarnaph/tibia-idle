@@ -197,17 +197,6 @@ export function BottomDock({
       {onOpenDepot && onOpenQuickSell && (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', pointerEvents: 'auto', marginBottom: '3px' }}>
           <nav className="quick-action-bar" aria-label="Ações Rápidas">
-            {onSelectHunt && (
-              <button
-                type="button"
-                className="quick-action-btn btn-hunts highlighted-gold"
-                onClick={onSelectHunt}
-                title="Abrir Seleção de Caçadas"
-                style={{ borderColor: '#f0d080', backgroundColor: 'rgba(240, 208, 128, 0.25)', color: '#fff8d0' }}
-              >
-                🎯 CAÇADAS
-              </button>
-            )}
             <button
               type="button"
               className="quick-action-btn btn-depot"

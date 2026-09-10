@@ -138,16 +138,16 @@ export function SkillsWindow({
             style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: isPromoted ? 'center' : 'space-between',
+              justifyContent: (isPromoted || character.level < 20) ? 'center' : 'space-between',
               gap: '6px',
             }}
           >
-            <div className="skills-boost-badge" style={{ flex: isPromoted ? 'initial' : 1 }}>
+            <div className="skills-boost-badge" style={{ flex: (isPromoted || character.level < 20) ? 'initial' : 1 }}>
               <span className="boost-icon">📦⚡</span>
               <span className="boost-text">XP Boost</span>
             </div>
 
-            {!isPromoted && (
+            {!isPromoted && character.level >= 20 && (
               <button
                 type="button"
                 className="skills-promote-btn"
@@ -168,7 +168,7 @@ export function SkillsWindow({
                   cursor: 'pointer',
                 }}
               >
-                📜 Promover (20k)
+                Promover (20k)
               </button>
             )}
           </div>

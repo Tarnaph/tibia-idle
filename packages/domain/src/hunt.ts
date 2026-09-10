@@ -57,7 +57,7 @@ export const initialHunts: HuntDefinition[] = [
   {
     id: 'dragon-lair', name: 'Dragon Lair', displayName: 'Profundezas Chamuscadas',
     description: 'Caverna profunda extraída de um lair real habitado por Dragons.', shortDescription: 'Um dragão antigo domina estas profundezas.',
-    recommendedLevel: 45, minimumLevel: 25, monsters: ['dragon'], rewardProfile: 'xp', status: 'available',
+    recommendedLevel: 45, minimumLevel: 1, monsters: ['dragon'], rewardProfile: 'xp', status: 'available',
     roomDefinitions: rooms('dragon-lair'), environment: { regionId: 'dragon-lair', label: 'Dragon lair', source: 'realmap11-otbm' },
     waves: waves('dragon', [1, 1, 2, 2, 2, 3, 3, 3, 4, 0], 'Dragon Lord', 1),
   },

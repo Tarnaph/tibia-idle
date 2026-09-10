@@ -1,3 +1,5 @@
+import rawOutfitsJson from '@/content/generated/outfits.json';
+
 export interface OutfitColors {
   head: number;
   primary: number;
@@ -32,9 +34,33 @@ export function parseHexColor(hex: string): [number, number, number] {
   return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
 }
 
+const CANONICAL_OUTFITS = (rawOutfitsJson as Array<{
+  id: string;
+  name: string;
+  femaleName: string;
+  maleName: string;
+  femaleLookType: number;
+  maleLookType: number;
+  premium: boolean;
+  unlocked: boolean;
+  hasAddon1?: boolean;
+  hasAddon2?: boolean;
+  hasMountRider?: boolean;
+}>) || [];
+
 export function normalizeOutfitId(outfitId: string): string {
   const idLower = (outfitId || 'Knight').toLowerCase().trim();
-  if (idLower.includes('sire')) return 'sire';
+  const clean = idLower.replace(/[^a-z0-9]+/g, '-');
+  const found = CANONICAL_OUTFITS.find(
+    (o) =>
+      o.id === clean ||
+      o.name.toLowerCase() === idLower ||
+      o.femaleName.toLowerCase() === idLower ||
+      o.maleName.toLowerCase() === idLower
+  );
+  if (found) return found.id;
+
+  // Aliases and fallbacks
   if (idLower.includes('citizen')) return 'citizen';
   if (idLower.includes('hunter')) return 'hunter';
   if (idLower.includes('mage')) return 'mage';
@@ -44,27 +70,74 @@ export function normalizeOutfitId(outfitId: string): string {
   if (idLower.includes('warrior')) return 'warrior';
   if (idLower.includes('barbarian')) return 'barbarian';
   if (idLower.includes('druid')) return 'druid';
-  if (idLower.includes('sorcerer')) return 'sorcerer';
+  if (idLower.includes('sorcerer')) return 'mage';
+  if (idLower.includes('paladin')) return 'hunter';
   if (idLower.includes('oriental')) return 'oriental';
   if (idLower.includes('pirate')) return 'pirate';
   if (idLower.includes('assassin')) return 'assassin';
   if (idLower.includes('beggar')) return 'beggar';
-  if (idLower.includes('paladin')) return 'paladin';
+  if (idLower.includes('sire')) return 'sire';
   return 'knight';
+}
+
+export function normalizeMountId(mountId: string): string {
+  const clean = (mountId || 'none').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+  return clean;
 }
 
 export function getOutfitLayerUrls(
   outfitId: string,
   gender: 'male' | 'female' = 'male',
   direction: 'south' | 'east' | 'north' | 'west' = 'south',
-  frame: number = 0
-): { base: string; mask: string } {
+  frame: number = 0,
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false
+): {
+  base: string;
+  mask: string;
+  addon1Base?: string;
+  addon1Mask?: string;
+  addon2Base?: string;
+  addon2Mask?: string;
+  mountUrl?: string;
+} {
   const norm = normalizeOutfitId(outfitId);
   const safeFrame = Math.max(0, Math.min(2, frame));
-  return {
-    base: `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-base.png`,
-    mask: `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mask.png`,
+  const posePrefix = isMounted ? 'mount' : 'f' + safeFrame;
+
+  const res: {
+    base: string;
+    mask: string;
+    addon1Base?: string;
+    addon1Mask?: string;
+    addon2Base?: string;
+    addon2Mask?: string;
+    mountUrl?: string;
+  } = {
+    base: isMounted
+      ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-base.png`
+      : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-base.png`,
+    mask: isMounted
+      ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-mask.png`
+      : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mask.png`,
   };
+
+  if ((addons & 1) !== 0) {
+    res.addon1Base = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon1-base.png`;
+    res.addon1Mask = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon1-mask.png`;
+  }
+  if ((addons & 2) !== 0) {
+    res.addon2Base = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon2-base.png`;
+    res.addon2Mask = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon2-mask.png`;
+  }
+
+  if (isMounted && mount && mount !== 'none') {
+    const normMount = normalizeMountId(mount);
+    res.mountUrl = `/generated/mounts/${normMount}-${direction}-f${safeFrame}.png`;
+  }
+
+  return res;
 }
 
 const imageElementCache = new Map<string, HTMLImageElement>();
@@ -85,7 +158,17 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
       imageElementCache.set(url, img);
       resolve(img);
     };
-    img.onerror = () => reject(new Error(`Failed to load image at ${url}`));
+    img.onerror = () => {
+      // Fallback for missing directional mount frames to south base mount
+      if (url.includes('/generated/mounts/') && url.includes('-f')) {
+        const baseMountUrl = url.replace(/-[a-z]+-f\d+\.png$/, '.png');
+        if (baseMountUrl !== url) {
+          img.src = baseMountUrl;
+          return;
+        }
+      }
+      reject(new Error(`Failed to load image at ${url}`));
+    };
     img.src = url;
   });
 }
@@ -133,13 +216,9 @@ export function recolorPixels(
       const mG = m[i + 1];
       const mB = m[i + 2];
 
-      // Red -> Head
       if (mR > 200 && mG < 50 && mB < 50) tint = headRgb;
-      // Green -> Body / Primary
       else if (mG > 200 && mR < 50 && mB < 50) tint = bodyRgb;
-      // Blue -> Legs / Secondary
       else if (mB > 200 && mR < 50 && mG < 50) tint = legsRgb;
-      // Yellow -> Feet / Detail
       else if (mR > 200 && mG > 200 && mB < 50) tint = feetRgb;
     }
 
@@ -159,66 +238,122 @@ export function recolorPixels(
   targetCtx.putImageData(outData, 0, 0);
 }
 
+// Composites recolored layer onto target
+function drawRecoloredLayer(
+  targetCtx: CanvasRenderingContext2D,
+  baseImg: HTMLImageElement,
+  maskImg: HTMLImageElement,
+  colors: OutfitColors,
+  width: number,
+  height: number
+) {
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = width;
+  offCanvas.height = height;
+  const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+
+  const maskCanvas = document.createElement('canvas');
+  maskCanvas.width = width;
+  maskCanvas.height = height;
+  const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+
+  const recoloredCanvas = document.createElement('canvas');
+  recoloredCanvas.width = width;
+  recoloredCanvas.height = height;
+  const recolorCtx = recoloredCanvas.getContext('2d');
+
+  if (!baseCtx || !maskCtx || !recolorCtx) return;
+
+  baseCtx.drawImage(baseImg, 0, 0);
+  maskCtx.drawImage(maskImg, 0, 0);
+  recolorPixels(baseCtx, maskCtx, recolorCtx, width, height, colors);
+
+  targetCtx.drawImage(recoloredCanvas, 0, 0);
+}
+
 export async function renderRecoloredOutfit(
   targetCanvas: HTMLCanvasElement,
   outfitId: string,
-  gender: 'male' | 'female',
-  direction: 'south' | 'east' | 'north' | 'west',
-  frame: number,
-  colors: OutfitColors
+  gender: 'male' | 'female' = 'male',
+  direction: 'south' | 'east' | 'north' | 'west' = 'south',
+  frame: number = 0,
+  colors: OutfitColors,
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false
 ): Promise<void> {
   if (typeof window === 'undefined') return;
 
-  const { base, mask } = getOutfitLayerUrls(outfitId, gender, direction, frame);
+  const w = 64;
+  const h = 64;
+  targetCanvas.width = w;
+  targetCanvas.height = h;
+  const targetCtx = targetCanvas.getContext('2d');
+  if (!targetCtx) return;
+  targetCtx.clearRect(0, 0, w, h);
+
+  const urls = getOutfitLayerUrls(outfitId, gender, direction, frame, addons, mount, isMounted);
+
+  // 1. If mounted, load and draw mount underneath
+  if (isMounted && urls.mountUrl) {
+    try {
+      const mountImg = await loadImage(urls.mountUrl);
+      targetCtx.drawImage(mountImg, 0, 0);
+    } catch {
+      // ignore
+    }
+  }
+
+  // 2. Load rider/base layer
   try {
-    const [baseImg, maskImg] = await Promise.all([loadImage(base), loadImage(mask)]);
-    const w = baseImg.width || 64;
-    const h = baseImg.height || 64;
-
-    targetCanvas.width = w;
-    targetCanvas.height = h;
-
-    const offCanvas = document.createElement('canvas');
-    offCanvas.width = w;
-    offCanvas.height = h;
-    const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
-
-    const maskCanvas = document.createElement('canvas');
-    maskCanvas.width = w;
-    maskCanvas.height = h;
-    const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
-
-    const targetCtx = targetCanvas.getContext('2d');
-    if (!baseCtx || !maskCtx || !targetCtx) return;
-
-    baseCtx.drawImage(baseImg, 0, 0);
-    maskCtx.drawImage(maskImg, 0, 0);
-
-    recolorPixels(baseCtx, maskCtx, targetCtx, w, h, colors);
+    let baseImg: HTMLImageElement;
+    let maskImg: HTMLImageElement;
+    try {
+      [baseImg, maskImg] = await Promise.all([loadImage(urls.base), loadImage(urls.mask)]);
+    } catch {
+      // If mount pose doesn't exist, fallback to regular base
+      const norm = normalizeOutfitId(outfitId);
+      const safeFrame = Math.max(0, Math.min(2, frame));
+      const fbBase = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-base.png`;
+      const fbMask = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mask.png`;
+      [baseImg, maskImg] = await Promise.all([loadImage(fbBase), loadImage(fbMask)]);
+    }
+    drawRecoloredLayer(targetCtx, baseImg, maskImg, colors, w, h);
   } catch {
-    // Fallback: draw base image directly
-    const ctx = targetCanvas.getContext('2d');
-    if (ctx) {
-      try {
-        const fallback = await loadImage(base);
-        targetCanvas.width = fallback.width || 64;
-        targetCanvas.height = fallback.height || 64;
-        ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
-        ctx.drawImage(fallback, 0, 0);
-      } catch {
-        // ignore
-      }
+    // ignore
+  }
+
+  // 3. Addon 1
+  if (urls.addon1Base && urls.addon1Mask) {
+    try {
+      const [a1Base, a1Mask] = await Promise.all([loadImage(urls.addon1Base), loadImage(urls.addon1Mask)]);
+      drawRecoloredLayer(targetCtx, a1Base, a1Mask, colors, w, h);
+    } catch {
+      // ignore
+    }
+  }
+
+  // 4. Addon 2
+  if (urls.addon2Base && urls.addon2Mask) {
+    try {
+      const [a2Base, a2Mask] = await Promise.all([loadImage(urls.addon2Base), loadImage(urls.addon2Mask)]);
+      drawRecoloredLayer(targetCtx, a2Base, a2Mask, colors, w, h);
+    } catch {
+      // ignore
     }
   }
 }
 
-// In-memory cache for recolored canvas textures (e.g. for PixiJS and game loop)
+// In-memory cache for recolored canvas textures
 const recoloredCanvasCache = new Map<string, HTMLCanvasElement>();
 
 export async function preloadOutfitAllFrames(
   outfitId: string,
   gender: 'male' | 'female' = 'male',
-  colors?: OutfitColors
+  colors?: OutfitColors,
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false
 ): Promise<void> {
   if (typeof window === 'undefined') return;
   const norm = normalizeOutfitId(outfitId);
@@ -228,9 +363,14 @@ export async function preloadOutfitAllFrames(
   const loadPromises: Promise<HTMLImageElement>[] = [];
   for (const dir of directions) {
     for (const f of frames) {
-      const { base, mask } = getOutfitLayerUrls(norm, gender, dir, f);
-      loadPromises.push(loadImage(base));
-      loadPromises.push(loadImage(mask));
+      const urls = getOutfitLayerUrls(norm, gender, dir, f, addons, mount, isMounted);
+      loadPromises.push(loadImage(urls.base).catch(() => null as any));
+      loadPromises.push(loadImage(urls.mask).catch(() => null as any));
+      if (urls.addon1Base) loadPromises.push(loadImage(urls.addon1Base).catch(() => null as any));
+      if (urls.addon1Mask) loadPromises.push(loadImage(urls.addon1Mask).catch(() => null as any));
+      if (urls.addon2Base) loadPromises.push(loadImage(urls.addon2Base).catch(() => null as any));
+      if (urls.addon2Mask) loadPromises.push(loadImage(urls.addon2Mask).catch(() => null as any));
+      if (urls.mountUrl) loadPromises.push(loadImage(urls.mountUrl).catch(() => null as any));
     }
   }
 
@@ -239,7 +379,7 @@ export async function preloadOutfitAllFrames(
   if (colors) {
     for (const dir of directions) {
       for (const f of frames) {
-        getRecoloredCanvasSync(norm, gender, dir, f, colors);
+        getRecoloredCanvasSync(norm, gender, dir, f, colors, addons, mount, isMounted);
       }
     }
   }
@@ -247,62 +387,93 @@ export async function preloadOutfitAllFrames(
 
 export function getRecoloredCanvasSync(
   outfitId: string,
-  gender: 'male' | 'female',
-  direction: 'south' | 'east' | 'north' | 'west',
-  frame: number,
-  colors: OutfitColors
+  gender: 'male' | 'female' = 'male',
+  direction: 'south' | 'east' | 'north' | 'west' = 'south',
+  frame: number = 0,
+  colors: OutfitColors = { head: 0, primary: 86, secondary: 114, detail: 76 },
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false
 ): HTMLCanvasElement | null {
   const norm = normalizeOutfitId(outfitId);
-  const key = `${norm}_${gender}_${direction}_${frame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+  const key = `${norm}_${gender}_${direction}_${frame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons || 0}_m${isMounted ? (mount || 'default') : 'none'}`;
   const existing = recoloredCanvasCache.get(key);
   if (existing) return existing;
 
-  const { base, mask } = getOutfitLayerUrls(norm, gender, direction, frame);
-  const baseImg = imageElementCache.get(base);
-  const maskImg = imageElementCache.get(mask);
+  const urls = getOutfitLayerUrls(norm, gender, direction, frame, addons, mount, isMounted);
+  let baseImg = imageElementCache.get(urls.base);
+  let maskImg = imageElementCache.get(urls.mask);
+
+  if (!baseImg || !baseImg.complete) {
+    // Fallback if mounted pose is not cached: try regular base
+    const fbBase = `/generated/outfits/${norm}-${gender}-${direction}-f${frame}-base.png`;
+    const fbMask = `/generated/outfits/${norm}-${gender}-${direction}-f${frame}-mask.png`;
+    baseImg = imageElementCache.get(fbBase);
+    maskImg = imageElementCache.get(fbMask);
+  }
 
   if (!baseImg || !baseImg.complete || !maskImg || !maskImg.complete) {
-    // Pre-trigger async load for upcoming frames
-    loadImage(base).catch(() => {});
-    loadImage(mask).catch(() => {});
+    // Trigger async load
+    loadImage(urls.base).catch(() => {});
+    loadImage(urls.mask).catch(() => {});
+    if (urls.mountUrl) loadImage(urls.mountUrl).catch(() => {});
 
-    // Fallback: If walk frame is not loaded yet, return frame 0 or standing frame with identical colors
-    // to PREVENT reverting to uncolored base outfit frames while walking
-    const dirFallbackKey = `${norm}_${gender}_${direction}_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+    // Fallback standing frame with identical colors
+    const dirFallbackKey = `${norm}_${gender}_${direction}_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a0_mnone`;
     const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
     if (dirFallback) return dirFallback;
 
-    const southFallbackKey = `${norm}_${gender}_south_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+    const southFallbackKey = `${norm}_${gender}_south_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a0_mnone`;
     const southFallback = recoloredCanvasCache.get(southFallbackKey);
     if (southFallback) return southFallback;
-
     return null;
   }
 
-  const w = baseImg.width || 64;
-  const h = baseImg.height || 64;
-
+  const w = 64;
+  const h = 64;
   const targetCanvas = document.createElement('canvas');
   targetCanvas.width = w;
   targetCanvas.height = h;
-
-  const offCanvas = document.createElement('canvas');
-  offCanvas.width = w;
-  offCanvas.height = h;
-  const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
-
-  const maskCanvas = document.createElement('canvas');
-  maskCanvas.width = w;
-  maskCanvas.height = h;
-  const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
-
   const targetCtx = targetCanvas.getContext('2d');
-  if (!baseCtx || !maskCtx || !targetCtx) return null;
+  if (!targetCtx) return null;
 
-  baseCtx.drawImage(baseImg, 0, 0);
-  maskCtx.drawImage(maskImg, 0, 0);
+  // 1. Draw mount underneath if mounted
+  if (isMounted && urls.mountUrl) {
+    const mountImg = imageElementCache.get(urls.mountUrl);
+    if (mountImg && mountImg.complete) {
+      targetCtx.drawImage(mountImg, 0, 0);
+    } else {
+      loadImage(urls.mountUrl).catch(() => {});
+    }
+  }
 
-  recolorPixels(baseCtx, maskCtx, targetCtx, w, h, colors);
+  // 2. Draw rider / base
+  drawRecoloredLayer(targetCtx, baseImg, maskImg, colors, w, h);
+
+  // 3. Draw Addon 1
+  if (urls.addon1Base && urls.addon1Mask) {
+    const a1Base = imageElementCache.get(urls.addon1Base);
+    const a1Mask = imageElementCache.get(urls.addon1Mask);
+    if (a1Base && a1Base.complete && a1Mask && a1Mask.complete) {
+      drawRecoloredLayer(targetCtx, a1Base, a1Mask, colors, w, h);
+    } else {
+      loadImage(urls.addon1Base).catch(() => {});
+      loadImage(urls.addon1Mask).catch(() => {});
+    }
+  }
+
+  // 4. Draw Addon 2
+  if (urls.addon2Base && urls.addon2Mask) {
+    const a2Base = imageElementCache.get(urls.addon2Base);
+    const a2Mask = imageElementCache.get(urls.addon2Mask);
+    if (a2Base && a2Base.complete && a2Mask && a2Mask.complete) {
+      drawRecoloredLayer(targetCtx, a2Base, a2Mask, colors, w, h);
+    } else {
+      loadImage(urls.addon2Base).catch(() => {});
+      loadImage(urls.addon2Mask).catch(() => {});
+    }
+  }
+
   recoloredCanvasCache.set(key, targetCanvas);
   return targetCanvas;
 }

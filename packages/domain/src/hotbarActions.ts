@@ -642,7 +642,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 1,
     vocations: ALL_VOCATIONS,
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 63,
     healMax: 88,
     description: 'Bebe sozinha quando a regra dela passa.',
@@ -655,7 +655,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 1,
     vocations: ALL_VOCATIONS,
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 150,
     healMax: 200,
     description: 'Poção básica que recupera entre 150 e 200 de vida (HP).',
@@ -668,7 +668,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 50,
     vocations: ['Knight', 'Elite Knight', 'Paladin', 'Royal Paladin'],
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 300,
     healMax: 400,
     description: 'Poção aprimorada que recupera entre 300 e 400 de vida (HP).',
@@ -681,7 +681,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 80,
     vocations: ['Knight', 'Elite Knight'],
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 500,
     healMax: 700,
     description: 'Poção robusta exclusiva para cavaleiros que recupera 500 a 700 HP.',
@@ -694,7 +694,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 130,
     vocations: ['Knight', 'Elite Knight'],
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 800,
     healMax: 1000,
     description: 'Elixir supremo que recupera 800 a 1000 HP instantaneamente.',
@@ -746,7 +746,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 80,
     vocations: ['Paladin', 'Royal Paladin'],
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 200,
     healMax: 400,
     manaMin: 100,
@@ -761,7 +761,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 200,
     vocations: ['Knight', 'Elite Knight'],
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 900,
     healMax: 1200,
     description: 'A poção de cura mais poderosa do Tibia 11, recupera 900 a 1200 HP.',
@@ -787,7 +787,7 @@ export const HOTBAR_POTIONS: HotbarPotionDefinition[] = [
     requiredLevel: 130,
     vocations: ['Paladin', 'Royal Paladin'],
     cooldownMs: 1000,
-    effectId: 15,
+    effectId: 13,
     healMin: 400,
     healMax: 500,
     manaMin: 350,
@@ -903,8 +903,8 @@ export function ensureHealthPotionInHotbar(character: CharacterState, content: G
     assignedIndex = character.hotbar.length;
     character.hotbar.push(bestPotion.id);
   } else {
-    assignedIndex = 0;
-    character.hotbar[0] = bestPotion.id;
+    // If player has customized all 20 hotbar slots, do not destructively overwrite slot 0
+    return undefined;
   }
 
   if (assignedIndex >= 0) {

@@ -259,7 +259,6 @@ export function ExuraLoadingScreen({
                 marginBottom: '0.45rem',
               }}
             >
-              <span style={{ fontSize: '0.8rem' }}>📜</span>
               <span
                 style={{
                   fontFamily: 'serif',

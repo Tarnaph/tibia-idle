@@ -1,6 +1,7 @@
 import type { EquipmentDefinition, VocationDefinition } from '../../content-schema/src';
 import type { CharacterSkills, CharacterState, TrainableSkill } from './types';
 import { findEquipment } from './equipment';
+import { findWandDefinition } from './wands';
 
 export interface SkillTooltipInfo {
   name: string;
@@ -56,12 +57,16 @@ function activeWeapon(items: EquipmentDefinition[]): EquipmentDefinition | undef
   return items.find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
 }
 
-function skillForWeapon(character: CharacterState, weapon: EquipmentDefinition | undefined): TrainableSkill {
+export function skillForWeapon(character: CharacterState, weapon: EquipmentDefinition | undefined): TrainableSkill {
+  if (weapon) {
+    const wandDef = findWandDefinition(weapon.id);
+    if (wandDef || weapon.weaponType === 'wand') return 'magicLevel';
+  }
   if (weapon?.weaponType === 'sword') return 'sword';
   if (weapon?.weaponType === 'axe') return 'axe';
   if (weapon?.weaponType === 'club') return 'club';
   if (weapon?.weaponType === 'distance') return 'distance';
-  if (weapon?.weaponType === 'wand' || character.baseVocation === 'Sorcerer' || character.baseVocation === 'Druid') return 'magicLevel';
+  if (character.baseVocation === 'Sorcerer' || character.baseVocation === 'Druid') return 'magicLevel';
   return 'fist';
 }
 
@@ -73,22 +78,28 @@ export function deriveStats(
   const items = getEquippedItems(character, catalog);
   const skills = effectiveSkills(character, items);
   const weapon = activeWeapon(items);
+  const wandDef = weapon ? findWandDefinition(weapon.id) : undefined;
+  const isWand = Boolean(wandDef || weapon?.weaponType === 'wand');
   const shield = items
     .filter((item) => item.weaponType === 'shield')
     .sort((left, right) => right.defense - left.defense)[0];
   const activeSkill = skillForWeapon(character, weapon);
   const activeSkillLevel = skills[activeSkill];
-  const weaponAttack = weapon?.weaponType === 'wand'
+  const weaponAttack = wandDef
+    ? Math.max(wandDef.max, 13)
+    : isWand
     ? Math.max(13, weapon?.attack || 13)
     : weapon?.attack ?? 7;
   const attackFactor = 1;
 
-  const baseMaxDamage = Math.round(
-    character.level / 5 + ((((activeSkillLevel / 4) + 1) * (weaponAttack / 3)) * 1.03) / attackFactor,
-  );
+  const baseMaxDamage = isWand
+    ? Math.round((wandDef?.max ?? 18) + (activeSkillLevel * 0.6) + (character.level / 5))
+    : Math.round(
+        character.level / 5 + ((((activeSkillLevel / 4) + 1) * (weaponAttack / 3)) * 1.03) / attackFactor,
+      );
   const damageMultiplier = weapon?.weaponType === 'distance'
     ? vocation.distanceDamageMultiplier
-    : weapon?.weaponType === 'wand'
+    : isWand
     ? 1.0
     : vocation.meleeDamageMultiplier;
   const attack = Math.trunc(baseMaxDamage * damageMultiplier);

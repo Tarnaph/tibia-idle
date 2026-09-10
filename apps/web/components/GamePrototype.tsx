@@ -1759,6 +1759,7 @@ function GamePrototypeContent() {
   startSelectedHuntRef.current = startSelectedHunt;
 
   const exitHunt = () => {
+    pendingHuntTransitionRef.current = null;
     followSuppressedUntilRef.current = Date.now() + 10500;
     const party = multiplayerPartyRef.current;
     if (party && party.leaderSessionId === gameNetwork.LocalPlayerId) {

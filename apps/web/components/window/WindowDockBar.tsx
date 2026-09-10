@@ -108,43 +108,55 @@ export function WindowDockBar({
 
   return (
     <header className="huntera-top-bar" aria-label="Barra de Navegação Huntera">
-      {/* Brand Logo */}
-      <div className="huntera-logo-wrap" title="Huntera / Exura Online">
-        <img src="/logo.png" alt="Huntera Logo" className="huntera-logo-img" />
-      </div>
-
-      {/* Account Profile Card */}
-      <div
-        className="huntera-profile-card"
-        title="Conta Conectada — Clique para abrir o Perfil do Personagem"
-        onClick={onOpenProfile}
-        style={{ cursor: onOpenProfile ? 'pointer' : 'default' }}
-      >
-        <div className="huntera-avatar-box" title="Avatar do Personagem">
-          <img
-            src={`/images/avatars/avatar-${avatarId || 1}.svg`}
-            alt={`Avatar ${avatarId || 1}`}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '2px' }}
-          />
+      {/* Left Cluster: Brand Logo & Account Profile Card */}
+      <div className="huntera-left-cluster" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="huntera-logo-wrap" title="Huntera / Exura Online">
+          <img src="/logo.png" alt="Huntera Logo" className="huntera-logo-img" />
         </div>
-        <div className="huntera-profile-info">
-          <span className="huntera-account-tag">CONTA</span>
-          <strong className="huntera-account-username">
-            {accountUsername.toUpperCase()}
-          </strong>
+
+        {/* Account Profile Card */}
+        <div
+          className="huntera-profile-card"
+          title="Conta Conectada — Clique para abrir o Perfil do Personagem"
+          onClick={onOpenProfile}
+          style={{ cursor: onOpenProfile ? 'pointer' : 'default' }}
+        >
+          <div className="huntera-avatar-box" title="Avatar do Personagem">
+            <img
+              src={`/images/avatars/avatar-${avatarId || 1}.svg`}
+              alt={`Avatar ${avatarId || 1}`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '2px' }}
+            />
+          </div>
+          <div className="huntera-profile-info">
+            <span className="huntera-account-tag">CONTA</span>
+            <strong className="huntera-account-username">
+              {accountUsername.toUpperCase()}
+            </strong>
+          </div>
         </div>
       </div>
 
       {/* Currency Badges */}
       <div className="huntera-currency-group">
         <div className="huntera-badge coins-badge" title="Huntera Coins">
-          <span className="coin-icon">🪙</span>
+          <img
+            src="/images/tibia-coin.png"
+            alt="Huntera Coins"
+            className="huntera-coin-img"
+            style={{ width: '22px', height: '22px', imageRendering: 'pixelated', objectFit: 'contain' }}
+          />
           <span className="badge-value">0</span>
           <button type="button" className="badge-plus-btn" title="Comprar Coins">+</button>
         </div>
 
         <div className="huntera-badge gold-badge" title="Gold Coins no inventário/banco">
-          <span className="gold-icon">✨</span>
+          <img
+            src="/images/gold-coin.png"
+            alt="Gold Coins"
+            className="huntera-gold-img"
+            style={{ width: '22px', height: '22px', imageRendering: 'pixelated', objectFit: 'contain' }}
+          />
           <span className="badge-value">{gold.toLocaleString('pt-BR')}</span>
         </div>
       </div>
@@ -159,7 +171,11 @@ export function WindowDockBar({
         }}
         title="Abrir Loja de Itens da Cidade"
       >
-        <span className="shop-icon">🏯</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
+        </svg>
         <span className="shop-label">Loja</span>
       </button>
 

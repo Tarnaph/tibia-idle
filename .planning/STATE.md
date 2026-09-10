@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-09T21:00:00.000Z"
-last_activity: "2026-09-09 — Conclusão da Phase 114: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop (Arrastar e Soltar Slots F1 a F12)."
+last_updated: "2026-09-09T22:45:00.000Z"
+last_activity: "2026-09-09 — Conclusão da Phase 115: Auditoria Completa e Resolução Integral de FIX.md."
 progress:
-  total_phases: 114
-  completed_phases: 114
-  total_plans: 114
-  completed_plans: 114
+  total_phases: 115
+  completed_phases: 115
+  total_plans: 115
+  completed_plans: 115
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 114 concluída com sucesso. Implementado sistema nativo de drag-and-drop para os slots de ação da hotbar (F1 a F12 e 1 a 0), permitindo troca rápida (swap) de magias, runas e poções entre slots ocupados ou movimentação para slots vazios com preservação de condições de auto-uso e sincronização persistente imediata no Prisma DB.
+**Current focus:** Phase 115 Concluída. Resolução integral dos 7 itens de `FIX.md`: catálogo autoritativo de outfits/addons/mounts de realmap11 e cliente 10.98; resolução do spawn e movimentação no Dragon Lair em (32741,31294,11); confiabilidade do auto-uso e sincronização de efeitos de poções de mana/vida; trava de level 20 na janela de Skills para promoção; remoção de emojis e botão redundante de caçadas; reposicionamento do painel de conta/avatar e ícones nítidos de moedas (Tibia Coins / Gold); e ataque autoritativo com wands/rods em tempo real.
 
 ## Current Position
 
-Phase: 114 of 114 (Concluída)  
+Phase: 115 of 115 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 114.
+Last activity: 2026-09-09 — Conclusão da Phase 115.
 
 Progress: [██████████] 100%
 

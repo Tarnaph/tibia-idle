@@ -52,7 +52,14 @@ export function TopNavigation({
         <button type="button" className="nav-shortcut active"><span>⌖</span><small>Hunt</small></button>
         <button type="button" className="nav-shortcut" onClick={onEquipment}><span>♜</span><small>Character</small></button>
         <button type="button" className="nav-shortcut" onClick={onOpenFriends} title="Lista de Amigos (Buscar, Mensagens, Party)"><span>⭐</span><small>Amigos</small></button>
-        <button type="button" className="nav-shortcut shop-btn" onClick={onOpenShop} title="Abrir Loja de Itens (NPC Store)"><span>🛍️</span><small>Loja</small></button>
+        <button type="button" className="nav-shortcut shop-btn" onClick={onOpenShop} title="Abrir Loja de Itens (NPC Store)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          <small>Loja</small>
+        </button>
         {futureNavigation.map((label) => (
           <button type="button" className="nav-shortcut future" key={label} disabled title="Em breve">
             <span>◇</span><small>{label}</small>

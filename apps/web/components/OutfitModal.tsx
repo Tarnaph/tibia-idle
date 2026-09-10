@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { CharacterState } from '@/packages/domain/src/types';
+import rawOutfitsJson from '@/content/generated/outfits.json';
 import rawMountsJson from '@/content/generated/mounts.json';
 import {
   TIBIA_133_COLORS,
@@ -28,7 +29,7 @@ export interface MountOption {
   isPremium?: boolean;
 }
 
-export const AVAILABLE_OUTFITS: OutfitOption[] = [
+export const CLASSIC_OUTFITS: OutfitOption[] = [
   { id: 'Citizen', name: 'Citizen', description: 'Vestimenta padrão dos habitantes de Thais e Carlin.' },
   { id: 'Hunter', name: 'Hunter', description: 'Traje de sobrevivência e rastreamento florestal.' },
   { id: 'Mage', name: 'Mage', description: 'Toga cerimonial tradicional dos mestres da magia.' },
@@ -46,6 +47,29 @@ export const AVAILABLE_OUTFITS: OutfitOption[] = [
   { id: 'Assassin', name: 'Assassin', description: 'Vestimenta de mestre assassino das sombras.', isPremium: true },
   { id: 'Beggar', name: 'Beggar', description: 'Vestimenta humilde de andarilho aventureiro.', isPremium: true },
 ];
+
+const EXTRA_OUTFITS: OutfitOption[] = (rawOutfitsJson as Array<{
+  id: string;
+  name: string;
+  femaleName: string;
+  maleName: string;
+  premium: boolean;
+  unlocked: boolean;
+}>)
+  .filter((o) => {
+    const norm = o.name.toLowerCase();
+    return !CLASSIC_OUTFITS.some(
+      (c) => c.name.toLowerCase() === norm || c.id.toLowerCase() === norm || (norm === 'nobleman' && c.name.toLowerCase() === 'noble')
+    );
+  })
+  .map((o) => ({
+    id: o.name,
+    name: o.name,
+    description: `Vestimenta oficial de Tibia: ${o.name}.`,
+    isPremium: o.premium,
+  }));
+
+export const AVAILABLE_OUTFITS: OutfitOption[] = [...CLASSIC_OUTFITS, ...EXTRA_OUTFITS];
 
 const PARSED_MOUNTS: MountOption[] = (rawMountsJson as Array<{
   id: string;
@@ -144,22 +168,27 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
   const isMounted = mountActive && selectedMount !== 'none';
   const currentDir = DIRECTIONS[directionIdx];
 
-  // Live recolor preview on canvas whenever outfit, direction or colors change
+  // Live recolor preview on canvas whenever outfit, direction, colors, addons, or mount change
   useEffect(() => {
     if (!open) return;
-    if (isMounted) return;
 
     if (previewCanvasRef.current) {
+      let addonsVal = 0;
+      if (addon1) addonsVal |= 1;
+      if (addon2) addonsVal |= 2;
       renderRecoloredOutfit(
         previewCanvasRef.current,
         selectedOutfit,
         charGender,
         currentDir,
         0,
-        colors
+        colors,
+        addonsVal,
+        selectedMount,
+        isMounted
       );
     }
-  }, [open, selectedOutfit, charGender, currentDir, colors, isMounted]);
+  }, [open, selectedOutfit, charGender, currentDir, colors, isMounted, addon1, addon2, selectedMount]);
 
   if (!open) return null;
 
@@ -187,9 +216,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
 
   // Resolve thumbnail for mount cards
   const getMountThumbUrl = (mountId: string): string => {
-    if (mountId === 'donkey') {
-      return '/generated/mounts/donkey_rider_south.png';
-    }
+    if (mountId === 'none') return '';
     return `/generated/mounts/${mountId}.png`;
   };
 
@@ -197,14 +224,22 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
     let addonsVal = 0;
     if (addon1) addonsVal |= 1;
     if (addon2) addonsVal |= 2;
+    const isMnt = mountActive && selectedMount !== 'none';
     onSave(selectedCharId, {
       outfit: selectedOutfit,
       mount: selectedMount,
-      mountActive: mountActive && selectedMount !== 'none',
+      mountActive: isMnt,
       addons: addonsVal,
       outfitColors: colors,
     });
-    preloadOutfitAllFrames(selectedOutfit, activeChar.gender || 'male', colors).catch(() => {});
+    preloadOutfitAllFrames(
+      selectedOutfit,
+      activeChar.gender || 'male',
+      colors,
+      addonsVal,
+      selectedMount,
+      isMnt
+    ).catch(() => {});
     onClose();
   };
 
@@ -317,29 +352,17 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
 
             <div className="tibia-preview-box">
               <div className="tibia-preview-inner">
-                {isMounted ? (
-                  <img
-                    src={getMountThumbUrl(selectedMount)}
-                    alt="Mounted"
-                    className="tibia-preview-sprite mounted"
-                    style={{
-                      imageRendering: 'pixelated',
-                      transform: currentDir === 'west' || currentDir === 'north' ? 'scaleX(-1)' : undefined,
-                    }}
-                  />
-                ) : (
-                  <canvas
-                    ref={previewCanvasRef}
-                    width={64}
-                    height={64}
-                    className="tibia-preview-sprite on-foot"
-                    style={{
-                      imageRendering: 'pixelated',
-                      width: '64px',
-                      height: '64px',
-                    }}
-                  />
-                )}
+                <canvas
+                  ref={previewCanvasRef}
+                  width={64}
+                  height={64}
+                  className={`tibia-preview-sprite ${isMounted ? 'mounted' : 'on-foot'}`}
+                  style={{
+                    imageRendering: 'pixelated',
+                    width: '64px',
+                    height: '64px',
+                  }}
+                />
               </div>
               <button
                 type="button"

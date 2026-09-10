@@ -150994,11 +150994,73 @@
       "animDurationMs": 0,
       "importWarnings": []
     },
+    "2181": {
+      "serverId": 2181,
+      "clientId": 3065,
+      "group": 0,
+      "name": "terra rod",
+      "resolved": true,
+      "source": {
+        "serverId": 2181,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 3065,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 3,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          10921,
+          10922,
+          242316
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          10921,
+          10922,
+          242316
+        ],
+        "file": "public/generated/tibia1098/items/item-2181.png",
+        "publicUrl": "/generated/tibia1098/items/item-2181.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "2182": {
       "serverId": 2182,
       "clientId": 3066,
       "group": 0,
-      "name": "Item 2182",
+      "name": "snakebite rod",
       "resolved": true,
       "source": {
         "serverId": 2182,
@@ -151007,8 +151069,6 @@
         "spr": "Tibia 10/tibia/Tibia.spr"
       },
       "appearanceId": 3066,
-      "isGround": false,
-      "blockSolid": false,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -151052,204 +151112,224 @@
         },
         "layer": 0,
         "spriteIds": [
-          2501
+          2501,
+          242070,
+          242071,
+          242072,
+          242073,
+          242072,
+          242073,
+          242072,
+          242071,
+          242070
         ],
         "file": "public/generated/tibia1098/items/item-2182.png",
         "publicUrl": "/generated/tibia1098/items/item-2182.png",
-        "sha256": "D10795B8AC7F84DB1F35704682CC4F3C8223F0D83B542C961511E61B51903471",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
-      "frames": [
-        {
-          "frame": 0,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            2501
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-0.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-0.png",
-          "sha256": "215D77A0C1179E56943A5FD5D50AB22C5444762265DD31DC4A5EA7C44C0303F8",
-          "width": 32,
-          "height": 32
+      "importWarnings": []
+    },
+    "2183": {
+      "serverId": 2183,
+      "clientId": 3067,
+      "group": 0,
+      "name": "hailstorm rod",
+      "resolved": true,
+      "source": {
+        "serverId": 2183,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 3067,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 4,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          240198,
+          240199,
+          240200,
+          240201
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
         },
-        {
-          "frame": 1,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242070
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-1.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-1.png",
-          "sha256": "F641790D909F007AF39D7C3F8296D25F6233389205C939477A534BB9FAB69CFB",
-          "width": 32,
-          "height": 32
+        "layer": 0,
+        "spriteIds": [
+          240198,
+          240199,
+          240200,
+          240201
+        ],
+        "file": "public/generated/tibia1098/items/item-2183.png",
+        "publicUrl": "/generated/tibia1098/items/item-2183.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "2185": {
+      "serverId": 2185,
+      "clientId": 3069,
+      "group": 0,
+      "name": "necrotic rod",
+      "resolved": true,
+      "source": {
+        "serverId": 2185,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 3069,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 3,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          10883,
+          241613,
+          241614
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
         },
-        {
-          "frame": 2,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242071
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-2.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-2.png",
-          "sha256": "B9357019402F07B0E02CA349B05EA7BE0448412F2D8B7A65AD13B25404A107BB",
-          "width": 32,
-          "height": 32
+        "layer": 0,
+        "spriteIds": [
+          10883,
+          241613,
+          241614
+        ],
+        "file": "public/generated/tibia1098/items/item-2185.png",
+        "publicUrl": "/generated/tibia1098/items/item-2185.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "2186": {
+      "serverId": 2186,
+      "clientId": 3070,
+      "group": 0,
+      "name": "moonlight rod",
+      "resolved": true,
+      "source": {
+        "serverId": 2186,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 3070,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 6,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          240670,
+          240671,
+          240672,
+          240673,
+          240672,
+          240671
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
         },
-        {
-          "frame": 3,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242072
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-3.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-3.png",
-          "sha256": "CC216DD1B2F8069D1F6DCDC48D3BA04315604BE1CCC912DEBAA04693E6B117D5",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 4,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242073
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-4.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-4.png",
-          "sha256": "E038B330021DCBD7D9110BEECD29B2A70EAE47F94D2D7E15C23797B670FC7754",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 5,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242072
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-5.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-5.png",
-          "sha256": "CC216DD1B2F8069D1F6DCDC48D3BA04315604BE1CCC912DEBAA04693E6B117D5",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 6,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242073
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-6.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-6.png",
-          "sha256": "E038B330021DCBD7D9110BEECD29B2A70EAE47F94D2D7E15C23797B670FC7754",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 7,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242072
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-7.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-7.png",
-          "sha256": "CC216DD1B2F8069D1F6DCDC48D3BA04315604BE1CCC912DEBAA04693E6B117D5",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 8,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242071
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-8.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-8.png",
-          "sha256": "B9357019402F07B0E02CA349B05EA7BE0448412F2D8B7A65AD13B25404A107BB",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 9,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242070
-          ],
-          "file": "public/generated/tibia1098/items/item-2182-frame-9.png",
-          "publicUrl": "/generated/tibia1098/items/item-2182-frame-9.png",
-          "sha256": "F641790D909F007AF39D7C3F8296D25F6233389205C939477A534BB9FAB69CFB",
-          "width": 32,
-          "height": 32
-        }
-      ],
-      "animDurationMs": 200,
+        "layer": 0,
+        "spriteIds": [
+          240670,
+          240671,
+          240672,
+          240673,
+          240672,
+          240671
+        ],
+        "file": "public/generated/tibia1098/items/item-2186.png",
+        "publicUrl": "/generated/tibia1098/items/item-2186.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
       "importWarnings": []
     },
     "2187": {
       "serverId": 2187,
       "clientId": 3071,
       "group": 0,
-      "name": "Item 2187",
+      "name": "wand of inferno",
       "resolved": true,
       "source": {
         "serverId": 2187,
@@ -151258,8 +151338,6 @@
         "spr": "Tibia 10/tibia/Tibia.spr"
       },
       "appearanceId": 3071,
-      "isGround": false,
-      "blockSolid": false,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -151297,78 +151375,171 @@
         },
         "layer": 0,
         "spriteIds": [
-          10932
+          10932,
+          10933,
+          10934
         ],
         "file": "public/generated/tibia1098/items/item-2187.png",
         "publicUrl": "/generated/tibia1098/items/item-2187.png",
-        "sha256": "C898559DEDD195B6B5A886F99C2ABA38E8D47D8AD86BCF8D1ECD8CD61F2CB74D",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
-      "frames": [
-        {
-          "frame": 0,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            10932
-          ],
-          "file": "public/generated/tibia1098/items/item-2187-frame-0.png",
-          "publicUrl": "/generated/tibia1098/items/item-2187-frame-0.png",
-          "sha256": "44D70C59009AB463805718208AD0CB52567AE2DF2482B4ED717DC667E4839F17",
-          "width": 32,
-          "height": 32
+      "importWarnings": []
+    },
+    "2188": {
+      "serverId": 2188,
+      "clientId": 3072,
+      "group": 0,
+      "name": "wand of decay",
+      "resolved": true,
+      "source": {
+        "serverId": 2188,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 3072,
+      "appearance": {
+        "width": 1,
+        "height": 2,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 7,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          242407,
+          0,
+          242408,
+          242409,
+          242410,
+          0,
+          242411,
+          0,
+          242412,
+          0,
+          242413,
+          0,
+          242414,
+          0
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
         },
-        {
-          "frame": 1,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            10933
-          ],
-          "file": "public/generated/tibia1098/items/item-2187-frame-1.png",
-          "publicUrl": "/generated/tibia1098/items/item-2187-frame-1.png",
-          "sha256": "6CA19A3D53448BA94F810B9103D6C9BE5D2B1B5639EA1101ACFF06CA83661398",
-          "width": 32,
-          "height": 32
+        "layer": 0,
+        "spriteIds": [
+          242407,
+          0,
+          242408,
+          242409,
+          242410,
+          0,
+          242411,
+          0,
+          242412,
+          0,
+          242413,
+          0,
+          242414,
+          0
+        ],
+        "file": "public/generated/tibia1098/items/item-2188.png",
+        "publicUrl": "/generated/tibia1098/items/item-2188.png",
+        "sha256": "",
+        "width": 32,
+        "height": 64
+      },
+      "importWarnings": []
+    },
+    "2189": {
+      "serverId": 2189,
+      "clientId": 3073,
+      "group": 0,
+      "name": "wand of cosmic energy",
+      "resolved": true,
+      "source": {
+        "serverId": 2189,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 3073,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 4,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          242404,
+          10931,
+          242405,
+          242406
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
         },
-        {
-          "frame": 2,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            10934
-          ],
-          "file": "public/generated/tibia1098/items/item-2187-frame-2.png",
-          "publicUrl": "/generated/tibia1098/items/item-2187-frame-2.png",
-          "sha256": "055AD943832FBD1C5A0198DDCDE69058D402509216DEC24D9AF90096077DD085",
-          "width": 32,
-          "height": 32
-        }
-      ],
-      "animDurationMs": 200,
+        "layer": 0,
+        "spriteIds": [
+          242404,
+          10931,
+          242405,
+          242406
+        ],
+        "file": "public/generated/tibia1098/items/item-2189.png",
+        "publicUrl": "/generated/tibia1098/items/item-2189.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
       "importWarnings": []
     },
     "2190": {
       "serverId": 2190,
       "clientId": 3074,
       "group": 0,
-      "name": "Item 2190",
+      "name": "wand of vortex",
       "resolved": true,
       "source": {
         "serverId": 2190,
@@ -151377,8 +151548,6 @@
         "spr": "Tibia 10/tibia/Tibia.spr"
       },
       "appearanceId": 3074,
-      "isGround": false,
-      "blockSolid": false,
       "appearance": {
         "width": 1,
         "height": 1,
@@ -151420,143 +151589,84 @@
         },
         "layer": 0,
         "spriteIds": [
-          2504
+          2504,
+          242418,
+          242419,
+          242420,
+          242421,
+          242422,
+          242423
         ],
         "file": "public/generated/tibia1098/items/item-2190.png",
         "publicUrl": "/generated/tibia1098/items/item-2190.png",
-        "sha256": "52631D9154F66ABF426A0B7A3D9E386D41E8F95EB5F16FCE82BD9B2B5EF53D46",
+        "sha256": "",
         "width": 32,
         "height": 32
       },
-      "frames": [
-        {
-          "frame": 0,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            2504
-          ],
-          "file": "public/generated/tibia1098/items/item-2190-frame-0.png",
-          "publicUrl": "/generated/tibia1098/items/item-2190-frame-0.png",
-          "sha256": "EE3B38C9FE7CF5890696BB7BEFCB979501C0C3F7E3186CD74DBFB16FB0C7E46E",
-          "width": 32,
-          "height": 32
+      "importWarnings": []
+    },
+    "2191": {
+      "serverId": 2191,
+      "clientId": 3075,
+      "group": 0,
+      "name": "wand of dragonbreath",
+      "resolved": true,
+      "source": {
+        "serverId": 2191,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 3075,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 4,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          242415,
+          2505,
+          242416,
+          242417
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
         },
-        {
-          "frame": 1,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242418
-          ],
-          "file": "public/generated/tibia1098/items/item-2190-frame-1.png",
-          "publicUrl": "/generated/tibia1098/items/item-2190-frame-1.png",
-          "sha256": "7CA8A9CB76AA5EEFFDF6196CCCFEB41C255B5F086E471B710219BE1C0C6B14E4",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 2,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242419
-          ],
-          "file": "public/generated/tibia1098/items/item-2190-frame-2.png",
-          "publicUrl": "/generated/tibia1098/items/item-2190-frame-2.png",
-          "sha256": "539B75ABCD419C566BC79B7E858917F4DB5EB0C4681E9849F3D9333397AD805E",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 3,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242420
-          ],
-          "file": "public/generated/tibia1098/items/item-2190-frame-3.png",
-          "publicUrl": "/generated/tibia1098/items/item-2190-frame-3.png",
-          "sha256": "8398D823248046B311FAFBEF96018606E9EFA605A51B697E371065DE0FEFF0DC",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 4,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242421
-          ],
-          "file": "public/generated/tibia1098/items/item-2190-frame-4.png",
-          "publicUrl": "/generated/tibia1098/items/item-2190-frame-4.png",
-          "sha256": "CC8527B3FEEB266DBCE3CD3549F7E5E74D865527A95AEDC755416662C67447E0",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 5,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242422
-          ],
-          "file": "public/generated/tibia1098/items/item-2190-frame-5.png",
-          "publicUrl": "/generated/tibia1098/items/item-2190-frame-5.png",
-          "sha256": "5C2C3408AF5C8B52900A2B97D0B73E88A6D9DF1E953021EA3140B893C5686D35",
-          "width": 32,
-          "height": 32
-        },
-        {
-          "frame": 6,
-          "direction": "static",
-          "pattern": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "layer": 0,
-          "spriteIds": [
-            242423
-          ],
-          "file": "public/generated/tibia1098/items/item-2190-frame-6.png",
-          "publicUrl": "/generated/tibia1098/items/item-2190-frame-6.png",
-          "sha256": "2EBE720F49D8BA468947EA7F2F8D79747D5106B5E92085C9D987D7D5BF9CFBF0",
-          "width": 32,
-          "height": 32
-        }
-      ],
-      "animDurationMs": 200,
+        "layer": 0,
+        "spriteIds": [
+          242415,
+          2505,
+          242416,
+          242417
+        ],
+        "file": "public/generated/tibia1098/items/item-2191.png",
+        "publicUrl": "/generated/tibia1098/items/item-2191.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
       "importWarnings": []
     },
     "2195": {
@@ -252360,6 +252470,354 @@
       "animDurationMs": 0,
       "importWarnings": []
     },
+    "8910": {
+      "serverId": 8910,
+      "clientId": 8082,
+      "group": 0,
+      "name": "underworld rod",
+      "resolved": true,
+      "source": {
+        "serverId": 8910,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 8082,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          24552
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          24552
+        ],
+        "file": "public/generated/tibia1098/items/item-8910.png",
+        "publicUrl": "/generated/tibia1098/items/item-8910.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "8911": {
+      "serverId": 8911,
+      "clientId": 8083,
+      "group": 0,
+      "name": "northwind rod",
+      "resolved": true,
+      "source": {
+        "serverId": 8911,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 8083,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          24553
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          24553
+        ],
+        "file": "public/generated/tibia1098/items/item-8911.png",
+        "publicUrl": "/generated/tibia1098/items/item-8911.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "8912": {
+      "serverId": 8912,
+      "clientId": 8084,
+      "group": 0,
+      "name": "springsprout rod",
+      "resolved": true,
+      "source": {
+        "serverId": 8912,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 8084,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          24554
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          24554
+        ],
+        "file": "public/generated/tibia1098/items/item-8912.png",
+        "publicUrl": "/generated/tibia1098/items/item-8912.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "8920": {
+      "serverId": 8920,
+      "clientId": 8092,
+      "group": 0,
+      "name": "wand of starstorm",
+      "resolved": true,
+      "source": {
+        "serverId": 8920,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 8092,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 3,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          24610,
+          24611,
+          24612
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          24610,
+          24611,
+          24612
+        ],
+        "file": "public/generated/tibia1098/items/item-8920.png",
+        "publicUrl": "/generated/tibia1098/items/item-8920.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "8921": {
+      "serverId": 8921,
+      "clientId": 8093,
+      "group": 0,
+      "name": "wand of draconia",
+      "resolved": true,
+      "source": {
+        "serverId": 8921,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 8093,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          24608
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          24608
+        ],
+        "file": "public/generated/tibia1098/items/item-8921.png",
+        "publicUrl": "/generated/tibia1098/items/item-8921.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "8922": {
+      "serverId": 8922,
+      "clientId": 8094,
+      "group": 0,
+      "name": "wand of voodoo",
+      "resolved": true,
+      "source": {
+        "serverId": 8922,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 8094,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          24609
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          24609
+        ],
+        "file": "public/generated/tibia1098/items/item-8922.png",
+        "publicUrl": "/generated/tibia1098/items/item-8922.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "9021": {
       "serverId": 9021,
       "clientId": 351,
@@ -276844,6 +277302,63 @@
       "animDurationMs": 0,
       "importWarnings": []
     },
+    "13760": {
+      "serverId": 13760,
+      "clientId": 12603,
+      "group": 0,
+      "name": "wand of dimensions",
+      "resolved": true,
+      "source": {
+        "serverId": 13760,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 12603,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          49248
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          49248
+        ],
+        "file": "public/generated/tibia1098/items/item-13760.png",
+        "publicUrl": "/generated/tibia1098/items/item-13760.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "13865": {
       "serverId": 13865,
       "clientId": 12723,
@@ -277011,6 +277526,120 @@
         }
       ],
       "animDurationMs": 0,
+      "importWarnings": []
+    },
+    "13872": {
+      "serverId": 13872,
+      "clientId": 12732,
+      "group": 0,
+      "name": "shimmer rod",
+      "resolved": true,
+      "source": {
+        "serverId": 13872,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 12732,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32
+        ],
+        "spriteIds": [
+          50728
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          50728
+        ],
+        "file": "public/generated/tibia1098/items/item-13872.png",
+        "publicUrl": "/generated/tibia1098/items/item-13872.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "13880": {
+      "serverId": 13880,
+      "clientId": 12741,
+      "group": 0,
+      "name": "shimmer wand",
+      "resolved": true,
+      "source": {
+        "serverId": 13880,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 12741,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32
+        ],
+        "spriteIds": [
+          49902
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          49902
+        ],
+        "file": "public/generated/tibia1098/items/item-13880.png",
+        "publicUrl": "/generated/tibia1098/items/item-13880.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
       "importWarnings": []
     },
     "15820": {
@@ -277351,6 +277980,262 @@
         }
       ],
       "animDurationMs": 0,
+      "importWarnings": []
+    },
+    "18390": {
+      "serverId": 18390,
+      "clientId": 16096,
+      "group": 0,
+      "name": "wand of defiance",
+      "resolved": true,
+      "source": {
+        "serverId": 18390,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 16096,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 13,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          63894,
+          63894,
+          63894,
+          63894,
+          63895,
+          63896,
+          63897,
+          63894,
+          63894,
+          63894,
+          63895,
+          63896,
+          63897
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          63894,
+          63894,
+          63894,
+          63894,
+          63895,
+          63896,
+          63897,
+          63894,
+          63894,
+          63894,
+          63895,
+          63896,
+          63897
+        ],
+        "file": "public/generated/tibia1098/items/item-18390.png",
+        "publicUrl": "/generated/tibia1098/items/item-18390.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "18409": {
+      "serverId": 18409,
+      "clientId": 16115,
+      "group": 0,
+      "name": "wand of everblazing",
+      "resolved": true,
+      "source": {
+        "serverId": 18409,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 16115,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 2,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          63916,
+          63917
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          63916,
+          63917
+        ],
+        "file": "public/generated/tibia1098/items/item-18409.png",
+        "publicUrl": "/generated/tibia1098/items/item-18409.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "18411": {
+      "serverId": 18411,
+      "clientId": 16117,
+      "group": 0,
+      "name": "muck rod",
+      "resolved": true,
+      "source": {
+        "serverId": 18411,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 16117,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          63919
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          63919
+        ],
+        "file": "public/generated/tibia1098/items/item-18411.png",
+        "publicUrl": "/generated/tibia1098/items/item-18411.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "18412": {
+      "serverId": 18412,
+      "clientId": 16118,
+      "group": 0,
+      "name": "glacial rod",
+      "resolved": true,
+      "source": {
+        "serverId": 18412,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 16118,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          63920
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          63920
+        ],
+        "file": "public/generated/tibia1098/items/item-18412.png",
+        "publicUrl": "/generated/tibia1098/items/item-18412.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
       "importWarnings": []
     },
     "18488": {
@@ -281046,6 +281931,232 @@
       "animDurationMs": 0,
       "importWarnings": []
     },
+    "23719": {
+      "serverId": 23719,
+      "clientId": 21348,
+      "group": 0,
+      "name": "the scorcher",
+      "resolved": true,
+      "source": {
+        "serverId": 23719,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 21348,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32
+        ],
+        "spriteIds": [
+          204501
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          204501
+        ],
+        "file": "public/generated/tibia1098/items/item-23719.png",
+        "publicUrl": "/generated/tibia1098/items/item-23719.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "23721": {
+      "serverId": 23721,
+      "clientId": 21350,
+      "group": 0,
+      "name": "the chiller",
+      "resolved": true,
+      "source": {
+        "serverId": 23721,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 21350,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32
+        ],
+        "spriteIds": [
+          204502
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          204502
+        ],
+        "file": "public/generated/tibia1098/items/item-23721.png",
+        "publicUrl": "/generated/tibia1098/items/item-23721.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "24839": {
+      "serverId": 24839,
+      "clientId": 22183,
+      "group": 0,
+      "name": "ogre scepta",
+      "resolved": true,
+      "source": {
+        "serverId": 24839,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 22183,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          303249
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          303249
+        ],
+        "file": "public/generated/tibia1098/items/item-24839.png",
+        "publicUrl": "/generated/tibia1098/items/item-24839.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "25421": {
+      "serverId": 25421,
+      "clientId": 22765,
+      "group": 0,
+      "name": "Ferumbras' Staff (Failed)",
+      "resolved": true,
+      "source": {
+        "serverId": 25421,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 22765,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32
+        ],
+        "spriteIds": [
+          309498
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          309498
+        ],
+        "file": "public/generated/tibia1098/items/item-25421.png",
+        "publicUrl": "/generated/tibia1098/items/item-25421.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "25452": {
       "serverId": 25452,
       "clientId": 22796,
@@ -281135,6 +282246,354 @@
         }
       ],
       "animDurationMs": 0,
+      "importWarnings": []
+    },
+    "25887": {
+      "serverId": 25887,
+      "clientId": 23231,
+      "group": 0,
+      "name": "wand of mayhem",
+      "resolved": true,
+      "source": {
+        "serverId": 25887,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 23231,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          329235
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          329235
+        ],
+        "file": "public/generated/tibia1098/items/item-25887.png",
+        "publicUrl": "/generated/tibia1098/items/item-25887.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "25888": {
+      "serverId": 25888,
+      "clientId": 23232,
+      "group": 0,
+      "name": "rod of mayhem",
+      "resolved": true,
+      "source": {
+        "serverId": 25888,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 23232,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          329236
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          329236
+        ],
+        "file": "public/generated/tibia1098/items/item-25888.png",
+        "publicUrl": "/generated/tibia1098/items/item-25888.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "25951": {
+      "serverId": 25951,
+      "clientId": 23295,
+      "group": 0,
+      "name": "wand of remedy",
+      "resolved": true,
+      "source": {
+        "serverId": 25951,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 23295,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          329245
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          329245
+        ],
+        "file": "public/generated/tibia1098/items/item-25951.png",
+        "publicUrl": "/generated/tibia1098/items/item-25951.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "25955": {
+      "serverId": 25955,
+      "clientId": 23299,
+      "group": 0,
+      "name": "rod of remedy",
+      "resolved": true,
+      "source": {
+        "serverId": 25955,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 23299,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          329246
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          329246
+        ],
+        "file": "public/generated/tibia1098/items/item-25955.png",
+        "publicUrl": "/generated/tibia1098/items/item-25955.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "25991": {
+      "serverId": 25991,
+      "clientId": 23335,
+      "group": 0,
+      "name": "wand of carving",
+      "resolved": true,
+      "source": {
+        "serverId": 25991,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 23335,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          329251
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          329251
+        ],
+        "file": "public/generated/tibia1098/items/item-25991.png",
+        "publicUrl": "/generated/tibia1098/items/item-25991.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "25995": {
+      "serverId": 25995,
+      "clientId": 23339,
+      "group": 0,
+      "name": "rod of carving",
+      "resolved": true,
+      "source": {
+        "serverId": 25995,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 23339,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          329256
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          329256
+        ],
+        "file": "public/generated/tibia1098/items/item-25995.png",
+        "publicUrl": "/generated/tibia1098/items/item-25995.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
       "importWarnings": []
     },
     "26029": {
@@ -282258,6 +283717,120 @@
       "animDurationMs": 200,
       "importWarnings": []
     },
+    "29004": {
+      "serverId": 29004,
+      "clientId": 25700,
+      "group": 0,
+      "name": "dream blossom staff",
+      "resolved": true,
+      "source": {
+        "serverId": 29004,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 25700,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          367602
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          367602
+        ],
+        "file": "public/generated/tibia1098/items/item-29004.png",
+        "publicUrl": "/generated/tibia1098/items/item-29004.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "29059": {
+      "serverId": 29059,
+      "clientId": 25760,
+      "group": 0,
+      "name": "Wand of Darkness",
+      "resolved": true,
+      "source": {
+        "serverId": 29059,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 25760,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32
+        ],
+        "spriteIds": [
+          369621
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          369621
+        ],
+        "file": "public/generated/tibia1098/items/item-29059.png",
+        "publicUrl": "/generated/tibia1098/items/item-29059.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
     "29089": {
       "serverId": 29089,
       "clientId": 25803,
@@ -282427,6 +284000,380 @@
         }
       ],
       "animDurationMs": 0,
+      "importWarnings": []
+    },
+    "30724": {
+      "serverId": 30724,
+      "clientId": 27457,
+      "group": 0,
+      "name": "wand of destruction",
+      "resolved": true,
+      "source": {
+        "serverId": 30724,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 27457,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 8,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          418116,
+          418117,
+          418118,
+          418119,
+          418120,
+          418121,
+          418122,
+          418123
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          418116,
+          418117,
+          418118,
+          418119,
+          418120,
+          418121,
+          418122,
+          418123
+        ],
+        "file": "public/generated/tibia1098/items/item-30724.png",
+        "publicUrl": "/generated/tibia1098/items/item-30724.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "30725": {
+      "serverId": 30725,
+      "clientId": 27458,
+      "group": 0,
+      "name": "rod of destruction",
+      "resolved": true,
+      "source": {
+        "serverId": 30725,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 27458,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 8,
+        "attributes": [
+          16,
+          21,
+          32,
+          33
+        ],
+        "spriteIds": [
+          418124,
+          418125,
+          418126,
+          418127,
+          418128,
+          418129,
+          418130,
+          418131
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          418124,
+          418125,
+          418126,
+          418127,
+          418128,
+          418129,
+          418130,
+          418131
+        ],
+        "file": "public/generated/tibia1098/items/item-30725.png",
+        "publicUrl": "/generated/tibia1098/items/item-30725.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "31985": {
+      "serverId": 31985,
+      "clientId": 28716,
+      "group": 0,
+      "name": "falcon rod",
+      "resolved": true,
+      "source": {
+        "serverId": 31985,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 28716,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          422547
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          422547
+        ],
+        "file": "public/generated/tibia1098/items/item-31985.png",
+        "publicUrl": "/generated/tibia1098/items/item-31985.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "31986": {
+      "serverId": 31986,
+      "clientId": 28717,
+      "group": 0,
+      "name": "falcon wand",
+      "resolved": true,
+      "source": {
+        "serverId": 31986,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 28717,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33
+        ],
+        "spriteIds": [
+          422548
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          422548
+        ],
+        "file": "public/generated/tibia1098/items/item-31986.png",
+        "publicUrl": "/generated/tibia1098/items/item-31986.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "32094": {
+      "serverId": 32094,
+      "clientId": 28825,
+      "group": 0,
+      "name": "deepling ceremonial dagger",
+      "resolved": true,
+      "source": {
+        "serverId": 32094,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 28825,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33,
+          253
+        ],
+        "spriteIds": [
+          422704
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          422704
+        ],
+        "file": "public/generated/tibia1098/items/item-32094.png",
+        "publicUrl": "/generated/tibia1098/items/item-32094.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
+      "importWarnings": []
+    },
+    "32095": {
+      "serverId": 32095,
+      "clientId": 28826,
+      "group": 0,
+      "name": "deepling fork",
+      "resolved": true,
+      "source": {
+        "serverId": 32095,
+        "otb": "realmap11/data/items/items.otb",
+        "dat": "Tibia 10/tibia/Tibia.dat",
+        "spr": "Tibia 10/tibia/Tibia.spr"
+      },
+      "appearanceId": 28826,
+      "appearance": {
+        "width": 1,
+        "height": 1,
+        "exactSize": 32,
+        "layers": 1,
+        "patternX": 1,
+        "patternY": 1,
+        "patternZ": 1,
+        "frames": 1,
+        "attributes": [
+          16,
+          32,
+          33,
+          253
+        ],
+        "spriteIds": [
+          422705
+        ]
+      },
+      "extractedPattern": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extractedLayer": 0,
+      "frame": {
+        "frame": 0,
+        "direction": "static",
+        "pattern": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "layer": 0,
+        "spriteIds": [
+          422705
+        ],
+        "file": "public/generated/tibia1098/items/item-32095.png",
+        "publicUrl": "/generated/tibia1098/items/item-32095.png",
+        "sha256": "",
+        "width": 32,
+        "height": 32
+      },
       "importWarnings": []
     }
   },

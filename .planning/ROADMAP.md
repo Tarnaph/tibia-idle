@@ -76,6 +76,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 112: Correção de Nível/XP Autoritativo, Acessibilidade de Respawns do Dragon Lair e Modal de Ficha do Personagem com 5 Avatares** - Reconciliação e sincronização monótona de XP/nível, validação de caminho A* no respawn do Dragon Lair e reset de views no PixiArena, e novo Modal de Ficha do Personagem com abas e 5 avatares persistidos.
 - [x] **Phase 113: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition)** - Ativação da tela de carregamento oficial de Thais com curiosidades rotativas de lore e transição de áudio ao morrer e confirmar o respawn no templo, com pausa da caminhada durante os 10s.
 - [x] **Phase 114: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop (Arrastar e Soltar Slots F1 a F12)** - Suporte a arrastar e soltar (HTML5 DnD) magias, runas e poções entre slots da hotbar (F1 a F12 e 1 a 0), troca atômica de posições e configurações sem efeito cascata em slots intermediários, feedback visual (borda dourada brilhante e opacidade) e persistência permanente no banco de dados via `/api/characters/[id]/save`.
+- [x] **Phase 115: Auditoria Completa de Correções do FIX.md (Outfits/Addons/Mounts, Spawns e Movimentação no Dragon Lair, Poções de Mana e Efeitos, Promoção no Nível 20, Ajustes Visuais de TopNav/Loading e Wands/Rods em Combate)** - Implementação dos 7 itens de FIX.md: catálogo autoritativo de outfits/addons/mounts de realmap11 e cliente 10.98; resolução do spawn e movimentação no Dragon Lair em (32741,31294,11); confiabilidade do auto-uso e sincronização de efeitos de poções de mana/vida; trava de level 20 na janela de Skills para promoção; remoção de emojis e botão redundante de caçadas; reposicionamento do painel de conta/avatar e ícones nítidos de moedas (Tibia Coins / Gold); e ataque autoritativo com wands/rods em tempo real.
 
 
 ---
@@ -1987,10 +1988,36 @@ Plans:
 2. Interrupção imediata da música da caçada (`stopDragonLairBgm()`) e início imediato do tema de Thais (`playCityBgm()`) durante o loading.
 3. Notificação do servidor Colyseus com `sendTeleport(THAIS_TEMPLE_POSITION)` e `sendSetInHunt(false)`.
 4. Salvamento de progresso com flag autoritativa de penalidade de morte (`saveProgressRef.current(true)`).
-5. Pausa de caminhada autônoma (`tickWalking`) enquanto a tela de loading estiver ativa, garantindo que o personagem só comece a se mover após o término do carregamento.
+### Phase 114: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop (Arrastar e Soltar Slots F1 a F12)
+
+**Goal:** Implementar o suporte nativo e intuitivo a arrastar e soltar (HTML5 Drag and Drop) entre os slots da Action Bar inferior (`BottomConsoleHUD`), permitindo ao jogador reordenar e trocar instantaneamente magias, runas e poções entre os slots de F1 a F10 e 1 a 0 com preservação de condições de disparo e persistência no banco de dados.
+**Depends on:** Phase 113, Phase 97, Phase 86
+**Requirements:**
+1. Habilitação de drag-and-drop nos 20 slots de ação da hotbar.
+2. Função canônica de domínio `reorderHotbar(character, fromIndex, toIndex)` com troca atômica sem efeito dominó.
+3. Migração consistente de `hotbarConfigs` entre slots.
+4. Feedback visual responsivo (`dragging` e `drag-over`).
+5. Persistência atômica via `onSave` e rota `/api/characters/[id]/save`.
 6. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
 **Plans:**
-- [x] 113-01-PLAN: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition).
+- [x] 114-01-PLAN: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop.
+
+### Phase 115: Auditoria Completa de Correções do FIX.md (Outfits/Addons/Mounts, Spawns e Movimentação no Dragon Lair, Poções de Mana e Efeitos, Promoção no Nível 20, Ajustes Visuais de TopNav/Loading e Wands/Rods em Combate)
+
+**Goal:** Resolver integralmente os 7 itens solicitados em `FIX.md`: (1) Importação completa de outfits, addons e montarias de `outfits.xml` e `mounts.xml` com renderização correta do personagem montado; (2) Garantia de spawn, acessibilidade de monstros e movimentação no Dragon Lair na entrada (32741,31294,11) sem congelamentos; (3) Auto-uso confiável de poções de mana respeitando condições salvas com sincronização de texto "Aahhh...", ícone e efeito visual no personagem; (4) Trava de Nível 20 para exibição dinâmica do botão de Promoção na janela de Skills; (5) Remoção dos emojis de "Você Sabia?", emoji da Loja e botão de caçadas redundante; (6) Reposicionamento do painel de conta/avatar mais à esquerda e uso dos ícones oficiais de Gold Coin e Tibia Coins; (7) Combate e troca em tempo real de Wands e Rods com dano, elemento, consumo de mana e projéteis autoritativos.
+**Depends on:** Phase 114, Phase 113, Phase 112
+**Requirements:**
+1. Importador / catálogo expandido de outfits e montarias com suporte a gênero e renderização de montaria.
+2. Inicialização segura do Dragon Lair em (32741, 31294, 11) com validação de caminho A* e loop de caminhada ativo pós-loading.
+3. Disparo automático de poções de mana respeitando as condições salvas, com recuperação, overhead speech "Aaaah..." e efeito visual no personagem.
+4. Botão de Promoção na `SkillsWindow` oculto para personagens abaixo do nível 20 e visível automaticamente no nível 20+.
+5. Remoção de emojis em `ExuraLoadingScreen`, remoção do emoji da Loja e remoção do botão redundante "Caçadas" ao lado de Depot no TopNavigation.
+6. Ajuste de layout no TopNavigation: painel de conta/avatar mais à esquerda, ícones maiores e troca por sprites autênticos de Gold Coin e Tibia Coin.
+7. Ataque contínuo e troca de Wands/Rods em combate com alcance, mana, elemento e projéteis sincronizados sem necessidade de relogar.
+8. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 115-01-PLAN: Auditoria Completa de Correções do FIX.md.
+
 
 
 

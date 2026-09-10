@@ -42,10 +42,14 @@ model Character {
   lastHuntId     String?
   hotbarJson     String?
   outfitLookType Int              @default(131)
+  outfit         String?          @default("Knight")
   outfitHead     Int              @default(0)
   outfitBody     Int              @default(0)
   outfitLegs     Int              @default(0)
   outfitFeet     Int              @default(0)
+  outfitAddons   Int              @default(0)
+  mount          String?          @default("none")
+  mountActive    Boolean          @default(false)
   posX           Int              @default(32369) // Thais Temple
   posY           Int              @default(32241)
   posZ           Int              @default(7)

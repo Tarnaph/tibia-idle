@@ -185,7 +185,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       priorityUrls.add('/generated/mounts/donkey_rider_south.png');
 
       // Core effects & missiles
-      for (const effId of ['11', '16', '1', '2', '3', '4']) {
+      for (const effId of ['13', '11', '16', '1', '2', '3', '4']) {
         const eff = visualAssets.effects[effId];
         if (eff) for (const f of eff.frames) priorityUrls.add(f.publicUrl);
       }
@@ -535,9 +535,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
                 const speechContainer = new Container();
                 let iconWidth = 0;
 
-                const iconPath = !isPotion
-                  ? resolveActionImagePath(event.spellId, 'spell', event.speech)
-                  : null;
+                const iconPath = resolveActionImagePath(event.spellId, isPotion ? 'potion' : 'spell', event.speech);
 
                 if (iconPath && loaded[iconPath]) {
                   const iconSize = 14;
@@ -553,6 +551,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
 
                   speechContainer.addChild(iconBorder, iconSprite);
                   iconWidth = iconSize + 3;
+                } else if (iconPath) {
+                  void ensureTexture(iconPath);
                 }
 
                 const speechText = new Text({
@@ -658,32 +658,33 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const character = actor ? state.session.characters.find((candidate) => candidate.id === id) : undefined;
 
           if (character) {
+            view.sprite.scale.x = 1;
             const isMounted = Boolean(character.mountActive && character.mount && character.mount !== 'none');
-            const mountUrl = (character.mount === 'donkey' || character.mount === 'Donkey')
-              ? '/generated/mounts/donkey_rider_south.png'
-              : `/generated/mounts/${character.mount}.png`;
-            if (isMounted && loaded[mountUrl]) {
-              view.sprite.texture = loaded[mountUrl];
-              view.sprite.scale.x = (sample.direction === 'west' || sample.direction === 'north') ? -1 : 1;
-              view.lastFrameUrl = mountUrl;
-            } else {
-              view.sprite.scale.x = 1;
-              const outfitKey = character.outfit || character.vocation || 'Knight';
-              const charGender = character.gender === 'female' ? 'female' : 'male';
-              const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-              const walkFrame = sample.moving ? Math.floor(framePhase * 3) : 0;
-              const textureKey = `${outfitKey}_${charGender}_${sample.direction}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
-              if (view.lastFrameUrl !== textureKey) {
-                const canvas = getRecoloredCanvasSync(outfitKey, charGender, sample.direction, walkFrame, colors);
-                if (canvas) {
-                  const tex = Texture.from(canvas);
-                  tex.source.style.scaleMode = 'nearest';
-                  view.sprite.texture = tex;
-                  view.lastFrameUrl = textureKey;
-                } else if (!character.outfitColors) {
-                  const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
-                  if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
-                }
+            const outfitKey = character.outfit || character.vocation || 'Knight';
+            const charGender = character.gender === 'female' ? 'female' : 'male';
+            const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+            const addons = character.addons || 0;
+            const walkFrame = sample.moving ? Math.floor(framePhase * 3) : 0;
+            const textureKey = `${outfitKey}_${charGender}_${sample.direction}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons}_m${isMounted ? character.mount : 'none'}`;
+            if (view.lastFrameUrl !== textureKey) {
+              const canvas = getRecoloredCanvasSync(
+                outfitKey,
+                charGender,
+                sample.direction,
+                walkFrame,
+                colors,
+                addons,
+                character.mount,
+                isMounted
+              );
+              if (canvas) {
+                const tex = Texture.from(canvas);
+                tex.source.style.scaleMode = 'nearest';
+                view.sprite.texture = tex;
+                view.lastFrameUrl = textureKey;
+              } else if (!character.outfitColors && !isMounted) {
+                const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
+                if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }
               }
             }
           } else {

@@ -138,6 +138,9 @@ export interface PendingBasicAttack {
   activeSkill: TrainableSkill;
   activeSkillLevel: number;
   ranged: boolean;
+  element?: string;
+  effectId?: number;
+  projectileId?: number;
 }
 
 export type EnemyBehavior = 'idle' | 'roam' | 'detect' | 'chase' | 'attack';

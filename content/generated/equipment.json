@@ -766,13 +766,13 @@
       "id": 2190,
       "name": "wand of vortex",
       "weaponType": "wand",
-      "attack": 0,
+      "attack": 18,
       "defense": 0,
       "extraDefense": 0,
       "armor": 0,
       "slot": "hand",
       "twoHanded": false,
-      "range": 1,
+      "range": 4,
       "weight": {
         "hundredthsOfOunce": 1900,
         "ounces": 19
@@ -783,7 +783,7 @@
       "elementalAbsorption": {},
       "sourceFile": [
         "data/items/items.otb",
-        "data/items/items.lua"
+        "data/items/items.xml"
       ],
       "sourceId": 2190,
       "source": {
@@ -792,27 +792,39 @@
           "serverId": 2190,
           "clientId": 3074,
           "group": 0,
-          "flags": 150995040
+          "flags": 0
         },
         "lua": {
-          "sourceFile": "data/items/items.lua",
+          "sourceFile": "data/weapons/weapons.xml",
           "sourceId": 2190,
-          "line": 1
+          "line": 0
         }
       },
-      "importWarnings": []
+      "importWarnings": [],
+      "weightOz": 20,
+      "reqLevel": 7,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ]
     },
     {
       "id": 2182,
       "name": "snakebite rod",
       "weaponType": "wand",
-      "attack": 0,
+      "attack": 18,
       "defense": 0,
       "extraDefense": 0,
       "armor": 0,
       "slot": "hand",
       "twoHanded": false,
-      "range": 1,
+      "range": 4,
       "weight": {
         "hundredthsOfOunce": 1900,
         "ounces": 19
@@ -823,7 +835,7 @@
       "elementalAbsorption": {},
       "sourceFile": [
         "data/items/items.otb",
-        "data/items/items.lua"
+        "data/items/items.xml"
       ],
       "sourceId": 2182,
       "source": {
@@ -832,12 +844,1779 @@
           "serverId": 2182,
           "clientId": 3066,
           "group": 0,
-          "flags": 150995040
+          "flags": 0
         },
         "lua": {
-          "sourceFile": "data/items/items.lua",
+          "sourceFile": "data/weapons/weapons.xml",
           "sourceId": 2182,
-          "line": 1
+          "line": 0
+        }
+      },
+      "importWarnings": [],
+      "weightOz": 20,
+      "reqLevel": 7,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": 23721,
+      "name": "the chiller",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 7,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 1,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 23721,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 23721,
+          "clientId": 21350,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 23721,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2186,
+      "name": "moonlight rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 25,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 13,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2186,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2186,
+          "clientId": 3070,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2186,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2185,
+      "name": "necrotic rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 33,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 19,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2185,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2185,
+          "clientId": 3069,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2185,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 8911,
+      "name": "northwind rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 33,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 22,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 8911,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 8911,
+          "clientId": 8083,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 8911,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2181,
+      "name": "terra rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 48,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 26,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2181,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2181,
+          "clientId": 3065,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2181,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 24839,
+      "name": "ogre scepta",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 70,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 37,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 24839,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 24839,
+          "clientId": 22183,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 24839,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2183,
+      "name": "hailstorm rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 33,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2183,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2183,
+          "clientId": 3067,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2183,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 8912,
+      "name": "springsprout rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 37,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 8912,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 8912,
+          "clientId": 8084,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 8912,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 8910,
+      "name": "underworld rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 42,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 8910,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 8910,
+          "clientId": 8082,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 8910,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 13872,
+      "name": "shimmer rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 40,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 13872,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 13872,
+          "clientId": 12732,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 13872,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 18411,
+      "name": "muck rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 100,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 65,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 18411,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 18411,
+          "clientId": 16117,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 18411,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 18412,
+      "name": "glacial rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 100,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 65,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 18412,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 18412,
+          "clientId": 16118,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 18412,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 25995,
+      "name": "rod of carving",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 25995,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 25995,
+          "clientId": 23339,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 25995,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 25888,
+      "name": "rod of mayhem",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 25888,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 25888,
+          "clientId": 23232,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 25888,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 25955,
+      "name": "rod of remedy",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 25955,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 25955,
+          "clientId": 23299,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 25955,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 30725,
+      "name": "rod of destruction",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 30725,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 30725,
+          "clientId": 27458,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 30725,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 29004,
+      "name": "dream blossom staff",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 77,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 80,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 29004,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 29004,
+          "clientId": 25700,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 29004,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 31985,
+      "name": "falcon rod",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 101,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 300,
+      "reqVocation": [
+        "Druid",
+        "Elder Druid"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 31985,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 31985,
+          "clientId": 28716,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 31985,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 32094,
+      "name": "deepling ceremonial dagger",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 93,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 300,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 32094,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 32094,
+          "clientId": 28825,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 32094,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 32095,
+      "name": "deepling fork",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 120,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 300,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 32095,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 32095,
+          "clientId": 28826,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 32095,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 23719,
+      "name": "the scorcher",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 7,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 1,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 23719,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 23719,
+          "clientId": 21348,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 23719,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2191,
+      "name": "wand of dragonbreath",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 25,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 13,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2191,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2191,
+          "clientId": 3075,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2191,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2188,
+      "name": "wand of decay",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 33,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 19,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2188,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2188,
+          "clientId": 3072,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2188,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 8921,
+      "name": "wand of draconia",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 33,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 22,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 8921,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 8921,
+          "clientId": 8093,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 8921,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2189,
+      "name": "wand of cosmic energy",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 48,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 26,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2189,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2189,
+          "clientId": 3073,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2189,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 25421,
+      "name": "Ferumbras' Staff (Failed)",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 80,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 65,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 25421,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 25421,
+          "clientId": 22765,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 25421,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 2187,
+      "name": "wand of inferno",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 33,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 2187,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 2187,
+          "clientId": 3071,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 2187,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 8920,
+      "name": "wand of starstorm",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 37,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 8920,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 8920,
+          "clientId": 8092,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 8920,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 8922,
+      "name": "wand of voodoo",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 42,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 8922,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 8922,
+          "clientId": 8094,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 8922,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 13760,
+      "name": "wand of dimensions",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 37,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 13760,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 13760,
+          "clientId": 12603,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 13760,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 13880,
+      "name": "shimmer wand",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 75,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 40,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 13880,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 13880,
+          "clientId": 12741,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 13880,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 18390,
+      "name": "wand of defiance",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 100,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 65,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 18390,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 18390,
+          "clientId": 16096,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 18390,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 18409,
+      "name": "wand of everblazing",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 100,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 65,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 18409,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 18409,
+          "clientId": 16115,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 18409,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 29059,
+      "name": "Wand of Darkness",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 100,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 41,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 29059,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 29059,
+          "clientId": 25760,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 29059,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 25991,
+      "name": "wand of carving",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 25991,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 25991,
+          "clientId": 23335,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 25991,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 25887,
+      "name": "wand of mayhem",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 25887,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 25887,
+          "clientId": 23231,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 25887,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 25951,
+      "name": "wand of remedy",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 25951,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 25951,
+          "clientId": 23295,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 25951,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 30724,
+      "name": "wand of destruction",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 105,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 100,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 30724,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 30724,
+          "clientId": 27457,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 30724,
+          "line": 0
+        }
+      },
+      "importWarnings": []
+    },
+    {
+      "id": 31986,
+      "name": "falcon wand",
+      "slot": "hand",
+      "weaponType": "wand",
+      "twoHanded": false,
+      "attack": 102,
+      "defense": 0,
+      "extraDefense": 0,
+      "armor": 0,
+      "range": 4,
+      "weightOz": 20,
+      "reqLevel": 300,
+      "reqVocation": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
+      "attributes": [
+        {
+          "key": "magicLevel",
+          "value": 0
+        }
+      ],
+      "elementalAbsorption": {},
+      "sourceFile": [
+        "data/items/items.otb",
+        "data/items/items.xml"
+      ],
+      "sourceId": 31986,
+      "source": {
+        "otb": {
+          "sourceFile": "data/items/items.otb",
+          "serverId": 31986,
+          "clientId": 28717,
+          "group": 0,
+          "flags": 0
+        },
+        "lua": {
+          "sourceFile": "data/weapons/weapons.xml",
+          "sourceId": 31986,
+          "line": 0
         }
       },
       "importWarnings": []

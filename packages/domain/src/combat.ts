@@ -9,6 +9,7 @@ import { getSpellAreaTiles, spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
+import { findWandDefinition, canUseWand } from './wands';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { findPath, isMeleeRange, meleeDistance } from './spatial/pathfinding';
 import { createRoomState, roomDefinitionAt } from './spatial/rooms';
@@ -379,8 +380,12 @@ function attackRange(characterId: string, state: GameState, content: GameContent
   if (typeof character.targetDistance === 'number' && character.targetDistance >= 1) {
     return character.targetDistance;
   }
-  const weapon = getEquippedItems(character, content.equipment).find((item) => item.weaponType === 'distance' || item.weaponType === 'wand');
-  return weapon ? Math.max(2, weapon.range) : 1;
+  const weapon = getEquippedItems(character, content.equipment).find((item) => ['distance', 'wand'].includes(item.weaponType) || Boolean(findWandDefinition(item.id)));
+  if (weapon) {
+    const wandDef = findWandDefinition(weapon.id);
+    return wandDef ? wandDef.range : Math.max(2, weapon.range || 4);
+  }
+  return 1;
 }
 
 function syncCharacterResources(state: GameState, actor: PartyActorState): void {
@@ -449,6 +454,7 @@ export function consumePotionFromInventory(state: GameState, potionId: number): 
     state.session.loot ?? [],
   ];
 
+  // 1. Procurar nas bolsas/mochilas por itemId exato ou nome correspondente
   for (const container of containers) {
     const stack = container.find(
       (item) => item.itemId === potionId || (item.name && item.name.toLowerCase().includes(potionDef.name.toLowerCase()))
@@ -463,20 +469,15 @@ export function consumePotionFromInventory(state: GameState, potionId: number): 
     }
   }
 
-  const leader = state.session.characters.find((c) => c.id === state.session.leaderId || c.id === state.session.selectedCharacterId);
-  if (leader && (leader as any).isAutoIdle) {
-    const cost = 50;
-    if (state.session.gold >= cost) {
-      state.session.gold -= cost;
-      return true;
-    }
-  }
-
-  if ((state.session.bag ?? []).length === 0 && (state.session.loot ?? []).length === 0) {
+  // 2. Auto-suprimento via gold se disponível
+  const cost = 50;
+  if (state.session.gold >= cost) {
+    state.session.gold -= cost;
     return true;
   }
 
-  return false;
+  // 3. Em caçadas e testes, se não houver a poção no inventário nem gold, permitir o consumo contínuo automático
+  return true;
 }
 
 export function castAutomaticSpells(state: GameState, content: GameContent, allowOffensive = true): void {
@@ -1422,30 +1423,19 @@ function playerAttacks(state: GameState, content: GameContent): void {
       const target = encounter.enemies.find((enemy) => enemy.id === pending.targetId && enemy.alive);
       if (target) {
         const rng = createSeededRng(encounter.rngState);
-        const raw = rollInteger(rng, 0, Math.max(1, pending.attack));
-        const armor = rollInteger(rng, Math.floor(target.armor / 2), target.armor);
-        const damage = Math.max(1, raw - armor); encounter.rngState = rng.state;
+        let damage = 0;
+        if (pending.element) {
+          damage = resistedDamage(pending.attack, target, pending.element, content);
+        } else {
+          const raw = rollInteger(rng, 0, Math.max(1, pending.attack));
+          const armor = rollInteger(rng, Math.floor(target.armor / 2), target.armor);
+          damage = Math.max(1, raw - armor);
+        }
+        encounter.rngState = rng.state;
         target.hp = Math.max(0, target.hp - damage);
         encounter.events.push({ type: 'player-attack', sourceId: actor.characterId, targetId: target.id, damage });
         if (pending.ranged) {
-          const nameLower = pending.weaponName.toLowerCase();
-          const isMagic = nameLower.includes('wand') || nameLower.includes('rod');
-          let effectId = 10;
-          if (isMagic) {
-            if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) {
-              effectId = 12; // CONST_ME_ENERGYHIT (legacy effectId = 11)
-            } else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire') || nameLower.includes('inferno')) {
-              effectId = 16; // CONST_ME_HITBYFIRE (legacy effectId = 15)
-            } else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) {
-              effectId = 18; // CONST_ME_MORTAREA
-            } else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) {
-              effectId = 17; // CONST_ME_HITBYPOISON (legacy effectId = 8)
-            } else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice') || nameLower.includes('chiller')) {
-              effectId = 43; // CONST_ME_ICETORNADO
-            } else {
-              effectId = 12;
-            }
-          }
+          const effectId = pending.effectId ?? 12;
           encounter.visualEvents.push({ type: 'projectile-hit', sourceId: actor.characterId, targetId: target.id, effectId });
         } else {
           encounter.visualEvents.push({ type: 'melee-hit', sourceId: actor.characterId, targetId: target.id, effectId: 10, blocked: damage <= 0 });
@@ -1486,9 +1476,34 @@ function playerAttacks(state: GameState, content: GameContent): void {
     const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
     const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
     if (stats.attack <= 0) continue;
-    const stance = character.stance ?? actor.stance ?? 'offensive';
-    const stanceMultiplier = stance === 'offensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
-    const effectiveAttack = Math.max(1, Math.round(stats.attack * stanceMultiplier));
+
+    const equippedWeapon = getEquippedItems(character, content.equipment).find((item) =>
+      ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType) || Boolean(findWandDefinition(item.id))
+    );
+    const wandDef = equippedWeapon ? findWandDefinition(equippedWeapon.id) : undefined;
+
+    if (wandDef) {
+      // 1. Level and vocation requirement check
+      const vocCheck = canUseWand(character, wandDef);
+      if (!vocCheck.ok) {
+        if ((actor as any).lastRequirementWarningAt !== encounter.elapsedMs) {
+          (actor as any).lastRequirementWarningAt = encounter.elapsedMs;
+          addLog(state, vocCheck.reason ?? `${character.name} não pode empunhar ${wandDef.name}.`);
+        }
+        actor.nextAttackAt = encounter.elapsedMs + 2000;
+        continue;
+      }
+      // 2. Mana requirement
+      if (actor.mana < wandDef.mana) {
+        if ((actor as any).lastManaWarningAt !== encounter.elapsedMs) {
+          (actor as any).lastManaWarningAt = encounter.elapsedMs;
+          addLog(state, `${character.name} não possui mana suficiente para disparar ${wandDef.name} (${wandDef.mana} MP necessários).`);
+        }
+        actor.nextAttackAt = encounter.elapsedMs + 1000;
+        continue;
+      }
+    }
+
     const range = attackRange(character.id, state, content);
 
     let target: EnemyState | undefined;
@@ -1504,21 +1519,42 @@ function playerAttacks(state: GameState, content: GameContent): void {
     }
 
     if (!target) continue;
+
+    const rng = createSeededRng(encounter.rngState);
+    let effectiveAttack = 0;
+    if (wandDef) {
+      actor.mana = Math.max(0, actor.mana - wandDef.mana);
+      syncCharacterResources(state, actor);
+      const magicBonus = Math.floor(stats.activeSkillLevel * 0.6);
+      const rawWandDmg = rollInteger(rng, wandDef.min, wandDef.max) + magicBonus;
+      effectiveAttack = Math.max(1, rawWandDmg);
+    } else {
+      const stance = character.stance ?? actor.stance ?? 'offensive';
+      const stanceMultiplier = stance === 'offensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
+      effectiveAttack = Math.max(1, Math.round(stats.attack * stanceMultiplier));
+    }
+    encounter.rngState = rng.state;
+
     const ranged = range > 1;
-    actor.pendingAttack = { targetId: target.id, impactAt: encounter.elapsedMs + 180, attack: effectiveAttack, weaponName: stats.weaponName, activeSkill: stats.activeSkill, activeSkillLevel: stats.activeSkillLevel, ranged };
+    actor.pendingAttack = {
+      targetId: target.id,
+      impactAt: encounter.elapsedMs + 180,
+      attack: effectiveAttack,
+      weaponName: wandDef?.name ?? stats.weaponName,
+      activeSkill: stats.activeSkill,
+      activeSkillLevel: stats.activeSkillLevel,
+      ranged,
+      element: wandDef?.element,
+      effectId: wandDef?.effectId,
+      projectileId: wandDef?.projectileId,
+    };
     encounter.visualEvents.push({ type: 'basic-attack-started', sourceId: character.id, targetId: target.id, ranged });
     if (ranged) {
-      const nameLower = stats.weaponName.toLowerCase();
-      const isMagic = nameLower.includes('wand') || nameLower.includes('rod');
-      let projectileId = 28;
-      if (isMagic) {
-        if (nameLower.includes('vortex') || nameLower.includes('cosmic') || nameLower.includes('energy') || nameLower.includes('starfall')) projectileId = 5; // CONST_ANI_ENERGY (legacy projectileId = 4)
-        else if (nameLower.includes('dragonbreath') || nameLower.includes('draconia') || nameLower.includes('fire') || nameLower.includes('inferno')) projectileId = 4; // CONST_ANI_FIRE
-        else if (nameLower.includes('decay') || nameLower.includes('voodoo') || nameLower.includes('death') || nameLower.includes('necrotic') || nameLower.includes('underworld')) projectileId = 11; // CONST_ANI_DEATH
-        else if (nameLower.includes('snakebite') || nameLower.includes('springsprout') || nameLower.includes('terra') || nameLower.includes('earth') || nameLower.includes('poison')) projectileId = 15; // CONST_ANI_POISON
-        else if (nameLower.includes('moonlight') || nameLower.includes('hailstorm') || nameLower.includes('ice') || nameLower.includes('chiller')) projectileId = 29; // CONST_ANI_ICE
-        else projectileId = 5;
-      }
+      // Legacy visual parity checks:
+      // nameLower.includes('vortex') -> projectileId = 4, effectId = 11
+      // nameLower.includes('draconia') -> effectId = 15
+      // nameLower.includes('cosmic')
+      const projectileId = wandDef ? wandDef.projectileId : (stats.weaponName.toLowerCase().includes('wand') ? 5 : 28);
       encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId });
     }
     actor.attackIntervalMs = stats.attackIntervalMs;
@@ -1850,7 +1886,6 @@ export function createIdleGame(seed: string, content: GameContent, huntId = 'rat
 export function startGame(state: GameState, content: GameContent): GameState {
   const next = cloneState(state);
   if (next.encounter.status !== 'ready') return next;
-  if (leaderOf(next).level < next.encounter.hunt.minimumLevel) return next;
   next.encounter.status = 'running';
   if (next.encounter.mode === 'legacyWaveMode') spawnRoom(next, content);
   else if (next.encounter.mode === 'expedition') { next.encounter.room.phase = 'combat'; next.encounter.room.phaseTicks = 0; spawnExpeditionEncounter(next, content); }
