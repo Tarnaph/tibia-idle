@@ -78,6 +78,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 114: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop (Arrastar e Soltar Slots F1 a F12)** - Suporte a arrastar e soltar (HTML5 DnD) magias, runas e poções entre slots da hotbar (F1 a F12 e 1 a 0), troca atômica de posições e configurações sem efeito cascata em slots intermediários, feedback visual (borda dourada brilhante e opacidade) e persistência permanente no banco de dados via `/api/characters/[id]/save`.
 - [x] **Phase 116: Blindagem de Sessão/Auth Admin, Cadastro Seguro e Correção de Frame Parado (Idle Pose)** - Centralização da gestão de sessão com limpeza atômica de cookies/tokens/conexões no logout; bloqueio absoluto de escalação de privilégios no cadastro público (apenas PLAYER) e validação estrita de JWT_SECRET; desacoplamento entre caminho pendente e movimento físico real, eliminação de callbacks assíncronos desatualizados e atualização contínua de texturas provisórias para restaurar a pose de repouso (frame 0) exata.
 - [x] **Phase 117: Pipeline Autêntico de Animação Tibia 10.98 (Idle Frame 0 Canônico e Ciclo Completo de Caminhada com 8 Frames)** - Separação canônica entre FrameGroup 0 (Idle / Repouso com pés juntos) e FrameGroup 1 (Moving com 8 frames completos) no extrator de DAT/SPR, exportação dos assets f0 (idle) e f1..f8 (caminhada fluida), e sincronização dos motores de renderização PixiJS da cidade e caçada com o ciclo completo de 8 passos do Tibia 10.98.
+- [x] **Phase 118: Identidade Visual Exura e Janela de Autenticação Estilo Tibia** - Substituição do logo Cavebound pela nova marca Exura e estilização autêntica estilo Tibia para o modal de autenticação.
+- [x] **Phase 119: Substituição dos Avatares do Jogo pelas Novas Ilustrações** - Troca dos 5 avatares do perfil do jogador pelas artes ilustradas canônicas com suporte retroativo.
+- [x] **Phase 120: Correção de Montarias, Alinhamento Relativo por DAT Displacement, Cache Definitivo e Addons Montados** - Preservação do ThingAttrDisplacement (atributo 24) do Tibia.dat, extração completa de addons montados (z=1) em idle e walk cycle, cálculo de offset relativo sem constantes arbitrárias, e blindagem estrita contra cache poisoning no getRecoloredCanvasSync.
 
 
 ---
@@ -2071,6 +2074,20 @@ Plans:
 4. Manter 100% de aprovação na suíte de testes do Vitest e 0 erros de TypeScript.
 **Plans:**
 - [x] 119-01-PLAN: Substituição dos Avatares do Jogo pelas Novas Ilustrações.
+
+### Phase 120: Correção de Montarias, Alinhamento Relativo por DAT Displacement, Cache Definitivo e Addons Montados
+
+**Goal:** Resolver os problemas estruturais de composição, renderização e cache de montarias: preservar o `ThingAttrDisplacement` (atributo 24) do `Tibia.dat`, extrair addons montados (`z = 1`) para idle e caminhada, aplicar o deslocamento relativo exato `(outfit.displacement - mount.displacement)` sem constantes globais arbitrárias, e impedir envenenamento prematuro de cache no `getRecoloredCanvasSync` durante o carregamento de texturas.
+**Depends on:** Phase 119, Phase 117, Phase 115
+**Requirements:**
+1. Preservar `ThingAttrDisplacement` no parser DAT (`dat.ts` / `types.ts`) e exportar nos manifests `outfits.json` e `mounts.json`.
+2. Extrair addons montados (`z = 1`) para ambos os sexos, 4 direções e todos os frames (`f0` a `f8`) no script extrator.
+3. No compositor `outfitRecolor.ts`, calcular o alinhamento relativo da montaria e do cavaleiro usando os metadados do DAT (`getMountDisplacementOffset`), conferindo paridade com War Bear, Black Sheep e Citizen.
+4. No `getRecoloredCanvasSync`, só gravar no cache definitivo quando todas as camadas necessárias estiverem completamente carregadas e válidas. Manter fallbacks como provisórios sem poluir a chave definitiva.
+5. Manter 100% de aprovação na suíte de testes do Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 120-01-PLAN: Correção de Montarias, Alinhamento Relativo por DAT Displacement, Cache Definitivo e Addons Montados.
+
 
 
 

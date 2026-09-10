@@ -47,8 +47,8 @@ describe('Phase 115 - FIX.md Complete Audit & Verifications', () => {
       const urls = getOutfitLayerUrls('citizen', 'male', 'south', 0, 3, 'donkey', true);
       expect(urls.base).toContain('citizen-male-south-f0-mount-base.png');
       expect(urls.mask).toContain('citizen-male-south-f0-mount-mask.png');
-      expect(urls.addon1Base).toContain('citizen-male-south-f0-addon1-base.png');
-      expect(urls.addon2Base).toContain('citizen-male-south-f0-addon2-base.png');
+      expect(urls.addon1Base).toContain('citizen-male-south-f0-mount-addon1-base.png');
+      expect(urls.addon2Base).toContain('citizen-male-south-f0-mount-addon2-base.png');
       expect(urls.mountUrl).toContain('/generated/mounts/donkey-south-f0.png');
 
       // Verify files exist in public directory

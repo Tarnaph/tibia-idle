@@ -8,6 +8,18 @@
     "maleLookType": 128,
     "premium": false,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -21,6 +33,18 @@
     "maleLookType": 129,
     "premium": false,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -34,6 +58,18 @@
     "maleLookType": 130,
     "premium": false,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -47,6 +83,18 @@
     "maleLookType": 131,
     "premium": false,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -60,6 +108,18 @@
     "maleLookType": 132,
     "premium": true,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -73,6 +133,18 @@
     "maleLookType": 133,
     "premium": true,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -86,6 +158,18 @@
     "maleLookType": 134,
     "premium": true,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -99,6 +183,18 @@
     "maleLookType": 143,
     "premium": true,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -112,6 +208,18 @@
     "maleLookType": 144,
     "premium": true,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -125,6 +233,18 @@
     "maleLookType": 145,
     "premium": true,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -138,6 +258,18 @@
     "maleLookType": 146,
     "premium": true,
     "unlocked": true,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -151,6 +283,18 @@
     "maleLookType": 151,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -164,6 +308,18 @@
     "maleLookType": 152,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -177,6 +333,18 @@
     "maleLookType": 153,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -190,6 +358,18 @@
     "maleLookType": 154,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -203,6 +383,18 @@
     "maleLookType": 251,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -216,6 +408,18 @@
     "maleLookType": 268,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -229,6 +433,18 @@
     "maleLookType": 273,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 5,
+      "y": 5
+    },
+    "maleDisplacement": {
+      "x": 5,
+      "y": 5
+    },
+    "femaleDisplacement": {
+      "x": 5,
+      "y": 5
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -242,6 +458,18 @@
     "maleLookType": 278,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -255,6 +483,18 @@
     "maleLookType": 289,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -268,6 +508,18 @@
     "maleLookType": 325,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -281,6 +533,18 @@
     "maleLookType": 328,
     "premium": false,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -294,6 +558,18 @@
     "maleLookType": 335,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -307,6 +583,18 @@
     "maleLookType": 367,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -320,6 +608,18 @@
     "maleLookType": 430,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -333,6 +633,18 @@
     "maleLookType": 432,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -346,6 +658,18 @@
     "maleLookType": 463,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 5,
+      "y": 5
+    },
+    "maleDisplacement": {
+      "x": 5,
+      "y": 5
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -359,6 +683,18 @@
     "maleLookType": 465,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -372,6 +708,18 @@
     "maleLookType": 472,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -385,6 +733,18 @@
     "maleLookType": 512,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -398,6 +758,18 @@
     "maleLookType": 516,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -411,6 +783,18 @@
     "maleLookType": 541,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -424,6 +808,18 @@
     "maleLookType": 574,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -437,6 +833,18 @@
     "maleLookType": 577,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -450,6 +858,18 @@
     "maleLookType": 610,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -463,6 +883,18 @@
     "maleLookType": 619,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -476,6 +908,18 @@
     "maleLookType": 633,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -489,6 +933,18 @@
     "maleLookType": 634,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 5,
+      "y": 5
+    },
+    "maleDisplacement": {
+      "x": 5,
+      "y": 5
+    },
+    "femaleDisplacement": {
+      "x": 4,
+      "y": 4
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -502,6 +958,18 @@
     "maleLookType": 637,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -515,6 +983,18 @@
     "maleLookType": 665,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -528,6 +1008,18 @@
     "maleLookType": 667,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -541,6 +1033,18 @@
     "maleLookType": 684,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -554,6 +1058,18 @@
     "maleLookType": 695,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -567,6 +1083,18 @@
     "maleLookType": 697,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -580,6 +1108,18 @@
     "maleLookType": 699,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -593,6 +1133,18 @@
     "maleLookType": 725,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -606,6 +1158,18 @@
     "maleLookType": 733,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -619,6 +1183,18 @@
     "maleLookType": 746,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -632,6 +1208,18 @@
     "maleLookType": 750,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -645,6 +1233,18 @@
     "maleLookType": 760,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -658,6 +1258,18 @@
     "maleLookType": 846,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -671,6 +1283,18 @@
     "maleLookType": 853,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -684,6 +1308,18 @@
     "maleLookType": 873,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -697,6 +1333,18 @@
     "maleLookType": 884,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -710,6 +1358,18 @@
     "maleLookType": 899,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -723,6 +1383,18 @@
     "maleLookType": 908,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -736,6 +1408,18 @@
     "maleLookType": 931,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -749,6 +1433,18 @@
     "maleLookType": 955,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 6
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 6
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -762,6 +1458,18 @@
     "maleLookType": 957,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 4,
+      "y": 7
+    },
+    "maleDisplacement": {
+      "x": 4,
+      "y": 7
+    },
+    "femaleDisplacement": {
+      "x": 4,
+      "y": 7
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -775,6 +1483,18 @@
     "maleLookType": 962,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -788,6 +1508,18 @@
     "maleLookType": 964,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -801,6 +1533,18 @@
     "maleLookType": 966,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -814,6 +1558,18 @@
     "maleLookType": 968,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -827,6 +1583,18 @@
     "maleLookType": 970,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -840,6 +1608,18 @@
     "maleLookType": 972,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -853,6 +1633,18 @@
     "maleLookType": 974,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": true
@@ -866,6 +1658,18 @@
     "maleLookType": 1021,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -879,6 +1683,18 @@
     "maleLookType": 1024,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 4,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 4,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 4,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -892,6 +1708,18 @@
     "maleLookType": 1042,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -905,6 +1733,18 @@
     "maleLookType": 1051,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 8,
+      "y": 8
+    },
+    "maleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
+    "femaleDisplacement": {
+      "x": 8,
+      "y": 8
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -918,6 +1758,18 @@
     "maleLookType": 1056,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -931,6 +1783,18 @@
     "maleLookType": 1069,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -944,6 +1808,18 @@
     "maleLookType": 1094,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -957,6 +1833,18 @@
     "maleLookType": 1102,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -970,6 +1858,18 @@
     "maleLookType": 1127,
     "premium": true,
     "unlocked": false,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": true,
     "hasAddon2": true,
     "hasMountRider": true
@@ -983,6 +1883,18 @@
     "maleLookType": 999,
     "premium": false,
     "unlocked": true,
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "maleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
+    "femaleDisplacement": {
+      "x": 0,
+      "y": 0
+    },
     "hasAddon1": false,
     "hasAddon2": false,
     "hasMountRider": false

@@ -16,10 +16,16 @@ export interface AppearanceFrameGroup extends AppearanceDimensions {
   spriteIds: number[];
 }
 
+export interface ThingDisplacement {
+  x: number;
+  y: number;
+}
+
 export interface TibiaAppearance extends AppearanceDimensions {
   id: number;
   category: AppearanceCategory;
   attributes: number[];
+  displacement?: ThingDisplacement;
   spriteIds: number[];
   frameGroups?: AppearanceFrameGroup[];
 }

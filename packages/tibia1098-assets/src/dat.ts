@@ -1,6 +1,7 @@
 import type {
   AppearanceCategory,
   AppearanceFrameGroup,
+  ThingDisplacement,
   TibiaAppearance,
   TibiaDatFile,
 } from './types.ts';
@@ -74,12 +75,17 @@ class BinaryCursor {
   }
 }
 
-function readAttributes1098(cursor: BinaryCursor, category: AppearanceCategory, id: number): number[] {
+function readAttributes1098(
+  cursor: BinaryCursor,
+  category: AppearanceCategory,
+  id: number
+): { attributes: number[]; displacement?: ThingDisplacement } {
   const attributes: number[] = [];
+  let displacement: ThingDisplacement | undefined;
 
   while (cursor.remaining > 0) {
     const rawAttr = cursor.u8();
-    if (rawAttr === DAT_LAST_ATTRIBUTE) return attributes;
+    if (rawAttr === DAT_LAST_ATTRIBUTE) return { attributes, displacement };
 
     let attr = rawAttr;
     if (attr === 16) {
@@ -91,8 +97,9 @@ function readAttributes1098(cursor: BinaryCursor, category: AppearanceCategory, 
 
     if (attr === 24) {
       // ThingAttrDisplacement
-      cursor.u16();
-      cursor.u16();
+      const x = cursor.u16();
+      const y = cursor.u16();
+      displacement = { x, y };
     } else if (attr === 21) {
       // ThingAttrLight
       cursor.u16();
@@ -120,7 +127,7 @@ function readAttributes1098(cursor: BinaryCursor, category: AppearanceCategory, 
       cursor.u16();
     }
   }
-  return attributes;
+  return { attributes, displacement };
 }
 
 function readAppearance1098(
@@ -128,7 +135,7 @@ function readAppearance1098(
   category: AppearanceCategory,
   id: number,
 ): TibiaAppearance {
-  const attributes = readAttributes1098(cursor, category, id);
+  const { attributes, displacement } = readAttributes1098(cursor, category, id);
 
   if (category === 'creature') {
     const groupCount = cursor.u8();
@@ -198,6 +205,7 @@ function readAppearance1098(
       id,
       category,
       attributes,
+      displacement,
       width: primary.width,
       height: primary.height,
       exactSize: primary.exactSize,
@@ -246,6 +254,7 @@ function readAppearance1098(
     id,
     category,
     attributes,
+    displacement,
     width,
     height,
     exactSize,

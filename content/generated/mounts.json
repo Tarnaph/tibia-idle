@@ -6,7 +6,13 @@
     "name": "Widow Queen",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Widow Queen (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Widow Queen (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 2,
@@ -15,7 +21,13 @@
     "name": "Racing Bird",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Racing Bird (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Racing Bird (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 3,
@@ -24,7 +36,13 @@
     "name": "War Bear",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: War Bear (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: War Bear (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 4,
@@ -33,7 +51,13 @@
     "name": "Black Sheep",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Black Sheep (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Black Sheep (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 5,
@@ -42,7 +66,13 @@
     "name": "Midnight Panther",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Midnight Panther (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Midnight Panther (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 6,
@@ -51,7 +81,13 @@
     "name": "Draptor",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Draptor (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Draptor (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 7,
@@ -60,7 +96,13 @@
     "name": "Titanica",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Titanica (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Titanica (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 8,
@@ -69,7 +111,13 @@
     "name": "Tin Lizzard",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Tin Lizzard (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Tin Lizzard (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 9,
@@ -78,7 +126,13 @@
     "name": "Blazebringer",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Blazebringer (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Blazebringer (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 10,
@@ -87,7 +141,13 @@
     "name": "Rapid Boar",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Rapid Boar (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Rapid Boar (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 11,
@@ -96,7 +156,13 @@
     "name": "Stampor",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Stampor (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Stampor (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 12,
@@ -105,7 +171,13 @@
     "name": "Undead Cavebear",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Undead Cavebear (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Undead Cavebear (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 13,
@@ -114,7 +186,13 @@
     "name": "Donkey",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Donkey (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Donkey (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 14,
@@ -123,7 +201,13 @@
     "name": "Tiger Slug",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Tiger Slug (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Tiger Slug (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 15,
@@ -132,7 +216,13 @@
     "name": "Uniwheel",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Uniwheel (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Uniwheel (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 16,
@@ -141,7 +231,13 @@
     "name": "Crystal Wolf",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Crystal Wolf (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Crystal Wolf (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 17,
@@ -150,7 +246,13 @@
     "name": "War Horse",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: War Horse (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: War Horse (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 18,
@@ -159,7 +261,13 @@
     "name": "Kingly Deer",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Kingly Deer (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Kingly Deer (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 19,
@@ -168,7 +276,13 @@
     "name": "Tamed Panda",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Tamed Panda (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Tamed Panda (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 20,
@@ -177,7 +291,13 @@
     "name": "Dromedary",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Dromedary (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Dromedary (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 21,
@@ -186,7 +306,13 @@
     "name": "Scorpion King",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Scorpion King (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Scorpion King (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 22,
@@ -195,7 +321,13 @@
     "name": "Rented Horse",
     "speedBonus": 20,
     "isPremium": false,
-    "description": "Montaria oficial de Tibia: Rented Horse (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Rented Horse (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 23,
@@ -204,7 +336,13 @@
     "name": "Armoured War Horse",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Armoured War Horse (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Armoured War Horse (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 24,
@@ -213,7 +351,13 @@
     "name": "Shadow Draptor",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Shadow Draptor (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Shadow Draptor (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 25,
@@ -222,7 +366,13 @@
     "name": "Rented Horse",
     "speedBonus": 20,
     "isPremium": false,
-    "description": "Montaria oficial de Tibia: Rented Horse (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Rented Horse (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 26,
@@ -231,7 +381,13 @@
     "name": "Rented Horse",
     "speedBonus": 20,
     "isPremium": false,
-    "description": "Montaria oficial de Tibia: Rented Horse (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Rented Horse (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 27,
@@ -240,7 +396,13 @@
     "name": "Lady Bug",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Lady Bug (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Lady Bug (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 28,
@@ -249,7 +411,13 @@
     "name": "Manta Ray",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Manta Ray (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Manta Ray (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 29,
@@ -258,7 +426,13 @@
     "name": "Ironblight",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Ironblight (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Ironblight (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 30,
@@ -267,7 +441,13 @@
     "name": "Magma Crawler",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Magma Crawler (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Magma Crawler (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 31,
@@ -276,7 +456,13 @@
     "name": "Dragonling",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Dragonling (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Dragonling (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 32,
@@ -285,7 +471,13 @@
     "name": "Gnarlhound",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Gnarlhound (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Gnarlhound (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 33,
@@ -294,7 +486,13 @@
     "name": "Crimson Ray",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Crimson Ray (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Crimson Ray (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 34,
@@ -303,7 +501,13 @@
     "name": "Steelbeak",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Steelbeak (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Steelbeak (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 35,
@@ -312,7 +516,13 @@
     "name": "Water Buffalo",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Water Buffalo (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Water Buffalo (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 36,
@@ -321,7 +531,13 @@
     "name": "Tombstinger",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Tombstinger (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Tombstinger (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 37,
@@ -330,7 +546,13 @@
     "name": "Platesaurian",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Platesaurian (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Platesaurian (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 38,
@@ -339,7 +561,13 @@
     "name": "Ursagrodon",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Ursagrodon (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Ursagrodon (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 39,
@@ -348,7 +576,13 @@
     "name": "The Hellgrip",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: The Hellgrip (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: The Hellgrip (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 40,
@@ -357,7 +591,13 @@
     "name": "Noble Lion",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Noble Lion (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Noble Lion (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 41,
@@ -366,7 +606,13 @@
     "name": "Desert King",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Desert King (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Desert King (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 42,
@@ -375,7 +621,13 @@
     "name": "Shock Head",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Shock Head (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Shock Head (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 43,
@@ -384,7 +636,13 @@
     "name": "Walker",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Walker (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Walker (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 44,
@@ -393,7 +651,13 @@
     "name": "Azudocus",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Azudocus (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Azudocus (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 45,
@@ -402,7 +666,13 @@
     "name": "Carpacosaurus",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Carpacosaurus (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Carpacosaurus (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 46,
@@ -411,7 +681,13 @@
     "name": "Death Crawler",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Death Crawler (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Death Crawler (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 47,
@@ -420,7 +696,13 @@
     "name": "Flamesteed",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Flamesteed (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Flamesteed (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 48,
@@ -429,7 +711,13 @@
     "name": "Jade Lion",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Jade Lion (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Jade Lion (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 49,
@@ -438,7 +726,13 @@
     "name": "Jade Pincer",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Jade Pincer (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Jade Pincer (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 50,
@@ -447,7 +741,13 @@
     "name": "Nethersteed",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Nethersteed (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Nethersteed (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 51,
@@ -456,7 +756,13 @@
     "name": "Tempest",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Tempest (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Tempest (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 52,
@@ -465,7 +771,13 @@
     "name": "Winter King",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Winter King (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Winter King (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 53,
@@ -474,7 +786,13 @@
     "name": "Doombringer",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Doombringer (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Doombringer (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 54,
@@ -483,7 +801,13 @@
     "name": "Woodland Prince",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Woodland Prince (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Woodland Prince (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 55,
@@ -492,7 +816,13 @@
     "name": "Hailtorm Fury",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Hailtorm Fury (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Hailtorm Fury (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 56,
@@ -501,7 +831,13 @@
     "name": "Siegebreaker",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Siegebreaker (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Siegebreaker (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 57,
@@ -510,7 +846,13 @@
     "name": "Poisonbane",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Poisonbane (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Poisonbane (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 58,
@@ -519,7 +861,13 @@
     "name": "Blackpelt",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Blackpelt (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Blackpelt (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 59,
@@ -528,7 +876,13 @@
     "name": "Golden Dragonfly",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Golden Dragonfly (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Golden Dragonfly (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 60,
@@ -537,7 +891,13 @@
     "name": "Steel Bee",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Steel Bee (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Steel Bee (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 61,
@@ -546,7 +906,13 @@
     "name": "Copper Fly",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Copper Fly (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Copper Fly (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 62,
@@ -555,7 +921,13 @@
     "name": "Tundra Rambler",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Tundra Rambler (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Tundra Rambler (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 63,
@@ -564,7 +936,13 @@
     "name": "Highland Yak",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Highland Yak (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Highland Yak (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 64,
@@ -573,7 +951,13 @@
     "name": "Glacier Vagabond",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Glacier Vagabond (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Glacier Vagabond (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 65,
@@ -582,7 +966,13 @@
     "name": "Flying Divan",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Flying Divan (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Flying Divan (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 66,
@@ -591,7 +981,13 @@
     "name": "Magic Carpet",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Magic Carpet (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Magic Carpet (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 67,
@@ -600,7 +996,13 @@
     "name": "Floating Kashmir",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Floating Kashmir (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Floating Kashmir (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 68,
@@ -609,7 +1011,13 @@
     "name": "Ringtail Waccoon",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Ringtail Waccoon (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Ringtail Waccoon (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 69,
@@ -618,7 +1026,13 @@
     "name": "Night Waccoon",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Night Waccoon (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Night Waccoon (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 70,
@@ -627,7 +1041,13 @@
     "name": "Emerald Waccoon",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Emerald Waccoon (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Emerald Waccoon (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 71,
@@ -636,7 +1056,13 @@
     "name": "Glooth Glider",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Glooth Glider (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Glooth Glider (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 72,
@@ -645,7 +1071,13 @@
     "name": "Shadow Hart",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Shadow Hart (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Shadow Hart (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 73,
@@ -654,7 +1086,13 @@
     "name": "Black Stag",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Black Stag (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Black Stag (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 74,
@@ -663,7 +1101,13 @@
     "name": "Emperor Deer",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Emperor Deer (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Emperor Deer (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 75,
@@ -672,7 +1116,13 @@
     "name": "Flitterkatzen",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Flitterkatzen (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Flitterkatzen (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 76,
@@ -681,7 +1131,13 @@
     "name": "Venompaw",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Venompaw (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Venompaw (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 77,
@@ -690,7 +1146,13 @@
     "name": "Batcat",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Batcat (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Batcat (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 78,
@@ -699,7 +1161,13 @@
     "name": "Sea Devil",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Sea Devil (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Sea Devil (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 79,
@@ -708,7 +1176,13 @@
     "name": "Coralripper",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Coralripper (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Coralripper (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 80,
@@ -717,7 +1191,13 @@
     "name": "Plumfish",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Plumfish (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Plumfish (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 81,
@@ -726,7 +1206,13 @@
     "name": "Gorongra",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Gorongra (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Gorongra (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 82,
@@ -735,7 +1221,13 @@
     "name": "Noctungra",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Noctungra (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Noctungra (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 83,
@@ -744,7 +1236,13 @@
     "name": "Silverneck",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Silverneck (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Silverneck (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 84,
@@ -753,7 +1251,13 @@
     "name": "Slagsnare",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Slagsnare (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Slagsnare (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 85,
@@ -762,7 +1266,13 @@
     "name": "Nightstinger",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Nightstinger (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Nightstinger (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 86,
@@ -771,7 +1281,13 @@
     "name": "Razorcreep",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Razorcreep (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Razorcreep (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 87,
@@ -780,7 +1296,13 @@
     "name": "Rift Runner",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Rift Runner (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Rift Runner (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 88,
@@ -789,7 +1311,13 @@
     "name": "Nightdweller",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Nightdweller (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Nightdweller (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 89,
@@ -798,7 +1326,13 @@
     "name": "Frostflare",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Frostflare (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Frostflare (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 90,
@@ -807,7 +1341,13 @@
     "name": "Cinderhoof",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Cinderhoof (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Cinderhoof (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 91,
@@ -816,7 +1356,13 @@
     "name": "Mouldpincer",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Mouldpincer (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Mouldpincer (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 92,
@@ -825,7 +1371,13 @@
     "name": "Bloodcurl",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Bloodcurl (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Bloodcurl (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 93,
@@ -834,7 +1386,13 @@
     "name": "Leafscuttler",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Leafscuttler (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Leafscuttler (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 94,
@@ -843,7 +1401,13 @@
     "name": "Sparkion",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Sparkion (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Sparkion (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 95,
@@ -852,7 +1416,13 @@
     "name": "Swamp Snapper",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Swamp Snapper (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Swamp Snapper (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 96,
@@ -861,7 +1431,13 @@
     "name": "Mould Shell",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Mould Shell (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Mould Shell (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 97,
@@ -870,7 +1446,13 @@
     "name": "Reed Lurker",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Reed Lurker (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Reed Lurker (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 98,
@@ -879,7 +1461,13 @@
     "name": "Neon Sparkid",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Neon Sparkid (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Neon Sparkid (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 99,
@@ -888,7 +1476,13 @@
     "name": "Vortexion",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Vortexion (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Vortexion (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 100,
@@ -897,7 +1491,13 @@
     "name": "Ivory Fang",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Ivory Fang (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Ivory Fang (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 101,
@@ -906,7 +1506,13 @@
     "name": "Shadow Claw",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Shadow Claw (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Shadow Claw (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 102,
@@ -915,7 +1521,13 @@
     "name": "Snow Pelt",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Snow Pelt (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Snow Pelt (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 103,
@@ -924,7 +1536,13 @@
     "name": "Jackalope",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Jackalope (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Jackalope (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 104,
@@ -933,7 +1551,13 @@
     "name": "Dreadhare",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Dreadhare (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Dreadhare (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 105,
@@ -942,7 +1566,13 @@
     "name": "Wolpertinger",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Wolpertinger (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Wolpertinger (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 106,
@@ -951,7 +1581,13 @@
     "name": "Stone Rhino",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Stone Rhino (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Stone Rhino (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 107,
@@ -960,7 +1596,13 @@
     "name": "Gold Sphinx",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Gold Sphinx (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Gold Sphinx (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 108,
@@ -969,7 +1611,13 @@
     "name": "Emerald Sphinx",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Emerald Sphinx (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Emerald Sphinx (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 109,
@@ -978,7 +1626,13 @@
     "name": "Shadow Sphinx",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Shadow Sphinx (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Shadow Sphinx (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 110,
@@ -987,7 +1641,13 @@
     "name": "Jungle Saurian",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Jungle Saurian (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Jungle Saurian (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 111,
@@ -996,7 +1656,13 @@
     "name": "Ember Saurian",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Ember Saurian (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Ember Saurian (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 112,
@@ -1005,7 +1671,13 @@
     "name": "Lagoon Saurian",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Lagoon Saurian (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Lagoon Saurian (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 113,
@@ -1014,7 +1686,13 @@
     "name": "Blazing Unicorn",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Blazing Unicorn (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Blazing Unicorn (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 114,
@@ -1023,7 +1701,13 @@
     "name": "Artic Unicorn",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Artic Unicorn (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Artic Unicorn (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 115,
@@ -1032,7 +1716,13 @@
     "name": "Prismatic unicorn",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Prismatic unicorn (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Prismatic unicorn (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 116,
@@ -1041,7 +1731,13 @@
     "name": "Cranium Spider",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Cranium Spider (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Cranium Spider (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 117,
@@ -1050,7 +1746,13 @@
     "name": "Cave Spider",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Cave Spider (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Cave Spider (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 118,
@@ -1059,7 +1761,13 @@
     "name": "Gloom Widow",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Gloom Widow (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Gloom Widow (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 119,
@@ -1068,7 +1776,13 @@
     "name": "Mole",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Mole (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Mole (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 120,
@@ -1077,7 +1791,13 @@
     "name": "Marsh Toad",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Marsh Toad (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Marsh Toad (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 121,
@@ -1086,7 +1806,13 @@
     "name": "Sanguine Frog",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Sanguine Frog (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Sanguine Frog (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 122,
@@ -1095,7 +1821,13 @@
     "name": "Toxic Toad",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Toxic Toad (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Toxic Toad (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 123,
@@ -1104,7 +1836,13 @@
     "name": "Ebony Tiger",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Ebony Tiger (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Ebony Tiger (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 124,
@@ -1113,7 +1851,13 @@
     "name": "Feral Tiger",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Feral Tiger (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Feral Tiger (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 125,
@@ -1122,7 +1866,13 @@
     "name": "Jungle Tiger",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Jungle Tiger (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Jungle Tiger (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 126,
@@ -1131,7 +1881,13 @@
     "name": "Flying Book",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Flying Book (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Flying Book (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 127,
@@ -1140,7 +1896,13 @@
     "name": "Tawny Owl",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Tawny Owl (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Tawny Owl (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 128,
@@ -1149,7 +1911,13 @@
     "name": "Boreal Owl",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Boreal Owl (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Boreal Owl (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   },
   {
     "mountId": 129,
@@ -1158,6 +1926,12 @@
     "name": "Snowy Owl",
     "speedBonus": 20,
     "isPremium": true,
-    "description": "Montaria oficial de Tibia: Snowy Owl (Velocidade +20)."
+    "description": "Montaria oficial de Tibia: Snowy Owl (Velocidade +20).",
+    "displacement": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 2,
+    "height": 2
   }
 ]

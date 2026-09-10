@@ -152,6 +152,10 @@ for (const [fName, fData] of femaleMap.entries()) {
   if (mMatchName && maleMap.has(mMatchName)) {
     const mData = maleMap.get(mMatchName);
     const id = fData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const mApp = dat.appearances.creature.get(mData.lookType);
+    const fApp = dat.appearances.creature.get(fData.lookType);
+    const mDisp = mApp?.displacement || { x: 0, y: 0 };
+    const fDisp = fApp?.displacement || { x: 0, y: 0 };
     outfitCatalogue.push({
       id,
       name: fData.name.replace(/woman$/i, 'man').replace(/^Noblewoman$/i, 'Noble').replace(/^Norsewoman$/i, 'Norseman').replace(/^Retro Noblewoman$/i, 'Retro Noble'),
@@ -161,6 +165,9 @@ for (const [fName, fData] of femaleMap.entries()) {
       maleLookType: mData.lookType,
       premium: fData.premium || mData.premium,
       unlocked: fData.unlocked || mData.unlocked,
+      displacement: mDisp,
+      maleDisplacement: mDisp,
+      femaleDisplacement: fDisp,
     });
     processedNames.add(fName);
     processedNames.add(mMatchName);
@@ -222,6 +229,20 @@ for (const outfit of outfitCatalogue) {
           const { rgba: mRiderMask } = renderAppearanceRgba(idleGrp, { layer: 1, x: dir.x, y: 0, z: 1, frame: 0 });
           fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-base.png`), encodeRgbaPng(width, height, mRiderBase));
           fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-mask.png`), encodeRgbaPng(width, height, mRiderMask));
+
+          if (hasAddon1) {
+            const { rgba: a1MBase } = renderAppearanceRgba(idleGrp, { layer: 0, x: dir.x, y: 1, z: 1, frame: 0 });
+            const { rgba: a1MMask } = renderAppearanceRgba(idleGrp, { layer: 1, x: dir.x, y: 1, z: 1, frame: 0 });
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-addon1-base.png`), encodeRgbaPng(width, height, a1MBase));
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-addon1-mask.png`), encodeRgbaPng(width, height, a1MMask));
+          }
+
+          if (hasAddon2) {
+            const { rgba: a2MBase } = renderAppearanceRgba(idleGrp, { layer: 0, x: dir.x, y: 2, z: 1, frame: 0 });
+            const { rgba: a2MMask } = renderAppearanceRgba(idleGrp, { layer: 1, x: dir.x, y: 2, z: 1, frame: 0 });
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-addon2-base.png`), encodeRgbaPng(width, height, a2MBase));
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-addon2-mask.png`), encodeRgbaPng(width, height, a2MMask));
+          }
         }
 
         // Clean recolored thumbnail from Idle pose
@@ -262,6 +283,20 @@ for (const outfit of outfitCatalogue) {
           const { rgba: mRiderMask } = renderAppearanceRgba(movingGrp, { layer: 1, x: dir.x, y: 0, z: 1, frame: step });
           fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-base.png`), encodeRgbaPng(width, height, mRiderBase));
           fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-mask.png`), encodeRgbaPng(width, height, mRiderMask));
+
+          if (hasAddon1) {
+            const { rgba: a1MBase } = renderAppearanceRgba(movingGrp, { layer: 0, x: dir.x, y: 1, z: 1, frame: step });
+            const { rgba: a1MMask } = renderAppearanceRgba(movingGrp, { layer: 1, x: dir.x, y: 1, z: 1, frame: step });
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-addon1-base.png`), encodeRgbaPng(width, height, a1MBase));
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-addon1-mask.png`), encodeRgbaPng(width, height, a1MMask));
+          }
+
+          if (hasAddon2) {
+            const { rgba: a2MBase } = renderAppearanceRgba(movingGrp, { layer: 0, x: dir.x, y: 2, z: 1, frame: step });
+            const { rgba: a2MMask } = renderAppearanceRgba(movingGrp, { layer: 1, x: dir.x, y: 2, z: 1, frame: step });
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-addon2-base.png`), encodeRgbaPng(width, height, a2MBase));
+            fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-addon2-mask.png`), encodeRgbaPng(width, height, a2MMask));
+          }
         }
       }
     }
@@ -287,7 +322,8 @@ while ((mountMatch = mountRegex.exec(mountsXml)) !== null) {
   const isPremium = mountMatch[5] !== 'no';
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-  // Avoid duplicate IDs if multiple rentals exist
+  const app = dat.appearances.creature.get(clientId);
+  const mountDisp = app?.displacement || { x: 0, y: 0 };
   const uniqueId = mountCatalogue.some(m => m.id === id) ? `${id}-${mountId}` : id;
 
   mountCatalogue.push({
@@ -298,6 +334,9 @@ while ((mountMatch = mountRegex.exec(mountsXml)) !== null) {
     speedBonus,
     isPremium,
     description: `Montaria oficial de Tibia: ${name} (Velocidade +${speedBonus}).`,
+    displacement: mountDisp,
+    width: app?.width ?? 2,
+    height: app?.height ?? 2,
   });
 }
 
