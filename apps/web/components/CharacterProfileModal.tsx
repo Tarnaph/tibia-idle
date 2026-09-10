@@ -32,7 +32,7 @@ export interface CharacterProfileModalProps {
   characters: CharacterState[];
   selectedCharacterId?: string;
   onSelectCharacter?: (characterId: string) => void;
-  onOpenOutfit?: () => void;
+  onOpenOutfit?: (characterId?: string) => void;
   content: GameContent;
   avatarId?: number;
   onSelectAvatar?: (avatarId: number) => void;
@@ -227,7 +227,7 @@ export function CharacterProfileModal({
             onClick={() => {
               if (onOpenOutfit) {
                 onClose();
-                onOpenOutfit();
+                onOpenOutfit(activeChar.id);
               } else {
                 setActiveTab('outfit');
               }

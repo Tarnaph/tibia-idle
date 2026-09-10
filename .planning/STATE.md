@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-10T17:50:00.000Z"
-last_activity: "2026-09-10 — Conclusão da Phase 121: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server."
+last_updated: "2026-09-10T18:25:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 122: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência."
 progress:
-  total_phases: 121
-  completed_phases: 121
-  total_plans: 121
-  completed_plans: 121
+  total_phases: 122
+  completed_phases: 122
+  total_plans: 122
+  completed_plans: 122
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 121 concluída com 100% de testes (122 arquivos / 679 testes) e 0 erros de tipagem. Concorrência assíncrona resolvida com in-flight promises no `loadImage`, preview do modal sem flicker com buffer offscreen atômico, animação contínua de 8 passos na caminhada com montarias e eliminação do loop SSR de `<img src="" />`.
+**Current focus:** Phase 122 concluída com 100% de testes (123 arquivos / 689 testes) e 0 erros de tipagem. Navegação bidirecional Personagem ↔ Outfit preservando personagem, respeito rigoroso a capabilities de trajes (`hasAddon1`, `hasAddon2`, `hasMountRider`), tolerância a 404s sem travar composição, suporte completo ao Sire (frames f0..f2 sem f3..f8 e recusa de montaria), token de cancelamento de preview contra concorrência e conversão dos avatares para PNG autêntico.
 
 ## Current Position
 
-Phase: 121 of 121 (Concluída)  
+Phase: 122 of 122 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Phase 121: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server.
+Last activity: 2026-09-10 — Phase 122: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 110
-- Total phases in roadmap: 110
-- Tests status: 122 test suites (679 testes aprovados)
+- Total phases completed: 122
+- Total phases in roadmap: 122
+- Tests status: 123 test suites (689 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

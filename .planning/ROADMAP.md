@@ -2099,6 +2099,23 @@ Plans:
 - [x] 121-01-PLAN: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server.
 - Resumo de entrega: `.planning/phases/phase-121-outfit-mount-animation-fix/121-SUMMARY.md`
 
+### Phase 122: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência
+
+**Goal:** Implementar navegação bidirecional real entre a ficha do personagem e o modal de outfit preservando o personagem ativo, respeitar as capabilities canônicas do catálogo de outfits (desabilitando e limpando addons e montarias incompatíveis e tolerando assets 404 sem travar composição), suportar a política de frames e recusa de montaria do Sire, implementar token de cancelamento de preview contra concorrência assíncrona e converter avatares para PNG autêntico.
+**Depends on:** Phase 121
+**Requirements:**
+1. Conectar navegação real entre `OutfitModal.tsx` e `CharacterProfileModal.tsx` via callbacks em `GamePrototype.tsx`, preservando o `selectedCharId`.
+2. Exportar `getOutfitCapabilities` e respeitar `hasAddon1`, `hasAddon2`, `hasMountRider` no `getOutfitLayerUrls` e no `OutfitModal.tsx`.
+3. Distinguir assets ainda carregando de assets com falha 404 (`failedImageUrls`) em `getRecoloredCanvasSync` para nunca travar a renderização base + máscara.
+4. Suportar frames de caminhada do Sire ciclando entre `f1` e `f2` sem requisitar `f3..f8`, recusar montaria para o Sire no compositor e desabilitar montaria no UI.
+5. Adicionar token de cancelamento (`isCurrent`) em `renderRecoloredOutfit` e contador de geração em `OutfitModal.tsx` para evitar que renderizações lentas antigas sobrescrevam escolhas novas.
+6. Converter avatares para PNG com assinatura `89 50 4E 47`.
+7. Criar suíte de testes Vitest dedicada (`phase122-outfit-navigation-capabilities-sire.test.ts`), garantir 100% de aprovação na suíte completa e 0 erros no typecheck.
+**Plans:**
+- [x] 122-01-PLAN: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência.
+- Resumo de entrega: `.planning/phases/phase-122-outfit-navigation-capabilities-sire-fix/122-SUMMARY.md`
+
+
 
 
 

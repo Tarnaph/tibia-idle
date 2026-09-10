@@ -133,6 +133,28 @@ export function normalizeMountId(mountId: string): string {
   return clean;
 }
 
+export interface OutfitCapabilities {
+  hasAddon1: boolean;
+  hasAddon2: boolean;
+  hasMountRider: boolean;
+  maxFrames: number;
+}
+
+export function getOutfitCapabilities(outfitId: string): OutfitCapabilities {
+  const norm = normalizeOutfitId(outfitId);
+  const found = CANONICAL_OUTFITS.find((o) => o.id === norm);
+  const hasAddon1 = found?.hasAddon1 ?? true;
+  const hasAddon2 = found?.hasAddon2 ?? true;
+  const hasMountRider = found?.hasMountRider ?? true;
+  const maxFrames = norm === 'sire' ? 3 : 9;
+  return {
+    hasAddon1,
+    hasAddon2,
+    hasMountRider,
+    maxFrames,
+  };
+}
+
 export function getOutfitLayerUrls(
   outfitId: string,
   gender: 'male' | 'female' = 'male',
@@ -151,8 +173,20 @@ export function getOutfitLayerUrls(
   mountUrl?: string;
 } {
   const norm = normalizeOutfitId(outfitId);
-  const safeFrame = Math.max(0, Math.min(8, frame));
-  const posePrefix = isMounted ? 'mount' : 'f' + safeFrame;
+  const caps = getOutfitCapabilities(norm);
+
+  let safeFrame: number;
+  if (caps.maxFrames <= 3) {
+    if (frame === 0) {
+      safeFrame = 0;
+    } else {
+      safeFrame = ((Math.abs(frame) - 1) % 2) + 1;
+    }
+  } else {
+    safeFrame = Math.max(0, Math.min(8, frame));
+  }
+
+  const effectiveMounted = isMounted && caps.hasMountRider;
 
   const res: {
     base: string;
@@ -163,32 +197,32 @@ export function getOutfitLayerUrls(
     addon2Mask?: string;
     mountUrl?: string;
   } = {
-    base: isMounted
+    base: effectiveMounted
       ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-base.png`
       : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-base.png`,
-    mask: isMounted
+    mask: effectiveMounted
       ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-mask.png`
       : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mask.png`,
   };
 
-  if ((addons & 1) !== 0) {
-    res.addon1Base = isMounted
+  if (caps.hasAddon1 && (addons & 1) !== 0) {
+    res.addon1Base = effectiveMounted
       ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-addon1-base.png`
       : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon1-base.png`;
-    res.addon1Mask = isMounted
+    res.addon1Mask = effectiveMounted
       ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-addon1-mask.png`
       : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon1-mask.png`;
   }
-  if ((addons & 2) !== 0) {
-    res.addon2Base = isMounted
+  if (caps.hasAddon2 && (addons & 2) !== 0) {
+    res.addon2Base = effectiveMounted
       ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-addon2-base.png`
       : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon2-base.png`;
-    res.addon2Mask = isMounted
+    res.addon2Mask = effectiveMounted
       ? `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mount-addon2-mask.png`
       : `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-addon2-mask.png`;
   }
 
-  if (isMounted && mount && mount !== 'none') {
+  if (effectiveMounted && mount && mount !== 'none') {
     const normMount = normalizeMountId(mount);
     res.mountUrl = `/generated/mounts/${normMount}-${direction}-f${safeFrame}.png`;
   }
@@ -198,14 +232,20 @@ export function getOutfitLayerUrls(
 
 const imageElementCache = new Map<string, HTMLImageElement>();
 const inFlightImagePromises = new Map<string, Promise<HTMLImageElement>>();
+export const failedImageUrls = new Set<string>();
 
 export function registerCachedImage(url: string, img: HTMLImageElement): void {
   imageElementCache.set(url, img);
 }
 
+export function registerFailedImage(url: string): void {
+  failedImageUrls.add(url);
+}
+
 export function clearImageElementCache(): void {
   imageElementCache.clear();
   inFlightImagePromises.clear();
+  failedImageUrls.clear();
 }
 
 export function loadImage(url: string): Promise<HTMLImageElement> {
@@ -248,6 +288,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
             })
             .catch(() => {
               inFlightImagePromises.delete(url);
+              failedImageUrls.add(url);
               reject(new Error(`Failed to load mount fallback image at ${url}`));
             });
           return;
@@ -266,6 +307,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
             })
             .catch(() => {
               inFlightImagePromises.delete(url);
+              failedImageUrls.add(url);
               reject(new Error(`Failed to load addon fallback image at ${url}`));
             });
           return;
@@ -273,6 +315,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
       }
 
       inFlightImagePromises.delete(url);
+      failedImageUrls.add(url);
       reject(new Error(`Failed to load image at ${url}`));
     };
 
@@ -394,9 +437,11 @@ export async function renderRecoloredOutfit(
   colors: OutfitColors,
   addons: number = 0,
   mount?: string,
-  isMounted: boolean = false
+  isMounted: boolean = false,
+  isCurrent?: () => boolean
 ): Promise<void> {
   if (typeof window === 'undefined') return;
+  if (isCurrent && !isCurrent()) return;
 
   const w = 64;
   const h = 64;
@@ -413,11 +458,13 @@ export async function renderRecoloredOutfit(
   if (isMounted && urls.mountUrl) {
     try {
       const mountImg = await loadImage(urls.mountUrl);
+      if (isCurrent && !isCurrent()) return;
       offCtx.drawImage(mountImg, 0, 0);
     } catch {
-      // ignore
+      // ignore missing mount
     }
   }
+  if (isCurrent && !isCurrent()) return;
 
   // 2. Load rider/base layer
   try {
@@ -428,35 +475,44 @@ export async function renderRecoloredOutfit(
     } catch {
       // If mount pose doesn't exist, fallback to regular base
       const norm = normalizeOutfitId(outfitId);
-      const safeFrame = Math.max(0, Math.min(2, frame));
+      const caps = getOutfitCapabilities(norm);
+      const safeFrame = caps.maxFrames <= 3
+        ? (frame === 0 ? 0 : ((Math.abs(frame) - 1) % 2) + 1)
+        : Math.max(0, Math.min(2, frame));
       const fbBase = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-base.png`;
       const fbMask = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mask.png`;
       [baseImg, maskImg] = await Promise.all([loadImage(fbBase), loadImage(fbMask)]);
     }
+    if (isCurrent && !isCurrent()) return;
     drawRecoloredLayer(offCtx, baseImg, maskImg, colors, w, h, offset.x, offset.y);
   } catch {
     // ignore
   }
+  if (isCurrent && !isCurrent()) return;
 
   // 3. Addon 1
   if (urls.addon1Base && urls.addon1Mask) {
     try {
       const [a1Base, a1Mask] = await Promise.all([loadImage(urls.addon1Base), loadImage(urls.addon1Mask)]);
+      if (isCurrent && !isCurrent()) return;
       drawRecoloredLayer(offCtx, a1Base, a1Mask, colors, w, h, offset.x, offset.y);
     } catch {
       // ignore
     }
   }
+  if (isCurrent && !isCurrent()) return;
 
   // 4. Addon 2
   if (urls.addon2Base && urls.addon2Mask) {
     try {
       const [a2Base, a2Mask] = await Promise.all([loadImage(urls.addon2Base), loadImage(urls.addon2Mask)]);
+      if (isCurrent && !isCurrent()) return;
       drawRecoloredLayer(offCtx, a2Base, a2Mask, colors, w, h, offset.x, offset.y);
     } catch {
       // ignore
     }
   }
+  if (isCurrent && !isCurrent()) return;
 
   // 5. Blit offscreen buffer to visible targetCanvas in a single synchronous operation
   targetCanvas.width = w;
@@ -489,10 +545,14 @@ export async function preloadOutfitAllFrames(
 ): Promise<void> {
   if (typeof window === 'undefined') return;
   const norm = normalizeOutfitId(outfitId);
+  const caps = getOutfitCapabilities(norm);
   const directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'];
 
+  const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+  const effectiveMounted = isMounted && caps.hasMountRider;
+
   const loadAndCacheFrame = async (dir: 'south' | 'east' | 'north' | 'west', f: number) => {
-    const urls = getOutfitLayerUrls(norm, gender, dir, f, addons, mount, isMounted);
+    const urls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
     const subPromises: Promise<any>[] = [
       loadImage(urls.base).catch(() => null),
       loadImage(urls.mask).catch(() => null),
@@ -505,17 +565,18 @@ export async function preloadOutfitAllFrames(
 
     await Promise.allSettled(subPromises);
     if (colors) {
-      getRecoloredCanvasSync(norm, gender, dir, f, colors, addons, mount, isMounted);
+      getRecoloredCanvasSync(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
     }
   };
 
   // 1. Prioritize frame 0 (idle) across all 4 directions immediately so standing pose is instantly ready
   await Promise.allSettled(directions.map((dir) => loadAndCacheFrame(dir, 0)));
 
-  // 2. Preload walk frames (f1..f8) progressively in parallel
+  // 2. Preload walk frames: up to maxFrames - 1 (e.g. 2 for Sire, 8 for others)
+  const maxWalkFrame = Math.min(8, caps.maxFrames - 1);
   const walkPromises: Promise<void>[] = [];
   for (const dir of directions) {
-    for (let f = 1; f <= 8; f++) {
+    for (let f = 1; f <= maxWalkFrame; f++) {
       walkPromises.push(loadAndCacheFrame(dir, f));
     }
   }
@@ -546,7 +607,13 @@ export function isOutfitCanvasCached(
   isMounted: boolean = false
 ): boolean {
   const norm = normalizeOutfitId(outfitId);
-  const key = getCanvasCacheKey(norm, gender, direction, frame, colors, addons, mount, isMounted);
+  const caps = getOutfitCapabilities(norm);
+  const safeFrame = caps.maxFrames <= 3
+    ? (frame === 0 ? 0 : ((Math.abs(frame) - 1) % 2) + 1)
+    : Math.max(0, Math.min(8, frame));
+  const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+  const effectiveMounted = isMounted && caps.hasMountRider;
+  const key = getCanvasCacheKey(norm, gender, direction, safeFrame, colors, effectiveAddons, mount, effectiveMounted);
   return recoloredCanvasCache.has(key);
 }
 
@@ -561,13 +628,22 @@ export function getRecoloredCanvasSync(
   isMounted: boolean = false
 ): HTMLCanvasElement | null {
   const norm = normalizeOutfitId(outfitId);
-  const key = getCanvasCacheKey(norm, gender, direction, frame, colors, addons, mount, isMounted);
+  const caps = getOutfitCapabilities(norm);
+  const safeFrame = caps.maxFrames <= 3
+    ? (frame === 0 ? 0 : ((Math.abs(frame) - 1) % 2) + 1)
+    : Math.max(0, Math.min(8, frame));
+  const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+  const effectiveMounted = isMounted && caps.hasMountRider;
+
+  const key = getCanvasCacheKey(norm, gender, direction, safeFrame, colors, effectiveAddons, mount, effectiveMounted);
   const existing = recoloredCanvasCache.get(key);
   if (existing) return existing;
 
-  const urls = getOutfitLayerUrls(norm, gender, direction, frame, addons, mount, isMounted);
+  const urls = getOutfitLayerUrls(norm, gender, direction, safeFrame, effectiveAddons, mount, effectiveMounted);
 
   // Check rider base and mask
+  const isBaseFailed = failedImageUrls.has(urls.base);
+  const isMaskFailed = failedImageUrls.has(urls.mask);
   const baseImg = imageElementCache.get(urls.base);
   const maskImg = imageElementCache.get(urls.mask);
   const isBaseReady = !!(baseImg && baseImg.complete && baseImg.naturalWidth > 0);
@@ -576,9 +652,15 @@ export function getRecoloredCanvasSync(
   // Check mount layer if mounted
   let isMountReady = true;
   let mountImg: HTMLImageElement | undefined;
-  if (isMounted && urls.mountUrl) {
-    mountImg = imageElementCache.get(urls.mountUrl);
-    isMountReady = !!(mountImg && mountImg.complete && mountImg.naturalWidth > 0);
+  if (effectiveMounted && urls.mountUrl) {
+    if (failedImageUrls.has(urls.mountUrl)) {
+      // Inexistent mount: do not block composition
+      isMountReady = true;
+      mountImg = undefined;
+    } else {
+      mountImg = imageElementCache.get(urls.mountUrl);
+      isMountReady = !!(mountImg && mountImg.complete && mountImg.naturalWidth > 0);
+    }
   }
 
   // Check Addon 1 if active
@@ -586,9 +668,16 @@ export function getRecoloredCanvasSync(
   let a1Base: HTMLImageElement | undefined;
   let a1Mask: HTMLImageElement | undefined;
   if (urls.addon1Base && urls.addon1Mask) {
-    a1Base = imageElementCache.get(urls.addon1Base);
-    a1Mask = imageElementCache.get(urls.addon1Mask);
-    isAddon1Ready = !!(a1Base && a1Base.complete && a1Base.naturalWidth > 0 && a1Mask && a1Mask.complete && a1Mask.naturalWidth > 0);
+    if (failedImageUrls.has(urls.addon1Base) || failedImageUrls.has(urls.addon1Mask)) {
+      // Inexistent addon 1: do not block composition
+      isAddon1Ready = true;
+      a1Base = undefined;
+      a1Mask = undefined;
+    } else {
+      a1Base = imageElementCache.get(urls.addon1Base);
+      a1Mask = imageElementCache.get(urls.addon1Mask);
+      isAddon1Ready = !!(a1Base && a1Base.complete && a1Base.naturalWidth > 0 && a1Mask && a1Mask.complete && a1Mask.naturalWidth > 0);
+    }
   }
 
   // Check Addon 2 if active
@@ -596,38 +685,47 @@ export function getRecoloredCanvasSync(
   let a2Base: HTMLImageElement | undefined;
   let a2Mask: HTMLImageElement | undefined;
   if (urls.addon2Base && urls.addon2Mask) {
-    a2Base = imageElementCache.get(urls.addon2Base);
-    a2Mask = imageElementCache.get(urls.addon2Mask);
-    isAddon2Ready = !!(a2Base && a2Base.complete && a2Base.naturalWidth > 0 && a2Mask && a2Mask.complete && a2Mask.naturalWidth > 0);
+    if (failedImageUrls.has(urls.addon2Base) || failedImageUrls.has(urls.addon2Mask)) {
+      // Inexistent addon 2: do not block composition
+      isAddon2Ready = true;
+      a2Base = undefined;
+      a2Mask = undefined;
+    } else {
+      a2Base = imageElementCache.get(urls.addon2Base);
+      a2Mask = imageElementCache.get(urls.addon2Mask);
+      isAddon2Ready = !!(a2Base && a2Base.complete && a2Base.naturalWidth > 0 && a2Mask && a2Mask.complete && a2Mask.naturalWidth > 0);
+    }
   }
 
   const allLayersReady = isBaseReady && isMaskReady && isMountReady && isAddon1Ready && isAddon2Ready;
 
   // IF ANY REQUIRED LAYER IS NOT LOADED:
   if (!allLayersReady) {
-    // Trigger asynchronous load for all pending assets
-    if (!isBaseReady) loadImage(urls.base).catch(() => {});
-    if (!isMaskReady) loadImage(urls.mask).catch(() => {});
-    if (isMounted && urls.mountUrl && !isMountReady) loadImage(urls.mountUrl).catch(() => {});
-    if (urls.addon1Base && !isAddon1Ready) {
-      loadImage(urls.addon1Base).catch(() => {});
-      if (urls.addon1Mask) loadImage(urls.addon1Mask).catch(() => {});
+    // Trigger asynchronous load for pending assets (skip already failed ones)
+    if (!isBaseReady && !isBaseFailed) loadImage(urls.base).catch(() => {});
+    if (!isMaskReady && !isMaskFailed) loadImage(urls.mask).catch(() => {});
+    if (effectiveMounted && urls.mountUrl && !isMountReady && !failedImageUrls.has(urls.mountUrl)) {
+      loadImage(urls.mountUrl).catch(() => {});
     }
-    if (urls.addon2Base && !isAddon2Ready) {
+    if (urls.addon1Base && !isAddon1Ready && !failedImageUrls.has(urls.addon1Base)) {
+      loadImage(urls.addon1Base).catch(() => {});
+      if (urls.addon1Mask && !failedImageUrls.has(urls.addon1Mask)) loadImage(urls.addon1Mask).catch(() => {});
+    }
+    if (urls.addon2Base && !isAddon2Ready && !failedImageUrls.has(urls.addon2Base)) {
       loadImage(urls.addon2Base).catch(() => {});
-      if (urls.addon2Mask) loadImage(urls.addon2Mask).catch(() => {});
+      if (urls.addon2Mask && !failedImageUrls.has(urls.addon2Mask)) loadImage(urls.addon2Mask).catch(() => {});
     }
 
     // DO NOT cache under definitive key in recoloredCanvasCache!
     // Return provisional fallback so display doesn't flicker or become invisible
-    if (isMounted) {
+    if (effectiveMounted) {
       // 1. Try mounted idle frame in current direction
-      const dirMountFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, addons, mount, true);
+      const dirMountFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, effectiveAddons, mount, true);
       const dirMountFallback = recoloredCanvasCache.get(dirMountFallbackKey);
       if (dirMountFallback) return dirMountFallback;
 
       // 2. Try mounted idle frame in south direction
-      const southMountFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, addons, mount, true);
+      const southMountFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, effectiveAddons, mount, true);
       const southMountFallback = recoloredCanvasCache.get(southMountFallbackKey);
       if (southMountFallback) return southMountFallback;
 
@@ -637,12 +735,12 @@ export function getRecoloredCanvasSync(
     }
 
     // 4. Fallback for unmounted: current direction frame 0
-    const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, addons, undefined, false);
+    const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, effectiveAddons, undefined, false);
     const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
     if (dirFallback) return dirFallback;
 
     // 5. Fallback for unmounted: south frame 0
-    const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, addons, undefined, false);
+    const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, effectiveAddons, undefined, false);
     const southFallback = recoloredCanvasCache.get(southFallbackKey);
     if (southFallback) return southFallback;
     return null;
@@ -658,10 +756,10 @@ export function getRecoloredCanvasSync(
   const targetCtx = targetCanvas.getContext('2d');
   if (!targetCtx) return null;
 
-  const offset = isMounted ? getMountDisplacementOffset(norm, gender, mount) : { x: 0, y: 0 };
+  const offset = effectiveMounted ? getMountDisplacementOffset(norm, gender, mount) : { x: 0, y: 0 };
 
   // 1. Draw mount underneath if mounted
-  if (isMounted && mountImg && urls.mountUrl) {
+  if (effectiveMounted && mountImg && urls.mountUrl) {
     targetCtx.drawImage(mountImg, 0, 0);
   }
 

@@ -2636,6 +2636,13 @@ function GamePrototypeContent() {
           characters={game.session.characters}
           activeCharacterId={outfitModalCharId || activeCharacter.id}
           onClose={() => setOutfitModalOpen(false)}
+          onOpenCharacterProfile={(charId) => {
+            setOutfitModalOpen(false);
+            if (charId) {
+              setGame((cur) => selectCharacter(cur, charId));
+            }
+            setIsProfileModalOpen(true);
+          }}
           onSave={handleSaveOutfit}
         />
       )}
@@ -2739,9 +2746,9 @@ function GamePrototypeContent() {
         onSelectCharacter={(charId) => {
           setGame((cur) => selectCharacter(cur, charId));
         }}
-        onOpenOutfit={() => {
+        onOpenOutfit={(charId) => {
           setIsProfileModalOpen(false);
-          handleOpenOutfitModal(activeCharacter.id);
+          handleOpenOutfitModal(charId || activeCharacter.id);
         }}
         content={content}
         avatarId={(activeCharacter as any).avatarId ?? 1}

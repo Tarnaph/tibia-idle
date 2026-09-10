@@ -5,6 +5,7 @@ import rawMountsJson from '@/content/generated/mounts.json';
 import {
   TIBIA_133_COLORS,
   normalizeOutfitId,
+  getOutfitCapabilities,
   renderRecoloredOutfit,
   preloadOutfitAllFrames,
   type OutfitColors,
@@ -105,6 +106,7 @@ interface Props {
   characters: CharacterState[];
   activeCharacterId: string;
   onClose(): void;
+  onOpenCharacterProfile?: (characterId: string) => void;
   onSave(
     characterId: string,
     customization: {
@@ -117,7 +119,7 @@ interface Props {
   ): void;
 }
 
-export function OutfitModal({ open, characters, activeCharacterId, onClose, onSave }: Props) {
+export function OutfitModal({ open, characters, activeCharacterId, onClose, onOpenCharacterProfile, onSave }: Props) {
   const [selectedCharId, setSelectedCharId] = useState(activeCharacterId);
   const [topTab, setTopTab] = useState<'character' | 'outfit'>('outfit');
   const [selectedTab, setSelectedTab] = useState<'outfits' | 'mounts'>('outfits');
@@ -134,9 +136,11 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const lastSyncedCharRef = useRef<string | null>(null);
   const prevOpenRef = useRef<boolean>(false);
+  const renderGenRef = useRef<number>(0);
 
   const activeChar = characters.find((c) => c.id === selectedCharId) || characters[0];
   const charGender: 'male' | 'female' = activeChar?.gender === 'female' ? 'female' : 'male';
+  const currentCaps = getOutfitCapabilities(selectedOutfit);
 
   // Sync state ONLY when modal newly opens or when user explicitly changes selected character
   useEffect(() => {
@@ -153,29 +157,47 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
       lastSyncedCharRef.current = selectedCharId;
       const char = characters.find((c) => c.id === selectedCharId) || characters[0];
       if (char) {
-        setSelectedOutfit(char.outfit || char.baseVocation || 'Knight');
+        const outfit = char.outfit || char.baseVocation || 'Knight';
+        setSelectedOutfit(outfit);
         setSelectedMount(char.mount || 'donkey');
-        // Authentic requirement: Character opens ON FOOT by default unless saved mountActive is explicitly true
-        setMountActive(char.mountActive !== undefined ? Boolean(char.mountActive) : false);
+        const caps = getOutfitCapabilities(outfit);
+        // Character opens ON FOOT by default unless saved mountActive is explicitly true and supported
+        setMountActive(caps.hasMountRider && char.mountActive !== undefined ? Boolean(char.mountActive) : false);
         const addons = char.addons || 0;
-        setAddon1((addons & 1) !== 0);
-        setAddon2((addons & 2) !== 0);
+        setAddon1(caps.hasAddon1 && (addons & 1) !== 0);
+        setAddon2(caps.hasAddon2 && (addons & 2) !== 0);
         if (char.outfitColors) setColors(char.outfitColors);
       }
     }
   }, [selectedCharId, open]);
 
-  const isMounted = mountActive && selectedMount !== 'none';
+  const isMounted = mountActive && selectedMount !== 'none' && currentCaps.hasMountRider;
   const currentDir = DIRECTIONS[directionIdx];
 
+  const handleSelectOutfit = (outfitId: string) => {
+    setSelectedOutfit(outfitId);
+    const caps = getOutfitCapabilities(outfitId);
+    if (!caps.hasAddon1 && addon1) {
+      setAddon1(false);
+    }
+    if (!caps.hasAddon2 && addon2) {
+      setAddon2(false);
+    }
+    if (!caps.hasMountRider && mountActive) {
+      setMountActive(false);
+    }
+  };
+
   // Live recolor preview on canvas whenever outfit, direction, colors, addons, or mount change
+  // Generation counter invalidates stale in-flight renders
   useEffect(() => {
     if (!open) return;
 
     if (previewCanvasRef.current) {
+      const thisGen = ++renderGenRef.current;
       let addonsVal = 0;
-      if (addon1) addonsVal |= 1;
-      if (addon2) addonsVal |= 2;
+      if (addon1 && currentCaps.hasAddon1) addonsVal |= 1;
+      if (addon2 && currentCaps.hasAddon2) addonsVal |= 2;
       renderRecoloredOutfit(
         previewCanvasRef.current,
         selectedOutfit,
@@ -185,10 +207,24 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
         colors,
         addonsVal,
         selectedMount,
-        isMounted
+        isMounted,
+        () => renderGenRef.current === thisGen
       );
     }
-  }, [open, selectedOutfit, charGender, currentDir, colors, isMounted, addon1, addon2, selectedMount]);
+  }, [
+    open,
+    selectedOutfit,
+    charGender,
+    currentDir,
+    colors,
+    isMounted,
+    addon1,
+    addon2,
+    selectedMount,
+    currentCaps.hasAddon1,
+    currentCaps.hasAddon2,
+    currentCaps.hasMountRider,
+  ]);
 
   if (!open) return null;
 
@@ -222,9 +258,9 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
 
   const handleSave = () => {
     let addonsVal = 0;
-    if (addon1) addonsVal |= 1;
-    if (addon2) addonsVal |= 2;
-    const isMnt = mountActive && selectedMount !== 'none';
+    if (addon1 && currentCaps.hasAddon1) addonsVal |= 1;
+    if (addon2 && currentCaps.hasAddon2) addonsVal |= 2;
+    const isMnt = mountActive && selectedMount !== 'none' && currentCaps.hasMountRider;
     onSave(selectedCharId, {
       outfit: selectedOutfit,
       mount: selectedMount,
@@ -294,7 +330,14 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
           <button
             type="button"
             className={`tibia-top-nav-tab ${topTab === 'character' ? 'active' : ''}`}
-            onClick={() => setTopTab('character')}
+            onClick={() => {
+              if (onOpenCharacterProfile) {
+                onClose();
+                onOpenCharacterProfile(selectedCharId);
+              } else {
+                setTopTab('character');
+              }
+            }}
           >
             Personagem
           </button>
@@ -311,41 +354,49 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
         <div className="tibia-outfit-content">
           {/* Left Column */}
           <div className="tibia-outfit-left-col">
-            <div className="tibia-beveled-check-box">
+            <div className={`tibia-beveled-check-box ${!currentCaps.hasAddon1 ? 'disabled opacity-50 pointer-events-none' : ''}`}>
               <label className="tibia-check-label">
                 <input
                   type="checkbox"
-                  checked={addon1}
+                  checked={addon1 && currentCaps.hasAddon1}
+                  disabled={!currentCaps.hasAddon1}
                   onChange={(e) => setAddon1(e.target.checked)}
                   className="tibia-custom-checkbox"
                 />
-                <span className="tibia-check-text">Addon 1</span>
+                <span className="tibia-check-text">
+                  Addon 1 {!currentCaps.hasAddon1 && '(Indisponível)'}
+                </span>
               </label>
             </div>
 
-            <div className="tibia-beveled-check-box">
+            <div className={`tibia-beveled-check-box ${!currentCaps.hasAddon2 ? 'disabled opacity-50 pointer-events-none' : ''}`}>
               <label className="tibia-check-label">
                 <input
                   type="checkbox"
-                  checked={addon2}
+                  checked={addon2 && currentCaps.hasAddon2}
+                  disabled={!currentCaps.hasAddon2}
                   onChange={(e) => setAddon2(e.target.checked)}
                   className="tibia-custom-checkbox"
                 />
-                <span className="tibia-check-text">Addon 2</span>
+                <span className="tibia-check-text">
+                  Addon 2 {!currentCaps.hasAddon2 && '(Indisponível)'}
+                </span>
               </label>
             </div>
 
-            <div className="tibia-beveled-check-box">
+            <div className={`tibia-beveled-check-box ${!currentCaps.hasMountRider || selectedMount === 'none' ? 'disabled opacity-50' : ''}`}>
               <label className="tibia-check-label">
                 <input
                   type="checkbox"
-                  checked={mountActive && selectedMount !== 'none'}
-                  disabled={selectedMount === 'none'}
+                  checked={mountActive && selectedMount !== 'none' && currentCaps.hasMountRider}
+                  disabled={selectedMount === 'none' || !currentCaps.hasMountRider}
                   onChange={(e) => setMountActive(e.target.checked)}
                   className="tibia-custom-checkbox"
                 />
                 <span className="tibia-check-text">
-                  {AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || 'Sem Montaria'}
+                  {!currentCaps.hasMountRider
+                    ? 'Montaria (Sem suporte)'
+                    : AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || 'Sem Montaria'}
                 </span>
               </label>
             </div>
@@ -458,8 +509,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                       key={outfit.id}
                       className={`tibia-card-item ${isSelected ? 'active' : ''}`}
                       onClick={() => {
-                        setSelectedOutfit(outfit.id);
-                        if (mountActive) setMountActive(false);
+                        handleSelectOutfit(outfit.id);
                       }}
                     >
                       <div className="tibia-card-sprite-wrap">
