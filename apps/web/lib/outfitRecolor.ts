@@ -103,7 +103,7 @@ export function getOutfitLayerUrls(
   mountUrl?: string;
 } {
   const norm = normalizeOutfitId(outfitId);
-  const safeFrame = Math.max(0, Math.min(2, frame));
+  const safeFrame = Math.max(0, Math.min(8, frame));
   const posePrefix = isMounted ? 'mount' : 'f' + safeFrame;
 
   const res: {
@@ -358,7 +358,7 @@ export async function preloadOutfitAllFrames(
   if (typeof window === 'undefined') return;
   const norm = normalizeOutfitId(outfitId);
   const directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'];
-  const frames = [0, 1, 2];
+  const frames = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
   const loadPromises: Promise<HTMLImageElement>[] = [];
   for (const dir of directions) {

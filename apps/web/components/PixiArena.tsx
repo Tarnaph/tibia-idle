@@ -664,7 +664,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             const charGender = character.gender === 'female' ? 'female' : 'male';
             const colors = character.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
             const addons = character.addons || 0;
-            const walkFrame = sample.moving ? Math.floor(framePhase * 3) : 0;
+            const walkFrame = sample.moving ? (1 + (Math.floor(framePhase * 8) % 8)) : 0;
             const textureKey = `${outfitKey}_${charGender}_${sample.direction}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons}_m${isMounted ? character.mount : 'none'}`;
             const isCached = isOutfitCanvasCached(
               outfitKey,

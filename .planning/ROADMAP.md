@@ -77,6 +77,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 113: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition)** - Ativação da tela de carregamento oficial de Thais com curiosidades rotativas de lore e transição de áudio ao morrer e confirmar o respawn no templo, com pausa da caminhada durante os 10s.
 - [x] **Phase 114: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop (Arrastar e Soltar Slots F1 a F12)** - Suporte a arrastar e soltar (HTML5 DnD) magias, runas e poções entre slots da hotbar (F1 a F12 e 1 a 0), troca atômica de posições e configurações sem efeito cascata em slots intermediários, feedback visual (borda dourada brilhante e opacidade) e persistência permanente no banco de dados via `/api/characters/[id]/save`.
 - [x] **Phase 116: Blindagem de Sessão/Auth Admin, Cadastro Seguro e Correção de Frame Parado (Idle Pose)** - Centralização da gestão de sessão com limpeza atômica de cookies/tokens/conexões no logout; bloqueio absoluto de escalação de privilégios no cadastro público (apenas PLAYER) e validação estrita de JWT_SECRET; desacoplamento entre caminho pendente e movimento físico real, eliminação de callbacks assíncronos desatualizados e atualização contínua de texturas provisórias para restaurar a pose de repouso (frame 0) exata.
+- [x] **Phase 117: Pipeline Autêntico de Animação Tibia 10.98 (Idle Frame 0 Canônico e Ciclo Completo de Caminhada com 8 Frames)** - Separação canônica entre FrameGroup 0 (Idle / Repouso com pés juntos) e FrameGroup 1 (Moving com 8 frames completos) no extrator de DAT/SPR, exportação dos assets f0 (idle) e f1..f8 (caminhada fluida), e sincronização dos motores de renderização PixiJS da cidade e caçada com o ciclo completo de 8 passos do Tibia 10.98.
 
 
 ---
@@ -2029,6 +2030,19 @@ Plans:
 7. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
 **Plans:**
 - [x] 116-01-PLAN: Blindagem de Sessão/Auth Admin, Cadastro Seguro e Correção de Frame Parado (Idle Pose).
+
+### Phase 117: Pipeline Autêntico de Animação Tibia 10.98 (Idle Frame 0 Canônico e Ciclo Completo de Caminhada com 8 Frames)
+
+**Goal:** Resolver a causa raiz definitiva da pose de repouso e da animação de caminhada incompleta: (1) Corrigir o extrator de appearances (`scripts/extract-complete-appearances.mjs`) para extrair o `FrameGroup 0 (Idle)` (1 frame) como o verdadeiro `f0` (pose estática neutra com pés alinhados) e todos os 8 frames de `FrameGroup 1 (Moving)` para compor a caminhada completa da CipSoft; (2) Atualizar o cache e carregador de texturas (`apps/web/lib/outfitRecolor.ts`) para suportar a pose `f0` neutra e o ciclo de 8 frames; (3) Integrar o ciclo fluido de 8 frames em `ThaisCityArena.tsx` e `PixiArena.tsx`, eliminando truncamentos e garantindo que o personagem parado permaneça em repouso neutro e ao andar execute a caminhada autêntica com as duas pernas; (4) Suíte de testes automatizados e validação de 0 erros no TypeScript.
+**Depends on:** Phase 116, Phase 47, Phase 44
+**Requirements:**
+1. No extrator de appearances, distinguir estritamente `FrameGroup 0` (Idle) e `FrameGroup 1` (Moving) para cada creature e mount.
+2. Salvar `f0` a partir do `FrameGroup 0` (pose de repouso neutra).
+3. Salvar os frames de caminhada a partir do `FrameGroup 1` (8 frames de caminhada completos).
+4. Adaptar `outfitRecolor.ts` e renderizadores PixiJS para utilizar `f0` parado e o ciclo de 8 passos do Tibia 10.98 em movimento.
+5. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
+**Plans:**
+- [x] 117-01-PLAN: Pipeline Autêntico de Animação Tibia 10.98 (Idle Frame 0 Canônico e Ciclo Completo de Caminhada com 8 Frames).
 
 
 

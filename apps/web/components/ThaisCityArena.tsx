@@ -1062,9 +1062,9 @@ export function ThaisCityArena({
           }
         });
 
-        // 4. Update local player character: fluid walk frame sequence (0 -> 1 -> 0 -> 2)
-        const walkCycle = [0, 1, 0, 2];
-        const stepRateMs = Math.max(60, Math.min(130, Math.floor(curStepDuration / 3.5)));
+        // 4. Update local player character: authentic Tibia 10.98 walk cycle (f0 = idle, f1..f8 = 8 fluid steps)
+        const walkCycle8 = [1, 2, 3, 4, 5, 6, 7, 8];
+        const stepRateMs = Math.max(25, Math.floor(curStepDuration / 8));
         const localChar = curChars[0];
 
         if (localChar) {
@@ -1074,7 +1074,7 @@ export function ThaisCityArena({
             const charPixelY = currentPixelY;
             const charDirection = playerDirection;
             const charIsMoving = isMoving;
-            const charWalkFrame = charIsMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
+            const charWalkFrame = charIsMoving ? walkCycle8[Math.floor(now / stepRateMs) % 8] : 0;
 
             view.sprite.scale.x = 1;
             const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
@@ -1513,7 +1513,7 @@ export function ThaisCityArena({
 
             const rMounted = Boolean(p.mountActive && p.mount && p.mount !== 'none');
             const rAddons = p.outfitAddons || 0;
-            const walkFrame = isMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
+            const walkFrame = isMoving ? walkCycle8[Math.floor(now / stepRateMs) % 8] : 0;
             const textureKey = colors
               ? `${outfitKey}_male_${dir}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${rAddons}_m${rMounted ? p.mount : 'none'}`
               : `${outfitKey}_male_${dir}_${walkFrame}`;

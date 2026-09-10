@@ -179,10 +179,12 @@ for (const outfit of outfitCatalogue) {
       continue;
     }
 
-    const grp = app.frameGroups?.[0] || app;
-    const hasAddon1 = grp.patternY >= 2;
-    const hasAddon2 = grp.patternY >= 3;
-    const hasMountRider = grp.patternZ >= 2;
+    const idleGrp = app.frameGroups?.find(g => g.frameGroupType === 0) || app.frameGroups?.[0] || app;
+    const movingGrp = app.frameGroups?.find(g => g.frameGroupType === 1) || app.frameGroups?.[1] || app;
+
+    const hasAddon1 = idleGrp.patternY >= 2 || movingGrp.patternY >= 2;
+    const hasAddon2 = idleGrp.patternY >= 3 || movingGrp.patternY >= 3;
+    const hasMountRider = idleGrp.patternZ >= 2 || movingGrp.patternZ >= 2;
 
     if (gender === 'male') {
       outfit.hasAddon1 = hasAddon1;
@@ -191,44 +193,75 @@ for (const outfit of outfitCatalogue) {
     }
 
     for (const dir of DIRECTIONS) {
-      for (let frame = 0; frame < Math.min(app.frames, 3); frame++) {
-        // Base & Mask (y=0, z=0)
-        const { rgba: baseRgba, width, height } = renderAppearanceRgba(app, { layer: 0, x: dir.x, y: 0, z: 0, frame });
-        const { rgba: maskRgba } = renderAppearanceRgba(app, { layer: 1, x: dir.x, y: 0, z: 0, frame });
+      // 1. FRAME 0: IDLE POSE (Canonical resting pose with feet planted on ground)
+      {
+        const { rgba: baseRgba, width, height } = renderAppearanceRgba(idleGrp, { layer: 0, x: dir.x, y: 0, z: 0, frame: 0 });
+        const { rgba: maskRgba } = renderAppearanceRgba(idleGrp, { layer: 1, x: dir.x, y: 0, z: 0, frame: 0 });
 
-        const baseFile = path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-base.png`);
-        const maskFile = path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-mask.png`);
+        const baseFile = path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-base.png`);
+        const maskFile = path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mask.png`);
         fs.writeFileSync(baseFile, encodeRgbaPng(width, height, baseRgba));
         fs.writeFileSync(maskFile, encodeRgbaPng(width, height, maskRgba));
 
-        // Addon 1 (y=1, z=0)
         if (hasAddon1) {
-          const { rgba: a1Base } = renderAppearanceRgba(app, { layer: 0, x: dir.x, y: 1, z: 0, frame });
-          const { rgba: a1Mask } = renderAppearanceRgba(app, { layer: 1, x: dir.x, y: 1, z: 0, frame });
-          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-addon1-base.png`), encodeRgbaPng(width, height, a1Base));
-          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-addon1-mask.png`), encodeRgbaPng(width, height, a1Mask));
+          const { rgba: a1Base } = renderAppearanceRgba(idleGrp, { layer: 0, x: dir.x, y: 1, z: 0, frame: 0 });
+          const { rgba: a1Mask } = renderAppearanceRgba(idleGrp, { layer: 1, x: dir.x, y: 1, z: 0, frame: 0 });
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-addon1-base.png`), encodeRgbaPng(width, height, a1Base));
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-addon1-mask.png`), encodeRgbaPng(width, height, a1Mask));
         }
 
-        // Addon 2 (y=2, z=0)
         if (hasAddon2) {
-          const { rgba: a2Base } = renderAppearanceRgba(app, { layer: 0, x: dir.x, y: 2, z: 0, frame });
-          const { rgba: a2Mask } = renderAppearanceRgba(app, { layer: 1, x: dir.x, y: 2, z: 0, frame });
-          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-addon2-base.png`), encodeRgbaPng(width, height, a2Base));
-          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-addon2-mask.png`), encodeRgbaPng(width, height, a2Mask));
+          const { rgba: a2Base } = renderAppearanceRgba(idleGrp, { layer: 0, x: dir.x, y: 2, z: 0, frame: 0 });
+          const { rgba: a2Mask } = renderAppearanceRgba(idleGrp, { layer: 1, x: dir.x, y: 2, z: 0, frame: 0 });
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-addon2-base.png`), encodeRgbaPng(width, height, a2Base));
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-addon2-mask.png`), encodeRgbaPng(width, height, a2Mask));
         }
 
-        // Mounted Rider Pose (y=0, z=1)
         if (hasMountRider) {
-          const { rgba: mRiderBase } = renderAppearanceRgba(app, { layer: 0, x: dir.x, y: 0, z: 1, frame });
-          const { rgba: mRiderMask } = renderAppearanceRgba(app, { layer: 1, x: dir.x, y: 0, z: 1, frame });
-          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-mount-base.png`), encodeRgbaPng(width, height, mRiderBase));
-          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${frame}-mount-mask.png`), encodeRgbaPng(width, height, mRiderMask));
+          const { rgba: mRiderBase } = renderAppearanceRgba(idleGrp, { layer: 0, x: dir.x, y: 0, z: 1, frame: 0 });
+          const { rgba: mRiderMask } = renderAppearanceRgba(idleGrp, { layer: 1, x: dir.x, y: 0, z: 1, frame: 0 });
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-base.png`), encodeRgbaPng(width, height, mRiderBase));
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f0-mount-mask.png`), encodeRgbaPng(width, height, mRiderMask));
         }
 
-        // Generate clean recolored thumbnail (male, south, frame 0)
-        if (gender === 'male' && dir.name === 'south' && frame === 0) {
+        // Clean recolored thumbnail from Idle pose
+        if (gender === 'male' && dir.name === 'south') {
           const thumbRgba = applyRecolor(baseRgba, maskRgba, width, height, DEFAULT_COLORS);
           fs.writeFileSync(path.join(OUTFIT_THUMBS_DIR, `${outfit.id}.png`), encodeRgbaPng(width, height, thumbRgba));
+        }
+      }
+
+      // 2. FRAMES 1..8: MOVING WALK CYCLE (CipSoft 8-frame fluid walk sequence)
+      const walkFramesCount = Math.max(1, movingGrp.frames);
+      for (let step = 0; step < walkFramesCount; step++) {
+        const outFrame = step + 1; // f1 .. f8
+        const { rgba: baseRgba, width, height } = renderAppearanceRgba(movingGrp, { layer: 0, x: dir.x, y: 0, z: 0, frame: step });
+        const { rgba: maskRgba } = renderAppearanceRgba(movingGrp, { layer: 1, x: dir.x, y: 0, z: 0, frame: step });
+
+        const baseFile = path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-base.png`);
+        const maskFile = path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mask.png`);
+        fs.writeFileSync(baseFile, encodeRgbaPng(width, height, baseRgba));
+        fs.writeFileSync(maskFile, encodeRgbaPng(width, height, maskRgba));
+
+        if (hasAddon1) {
+          const { rgba: a1Base } = renderAppearanceRgba(movingGrp, { layer: 0, x: dir.x, y: 1, z: 0, frame: step });
+          const { rgba: a1Mask } = renderAppearanceRgba(movingGrp, { layer: 1, x: dir.x, y: 1, z: 0, frame: step });
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-addon1-base.png`), encodeRgbaPng(width, height, a1Base));
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-addon1-mask.png`), encodeRgbaPng(width, height, a1Mask));
+        }
+
+        if (hasAddon2) {
+          const { rgba: a2Base } = renderAppearanceRgba(movingGrp, { layer: 0, x: dir.x, y: 2, z: 0, frame: step });
+          const { rgba: a2Mask } = renderAppearanceRgba(movingGrp, { layer: 1, x: dir.x, y: 2, z: 0, frame: step });
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-addon2-base.png`), encodeRgbaPng(width, height, a2Base));
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-addon2-mask.png`), encodeRgbaPng(width, height, a2Mask));
+        }
+
+        if (hasMountRider) {
+          const { rgba: mRiderBase } = renderAppearanceRgba(movingGrp, { layer: 0, x: dir.x, y: 0, z: 1, frame: step });
+          const { rgba: mRiderMask } = renderAppearanceRgba(movingGrp, { layer: 1, x: dir.x, y: 0, z: 1, frame: step });
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-base.png`), encodeRgbaPng(width, height, mRiderBase));
+          fs.writeFileSync(path.join(OUTFITS_DIR, `${outfit.id}-${gender}-${dir.name}-f${outFrame}-mount-mask.png`), encodeRgbaPng(width, height, mRiderMask));
         }
       }
     }
@@ -278,15 +311,24 @@ for (const mount of mountCatalogue) {
     continue;
   }
 
-  for (const dir of DIRECTIONS) {
-    for (let frame = 0; frame < Math.min(app.frames, 3); frame++) {
-      const { rgba, width, height } = renderAppearanceRgba(app, { layer: 0, x: dir.x, y: 0, z: 0, frame });
-      const filename = `${mount.id}-${dir.name}-f${frame}.png`;
-      fs.writeFileSync(path.join(MOUNTS_DIR, filename), encodeRgbaPng(width, height, rgba));
+  const mIdleGrp = app.frameGroups?.find(g => g.frameGroupType === 0) || app.frameGroups?.[0] || app;
+  const mMovingGrp = app.frameGroups?.find(g => g.frameGroupType === 1) || app.frameGroups?.[1] || app;
 
-      if (dir.name === 'south' && frame === 0) {
-        fs.writeFileSync(path.join(MOUNTS_DIR, `${mount.id}.png`), encodeRgbaPng(width, height, rgba));
-      }
+  for (const dir of DIRECTIONS) {
+    // 1. Mount f0: Idle standing
+    const { rgba: idleRgba, width, height } = renderAppearanceRgba(mIdleGrp, { layer: 0, x: dir.x, y: 0, z: 0, frame: 0 });
+    fs.writeFileSync(path.join(MOUNTS_DIR, `${mount.id}-${dir.name}-f0.png`), encodeRgbaPng(width, height, idleRgba));
+
+    if (dir.name === 'south') {
+      fs.writeFileSync(path.join(MOUNTS_DIR, `${mount.id}.png`), encodeRgbaPng(width, height, idleRgba));
+    }
+
+    // 2. Mount f1..f8: Moving gallop/walk frames
+    const mWalkFramesCount = Math.max(1, mMovingGrp.frames);
+    for (let step = 0; step < mWalkFramesCount; step++) {
+      const outFrame = step + 1;
+      const { rgba: moveRgba, width: mw, height: mh } = renderAppearanceRgba(mMovingGrp, { layer: 0, x: dir.x, y: 0, z: 0, frame: step });
+      fs.writeFileSync(path.join(MOUNTS_DIR, `${mount.id}-${dir.name}-f${outFrame}.png`), encodeRgbaPng(mw, mh, moveRgba));
     }
   }
   mountsProcessed++;
