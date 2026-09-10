@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-10T13:15:00.000Z"
-last_activity: "2026-09-10 — Conclusão da Phase 120: Correção de Montarias, Alinhamento Relativo por DAT Displacement, Cache Definitivo e Addons Montados."
+last_updated: "2026-09-10T17:50:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 121: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server."
 progress:
-  total_phases: 120
-  completed_phases: 120
-  total_plans: 120
-  completed_plans: 120
+  total_phases: 121
+  completed_phases: 121
+  total_plans: 121
+  completed_plans: 121
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 120 concluída e hotfix de continuidade visual aplicado com 100% de testes e 0 erros de tipagem. Preservação do `ThingAttrDisplacement` do `Tibia.dat`, preloading incremental de frames da montaria, fallback montado anti-flicker e ciclo contínuo de 8 passos na caminhada.
+**Current focus:** Phase 121 concluída com 100% de testes (122 arquivos / 679 testes) e 0 erros de tipagem. Concorrência assíncrona resolvida com in-flight promises no `loadImage`, preview do modal sem flicker com buffer offscreen atômico, animação contínua de 8 passos na caminhada com montarias e eliminação do loop SSR de `<img src="" />`.
 
 ## Current Position
 
-Phase: 120 of 120 (Concluída)  
+Phase: 121 of 121 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Hotfix: Continuidade de frames de caminhada, fallback montado anti-flicker e preloading incremental de montarias.
+Last activity: 2026-09-10 — Phase 121: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 109
-- Total phases in roadmap: 109
-- Tests status: 121 test suites (673 testes aprovados)
+- Total phases completed: 110
+- Total phases in roadmap: 110
+- Tests status: 122 test suites (679 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

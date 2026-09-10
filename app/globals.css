@@ -5622,11 +5622,21 @@ h1, h2, h3, p { margin: 0; }
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  transform: translate(-4px, -4px) scale(1.25);
 }
 
 .tibia-card-sprite.mount-sprite {
   max-height: 50px;
   max-width: 68px;
+  transform: none;
+}
+
+.tibia-card-no-mount-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .tibia-card-name {

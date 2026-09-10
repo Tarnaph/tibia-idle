@@ -2085,8 +2085,19 @@ Plans:
 3. No compositor `outfitRecolor.ts`, calcular o alinhamento relativo da montaria e do cavaleiro usando os metadados do DAT (`getMountDisplacementOffset`), conferindo paridade com War Bear, Black Sheep e Citizen.
 4. No `getRecoloredCanvasSync`, só gravar no cache definitivo quando todas as camadas necessárias estiverem completamente carregadas e válidas. Manter fallbacks como provisórios sem poluir a chave definitiva.
 5. Manter 100% de aprovação na suíte de testes do Vitest e 0 erros de TypeScript.
+### Phase 121: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server
+
+**Goal:** Solucionar a concorrência assíncrona no carregamento de imagens no cliente, reparar o preview preto no modal de aparência, restaurar a animação de caminhada de 8 passos para personagens a pé e montados, e eliminar o timeout do module runner do Vite disparado por tags de imagem vazias.
+**Depends on:** Phase 120
+**Requirements:**
+1. Implementar compartilhamento de Promises em trânsito no `loadImage` de `outfitRecolor.ts`, garantindo que requisições concorrentes não destruam os handlers `onload`.
+2. Em `renderRecoloredOutfit`, compor em buffer offscreen e aplicar blit atômico, eliminando o canvas preto enquanto os recursos carregam.
+3. Em `OutfitModal.tsx`, retornar `null` em `getMountThumbUrl` para 'none' e renderizar ícone de caminhada em vez de `<img src="" />`.
+4. Em `globals.css`, centralizar e dimensionar o sprite nos cards de outfits.
+5. Criar suíte de testes de regressão no Vitest e garantir 100% de aprovação e 0 erros no typecheck.
 **Plans:**
-- [x] 120-01-PLAN: Correção de Montarias, Alinhamento Relativo por DAT Displacement, Cache Definitivo e Addons Montados.
+- [x] 121-01-PLAN: Diagnóstico e Correção de Outfits Invisíveis, Montarias, Animação de Caminhada e Trava do Dev Server.
+- Resumo de entrega: `.planning/phases/phase-121-outfit-mount-animation-fix/121-SUMMARY.md`
 
 
 

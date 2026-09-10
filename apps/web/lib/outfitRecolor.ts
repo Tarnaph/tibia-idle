@@ -197,6 +197,7 @@ export function getOutfitLayerUrls(
 }
 
 const imageElementCache = new Map<string, HTMLImageElement>();
+const inFlightImagePromises = new Map<string, Promise<HTMLImageElement>>();
 
 export function registerCachedImage(url: string, img: HTMLImageElement): void {
   imageElementCache.set(url, img);
@@ -204,48 +205,84 @@ export function registerCachedImage(url: string, img: HTMLImageElement): void {
 
 export function clearImageElementCache(): void {
   imageElementCache.clear();
+  inFlightImagePromises.clear();
 }
 
 export function loadImage(url: string): Promise<HTMLImageElement> {
   if (typeof window === 'undefined') {
     return Promise.reject(new Error('Window undefined in SSR'));
   }
+  // 1. Return immediately if fully loaded and valid
   const cached = imageElementCache.get(url);
   if (cached && cached.complete && cached.naturalWidth > 0) {
     return Promise.resolve(cached);
   }
 
-  return new Promise((resolve, reject) => {
-    const img = cached || new Image();
+  // 2. Return existing in-flight promise so concurrent callers share the exact same resolution
+  const inFlight = inFlightImagePromises.get(url);
+  if (inFlight) {
+    return inFlight;
+  }
+
+  // 3. Create managed promise for this URL
+  const promise = new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = () => {
+
+    const handleSuccess = () => {
+      inFlightImagePromises.delete(url);
       imageElementCache.set(url, img);
       resolve(img);
     };
-    img.onerror = () => {
+
+    const handleError = () => {
       // Fallback for missing directional mount frames to south base mount
       if (url.includes('/generated/mounts/') && url.includes('-f')) {
         const baseMountUrl = url.replace(/-[a-z]+-f\d+\.png$/, '.png');
         if (baseMountUrl !== url) {
-          img.src = baseMountUrl;
+          loadImage(baseMountUrl)
+            .then((baseImg) => {
+              inFlightImagePromises.delete(url);
+              imageElementCache.set(url, baseImg);
+              resolve(baseImg);
+            })
+            .catch(() => {
+              inFlightImagePromises.delete(url);
+              reject(new Error(`Failed to load mount fallback image at ${url}`));
+            });
           return;
         }
       }
+
       // If a mounted addon is missing, fallback to unmounted addon
       if (url.includes('-mount-addon')) {
         const unmountedAddonUrl = url.replace('-mount-addon', '-addon');
         if (unmountedAddonUrl !== url) {
-          img.src = unmountedAddonUrl;
+          loadImage(unmountedAddonUrl)
+            .then((addonImg) => {
+              inFlightImagePromises.delete(url);
+              imageElementCache.set(url, addonImg);
+              resolve(addonImg);
+            })
+            .catch(() => {
+              inFlightImagePromises.delete(url);
+              reject(new Error(`Failed to load addon fallback image at ${url}`));
+            });
           return;
         }
       }
+
+      inFlightImagePromises.delete(url);
       reject(new Error(`Failed to load image at ${url}`));
     };
-    if (!cached) {
-      imageElementCache.set(url, img);
-      img.src = url;
-    }
+
+    img.onload = handleSuccess;
+    img.onerror = handleError;
+    img.src = url;
   });
+
+  inFlightImagePromises.set(url, promise);
+  return promise;
 }
 
 export function recolorPixels(
@@ -363,11 +400,11 @@ export async function renderRecoloredOutfit(
 
   const w = 64;
   const h = 64;
-  targetCanvas.width = w;
-  targetCanvas.height = h;
-  const targetCtx = targetCanvas.getContext('2d');
-  if (!targetCtx) return;
-  targetCtx.clearRect(0, 0, w, h);
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = w;
+  offCanvas.height = h;
+  const offCtx = offCanvas.getContext('2d');
+  if (!offCtx) return;
 
   const urls = getOutfitLayerUrls(outfitId, gender, direction, frame, addons, mount, isMounted);
   const offset = isMounted ? getMountDisplacementOffset(outfitId, gender, mount) : { x: 0, y: 0 };
@@ -376,7 +413,7 @@ export async function renderRecoloredOutfit(
   if (isMounted && urls.mountUrl) {
     try {
       const mountImg = await loadImage(urls.mountUrl);
-      targetCtx.drawImage(mountImg, 0, 0);
+      offCtx.drawImage(mountImg, 0, 0);
     } catch {
       // ignore
     }
@@ -396,7 +433,7 @@ export async function renderRecoloredOutfit(
       const fbMask = `/generated/outfits/${norm}-${gender}-${direction}-f${safeFrame}-mask.png`;
       [baseImg, maskImg] = await Promise.all([loadImage(fbBase), loadImage(fbMask)]);
     }
-    drawRecoloredLayer(targetCtx, baseImg, maskImg, colors, w, h, offset.x, offset.y);
+    drawRecoloredLayer(offCtx, baseImg, maskImg, colors, w, h, offset.x, offset.y);
   } catch {
     // ignore
   }
@@ -405,7 +442,7 @@ export async function renderRecoloredOutfit(
   if (urls.addon1Base && urls.addon1Mask) {
     try {
       const [a1Base, a1Mask] = await Promise.all([loadImage(urls.addon1Base), loadImage(urls.addon1Mask)]);
-      drawRecoloredLayer(targetCtx, a1Base, a1Mask, colors, w, h, offset.x, offset.y);
+      drawRecoloredLayer(offCtx, a1Base, a1Mask, colors, w, h, offset.x, offset.y);
     } catch {
       // ignore
     }
@@ -415,10 +452,19 @@ export async function renderRecoloredOutfit(
   if (urls.addon2Base && urls.addon2Mask) {
     try {
       const [a2Base, a2Mask] = await Promise.all([loadImage(urls.addon2Base), loadImage(urls.addon2Mask)]);
-      drawRecoloredLayer(targetCtx, a2Base, a2Mask, colors, w, h, offset.x, offset.y);
+      drawRecoloredLayer(offCtx, a2Base, a2Mask, colors, w, h, offset.x, offset.y);
     } catch {
       // ignore
     }
+  }
+
+  // 5. Blit offscreen buffer to visible targetCanvas in a single synchronous operation
+  targetCanvas.width = w;
+  targetCanvas.height = h;
+  const targetCtx = targetCanvas.getContext('2d');
+  if (targetCtx) {
+    targetCtx.clearRect(0, 0, w, h);
+    targetCtx.drawImage(offCanvas, 0, 0);
   }
 }
 
@@ -591,12 +637,12 @@ export function getRecoloredCanvasSync(
     }
 
     // 4. Fallback for unmounted: current direction frame 0
-    const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, 0, undefined, false);
+    const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, addons, undefined, false);
     const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
     if (dirFallback) return dirFallback;
 
     // 5. Fallback for unmounted: south frame 0
-    const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, 0, undefined, false);
+    const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, addons, undefined, false);
     const southFallback = recoloredCanvasCache.get(southFallbackKey);
     if (southFallback) return southFallback;
     return null;

@@ -215,8 +215,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
   };
 
   // Resolve thumbnail for mount cards
-  const getMountThumbUrl = (mountId: string): string => {
-    if (mountId === 'none') return '';
+  const getMountThumbUrl = (mountId: string): string | null => {
+    if (!mountId || mountId === 'none') return null;
     return `/generated/mounts/${mountId}.png`;
   };
 
@@ -495,12 +495,18 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onSa
                       }}
                     >
                       <div className="tibia-card-sprite-wrap">
-                        <img
-                          src={getMountThumbUrl(mount.id)}
-                          alt={mount.name}
-                          className="tibia-card-sprite mount-sprite"
-                          style={{ imageRendering: 'pixelated' }}
-                        />
+                        {getMountThumbUrl(mount.id) ? (
+                          <img
+                            src={getMountThumbUrl(mount.id)!}
+                            alt={mount.name}
+                            className="tibia-card-sprite mount-sprite"
+                            style={{ imageRendering: 'pixelated' }}
+                          />
+                        ) : (
+                          <div className="tibia-card-no-mount-placeholder" title="Sem Montaria">
+                            <span style={{ fontSize: '24px', opacity: 0.85 }}>🚶</span>
+                          </div>
+                        )}
                       </div>
                       <span className="tibia-card-name">{mount.name}</span>
                       {mount.id !== 'none' ? (
