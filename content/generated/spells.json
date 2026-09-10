@@ -48,7 +48,10 @@
       "spellId": 177,
       "name": "Buzz",
       "words": "exori infir vis",
-      "vocations": [],
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
       "requiredLevel": 1,
       "mana": 6,
       "cooldownMs": 2000,
@@ -132,8 +135,10 @@
       "name": "Magic Patch",
       "words": "exura infir",
       "vocations": [
+        "Sorcerer",
         "Druid",
         "Paladin",
+        "Master Sorcerer",
         "Elder Druid",
         "Royal Paladin"
       ],
@@ -303,7 +308,10 @@
       "spellId": 178,
       "name": "scorch",
       "words": "exevo infir flam hur",
-      "vocations": [],
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
       "requiredLevel": 1,
       "mana": 8,
       "cooldownMs": 4000,
@@ -389,9 +397,11 @@
       "name": "Find Person",
       "words": "exiva",
       "vocations": [
+        "Sorcerer",
         "Druid",
         "Paladin",
         "Knight",
+        "Master Sorcerer",
         "Elder Druid",
         "Royal Paladin",
         "Elite Knight"
@@ -479,9 +489,11 @@
       "name": "Light",
       "words": "utevo lux",
       "vocations": [
+        "Sorcerer",
         "Druid",
         "Paladin",
         "Knight",
+        "Master Sorcerer",
         "Elder Druid",
         "Royal Paladin",
         "Elite Knight"
@@ -573,9 +585,11 @@
       "name": "Magic Rope",
       "words": "exani tera",
       "vocations": [
+        "Sorcerer",
         "Druid",
         "Paladin",
         "Knight",
+        "Master Sorcerer",
         "Elder Druid",
         "Royal Paladin",
         "Elite Knight"
@@ -620,9 +634,11 @@
       "name": "Cure Poison",
       "words": "exana pox",
       "vocations": [
+        "Sorcerer",
         "Druid",
         "Paladin",
         "Knight",
+        "Master Sorcerer",
         "Elder Druid",
         "Royal Paladin",
         "Elite Knight"
@@ -755,9 +771,11 @@
       "name": "Levitate",
       "words": "exani hur",
       "vocations": [
+        "Sorcerer",
         "Druid",
         "Paladin",
         "Knight",
+        "Master Sorcerer",
         "Elder Druid",
         "Royal Paladin",
         "Elite Knight"
@@ -802,9 +820,11 @@
       "name": "Great Light",
       "words": "utevo gran lux",
       "vocations": [
+        "Sorcerer",
         "Druid",
         "Paladin",
         "Knight",
+        "Master Sorcerer",
         "Elder Druid",
         "Royal Paladin",
         "Elite Knight"
@@ -1564,7 +1584,9 @@
       "name": "Creature Illusion",
       "words": "utevo res ina",
       "vocations": [
+        "Sorcerer",
         "Druid",
+        "Master Sorcerer",
         "Elder Druid"
       ],
       "requiredLevel": 23,
@@ -1741,7 +1763,9 @@
       "name": "Summon Creature",
       "words": "utevo res",
       "vocations": [
+        "Sorcerer",
         "Druid",
+        "Master Sorcerer",
         "Elder Druid"
       ],
       "requiredLevel": 25,
@@ -1826,7 +1850,10 @@
       "spellId": 138,
       "name": "Ignite",
       "words": "utori flam",
-      "vocations": [],
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
       "requiredLevel": 26,
       "mana": 30,
       "cooldownMs": 30000,
@@ -1867,7 +1894,9 @@
       "name": "Ultimate Light",
       "words": "utevo vis lux",
       "vocations": [
+        "Sorcerer",
         "Druid",
+        "Master Sorcerer",
         "Elder Druid"
       ],
       "requiredLevel": 26,
@@ -2085,7 +2114,10 @@
       "spellId": 129,
       "name": "Enchant Party",
       "words": "utori mas sio",
-      "vocations": [],
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
       "requiredLevel": 32,
       "mana": 120,
       "cooldownMs": 2000,
@@ -2297,7 +2329,10 @@
       "spellId": 140,
       "name": "Electrify",
       "words": "utori vis",
-      "vocations": [],
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
       "requiredLevel": 34,
       "mana": 30,
       "cooldownMs": 30000,
@@ -2424,7 +2459,9 @@
       "name": "Invisibility",
       "words": "utana vid",
       "vocations": [
+        "Sorcerer",
         "Druid",
+        "Master Sorcerer",
         "Elder Druid"
       ],
       "requiredLevel": 35,
@@ -2945,7 +2982,10 @@
       "spellId": 149,
       "name": "Lightning",
       "words": "exori amp vis",
-      "vocations": [],
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
       "requiredLevel": 55,
       "mana": 60,
       "cooldownMs": 4000,
@@ -3546,7 +3586,10 @@
       "spellId": 139,
       "name": "Curse",
       "words": "utori mort",
-      "vocations": [],
+      "vocations": [
+        "Sorcerer",
+        "Master Sorcerer"
+      ],
       "requiredLevel": 75,
       "mana": 30,
       "cooldownMs": 50000,
@@ -4190,7 +4233,9 @@
       "spellId": 196,
       "name": "Summon Creature MS",
       "words": "utevo gran res ven",
-      "vocations": [],
+      "vocations": [
+        "Master Sorcerer"
+      ],
       "requiredLevel": 200,
       "mana": 3000,
       "cooldownMs": 1800000,

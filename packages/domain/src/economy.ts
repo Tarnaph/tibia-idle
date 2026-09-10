@@ -343,13 +343,14 @@ export function buyShopItem(
     testMessage = effect.message;
   }
 
-  if (isEquipment && activeChar) {
-    if (!activeChar.inventory.equipmentIds.includes(itemId)) {
+  if (isEquipment && !isTestShopItem(itemId) && activeChar) {
+    const currentChar = nextState.session.characters.find((c) => c.id === activeChar.id) ?? activeChar;
+    if (!currentChar.inventory.equipmentIds.includes(itemId)) {
       const updatedChar = {
-        ...activeChar,
+        ...currentChar,
         inventory: {
-          ...activeChar.inventory,
-          equipmentIds: [...activeChar.inventory.equipmentIds, itemId],
+          ...currentChar.inventory,
+          equipmentIds: [...currentChar.inventory.equipmentIds, itemId],
         },
       };
       nextState = {

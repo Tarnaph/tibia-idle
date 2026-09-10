@@ -42,7 +42,7 @@ export interface MonsterCatalog {
 }
 
 export type EquipmentWeaponType = 'none' | 'sword' | 'axe' | 'club' | 'shield' | 'distance' | 'wand' | 'ammo';
-export type EquipmentItemSlot = 'head' | 'armor' | 'legs' | 'boots' | 'hand' | 'ammo';
+export type EquipmentItemSlot = 'head' | 'armor' | 'legs' | 'boots' | 'hand' | 'ammo' | 'ring' | 'necklace' | 'backpack' | 'other';
 export type EquipmentSkill = 'fist' | 'club' | 'sword' | 'axe' | 'distance' | 'shielding';
 
 export interface EquipmentRequirements {
@@ -52,13 +52,16 @@ export interface EquipmentRequirements {
 }
 
 export interface EquipmentSource {
-  otb: { sourceFile: 'data/items/items.otb'; serverId: number; clientId: number; group: number; flags: number };
-  lua: { sourceFile: 'data/items/items.lua'; sourceId: number; line: number };
+  otb: { sourceFile: string; serverId: number; clientId: number; group: number; flags: number };
+  lua?: { sourceFile: string; sourceId: number; line: number };
+  xml?: { sourceFile: string; sourceId: number; line: number };
 }
 
 export interface EquipmentDefinition {
   id: number;
   name: string;
+  article?: string;
+  description?: string;
   weaponType: EquipmentWeaponType;
   attack: number;
   defense: number;
@@ -258,7 +261,7 @@ export function validateMonsterDefinition(value: MonsterDefinition): MonsterDefi
 
 export function validateEquipmentDefinition(value: EquipmentDefinition): EquipmentDefinition {
   if (!Number.isInteger(value.id) || value.id <= 0 || !value.name) throw new Error('Invalid equipment identity.');
-  if (value.source.otb.serverId !== value.id || value.source.lua.sourceId !== value.id) {
+  if (value.source.otb.serverId !== value.id) {
     throw new Error(`Source identity mismatch for equipment ${value.id}.`);
   }
   if (value.weight && value.weight.hundredthsOfOunce < 0) throw new Error(`Invalid weight for equipment ${value.id}.`);

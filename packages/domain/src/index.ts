@@ -21,3 +21,4 @@ export * from './spatial/types';
 export * from './progression/speed';
 export * from './stamina';
 export * from './wands';
+export * from './itemLook';

@@ -84,6 +84,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 122: Navegação Bidirecional Personagem ↔ Outfit, Capabilities de Addon/Montaria, Compatibilidade do Sire e Token de Concorrência** - Navegação preservando selectedCharId, respeito às capabilities de addons/montarias por outfit, suporte ao Sire e cancelamento de previews desatualizados.
 - [x] **Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente** - Mapeamento canônico de Noble para noblewoman, ponte unificada entre outfitAddons do Prisma e addons do cliente, e persistência permanente autoritativa no PostgreSQL.
 - [x] **Phase 124: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid)** - Sistema canônico de exhaust entre gastar mana e beber poções (mutual exclusion no tick e delay de 1000ms), IA de exploração solo ativa procurando inimigos na caverna, e táticas avançadas de party com Knight liderando e usando Challenge (exeta res) para proteger o grupo e focando o monstro mais próximo, Druid mantendo 3-4 tiles curando o grupo e usando magias/runas, Sorcerer/Paladin DPS mantendo 3-4 tiles à distância, e sincronização coletiva de alvo no alvo do Knight.
+- [x] **Phase 125: Importação Total do Acervo RealMap 11 (Itens, Monstros, Magias e Requisitos) e Formatação Canônica de Tooltip/Look com Descrições e Vocações** - Importação completa e irrestrita de todos os itens de items.xml/otb com descrições, pesos, requerimentos de vocações/níveis de weapons.xml e movements.xml, centenas de monstros de monsters.xml com loot e atributos, acervo universal de magias de spells.xml, e sistema autêntico de tooltip de "Look" canônico no hover de itens.
 
 ---
 
@@ -2157,6 +2158,31 @@ Plans:
 **Plans:**
 - [x] 124-01-PLAN: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid).
 - Resumo de entrega: `.planning/phases/phase-124-exhaust-solo-ai-party-tactics/124-SUMMARY.md`
+
+### Phase 125: Importação Total do Acervo RealMap 11 (Itens, Monstros, Magias e Requisitos) e Formatação Canônica de Tooltip/Look com Descrições e Vocações
+
+**Goal**: Auditar e importar todo o acervo autoritativo do RealMap 11 / Tibia 11 (itens com descrições, pesos, requerimentos de vocações e níveis, monstros com loot e atributos, magias para todas as vocações) e integrar a formatação autêntica de "Look" e tooltips no hover na interface web.  
+**Depends on**: Phase 124  
+**Requirements**:
+1. **Importação Completa de Itens e Equipamentos (`importEquipment.ts`):**
+   - Eliminar `SELECTED_EQUIPMENT_IDS` (apenas 21 itens) e processar todo o acervo de `items.xml` e `items.otb`.
+   - Extrair `article`, `name`, `description`, `weight`, `attack`, `defense`, `extraDefense`, `armor`, `range`, `weaponType`, `slotType` (head, armor, legs, boots, hand, ammo, ring, necklace, backpack, other), `twoHanded` e `skillBonuses`.
+   - Cruzar dados com `data/weapons/weapons.xml` e `data/movements/movements.xml` para preencher `level` requerido e `vocations` canônicas para todas as armas, escudos e armaduras.
+2. **Importação Completa de Monstros (`importMonsters.ts`):**
+   - Eliminar `SELECTED_MONSTER_FILES` e ler todas as criaturas de `data/monster/monsters.xml` (mais de 1.100 criaturas).
+   - Extrair HP, XP, ataques, defesas, loot, lookType, speed, elementos e imunidades.
+   - Preservar `rotworm.json` e todos os monstros de hunts existentes sem quebrar referências.
+3. **Importação Completa de Magias (`importSpells.ts`):**
+   - Eliminar filtros restritivos e importar magias e runas de Knights, Paladins, Sorcerers e Druids (e promoções) de `spells.xml`.
+4. **Formatação Canônica de Tooltip e "Look" no Hover (`GlobalItemTooltip.tsx` e `ItemTooltip.tsx`):**
+   - Implementar `formatTibiaLookText` gerando o texto canônico de "Look" do Tibia com artigo, stats, vocação e nível ("It can only be wielded properly by..."), descrição do item e peso ("It weighs ... oz").
+   - Exibir o visual autêntico do Look no hover, com badges visuais das vocações permitidas, requerimento de nível e estatísticas completas.
+5. **Qualidade e Estabilidade:**
+   - Criar suíte de testes dedicada `tests/phase125-full-content-import-and-canonical-look.test.ts`.
+   - 0 erros no typecheck (`npm run typecheck`) e 100% de aprovação nos testes (`npm test`).
+**Plans:**
+- [x] 125-01-PLAN: Importação Total de Itens, Monstros, Magias e Tooltip Canônico de Look no Hover.
+- Resumo de entrega: `.planning/phases/phase-125-full-content-import-and-canonical-look-tooltips/125-SUMMARY.md`
 
 
 

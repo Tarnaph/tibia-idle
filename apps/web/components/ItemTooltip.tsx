@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
+import { formatTibiaLookText } from '@/packages/domain/src/itemLook';
 
 interface ItemTooltipProps {
   item: EquipmentDefinition;
@@ -16,12 +17,17 @@ const SLOT_LABELS: Record<string, string> = {
   boots: 'Botas / Pés',
   hand: 'Mão (Arma / Escudo)',
   ammo: 'Munição / Aljava',
+  ring: 'Anel',
+  necklace: 'Amuleto / Colar',
+  backpack: 'Mochila / Recipiente',
+  other: 'Item / Utilidade',
 };
 
 export function ItemTooltip({ item, children, className = '' }: ItemTooltipProps) {
   const isWeapon = item.attack > 0;
   const isShield = item.defense > 0 && !isWeapon;
   const isArmor = item.armor > 0;
+  const look = formatTibiaLookText(item);
 
   return (
     <div className={`item-tooltip-wrapper ${className}`}>
@@ -31,6 +37,39 @@ export function ItemTooltip({ item, children, className = '' }: ItemTooltipProps
           <strong className="item-name">{item.name}</strong>
           <span className="item-slot-tag">{SLOT_LABELS[item.slot] ?? item.slot}</span>
         </div>
+
+        {/* Canonical Look Box */}
+        <div className="item-tooltip-look-box">
+          <div className="look-title">{look.title}</div>
+          {look.lines.map((line, idx) => (
+            <div key={idx} className="look-line">{line}</div>
+          ))}
+        </div>
+
+        {/* Allowed Vocations */}
+        {look.vocationNames && look.vocationNames.length > 0 && (
+          <div className="item-tooltip-vocations-block">
+            <span className="item-tooltip-vocations-label">Vocações:</span>
+            <div className="item-tooltip-voc-badges">
+              {look.vocationNames.map((voc) => {
+                const vLower = voc.toLowerCase();
+                const icon = vLower.includes('knight') ? '⚔️'
+                  : vLower.includes('paladin') ? '🏹'
+                  : vLower.includes('sorcerer') ? '⚡'
+                  : vLower.includes('druid') ? '🌿' : '✨';
+                const cName = vLower.includes('knight') ? 'voc-knight'
+                  : vLower.includes('paladin') ? 'voc-paladin'
+                  : vLower.includes('sorcerer') ? 'voc-sorcerer'
+                  : vLower.includes('druid') ? 'voc-druid' : 'voc-all';
+                return (
+                  <span key={voc} className={`voc-badge ${cName}`}>
+                    {icon} {voc}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="item-tooltip-stats">
           {isWeapon && (
@@ -62,14 +101,14 @@ export function ItemTooltip({ item, children, className = '' }: ItemTooltipProps
           )}
         </div>
 
-        {item.requirements?.level && (
+        {look.minLevel !== undefined && look.minLevel > 0 && (
           <div className="item-tooltip-req">
-            <span>Requer Nível {item.requirements.level}</span>
+            <span>⭐ Requer Nível {look.minLevel}</span>
           </div>
         )}
 
-        {item.twoHanded && (
-          <div className="item-tooltip-badge">Arma de duas mãos</div>
+        {(item.twoHanded || look.twoHanded) && (
+          <div className="item-tooltip-badge">⚔️ Arma de duas mãos</div>
         )}
       </div>
     </div>

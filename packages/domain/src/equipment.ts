@@ -137,9 +137,11 @@ export function unequipCharacterSlot(
 }
 
 export function preferredSlotForItem(item: EquipmentDefinition): CharacterEquipmentSlot {
+  if (item.slot === 'head' || item.slot === 'armor' || item.slot === 'legs' || item.slot === 'boots') {
+    return item.slot;
+  }
   if (item.slot === 'hand') return item.weaponType === 'shield' ? 'rightHand' : 'leftHand';
-  if (item.slot === 'ammo') return 'leftHand';
-  return item.slot;
+  return 'leftHand';
 }
 
 export function availableOwnedEquipmentIds(state: GameState): number[] {

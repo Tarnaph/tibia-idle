@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-10T20:15:00.000Z"
-last_activity: "2026-09-10 — Conclusão da Phase 124: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid)."
+status: completed
+last_updated: "2026-09-10T20:50:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 125: Importação Total do Acervo RealMap 11 (Itens, Monstros, Magias e Requisitos) e Formatação Canônica de Tooltip/Look com Descrições e Vocações."
 progress:
-  total_phases: 124
-  completed_phases: 124
-  total_plans: 124
-  completed_plans: 124
+  total_phases: 125
+  completed_phases: 125
+  total_plans: 125
+  completed_plans: 125
   percent: 100
 ---
 
@@ -20,23 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 124 Concluída: Sistema de Exhaust (intervalo e exclusão mútua entre gastar mana e beber poção), IA de Caçada Solo Inteligente (exploração ativa sem rotas vazias) e IA Tática Avançada de Party (Knight tank com Challenge/exeta res e foco no mais próximo, Druid curando Knight/party e atacando a 3-4 tiles, Sorcerer/Paladin DPS a 3-4 tiles e sincronização de alvo coletivo no Knight).
+**Current focus:** Phase 125 Concluída com Sucesso — Importação Total do Acervo RealMap 11 e Look Canônico no Hover.
 
 ## Current Position
 
-Phase: 124 of 124 (Concluída)  
+Phase: 125 of 125 (Completa)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Phase 124 Concluída com 100% de aprovação (705 testes).
+Last activity: 2026-09-10 — Phase 125 finalizada com 100% de aprovação (717 testes).
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 124
-- Total phases in roadmap: 124
-- Tests status: 125 test suites (705 testes aprovados - 100%)
+- Total phases completed: 125
+- Total phases in roadmap: 125
+- Tests status: 126 test suites (717 testes aprovados - 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -47,6 +47,7 @@ Progress: [██████████] 100%
 | 1 a 77. (Fases Anteriores Concluídas) | 77 | - | - | Complete |
 | 78 a 123. (Fases Intermediárias Concluídas) | 46 | - | - | Complete |
 | 124. Sistema de Exhaust, IA de Exploração Solo e Táticas de Party | 1 | - | - | Complete |
+| 125. Importação Total do Acervo RealMap 11 e Tooltip Canônico de Look | 1 | - | - | Complete |
 
 ## Accumulated Context
 

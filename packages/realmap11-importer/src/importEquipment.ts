@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
@@ -30,9 +30,24 @@ interface OtbItemIdentity {
   flags: number;
 }
 
-interface LuaItemRecord {
-  line: number;
-  properties: Map<string, string | number | boolean>;
+interface ItemRecordProps {
+  name: string;
+  article?: string;
+  description?: string;
+  weight?: number;
+  attack?: number;
+  defense?: number;
+  extraDefense?: number;
+  armor?: number;
+  range?: number;
+  weaponType?: EquipmentWeaponType;
+  slot?: EquipmentItemSlot;
+  twoHanded?: boolean;
+  reqLevel?: number;
+  vocations?: string[];
+  skillBonuses?: Partial<Record<EquipmentSkill, number>>;
+  magicLevelBonus?: number | null;
+  elementalAbsorption?: Record<string, number>;
 }
 
 export const SELECTED_EQUIPMENT_IDS = [
@@ -49,25 +64,6 @@ export const SELECTED_EQUIPMENT_IDS = [
 const OTB_ESCAPE = 0xfd;
 const OTB_START = 0xfe;
 const OTB_END = 0xff;
-
-const weaponTypeByConstant: Record<string, EquipmentWeaponType> = {
-  WEAPON_SWORD: 'sword',
-  WEAPON_AXE: 'axe',
-  WEAPON_CLUB: 'club',
-  WEAPON_SHIELD: 'shield',
-  WEAPON_DISTANCE: 'distance',
-  WEAPON_WAND: 'wand',
-  WEAPON_AMMO: 'ammo',
-};
-
-const slotByConstant: Record<string, EquipmentItemSlot> = {
-  SLOTP_HEAD: 'head',
-  SLOTP_ARMOR: 'armor',
-  SLOTP_LEGS: 'legs',
-  SLOTP_FEET: 'boots',
-  SLOTP_TWO_HAND: 'hand',
-  SLOTP_AMMO: 'ammo',
-};
 
 const asArray = <T>(value: T | T[] | undefined): T[] => (value === undefined ? [] : Array.isArray(value) ? value : [value]);
 const numberValue = (value: unknown, fallback = 0) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
@@ -149,157 +145,230 @@ function readOtbIdentities(buffer: Buffer): Map<number, OtbItemIdentity> {
   return identities;
 }
 
-function readLuaRecords(source: string): Map<number, LuaItemRecord> {
-  const records = new Map<number, LuaItemRecord>();
-  let cursor = 0;
-  const lineAt = (index: number) => source.slice(0, index).split('\n').length;
-
-  while (cursor < source.length) {
-    const start = source.indexOf('ItemType(', cursor);
-    if (start === -1) break;
-
-    const end = source.indexOf(')', start);
-    if (end === -1) break;
-
-    const block = source.slice(start, end + 1);
-    const idMatch = block.match(/^ItemType\((\d+),/);
-    if (!idMatch) {
-      cursor = start + 1;
-      continue;
-    }
-
-    const id = Number(idMatch[1]);
-    const properties = new Map<string, string | number | boolean>();
-
-    for (const match of block.matchAll(/([a-zA-Z0-9]+)\s*=\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*"|[A-Z0-9_]+)/g)) {
-      const [, key, rawValue] = match;
-      if (key === 'ItemType') continue;
-
-      let parsed: string | number | boolean = rawValue;
-      if (rawValue === 'true') parsed = true;
-      else if (rawValue === 'false') parsed = false;
-      else if (/^-?\d+(?:\.\d+)?$/.test(rawValue)) parsed = Number(rawValue);
-      else if (rawValue.startsWith('"') && rawValue.endsWith('"')) parsed = rawValue.slice(1, -1);
-
-      properties.set(key, parsed);
-    }
-
-    if (typeof id === 'number') records.set(id, { line: lineAt(start), properties });
-    cursor = Math.max(end, start + 1);
-  }
-
-  return records;
+interface ItemRequirement {
+  level?: number;
+  vocations?: string[];
 }
 
-function readXmlItemRecords(xmlSource: string): Map<number, LuaItemRecord> {
-  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '', parseAttributeValue: true });
+function readRequirements(serverRoot: string): Map<number, ItemRequirement> {
+  const requirements = new Map<number, ItemRequirement>();
+  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '', parseAttributeValue: true, trimValues: true });
+
+  // 1. Parse Weapons XML
+  const weaponsPath = resolve(serverRoot, 'data', 'weapons', 'weapons.xml');
+  if (existsSync(weaponsPath)) {
+    try {
+      const parsed = parser.parse(readFileSync(weaponsPath, 'utf8'));
+      const weapons = parsed.weapons ?? {};
+      for (const groupKey of Object.keys(weapons)) {
+        const list = asArray(weapons[groupKey]);
+        for (const item of list) {
+          const fromId = numberValue(item.id ?? item.fromid, -1);
+          const toId = numberValue(item.id ?? item.toid, fromId);
+          if (fromId <= 0) continue;
+          const level = item.level !== undefined ? numberValue(item.level) : item.lvl !== undefined ? numberValue(item.lvl) : undefined;
+          const vocs = asArray(item.vocation).map((v: any) => String(v.name ?? '')).filter(Boolean);
+          for (let id = fromId; id <= toId; id++) {
+            const existing = requirements.get(id) ?? {};
+            requirements.set(id, {
+              level: level ?? existing.level,
+              vocations: vocs.length > 0 ? vocs : existing.vocations,
+            });
+          }
+        }
+      }
+    } catch {
+      // Non-fatal if weapons.xml has minor malformations
+    }
+  }
+
+  // 2. Parse Movements XML
+  const movementsPath = resolve(serverRoot, 'data', 'movements', 'movements.xml');
+  if (existsSync(movementsPath)) {
+    try {
+      const parsed = parser.parse(readFileSync(movementsPath, 'utf8'));
+      const movevents = asArray(parsed.movements?.movevent);
+      for (const m of movevents) {
+        if (m.event === 'Equip') {
+          const fromId = numberValue(m.itemid ?? m.fromid, -1);
+          const toId = numberValue(m.itemid ?? m.toid, fromId);
+          if (fromId <= 0) continue;
+          const level = m.level !== undefined ? numberValue(m.level) : undefined;
+          const vocs = asArray(m.vocation).map((v: any) => String(v.name ?? '')).filter(Boolean);
+          for (let id = fromId; id <= toId; id++) {
+            const existing = requirements.get(id) ?? {};
+            requirements.set(id, {
+              level: level ?? existing.level,
+              vocations: vocs.length > 0 ? vocs : existing.vocations,
+            });
+          }
+        }
+      }
+    } catch {
+      // Non-fatal if movements.xml has minor malformations
+    }
+  }
+
+  return requirements;
+}
+
+function parseItemsXml(xmlSource: string, requirementsMap: Map<number, ItemRequirement>): Map<number, ItemRecordProps> {
+  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '', parseAttributeValue: true, trimValues: true });
   const parsed = parser.parse(xmlSource);
   const items = asArray(parsed.items?.item);
-  const records = new Map<number, LuaItemRecord>();
+  const records = new Map<number, ItemRecordProps>();
 
   for (const item of items) {
-    const id = numberValue(item.id);
-    if (id <= 0) continue;
-    const props = new Map<string, string | number | boolean>();
-    props.set('name', String(item.name ?? ''));
+    const fromId = numberValue(item.id ?? item.fromid, -1);
+    const toId = numberValue(item.id ?? item.toid, fromId);
+    if (fromId <= 0) continue;
+
+    const baseName = String(item.name ?? '').trim();
+    if (!baseName) continue;
+
+    const article = item.article ? String(item.article).trim() : undefined;
+    let description: string | undefined;
+    let weight: number | undefined;
+    let attack: number | undefined;
+    let defense: number | undefined;
+    let extraDefense: number | undefined;
+    let armor: number | undefined;
+    let range: number | undefined;
+    let weaponType: EquipmentWeaponType = 'none';
+    let slot: EquipmentItemSlot | undefined;
+    let twoHanded = false;
+    let reqLevel: number | undefined;
+    const skillBonuses: Partial<Record<EquipmentSkill, number>> = {};
+    let magicLevelBonus: number | null = null;
+    const elementalAbsorption: Record<string, number> = {};
 
     const attrs = asArray(item.attribute);
     for (const attr of attrs) {
-      const key = String(attr.key ?? '');
+      const key = String(attr.key ?? '').toLowerCase();
       const val = attr.value;
-      if (key === 'weight') props.set('weight', numberValue(val));
-      if (key === 'attack') props.set('attack', numberValue(val));
-      if (key === 'defense') props.set('defense', numberValue(val));
-      if (key === 'extradef') props.set('extraDefense', numberValue(val));
-      if (key === 'armor') props.set('armor', numberValue(val));
-      if (key === 'weaponType') {
+
+      if (key === 'description') description = String(val);
+      if (key === 'weight') weight = numberValue(val);
+      if (key === 'attack') attack = numberValue(val);
+      if (key === 'defense') defense = numberValue(val);
+      if (key === 'extradef') extraDefense = numberValue(val);
+      if (key === 'armor') armor = numberValue(val);
+      if (key === 'range') range = numberValue(val);
+      if (key === 'reqlevel' || key === 'level') reqLevel = numberValue(val);
+
+      if (key === 'weapontype') {
         const w = String(val).toLowerCase();
-        if (w === 'sword') props.set('weaponType', 'WEAPON_SWORD');
-        else if (w === 'axe') props.set('weaponType', 'WEAPON_AXE');
-        else if (w === 'club') props.set('weaponType', 'WEAPON_CLUB');
-        else if (w === 'shield') props.set('weaponType', 'WEAPON_SHIELD');
-        else if (w === 'distance') props.set('weaponType', 'WEAPON_DISTANCE');
-        else if (w === 'wand') props.set('weaponType', 'WEAPON_WAND');
-        else if (w === 'ammunition' || w === 'ammo') props.set('weaponType', 'WEAPON_AMMO');
+        if (w === 'sword') weaponType = 'sword';
+        else if (w === 'axe') weaponType = 'axe';
+        else if (w === 'club') weaponType = 'club';
+        else if (w === 'shield') weaponType = 'shield';
+        else if (w === 'distance') weaponType = 'distance';
+        else if (w === 'wand') weaponType = 'wand';
+        else if (w === 'ammunition' || w === 'ammo') weaponType = 'ammo';
       }
-      if (key === 'slotType') {
+
+      if (key === 'slottype') {
         const s = String(val).toLowerCase();
-        if (s === 'head') props.set('slotPosition', 'SLOTP_HEAD');
-        else if (s === 'body' || s === 'armor') props.set('slotPosition', 'SLOTP_ARMOR');
-        else if (s === 'legs') props.set('slotPosition', 'SLOTP_LEGS');
-        else if (s === 'feet') props.set('slotPosition', 'SLOTP_FEET');
-        else if (s === 'two-handed') props.set('slotPosition', 'SLOTP_TWO_HAND');
-        else if (s === 'ammo') props.set('slotPosition', 'SLOTP_AMMO');
+        if (s === 'head') slot = 'head';
+        else if (s === 'body' || s === 'armor') slot = 'armor';
+        else if (s === 'legs') slot = 'legs';
+        else if (s === 'feet') slot = 'boots';
+        else if (s === 'two-handed') { slot = 'hand'; twoHanded = true; }
+        else if (s === 'ammo' || s === 'ammunition') slot = 'ammo';
+        else if (s === 'ring') slot = 'ring';
+        else if (s === 'necklace' || s === 'amulet') slot = 'necklace';
+        else if (s === 'backpack' || s === 'container') slot = 'backpack';
+        else if (s === 'hand' || s === 'shield') slot = 'hand';
+      }
+
+      // Skill bonuses
+      if (key === 'skillsword') skillBonuses.sword = numberValue(val);
+      if (key === 'skillaxe') skillBonuses.axe = numberValue(val);
+      if (key === 'skillclub') skillBonuses.club = numberValue(val);
+      if (key === 'skilldist') skillBonuses.distance = numberValue(val);
+      if (key === 'skillshield') skillBonuses.shielding = numberValue(val);
+      if (key === 'skillfist') skillBonuses.fist = numberValue(val);
+      if (key === 'magiclevelpoints') magicLevelBonus = numberValue(val);
+
+      // Absorption
+      if (key.startsWith('absorbpercent')) {
+        const element = key.replace('absorbpercent', '');
+        elementalAbsorption[element] = numberValue(val);
       }
     }
-    records.set(id, { line: 1, properties: props });
+
+    if (!slot) {
+      if (weaponType !== 'none') slot = 'hand';
+      else if (armor && armor > 0) slot = 'armor';
+      else slot = 'other';
+    }
+
+    for (let id = fromId; id <= toId; id++) {
+      const req = requirementsMap.get(id);
+      records.set(id, {
+        name: baseName,
+        article,
+        description,
+        weight,
+        attack,
+        defense,
+        extraDefense,
+        armor,
+        range,
+        weaponType,
+        slot,
+        twoHanded,
+        reqLevel: req?.level ?? reqLevel,
+        vocations: req?.vocations,
+        skillBonuses: Object.keys(skillBonuses).length > 0 ? skillBonuses : undefined,
+        magicLevelBonus,
+        elementalAbsorption: Object.keys(elementalAbsorption).length > 0 ? elementalAbsorption : undefined,
+      });
+    }
   }
 
   return records;
-}
-
-function numberProperty(record: LuaItemRecord, key: string, fallback = 0): number {
-  const value = record.properties.get(key);
-  return typeof value === 'number' ? value : fallback;
-}
-
-function stringProperty(record: LuaItemRecord, key: string): string | undefined {
-  const value = record.properties.get(key);
-  return typeof value === 'string' ? value : undefined;
-}
-
-function readSkillBonuses(record: LuaItemRecord): Partial<Record<EquipmentSkill, number>> {
-  const keys: Array<[string, EquipmentSkill]> = [
-    ['skillFist', 'fist'],
-    ['skillClub', 'club'],
-    ['skillSword', 'sword'],
-    ['skillAxe', 'axe'],
-    ['skillDist', 'distance'],
-    ['skillShield', 'shielding'],
-  ];
-  return Object.fromEntries(
-    keys.flatMap(([sourceKey, skill]) => {
-      const value = record.properties.get(sourceKey);
-      return typeof value === 'number' ? [[skill, value]] : [];
-    }),
-  );
 }
 
 function normalizeEquipment(
   id: number,
   otb: OtbItemIdentity,
-  lua: LuaItemRecord,
+  itemProps: ItemRecordProps,
 ): EquipmentDefinition {
-  const weaponConstant = stringProperty(lua, 'weaponType');
-  const weaponType = weaponConstant ? weaponTypeByConstant[weaponConstant] : 'none';
-  const slotConstant = stringProperty(lua, 'slotPosition');
-  const slot = slotConstant ? slotByConstant[slotConstant] : weaponType !== 'none' ? 'hand' : undefined;
-  if (!slot) throw new Error(`Unable to determine equipment slot for item ${id}.`);
-
-  const weightValue = lua.properties.get('weight');
+  const weaponType = itemProps.weaponType ?? 'none';
+  const slot = itemProps.slot ?? (weaponType !== 'none' ? 'hand' : 'other');
+  const weightValue = itemProps.weight;
   const importWarnings: string[] = [];
+
+  const requirements: { level?: number; magicLevel?: number; vocations?: string[] } = {};
+  if (itemProps.reqLevel !== undefined && itemProps.reqLevel > 0) {
+    requirements.level = itemProps.reqLevel;
+  }
+  if (itemProps.vocations && itemProps.vocations.length > 0) {
+    requirements.vocations = itemProps.vocations;
+  }
 
   return validateEquipmentDefinition({
     id,
-    name: String(lua.properties.get('name') ?? ''),
+    name: itemProps.name,
+    article: itemProps.article,
+    description: itemProps.description,
     weaponType,
-    attack: numberProperty(lua, 'attack'),
-    defense: numberProperty(lua, 'defense'),
-    extraDefense: numberProperty(lua, 'extraDefense'),
-    armor: numberProperty(lua, 'armor'),
+    attack: itemProps.attack ?? 0,
+    defense: itemProps.defense ?? 0,
+    extraDefense: itemProps.extraDefense ?? 0,
+    armor: itemProps.armor ?? 0,
     slot,
-    twoHanded: slotConstant === 'SLOTP_TWO_HAND',
-    range: numberProperty(lua, 'range', weaponType === 'distance' ? 3 : 1),
+    twoHanded: Boolean(itemProps.twoHanded),
+    range: itemProps.range ?? (weaponType === 'distance' ? 3 : 1),
     weight: typeof weightValue === 'number'
       ? { hundredthsOfOunce: weightValue, ounces: weightValue / 100 }
       : null,
-    requirements: {},
-    skillBonuses: readSkillBonuses(lua),
-    magicLevelBonus: typeof lua.properties.get('magicLevelPoints') === 'number'
-      ? numberProperty(lua, 'magicLevelPoints')
-      : null,
-    elementalAbsorption: {},
-    sourceFile: ['data/items/items.otb', 'data/items/items.lua'] as ['data/items/items.otb', 'data/items/items.lua'],
+    requirements,
+    skillBonuses: itemProps.skillBonuses ?? {},
+    magicLevelBonus: itemProps.magicLevelBonus ?? null,
+    elementalAbsorption: itemProps.elementalAbsorption ?? {},
+    sourceFile: ['data/items/items.otb', 'data/items/items.xml'],
     sourceId: id,
     source: {
       otb: {
@@ -309,10 +378,10 @@ function normalizeEquipment(
         group: otb.group,
         flags: otb.flags,
       },
-      lua: {
-        sourceFile: 'data/items/items.lua',
+      xml: {
+        sourceFile: 'data/items/items.xml',
         sourceId: id,
-        line: lua.line,
+        line: 1,
       },
     },
     importWarnings,
@@ -323,34 +392,48 @@ export async function importEquipment(options: ImportOptions = {}): Promise<Equi
   const projectRoot = options.projectRoot ?? process.cwd();
   const serverRoot = getServerDataRoot(projectRoot);
   const otbPath = resolve(serverRoot, 'data', 'items', 'items.otb');
-  const luaPath = resolve(serverRoot, 'data', 'items', 'items.lua');
   const xmlPath = resolve(serverRoot, 'data', 'items', 'items.xml');
 
   const otbBuffer = await readFile(otbPath);
   const otbItems = readOtbIdentities(otbBuffer);
 
-  let itemRecords: Map<number, LuaItemRecord>;
-  if (existsSync(luaPath)) {
-    const luaSource = await readFile(luaPath, 'utf8');
-    itemRecords = readLuaRecords(luaSource);
-  } else if (existsSync(xmlPath)) {
-    const xmlSource = await readFile(xmlPath, 'utf8');
-    itemRecords = readXmlItemRecords(xmlSource);
-  } else {
-    throw new Error('Neither items.lua nor items.xml found in data/items.');
+  const requirementsMap = readRequirements(serverRoot);
+  const xmlSource = await readFile(xmlPath, 'utf8');
+  const itemRecords = parseItemsXml(xmlSource, requirementsMap);
+
+  const items: EquipmentDefinition[] = [];
+
+  // Import all named items with valid OTB identities
+  for (const [id, record] of itemRecords.entries()) {
+    const otb = otbItems.get(id);
+    if (!otb) continue;
+    if (!record.name) continue;
+
+    try {
+      const def = normalizeEquipment(id, otb, record);
+      items.push(def);
+    } catch {
+      // Skip invalid items gracefully
+    }
   }
 
-  const items = SELECTED_EQUIPMENT_IDS.map((id) => {
-    const otb = otbItems.get(id);
-    const lua = itemRecords.get(id);
-    if (!otb) throw new Error(`Selected item ${id} does not exist in items.otb.`);
-    if (!lua) throw new Error(`Selected item ${id} does not have a simple authoritative entry in item records.`);
-    return normalizeEquipment(id, otb, lua);
-  });
+  // Ensure all SELECTED_EQUIPMENT_IDS are present
+  for (const id of SELECTED_EQUIPMENT_IDS) {
+    if (!items.some((i) => i.id === id)) {
+      const otb = otbItems.get(id);
+      const record = itemRecords.get(id);
+      if (otb && record) {
+        items.push(normalizeEquipment(id, otb, record));
+      }
+    }
+  }
+
+  // Sort by id for deterministic generation
+  items.sort((a, b) => a.id - b.id);
 
   const catalog: EquipmentCatalog = {
     importedAtBuildTime: true,
-    selectionReason: 'Curated Knight development set plus four vocation starter loadouts, verified in items.otb.',
+    selectionReason: `Authoritative RealMap 11 items catalog: ${items.length} items imported from items.otb, items.xml, weapons.xml and movements.xml.`,
     items,
   };
 

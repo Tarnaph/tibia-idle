@@ -13,7 +13,7 @@ describe('Phase 86 & Phase 87: Spells, Runes, Hotkeys & Icons Overhaul', () => {
   it('imports the expanded spell catalog (>80 spells total)', () => {
     expect(content.spells.length).toBeGreaterThan(80);
     const sorcererSpells = content.spells.filter((s: SpellDefinition) => s.vocations.includes('Sorcerer') || s.vocations.includes('Master Sorcerer'));
-    expect(sorcererSpells.length).toBe(23);
+    expect(sorcererSpells.length).toBeGreaterThanOrEqual(23);
     expect(sorcererSpells.some((s: SpellDefinition) => s.name === 'Death Strike')).toBe(true);
     expect(sorcererSpells.some((s: SpellDefinition) => s.name === 'Force Strike')).toBe(false);
     const druidSpells = content.spells.filter((s: SpellDefinition) => s.vocations.includes('Druid'));

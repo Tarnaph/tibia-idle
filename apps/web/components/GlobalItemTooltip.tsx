@@ -2,9 +2,24 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
+import { formatTibiaLookText } from '@/packages/domain/src/itemLook';
 import { ItemSprite } from './ItemSprite';
 import economyJson from '@/content/generated/item-economy.json';
 import equipmentJson from '@/content/generated/equipment.json';
+
+const equipmentCatalog = (equipmentJson as unknown as { items: EquipmentDefinition[] }).items;
+const equipmentById = new Map<number, EquipmentDefinition>();
+for (const it of equipmentCatalog) {
+  equipmentById.set(it.id, it);
+}
+
+const economyItems = (economyJson as unknown as { items: Array<{ itemId: number; canonicalSellPrice?: number }> }).items;
+const economyById = new Map<number, number>();
+for (const it of economyItems) {
+  if (it.canonicalSellPrice !== undefined) {
+    economyById.set(it.itemId, it.canonicalSellPrice);
+  }
+}
 
 const SLOT_LABELS: Record<string, string> = {
   head: 'Elmo / Cabeça',
@@ -13,7 +28,10 @@ const SLOT_LABELS: Record<string, string> = {
   boots: 'Botas / Pés',
   hand: 'Mão (Arma / Escudo)',
   ammo: 'Munição / Aljava',
+  ring: 'Anel',
+  necklace: 'Amuleto / Colar',
   backpack: 'Mochila / Recipiente',
+  other: 'Item / Utilidade',
 };
 
 export interface GlobalTooltipItemData {
@@ -190,12 +208,8 @@ export function GlobalItemTooltip() {
   const data = active.itemData;
   if (!data) return null;
 
-  // Resolve item stats from EquipmentCatalog if itemId is provided
-  let equip = data.item;
-  if (!equip && data.itemId) {
-    const catalogItems = (equipmentJson as unknown as { items: EquipmentDefinition[] }).items;
-    equip = catalogItems.find((candidate) => candidate.id === data.itemId) ?? null;
-  }
+  // Resolve item stats from EquipmentCatalog in O(1)
+  const equip = data.item ?? (data.itemId ? equipmentById.get(data.itemId) ?? null : null);
 
   const name = equip?.name ?? data.name ?? `Item #${data.itemId ?? '?'}`;
   const slotName = equip?.slot ? (SLOT_LABELS[equip.slot] ?? equip.slot) : data.slot ?? 'Item';
@@ -204,12 +218,14 @@ export function GlobalItemTooltip() {
   const isArmor = (equip?.armor ?? 0) > 0;
   const weight = equip?.weight?.ounces ?? (equip as unknown as { weightOunces?: number })?.weightOunces;
 
-  // Determine price from item-economy
+  // Determine price from item-economy in O(1)
   let price = data.price;
   if (price === undefined && data.itemId) {
-    const ecoItem = (economyJson as unknown as { items: Array<{ itemId: number; canonicalSellPrice?: number }> }).items.find((i) => i.itemId === data.itemId);
-    price = ecoItem?.canonicalSellPrice;
+    price = economyById.get(data.itemId);
   }
+
+  // Canonical Tibia Look formatting
+  const look = formatTibiaLookText(equip ?? data, data.amount);
 
   return (
     <div
@@ -235,6 +251,39 @@ export function GlobalItemTooltip() {
           <span className="item-slot-tag">{slotName}</span>
         </div>
       </div>
+
+      {/* Canonical Look Box (Tibia Style) */}
+      <div className="item-tooltip-look-box">
+        <div className="look-title">{look.title}</div>
+        {look.lines.map((line, idx) => (
+          <div key={idx} className="look-line">{line}</div>
+        ))}
+      </div>
+
+      {/* Allowed Vocations */}
+      {look.vocationNames && look.vocationNames.length > 0 && (
+        <div className="item-tooltip-vocations-block">
+          <span className="item-tooltip-vocations-label">Vocações Permitidas:</span>
+          <div className="item-tooltip-voc-badges">
+            {look.vocationNames.map((voc) => {
+              const vLower = voc.toLowerCase();
+              const icon = vLower.includes('knight') ? '⚔️'
+                : vLower.includes('paladin') ? '🏹'
+                : vLower.includes('sorcerer') ? '⚡'
+                : vLower.includes('druid') ? '🌿' : '✨';
+              const className = vLower.includes('knight') ? 'voc-knight'
+                : vLower.includes('paladin') ? 'voc-paladin'
+                : vLower.includes('sorcerer') ? 'voc-sorcerer'
+                : vLower.includes('druid') ? 'voc-druid' : 'voc-all';
+              return (
+                <span key={voc} className={`voc-badge ${className}`}>
+                  {icon} {voc}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="item-tooltip-stats">
         {isWeapon && equip && (
@@ -280,13 +329,13 @@ export function GlobalItemTooltip() {
         )}
       </div>
 
-      {equip?.requirements?.level && (
+      {look.minLevel !== undefined && look.minLevel > 0 && (
         <div className="item-tooltip-req">
-          <span>Requer Nível {equip.requirements.level}</span>
+          <span>⭐ Requer Nível {look.minLevel}</span>
         </div>
       )}
 
-      {(equip?.twoHanded || data.twoHanded) && (
+      {(equip?.twoHanded || data.twoHanded || look.twoHanded) && (
         <div className="item-tooltip-badge two-handed">⚔️ Arma de duas mãos</div>
       )}
       {data.quickSell && (

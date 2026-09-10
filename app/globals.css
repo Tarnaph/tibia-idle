@@ -1455,6 +1455,118 @@ h1, h2, h3, p { margin: 0; }
   font-style: italic;
 }
 
+/* Canonical Tibia Look & Rich Item Tooltip */
+.global-item-tooltip-card {
+  min-width: 250px;
+  max-width: 320px;
+  background: linear-gradient(180deg, #1b1612 0%, #110d0a 100%);
+  border: 1px solid #5a4730;
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 10px rgba(90, 71, 48, 0.4), inset 0 1px 0 rgba(255, 235, 180, 0.15);
+  color: #d8ceb8;
+  font-family: Tahoma, 'Segoe UI', sans-serif;
+  z-index: 99999999;
+}
+
+.item-tooltip-look-box {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #3d3121;
+  border-left: 3px solid #67de82;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin: 6px 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #67de82;
+  font-family: Verdana, sans-serif;
+  text-shadow: 1px 1px 1px #000;
+}
+
+.item-tooltip-look-box .look-title {
+  font-weight: 700;
+  color: #67de82;
+  margin-bottom: 2px;
+}
+
+.item-tooltip-look-box .look-line {
+  color: #bdf2cb;
+  font-size: 10px;
+}
+
+.item-tooltip-vocations-block {
+  margin: 6px 0;
+  padding: 5px 7px;
+  background: rgba(28, 22, 16, 0.75);
+  border-radius: 4px;
+  border: 1px solid #443522;
+}
+
+.item-tooltip-vocations-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: #c4ab82;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.item-tooltip-voc-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.voc-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid transparent;
+}
+
+.voc-badge.voc-knight {
+  background: rgba(180, 50, 40, 0.25);
+  color: #ff9d94;
+  border-color: rgba(220, 70, 60, 0.4);
+}
+
+.voc-badge.voc-paladin {
+  background: rgba(50, 140, 180, 0.25);
+  color: #92e0ff;
+  border-color: rgba(60, 160, 220, 0.4);
+}
+
+.voc-badge.voc-sorcerer {
+  background: rgba(140, 60, 190, 0.25);
+  color: #e5aaff;
+  border-color: rgba(170, 80, 230, 0.4);
+}
+
+.voc-badge.voc-druid {
+  background: rgba(50, 160, 80, 0.25);
+  color: #98f5b4;
+  border-color: rgba(60, 190, 90, 0.4);
+}
+
+.voc-badge.voc-all {
+  background: rgba(180, 150, 50, 0.2);
+  color: #ffe599;
+  border-color: rgba(200, 170, 60, 0.4);
+}
+
+.item-tooltip-stats .stat-row.oz b {
+  color: #e5bd50;
+}
+
+.item-tooltip-stats .stat-row.gold b {
+  color: #ffd700;
+}
+
 /* Compact Equipment & Backpack Window */
 .compact-equipment-window {
   display: flex;

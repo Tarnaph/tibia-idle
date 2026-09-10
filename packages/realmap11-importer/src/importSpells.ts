@@ -411,8 +411,6 @@ export async function importSpells(options: ImportOptions = {}): Promise<SpellCa
         if (ALLOWED_SORCERER_SPELLS.has(canonicalName)) {
           if (!vocations.includes('Sorcerer')) vocations.push('Sorcerer');
           if (!vocations.includes('Master Sorcerer')) vocations.push('Master Sorcerer');
-        } else {
-          vocations = vocations.filter((v) => v !== 'Sorcerer' && v !== 'Master Sorcerer');
         }
         return {
           spellId: Number(raw.spellid ?? Math.floor(Math.random() * 10000)),
