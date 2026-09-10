@@ -58,6 +58,7 @@ export function BottomConsoleHUD({
   // Drag-and-Drop hotbar states
   const [draggingSlot, setDraggingSlot] = useState<number | null>(null);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
+  const [draggableSlot, setDraggableSlot] = useState<number | null>(null);
   const isDraggingRef = useRef(false);
 
   const currentStance = character.stance ?? stance;
@@ -101,6 +102,12 @@ export function BottomConsoleHUD({
     7: 'border-green',
   };
 
+  const handleEditSlot = (slotIndex: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onConfigureSlot?.(slotIndex);
+  };
+
   const renderSlot = (slotIndex: number, isBottomRow = false) => {
     const actionId = character.hotbar[slotIndex];
     const hasAction = typeof actionId === 'number' && actionId > 0;
@@ -117,9 +124,18 @@ export function BottomConsoleHUD({
           id={`hud-slot-${slotIndex}`}
           className={`hud-action-slot empty-plus-slot ${isDragOver ? 'drag-over' : ''}`}
           title={`Slot ${slotIndex + 1} [${hotkeyLabel}] Vazio · Botão direito para editar slot`}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.button !== 0) return;
             if (isDraggingRef.current) return;
             onConfigureSlot?.(slotIndex);
+          }}
+          onMouseDown={(e) => {
+            if (e.button === 2) {
+              handleEditSlot(slotIndex, e);
+            }
+          }}
+          onContextMenu={(e) => {
+            handleEditSlot(slotIndex, e);
           }}
           onDragOver={(e) => {
             e.preventDefault();
@@ -165,14 +181,19 @@ export function BottomConsoleHUD({
 
     const isDragging = draggingSlot === slotIndex;
     const isDragOver = dragOverSlot === slotIndex;
+    const isDraggable = draggableSlot === slotIndex;
 
     return (
       <div
         key={`slot-${slotIndex}`}
         id={`hud-slot-${slotIndex}`}
         className={`hud-action-slot occupied-slot ${borderColorClass} ${isDragging ? 'dragging' : ''} ${isDragOver ? 'drag-over' : ''}`}
-        draggable
+        draggable={isDraggable}
         onDragStart={(e) => {
+          if (e.button === 2 || (e.buttons !== undefined && (e.buttons & 1) === 0)) {
+            e.preventDefault();
+            return;
+          }
           isDraggingRef.current = true;
           e.dataTransfer.setData('text/plain', String(slotIndex));
           e.dataTransfer.effectAllowed = 'move';
@@ -195,10 +216,12 @@ export function BottomConsoleHUD({
           }
           setDragOverSlot(null);
           setDraggingSlot(null);
+          setDraggableSlot(null);
         }}
         onDragEnd={() => {
           setDraggingSlot(null);
           setDragOverSlot(null);
+          setDraggableSlot(null);
           setTimeout(() => {
             isDraggingRef.current = false;
           }, 100);
@@ -209,26 +232,45 @@ export function BottomConsoleHUD({
           if (isOnCooldown) return;
           onSlotClick?.(slotIndex);
         }}
+        onMouseDown={(e) => {
+          if (e.button === 0) {
+            setDraggableSlot(slotIndex);
+          } else if (e.button === 2) {
+            setDraggableSlot(null);
+            handleEditSlot(slotIndex, e);
+          }
+        }}
+        onMouseUp={(e) => {
+          if (e.button === 2) {
+            handleEditSlot(slotIndex, e);
+          }
+          setDraggableSlot(null);
+        }}
         onContextMenu={(e) => {
-          e.preventDefault();
-          if (isDraggingRef.current) return;
-          onConfigureSlot?.(slotIndex);
+          handleEditSlot(slotIndex, e);
+        }}
+        onMouseLeave={() => {
+          if (draggableSlot === slotIndex) {
+            setDraggableSlot(null);
+          }
         }}
         title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] ${isOnCooldown ? `(Cooldown: ${remainingSec}s)` : '(Botão esquerdo: Usar magia · Botão direito: Editar slot · Arraste para trocar)'}`}
         style={{ cursor: isOnCooldown ? 'not-allowed' : 'pointer', position: 'relative' }}
       >
         {/* Hotkey Indicator */}
-        <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#c7d6cc', zIndex: 7, textShadow: '1px 1px 0 #000' }}>
+        <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#c7d6cc', zIndex: 7, textShadow: '1px 1px 0 #000', pointerEvents: 'none' }}>
           {hotkeyLabel}
         </span>
 
         {/* Center Icon with official CipSoft sprites */}
-        <Tibia11ActionIcon
-          id={action.kind === 'spell' ? action.spell.spellId : action.kind === 'potion' ? action.potion.id : action.rune.id}
-          kind={action.kind}
-          name={action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name}
-          size={30}
-        />
+        <div style={{ pointerEvents: 'none', display: 'contents' }}>
+          <Tibia11ActionIcon
+            id={action.kind === 'spell' ? action.spell.spellId : action.kind === 'potion' ? action.potion.id : action.rune.id}
+            kind={action.kind}
+            name={action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name}
+            size={30}
+          />
+        </div>
 
         {/* Cooldown Dark Overlay & Timer */}
         {isOnCooldown && (
@@ -253,6 +295,7 @@ export function BottomConsoleHUD({
                 fontWeight: 'bold',
                 fontFamily: 'Verdana, Arial, sans-serif',
                 textShadow: '0 0 3px #000, 1px 1px 0 #000',
+                pointerEvents: 'none',
               }}
             >
               {remainingSec}s
@@ -262,7 +305,7 @@ export function BottomConsoleHUD({
 
         {/* Bottom-Right Blue Mana Cost */}
         {manaCost !== undefined && (
-          <span className="hud-mana-cost">{manaCost}</span>
+          <span className="hud-mana-cost" style={{ pointerEvents: 'none' }}>{manaCost}</span>
         )}
       </div>
     );

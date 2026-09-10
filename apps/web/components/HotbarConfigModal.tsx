@@ -91,17 +91,17 @@ export function HotbarConfigModal({
 
   // Spells filtered for vocation
   const availableSpells = content.spells.filter((spell) =>
-    spell.vocations.includes(character.vocation) || spell.vocations.includes(character.baseVocation)
+    spell.vocations?.includes(character.vocation) || spell.vocations?.includes(character.baseVocation)
   );
 
   // Runes filtered for vocation
   const availableRunes = HOTBAR_RUNES.filter((rune) =>
-    rune.vocations.includes(character.vocation) || rune.vocations.includes(character.baseVocation)
+    rune.vocations?.includes(character.vocation) || rune.vocations?.includes(character.baseVocation)
   );
 
   // Potions/items filtered for vocation
   const availablePotions = HOTBAR_POTIONS.filter((potion) =>
-    potion.vocations.includes(character.vocation) || potion.vocations.includes(character.baseVocation)
+    potion.vocations?.includes(character.vocation) || potion.vocations?.includes(character.baseVocation)
   );
 
   const selectedAction = selectedId !== null ? findHotbarAction(selectedId, content) : null;
@@ -162,7 +162,20 @@ export function HotbarConfigModal({
   };
 
   return (
-    <div className="hotbar-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+    <div
+      className="hotbar-modal-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="hotbar-config-window" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="hotbar-config-header">
