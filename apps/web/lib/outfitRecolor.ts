@@ -77,28 +77,22 @@ export function getMountDisplacementOffset(
   if (!mountId || mountId === 'none') {
     return { x: 0, y: 0 };
   }
-  const normOutfit = normalizeOutfitId(outfitId);
-  const outfit = CANONICAL_OUTFITS.find((o) => o.id === normOutfit);
-  const outfitDisp =
-    gender === 'female'
-      ? (outfit?.femaleDisplacement ?? outfit?.displacement ?? { x: 8, y: 8 })
-      : (outfit?.maleDisplacement ?? outfit?.displacement ?? { x: 8, y: 8 });
-
   const normMount = normalizeMountId(mountId);
   const mount = CANONICAL_MOUNTS.find((m) => m.id === normMount || m.name.toLowerCase() === normMount);
-  const mountDisp = mount?.displacement ?? { x: 0, y: 0 };
   const mountW = mount?.width ?? 2;
   const mountH = mount?.height ?? 2;
   const outfitW = 2;
   const outfitH = 2;
 
-  // Authentic CipSoft relative displacement formula:
-  // Relative position of rider on mount:
-  // offsetX = (mountW - outfitW) * 32 + (outfitDisp.x - mountDisp.x)
-  // offsetY = (mountH - outfitH) * 32 + (outfitDisp.y - mountDisp.y)
+  // Authentic CipSoft / OTClient composition:
+  // In Tibia's engine, rider sprites for mounted poses (z = 1) were authored on the exact same 64x64 grid
+  // to align naturally at (0, 0) with mount saddles.
+  // ThingAttrDisplacement from DAT is the creature's world-grid anchor displacement when on foot,
+  // NOT a relative offset between rider and mount.
+  // Relative offset on the composition canvas only accounts for multi-tile dimension deltas:
   return {
-    x: (mountW - outfitW) * 32 + (outfitDisp.x - mountDisp.x),
-    y: (mountH - outfitH) * 32 + (outfitDisp.y - mountDisp.y),
+    x: (mountW - outfitW) * 32,
+    y: (mountH - outfitH) * 32,
   };
 }
 
@@ -477,6 +471,19 @@ export async function preloadOutfitAllFrames(
   }
 }
 
+function getCanvasCacheKey(
+  norm: string,
+  gender: string,
+  direction: string,
+  frame: number,
+  colors: OutfitColors,
+  addons: number,
+  mount?: string,
+  isMounted: boolean = false
+): string {
+  return `${norm}_${gender}_${direction}_${frame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons || 0}_m${isMounted ? (mount || 'default') : 'none'}_v2`;
+}
+
 export function isOutfitCanvasCached(
   outfitId: string,
   gender: 'male' | 'female' = 'male',
@@ -488,7 +495,7 @@ export function isOutfitCanvasCached(
   isMounted: boolean = false
 ): boolean {
   const norm = normalizeOutfitId(outfitId);
-  const key = `${norm}_${gender}_${direction}_${frame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons || 0}_m${isMounted ? (mount || 'default') : 'none'}`;
+  const key = getCanvasCacheKey(norm, gender, direction, frame, colors, addons, mount, isMounted);
   return recoloredCanvasCache.has(key);
 }
 
@@ -503,7 +510,7 @@ export function getRecoloredCanvasSync(
   isMounted: boolean = false
 ): HTMLCanvasElement | null {
   const norm = normalizeOutfitId(outfitId);
-  const key = `${norm}_${gender}_${direction}_${frame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons || 0}_m${isMounted ? (mount || 'default') : 'none'}`;
+  const key = getCanvasCacheKey(norm, gender, direction, frame, colors, addons, mount, isMounted);
   const existing = recoloredCanvasCache.get(key);
   if (existing) return existing;
 
@@ -562,11 +569,11 @@ export function getRecoloredCanvasSync(
 
     // DO NOT cache under definitive key in recoloredCanvasCache!
     // Return provisional fallback so display doesn't flicker or become invisible
-    const dirFallbackKey = `${norm}_${gender}_${direction}_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a0_mnone`;
+    const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, 0, undefined, false);
     const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
     if (dirFallback) return dirFallback;
 
-    const southFallbackKey = `${norm}_${gender}_south_0_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a0_mnone`;
+    const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, 0, undefined, false);
     const southFallback = recoloredCanvasCache.get(southFallbackKey);
     if (southFallback) return southFallback;
     return null;

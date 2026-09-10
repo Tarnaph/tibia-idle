@@ -56,14 +56,16 @@ describe('Phase 120: Mount Composition, Layer Caching & Mounted Addons Regressio
     });
 
     it('calcula o deslocamento relativo correto de Citizen no War Bear nas 4 direções', () => {
-      // Citizen (disp 8,8, size 2x2) em War Bear (disp 0,0, size 2x2)
-      // offsetX = (2 - 2)*32 + (8 - 0) = 8
-      // offsetY = (2 - 2)*32 + (8 - 0) = 8
+      // Citizen (size 2x2) em War Bear (size 2x2)
+      // No motor CipSoft / OTClient, a pose montada (z=1) é desenhada na mesma grade 64x64 com origem (0, 0).
+      // ThingAttrDisplacement é o deslocamento do ser no grid do mapa ao andar a pé, não um offset relativo entre cavaleiro e montaria.
+      // offsetX = (2 - 2)*32 = 0
+      // offsetY = (2 - 2)*32 = 0
       const offset = getMountDisplacementOffset('citizen', 'male', 'war-bear');
-      expect(offset).toEqual({ x: 8, y: 8 });
+      expect(offset).toEqual({ x: 0, y: 0 });
 
       const offsetFemale = getMountDisplacementOffset('citizen', 'female', 'war-bear');
-      expect(offsetFemale).toEqual({ x: 8, y: 8 });
+      expect(offsetFemale).toEqual({ x: 0, y: 0 });
 
       // Quando desmontado ou sem montaria: deslocamento é (0,0)
       expect(getMountDisplacementOffset('citizen', 'male', 'none')).toEqual({ x: 0, y: 0 });
@@ -226,10 +228,10 @@ describe('Phase 120: Mount Composition, Layer Caching & Mounted Addons Regressio
       expect(mountOp?.args[1]).toBe(0); // x = 0
       expect(mountOp?.args[2]).toBe(0); // y = 0
 
-      // Invariante 6: O cavaleiro foi desenhado com o deslocamento relativo (8, 8)
+      // Invariante 6: O cavaleiro foi desenhado com o deslocamento relativo autêntico (0, 0)
       // drawRecoloredLayer desenha o recoloredCanvas no targetCtx em (destX, destY)
       const riderDraw = drawnOperations.find(
-        (op) => op.method === 'drawImage' && op.args[1] === 8 && op.args[2] === 8
+        (op) => op.method === 'drawImage' && op.args[1] === 0 && op.args[2] === 0
       );
       expect(riderDraw).toBeDefined();
     });
