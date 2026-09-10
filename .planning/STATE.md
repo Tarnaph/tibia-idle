@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-10T10:30:00.000Z"
-last_activity: "2026-09-10 — Conclusão da Phase 117: Pipeline Autêntico de Animação Tibia 10.98 (Idle Frame 0 Canônico e Ciclo Completo de Caminhada com 8 Frames)."
+last_updated: "2026-09-10T10:48:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 118: Identidade Visual Exura e Janela de Autenticação com Estilo Autêntico In-Game."
 progress:
-  total_phases: 117
-  completed_phases: 117
-  total_plans: 117
-  completed_plans: 117
+  total_phases: 118
+  completed_phases: 118
+  total_plans: 118
+  completed_plans: 118
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 117 concluída com 100% de testes e 0 erros de tipagem. Pipeline de extração corrigido com separação canônica de FrameGroup 0 (Idle f0 com pés juntos no chão) e FrameGroup 1 (Moving f1..f8 com ciclo completo de 8 passos da CipSoft).
+**Current focus:** Phase 118 concluída com 100% de testes e 0 erros de tipagem. Janela de autenticação atualizada com logo oficial do Exura e estilização completa in-game do Tibia 11 (ardósia radial, moldura chanfrada de bronze/ouro, inputs escavados e botão dourado beveled).
 
 ## Current Position
 
-Phase: 117 of 117 (Concluída)  
+Phase: 118 of 118 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Conclusão da Phase 117.
+Last activity: 2026-09-10 — Conclusão da Phase 118.
 
 Progress: [██████████] 100%
 

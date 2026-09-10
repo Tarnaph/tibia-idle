@@ -81,7 +81,9 @@ export function AuthModal({ mode, onMode, onClose }: AuthModalProps) {
     }}>
       <section className="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title">
         <button className="modal-close" type="button" onClick={onClose} aria-label="Fechar">×</button>
-        <div className="auth-brand"><span>C</span><strong>CAVEBOUND</strong></div>
+        <div className="auth-brand auth-brand-exura">
+          <img src="/logo.png" alt="Exura Idle Adventures" className="auth-logo-img" />
+        </div>
         <p className="eyebrow">CONTA DO AVENTUREIRO</p>
         <h2 id="auth-title">{isSignup ? 'Criar conta' : 'Entrar no jogo'}</h2>
         <p className="auth-intro">{isSignup ? 'Crie sua conta para iniciar a expedição.' : 'Sua party está esperando por você.'}</p>

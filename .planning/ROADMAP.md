@@ -2044,6 +2044,23 @@ Plans:
 **Plans:**
 - [x] 117-01-PLAN: Pipeline Autêntico de Animação Tibia 10.98 (Idle Frame 0 Canônico e Ciclo Completo de Caminhada com 8 Frames).
 
+### Phase 118: Identidade Visual Exura e Janela de Autenticação com Estilo Autêntico In-Game
+
+**Goal:** Atualizar o modal público de autenticação (`AuthModal.tsx`) e sua estilização (`globals.css`) para substituir a marca legada Cavebound pelo logo oficial do Exura e aplicar a paleta e acabamentos de interface autênticos do jogo (janela de pedra/ardósia, chanfros metálicos medievais em bronze/ouro tibiano, botões beveled com relevo e inputs escavados).
+**Depends on:** Phase 117, Phase 116, Phase 45
+**Requirements:**
+1. Substituir o logo e monograma Cavebound em `AuthModal.tsx` pela imagem do logo oficial do Exura (`/logo.png`).
+2. Reformular a janela `.auth-dialog` com a paleta autêntica in-game (Tibia 11 / Exura Online): degradê radial de ardósia escura, borda beveled em bronze dourado medieval (`#6b5329`), chanfro interno iluminado e sombra de alta profundidade.
+3. Estilizar o botão de fechar no padrão Tibia 11 com hover em alerta de combate vermelho.
+4. Harmonizar a tipografia (eyebrow em ouro tibiano, título em branco radiante, subtítulo em ardósia).
+5. Inputs escavados na pedra com borda metálica e iluminação ao focar.
+6. Botão de ação primário dourado com relevo 3D chanfrado e brilho ao passar o mouse.
+7. Botão do Google em pedra/aço chanfrado e links de alternância em âmbar.
+8. 0 erros de TypeScript e aprovação nos testes automatizados.
+**Plans:**
+- [x] 118-01-PLAN: Identidade Visual Exura e Janela de Autenticação com Estilo Autêntico In-Game.
+
+
 
 
 
