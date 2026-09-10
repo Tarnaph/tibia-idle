@@ -385,6 +385,21 @@ export async function preloadOutfitAllFrames(
   }
 }
 
+export function isOutfitCanvasCached(
+  outfitId: string,
+  gender: 'male' | 'female' = 'male',
+  direction: 'south' | 'east' | 'north' | 'west' = 'south',
+  frame: number = 0,
+  colors: OutfitColors = { head: 0, primary: 86, secondary: 114, detail: 76 },
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false
+): boolean {
+  const norm = normalizeOutfitId(outfitId);
+  const key = `${norm}_${gender}_${direction}_${frame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons || 0}_m${isMounted ? (mount || 'default') : 'none'}`;
+  return recoloredCanvasCache.has(key);
+}
+
 export function getRecoloredCanvasSync(
   outfitId: string,
   gender: 'male' | 'female' = 'male',

@@ -76,7 +76,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 112: Correção de Nível/XP Autoritativo, Acessibilidade de Respawns do Dragon Lair e Modal de Ficha do Personagem com 5 Avatares** - Reconciliação e sincronização monótona de XP/nível, validação de caminho A* no respawn do Dragon Lair e reset de views no PixiArena, e novo Modal de Ficha do Personagem com abas e 5 avatares persistidos.
 - [x] **Phase 113: Tela de Carregamento de Thais na Morte do Personagem (Death Loading Transition)** - Ativação da tela de carregamento oficial de Thais com curiosidades rotativas de lore e transição de áudio ao morrer e confirmar o respawn no templo, com pausa da caminhada durante os 10s.
 - [x] **Phase 114: Troca Rápida de Habilidades e Ações na Hotbar via Drag-and-Drop (Arrastar e Soltar Slots F1 a F12)** - Suporte a arrastar e soltar (HTML5 DnD) magias, runas e poções entre slots da hotbar (F1 a F12 e 1 a 0), troca atômica de posições e configurações sem efeito cascata em slots intermediários, feedback visual (borda dourada brilhante e opacidade) e persistência permanente no banco de dados via `/api/characters/[id]/save`.
-- [x] **Phase 115: Auditoria Completa de Correções do FIX.md (Outfits/Addons/Mounts, Spawns e Movimentação no Dragon Lair, Poções de Mana e Efeitos, Promoção no Nível 20, Ajustes Visuais de TopNav/Loading e Wands/Rods em Combate)** - Implementação dos 7 itens de FIX.md: catálogo autoritativo de outfits/addons/mounts de realmap11 e cliente 10.98; resolução do spawn e movimentação no Dragon Lair em (32741,31294,11); confiabilidade do auto-uso e sincronização de efeitos de poções de mana/vida; trava de level 20 na janela de Skills para promoção; remoção de emojis e botão redundante de caçadas; reposicionamento do painel de conta/avatar e ícones nítidos de moedas (Tibia Coins / Gold); e ataque autoritativo com wands/rods em tempo real.
+- [x] **Phase 116: Blindagem de Sessão/Auth Admin, Cadastro Seguro e Correção de Frame Parado (Idle Pose)** - Centralização da gestão de sessão com limpeza atômica de cookies/tokens/conexões no logout; bloqueio absoluto de escalação de privilégios no cadastro público (apenas PLAYER) e validação estrita de JWT_SECRET; desacoplamento entre caminho pendente e movimento físico real, eliminação de callbacks assíncronos desatualizados e atualização contínua de texturas provisórias para restaurar a pose de repouso (frame 0) exata.
 
 
 ---
@@ -2015,8 +2015,20 @@ Plans:
 6. Ajuste de layout no TopNavigation: painel de conta/avatar mais à esquerda, ícones maiores e troca por sprites autênticos de Gold Coin e Tibia Coin.
 7. Ataque contínuo e troca de Wands/Rods em combate com alcance, mana, elemento e projéteis sincronizados sem necessidade de relogar.
 8. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
+### Phase 116: Blindagem de Sessão/Auth Admin, Cadastro Seguro e Correção de Frame Parado (Idle Pose)
+
+**Goal:** Eliminar vulnerabilidades críticas de autenticação/autorização e desincronizações visuais de movimentação identificadas no `FIX.md`: (1) Centralizar login, logout e troca de conta com expiração atômica de cookies (`colyseus_token`), limpeza de localStorage, desconexão de rede e descarte de permissões administrativas residuais; (2) Blindar o cadastro público contra injeção de `role: "admin"`, restringindo o registro estritamente para `PLAYER` e validando `JWT_SECRET`; (3) Corrigir o estado de pose parada (idle pose) em `ThaisCityArena.tsx` e renderizadores PixiJS, separando o caminho pendente (`walkingPath`) do deslocamento visual físico real (`sample.moving`), eliminando callbacks assíncronos que sobrescreviam o frame parado com texturas antigas de caminhada e garantindo a transição imediata para o frame 0 ao parar.
+**Depends on:** Phase 115, Phase 63, Phase 47
+**Requirements:**
+1. Centralização do ciclo de vida de sessão: `handleLogout` em `TibiaAuthCharacterModal` e `signOut` em `AuthProvider` expiram o cookie `colyseus_token` (`max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`), removem tokens do localStorage, encerram conexão ativa com o servidor de jogo e resetam o estado de `onlineAccount` / `onlineCharacter`.
+2. Em `GamePrototype.tsx`, o papel administrativo (`isAdmin`) deve ser derivado exclusivamente da sessão validada ativa do usuário conectado (`onlineAccount?.role`), sem fallback ou sobreposição permissiva de identidades passadas de provedores divergentes.
+3. Rota `/api/auth/register` e camada de serviço `AccountService.register` forçam incondicionalmente a role `PLAYER` em qualquer requisição de cadastro público, rejeitando tentativas de autopromoção para `admin` ou `gm`.
+4. Em `packages/auth/src/jwt.ts`, exigir `JWT_SECRET` válido e configurado no ambiente, fornecendo chave segura no `.env`.
+5. Em `ThaisCityArena.tsx` e `GamePrototype.tsx`, o frame de caminhada deve ser ativado estritamente quando há movimento físico interpolado (`charIsMoving` / `sample.moving`), forçando o frame 0 (pose de repouso) assim que o movimento cessa, independentemente de haver waypoints remanescentes ou parada abrupta.
+6. Em `ThaisCityArena.tsx`, eliminar callbacks assíncronos de textura que aplicam frames de caminhada desatualizados e implementar diferenciação entre texturas provisórias e definitivas via `recoloredCanvasCache` para evitar travas em frames incorretos.
+7. Cobertura de testes automatizados no Vitest e 0 erros de TypeScript.
 **Plans:**
-- [x] 115-01-PLAN: Auditoria Completa de Correções do FIX.md.
+- [x] 116-01-PLAN: Blindagem de Sessão/Auth Admin, Cadastro Seguro e Correção de Frame Parado (Idle Pose).
 
 
 

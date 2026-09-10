@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-09T22:45:00.000Z"
-last_activity: "2026-09-09 — Conclusão da Phase 115: Auditoria Completa e Resolução Integral de FIX.md."
+last_updated: "2026-09-10T10:15:00.000Z"
+last_activity: "2026-09-10 — Conclusão da Phase 116: Blindagem de Sessão/Auth Admin, Cadastro Seguro e Correção de Frame Parado (Idle Pose)."
 progress:
-  total_phases: 115
-  completed_phases: 115
-  total_plans: 115
-  completed_plans: 115
+  total_phases: 116
+  completed_phases: 116
+  total_plans: 116
+  completed_plans: 116
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 115 Concluída. Resolução integral dos 7 itens de `FIX.md`: catálogo autoritativo de outfits/addons/mounts de realmap11 e cliente 10.98; resolução do spawn e movimentação no Dragon Lair em (32741,31294,11); confiabilidade do auto-uso e sincronização de efeitos de poções de mana/vida; trava de level 20 na janela de Skills para promoção; remoção de emojis e botão redundante de caçadas; reposicionamento do painel de conta/avatar e ícones nítidos de moedas (Tibia Coins / Gold); e ataque autoritativo com wands/rods em tempo real.
+**Current focus:** Phase 116 concluída com 100% de testes e 0 erros de tipagem. Blindagem de sessão/auth admin, bloqueio de escalação no cadastro público (apenas PLAYER), validação de JWT_SECRET e correção do frame de repouso (idle pose / frame 0) em ThaisCityArena e renderizadores PixiJS.
 
 ## Current Position
 
-Phase: 115 of 115 (Concluída)  
+Phase: 116 of 116 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-09 — Conclusão da Phase 115.
+Last activity: 2026-09-10 — Conclusão da Phase 116.
 
 Progress: [██████████] 100%
 

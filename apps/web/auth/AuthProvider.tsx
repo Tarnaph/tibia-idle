@@ -142,10 +142,16 @@ export function AuthProvider({ initialViewer, children }: { initialViewer: AuthV
       if (error) throw error;
     },
     async signOut() {
-      const supabase = getBrowserSupabase();
-      if (!supabase) return;
       setStatus('loading');
-      await performSignOut(supabase.auth);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('colyseus_token');
+        localStorage.removeItem('tibia_auth_token');
+        document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+      }
+      const supabase = getBrowserSupabase();
+      if (supabase) {
+        await performSignOut(supabase.auth).catch(() => {});
+      }
       setViewer(null);
       setStatus('unauthenticated');
       router.push('/');

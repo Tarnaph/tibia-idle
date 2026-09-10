@@ -52,7 +52,8 @@ export class AccountService {
     }
 
     const passwordHash = await hashPassword(input.password);
-    const role = input.role === 'admin' ? 'ADMIN' : 'PLAYER';
+    // Security constraint (Phase 116): Public registration unconditionally creates a standard PLAYER account.
+    const role = 'PLAYER';
 
     const account = await this.prisma.account.create({
       data: {

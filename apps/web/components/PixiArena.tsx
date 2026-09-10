@@ -8,7 +8,7 @@ import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldC
 import type { Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
-import { getRecoloredCanvasSync, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
+import { getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId } from '@/apps/web/lib/outfitRecolor';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 
 interface PixiArenaProps {
@@ -666,7 +666,17 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             const addons = character.addons || 0;
             const walkFrame = sample.moving ? Math.floor(framePhase * 3) : 0;
             const textureKey = `${outfitKey}_${charGender}_${sample.direction}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons}_m${isMounted ? character.mount : 'none'}`;
-            if (view.lastFrameUrl !== textureKey) {
+            const isCached = isOutfitCanvasCached(
+              outfitKey,
+              charGender,
+              sample.direction,
+              walkFrame,
+              colors,
+              addons,
+              character.mount,
+              isMounted
+            );
+            if (view.lastFrameUrl !== textureKey || !isCached) {
               const canvas = getRecoloredCanvasSync(
                 outfitKey,
                 charGender,
@@ -681,7 +691,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
                 const tex = Texture.from(canvas);
                 tex.source.style.scaleMode = 'nearest';
                 view.sprite.texture = tex;
-                view.lastFrameUrl = textureKey;
+                if (isCached) {
+                  view.lastFrameUrl = textureKey;
+                }
               } else if (!character.outfitColors && !isMounted) {
                 const nextUrl = frameUrl(view.mapping, sample.direction, framePhase);
                 if (nextUrl !== view.lastFrameUrl) { view.sprite.texture = loaded[nextUrl]; view.lastFrameUrl = nextUrl; }

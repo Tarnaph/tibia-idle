@@ -11,7 +11,7 @@ import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@
 import type { ExtractedFrame, ItemVisualAssetMapping, Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
-import { getRecoloredCanvasSync, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
+import { getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
@@ -1074,7 +1074,7 @@ export function ThaisCityArena({
             const charPixelY = currentPixelY;
             const charDirection = playerDirection;
             const charIsMoving = isMoving;
-            const charWalkFrame = charIsMoving || curWalk ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
+            const charWalkFrame = charIsMoving ? walkCycle[Math.floor(now / stepRateMs) % 4] : 0;
 
             view.sprite.scale.x = 1;
             const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
@@ -1083,7 +1083,17 @@ export function ThaisCityArena({
             const charGender = localChar.gender === 'female' ? 'female' : 'male';
             const addons = (localChar as any).addons || (localChar as any).outfitAddons || 0;
             const textureKey = `${outfitKey}_${charGender}_${charDirection}_${charWalkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${addons}_m${isMounted ? localChar.mount : 'none'}`;
-            if (view.lastTextureKey !== textureKey) {
+            const isCached = isOutfitCanvasCached(
+              outfitKey,
+              charGender,
+              charDirection as any,
+              charWalkFrame,
+              colors,
+              addons,
+              localChar.mount,
+              isMounted
+            );
+            if (view.lastTextureKey !== textureKey || !isCached) {
               const canvas = getRecoloredCanvasSync(
                 outfitKey,
                 charGender,
@@ -1098,7 +1108,9 @@ export function ThaisCityArena({
                 const tex = Texture.from(canvas);
                 tex.source.style.scaleMode = 'nearest';
                 view.sprite.texture = tex;
-                view.lastTextureKey = textureKey;
+                if (isCached) {
+                  view.lastTextureKey = textureKey;
+                }
                 view.lastUrl = 'canvas';
               } else if (!localChar.outfitColors && !isMounted) {
                 const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
@@ -1506,7 +1518,11 @@ export function ThaisCityArena({
               ? `${outfitKey}_male_${dir}_${walkFrame}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_a${rAddons}_m${rMounted ? p.mount : 'none'}`
               : `${outfitKey}_male_${dir}_${walkFrame}`;
 
-            if (view.lastTextureKey !== textureKey) {
+            const isCached = colors
+              ? isOutfitCanvasCached(outfitKey, 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted)
+              : true;
+
+            if (view.lastTextureKey !== textureKey || !isCached) {
               let updated = false;
               if (colors) {
                 const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted);
@@ -1514,20 +1530,13 @@ export function ThaisCityArena({
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
                   view.sprite.texture = tex;
-                  view.lastTextureKey = textureKey;
+                  if (isCached) {
+                    view.lastTextureKey = textureKey;
+                  }
                   view.lastUrl = 'canvas';
                   updated = true;
                 } else {
-                  preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted).then(() => {
-                    const readyCanvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted);
-                    if (readyCanvas && view.root && !view.root.destroyed) {
-                      const tex = Texture.from(readyCanvas);
-                      tex.source.style.scaleMode = 'nearest';
-                      view.sprite.texture = tex;
-                      view.lastTextureKey = textureKey;
-                      view.lastUrl = 'canvas';
-                    }
-                  }).catch(() => {});
+                  preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted).catch(() => {});
                 }
               }
               if (!updated && !rMounted) {

@@ -1,7 +1,14 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { AccountRole } from './types';
 
-const DEFAULT_SECRET = process.env.JWT_SECRET || 'cavebound-tibia-secret-key-2026';
+export function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (process.env.NODE_ENV === 'production' && (!secret || secret.trim() === '')) {
+    throw new Error('[Security Exception] JWT_SECRET must be explicitly configured in production environment.');
+  }
+  return secret || 'cavebound-tibia-secure-jwt-secret-2026';
+}
+
 const TOKEN_EXPIRATION_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
 export interface TokenPayload {
@@ -29,7 +36,7 @@ function base64UrlDecode(str: string): string {
 /**
  * Creates a signed JWT for an authenticated account using Node native HMAC-SHA256 (zero eval).
  */
-export function createAuthToken(payload: Omit<TokenPayload, 'iat' | 'exp'>, secret: string = DEFAULT_SECRET): string {
+export function createAuthToken(payload: Omit<TokenPayload, 'iat' | 'exp'>, secret: string = getJwtSecret()): string {
   const header = { alg: 'HS256', typ: 'JWT' };
   const now = Math.floor(Date.now() / 1000);
   const fullPayload: TokenPayload = {
@@ -52,7 +59,7 @@ export function createAuthToken(payload: Omit<TokenPayload, 'iat' | 'exp'>, secr
 /**
  * Verifies and decodes a signed JWT.
  */
-export function verifyAuthToken(token: string, secret: string = DEFAULT_SECRET): TokenPayload {
+export function verifyAuthToken(token: string, secret: string = getJwtSecret()): TokenPayload {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) {

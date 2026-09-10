@@ -224,7 +224,10 @@ function GamePrototypeContent() {
   } | null>(null);
   const saveProgressRef = useRef<(isDeathPenalty?: boolean) => Promise<void>>(async () => {});
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
-  const roleUpper = ((auth.viewer?.role || onlineAccount?.role) || '').toUpperCase();
+  // Security (Phase 116): Derives admin privileges strictly from the validated in-game account.
+  // Never let an outdated viewer or leftover session promote a PLAYER account to admin.
+  const activeRole = onlineAccount ? onlineAccount.role : (auth.viewer?.role || 'PLAYER');
+  const roleUpper = String(activeRole || '').toUpperCase();
   const isAdmin = roleUpper === 'ADMIN' || roleUpper === 'GM';
   const [onlineCharacter, setOnlineCharacter] = useState<CharacterItem | null>(null);
   const [isConnectedServer, setIsConnectedServer] = useState(false);
@@ -2364,6 +2367,16 @@ function GamePrototypeContent() {
           onOpenShop={() => setShopOpen((prev) => !prev)}
           onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
           onExitGame={() => {
+            stopAllAudio();
+            gameNetwork.disconnect();
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('colyseus_token');
+              localStorage.removeItem('tibia_auth_token');
+              document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+            }
+            setOnlineAccount(null);
+            setOnlineCharacter(null);
+            void auth.signOut();
             window.location.href = '/';
           }}
         />
@@ -2738,6 +2751,12 @@ function GamePrototypeContent() {
       {showAuthModal && (
         <TibiaAuthCharacterModal
           onSelectCharacter={handleSelectCharacter}
+          onLogout={() => {
+            setOnlineAccount(null);
+            setOnlineCharacter(null);
+            gameNetwork.disconnect();
+            void auth.signOut();
+          }}
           onGoHome={() => {
             window.location.href = '/';
           }}

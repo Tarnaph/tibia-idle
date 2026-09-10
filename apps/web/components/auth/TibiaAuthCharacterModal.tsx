@@ -26,6 +26,7 @@ export interface CharacterItem {
 interface TibiaAuthCharacterModalProps {
   onSelectCharacter(token: string, character: CharacterItem, account: AuthAccount): void;
   onGoHome?(): void;
+  onLogout?(): void;
 }
 
 const VOCATION_NAMES: Record<number, string> = {
@@ -43,7 +44,7 @@ const VOCATION_DESCRIPTIONS: Record<number, string> = {
   4: 'Guerreiro de elite treinado em combate corpo a corpo e alta defesa com escudos.',
 };
 
-export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAuthCharacterModalProps) {
+export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout }: TibiaAuthCharacterModalProps) {
   const [token, setToken] = useState<string | null>(null);
   const [account, setAccount] = useState<AuthAccount | null>(null);
   const [characters, setCharacters] = useState<CharacterItem[]>([]);
@@ -146,7 +147,14 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
         });
       } else {
         localStorage.removeItem('colyseus_token');
+        localStorage.removeItem('tibia_auth_token');
+        if (typeof document !== 'undefined') {
+          document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        }
         setToken(null);
+        setAccount(null);
+        setCharacters([]);
+        onLogout?.();
         return;
       }
 
@@ -269,9 +277,14 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome }: TibiaAu
 
   const handleLogout = () => {
     localStorage.removeItem('colyseus_token');
+    localStorage.removeItem('tibia_auth_token');
+    if (typeof document !== 'undefined') {
+      document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    }
     setToken(null);
     setAccount(null);
     setCharacters([]);
+    onLogout?.();
   };
 
   const [isEnteringGame, setIsEnteringGame] = useState(false);
