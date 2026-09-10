@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 120 concluída com 100% de testes e 0 erros de tipagem. Preservação do `ThingAttrDisplacement` do `Tibia.dat`, extração de todos os addons montados (`z = 1`) para idle e caminhada, cálculo de deslocamento relativo exato entre montaria e cavaleiro, e blindagem estrita contra envenenamento de cache no `getRecoloredCanvasSync`.
+**Current focus:** Phase 120 concluída e hotfix de continuidade visual aplicado com 100% de testes e 0 erros de tipagem. Preservação do `ThingAttrDisplacement` do `Tibia.dat`, preloading incremental de frames da montaria, fallback montado anti-flicker e ciclo contínuo de 8 passos na caminhada.
 
 ## Current Position
 
 Phase: 120 of 120 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-10 — Conclusão da Phase 120.
+Last activity: 2026-09-10 — Hotfix: Continuidade de frames de caminhada, fallback montado anti-flicker e preloading incremental de montarias.
 
 Progress: [██████████] 100%
 
@@ -36,7 +36,7 @@ Progress: [██████████] 100%
 **Velocity:**
 - Total phases completed: 109
 - Total phases in roadmap: 109
-- Tests status: 111 test suites (602 testes aprovados)
+- Tests status: 121 test suites (673 testes aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
