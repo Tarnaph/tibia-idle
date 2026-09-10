@@ -116,7 +116,7 @@ export function BottomConsoleHUD({
           key={`slot-${slotIndex}`}
           id={`hud-slot-${slotIndex}`}
           className={`hud-action-slot empty-plus-slot ${isDragOver ? 'drag-over' : ''}`}
-          title={`Slot ${slotIndex + 1} [${hotkeyLabel}] Vazio · Arraste uma ação aqui ou clique para configurar`}
+          title={`Slot ${slotIndex + 1} [${hotkeyLabel}] Vazio · Botão direito para editar slot`}
           onClick={() => {
             if (isDraggingRef.current) return;
             onConfigureSlot?.(slotIndex);
@@ -203,19 +203,19 @@ export function BottomConsoleHUD({
             isDraggingRef.current = false;
           }, 100);
         }}
-        onClick={() => {
+        onClick={(e) => {
+          if (e.button !== 0) return;
           if (isDraggingRef.current) return;
           if (isOnCooldown) return;
-          if (onSlotClick) onSlotClick(slotIndex);
-          else onConfigureSlot?.(slotIndex);
+          onSlotClick?.(slotIndex);
         }}
         onContextMenu={(e) => {
           e.preventDefault();
           if (isDraggingRef.current) return;
           onConfigureSlot?.(slotIndex);
         }}
-        title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] ${isOnCooldown ? `(Cooldown: ${remainingSec}s)` : '(Clique para usar · Arraste para trocar · Botão direito para configurar)'}`}
-        style={{ cursor: isOnCooldown ? 'not-allowed' : 'grab', position: 'relative' }}
+        title={`${action.kind === 'spell' ? action.spell.name : action.kind === 'potion' ? action.potion.name : action.rune.name} [${hotkeyLabel}] ${isOnCooldown ? `(Cooldown: ${remainingSec}s)` : '(Botão esquerdo: Usar magia · Botão direito: Editar slot · Arraste para trocar)'}`}
+        style={{ cursor: isOnCooldown ? 'not-allowed' : 'pointer', position: 'relative' }}
       >
         {/* Hotkey Indicator */}
         <span className="hud-key-label" style={{ position: 'absolute', top: '1px', left: '2px', fontSize: '7.5px', color: '#c7d6cc', zIndex: 7, textShadow: '1px 1px 0 #000' }}>

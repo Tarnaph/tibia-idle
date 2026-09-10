@@ -1061,7 +1061,19 @@ export function triggerManualHotbarAction(
     if (action.kind === 'spell') {
       const spell = action.spell;
       if (character.currentMana < spell.mana) return false;
+      if (!character.combatState) {
+        character.combatState = { targetId: null, spellCooldowns: {}, groupCooldowns: {}, hasteUntil: 0, magicShieldUntil: 0, bloodRageUntil: 0 };
+      }
+      if (!character.combatState.spellCooldowns) character.combatState.spellCooldowns = {};
+      if (!character.combatState.groupCooldowns) character.combatState.groupCooldowns = {};
+
+      if ((character.combatState.spellCooldowns[String(spell.spellId)] ?? 0) > encounter.elapsedMs) return false;
+      if ((character.combatState.groupCooldowns[spell.group] ?? 0) > encounter.elapsedMs) return false;
+
       character.currentMana -= spell.mana;
+      character.combatState.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + (spell.cooldownMs ?? 1000);
+      character.combatState.groupCooldowns[spell.group] = encounter.elapsedMs + (spell.groupCooldownMs ?? 1000);
+
       if (spell.group === 'healing') {
         const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
         const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
@@ -1075,9 +1087,6 @@ export function triggerManualHotbarAction(
       }
       if (spell.group === 'support') {
         const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
-        if (!character.combatState) {
-          character.combatState = { targetId: null, spellCooldowns: {}, groupCooldowns: {}, hasteUntil: 0, magicShieldUntil: 0, bloodRageUntil: 0 };
-        }
         if (spell.words.includes('utamo')) {
           character.combatState.magicShieldUntil = encounter.elapsedMs + duration;
         } else if (spell.words.includes('tempo')) {
@@ -1088,6 +1097,9 @@ export function triggerManualHotbarAction(
         addLog(state, `${character.name} usou ${spell.name}.`);
         return true;
       }
+      // Offensive and utility spells in city mode
+      addLog(state, `${character.name} usou ${spell.name}.`);
+      return true;
     }
     return false;
   }

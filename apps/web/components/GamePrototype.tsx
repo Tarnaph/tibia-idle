@@ -17,7 +17,7 @@ import {
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
-  triggerManualHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations, getHuntWorldEntrance,
+  triggerManualHotbarAction, findHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations, getHuntWorldEntrance,
   calculateDeathPenaltyReport, type DeathPenaltyReport,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
@@ -2046,15 +2046,32 @@ function GamePrototypeContent() {
   const handleManualHotbarAction = useCallback((slotIndex: number) => {
     const actionId = activeCharacter.hotbar[slotIndex];
     if (typeof actionId !== 'number' || actionId === 0) {
-      setHotbarConfigSlot(slotIndex);
       return;
     }
+    const action = findHotbarAction(actionId, content);
+    const spellWords = action?.kind === 'spell' ? action.spell.words : action?.kind === 'potion' ? 'Aaaah...' : action?.kind === 'rune' ? action.rune.name : undefined;
+
     setGame((current) => {
       const next = structuredClone(current);
       const triggered = triggerManualHotbarAction(next, activeCharacter.id, actionId, content);
-      return triggered ? next : current;
+      if (triggered) {
+        if (spellWords) {
+          setOverheadMessages((prev) => [
+            ...prev,
+            {
+              id: `spell-${Date.now()}-${Math.random()}`,
+              senderName: activeCharacter.name,
+              text: spellWords,
+              channel: 'local',
+              timestamp: Date.now(),
+            },
+          ]);
+        }
+        return next;
+      }
+      return current;
     });
-  }, [activeCharacter.hotbar, activeCharacter.id]);
+  }, [activeCharacter.hotbar, activeCharacter.id, activeCharacter.name, content]);
 
   // Continuous follower leash: if leader is far away (>1.4 SQM), path automatically to follow the leader
   useEffect(() => {
