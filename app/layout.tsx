@@ -21,6 +21,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="shortcut icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="preload" href="/images/loading/thais-loading.jpg" as="image" type="image/jpeg" />
       </head>
       <body><AuthProvider initialViewer={viewer}>{children}</AuthProvider></body>
     </html>

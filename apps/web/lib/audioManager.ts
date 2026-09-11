@@ -194,28 +194,102 @@ function getOrCreateDragonAudio(): HTMLAudioElement | null {
   return dragonAudioElement;
 }
 
+let isAutoplayBlocked = false;
+type AutoplayBlockedCallback = (blocked: boolean) => void;
+const autoplayBlockedListeners = new Set<AutoplayBlockedCallback>();
+
+export function isAudioAutoplayBlocked(): boolean {
+  return isAutoplayBlocked;
+}
+
+export function onAutoplayBlockedChange(cb: AutoplayBlockedCallback): () => void {
+  autoplayBlockedListeners.add(cb);
+  cb(isAutoplayBlocked);
+  return () => {
+    autoplayBlockedListeners.delete(cb);
+  };
+}
+
+function notifyAutoplayBlocked(blocked: boolean): void {
+  isAutoplayBlocked = blocked;
+  autoplayBlockedListeners.forEach((cb) => {
+    try {
+      cb(blocked);
+    } catch (e) {
+      console.error('[audioManager] AutoplayBlocked listener error:', e);
+    }
+  });
+}
+
 /**
  * Autoplay unlocker: If browser rejects play() due to lack of prior user gesture,
- * this sets a one-time window interaction listener to immediately resume playback upon click/key.
+ * this sets interaction listeners across window & document to immediately resume playback upon click/key/touch.
  */
+const INTERACTION_EVENTS = ['pointerdown', 'mousedown', 'click', 'keydown', 'touchstart'] as const;
+
+function detachUnlocker(): void {
+  if (typeof window === 'undefined') return;
+  INTERACTION_EVENTS.forEach((evt) => {
+    window.removeEventListener(evt, handleGlobalInteraction, true);
+    document.removeEventListener(evt, handleGlobalInteraction, true);
+  });
+  unlockerAttached = false;
+}
+
+const handleGlobalInteraction = async () => {
+  let playSuccess = false;
+  if (isCityBgmActive && cityAudioElement) {
+    try {
+      await cityAudioElement.play();
+      playSuccess = true;
+    } catch {}
+  }
+  if (isDragonBgmActive && dragonAudioElement) {
+    try {
+      await dragonAudioElement.play();
+      playSuccess = true;
+    } catch {}
+  }
+  if (playSuccess) {
+    notifyAutoplayBlocked(false);
+    detachUnlocker();
+  }
+};
+
 function setupAutoplayUnlocker(): void {
   if (typeof window === 'undefined' || unlockerAttached) return;
   unlockerAttached = true;
+  notifyAutoplayBlocked(true);
 
-  const handleInteraction = () => {
-    if (isCityBgmActive && cityAudioElement && cityAudioElement.paused) {
-      cityAudioElement.play().catch(() => {});
-    }
-    if (isDragonBgmActive && dragonAudioElement && dragonAudioElement.paused) {
-      dragonAudioElement.play().catch(() => {});
-    }
-    window.removeEventListener('pointerdown', handleInteraction);
-    window.removeEventListener('keydown', handleInteraction);
-    unlockerAttached = false;
-  };
+  INTERACTION_EVENTS.forEach((evt) => {
+    window.addEventListener(evt, handleGlobalInteraction, { capture: true, passive: true });
+    document.addEventListener(evt, handleGlobalInteraction, { capture: true, passive: true });
+  });
+}
 
-  window.addEventListener('pointerdown', handleInteraction, { once: true });
-  window.addEventListener('keydown', handleInteraction, { once: true });
+/**
+ * Explicit audio unlock function that can be triggered by any user click in the UI.
+ */
+export async function unlockAudio(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  let success = false;
+  if (isCityBgmActive && cityAudioElement) {
+    try {
+      await cityAudioElement.play();
+      success = true;
+    } catch {}
+  }
+  if (isDragonBgmActive && dragonAudioElement) {
+    try {
+      await dragonAudioElement.play();
+      success = true;
+    } catch {}
+  }
+  if (success) {
+    notifyAutoplayBlocked(false);
+    detachUnlocker();
+  }
+  return success;
 }
 
 export function playCityBgm(): void {
@@ -238,10 +312,15 @@ export function playCityBgm(): void {
 
   const playPromise = audio.play();
   if (playPromise !== undefined) {
-    playPromise.catch((err) => {
-      // Browser autoplay policy prevented playback without gesture; arm unlocker
-      setupAutoplayUnlocker();
-    });
+    playPromise
+      .then(() => {
+        notifyAutoplayBlocked(false);
+        detachUnlocker();
+      })
+      .catch((err) => {
+        // Browser autoplay policy prevented playback without gesture; arm unlocker
+        setupAutoplayUnlocker();
+      });
   }
   notifyListeners();
 }

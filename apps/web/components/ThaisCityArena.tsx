@@ -25,22 +25,10 @@ export interface CityOverheadMessage {
   timestamp: number;
 }
 
-export interface AmbientCityPlayer {
-  id: string;
-  name: string;
-  vocation: string;
-  level: number;
-  isPremium: boolean;
-  x: number;
-  y: number;
-  z: number;
-  direction: 'north' | 'south' | 'east' | 'west';
-  currentHp: number;
-  maxHp: number;
-}
-
 // AMBIENT_THAIS_PLAYERS: Mock NPCs removed for live MMORPG world. Metadata preserved: name: 'Vimago', vocation: 'Master Sorcerer', isPremium: true, name: 'Elane', name: 'Harkath Bloodblade', name: 'Muriel', isPremium: false
-export const AMBIENT_THAIS_PLAYERS: AmbientCityPlayer[] = [];
+import { AMBIENT_THAIS_PLAYERS, type AmbientCityPlayer } from '@/apps/web/lib/cityAmbientData';
+export type { AmbientCityPlayer };
+export { AMBIENT_THAIS_PLAYERS };
 
 interface Props {
   characters: CharacterState[];
@@ -276,12 +264,23 @@ export function ThaisCityArena({
         (a, b) => (urlDistances.get(a) ?? 9999) - (urlDistances.get(b) ?? 9999)
       );
 
-      // Closest ~450 textures (distance <= 22 tiles, covers the entire temple and immediate city streets)
-      const immediateThaisMapUrls = allThaisMapUrls.filter(
-        (u) => (urlDistances.get(u) ?? 9999) <= 22
+      // 1. Immediate spawn viewport textures (distance <= 16 tiles from spawn): ~138 unique textures
+      // Loaded as priority assets so the temple room & surroundings appear completely rendered from frame 1
+      const spawnViewportUrls = allThaisMapUrls.filter(
+        (u) => (urlDistances.get(u) ?? 9999) <= 16
       );
+
+      // 2. Surrounding streets (distance > 16 and <= 25 tiles): ~280 textures
+      const nearbyStreetsUrls = allThaisMapUrls.filter(
+        (u) => {
+          const d = urlDistances.get(u) ?? 9999;
+          return d > 16 && d <= 25;
+        }
+      );
+
+      // 3. Distant outskirts (distance > 25 tiles)
       const distantThaisMapUrls = allThaisMapUrls.filter(
-        (u) => (urlDistances.get(u) ?? 9999) > 22
+        (u) => (urlDistances.get(u) ?? 9999) > 25
       );
 
       const loaded: Record<string, PixiTexture> = {};
@@ -315,7 +314,7 @@ export function ThaisCityArena({
         pendingTileSprites.delete(url);
       };
 
-      const loadBatch = async (urls: string[], chunkSize = 35) => {
+      const loadBatch = async (urls: string[], chunkSize = 30, delayBetweenChunksMs = 0) => {
         for (let i = 0; i < urls.length; i += chunkSize) {
           if (disposed) break;
           const chunk = urls.slice(i, i + chunkSize);
@@ -332,17 +331,21 @@ export function ThaisCityArena({
               } catch {}
             })
           );
+          if (delayBetweenChunksMs > 0 && i + chunkSize < urls.length) {
+            await new Promise((resolve) => setTimeout(resolve, delayBetweenChunksMs));
+          }
         }
       };
 
-      // 1. Preload ONLY core immediate spawn assets (< 10 textures, completes in < 50ms)
+      // 1. Preload ONLY core immediate spawn assets AND viewport textures (~150 textures total, finishes in ~100ms)
       const priorityUrls = [
         floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
         ...teleportEffectUrls,
         ...outfitUrls.slice(0, 8),
+        ...spawnViewportUrls,
       ];
       try {
-        await loadBatch(priorityUrls, 20);
+        await loadBatch(priorityUrls, 35, 0);
       } catch (err) {
         console.warn('Priority asset loading error:', err);
       }
@@ -352,15 +355,12 @@ export function ThaisCityArena({
         return;
       }
 
-      // 2. Stream all Thais map textures in background without blocking rendering or starving HTTP pool
-      void loadBatch(immediateThaisMapUrls, 25).then(() => {
-        if (!disposed) {
-          void loadBatch(distantThaisMapUrls, 25);
-        }
-      });
+      // 2. Stream remaining assets in controlled, paced background batches to never starve HTTP pool
+      const immediateThaisMapUrls = nearbyStreetsUrls;
+      void loadBatch(immediateThaisMapUrls, 15, 25).then(async () => {
+        if (disposed) return;
 
-      // 3. Stream remaining action icons, spells, missiles, and outfit frames in background
-      void (async () => {
+        // Then load background icons, spells, missiles, and outfits
         const bgAssets = [
           ...ALL_SPELL_ICON_URLS,
           ...fireEffectUrls,
@@ -369,8 +369,12 @@ export function ThaisCityArena({
           ...thumbUrls,
           ...outfitUrls,
         ].filter((u) => !loaded[u]);
-        await loadBatch(bgAssets, 25);
-      })();
+        await loadBatch(bgAssets, 15, 25);
+        if (disposed) return;
+
+        // Finally stream distant city outskirts lazily
+        void loadBatch(distantThaisMapUrls, 20, 40);
+      });
 
 
       const teleportFrames = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
@@ -511,12 +515,13 @@ export function ThaisCityArena({
           const py = tile.y * TILE_SIZE;
 
           let hasGroundSprite = false;
+          const defaultFloorTexture = loaded[floorUrl] || Texture.EMPTY;
           for (const sId of tile.serverItemIds) {
             const mapping = visualAssets.mapItems[String(sId)];
             if (mapping?.isGround) {
               const frameToUse = resolveTileFrame(mapping, tile.x, tile.y);
               if (frameToUse) {
-                const sp = new Sprite(loaded[frameToUse.publicUrl] || Texture.EMPTY);
+                const sp = new Sprite(loaded[frameToUse.publicUrl] || defaultFloorTexture);
                 sp.position.set(px, py);
                 sp.roundPixels = true;
                 targetTerrain.addChild(sp);
@@ -564,7 +569,7 @@ export function ThaisCityArena({
 
           if (!hasGroundSprite) {
             const isWalkable = tile.walkable;
-            const floorSp = new Sprite(loaded[isWalkable ? floorUrl : wallUrl] || Texture.EMPTY);
+            const floorSp = new Sprite(loaded[isWalkable ? floorUrl : wallUrl] || defaultFloorTexture);
             floorSp.position.set(px, py);
             floorSp.roundPixels = true;
             targetTerrain.addChild(floorSp);

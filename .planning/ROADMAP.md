@@ -2348,6 +2348,34 @@ Plans:
 - [x] 131-01-PLAN: Resolução de Imagem na Tela de Loading e Eliminação Definitiva de Tela Preta pós-Loading no Game Viewport.
 - Resumo de entrega: `.planning/phases/phase-131-loading-image-and-black-screen-resolution/131-SUMMARY.md`
 
+---
+
+### Phase 132: Correção Definitiva do Background de Loading, BGM e Renderização de Thais
+
+**Goal**: Eliminar o engarrafamento de conexões HTTP e a tela preta no game viewport após o carregamento, garantir a exibição imediata do background na tela de loading (`ExuraLoadingScreen`), destravar e reproduzir a música BGM (`sunset-in-the-village.mp3`) de forma robusta e intuitiva, e isolar constantes de componentes React para compatibilidade total com o Fast Refresh do Vite.  
+**Depends on**: Phase 131  
+**Requirements**:
+1. **Desacoplamento de Módulos e Estabilidade do Vite Fast Refresh:**
+   - Criar `apps/web/lib/loadingConfig.ts` e `apps/web/lib/cityAmbientData.ts`, isolando lore, backgrounds e NPCs mock fora de componentes React `.tsx`.
+   - Eliminar avisos de invalidação cíclica e recarregamentos no cliente Vite.
+2. **Garantia de Renderização 100% dos Tiles de Thais em Viewport (`ThaisCityArena.tsx`):**
+   - Extrair os ~138 sprites prioritários da área visível do spawn do templo (raio <= 16 tiles) e carregá-los no primeiro lote prioritário (< 100ms).
+   - Aplicar `defaultFloorTexture` (`loaded[floorUrl]`) como fallback imediato para qualquer sprite pendente, garantindo que o chão nunca seja renderizado como vazio/preto.
+   - Escalonar o streaming assíncrono em segundo plano com pausas deliberadas entre lotes (`nearbyStreetsUrls`, `bgAssets`, `distantThaisMapUrls`), prevenindo o esgotamento do pool de 6 sockets HTTP do navegador.
+3. **Renderização Garantida e Preload da Arte de Loading (`ExuraLoadingScreen.tsx` & `app/layout.tsx`):**
+   - Incluir `<link rel="preload" as="image" href="/images/loading/thais-loading.jpg">` no `<head>` de `app/layout.tsx`.
+   - Aplicar dupla garantia de renderização na tela de carregamento: `backgroundImage` no container CSS e tag `<img>` explícita com `loading="eager"` e `decoding="sync"`.
+4. **Desbloqueio Intuitivo e Confiável de Autoplay de Áudio (`audioManager.ts`):**
+   - Expandir o detector de autoplay do navegador com escuta ampla em `['click', 'pointerdown', 'mousedown', 'keydown', 'touchstart']` em `window` e `document`.
+   - Adicionar banner sutil na tela de loading alertando o bloqueio de som e permitindo ativação em 1 clique.
+5. **Qualidade e Não-Regressão:**
+   - Suíte de testes dedicada em `tests/phase132-loading-bg-audio-and-city-tiles.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% dos testes Vitest passando (`npm run test`).
+**Plans:**
+- [x] 132-01-PLAN: Correção Definitiva do Background de Loading, BGM e Renderização de Thais.
+- Resumo de entrega: `.planning/phases/phase-132-loading-bg-audio-and-city-tiles-fix/132-SUMMARY.md`
+
 
 
 

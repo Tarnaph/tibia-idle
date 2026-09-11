@@ -1,46 +1,24 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import {
+  THAIS_LORE_CURIOSITIES,
+  DRAGON_LAIR_LORE_CURIOSITIES,
+  DEFAULT_HUNT_LOADING_CONFIG,
+  HUNT_LOADING_CONFIGS,
+  getLoadingConfigForHunt,
+  type HuntLoadingConfig,
+} from '@/apps/web/lib/loadingConfig';
+import { onAutoplayBlockedChange, unlockAudio } from '@/apps/web/lib/audioManager';
 
-export const THAIS_LORE_CURIOSITIES: string[] = [
-  'Você sabia? Thais é considerada a cidade mais antiga de Tibia e foi a primeira cidade do jogo.',
-  'Antes de se chamar Thais, o local era conhecido como Tradespot, um pequeno posto comercial que cresceu até se tornar a capital do reino.',
-  'O nome Thais vem de um guerreiro. Após sua morte defendendo Tradespot dos orcs, seu filho Tibianus I renomeou a cidade em homenagem ao pai.',
-];
-
-export const DRAGON_LAIR_LORE_CURIOSITIES: string[] = [
-  'Todos os dragões descendem de Garsharak, o Primeiro Dragão, uma criatura nascida da dor de Brog e transformada em uma chama viva.',
-  'Segundo antigos registros, os dragões estão entre as primeiras criaturas de Tibia e, em tempos remotos, chegaram a dominar grande parte do continente. Hoje, seus descendentes vivem principalmente escondidos em cavernas.',
-  'Um antigo livro afirma que os poderosos Dragon Lords possuem uma inesperada paixão por cogumelos e muitos deles carregavam misteriosos livros marcados com uma grande letra “T”',
-];
-
-export interface HuntLoadingConfig {
-  bgImage: string;
-  curiosities: string[];
-}
-
-export const DEFAULT_HUNT_LOADING_CONFIG: HuntLoadingConfig = {
-  bgImage: '/images/loading/thais-loading.jpg',
-  curiosities: THAIS_LORE_CURIOSITIES,
+export {
+  THAIS_LORE_CURIOSITIES,
+  DRAGON_LAIR_LORE_CURIOSITIES,
+  DEFAULT_HUNT_LOADING_CONFIG,
+  HUNT_LOADING_CONFIGS,
+  getLoadingConfigForHunt,
+  type HuntLoadingConfig,
 };
-
-export const HUNT_LOADING_CONFIGS: Record<string, HuntLoadingConfig> = {
-  'dragon-lair': {
-    bgImage: '/images/loading/dragon-lair-loading.jpg',
-    curiosities: DRAGON_LAIR_LORE_CURIOSITIES,
-  },
-};
-
-/**
- * Returns the loading screen configuration (background image and rotating lore curiosities)
- * for a specific hunt. Any hunt not yet explicitly configured falls back to Thais configuration.
- */
-export function getLoadingConfigForHunt(huntId?: string | null): HuntLoadingConfig {
-  if (huntId && HUNT_LOADING_CONFIGS[huntId]) {
-    return HUNT_LOADING_CONFIGS[huntId];
-  }
-  return DEFAULT_HUNT_LOADING_CONFIG;
-}
 
 export interface ExuraLoadingScreenProps {
   /**
@@ -85,6 +63,7 @@ export function ExuraLoadingScreen({
   const [progress, setProgress] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isVisible, setIsVisible] = useState(active);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const [curiosityIndex, setCuriosityIndex] = useState(() =>
     curiosities && curiosities.length > 0 ? Math.floor(Math.random() * curiosities.length) : 0
   );
@@ -92,6 +71,12 @@ export function ExuraLoadingScreen({
 
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
+
+  useEffect(() => {
+    return onAutoplayBlockedChange((blocked) => {
+      setAutoplayBlocked(blocked);
+    });
+  }, []);
 
   // Sorteia uma curiosidade inicial aleatória toda vez que a tela de loading é ativada
   useEffect(() => {
@@ -182,6 +167,9 @@ export function ExuraLoadingScreen({
       aria-valuemax={100}
       aria-label="Carregando o jogo"
       className="exura-loading-overlay"
+      onClick={() => {
+        void unlockAudio();
+      }}
       style={{
         position: 'fixed',
         top: 0,
@@ -196,19 +184,25 @@ export function ExuraLoadingScreen({
         alignItems: 'center',
         justifyContent: 'flex-end',
         paddingBottom: '3.5rem',
-        backgroundColor: '#070202',
+        backgroundImage: `url(${bgImage || '/images/loading/thais-loading.jpg'})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundColor: '#150c08',
         userSelect: 'none',
         pointerEvents: isFadingOut ? 'none' : 'auto',
         opacity: isFadingOut ? 0 : 1,
         transition: 'opacity 0.4s ease-in-out',
         boxSizing: 'border-box',
         overflow: 'hidden',
+        cursor: autoplayBlocked ? 'pointer' : 'default',
       }}
     >
       {/* Explicit Artwork Layer with Fallback */}
       <img
         src={bgImage || '/images/loading/thais-loading.jpg'}
         alt="Loading artwork"
+        loading="eager"
+        decoding="sync"
         onError={(e) => {
           const target = e.currentTarget as HTMLImageElement;
           if (!target.src.includes('/images/loading/loading-bg.jpg')) {
@@ -241,6 +235,34 @@ export function ExuraLoadingScreen({
           pointerEvents: 'none',
         }}
       />
+
+      {/* Autoplay Audio Unlock Interactive Hint */}
+      {autoplayBlocked && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '1.5rem',
+            zIndex: 100,
+            backgroundColor: 'rgba(15, 10, 8, 0.85)',
+            border: '1px solid #d4a359',
+            borderRadius: '4px',
+            padding: '0.45rem 1.1rem',
+            color: '#ffd580',
+            fontFamily: 'serif',
+            fontSize: '0.85rem',
+            letterSpacing: '0.06em',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.7), 0 0 10px rgba(212, 163, 89, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            animation: 'pulse 2s infinite',
+            pointerEvents: 'none',
+          }}
+        >
+          <span>🎵</span>
+          <span>Clique em qualquer lugar para ativar a música de Thais</span>
+        </div>
+      )}
 
       {/* Central Content Box anchored near bottom */}
       <div
