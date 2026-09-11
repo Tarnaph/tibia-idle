@@ -49,7 +49,7 @@ export default defineConfig(async () => {
       __dirname: JSON.stringify(process.cwd()),
     },
     optimizeDeps: {
-      exclude: ['@prisma/client'],
+      exclude: ['@prisma/client', 'vinext'],
     },
     ssr: {
       external: ['@prisma/client', 'ws'],

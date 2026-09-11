@@ -88,6 +88,11 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 126: Otimização de Carregamento da Seleção de Personagens e Caixa Canônica de Saída/Logout** - Carregamento instantâneo via SWR e prefetch de rotas, inicialização síncrona de token, otimização de chroma-keying e modal autêntico de logout (Trocar de Personagem / Sair do Jogo / Cancelar) com atalho Escape e dock superior.
 - [x] **Phase 127: Persistência Permanente de Variáveis e Rates do Servidor (Admin Server Config)** - Persistência permanente em Prisma DB (ServerConfigRecord) e content/server-config.json de todas as variáveis do servidor configuráveis no painel admin, sincronizadas em tempo real via Colyseus Room.
 - [x] **Phase 128: Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência Definitiva de Outfits e Movimentação** - Desacoplamento do auto-save de referências voláteis via latestSaveStateRef, mutex lock contra requisições concorrentes, throttle de 10s, eliminação de disparos no cleanup de efeitos, resiliência contra erros transitórios de rede em outfitRecolor.ts e estabilidade no loop de movimentação.
+- [x] **Phase 129: Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita** - Compartilhamento de Promises em trânsito no loadImage, renderização atômica em buffer offscreen, eliminação de loops e suporte a montarias.
+- [x] **Phase 130: Sistema Completo de Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character, Rastreamento na Tela)** - Painel Cyclopedia integrado ao menu, contagem de kills, bestiário com 3 tiers de desbloqueio, bosstiary com tracking flutuante na tela de jogo.
+- [x] **Phase 131: Resolução de Imagem na Tela de Loading e Eliminação Definitiva de Tela Preta pós-Loading no Game Viewport** - Preload de arte de loading, renderização sem tela preta e estabilidade gráfica no viewport.
+- [x] **Phase 132: Correção Definitiva do Background de Loading, BGM e Renderização de Thais** - Viewport com preloading de 138 sprites prioritários, fallback defaultFloorTexture para o chão, carregamento escalonado para evitar esgotamento de sockets, dupla garantia de background de loading e banner de autoplay de áudio.
+- [x] **Phase 133: Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side** - Exclusão do `vinext` no `optimizeDeps` do Vite para eliminar incompatibilidade de hash de chunks dinâmicos, tratamento seguro de promises rejeitadas em prefetch e push, listener global de unhandledrejection com redirecionamento para `/game`, e fallback automático com `window.location.assign('/game')`.
 
 ---
 
@@ -2375,6 +2380,30 @@ Plans:
 **Plans:**
 - [x] 132-01-PLAN: Correção Definitiva do Background de Loading, BGM e Renderização de Thais.
 - Resumo de entrega: `.planning/phases/phase-132-loading-bg-audio-and-city-tiles-fix/132-SUMMARY.md`
+
+---
+
+### Phase 133: Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side
+
+**Goal**: Eliminar o erro de importação dinâmica de módulos no Vite (`Failed to fetch dynamically imported module ... navigation-*.js?v=...`), blindar o botão "⚔ JOGAR AGORA" na Landing Page (`LandingPage.tsx`) contra rejeições não tratadas de Promise ao passar o mouse ou clicar, interceptar globalmente falhas de navegação do router e garantir fallback imediato e infalível com `window.location.assign('/game')`.  
+**Depends on**: Phase 132  
+**Requirements**:
+1. **Exclusão de Dependências Dinâmicas no Vite (`vite.config.ts`):**
+   - Adicionar `'vinext'` em `optimizeDeps.exclude: ['@prisma/client', 'vinext']` para evitar pre-bundling e hash mismatch de shims internos de navegação no modo desenvolvimento.
+2. **Tratamento Resiliente de Promises em Prefetch e Push (`LandingPage.tsx`):**
+   - Envolver chamadas `router.prefetch('/game')` (no `useEffect` de mount e no `onHoverPlay`) com captura explícita `.catch(() => {})` e compatibilidade estrita com TypeScript.
+   - Tratar `router.push('/game')` com fallback automático para `window.location.assign('/game')` em caso de rejeição da promise ou exceção síncrona.
+3. **Safety Net e Listener Global de Unhandled Rejection (`LandingPage.tsx`):**
+   - Adicionar listener global para `unhandledrejection` interceptando falhas `Failed to fetch dynamically imported module` ou erros em shims de navegação, prevenindo o overlay vermelho do Vite e redirecionando instantaneamente para `/game`.
+   - Adicionar timeout de segurança (120ms) tanto no clique do botão `play()` quanto no `<Link href="/game">`, disparando `window.location.assign('/game')` se o router do cliente não tiver completado a transição.
+4. **Qualidade e Não-Regressão:**
+   - Suíte de testes dedicada em `tests/phase133-jogar-agora-navigation-fix.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% dos testes Vitest passando (`npm run test`).
+**Plans:**
+- [x] 133-01-PLAN: Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side.
+- Resumo de entrega: `.planning/phases/phase-133-jogar-agora-button-and-navigation-fix/133-SUMMARY.md`
+
 
 
 

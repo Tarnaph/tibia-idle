@@ -87,19 +87,56 @@ export function LandingPage({
   // Performance (Phase 126): Prefetch /game for instant navigation without loading delays
   useEffect(() => {
     try {
-      router.prefetch('/game');
+      const p: any = router.prefetch('/game');
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {});
+      }
     } catch {}
   }, [router]);
 
+  // Phase 133: Intercept unhandled dynamic module rejections (Vite chunk hash mismatches) and fallback safely
+  useEffect(() => {
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason?.message || String(event.reason || '');
+      if (reason.includes('Failed to fetch dynamically imported module') || reason.includes('navigation-')) {
+        event.preventDefault();
+        window.location.assign('/game');
+      }
+    };
+    window.addEventListener('unhandledrejection', handleRejection);
+    return () => window.removeEventListener('unhandledrejection', handleRejection);
+  }, []);
+
   const onHoverPlay = () => {
     try {
-      router.prefetch('/game');
+      const p: any = router.prefetch('/game');
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {});
+      }
     } catch {}
   };
 
   const play = () => {
-    if (auth.status === 'authenticated') router.push('/game');
-    else dispatchAuth({ type: 'open-login' });
+    if (auth.status === 'authenticated') {
+      try {
+        const p: any = router.push('/game');
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {
+            window.location.assign('/game');
+          });
+        }
+      } catch {
+        window.location.assign('/game');
+      }
+      // Bulletproof Safety Net: If client router fails or stalls, execute standard browser navigation
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/game') {
+          window.location.assign('/game');
+        }
+      }, 120);
+    } else {
+      dispatchAuth({ type: 'open-login' });
+    }
   };
 
   const selectedVocation = VOCATION_SHOWCASE.find((v) => v.id === activeVocationTab) || VOCATION_SHOWCASE[0];
@@ -123,7 +160,19 @@ export function LandingPage({
         <div className="public-account diablo-account">
           {auth.status === 'authenticated' && auth.viewer ? (
             <>
-              <Link className="header-play diablo-cta-btn" href="/game" prefetch onMouseEnter={onHoverPlay}>
+              <Link
+                className="header-play diablo-cta-btn"
+                href="/game"
+                prefetch
+                onMouseEnter={onHoverPlay}
+                onClick={() => {
+                  setTimeout(() => {
+                    if (typeof window !== 'undefined' && window.location.pathname !== '/game') {
+                      window.location.assign('/game');
+                    }
+                  }, 120);
+                }}
+              >
                 <span>JOGAR AGORA</span>
               </Link>
               {(auth.viewer.role?.toUpperCase() === 'ADMIN' || auth.viewer.role?.toUpperCase() === 'GM') && (
