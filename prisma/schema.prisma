@@ -130,3 +130,23 @@ model LearnedSpell {
   @@index([characterId])
   @@map("learned_spells")
 }
+
+model ServerConfigRecord {
+  id                       String   @id @default("default")
+  expRate                  Float    @default(1.0)
+  lootRate                 Float    @default(1.0)
+  skillRate                Float    @default(1.0)
+  regenRate                Float    @default(1.0)
+  maxClientsPerRoom        Int      @default(100)
+  periodicSaveIntervalMs   Int      @default(20000)
+  allowReconnectionSec     Int      @default(20)
+  localChatRadius          Int      @default(8)
+  yellChatRadius           Int      @default(30)
+  deathPenaltyExpPercent   Float    @default(10)
+  deathPenaltySkillPercent Float    @default(10)
+  deathPenaltyLoseLoot     Boolean  @default(true)
+  updatedAt                DateTime @updatedAt
+
+  @@map("server_configs")
+}
+

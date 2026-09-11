@@ -1,0 +1,14 @@
+{
+  "expRate": 1,
+  "lootRate": 1,
+  "skillRate": 1,
+  "regenRate": 1,
+  "maxClientsPerRoom": 100,
+  "periodicSaveIntervalMs": 20000,
+  "allowReconnectionSec": 20,
+  "localChatRadius": 8,
+  "yellChatRadius": 30,
+  "deathPenaltyExpPercent": 10,
+  "deathPenaltySkillPercent": 10,
+  "deathPenaltyLoseLoot": true
+}

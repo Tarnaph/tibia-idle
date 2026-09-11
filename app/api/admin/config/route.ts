@@ -6,6 +6,7 @@ import { requireAdminAuth } from '@/packages/auth/src';
 export async function GET(request: Request) {
   try {
     requireAdminAuth(request);
+    await serverConfigManager.loadFromDatabase();
     const config = serverConfigManager.getConfig();
     return NextResponse.json({ success: true, config });
   } catch (error: any) {
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
   try {
     requireAdminAuth(request);
     const body = (await request.json()) as Partial<ServerConfig>;
-    const updated = serverConfigManager.updateConfig(body);
+    const updated = await serverConfigManager.saveConfig(body);
     systemLogger.gmAction('ADMIN', 'Atualizou variáveis do servidor', body);
     return NextResponse.json({ success: true, config: updated });
   } catch (error: any) {

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-11T12:45:00.000Z"
-last_activity: "2026-09-11 — Conclusão da Phase 126: Otimização de Carregamento da Seleção de Personagens e Caixa Canônica de Logout / Troca de Personagem."
+last_updated: "2026-09-11T13:10:00.000Z"
+last_activity: "2026-09-11 — Conclusão da Phase 127: Persistência Permanente de Variáveis e Rates do Servidor (Admin Server Config)."
 progress:
-  total_phases: 126
-  completed_phases: 126
-  total_plans: 126
-  completed_plans: 126
+  total_phases: 127
+  completed_phases: 127
+  total_plans: 127
+  completed_plans: 127
   percent: 100
 ---
 
@@ -24,19 +24,19 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 126 of 126 (Concluído)  
+Phase: 127 of 127 (Concluído)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-11 — Concluída a implementação da Phase 126.
+Last activity: 2026-09-11 — Concluída a implementação da Phase 127.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 126
-- Total phases in roadmap: 126
-- Tests status: 127 test suites (731 testes aprovados - 100%)
+- Total phases completed: 127
+- Total phases in roadmap: 127
+- Tests status: 128 test suites (738 testes aprovados - 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -49,6 +49,7 @@ Progress: [██████████] 100%
 | 124. Sistema de Exhaust, IA de Exploração Solo e Táticas de Party | 1 | - | - | Complete |
 | 125. Importação Total do Acervo RealMap 11 e Tooltip Canônico de Look | 1 | - | - | Complete |
 | 126. Otimização de Carregamento da Seleção e Caixa Canônica de Logout | 1 | - | - | Complete |
+| 127. Persistência Permanente de Variáveis e Rates do Servidor | 1 | - | - | Complete |
 
 ## Accumulated Context
 

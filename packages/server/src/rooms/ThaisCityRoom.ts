@@ -68,10 +68,24 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.maxClients = serverConfigManager.getConfig().maxClientsPerRoom;
     persistenceManager.startPeriodicSave(() => this.state.players.values(), serverConfigManager.getConfig().periodicSaveIntervalMs || defaultSaveIntervalMs);
 
+    void serverConfigManager.loadFromDatabase().then((loadedConfig) => {
+      this.maxClients = loadedConfig.maxClientsPerRoom;
+      persistenceManager.startPeriodicSave(() => this.state.players.values(), loadedConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
+      try {
+        if (this.clients && this.clients.length > 0) {
+          this.broadcast('server:config', loadedConfig);
+        }
+      } catch {}
+    });
+
     serverConfigManager.onChange((newConfig) => {
       this.maxClients = newConfig.maxClientsPerRoom;
       persistenceManager.startPeriodicSave(() => this.state.players.values(), newConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
-      this.broadcast('server:config', newConfig);
+      try {
+        if (this.clients && this.clients.length > 0) {
+          this.broadcast('server:config', newConfig);
+        }
+      } catch {}
     });
 
     // Initial server-side monster spawns

@@ -2211,6 +2211,33 @@ Plans:
 - [x] 126-01-PLAN: Otimização de Carregamento da Seleção de Personagens e Caixa Canônica de Logout / Troca de Personagem.
 - Resumo de entrega: `.planning/phases/phase-126-character-selection-perf-and-logout-dialog/126-SUMMARY.md`
 
+---
+
+### Phase 127: Persistência Permanente de Variáveis e Rates do Servidor (Admin Server Config)
+
+**Goal**: Implementar persistência permanente e síncrona/assíncrona de todas as variáveis e rates do servidor (`ServerConfig`) no banco de dados relacional Prisma (`ServerConfigRecord`) e em arquivo de sincronização compartilhado (`content/server-config.json`), garantindo que qualquer alteração feita pelo Admin no painel `/admin` seja gravada de forma definitiva e recarregada automaticamente em reinicializações do servidor, reconexões e instâncias de salas Colyseus (`ThaisCityRoom`), permanecendo ativas até nova alteração explícita pelo Admin.  
+**Depends on**: Phase 126  
+**Requirements**:
+1. **Modelagem Relacional Prisma (`schema.prisma`):**
+   - Criar o modelo `ServerConfigRecord` com campos para todas as variáveis configuráveis pelo painel admin: `expRate`, `lootRate`, `skillRate`, `regenRate`, `maxClientsPerRoom`, `periodicSaveIntervalMs`, `allowReconnectionSec`, `localChatRadius`, `yellChatRadius`, `deathPenaltyExpPercent`, `deathPenaltySkillPercent`, `deathPenaltyLoseLoot`.
+   - Executar migração do schema para o banco de dados.
+2. **Gerenciador Híbrido de Configurações (`ServerConfigManager.ts`):**
+   - Implementar persistência dupla (Prisma DB + `content/server-config.json` para tolerância a falhas e comunicação inter-processos sem latência).
+   - Suporte a carregamento síncrono e assíncrono na inicialização de qualquer processo (Next.js, Colyseus e ferramentas de linha de comando).
+   - Métodos `saveConfig(partial)` e `loadConfig()` com recarregamento em tempo real.
+3. **Rotas de API e Painel Admin:**
+   - Atualizar `app/api/admin/config/route.ts` para persistir no DB/arquivo e retornar a confirmação gravada.
+   - Atualizar `app/api/config/route.ts` para fornecer a configuração permanente mais recente.
+4. **Sincronização em Tempo Real no Servidor Colyseus (`ThaisCityRoom.ts`):**
+   - Inicializar as salas com a configuração permanente carregada do banco.
+   - Propagar alterações para todos os jogadores conectados via broadcast `'server:config'`.
+5. **Qualidade e Testes:**
+   - Criar suíte de testes Vitest dedicada `tests/phase127-server-config-persistence.test.ts`.
+   - 0 erros no typecheck (`npm run typecheck`) e 100% dos testes passando.
+**Plans:**
+- [x] 127-01-PLAN: Persistência Permanente de Variáveis e Rates do Servidor (Admin Server Config).
+- Resumo de entrega: `.planning/phases/phase-127-server-config-persistence/127-SUMMARY.md`
+
 
 
 
