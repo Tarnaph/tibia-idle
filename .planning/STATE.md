@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-11T17:15:00.000Z"
-last_activity: "2026-09-11 — Conclusão da Phase 130: Sistema Completo de Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character, Rastreamento na Tela e Persistência Permanente de Kills)."
+last_updated: "2026-09-11T17:40:00.000Z"
+last_activity: "2026-09-11 — Conclusão da Phase 131: Resolução de Imagem na Tela de Loading e Eliminação Definitiva de Tela Preta pós-Loading no Game Viewport."
 progress:
-  total_phases: 130
-  completed_phases: 130
-  total_plans: 130
-  completed_plans: 130
+  total_phases: 131
+  completed_phases: 131
+  total_plans: 131
+  completed_plans: 131
   percent: 100
 ---
 
@@ -20,23 +20,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 130 Concluída com Sucesso.
+**Current focus:** Phase 131 Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 130 of 130 (Concluída)  
+Phase: 131 of 131 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-11 — Conclusão da Phase 130.
+Last activity: 2026-09-11 — Conclusão da Phase 131.
 
 Progress: [██████████] 100%
+
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 130
-- Total phases in roadmap: 130
-- Tests status: 131 test suites (757 testes aprovados - 100%)
+- Total phases completed: 131
+- Total phases in roadmap: 131
+- Tests status: 132 test suites (764 testes aprovados - 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -53,6 +54,8 @@ Progress: [██████████] 100%
 | 128. Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência de Sprites | 1 | - | - | Complete |
 | 129. Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita | 1 | - | - | Complete |
 | 130. Sistema Completo de Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character, Rastreamento na Tela) | 1 | - | - | Complete |
+| 131. Resolução de Imagem na Tela de Loading e Eliminação Definitiva de Tela Preta pós-Loading no Game Viewport | 1 | - | - | Complete |
+
 
 
 ## Accumulated Context

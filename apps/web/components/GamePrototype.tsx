@@ -968,6 +968,21 @@ function GamePrototypeContent() {
     };
   }, []);
 
+  // Phase 131: Preload loading screen artworks immediately on client boot
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const preloadImages = [
+        '/images/loading/thais-loading.jpg',
+        '/images/loading/dragon-lair-loading.jpg',
+        '/images/loading/loading-bg.jpg',
+      ];
+      for (const src of preloadImages) {
+        const img = new Image();
+        img.src = src;
+      }
+    }
+  }, []);
+
   const handleSelectCharacter = useCallback((authToken: string, charItem: CharacterItem, acc: AuthAccount) => {
     setIsLoadingCharacter(true);
     setInitialLoadingActive(true);

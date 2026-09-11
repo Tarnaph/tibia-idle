@@ -196,21 +196,57 @@ export function ExuraLoadingScreen({
         alignItems: 'center',
         justifyContent: 'flex-end',
         paddingBottom: '3.5rem',
-        backgroundImage: `radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.65) 100%), url('${bgImage || '/images/loading/thais-loading.jpg'}')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
         backgroundColor: '#070202',
         userSelect: 'none',
         pointerEvents: isFadingOut ? 'none' : 'auto',
         opacity: isFadingOut ? 0 : 1,
         transition: 'opacity 0.4s ease-in-out',
         boxSizing: 'border-box',
+        overflow: 'hidden',
       }}
     >
+      {/* Explicit Artwork Layer with Fallback */}
+      <img
+        src={bgImage || '/images/loading/thais-loading.jpg'}
+        alt="Loading artwork"
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          if (!target.src.includes('/images/loading/loading-bg.jpg')) {
+            target.src = '/images/loading/loading-bg.jpg';
+          }
+        }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'center',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Atmospheric Vignette & Radial Darkening Overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.68) 100%)',
+          zIndex: 2,
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* Central Content Box anchored near bottom */}
       <div
         style={{
+          position: 'relative',
+          zIndex: 10,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

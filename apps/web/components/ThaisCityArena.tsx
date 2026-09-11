@@ -335,19 +335,14 @@ export function ThaisCityArena({
         }
       };
 
-      // 1. Preload highest priority assets immediately during the 5s loading screen
+      // 1. Preload ONLY core immediate spawn assets (< 10 textures, completes in < 50ms)
       const priorityUrls = [
         floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
-        ...ALL_SPELL_ICON_URLS,
-        ...outfitUrls.slice(0, 32),
         ...teleportEffectUrls,
-        ...fireEffectUrls,
-        ...coreMissileUrls,
-        ...coreEffectUrls,
-        ...immediateThaisMapUrls,
+        ...outfitUrls.slice(0, 8),
       ];
       try {
-        await loadBatch(priorityUrls, 40);
+        await loadBatch(priorityUrls, 20);
       } catch (err) {
         console.warn('Priority asset loading error:', err);
       }
@@ -357,12 +352,25 @@ export function ThaisCityArena({
         return;
       }
 
-      // 2. Stream distant Thais map textures in background
-      void loadBatch(distantThaisMapUrls, 40);
+      // 2. Stream all Thais map textures in background without blocking rendering or starving HTTP pool
+      void loadBatch(immediateThaisMapUrls, 25).then(() => {
+        if (!disposed) {
+          void loadBatch(distantThaisMapUrls, 25);
+        }
+      });
 
-      // 3. Stream remaining outfit frames progressively in the background
-      const remainingUrls = [...new Set([...thumbUrls, ...outfitUrls])].filter((u) => !loaded[u]);
-      void loadBatch(remainingUrls, 30);
+      // 3. Stream remaining action icons, spells, missiles, and outfit frames in background
+      void (async () => {
+        const bgAssets = [
+          ...ALL_SPELL_ICON_URLS,
+          ...fireEffectUrls,
+          ...coreMissileUrls,
+          ...coreEffectUrls,
+          ...thumbUrls,
+          ...outfitUrls,
+        ].filter((u) => !loaded[u]);
+        await loadBatch(bgAssets, 25);
+      })();
 
 
       const teleportFrames = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
@@ -1015,9 +1023,11 @@ export function ThaisCityArena({
 
         // 3. Camera smoothly follows interpolated player position with scale matching user zoom preference
         const cameraScale = 2 * getZoomMultiplier();
-        const targetCamX = app.screen.width / 2 - currentPixelX * cameraScale;
-        const targetCamY = app.screen.height / 2 - currentPixelY * cameraScale;
-        if (!camInitialized) {
+        const screenW = Number.isFinite(app.screen.width) && app.screen.width > 0 ? app.screen.width : (typeof window !== 'undefined' ? window.innerWidth : 1920);
+        const screenH = Number.isFinite(app.screen.height) && app.screen.height > 0 ? app.screen.height : (typeof window !== 'undefined' ? window.innerHeight : 1080);
+        const targetCamX = screenW / 2 - currentPixelX * cameraScale;
+        const targetCamY = screenH / 2 - currentPixelY * cameraScale;
+        if (!camInitialized || !Number.isFinite(smoothCamX) || !Number.isFinite(smoothCamY)) {
           smoothCamX = targetCamX;
           smoothCamY = targetCamY;
           camInitialized = true;
@@ -1026,8 +1036,10 @@ export function ThaisCityArena({
           smoothCamX += (targetCamX - smoothCamX) * lerpFactor;
           smoothCamY += (targetCamY - smoothCamY) * lerpFactor;
         }
+        if (!Number.isFinite(smoothCamX)) smoothCamX = targetCamX;
+        if (!Number.isFinite(smoothCamY)) smoothCamY = targetCamY;
         world.scale.set(cameraScale);
-        world.position.set(smoothCamX, smoothCamY);
+        world.position.set(Math.round(smoothCamX), Math.round(smoothCamY));
 
         // Clean up removed actor views (local player, ambient, and remote players)
         const validActorIds = new Set<string>();

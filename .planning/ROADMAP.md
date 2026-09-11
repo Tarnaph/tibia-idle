@@ -2323,6 +2323,33 @@ Plans:
 - [x] 130-01-PLAN: Sistema Completo de Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character, Rastreamento na Tela e Persistência Permanente de Kills).
 - Resumo de entrega: `.planning/phases/phase-130-cyclopedia-bestiary-bosstiary/130-SUMMARY.md`
 
+---
+
+### Phase 131: Resolução de Imagem na Tela de Loading e Eliminação Definitiva de Tela Preta pós-Loading no Game Viewport
+
+**Goal**: Corrigir a ausência de imagem na tela de carregamento (`ExuraLoadingScreen`) e eliminar a tela preta no viewport do jogo após o término do loading. Desacoplar o bloqueio síncrono de mais de 600 texturas de mapa em `ThaisCityArena`, inicializar a cena e o ticker de renderização em menos de 50ms com resolução progressiva de sprites via `pendingTileSprites`, implementar renderização garantida via tag `<img>` com fallback e preloading para as artes de loading (`thais-loading.jpg`), e blindar o cálculo de câmera e dimensões de tela contra valores `NaN` e desincronias de layout.  
+**Depends on**: Phase 130  
+**Requirements**:
+1. **Renderização Garantida e Preload da Tela de Loading (`ExuraLoadingScreen.tsx` & `GamePrototype.tsx`):**
+   - Substituir o estilo puramente CSS `backgroundImage` por elemento explícito `<img>` em camada com fallback automático para `/images/loading/loading-bg.jpg` caso ocorra falha de rede.
+   - Pré-carregar a imagem do Templo de Thais (`thais-loading.jpg`) e Dragon Lair no bootstrap do jogo para garantir exibição imediata no primeiro milissegundo.
+2. **Streaming Assíncrono Não-Bloqueante em `ThaisCityArena.tsx`:**
+   - Reduzir a lista de pré-carregamento síncrono inicial de 608 texturas para apenas os assets fundamentais de spawn (chão, parede, dummies e outfit do líder: ~10 texturas).
+   - Iniciar o `app.ticker`, a construção do mapa de tiles e a adição ao palco imediatamente sem aguardar centenas de requisições HTTP em fila.
+   - Realizar o streaming de todas as texturas de Thais em background através de `pendingTileSprites` e `resolvePendingSprites`, eliminando qualquer atraso de 30s ou tela preta.
+3. **Blindagem de Câmera e Canvas:**
+   - Adicionar verificações estritas de `Number.isFinite` em `smoothCamX`, `smoothCamY`, `targetCamX` e `targetCamY`.
+   - Garantir valores válidos para `app.screen.width` e `app.screen.height` com fallback para `window.innerWidth` / `window.innerHeight`.
+4. **Qualidade e Não-Regressão:**
+   - Suíte de testes dedicada em `tests/phase131-loading-screen-image-and-thais-rendering.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% dos testes Vitest passando (`npm run test`).
+**Plans:**
+- [x] 131-01-PLAN: Resolução de Imagem na Tela de Loading e Eliminação Definitiva de Tela Preta pós-Loading no Game Viewport.
+- Resumo de entrega: `.planning/phases/phase-131-loading-image-and-black-screen-resolution/131-SUMMARY.md`
+
+
+
 
 
 
