@@ -2292,6 +2292,39 @@ Plans:
 - [x] 129-01-PLAN: Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita.
 - Resumo de entrega: `.planning/phases/phase-129-outfit-mount-freeze-resilience/129-SUMMARY.md`
 
+---
+
+### Phase 130: Sistema Completo de Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character, Rastreamento na Tela e Persistência Permanente de Kills)
+
+**Goal**: Implementar o sistema completo de **Cyclopedia** com design e layout autênticos do Tibia 11 baseado nas 5 referências fornecidas pelo usuário: catálogo completo de itens com busca, ordenação, categorias, estatísticas e listagem reversa de fontes de drop ("DROPADO POR"); módulo de Bestiary com busca de criaturas, níveis de dificuldade em estrelas, progresso de kills, tela de detalhes com barras de resistências elementais, drops e botão "Rastrear na tela"; módulo de Bosstiary dedicado a bosses com milestones (Prowess, Expertise, Mastery), summons e recarga; abas de Boss Points e Character; widget flutuante de rastreamento no HUD do jogo com abertura automática no primeiro kill de cada espécie ("Você começou o bestiário deste monstro"); e persistência permanente de kills no banco de dados Prisma e servidor Colyseus.  
+**Depends on**: Phase 129  
+**Requirements**:
+1. **Modelagem e Persistência Relacional (Prisma & Colyseus):**
+   - Adicionar campos `bestiaryKillsJson String?`, `trackedBestiaryId String?` e `bossPoints Int @default(0)` ao modelo `Character` em `prisma/schema.prisma`.
+   - Atualizar `PrismaPersistenceManager.ts` para carregar e salvar os dados de bestiário no SQLite.
+   - Atualizar `characterService.ts` e `/api/characters/[id]/save` para suportar o estado permanente do bestiário.
+   - Sincronizar em tempo real no servidor `ThaisCityRoom.ts` e no loop de combate `combat.ts`, emitindo os eventos `bestiary:firstKill` e `bestiary:killUpdate`.
+2. **Motor e Catálogo da Cyclopedia (`cyclopediaData.ts`):**
+   - Estruturar o catálogo de itens agrupado por categorias canônicas (Armas Melee, Distância, Wands, Escudos, Elmos, Armaduras, Calças, Botas, Amuletos, Anéis, Trinkets).
+   - Calcular atributos detalhados: Ataque, Defesa, Mãos, Nível mínimo, Vocações permitidas, Imbuements, Categorias e Valor de venda.
+   - Mapear de forma cruzada quais monstros dropam cada item (`droppedBy`).
+   - Mapear catálogo de Bestiary com estatísticas (HP, Exp, Velocidade, Armadura), 7 resistências elementais (Físico, Energia, Terra, Fogo, Gelo, Sagrado, Morte) e drops.
+   - Mapear catálogo de Bosstiary com categorias (Archfoe, Bane, Nemesis), metas de Prowess/Expertise/Mastery, recarga e summons.
+3. **Interface Visual Canônica (`CyclopediaModal.tsx` & `BestiaryTrackerHUD.tsx`):**
+   - Criar `CyclopediaModal.tsx` reproduzindo com exatidão o visual das 5 capturas: cabeçalho com 5 abas (Items, Bestiary, Bosstiary, Boss Points, Character), busca, ordenação, paginação `< 1 / 4 >`, cards e detalhes.
+   - Criar `BestiaryTrackerHUD.tsx`: widget compacto e flutuante na tela do jogo exibindo o monstro rastreado, progresso de kills e botão de fechar.
+   - Disparar abertura automática do rastreador com notificação *"Você começou o bestiário deste monstro"* ao matar uma criatura pela primeira vez.
+   - Integrar botão de abertura `[ 📖 Cyclopedia ]` na barra superior `WindowDockBar.tsx`.
+4. **Qualidade, Estabilidade e Não-Regressão:**
+   - Suíte de testes Vitest dedicada em `tests/phase130-cyclopedia-bestiary-items.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% dos testes Vitest passando (`npm run test`).
+**Plans:**
+- [x] 130-01-PLAN: Sistema Completo de Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character, Rastreamento na Tela e Persistência Permanente de Kills).
+- Resumo de entrega: `.planning/phases/phase-130-cyclopedia-bestiary-bosstiary/130-SUMMARY.md`
+
+
+
 
 
 

@@ -9,6 +9,7 @@ interface TopNavigationProps {
   onEquipment(): void;
   onOpenFriends?(): void;
   onOpenShop?(): void;
+  onOpenCyclopedia?(): void;
   onToggleDebug(): void;
   onToggleLeftSidebar(): void;
   onToggleRightSidebar(): void;
@@ -23,6 +24,7 @@ export function TopNavigation({
   onEquipment,
   onOpenFriends,
   onOpenShop,
+  onOpenCyclopedia,
   onToggleDebug,
   onToggleLeftSidebar,
   onToggleRightSidebar,
@@ -59,6 +61,10 @@ export function TopNavigation({
             <path d="M16 10a4 4 0 0 1-8 0" />
           </svg>
           <small>Loja</small>
+        </button>
+        <button type="button" className="nav-shortcut cyclopedia-btn" onClick={onOpenCyclopedia} title="Abrir Cyclopedia (Itens, Bestiary, Bosstiary, Boss Points)">
+          <span>📖</span>
+          <small>Cyclopedia</small>
         </button>
         {futureNavigation.map((label) => (
           <button type="button" className="nav-shortcut future" key={label} disabled title="Em breve">

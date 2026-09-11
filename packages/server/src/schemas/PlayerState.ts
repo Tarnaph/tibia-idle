@@ -51,5 +51,6 @@ export class PlayerState extends Schema {
   @type('string') lastHuntId: string = '';
   @type('number') magicShieldUntil: number = 0;
   @type('number') hasteUntil: number = 0;
+  @type('string') trackedBestiaryId: string = '';
 }
 

@@ -38,6 +38,7 @@ interface WindowDockBarProps {
   onOpenSkills: () => void;
   onOpenShop?: () => void;
   onOpenOutfit?: () => void;
+  onOpenCyclopedia?: () => void;
   onExitGame?: () => void;
 }
 
@@ -61,6 +62,7 @@ export function WindowDockBar({
   onOpenSkills,
   onOpenShop,
   onOpenOutfit,
+  onOpenCyclopedia,
   onExitGame,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
@@ -285,6 +287,16 @@ export function WindowDockBar({
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
           </svg>
+        </button>
+
+        <button
+          type="button"
+          className="huntera-square-btn cyclopedia-btn"
+          onClick={onOpenCyclopedia}
+          title="Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character)"
+          style={{ borderColor: '#f1c40f', backgroundColor: 'rgba(241, 196, 15, 0.18)', fontSize: '15px' }}
+        >
+          📖
         </button>
 
         {isAdmin && (

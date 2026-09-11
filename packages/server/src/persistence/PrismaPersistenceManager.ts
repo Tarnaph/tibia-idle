@@ -78,6 +78,11 @@ export class PrismaPersistenceManager {
             : Array.isArray((player as any).hotbar)
             ? JSON.stringify((player as any).hotbar)
             : undefined,
+          bestiaryKillsJson: (player as any).bestiaryKills !== undefined
+            ? (typeof (player as any).bestiaryKills === 'string' ? (player as any).bestiaryKills : JSON.stringify((player as any).bestiaryKills))
+            : undefined,
+          trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' ? (player as any).trackedBestiaryId : undefined,
+          bossPoints: typeof (player as any).bossPoints === 'number' ? (player as any).bossPoints : undefined,
           vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
           promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
           updatedAt: new Date(),
@@ -176,7 +181,23 @@ export class PrismaPersistenceManager {
           }
         } catch (e) { hotbar = []; }
       }
-      return { ...char, hotbar, hotbarConfigs };
+      let bestiaryKills: Record<string, number> = {};
+      if ((char as any).bestiaryKillsJson) {
+        try {
+          const parsed = JSON.parse((char as any).bestiaryKillsJson);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            bestiaryKills = parsed;
+          }
+        } catch (e) { bestiaryKills = {}; }
+      }
+      return {
+        ...char,
+        hotbar,
+        hotbarConfigs,
+        bestiaryKills,
+        trackedBestiaryId: (char as any).trackedBestiaryId || null,
+        bossPoints: (char as any).bossPoints ?? 0,
+      };
     } catch (err: any) {
       console.warn(`[PrismaPersistenceManager] Failed to load character ${characterId}:`, err.message);
       return null;

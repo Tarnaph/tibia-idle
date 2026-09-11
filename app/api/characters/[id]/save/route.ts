@@ -66,6 +66,9 @@ export async function POST(
       inventory: body.inventory,
       hotbar: body.hotbar,
       hotbarConfigs: body.hotbarConfigs,
+      bestiaryKills: body.bestiaryKills,
+      trackedBestiaryId: body.trackedBestiaryId,
+      bossPoints: typeof body.bossPoints === 'number' ? body.bossPoints : undefined,
       vocationName: body.vocationName,
       promotion: body.promotion,
     });

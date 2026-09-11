@@ -340,6 +340,9 @@ export class CharacterService {
       inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
       hotbar?: any;
       hotbarConfigs?: any;
+      bestiaryKills?: any;
+      trackedBestiaryId?: string | null;
+      bossPoints?: number;
       vocationName?: string;
       promotion?: string;
       avatarId?: number;
@@ -355,6 +358,15 @@ export class CharacterService {
     if (data.outfitAddons !== undefined) updateData.outfitAddons = data.outfitAddons;
     if (data.mount !== undefined) updateData.mount = data.mount;
     if (data.mountActive !== undefined) updateData.mountActive = data.mountActive;
+    if (data.bestiaryKills !== undefined) {
+      updateData.bestiaryKillsJson = typeof data.bestiaryKills === 'string' ? data.bestiaryKills : JSON.stringify(data.bestiaryKills);
+    }
+    if (data.trackedBestiaryId !== undefined) {
+      updateData.trackedBestiaryId = data.trackedBestiaryId;
+    }
+    if (data.bossPoints !== undefined) {
+      updateData.bossPoints = data.bossPoints;
+    }
     if (data.level !== undefined || data.experience !== undefined) {
       const existing = await this.prisma.character.findUnique({
         where: { id: characterId },

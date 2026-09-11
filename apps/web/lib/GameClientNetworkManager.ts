@@ -121,6 +121,21 @@ type PartyHuntProposalSyncListener = (data: { huntId: string; huntName: string; 
 type PartyHuntProposalRejectedListener = (data: { rejectedByName: string; huntName: string }) => void;
 type DuplicateSessionListener = (message: string) => void;
 
+export interface BestiarySyncData {
+  kills: Record<string, number>;
+  trackedMonsterId: string;
+  bossPoints: number;
+}
+
+export interface BestiaryKillEvent {
+  monsterId: string;
+  monsterName: string;
+  kills: number;
+}
+
+export type BestiarySyncListener = (data: BestiarySyncData) => void;
+export type BestiaryKillEventListener = (data: BestiaryKillEvent) => void;
+
 export class GameClientNetworkManager {
   private room: Room<any> | null = null;
   private combatListeners: Set<CombatEventListener> = new Set();
@@ -128,6 +143,9 @@ export class GameClientNetworkManager {
   private stateListeners: Set<StateChangeListener> = new Set();
   private partyInvitationListeners: Set<PartyInvitationListener> = new Set();
   private partySyncListeners: Set<PartySyncListener> = new Set();
+  private bestiarySyncListeners: Set<BestiarySyncListener> = new Set();
+  private bestiaryFirstKillListeners: Set<BestiaryKillEventListener> = new Set();
+  private bestiaryKillUpdateListeners: Set<BestiaryKillEventListener> = new Set();
   private partyHuntStartListeners: Set<PartyHuntStartListener> = new Set();
   private partyHuntExitListeners: Set<PartyHuntExitListener> = new Set();
   private partyTargetSyncListeners: Set<PartyTargetSyncListener> = new Set();
@@ -387,6 +405,18 @@ export class GameClientNetworkManager {
     this.room.onMessage('party:leaderMoved', (data: { leaderSessionId: string; x: number; y: number; z: number; direction: string }) => {
       this.partyLeaderMovedListeners.forEach((fn) => fn(data));
     });
+
+    this.room.onMessage('bestiary:sync', (data: BestiarySyncData) => {
+      this.bestiarySyncListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('bestiary:firstKill', (data: BestiaryKillEvent) => {
+      this.bestiaryFirstKillListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('bestiary:killUpdate', (data: BestiaryKillEvent) => {
+      this.bestiaryKillUpdateListeners.forEach((fn) => fn(data));
+    });
   }
 
   disconnect(): void {
@@ -627,6 +657,31 @@ export class GameClientNetworkManager {
   onDuplicateSession(listener: DuplicateSessionListener): () => void {
     this.duplicateSessionListeners.add(listener);
     return () => this.duplicateSessionListeners.delete(listener);
+  }
+
+  sendBestiaryTrack(monsterId: string): void {
+    if (!this.room) return;
+    this.room.send('bestiary:track', { monsterId });
+  }
+
+  sendBestiarySetKills(kills: Record<string, number>): void {
+    if (!this.room) return;
+    this.room.send('bestiary:setKills', { kills });
+  }
+
+  onBestiarySync(listener: BestiarySyncListener): () => void {
+    this.bestiarySyncListeners.add(listener);
+    return () => this.bestiarySyncListeners.delete(listener);
+  }
+
+  onBestiaryFirstKill(listener: BestiaryKillEventListener): () => void {
+    this.bestiaryFirstKillListeners.add(listener);
+    return () => this.bestiaryFirstKillListeners.delete(listener);
+  }
+
+  onBestiaryKillUpdate(listener: BestiaryKillEventListener): () => void {
+    this.bestiaryKillUpdateListeners.add(listener);
+    return () => this.bestiaryKillUpdateListeners.delete(listener);
   }
 
   get CurrentParty(): PartySnapshot | null {

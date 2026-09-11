@@ -358,6 +358,28 @@ function defeatEnemy(state: GameState, target: EnemyState, content: GameContent)
     encounter.continuousProgress.kills += 1;
     if (target.variant?.visualModifier === 'rare-aura') encounter.continuousProgress.rareKills += 1;
   }
+
+  // Bestiary progression for idle hunts
+  const monsterKey = target.monsterId.toLowerCase().replace(/\s+/g, '-');
+  const sessionAny = state.session as any;
+  if (!sessionAny.bestiaryKills) {
+    sessionAny.bestiaryKills = {};
+  }
+  const prevKills = sessionAny.bestiaryKills[monsterKey] || 0;
+  sessionAny.bestiaryKills[monsterKey] = prevKills + 1;
+  if (prevKills === 0) {
+    encounter.events.push({
+      type: 'bestiary-first-kill' as any,
+      monsterId: monsterKey,
+      monsterName: monster.name,
+    } as any);
+    addLog(state, `Você começou o bestiário deste monstro: ${monster.name}!`);
+  }
+  for (const c of state.session.characters) {
+    const cAny = c as any;
+    if (!cAny.bestiaryKills) cAny.bestiaryKills = {};
+    cAny.bestiaryKills[monsterKey] = (cAny.bestiaryKills[monsterKey] || 0) + 1;
+  }
   // Clear target for all party actors and session characters targeting this enemy
   for (const actor of encounter.partyActors) {
     if (actor.targetId === target.id) {

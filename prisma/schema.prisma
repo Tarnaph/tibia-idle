@@ -41,6 +41,9 @@ model Character {
   isAutoIdle     Boolean          @default(false)
   lastHuntId     String?
   hotbarJson     String?
+  bestiaryKillsJson String?
+  trackedBestiaryId String?
+  bossPoints     Int              @default(0)
   outfitLookType Int              @default(131)
   outfit         String?          @default("Knight")
   outfitHead     Int              @default(0)

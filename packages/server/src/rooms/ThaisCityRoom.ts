@@ -444,6 +444,23 @@ export class ThaisCityRoom extends Room<WorldState> {
         }
       }
     });
+
+    this.onMessage('bestiary:track', (client, data: { monsterId: string }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player) {
+        player.trackedBestiaryId = data?.monsterId || '';
+        (player as any).trackedBestiaryId = player.trackedBestiaryId;
+        void persistenceManager.saveCharacter(player);
+      }
+    });
+
+    this.onMessage('bestiary:setKills', (client, data: { kills: Record<string, number> }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (player && data?.kills && typeof data.kills === 'object') {
+        (player as any).bestiaryKills = { ...((player as any).bestiaryKills || {}), ...data.kills };
+        void persistenceManager.saveCharacter(player);
+      }
+    });
   }
 
   public parties: Map<string, { leaderSessionId: string; leaderName: string; memberSessionIds: string[] }> = new Map();
@@ -467,6 +484,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     let loadedIsAutoIdle: boolean | undefined;
     let loadedLastHuntId: string | undefined;
     let loadedAvatarId = 1;
+    let loadedBestiaryKills: Record<string, number> = {};
+    let loadedTrackedBestiaryId = '';
+    let loadedBossPoints = 0;
 
     let accountRole = 'PLAYER';
     if (options.token) {
@@ -522,6 +542,15 @@ export class ThaisCityRoom extends Room<WorldState> {
         loadedIsAutoIdle = dbChar.isAutoIdle ?? false;
         loadedLastHuntId = dbChar.lastHuntId ?? '';
         loadedAvatarId = (dbChar as any).avatarId ?? 1;
+        if ((dbChar as any).bestiaryKills) {
+          loadedBestiaryKills = (dbChar as any).bestiaryKills;
+        }
+        if ((dbChar as any).trackedBestiaryId) {
+          loadedTrackedBestiaryId = (dbChar as any).trackedBestiaryId;
+        }
+        if (typeof (dbChar as any).bossPoints === 'number') {
+          loadedBossPoints = (dbChar as any).bossPoints;
+        }
         outfitLookType = (options as any).outfitLookType ?? dbChar.outfitLookType ?? 128;
         if ((dbChar as any).outfit) {
           outfitName = (dbChar as any).outfit;
@@ -630,8 +659,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.lastHuntId = loadedLastHuntId || 'rat-cellars';
 
     player.inHunt = false;
-
-
+    (player as any).bestiaryKills = loadedBestiaryKills;
+    player.trackedBestiaryId = loadedTrackedBestiaryId;
+    (player as any).bossPoints = loadedBossPoints;
 
     if (!this.clients.includes(client)) {
       (this.clients as any).push(client);
@@ -661,6 +691,11 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.state.players.set(client.sessionId, player);
     if (typeof client.send === 'function') {
       client.send('server:config', serverConfigManager.getConfig());
+      client.send('bestiary:sync', {
+        kills: loadedBestiaryKills,
+        trackedMonsterId: loadedTrackedBestiaryId,
+        bossPoints: loadedBossPoints,
+      });
     }
   }
 
@@ -1362,6 +1397,34 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     this.pushCombatEvent('death', killer.id, monster.id, xpGain, monster.posX, monster.posY, `+${xpGain} XP`, '#ffffff');
+
+    // Bestiary kill progression & authoritative notification
+    if (!isDummy) {
+      const monsterKey = (monster.monsterTypeId || monster.name).toLowerCase().replace(/\s+/g, '-');
+      const killerObj = killer as any;
+      if (!killerObj.bestiaryKills) {
+        killerObj.bestiaryKills = {};
+      }
+      const prevKills = killerObj.bestiaryKills[monsterKey] || 0;
+      const newKills = prevKills + 1;
+      killerObj.bestiaryKills[monsterKey] = newKills;
+
+      const client = this.clients.find((c) => c.sessionId === killer.id);
+      if (client && typeof client.send === 'function') {
+        if (prevKills === 0) {
+          client.send('bestiary:firstKill', {
+            monsterId: monsterKey,
+            monsterName: monster.name,
+            kills: newKills,
+          });
+        }
+        client.send('bestiary:killUpdate', {
+          monsterId: monsterKey,
+          monsterName: monster.name,
+          kills: newKills,
+        });
+      }
+    }
   }
 
   private gameTick(deltaTimeMs: number) {

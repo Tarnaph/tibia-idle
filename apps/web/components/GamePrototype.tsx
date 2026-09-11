@@ -40,6 +40,9 @@ import { GlobalItemTooltip } from './GlobalItemTooltip';
   import { PartyMemberModal } from './PartyMemberModal';
 import { VocationChoiceModal } from './VocationChoiceModal';
 import { OutfitModal } from './OutfitModal';
+import { CyclopediaModal } from './CyclopediaModal';
+import { BestiaryTrackerHUD } from './BestiaryTrackerHUD';
+import { CANONICAL_BESTIARY_MONSTERS } from '../lib/cyclopediaData';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { CharacterProfileModal } from './CharacterProfileModal';
@@ -266,6 +269,11 @@ function GamePrototypeContent() {
   const [remotePlayers, setRemotePlayers] = useState<Map<string, RemotePlayerSnapshot>>(new Map());
   const [outfitModalOpen, setOutfitModalOpen] = useState(false);
   const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
+  const [cyclopediaModalOpen, setCyclopediaModalOpen] = useState(false);
+  const [trackedBestiaryMonsterId, setTrackedBestiaryMonsterId] = useState<string>('');
+  const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
+  const [bossPoints, setBossPoints] = useState<number>(0);
+  const [firstKillToast, setFirstKillToast] = useState<string | null>(null);
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
   const [receivedPartyInvitation, setReceivedPartyInvitation] = useState<PartyInvitation | null>(null);
   const [activeHuntProposal, setActiveHuntProposal] = useState<PartyHuntProposal | null>(null);
@@ -1030,6 +1038,18 @@ function GamePrototypeContent() {
     if (charItem.mana) userChar.currentMana = charItem.mana;
     if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
     (userChar as any).avatarId = (charItem as any).avatarId ?? 1;
+    if ((charItem as any).bestiaryKills && typeof (charItem as any).bestiaryKills === 'object') {
+      setBestiaryKills((charItem as any).bestiaryKills);
+      (userChar as any).bestiaryKills = (charItem as any).bestiaryKills;
+    }
+    if ((charItem as any).trackedBestiaryId) {
+      setTrackedBestiaryMonsterId((charItem as any).trackedBestiaryId);
+      (userChar as any).trackedBestiaryId = (charItem as any).trackedBestiaryId;
+    }
+    if (typeof (charItem as any).bossPoints === 'number') {
+      setBossPoints((charItem as any).bossPoints);
+      (userChar as any).bossPoints = (charItem as any).bossPoints;
+    }
 
     // Hydrate skills, gold, loot, bag, and inventory items from DB if available
     let loadedGold = 0;
@@ -1344,6 +1364,9 @@ function GamePrototypeContent() {
           outfitAddons: (curActive as any).addons ?? (curActive as any).outfitAddons ?? 0,
           mount: curActive.mount,
           mountActive: curActive.mountActive,
+          bestiaryKills: (curActive as any).bestiaryKills ?? bestiaryKills,
+          trackedBestiaryId: (curActive as any).trackedBestiaryId ?? trackedBestiaryMonsterId ?? null,
+          bossPoints: (curActive as any).bossPoints ?? bossPoints ?? 0,
           isDeathPenalty,
         }),
       });
@@ -1599,6 +1622,57 @@ function GamePrototypeContent() {
       setLevelUpMessage({ text: levelUpEvent.message, timestamp: Date.now() });
     }
   }, [encounter.events]);
+
+  // Listen to Colyseus server bestiary events
+  useEffect(() => {
+    const unsubSync = gameNetwork.onBestiarySync((data) => {
+      if (data.kills) setBestiaryKills((prev) => ({ ...prev, ...data.kills }));
+      if (data.trackedMonsterId) setTrackedBestiaryMonsterId(data.trackedMonsterId);
+      if (typeof data.bossPoints === 'number') setBossPoints(data.bossPoints);
+    });
+    const unsubFirstKill = gameNetwork.onBestiaryFirstKill((data) => {
+      setFirstKillToast(`Você começou o bestiário deste monstro: ${data.monsterName}!`);
+      setTrackedBestiaryMonsterId(data.monsterId);
+      setBestiaryKills((prev) => ({ ...prev, [data.monsterId]: data.kills }));
+    });
+    const unsubKillUpdate = gameNetwork.onBestiaryKillUpdate((data) => {
+      setBestiaryKills((prev) => ({ ...prev, [data.monsterId]: data.kills }));
+    });
+    return () => {
+      unsubSync();
+      unsubFirstKill();
+      unsubKillUpdate();
+    };
+  }, []);
+
+  // Listen to Idle encounter events for bestiary-first-kill
+  useEffect(() => {
+    const firstKillEvent = encounter.events.find((e: any) => e.type === 'bestiary-first-kill');
+    if (firstKillEvent && 'monsterName' in firstKillEvent) {
+      const mName = (firstKillEvent as any).monsterName;
+      const mId = (firstKillEvent as any).monsterId;
+      setFirstKillToast(`Você começou o bestiário deste monstro: ${mName}!`);
+      if (!trackedBestiaryMonsterId) {
+        setTrackedBestiaryMonsterId(mId);
+      }
+      setBestiaryKills((prev) => ({ ...prev, [mId]: (prev[mId] || 0) + 1 }));
+    }
+  }, [encounter.events, trackedBestiaryMonsterId]);
+
+  const handleTrackMonster = useCallback((monsterId: string) => {
+    const nextId = trackedBestiaryMonsterId === monsterId ? '' : monsterId;
+    setTrackedBestiaryMonsterId(nextId);
+    gameNetwork.sendBestiaryTrack(nextId);
+  }, [trackedBestiaryMonsterId]);
+
+  const currentlyTrackedMonster = useMemo(() => {
+    if (!trackedBestiaryMonsterId) return null;
+    return (
+      CANONICAL_BESTIARY_MONSTERS.find(
+        (m) => m.id.toLowerCase() === trackedBestiaryMonsterId.toLowerCase()
+      ) || null
+    );
+  }, [trackedBestiaryMonsterId]);
 
   useEffect(() => {
     if (!levelUpMessage) return;
@@ -2558,6 +2632,7 @@ function GamePrototypeContent() {
           onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
           onOpenShop={() => setShopOpen((prev) => !prev)}
           onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
+          onOpenCyclopedia={() => setCyclopediaModalOpen((prev) => !prev)}
           onExitGame={() => setIsLogoutModalOpen(true)}
         />
       )}
@@ -2808,6 +2883,30 @@ function GamePrototypeContent() {
             setIsProfileModalOpen(true);
           }}
           onSave={handleSaveOutfit}
+        />
+      )}
+
+      {currentlyTrackedMonster && (
+        <BestiaryTrackerHUD
+          monster={currentlyTrackedMonster}
+          kills={bestiaryKills[currentlyTrackedMonster.id.toLowerCase()] || 0}
+          firstKillAlert={firstKillToast}
+          onClose={() => handleTrackMonster(currentlyTrackedMonster.id)}
+          onOpenCyclopedia={() => setCyclopediaModalOpen(true)}
+        />
+      )}
+
+      {cyclopediaModalOpen && (
+        <CyclopediaModal
+          open={cyclopediaModalOpen}
+          onClose={() => setCyclopediaModalOpen(false)}
+          gold={game.session.gold}
+          bestiaryKills={bestiaryKills}
+          trackedMonsterId={trackedBestiaryMonsterId}
+          bossPoints={bossPoints}
+          onTrackMonster={handleTrackMonster}
+          characterName={activeCharacter.name}
+          characterVocation={activeCharacter.vocation || 'Knight'}
         />
       )}
 
