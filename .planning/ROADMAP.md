@@ -2264,6 +2264,35 @@ Plans:
 - [x] 128-01-PLAN: Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência Definitiva de Outfits e Movimentação.
 - Resumo de entrega: `.planning/phases/phase-128-autosave-mutex-and-sprite-resilience/128-SUMMARY.md`
 
+---
+
+### Phase 129: Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita
+
+**Goal**: Eliminar definitivamente qualquer causa de travamento, lentidão ou quebra na tela de seleção e customização de outfits e montarias (`OutfitModal.tsx`), corrigir a normalização de trajes retrô (`Retro Nobleman` / `retro-noblewoman` e `Norseman` / `norsewoman`), implementar timeout protetivo no carregador assíncrono de imagens (`loadImage`), blindar manipuladores de canvas contra exceções e garantir sincronização precisa de estado entre cards e preview.  
+**Depends on**: Phase 128  
+**Requirements**:
+1. **Normalização Canônica Estrita (`outfitRecolor.ts`):**
+   - Priorizar correspondência direta e exata (`id`, `name`, `femaleName`, `maleName`).
+   - Mapear corretamente `Retro Nobleman` para `retro-noblewoman`, impedindo que caia no traje feminino clássico `noblewoman`.
+   - Mapear `Norse` e `Norseman` para `norsewoman`.
+   - Processar prefixos `retro` antes de fallbacks genéricos para evitar falsos positivos.
+2. **Resiliência e Timeout de Imagens (`outfitRecolor.ts`):**
+   - Implementar timeout de 3500ms no `loadImage` para prevenir Promises permanentemente pendentes quando a fila de rede estiver sob alta carga.
+   - Blindar `drawRecoloredLayer` e `recolorPixels` com validação de dimensões e `try...catch`.
+   - Otimizar `renderRecoloredOutfit` para só alterar `width` e `height` do canvas quando houver mudança real de dimensões.
+3. **Consistência de Identificadores e Seleção de Cards (`OutfitModal.tsx`):**
+   - Mapear `EXTRA_OUTFITS` com `id: o.id`.
+   - Normalizar comparação de seleção de cards com `normalizeOutfitId(selectedOutfit) === normalizeOutfitId(outfit.id)`.
+   - Normalizar comparação de montarias com `normalizeMountId(selectedMount) === normalizeMountId(mount.id)`.
+   - Adicionar tratamento de erro `.catch()` na chamada do `renderRecoloredOutfit`.
+4. **Qualidade e Testes:**
+   - Criar suíte abrangente `tests/phase129-audit-all-outfits-preview.test.ts` cobrindo todos os 78 outfits, montarias, rotações e timeout.
+   - Garantir 0 erros no `npm run typecheck`.
+**Plans:**
+- [x] 129-01-PLAN: Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita.
+- Resumo de entrega: `.planning/phases/phase-129-outfit-mount-freeze-resilience/129-SUMMARY.md`
+
+
 
 
 

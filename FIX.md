@@ -1,5 +1,23 @@
 # MUDANÇAS - CONCLUÍDAS
 
+## Phase 129 — Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita
+
+- [x] **Diagnóstico da Causa Raiz do Travamento de Outfits/Montarias:** [CONCLUÍDO]
+  - **Falso Positivo no Traje Retro Nobleman:** O fallback `idLower.includes('noble')` no `normalizeOutfitId` capturava `Retro Nobleman` (`retro-noblewoman`) e retornava erroneamente `noblewoman` (o traje clássico feminino com vestido), bloqueando a visualização e seleção do verdadeiro traje retrô. Além disso, `Norseman` não possuía alias para `norsewoman`, defaultando para `knight`.
+  - **Ausência de Timeout no Carregador Assíncrono (`loadImage`):** Ao abrir o modal com 78 outfits ou 130 montarias, o carregamento simultâneo de dezenas de thumbnails ocupava a fila de conexões do navegador. Sem timeout, requisições lentas mantinham Promises eternamente pendentes em `inFlightImagePromises`, congelando a renderização no canvas de preview (`renderRecoloredOutfit`) e desativando a resposta a cliques em cores, rotações e addons.
+  - **Inconsistência de Identificadores e Desconexão de Cards:** `EXTRA_OUTFITS` utilizava o nome legível em vez do slug canônico `id: o.id`, e a comparação de seleção nos cards (`isSelected`) dependia de igualdade estrita sem normalização, causando divergências de estado.
+  - **Exceções em Pipeline de Canvas:** `drawRecoloredLayer` e `recolorPixels` não possuíam tratamento com `try...catch` nem validação de `naturalWidth > 0`, gerando exceções não capturadas em imagens incompletas ou contextos de canvas invalidados.
+
+- [x] **Solução Arquitetural Definitiva Implementada:** [CONCLUÍDO]
+  - **1. Normalização Canônica Estrita (`outfitRecolor.ts`):** Correspondência direta por `clean`, `name`, `femaleName` e `maleName` tem prioridade absoluta. Aliases explícitos mapeiam `Retro Nobleman` -> `retro-noblewoman`, `Noble` -> `noblewoman` e `Norseman` -> `norsewoman`. Prefixos `retro` são avaliados antes de fallbacks genéricos.
+  - **2. Timeout Protetivo de 3500ms (`loadImage`):** Nenhuma Promise de imagem fica presa por mais de 3,5s. Ao expirar, a promise rejeita com segurança, limpando o timer (`clearTimeout`) e ativando os mecanismos de auto-cura e fallbacks provisórios sem travar o event loop do navegador.
+  - **3. Blindagem de Contextos Canvas:** `drawRecoloredLayer` e `recolorPixels` protegidos com blocos `try...catch` e validação estrita de integridade de dimensões (`complete && naturalWidth > 0`), impedindo exceções do DOM de quebrar o React.
+  - **4. Sincronização Perfeita de Cards (`OutfitModal.tsx`):** `EXTRA_OUTFITS` utiliza `id: o.id`, e tanto trajes quanto montarias utilizam `normalizeOutfitId(...)` e `normalizeMountId(...)` para o destaque de cards selecionados.
+  - **5. Prevenção de Unhandled Rejections:** A chamada assíncrona a `renderRecoloredOutfit` no `useEffect` de preview agora conta com tratamento seguro `.catch()`.
+  - **6. Suíte de Testes Integral:** Criada suíte `tests/phase129-audit-all-outfits-preview.test.ts` com 7 testes dedicados cobrindo todos os 78 outfits, montarias, 4 direções, variantes de gênero, addons e teste de timeout.
+
+---
+
 ## Phase 128 — Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência Definitiva de Outfits e Movimentação
 
 - [x] **Diagnóstico da Causa Raiz do Bug Recorrente:** [CONCLUÍDO]

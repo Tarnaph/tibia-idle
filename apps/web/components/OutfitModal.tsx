@@ -5,6 +5,7 @@ import rawMountsJson from '@/content/generated/mounts.json';
 import {
   TIBIA_133_COLORS,
   normalizeOutfitId,
+  normalizeMountId,
   getOutfitCapabilities,
   renderRecoloredOutfit,
   preloadOutfitAllFrames,
@@ -64,7 +65,7 @@ const EXTRA_OUTFITS: OutfitOption[] = (rawOutfitsJson as Array<{
     );
   })
   .map((o) => ({
-    id: o.name,
+    id: o.id,
     name: o.name,
     description: `Vestimenta oficial de Tibia: ${o.name}.`,
     isPremium: o.premium,
@@ -209,7 +210,9 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         selectedMount,
         isMounted,
         () => renderGenRef.current === thisGen
-      );
+      ).catch((err) => {
+        console.warn('Outfit preview render non-fatal exception caught:', err);
+      });
     }
   }, [
     open,
@@ -504,7 +507,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
             <div className="tibia-cards-scroll-grid">
               {selectedTab === 'outfits' ? (
                 outfitsToDisplay.map((outfit) => {
-                  const isSelected = selectedOutfit === outfit.id;
+                  const isSelected = normalizeOutfitId(selectedOutfit) === normalizeOutfitId(outfit.id);
                   return (
                     <div
                       key={outfit.id}
@@ -534,7 +537,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                 })
               ) : (
                 AVAILABLE_MOUNTS.map((mount) => {
-                  const isSelected = selectedMount === mount.id;
+                  const isSelected = normalizeMountId(selectedMount) === normalizeMountId(mount.id);
                   return (
                     <div
                       key={mount.id}

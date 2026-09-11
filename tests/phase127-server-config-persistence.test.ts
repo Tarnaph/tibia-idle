@@ -122,6 +122,7 @@ describe('Phase 127: Permanent Persistence for Admin Server Variables and Rates'
       expRate: 6.0,
       lootRate: 3.5,
     });
+    await new Promise((r) => setTimeout(r, 30));
 
     // Delete local file temporarily
     if (fs.existsSync(configFilePath)) {

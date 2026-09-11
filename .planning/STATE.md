@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-11T13:50:00.000Z"
-last_activity: "2026-09-11 — Conclusão da Phase 128: Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência Definitiva de Outfits e Movimentação."
+last_updated: "2026-09-11T15:00:00.000Z"
+last_activity: "2026-09-11 — Conclusão da Phase 129: Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita."
 progress:
-  total_phases: 128
-  completed_phases: 128
-  total_plans: 128
-  completed_plans: 128
+  total_phases: 129
+  completed_phases: 129
+  total_plans: 129
+  completed_plans: 129
   percent: 100
 ---
 
@@ -24,19 +24,19 @@ See: .planning/PROJECT.md (updated 2026-09-02)
 
 ## Current Position
 
-Phase: 128 of 128 (Concluído)  
+Phase: 129 of 129 (Concluído)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-11 — Concluída a implementação da Phase 128.
+Last activity: 2026-09-11 — Concluída a implementação da Phase 129.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 128
-- Total phases in roadmap: 128
-- Tests status: 129 test suites (745 testes aprovados - 100%)
+- Total phases completed: 129
+- Total phases in roadmap: 129
+- Tests status: 130 test suites (746 testes aprovados - 100%)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -51,6 +51,7 @@ Progress: [██████████] 100%
 | 126. Otimização de Carregamento da Seleção e Caixa Canônica de Logout | 1 | - | - | Complete |
 | 127. Persistência Permanente de Variáveis e Rates do Servidor | 1 | - | - | Complete |
 | 128. Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência de Sprites | 1 | - | - | Complete |
+| 129. Eliminação Definitiva de Travamento da Tela de Outfits/Montarias e Normalização Canônica Perfeita | 1 | - | - | Complete |
 
 ## Accumulated Context
 

@@ -99,17 +99,35 @@ export function getMountDisplacementOffset(
 export function normalizeOutfitId(outfitId: string): string {
   const idLower = (outfitId || 'Knight').toLowerCase().trim();
   const clean = idLower.replace(/[^a-z0-9]+/g, '-');
+
+  // 1. Direct exact match against canonical catalog
   const found = CANONICAL_OUTFITS.find(
     (o) =>
       o.id === clean ||
       o.name.toLowerCase() === idLower ||
       o.femaleName.toLowerCase() === idLower ||
-      o.maleName.toLowerCase() === idLower ||
-      (idLower.includes('noble') && (o.id === 'noblewoman' || o.name.toLowerCase() === 'nobleman'))
+      o.maleName.toLowerCase() === idLower
   );
   if (found) return found.id;
 
-  // Aliases and fallbacks
+  // 2. Canonical aliases for classic outfits
+  if (clean === 'noble' || idLower === 'noble' || idLower === 'nobleman' || idLower === 'noblewoman') return 'noblewoman';
+  if (clean === 'norse' || idLower === 'norse' || idLower === 'norseman' || idLower === 'norsewoman') return 'norsewoman';
+  if (idLower.includes('sorcerer')) return 'mage';
+  if (idLower.includes('paladin')) return 'hunter';
+
+  // 3. Fallbacks for retro outfits (must check retro first before base names to avoid collisions)
+  if (idLower.includes('retro')) {
+    if (idLower.includes('citizen')) return 'retro-citizen';
+    if (idLower.includes('hunter')) return 'retro-hunter';
+    if (idLower.includes('knight')) return 'retro-knight';
+    if (idLower.includes('wizard')) return 'retro-wizard';
+    if (idLower.includes('noble')) return 'retro-noblewoman';
+    if (idLower.includes('summoner')) return 'retro-summoner';
+    if (idLower.includes('warrior')) return 'retro-warrior';
+  }
+
+  // 4. Base fallback keywords
   if (idLower.includes('citizen')) return 'citizen';
   if (idLower.includes('hunter')) return 'hunter';
   if (idLower.includes('mage')) return 'mage';
@@ -119,8 +137,6 @@ export function normalizeOutfitId(outfitId: string): string {
   if (idLower.includes('warrior')) return 'warrior';
   if (idLower.includes('barbarian')) return 'barbarian';
   if (idLower.includes('druid')) return 'druid';
-  if (idLower.includes('sorcerer')) return 'mage';
-  if (idLower.includes('paladin')) return 'hunter';
   if (idLower.includes('oriental')) return 'oriental';
   if (idLower.includes('pirate')) return 'pirate';
   if (idLower.includes('assassin')) return 'assassin';
@@ -289,12 +305,23 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
     return Promise.reject(new Error(`Image marked permanently failed at ${url}`));
   }
 
-  // 3. Create managed promise for this URL
+  // 3. Create managed promise for this URL with safety timeout
   const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
 
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        handleError();
+      }
+    }, 3500);
+
     const handleSuccess = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
       inFlightImagePromises.delete(url);
       failedImageUrls.delete(url);
       failedImageAttempts.delete(url);
@@ -303,6 +330,10 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
     };
 
     const handleError = () => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(timeout);
+      }
       inFlightImagePromises.delete(url);
 
       const now = Date.now();
@@ -367,64 +398,69 @@ export function recolorPixels(
   height: number,
   colors: OutfitColors
 ): void {
-  const baseData = baseCtx.getImageData(0, 0, width, height);
-  const maskData = maskCtx.getImageData(0, 0, width, height);
-  const outData = targetCtx.createImageData(width, height);
+  try {
+    const baseData = baseCtx.getImageData(0, 0, width, height);
+    const maskData = maskCtx.getImageData(0, 0, width, height);
+    const outData = targetCtx.createImageData(width, height);
 
-  const headHex = TIBIA_133_COLORS[colors.head] || '#ffffff';
-  const bodyHex = TIBIA_133_COLORS[colors.primary] || '#0055ff';
-  const legsHex = TIBIA_133_COLORS[colors.secondary] || '#00aa00';
-  const feetHex = TIBIA_133_COLORS[colors.detail] || '#aa5500';
+    const headHex = TIBIA_133_COLORS[colors?.head ?? 0] || '#ffffff';
+    const bodyHex = TIBIA_133_COLORS[colors?.primary ?? 86] || '#0055ff';
+    const legsHex = TIBIA_133_COLORS[colors?.secondary ?? 114] || '#00aa00';
+    const feetHex = TIBIA_133_COLORS[colors?.detail ?? 76] || '#aa5500';
 
-  const headRgb = parseHexColor(headHex);
-  const bodyRgb = parseHexColor(bodyHex);
-  const legsRgb = parseHexColor(legsHex);
-  const feetRgb = parseHexColor(feetHex);
+    const headRgb = parseHexColor(headHex);
+    const bodyRgb = parseHexColor(bodyHex);
+    const legsRgb = parseHexColor(legsHex);
+    const feetRgb = parseHexColor(feetHex);
 
-  const b = baseData.data;
-  const m = maskData.data;
-  const o = outData.data;
-  const total = width * height * 4;
+    const b = baseData.data;
+    const m = maskData.data;
+    const o = outData.data;
+    const total = width * height * 4;
 
-  for (let i = 0; i < total; i += 4) {
-    const a0 = b[i + 3];
-    if (a0 === 0) continue;
+    for (let i = 0; i < total; i += 4) {
+      const a0 = b[i + 3];
+      if (a0 === 0) continue;
 
-    const r0 = b[i];
-    const g0 = b[i + 1];
-    const b0 = b[i + 2];
+      const r0 = b[i];
+      const g0 = b[i + 1];
+      const b0 = b[i + 2];
 
-    const mA = m[i + 3];
-    let tint: [number, number, number] | null = null;
+      const mA = m[i + 3];
+      let tint: [number, number, number] | null = null;
 
-    if (mA > 0) {
-      const mR = m[i];
-      const mG = m[i + 1];
-      const mB = m[i + 2];
+      if (mA > 0) {
+        const mR = m[i];
+        const mG = m[i + 1];
+        const mB = m[i + 2];
 
-      if (mR > 200 && mG < 50 && mB < 50) tint = headRgb;
-      else if (mG > 200 && mR < 50 && mB < 50) tint = bodyRgb;
-      else if (mB > 200 && mR < 50 && mG < 50) tint = legsRgb;
-      else if (mR > 200 && mG > 200 && mB < 50) tint = feetRgb;
+        if (mR > 200 && mG < 50 && mB < 50) tint = headRgb;
+        else if (mG > 200 && mR < 50 && mB < 50) tint = bodyRgb;
+        else if (mB > 200 && mR < 50 && mG < 50) tint = legsRgb;
+        else if (mR > 200 && mG > 200 && mB < 50) tint = feetRgb;
+      }
+
+      if (tint) {
+        o[i] = Math.round((r0 * tint[0]) / 255);
+        o[i + 1] = Math.round((g0 * tint[1]) / 255);
+        o[i + 2] = Math.round((b0 * tint[2]) / 255);
+        o[i + 3] = a0;
+      } else {
+        o[i] = r0;
+        o[i + 1] = g0;
+        o[i + 2] = b0;
+        o[i + 3] = a0;
+      }
     }
 
-    if (tint) {
-      o[i] = Math.round((r0 * tint[0]) / 255);
-      o[i + 1] = Math.round((g0 * tint[1]) / 255);
-      o[i + 2] = Math.round((b0 * tint[2]) / 255);
-      o[i + 3] = a0;
-    } else {
-      o[i] = r0;
-      o[i + 1] = g0;
-      o[i + 2] = b0;
-      o[i + 3] = a0;
-    }
+    targetCtx.putImageData(outData, 0, 0);
+  } catch (err) {
+    // Non-fatal safety guard: tainted or invalidated canvas context
+    console.warn('recolorPixels safely skipped frame:', err);
   }
-
-  targetCtx.putImageData(outData, 0, 0);
 }
 
-// Composites recolored layer onto target
+// Composites recolored layer onto target safely
 function drawRecoloredLayer(
   targetCtx: CanvasRenderingContext2D,
   baseImg: HTMLImageElement,
@@ -435,28 +471,36 @@ function drawRecoloredLayer(
   destX: number = 0,
   destY: number = 0
 ) {
-  const offCanvas = document.createElement('canvas');
-  offCanvas.width = width;
-  offCanvas.height = height;
-  const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+  if (!baseImg || !maskImg) return;
+  if (!baseImg.complete || baseImg.naturalWidth === 0) return;
+  if (!maskImg.complete || maskImg.naturalWidth === 0) return;
 
-  const maskCanvas = document.createElement('canvas');
-  maskCanvas.width = width;
-  maskCanvas.height = height;
-  const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+  try {
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = width;
+    offCanvas.height = height;
+    const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
 
-  const recoloredCanvas = document.createElement('canvas');
-  recoloredCanvas.width = width;
-  recoloredCanvas.height = height;
-  const recolorCtx = recoloredCanvas.getContext('2d');
+    const maskCanvas = document.createElement('canvas');
+    maskCanvas.width = width;
+    maskCanvas.height = height;
+    const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
 
-  if (!baseCtx || !maskCtx || !recolorCtx) return;
+    const recoloredCanvas = document.createElement('canvas');
+    recoloredCanvas.width = width;
+    recoloredCanvas.height = height;
+    const recolorCtx = recoloredCanvas.getContext('2d');
 
-  baseCtx.drawImage(baseImg, 0, 0);
-  maskCtx.drawImage(maskImg, 0, 0);
-  recolorPixels(baseCtx, maskCtx, recolorCtx, width, height, colors);
+    if (!baseCtx || !maskCtx || !recolorCtx) return;
 
-  targetCtx.drawImage(recoloredCanvas, destX, destY);
+    baseCtx.drawImage(baseImg, 0, 0);
+    maskCtx.drawImage(maskImg, 0, 0);
+    recolorPixels(baseCtx, maskCtx, recolorCtx, width, height, colors);
+
+    targetCtx.drawImage(recoloredCanvas, destX, destY);
+  } catch (err) {
+    console.warn('drawRecoloredLayer safely handled exception:', err);
+  }
 }
 
 export async function renderRecoloredOutfit(
@@ -546,8 +590,8 @@ export async function renderRecoloredOutfit(
   if (isCurrent && !isCurrent()) return;
 
   // 5. Blit offscreen buffer to visible targetCanvas in a single synchronous operation
-  targetCanvas.width = w;
-  targetCanvas.height = h;
+  if (targetCanvas.width !== w) targetCanvas.width = w;
+  if (targetCanvas.height !== h) targetCanvas.height = h;
   const targetCtx = targetCanvas.getContext('2d');
   if (targetCtx) {
     targetCtx.clearRect(0, 0, w, h);
