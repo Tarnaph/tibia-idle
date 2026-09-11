@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-11T22:43:00.000Z"
-last_activity: "2026-09-11 — Conclusão da Phase 136: Inspeção de Habilidades e Estatísticas no Avatar e Limpeza da Barra de Ações Superior."
+last_updated: "2026-09-11T22:53:00.000Z"
+last_activity: "2026-09-11 — Conclusão da Phase 137: Chat Fixo no Canto Inferior Esquerdo e Remoção do Ícone de Chat da Barra Superior."
 progress:
-  total_phases: 136
-  completed_phases: 136
-  total_plans: 136
-  completed_plans: 136
+  total_phases: 137
+  completed_phases: 137
+  total_plans: 137
+  completed_plans: 137
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 136 Concluída com Sucesso.
+**Current focus:** Phase 137 Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 136 of 136 (Concluída)  
+Phase: 137 of 137 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-11 — Conclusão da Phase 136.
+Last activity: 2026-09-11 — Conclusão da Phase 137.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 136
-- Total phases in roadmap: 136
-- Tests status: 137 test suites, 800 testes (100% aprovados)
+- Total phases completed: 137
+- Total phases in roadmap: 137
+- Tests status: 138 test suites, 804 testes (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 

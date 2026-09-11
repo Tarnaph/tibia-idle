@@ -31,7 +31,6 @@ describe('Phase 136: Inspeção de Skills no Avatar e Limpeza da Barra de Açõe
     expect(windowDockBarContent).toContain('title="Seu Squad / Party"');
     expect(windowDockBarContent).toContain('title="Lista de Amigos"');
     expect(windowDockBarContent).toContain('title="Métricas e Analisadores"');
-    expect(windowDockBarContent).toContain('title="Chat do Jogo (World / Local / PM)"');
     expect(windowDockBarContent).toContain('title="Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character)"');
     expect(windowDockBarContent).toContain('title="Menu de Opções & Câmera Zoom"');
     expect(windowDockBarContent).toContain('title="Sair do Jogo"');

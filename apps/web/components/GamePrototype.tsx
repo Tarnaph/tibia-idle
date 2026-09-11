@@ -322,6 +322,7 @@ function GamePrototypeContent() {
   ]);
   const [overheadMessages, setOverheadMessages] = useState<CityOverheadMessage[]>([]);
   const chatWindowRef = useRef<ChatWindowHandle>(null);
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
   const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -507,6 +508,7 @@ function GamePrototypeContent() {
   }, []);
 
   const handlePrivateMessage = useCallback((name: string) => {
+    setIsChatMinimized(false);
     openWindow('chat');
     bringToFront('chat');
     chatWindowRef.current?.openPrivateTab(name);
@@ -751,6 +753,7 @@ function GamePrototypeContent() {
 
       // If incoming whisper from another player, auto-open chat window so user never misses it
       if (isWhisper && netMsg.senderName !== activeCharacter.name && netMsg.senderName !== 'Servidor') {
+        setIsChatMinimized(false);
         openWindow('chat');
         bringToFront('chat');
         chatWindowRef.current?.openPrivateTab(netMsg.senderName);
@@ -932,6 +935,7 @@ function GamePrototypeContent() {
         if (activeTag === 'input' || activeTag === 'textarea') return;
 
         e.preventDefault();
+        setIsChatMinimized(false);
         openWindow('chat');
         bringToFront('chat');
         chatWindowRef.current?.focusInput('local');
@@ -2755,15 +2759,45 @@ function GamePrototypeContent() {
         </div>
       </DraggableWindow>
 
-      {/* Window 7: Tibia 11 Chat Window */}
-      <DraggableWindow id="chat" icon="💬">
-        <ChatWindow
-          ref={chatWindowRef}
-          messages={chatMessages}
-          onSendMessage={handleSendChatMessage}
-          characterName={activeCharacter.name}
-        />
-      </DraggableWindow>
+      {/* Window 7: Fixed Bottom-Left Tibia 11 Chat Dock */}
+      <div
+        className={`fixed-chat-dock ${isChatMinimized ? 'is-minimized' : ''}`}
+        data-testid="fixed-chat-dock"
+      >
+        <div
+          className="window-header"
+          onClick={() => setIsChatMinimized((prev) => !prev)}
+        >
+          <div className="window-title-group">
+            <span className="window-icon">💬</span>
+            <span className="window-title">Chat</span>
+          </div>
+          <div className="window-controls">
+            <button
+              type="button"
+              className="window-btn minimize-btn"
+              title={isChatMinimized ? 'Expandir Chat' : 'Minimizar Chat'}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsChatMinimized((prev) => !prev);
+              }}
+            >
+              {isChatMinimized ? '▲' : '▼'}
+            </button>
+          </div>
+        </div>
+
+        {!isChatMinimized && (
+          <div className="window-body fixed-chat-body">
+            <ChatWindow
+              ref={chatWindowRef}
+              messages={chatMessages}
+              onSendMessage={handleSendChatMessage}
+              characterName={activeCharacter.name}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Persistent Bottom Battle & Action Console HUD matching reference screenshot */}
       <BottomDock

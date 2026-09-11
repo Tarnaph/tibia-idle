@@ -2491,6 +2491,29 @@ Plans:
 - [x] 136-PLAN: Inspeção de Habilidades e Estatísticas no Avatar e Limpeza da Barra de Ações Superior.
 - Resumo de entrega: `.planning/phases/phase-136-avatar-skills-inspect-and-dock-cleanup/136-SUMMARY.md`
 
+---
+
+### Phase 137: Chat Fixo no Canto Inferior Esquerdo e Remoção do Ícone de Chat da Barra Superior
+**Status**: Complete  
+**Goal**: Retirar o ícone de chat da barra de navegação superior (WindowDockBar) para limpeza visual e fixar a janela de chat no canto inferior esquerdo (fixed-chat-dock) com suporte a minimizar/expandir e expansão automática ao digitar.  
+**Depends on**: Phase 136  
+**Requirements**:
+1. **Limpeza da Barra Superior de Ações (`WindowDockBar.tsx`):**
+   - Remoção do botão de Chat da grid de ações do topo superior direito.
+2. **Chat Fixo no Canto Inferior Esquerdo (`GamePrototype.tsx`):**
+   - Substituição de `<DraggableWindow id="chat">` pelo container dedicado e fixo `.fixed-chat-dock`.
+   - Estado `isChatMinimized` com botão de minimizar/expandir (`▲`/`▼`).
+   - Expansão automática ao teclar `Enter` ou receber/enviar mensagens privadas (whisper).
+3. **Estilos Responsivos & Dark Theme (`app/globals.css`):**
+   - Definição das classes `.fixed-chat-dock` e `.fixed-chat-body` com visual escuro clássico e alinhamento que não sobrepõe o console inferior.
+4. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase137-fixed-bottom-left-chat-and-dock-cleanup.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:**
+- [x] 137-PLAN: Chat Fixo no Canto Inferior Esquerdo e Remoção do Ícone de Chat da Barra Superior.
+- Resumo de entrega: `.planning/phases/phase-137-fixed-bottom-left-chat-and-dock-cleanup/137-SUMMARY.md`
+
 
 
 

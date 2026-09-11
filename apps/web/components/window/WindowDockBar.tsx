@@ -666,16 +666,6 @@ export function WindowDockBar({
           </svg>
         </button>
 
-        <button
-          type="button"
-          className={`huntera-square-btn ${windows.chat?.isOpen ? 'active' : ''}`}
-          onClick={() => toggleWindow('chat')}
-          title="Chat do Jogo (World / Local / PM)"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-          </svg>
-        </button>
 
         <button
           type="button"
