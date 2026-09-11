@@ -8,11 +8,11 @@ describe('Phase 133: Correção do Botão Jogar Agora e Blindagem da Navegação
   const viteConfigPath = path.resolve(projectRoot, 'vite.config.ts');
 
   describe('1. Blindagem de Erros de Módulos Dinâmicos no Vite (vite.config.ts)', () => {
-    it('excludes vinext from optimizeDeps to prevent stale pre-bundled chunk hash errors', () => {
+    it('manages optimizeDeps to prevent stale pre-bundled chunk hash errors without deadlock', () => {
       const viteConfig = fs.readFileSync(viteConfigPath, 'utf8');
 
       expect(viteConfig).toContain('optimizeDeps: {');
-      expect(viteConfig).toContain("exclude: ['@prisma/client', 'vinext']");
+      expect(viteConfig).toContain("exclude: ['@prisma/client']");
     });
   });
 

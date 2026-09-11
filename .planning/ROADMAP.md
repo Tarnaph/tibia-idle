@@ -93,6 +93,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 131: Resolução de Imagem na Tela de Loading e Eliminação Definitiva de Tela Preta pós-Loading no Game Viewport** - Preload de arte de loading, renderização sem tela preta e estabilidade gráfica no viewport.
 - [x] **Phase 132: Correção Definitiva do Background de Loading, BGM e Renderização de Thais** - Viewport com preloading de 138 sprites prioritários, fallback defaultFloorTexture para o chão, carregamento escalonado para evitar esgotamento de sockets, dupla garantia de background de loading e banner de autoplay de áudio.
 - [x] **Phase 133: Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side** - Exclusão do `vinext` no `optimizeDeps` do Vite para eliminar incompatibilidade de hash de chunks dinâmicos, tratamento seguro de promises rejeitadas em prefetch e push, listener global de unhandledrejection com redirecionamento para `/game`, e fallback automático com `window.location.assign('/game')`.
+- [x] **Phase 134: Resiliência de Carregamento de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC** - Resolução de timeout/deadlock no Vite RSC restaurando `optimizeDeps.exclude`, resiliência na renderização de montarias com timeout expandido para 10s e TTL de 15s para falhas transitórias em `outfitRecolor.ts`, botões dedicados de "🥋 Outfit" e "🐎 Montaria" na `WindowDockBar`, atalhos de teclado `U` (Outfit) e `Ctrl+R` (Montaria) no `GamePrototype`, e sincronização robusta de `activeCharacterId` e restauração de montaria no `OutfitModal`.
 
 ---
 
@@ -2403,6 +2404,34 @@ Plans:
 **Plans:**
 - [x] 133-01-PLAN: Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side.
 - Resumo de entrega: `.planning/phases/phase-133-jogar-agora-button-and-navigation-fix/133-SUMMARY.md`
+
+---
+
+### Phase 134: Resiliência de Carregamento de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC
+
+**Goal**: Eliminar o travamento/timeout nas rotas de servidor e APIs (`/api/characters/[id]/save`) provocado por conflito no `optimizeDeps.exclude`, resolver falhas e bloqueios permanentes no carregamento de montarias e outfits (`outfitRecolor.ts`), integrar botões dedicados de Outfit e Montaria na barra de tarefas superior (`WindowDockBar.tsx`), implementar atalhos universais de teclado `U` (Outfit) e `Ctrl+R` (Montaria) no `GamePrototype.tsx`, e aprimorar a sincronização e restauração de estado do personagem no `OutfitModal.tsx`.  
+**Depends on**: Phase 133  
+**Requirements**:
+1. **Restauração de Configuração do Vite (`vite.config.ts`):**
+   - Manter estritamente `optimizeDeps.exclude: ['@prisma/client']` e remover `'vinext'`, evitando loops e timeouts de 60s no runner RSC durante endpoints e compilações de servidor.
+2. **Resiliência e TTL no Cache de Sprites (`apps/web/lib/outfitRecolor.ts`):**
+   - Expandir timeout de carregamento de imagem de 3500ms para 10000ms.
+   - Substituir blacklist permanente em `failedImageUrls` por expiração automática com TTL de 15.000ms (`FAILED_IMAGE_TTL_MS`), permitindo nova tentativa caso haja latência de disco/rede.
+   - Disponibilizar `clearFailedImageCache()` para purgar falhas conhecidas ao abrir o customizador.
+3. **Botões de Dock e Atalhos de Teclado (`WindowDockBar.tsx` e `GamePrototype.tsx`):**
+   - Renderizar botões "🥋 Outfit" (`data-dock-id="outfit-btn"`) e "🐎 Montaria" (`data-dock-id="mount-btn"`) diretamente na grade de ações da dock superior.
+   - Suportar atalhos de teclado: tecla `U` para abrir/fechar o modal de Outfit e combinação `Ctrl+R` para alternar montaria ativa.
+4. **Sincronização no `OutfitModal.tsx`:**
+   - Sincronizar `selectedCharId` com `activeCharacterId` toda vez que o modal for aberto.
+   - Restaurar `mountActive` a partir de `char.mountActive` ou existência de montaria válida compatível com o outfit.
+   - Limpar cache de falhas transitórias (`clearFailedImageCache()`) ao abrir o modal.
+5. **Qualidade e Não-Regressão:**
+   - Suíte de testes dedicada em `tests/phase134-mount-and-outfit-reloading-fix.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% dos testes Vitest passando (`npm run test`).
+**Plans:**
+- [x] 134-01-PLAN: Resiliência de Carregamento de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC.
+- Resumo de entrega: `.planning/phases/phase-134-mount-and-outfit-reloading-fix/134-SUMMARY.md`
 
 
 

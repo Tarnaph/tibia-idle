@@ -9,6 +9,7 @@ import {
   getOutfitCapabilities,
   renderRecoloredOutfit,
   preloadOutfitAllFrames,
+  clearFailedImageCache,
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
 
@@ -154,23 +155,33 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     const isNewlyOpened = !prevOpenRef.current;
     prevOpenRef.current = true;
 
-    if (isNewlyOpened || lastSyncedCharRef.current !== selectedCharId) {
-      lastSyncedCharRef.current = selectedCharId;
-      const char = characters.find((c) => c.id === selectedCharId) || characters[0];
+    if (isNewlyOpened) {
+      clearFailedImageCache();
+      if (activeCharacterId && selectedCharId !== activeCharacterId) {
+        setSelectedCharId(activeCharacterId);
+      }
+    }
+
+    const targetCharId = isNewlyOpened && activeCharacterId ? activeCharacterId : selectedCharId;
+
+    if (isNewlyOpened || lastSyncedCharRef.current !== targetCharId) {
+      lastSyncedCharRef.current = targetCharId;
+      const char = characters.find((c) => c.id === targetCharId) || characters[0];
       if (char) {
         const outfit = char.outfit || char.baseVocation || 'Knight';
         setSelectedOutfit(outfit);
-        setSelectedMount(char.mount || 'donkey');
+        const userMount = char.mount && char.mount !== 'none' ? char.mount : 'donkey';
+        setSelectedMount(userMount);
         const caps = getOutfitCapabilities(outfit);
-        // Character opens ON FOOT by default unless saved mountActive is explicitly true and supported
-        setMountActive(caps.hasMountRider && char.mountActive !== undefined ? Boolean(char.mountActive) : false);
+        const isMntActive = caps.hasMountRider && (char.mountActive ?? (char.mount && char.mount !== 'none'));
+        setMountActive(Boolean(isMntActive));
         const addons = char.addons || 0;
         setAddon1(caps.hasAddon1 && (addons & 1) !== 0);
         setAddon2(caps.hasAddon2 && (addons & 2) !== 0);
         if (char.outfitColors) setColors(char.outfitColors);
       }
     }
-  }, [selectedCharId, open]);
+  }, [selectedCharId, activeCharacterId, open, characters]);
 
   const isMounted = mountActive && selectedMount !== 'none' && currentCaps.hasMountRider;
   const currentDir = DIRECTIONS[directionIdx];

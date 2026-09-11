@@ -2428,6 +2428,19 @@ function GamePrototypeContent() {
         }
       }
 
+      // Hotkey U: Abrir Customização de Outfit / Aparência
+      if ((e.key === 'u' || e.key === 'U') && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        handleOpenOutfitModal(activeCharacter.id);
+        return;
+      }
+
+      // Hotkey Ctrl+R: Montar / Desmontar
+      if ((e.key === 'r' || e.key === 'R') && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        handleToggleMount(activeCharacter.id);
+        return;
+      }
+
       if (e.key.startsWith('F') && e.key.length <= 3) {
         const fNum = parseInt(e.key.slice(1), 10);
         if (fNum >= 1 && fNum <= 12) {
@@ -2648,6 +2661,8 @@ function GamePrototypeContent() {
           onOpenShop={() => setShopOpen((prev) => !prev)}
           onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
           onOpenCyclopedia={() => setCyclopediaModalOpen((prev) => !prev)}
+          isMounted={Boolean(activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none')}
+          onToggleMount={() => handleToggleMount(activeCharacter.id)}
           onExitGame={() => setIsLogoutModalOpen(true)}
         />
       )}

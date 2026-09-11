@@ -39,6 +39,8 @@ interface WindowDockBarProps {
   onOpenShop?: () => void;
   onOpenOutfit?: () => void;
   onOpenCyclopedia?: () => void;
+  isMounted?: boolean;
+  onToggleMount?: () => void;
   onExitGame?: () => void;
 }
 
@@ -63,6 +65,8 @@ export function WindowDockBar({
   onOpenShop,
   onOpenOutfit,
   onOpenCyclopedia,
+  isMounted = false,
+  onToggleMount,
   onExitGame,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
@@ -298,6 +302,36 @@ export function WindowDockBar({
         >
           📖
         </button>
+
+        {onOpenOutfit && (
+          <button
+            type="button"
+            data-dock-id="outfit-btn"
+            className="huntera-square-btn outfit-btn"
+            onClick={onOpenOutfit}
+            title="Customizar Aparência (Outfit) [Atalho: U]"
+            style={{ borderColor: '#9b59b6', backgroundColor: 'rgba(155, 89, 182, 0.22)', fontSize: '15px' }}
+          >
+            🥋
+          </button>
+        )}
+
+        {onToggleMount && (
+          <button
+            type="button"
+            data-dock-id="mount-btn"
+            className={`huntera-square-btn mount-btn ${isMounted ? 'active' : ''}`}
+            onClick={onToggleMount}
+            title={isMounted ? 'Desmontar da Montaria [Atalho: Ctrl+R]' : 'Montar na Montaria [Atalho: Ctrl+R]'}
+            style={{
+              borderColor: isMounted ? '#2ecc71' : '#27ae60',
+              backgroundColor: isMounted ? 'rgba(46, 204, 113, 0.35)' : 'rgba(39, 174, 96, 0.18)',
+              fontSize: '15px',
+            }}
+          >
+            🐎
+          </button>
+        )}
 
         {isAdmin && (
           <a

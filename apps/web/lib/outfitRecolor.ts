@@ -250,38 +250,70 @@ export function getOutfitLayerUrls(
 const imageElementCache = new Map<string, HTMLImageElement>();
 const inFlightImagePromises = new Map<string, Promise<HTMLImageElement>>();
 export const failedImageUrls = new Set<string>();
+const failedImageUrlsWithTimestamp = new Map<string, number>();
 const failedImageAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_FAILED_IMAGE_ATTEMPTS = 3;
 const FAILED_IMAGE_RETRY_DELAY_MS = 2000;
+const FAILED_IMAGE_TTL_MS = 15000;
 
 export function isImagePermanentlyFailed(url: string): boolean {
-  if (failedImageUrls.has(url)) return true;
+  const failedAt = failedImageUrlsWithTimestamp.get(url);
+  if (failedAt !== undefined) {
+    if (Date.now() - failedAt < FAILED_IMAGE_TTL_MS) {
+      return true;
+    }
+    // TTL expired: allow retry
+    failedImageUrlsWithTimestamp.delete(url);
+    failedImageUrls.delete(url);
+    failedImageAttempts.delete(url);
+    return false;
+  }
   const entry = failedImageAttempts.get(url);
-  return !!entry && entry.count >= MAX_FAILED_IMAGE_ATTEMPTS;
+  if (entry && entry.count >= MAX_FAILED_IMAGE_ATTEMPTS) {
+    if (Date.now() - entry.lastAttempt < FAILED_IMAGE_TTL_MS) {
+      return true;
+    }
+    // TTL expired: allow retry
+    failedImageUrlsWithTimestamp.delete(url);
+    failedImageUrls.delete(url);
+    failedImageAttempts.delete(url);
+    return false;
+  }
+  return failedImageUrls.has(url);
 }
 
 export function canRetryImage(url: string): boolean {
-  if (failedImageUrls.has(url)) return false;
+  if (isImagePermanentlyFailed(url)) return false;
   const entry = failedImageAttempts.get(url);
   if (!entry) return true;
-  if (entry.count >= MAX_FAILED_IMAGE_ATTEMPTS) return false;
   return Date.now() - entry.lastAttempt >= FAILED_IMAGE_RETRY_DELAY_MS;
 }
 
 export function registerCachedImage(url: string, img: HTMLImageElement): void {
   imageElementCache.set(url, img);
   failedImageUrls.delete(url);
+  failedImageUrlsWithTimestamp.delete(url);
   failedImageAttempts.delete(url);
 }
 
 export function registerFailedImage(url: string): void {
+  const now = Date.now();
   failedImageUrls.add(url);
+  failedImageUrlsWithTimestamp.set(url, now);
+  failedImageAttempts.set(url, { count: MAX_FAILED_IMAGE_ATTEMPTS, lastAttempt: now });
+}
+
+export function clearFailedImageCache(): void {
+  failedImageUrls.clear();
+  failedImageUrlsWithTimestamp.clear();
+  failedImageAttempts.clear();
 }
 
 export function clearImageElementCache(): void {
   imageElementCache.clear();
   inFlightImagePromises.clear();
   failedImageUrls.clear();
+  failedImageUrlsWithTimestamp.clear();
   failedImageAttempts.clear();
 }
 
@@ -301,7 +333,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
     return inFlight;
   }
 
-  if (failedImageUrls.has(url)) {
+  if (isImagePermanentlyFailed(url)) {
     return Promise.reject(new Error(`Image marked permanently failed at ${url}`));
   }
 
@@ -316,7 +348,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
         settled = true;
         handleError();
       }
-    }, 3500);
+    }, 6000);
 
     const handleSuccess = () => {
       if (settled) return;
@@ -324,6 +356,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
       clearTimeout(timeout);
       inFlightImagePromises.delete(url);
       failedImageUrls.delete(url);
+      failedImageUrlsWithTimestamp.delete(url);
       failedImageAttempts.delete(url);
       imageElementCache.set(url, img);
       resolve(img);
@@ -344,6 +377,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
 
       if (entry.count >= MAX_FAILED_IMAGE_ATTEMPTS) {
         failedImageUrls.add(url);
+        failedImageUrlsWithTimestamp.set(url, now);
       }
 
       // Fallback for missing directional mount frames to south base mount
