@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { serverConfigManager, defaultConfig, type ServerConfig } from '../packages/server/src/config/ServerConfigManager';
+import '../packages/server/src/config/ServerConfigDatabase';
 import { prisma } from '../packages/database/src';
 
 describe('Phase 127: Permanent Persistence for Admin Server Variables and Rates', () => {

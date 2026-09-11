@@ -29,6 +29,7 @@ const gameContent: GameContent = {
 };
 import { persistenceManager } from '../persistence/PrismaPersistenceManager';
 import { serverConfigManager } from '../config/ServerConfigManager';
+import '../config/ServerConfigDatabase';
 import {
   isInViewport,
   isWithinDistance,

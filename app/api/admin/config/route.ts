@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { serverConfigManager, type ServerConfig } from '@/packages/server/src/config/ServerConfigManager';
+import '@/packages/server/src/config/ServerConfigDatabase';
 import { systemLogger } from '@/packages/server/src/logging/SystemLogger';
 import { requireAdminAuth } from '@/packages/auth/src';
 
 export async function GET(request: Request) {
   try {
     requireAdminAuth(request);
-    await serverConfigManager.loadFromDatabase();
-    const config = serverConfigManager.getConfig();
+    const config = await serverConfigManager.loadFromDatabase();
     return NextResponse.json({ success: true, config });
   } catch (error: any) {
     const status = error.message === 'UNAUTHORIZED' ? 401 : error.message === 'FORBIDDEN' ? 403 : 500;

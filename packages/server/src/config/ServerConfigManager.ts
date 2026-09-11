@@ -28,8 +28,6 @@ export const defaultConfig: ServerConfig = {
   deathPenaltyLoseLoot: true,
 };
 
-import { prisma as defaultPrisma } from '../../../database/src';
-
 let fsModule: any = null;
 let pathModule: any = null;
 
@@ -47,13 +45,6 @@ function getNodeModules() {
   return { fs: fsModule, path: pathModule };
 }
 
-function getDatabaseClient() {
-  if (typeof window === 'undefined') {
-    return defaultPrisma;
-  }
-  return null;
-}
-
 function getConfigFilePath(): string | null {
   const { fs, path } = getNodeModules();
   if (!fs || !path) return null;
@@ -67,7 +58,6 @@ function getConfigFilePath(): string | null {
     for (const c of candidates) {
       if (fs.existsSync(c)) return c;
     }
-    // Default path to create
     return candidates[0];
   } catch {
     return null;
@@ -78,16 +68,48 @@ class ServerConfigManagerClass {
   private config: ServerConfig = { ...defaultConfig };
   private listeners: Array<(config: ServerConfig) => void> = [];
   private lastFileMtime: number = 0;
-  private isInitialized: boolean = false;
+  private lastStatCheckTime: number = 0;
+  private onSaveHook?: (config: ServerConfig) => Promise<void>;
+  private onLoadHook?: (customPrisma?: any) => Promise<Partial<ServerConfig> | null>;
 
   constructor() {
     this.loadFromFile();
-    if (typeof window === 'undefined') {
-      // Defer DB check to prevent blocking synchronous module import
-      setTimeout(() => {
-        void this.loadFromDatabase();
-      }, 0);
+  }
+
+  /**
+   * Sets a persistent save hook (e.g. database saver on the server side)
+   */
+  public setSaveHook(hook: (config: ServerConfig) => Promise<void>): void {
+    this.onSaveHook = hook;
+  }
+
+  /**
+   * Sets a persistent load hook (e.g. database loader on the server side)
+   */
+  public setLoadHook(hook: (customPrisma?: any) => Promise<Partial<ServerConfig> | null>): void {
+    this.onLoadHook = hook;
+  }
+
+  /**
+   * Asynchronously loads configuration from persistent storage (database) via hook,
+   * falls back to local file or current memory.
+   */
+  public async loadFromDatabase(customPrisma?: any): Promise<ServerConfig> {
+    if (this.onLoadHook) {
+      try {
+        const record = await this.onLoadHook(customPrisma);
+        if (record) {
+          this.applyPartialToMemory(record);
+          this.saveToFile();
+          this.notifyListeners();
+          return this.getConfig();
+        }
+      } catch (err) {
+        console.warn('[ServerConfigManager] Falha ao executar onLoadHook:', err);
+      }
     }
+    this.loadFromFile();
+    return this.getConfig();
   }
 
   /**
@@ -136,84 +158,6 @@ class ServerConfigManagerClass {
     }
   }
 
-  /**
-   * Asynchronously loads config from Prisma database (ServerConfigRecord)
-   */
-  public async loadFromDatabase(customPrisma?: any): Promise<ServerConfig> {
-    const db = customPrisma || getDatabaseClient();
-    if (!db || typeof db.serverConfigRecord?.findUnique !== 'function') {
-      return this.getConfig();
-    }
-
-    try {
-      const record = await db.serverConfigRecord.findUnique({
-        where: { id: 'default' },
-      });
-
-      if (record) {
-        this.applyPartialToMemory(record);
-        this.saveToFile();
-        this.notifyListeners();
-      } else {
-        // Seed initial record into database
-        await this.saveToDatabase(db);
-      }
-    } catch (err) {
-      // Prisma may be uninitialized or mock in test environment
-    }
-
-    return this.getConfig();
-  }
-
-  /**
-   * Asynchronously saves current config to Prisma database (ServerConfigRecord)
-   */
-  public async saveToDatabase(customPrisma?: any): Promise<ServerConfig> {
-    const db = customPrisma || getDatabaseClient();
-    if (!db || typeof db.serverConfigRecord?.upsert !== 'function') {
-      return this.getConfig();
-    }
-
-    try {
-      await db.serverConfigRecord.upsert({
-        where: { id: 'default' },
-        create: {
-          id: 'default',
-          expRate: this.config.expRate,
-          lootRate: this.config.lootRate,
-          skillRate: this.config.skillRate,
-          regenRate: this.config.regenRate,
-          maxClientsPerRoom: this.config.maxClientsPerRoom,
-          periodicSaveIntervalMs: this.config.periodicSaveIntervalMs,
-          allowReconnectionSec: this.config.allowReconnectionSec,
-          localChatRadius: this.config.localChatRadius,
-          yellChatRadius: this.config.yellChatRadius,
-          deathPenaltyExpPercent: this.config.deathPenaltyExpPercent,
-          deathPenaltySkillPercent: this.config.deathPenaltySkillPercent,
-          deathPenaltyLoseLoot: this.config.deathPenaltyLoseLoot,
-        },
-        update: {
-          expRate: this.config.expRate,
-          lootRate: this.config.lootRate,
-          skillRate: this.config.skillRate,
-          regenRate: this.config.regenRate,
-          maxClientsPerRoom: this.config.maxClientsPerRoom,
-          periodicSaveIntervalMs: this.config.periodicSaveIntervalMs,
-          allowReconnectionSec: this.config.allowReconnectionSec,
-          localChatRadius: this.config.localChatRadius,
-          yellChatRadius: this.config.yellChatRadius,
-          deathPenaltyExpPercent: this.config.deathPenaltyExpPercent,
-          deathPenaltySkillPercent: this.config.deathPenaltySkillPercent,
-          deathPenaltyLoseLoot: this.config.deathPenaltyLoseLoot,
-        },
-      });
-    } catch (err) {
-      console.warn('[ServerConfigManager] Falha ao persistir no banco Prisma:', err);
-    }
-
-    return this.getConfig();
-  }
-
   private applyPartialToMemory(partial: Partial<ServerConfig>): void {
     this.config = {
       ...this.config,
@@ -236,7 +180,6 @@ class ServerConfigManagerClass {
    * Retrieves active server configuration, checking for cross-process file updates
    */
   public getConfig(): ServerConfig {
-    // Check if another process (e.g. Next.js admin API) updated the file on disk
     if (typeof window === 'undefined' && !process.env.VITEST) {
       const now = Date.now();
       if (now - this.lastStatCheckTime > 2000) {
@@ -253,9 +196,7 @@ class ServerConfigManagerClass {
               this.applyPartialToMemory(parsed);
               this.notifyListeners();
             }
-          } catch {
-            // Ignore read collisions
-          }
+          } catch {}
         }
       }
     }
@@ -263,12 +204,14 @@ class ServerConfigManagerClass {
   }
 
   /**
-   * Updates server configuration, persisting immediately to file and database
+   * Updates server configuration in memory and persists to file
    */
   public updateConfig(partial: Partial<ServerConfig>): ServerConfig {
     this.applyPartialToMemory(partial);
     this.saveToFile();
-    void this.saveToDatabase();
+    if (this.onSaveHook) {
+      void this.onSaveHook(this.getConfig());
+    }
     this.notifyListeners();
     return this.getConfig();
   }
@@ -276,10 +219,12 @@ class ServerConfigManagerClass {
   /**
    * Asynchronously updates server configuration with full completion guarantee
    */
-  public async saveConfig(partial: Partial<ServerConfig>, customPrisma?: any): Promise<ServerConfig> {
+  public async saveConfig(partial: Partial<ServerConfig>): Promise<ServerConfig> {
     this.applyPartialToMemory(partial);
     this.saveToFile();
-    await this.saveToDatabase(customPrisma);
+    if (this.onSaveHook) {
+      await this.onSaveHook(this.getConfig());
+    }
     this.notifyListeners();
     return this.getConfig();
   }
@@ -287,7 +232,9 @@ class ServerConfigManagerClass {
   public resetToDefaults(): ServerConfig {
     this.config = { ...defaultConfig };
     this.saveToFile();
-    void this.saveToDatabase();
+    if (this.onSaveHook) {
+      void this.onSaveHook(this.getConfig());
+    }
     this.notifyListeners();
     return this.getConfig();
   }
@@ -295,7 +242,9 @@ class ServerConfigManagerClass {
   public async resetToDefaultsAsync(): Promise<ServerConfig> {
     this.config = { ...defaultConfig };
     this.saveToFile();
-    await this.saveToDatabase();
+    if (this.onSaveHook) {
+      await this.onSaveHook(this.getConfig());
+    }
     this.notifyListeners();
     return this.getConfig();
   }
