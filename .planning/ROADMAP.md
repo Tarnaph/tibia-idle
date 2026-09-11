@@ -94,6 +94,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 132: Correção Definitiva do Background de Loading, BGM e Renderização de Thais** - Viewport com preloading de 138 sprites prioritários, fallback defaultFloorTexture para o chão, carregamento escalonado para evitar esgotamento de sockets, dupla garantia de background de loading e banner de autoplay de áudio.
 - [x] **Phase 133: Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side** - Exclusão do `vinext` no `optimizeDeps` do Vite para eliminar incompatibilidade de hash de chunks dinâmicos, tratamento seguro de promises rejeitadas em prefetch e push, listener global de unhandledrejection com redirecionamento para `/game`, e fallback automático com `window.location.assign('/game')`.
 - [x] **Phase 134: Resiliência de Carregamento de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC** - Resolução de timeout/deadlock no Vite RSC restaurando `optimizeDeps.exclude`, resiliência na renderização de montarias com timeout expandido para 10s e TTL de 15s para falhas transitórias em `outfitRecolor.ts`, botões dedicados de "🥋 Outfit" e "🐎 Montaria" na `WindowDockBar`, atalhos de teclado `U` (Outfit) e `Ctrl+R` (Montaria) no `GamePrototype`, e sincronização robusta de `activeCharacterId` e restauração de montaria no `OutfitModal`.
+- [x] **Phase 135: Correção Definitiva de Persistência de Outfit e Montaria, Sincronização do Personagem Ativo em Thais e Resolução de Estado** - Padronização do salvamento direto no banco via tokens 'colyseus_token'/'tibia_auth_token', passagem e resolução de 'activeCharacterId' em ThaisCityArena eliminando hardcode de 'curChars[0]', restauração confiável de montaria equipada no OutfitModal, handleToggleMount determinístico com salvamento no Prisma e 100% dos testes aprovados.
 
 ---
 
@@ -2432,6 +2433,32 @@ Plans:
 **Plans:**
 - [x] 134-01-PLAN: Resiliência de Carregamento de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC.
 - Resumo de entrega: `.planning/phases/phase-134-mount-and-outfit-reloading-fix/134-SUMMARY.md`
+
+### Phase 135: Correção Definitiva de Persistência de Outfit e Montaria, Sincronização do Personagem Ativo em Thais e Resolução de Estado
+
+**Goal**: Corrigir definitivamente os problemas em que roupas e montarias não salvavam ou revertiam após troca ou recarregamento, sincronizar o personagem ativo no ThaisCityArena através de `activeCharacterId`, padronizar os tokens de autenticação para salvamento direto no banco de dados, e assegurar que a montaria ative e persista de forma estável.  
+**Depends on**: Phase 134  
+**Requirements**:
+1. **Padronização de Tokens para Persistência Direta (`GamePrototype.tsx`):**
+   - Substituir a chave inexistente `'auth_token'` em `handleSaveOutfit` e `handleToggleMount` por `(localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token'))`.
+   - Garantir que toda alteração de outfit, cores, addons ou montaria envie imediatamente POST para `/api/characters/${id}/save` com autorização JWT válida.
+2. **Sincronização do Personagem Ativo (`ThaisCityArena.tsx`):**
+   - Declarar `activeCharacterId?: string | null;` nas Props e no `latestRef`.
+   - Substituir todos os hardcodes de `curChars[0]` por resolução dinâmica priorizando `activeCharacterId`, garantindo suporte correto a contas com múltiplos personagens e parties multiplayer com líderes remotos.
+   - Fornecer fallback gracioso de texturas durante o carregamento de camadas adicionais.
+3. **Restabelecimento e Salvamento Confiável de Montaria (`OutfitModal.tsx`):**
+   - Corrigir a lógica de nullish coalescing para reconhecer adequadamente a posse de montaria e restaurar o estado ativo sem desativar a montaria.
+   - Enviar `effectiveCharId` no salvamento para garantir vínculo direto com o personagem selecionado.
+4. **Acionamento Determinístico de Montaria (`handleToggleMount`):**
+   - Validar se o personagem possui montaria selecionada e fornecer feedback imediato na interface.
+   - Disparar pré-carregamento dos sprites, emissão de rede para a sala Colyseus e persistência imediata com token válido.
+5. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase135-outfit-mount-persistence-and-city-sync.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:**
+- [x] 135-PLAN: Correção Definitiva de Persistência de Outfit e Montaria, Sincronização do Personagem Ativo em Thais e Resolução de Estado.
+- Resumo de entrega: `.planning/phases/phase-135-outfit-mount-persistence-and-city-sync/135-SUMMARY.md`
 
 
 

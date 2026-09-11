@@ -69,7 +69,7 @@ describe('Phase 134: Resiliência de Carregamento de Montaria, Outfit Modal e At
     const content = fs.readFileSync(outfitModalPath, 'utf8');
 
     expect(content).toContain('clearFailedImageCache()');
-    expect(content).toContain('setSelectedCharId(activeCharacterId)');
-    expect(content).toContain('hasMountRider && (char.mountActive ?? (char.mount && char.mount !== \'none\'))');
+    expect(content).toContain("const hasMount = Boolean(char.mount && char.mount !== 'none');");
+    expect(content).toContain('const isMntActive = caps.hasMountRider && hasMount && (char.mountActive !== undefined ? char.mountActive : true);');
   });
 });

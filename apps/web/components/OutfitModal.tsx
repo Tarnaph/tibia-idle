@@ -173,7 +173,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         const userMount = char.mount && char.mount !== 'none' ? char.mount : 'donkey';
         setSelectedMount(userMount);
         const caps = getOutfitCapabilities(outfit);
-        const isMntActive = caps.hasMountRider && (char.mountActive ?? (char.mount && char.mount !== 'none'));
+        const hasMount = Boolean(char.mount && char.mount !== 'none');
+        const isMntActive = caps.hasMountRider && hasMount && (char.mountActive !== undefined ? char.mountActive : true);
         setMountActive(Boolean(isMntActive));
         const addons = char.addons || 0;
         setAddon1(caps.hasAddon1 && (addons & 1) !== 0);
@@ -271,11 +272,12 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   };
 
   const handleSave = () => {
+    const effectiveCharId = selectedCharId || activeCharacterId || characters[0]?.id;
     let addonsVal = 0;
     if (addon1 && currentCaps.hasAddon1) addonsVal |= 1;
     if (addon2 && currentCaps.hasAddon2) addonsVal |= 2;
     const isMnt = mountActive && selectedMount !== 'none' && currentCaps.hasMountRider;
-    onSave(selectedCharId, {
+    onSave(effectiveCharId, {
       outfit: selectedOutfit,
       mount: selectedMount,
       mountActive: isMnt,

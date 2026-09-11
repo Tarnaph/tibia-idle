@@ -32,6 +32,7 @@ export { AMBIENT_THAIS_PLAYERS };
 
 interface Props {
   characters: CharacterState[];
+  activeCharacterId?: string | null;
   cityPos: { x: number; y: number; z: number };
   isWalking: boolean;
   isTraining: boolean;
@@ -75,6 +76,7 @@ const VOCATION_NAMES: Record<number, string> = {
 
 export function ThaisCityArena({
   characters,
+  activeCharacterId,
   cityPos,
   isWalking,
   isTraining,
@@ -107,6 +109,7 @@ export function ThaisCityArena({
 
   const latestRef = useRef({
     characters,
+    activeCharacterId,
     cityPos,
     isWalking,
     isTraining,
@@ -123,6 +126,7 @@ export function ThaisCityArena({
   });
   latestRef.current = {
     characters,
+    activeCharacterId,
     cityPos,
     isWalking,
     isTraining,
@@ -812,7 +816,9 @@ export function ThaisCityArena({
           });
         }
         if (!matchedCharId) {
-          matchedCharId = curChars[0]?.id;
+          const activeId = latestRef.current.activeCharacterId;
+          const localChar = (activeId ? curChars.find((c) => c.id === activeId) : null) || curChars[0];
+          matchedCharId = localChar?.id;
         }
         if (matchedCharId) {
           latestRef.current.onCharacterContextMenu?.(matchedCharId, e.clientX, e.clientY);
@@ -953,7 +959,8 @@ export function ThaisCityArena({
         return view;
       }
 
-      if (characters[0]) ensureActorView(characters[0]);
+      const initialLocalChar = (activeCharacterId ? characters.find((c) => c.id === activeCharacterId) : null) || characters[0];
+      if (initialLocalChar) ensureActorView(initialLocalChar);
       AMBIENT_THAIS_PLAYERS.forEach(ensureActorView);
 
       // Ticker to smoothly follow player with VisualMotionTrack (matching hunt fluidity), animate characters & animate map elements
@@ -1047,14 +1054,17 @@ export function ThaisCityArena({
         world.position.set(Math.round(smoothCamX), Math.round(smoothCamY));
 
         // Clean up removed actor views (local player, ambient, and remote players)
+        const activeCharId = latestRef.current.activeCharacterId;
+        const localChar = (activeCharId ? curChars.find((c) => c.id === activeCharId) : null) || curChars[0];
+
         const validActorIds = new Set<string>();
-        if (curChars[0]) {
-          validActorIds.add(curChars[0].id);
+        if (localChar) {
+          validActorIds.add(localChar.id);
         }
         AMBIENT_THAIS_PLAYERS.forEach((p) => validActorIds.add(p.id));
 
-        const myCharIdVal = curChars[0]?.id;
-        const myCharNameVal = curChars[0]?.name?.toLowerCase();
+        const myCharIdVal = localChar?.id;
+        const myCharNameVal = localChar?.name?.toLowerCase();
         const remotes = latestRef.current.remotePlayers;
         const myPlayerId = latestRef.current.localPlayerId;
         const seenRemoteKeys = new Set<string>();
@@ -1092,7 +1102,6 @@ export function ThaisCityArena({
         // 4. Update local player character: authentic Tibia 10.98 walk cycle (f0 = idle, f1..f8 = 8 fluid steps)
         const walkCycle8 = [1, 2, 3, 4, 5, 6, 7, 8];
         const stepRateMs = Math.max(25, Math.floor(curStepDuration / 8));
-        const localChar = curChars[0];
 
         if (localChar) {
           const view = ensureActorView(localChar);
@@ -1166,12 +1175,31 @@ export function ThaisCityArena({
                   view.lastTextureKey = textureKey;
                 }
                 view.lastUrl = 'canvas';
-              } else if (!localChar.outfitColors && !isMounted) {
-                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
-                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
-                  view.sprite.texture = loaded[nextUrl];
-                  view.lastUrl = nextUrl;
-                  view.lastTextureKey = nextUrl;
+              } else {
+                // If canvas is not yet ready (layers still downloading), smoothly fall back to unmounted idle frame
+                const fallbackCanvas = getRecoloredCanvasSync(
+                  outfitKey,
+                  charGender,
+                  'south',
+                  0,
+                  colors,
+                  0,
+                  undefined,
+                  false
+                );
+                if (fallbackCanvas && view.lastCanvas !== fallbackCanvas) {
+                  view.lastCanvas = fallbackCanvas;
+                  const tex = Texture.from(fallbackCanvas);
+                  tex.source.style.scaleMode = 'nearest';
+                  view.sprite.texture = tex;
+                  view.lastUrl = 'canvas-provisional';
+                } else if (!localChar.outfitColors && !isMounted) {
+                  const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
+                  if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                    view.sprite.texture = loaded[nextUrl];
+                    view.lastUrl = nextUrl;
+                    view.lastTextureKey = nextUrl;
+                  }
                 }
               }
             }
@@ -1634,7 +1662,7 @@ export function ThaisCityArena({
             processedSpeechIds.add(sp.id);
 
             let targetView: CityActorView | null = null;
-            const myLeader = curChars[0];
+            const myLeader = localChar || curChars[0];
             const isMe =
               myLeader &&
               (sp.senderName === myLeader.name ||

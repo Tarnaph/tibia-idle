@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-11T20:30:00.000Z"
-last_activity: "2026-09-11 — Conclusão da Phase 134: Resiliência de Carregamento de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC."
+last_updated: "2026-09-11T21:26:00.000Z"
+last_activity: "2026-09-11 — Conclusão da Phase 135: Correção Definitiva de Persistência de Outfit e Montaria, Sincronização do Personagem Ativo em Thais e Resolução de Estado."
 progress:
-  total_phases: 134
-  completed_phases: 134
-  total_plans: 134
-  completed_plans: 134
+  total_phases: 135
+  completed_phases: 135
+  total_plans: 135
+  completed_plans: 135
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 134 Concluída com Sucesso.
+**Current focus:** Phase 135 Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 134 of 134 (Concluída)  
+Phase: 135 of 135 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-11 — Conclusão da Phase 134.
+Last activity: 2026-09-11 — Conclusão da Phase 135.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 134
-- Total phases in roadmap: 134
-- Tests status: 135 test suites (100% aprovados)
+- Total phases completed: 135
+- Total phases in roadmap: 135
+- Tests status: 136 test suites, 794 testes (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -58,6 +58,7 @@ Progress: [██████████] 100%
 | 132. Correção Definitiva do Background de Loading, BGM e Renderização de Thais | 1 | - | - | Complete |
 | 133. Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side | 1 | - | - | Complete |
 | 134. Resiliência de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC | 1 | - | - | Complete |
+| 135. Correção Definitiva de Persistência de Outfit e Montaria, Sincronização em Thais e Resolução de Estado | 1 | - | - | Complete |
 
 
 

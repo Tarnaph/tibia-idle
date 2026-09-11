@@ -1539,7 +1539,7 @@ function GamePrototypeContent() {
     gameNetwork.sendChangeOutfit(customization);
 
     // Persist permanently to database via save endpoint
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
     if (token && characterId) {
       fetch(`/api/characters/${characterId}/save`, {
         method: 'POST',
@@ -1562,55 +1562,61 @@ function GamePrototypeContent() {
   }, []);
 
   const handleToggleMount = useCallback((characterId: string) => {
-    let nextMountActive = false;
-    let targetChar: CharacterState | undefined;
     setGame((cur) => {
-      const target = cur.session.characters.find((c) => c.id === characterId);
-      if (target) {
-        nextMountActive = !target.mountActive;
-        targetChar = target;
+      const target = cur.session.characters.find((c) => c.id === characterId) || cur.session.characters[0];
+      if (!target) return cur;
+
+      if (!target.mount || target.mount === 'none') {
+        setSaleMessage('Você não tem uma montaria selecionada. Abra o menu de Outfit (Ctrl+U) para escolher sua montaria.');
+        return cur;
       }
+
+      const nextMountActive = !target.mountActive;
+      const targetOutfitKey = target.outfit || target.vocation || 'Knight';
+      const targetGender = target.gender || 'male';
+      const targetColors = target.outfitColors;
+      const targetAddons = (target as any).addons || (target as any).outfitAddons || 0;
+      const targetMount = target.mount;
+
+      preloadOutfitAllFrames(
+        targetOutfitKey,
+        targetGender,
+        targetColors,
+        targetAddons,
+        targetMount,
+        nextMountActive
+      ).catch(() => {});
+
+      gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
+
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
+      if (token && target.id) {
+        fetch(`/api/characters/${target.id}/save`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            mountActive: nextMountActive,
+          }),
+        }).catch((err) => {
+          console.warn('Falha ao salvar estado de montaria:', err);
+        });
+      }
+
+      setSaleMessage(nextMountActive ? '🐎 Você montou na sua montaria!' : '🚶 Você desmontou da montaria.');
+
       return {
         ...cur,
         session: {
           ...cur.session,
           characters: cur.session.characters.map((char) =>
-            char.id === characterId
-              ? { ...char, mountActive: !char.mountActive }
-              : char
+            char.id === target.id ? { ...char, mountActive: nextMountActive } : char
           ),
         },
       };
     });
-
-    if (targetChar) {
-      preloadOutfitAllFrames(
-        targetChar.outfit || targetChar.vocation || 'Knight',
-        targetChar.gender || 'male',
-        targetChar.outfitColors,
-        (targetChar as any).addons || (targetChar as any).outfitAddons || 0,
-        targetChar.mount,
-        nextMountActive
-      ).catch(() => {});
-    }
-
-    gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
-
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-    if (token && characterId) {
-      fetch(`/api/characters/${characterId}/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          mountActive: nextMountActive,
-        }),
-      }).catch((err) => {
-        console.warn('Falha ao salvar estado de montaria:', err);
-      });
-    }
   }, []);
 
   const handleTileClick = useCallback((target: { x: number; y: number; z: number }) => {
@@ -2122,7 +2128,7 @@ function GamePrototypeContent() {
       setGame(nextState);
 
       // Persist newly created character to PostgreSQL Database under account
-      const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') : null;
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
       if (token) {
         const vocIdMap: Record<string, number> = { Sorcerer: 1, Druid: 2, Paladin: 3, Knight: 4, Monk: 4 };
         fetch('/api/characters', {
@@ -2555,6 +2561,7 @@ function GamePrototypeContent() {
         <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
           <ThaisCityArena
             characters={game.session.characters}
+            activeCharacterId={activeCharacter.id}
             cityPos={cityPos}
             isWalking={walkingPath !== null}
             isTraining={isTrainingAtDummy}
