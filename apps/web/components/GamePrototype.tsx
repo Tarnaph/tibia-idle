@@ -105,6 +105,34 @@ function ValueRow({ label, value, changed = false }: { label: string; value: str
 }
 
 export function GamePrototype() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        className="mmorpg-client-root"
+        style={{
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: '#0a0c10',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'Trajan Pro, Georgia, serif',
+          color: '#d4af37',
+        }}
+      >
+        <div style={{ fontSize: '18px', letterSpacing: '4px', marginBottom: '8px' }}>CAVEBOUND</div>
+        <div style={{ fontSize: '12px', letterSpacing: '2px', color: '#a0aab8' }}>CARREGANDO MUNDO...</div>
+      </div>
+    );
+  }
+
   return (
     <WindowManagerProvider>
       <GamePrototypeContent />

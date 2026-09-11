@@ -30,8 +30,8 @@ interface WindowManagerContextValue {
 const STORAGE_KEY = 'cavebound_window_layout_v1';
 
 function getDefaultWindows(viewportWidth = 1280, viewportHeight = 720): Record<WindowId, WindowState> {
-  const w = typeof window !== 'undefined' ? window.innerWidth : viewportWidth;
-  const h = typeof window !== 'undefined' ? window.innerHeight : viewportHeight;
+  const w = viewportWidth;
+  const h = viewportHeight;
 
   return {
     character: {
@@ -133,7 +133,7 @@ export function WindowManagerProvider({ children }: { children: React.ReactNode 
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as Record<WindowId, Partial<WindowState>>;
-        const defaults = getDefaultWindows();
+        const defaults = getDefaultWindows(window.innerWidth, window.innerHeight);
         const merged: Record<WindowId, WindowState> = { ...defaults };
         for (const key of Object.keys(defaults) as WindowId[]) {
           if (parsed[key]) {
@@ -146,6 +146,8 @@ export function WindowManagerProvider({ children }: { children: React.ReactNode 
           }
         }
         setWindows(merged);
+      } else {
+        setWindows(getDefaultWindows(window.innerWidth, window.innerHeight));
       }
     } catch {
       // Ignore parse errors
