@@ -2460,6 +2460,37 @@ Plans:
 - [x] 135-PLAN: Correção Definitiva de Persistência de Outfit e Montaria, Sincronização do Personagem Ativo em Thais e Resolução de Estado.
 - Resumo de entrega: `.planning/phases/phase-135-outfit-mount-persistence-and-city-sync/135-SUMMARY.md`
 
+---
+
+### Phase 136: Inspeção de Habilidades e Estatísticas no Avatar e Limpeza da Barra de Ações Superior
+**Status**: Complete  
+**Goal**: Despoluir a barra de navegação superior (WindowDockBar) removendo os ícones de skills, montaria, outfit, equipamento e organizar janelas, e criar um popover flutuante e tooltip "Personagem" no avatar do personagem com vitals, barras de recursos, 7 skills, combate e compartilhamento de XP em conformidade visual idêntica ao print de referência.  
+**Depends on**: Phase 135  
+**Requirements**:
+1. **Limpeza da Barra Superior de Ações (`WindowDockBar.tsx`):**
+   - Remover os 5 botões: Skills (`onOpenSkills`), Equipamentos (`toggleWindow('equipment')`), Montaria (`mount-btn`), Outfit (`outfit-btn`) e Organizar Janelas (`resetLayout`).
+   - Mover o botão "Organizar Janelas / Reset Layout" para dentro do menu dropdown de opções (⚙️).
+2. **Cabeçalho de Perfil do Personagem (`WindowDockBar.tsx`):**
+   - Nome do personagem em destaque dourado/âmbar (`#f3b749`, bold, uppercase).
+   - Vocação e Nível em ciano/azul (`#6bb3f2`, bold, uppercase, ex: `ELITE KNIGHT LV 266`).
+   - Badge arredondada de experiência (`XP +5%`).
+3. **Hover Tooltip & Popover de Inspeção do Personagem (`WindowDockBar.tsx`):**
+   - Tooltip `"Personagem"` ao passar o mouse sobre o avatar.
+   - Popover com degradê escuro contendo Nome, Vocação + Nível e tag `GRÁTIS` / `PREMIUM`.
+   - Barras estilizadas de Vida (rosa/vermelho `#de4a6e`), Mana (azul `#4b77be`) e Progresso de XP (dourado `#c9933b`) com números reais e porcentagem.
+   - Grid de 7 Skills com ícones e valores: Fist (✊), Club (🔨), Sword (⚔️), Axe (🪓), Distance (🏹), Shielding (🛡️) e Magic Level (🔮).
+   - Resumo de combate: DANO (`min-max`), ARMADURA e DEFESA.
+   - Informações complementares: DANO BESTIÁRIO (`+0%`) e COMPARTILHAR EXP (`Math.ceil(level * 2 / 3)` a `Math.floor(level * 3 / 2)`).
+4. **Integração de Dados (`GamePrototype.tsx`):**
+   - Passagem de `character={activeCharacter}` e `stats={activeStats}` para `<WindowDockBar />`.
+5. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase136-avatar-skills-inspect-and-dock-cleanup.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:**
+- [x] 136-PLAN: Inspeção de Habilidades e Estatísticas no Avatar e Limpeza da Barra de Ações Superior.
+- Resumo de entrega: `.planning/phases/phase-136-avatar-skills-inspect-and-dock-cleanup/136-SUMMARY.md`
+
 
 
 

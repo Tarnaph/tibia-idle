@@ -41,16 +41,13 @@ describe('Phase 134: Resiliência de Carregamento de Montaria, Outfit Modal e At
     }
   });
 
-  it('WindowDockBar deve conter botões dedicados de Outfit e Montaria com atributos data-dock-id', () => {
+  it('WindowDockBar mantém compatibilidade de props de Outfit e Montaria', () => {
     const windowDockBarPath = path.resolve(__dirname, '../apps/web/components/window/WindowDockBar.tsx');
     const content = fs.readFileSync(windowDockBarPath, 'utf8');
 
-    expect(content).toContain('data-dock-id="outfit-btn"');
-    expect(content).toContain('data-dock-id="mount-btn"');
     expect(content).toContain('isMounted?: boolean');
     expect(content).toContain('onToggleMount?: () => void');
-    expect(content).toContain('outfit-btn');
-    expect(content).toContain('mount-btn');
+    expect(content).toContain('onOpenOutfit?: () => void');
   });
 
   it('GamePrototype deve suportar os atalhos de teclado U (outfit) e Ctrl+R (montaria)', () => {

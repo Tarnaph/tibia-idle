@@ -2642,6 +2642,8 @@ function GamePrototypeContent() {
           gold={game.session.gold}
           accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
           characterName={activeCharacter.name}
+          character={activeCharacter}
+          stats={activeStats}
           debug={debugGrid}
           isAdmin={isAdmin}
           isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}

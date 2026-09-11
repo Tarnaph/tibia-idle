@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useWindowManager, type WindowId } from './WindowManagerContext';
 import { AutoIdleButton } from '../AutoIdleButton';
 import { getZoomMultiplier, setZoomMultiplier, resetZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
+import type { CharacterState, DerivedStats } from '@/packages/domain/src';
+import { experienceProgress } from '@/packages/domain/src';
 import {
   getAudioVolume,
   setAudioVolume,
@@ -22,6 +24,8 @@ interface WindowDockBarProps {
   gold: number;
   accountUsername?: string;
   characterName?: string;
+  character?: CharacterState;
+  stats?: DerivedStats;
   onlinePlayersCount?: number;
   debug: boolean;
   isAdmin?: boolean;
@@ -35,7 +39,7 @@ interface WindowDockBarProps {
   onToggleAutoIdle?: () => void;
   onToggleDebug: () => void;
   onSelectHunt: () => void;
-  onOpenSkills: () => void;
+  onOpenSkills?: () => void;
   onOpenShop?: () => void;
   onOpenOutfit?: () => void;
   onOpenCyclopedia?: () => void;
@@ -48,6 +52,8 @@ export function WindowDockBar({
   gold,
   accountUsername = 'ADMIN',
   characterName = 'Hero',
+  character,
+  stats,
   onlinePlayersCount = 13315,
   debug,
   isAdmin = false,
@@ -71,6 +77,9 @@ export function WindowDockBar({
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAvatarHovered, setIsAvatarHovered] = useState(false);
+  const [isInspectOpen, setIsInspectOpen] = useState(false);
+  const inspectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [zoom, setZoom] = useState(() => getZoomMultiplier());
   const [audioState, setAudioState] = useState<AudioState>(() => ({
     volume: getAudioVolume(),
@@ -112,6 +121,70 @@ export function WindowDockBar({
     }
   };
 
+  const handleInspectMouseEnter = () => {
+    if (inspectTimeoutRef.current) {
+      clearTimeout(inspectTimeoutRef.current);
+      inspectTimeoutRef.current = null;
+    }
+    setIsAvatarHovered(true);
+    setIsInspectOpen(true);
+  };
+
+  const handleInspectMouseLeave = () => {
+    setIsAvatarHovered(false);
+    inspectTimeoutRef.current = setTimeout(() => {
+      setIsInspectOpen(false);
+    }, 250);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (inspectTimeoutRef.current) {
+        clearTimeout(inspectTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const charName = character?.name || characterName;
+  const vocationName = (character?.vocation || 'Elite Knight').toUpperCase();
+  const level = character?.level ?? 1;
+  const isPremium = character?.isPremium ?? false;
+
+  const currentHp = character?.currentHp ?? 150;
+  const maxHp = character?.maxHp ?? 150;
+  const currentMana = character?.currentMana ?? 35;
+  const maxMana = character?.maxMana ?? 35;
+  const currentExp = character?.experience ?? 0;
+
+  const xpProgressVal = experienceProgress(level, currentExp);
+  const xpPercent = Math.min(100, Math.max(0, Number((xpProgressVal * 100).toFixed(1))));
+
+  const hpPercent = maxHp > 0 ? Math.min(100, Math.max(0, (currentHp / maxHp) * 100)) : 100;
+  const manaPercent = maxMana > 0 ? Math.min(100, Math.max(0, (currentMana / maxMana) * 100)) : 100;
+
+  // Skills
+  const skills = character?.skills ?? {
+    fist: 10,
+    club: 10,
+    sword: 10,
+    axe: 10,
+    distance: 10,
+    shielding: 10,
+    magicLevel: 0,
+  };
+
+  // Combat Stats
+  const rawAttack = stats?.attack ?? 15;
+  const maxDmg = Math.max(1, rawAttack);
+  const minDmg = Math.max(1, Math.round(maxDmg * 0.7));
+  const damageRangeStr = `${minDmg}-${maxDmg}`;
+  const armorVal = stats?.armor ?? 0;
+  const defenseVal = stats?.defense ?? 0;
+
+  // Party Exp Share Range (Classic Tibia formula: 2/3 level to 3/2 level)
+  const shareMin = Math.ceil((level * 2) / 3);
+  const shareMax = Math.floor((level * 3) / 2);
+
   return (
     <header className="huntera-top-bar" aria-label="Barra de Navegação Huntera">
       {/* Left Cluster: Brand Logo & Account Profile Card */}
@@ -120,26 +193,360 @@ export function WindowDockBar({
           <img src="/logo.png" alt="Huntera Logo" className="huntera-logo-img" />
         </div>
 
-        {/* Account Profile Card */}
+        {/* Account Profile Card & Character Inspect Container */}
         <div
           className="huntera-profile-card"
-          title="Conta Conectada — Clique para abrir o Perfil do Personagem"
-          onClick={onOpenProfile}
-          style={{ cursor: onOpenProfile ? 'pointer' : 'default' }}
+          data-testid="huntera-profile-card"
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            background: 'rgba(20, 24, 33, 0.92)',
+            border: '1px solid #2d3748',
+            borderRadius: '6px',
+            padding: '3px 10px 3px 6px',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={handleInspectMouseEnter}
+          onMouseLeave={handleInspectMouseLeave}
+          onClick={() => {
+            if (onOpenSkills) onOpenSkills();
+            else if (onOpenProfile) onOpenProfile();
+          }}
         >
-          <div className="huntera-avatar-box" title="Avatar do Personagem">
+          {/* Avatar Box with "Personagem" Tooltip */}
+          <div
+            className="huntera-avatar-box"
+            data-testid="huntera-avatar-box"
+            style={{
+              position: 'relative',
+              width: '38px',
+              height: '38px',
+              background: '#0a0d14',
+              border: '1.5px solid #2d3748',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'visible',
+            }}
+          >
             <img
               src={`/images/avatars/avatar-${avatarId || 1}.png`}
-              alt={`Avatar ${avatarId || 1}`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '2px' }}
+              alt={charName}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }}
             />
+
+            {/* "Personagem" Tooltip Tag on Avatar Hover */}
+            {isAvatarHovered && (
+              <div
+                className="huntera-avatar-tooltip"
+                data-testid="huntera-avatar-tooltip"
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 4px)',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: '#0d111a',
+                  border: '1px solid #4a5568',
+                  borderRadius: '3px',
+                  padding: '2px 6px',
+                  color: '#e2e8f0',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                  pointerEvents: 'none',
+                  zIndex: 10002,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.85)',
+                }}
+              >
+                Personagem
+              </div>
+            )}
           </div>
-          <div className="huntera-profile-info">
-            <span className="huntera-account-tag">CONTA</span>
-            <strong className="huntera-account-username">
-              {accountUsername.toUpperCase()}
-            </strong>
+
+          {/* Header Info beside Avatar */}
+          <div
+            className="huntera-profile-info"
+            style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.15 }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span
+                style={{
+                  color: '#f3b749',
+                  fontWeight: 800,
+                  fontSize: '12px',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {charName}
+              </span>
+            </div>
+            <div
+              style={{
+                color: '#6bb3f2',
+                fontSize: '10px',
+                fontWeight: 700,
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {vocationName} <span style={{ color: '#4a85ba' }}>LV</span> {level}
+            </div>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '3px',
+                background: 'rgba(243, 183, 73, 0.12)',
+                border: '1px solid rgba(243, 183, 73, 0.35)',
+                borderRadius: '999px',
+                padding: '1px 6px',
+                fontSize: '9px',
+                fontWeight: 700,
+                color: '#f3b749',
+                width: 'fit-content',
+                marginTop: '1px',
+              }}
+            >
+              XP +5%
+            </div>
           </div>
+
+          {/* Character Inspect Card Popover */}
+          {isInspectOpen && (
+            <div
+              className="huntera-inspect-popover"
+              data-testid="huntera-inspect-popover"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                left: '0',
+                width: '300px',
+                background: '#10141e',
+                border: '1px solid #232c3d',
+                borderRadius: '8px',
+                boxShadow: '0 16px 36px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+                padding: '14px 16px',
+                zIndex: 10000,
+                cursor: 'default',
+                color: '#e2e8f0',
+                fontFamily: 'inherit',
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onOpenSkills) onOpenSkills();
+              }}
+              title="Clique para abrir a Janela Completa de Habilidades"
+            >
+              {/* Title & Status */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.02em' }}>
+                  {charName}
+                </div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#6bb3f2', letterSpacing: '0.04em' }}>
+                  {vocationName} <span style={{ color: '#4a85ba' }}>LV</span> {level}
+                </div>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
+                  {isPremium ? 'PREMIUM' : 'GRÁTIS'}
+                </div>
+              </div>
+
+              {/* Progress Bars (HP, Mana, XP) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '12px' }}>
+                {/* HP Bar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      height: '9px',
+                      background: '#161c27',
+                      border: '1px solid #263245',
+                      borderRadius: '5px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${hpPercent}%`,
+                        background: 'linear-gradient(90deg, #d33c5e 0%, #e85577 100%)',
+                        borderRadius: '5px',
+                        transition: 'width 0.2s ease',
+                      }}
+                    />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#8b9cb5',
+                      minWidth: '78px',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {currentHp.toLocaleString('pt-BR')} / {maxHp.toLocaleString('pt-BR')}
+                  </span>
+                </div>
+
+                {/* Mana Bar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      height: '9px',
+                      background: '#161c27',
+                      border: '1px solid #263245',
+                      borderRadius: '5px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${manaPercent}%`,
+                        background: 'linear-gradient(90deg, #3867b3 0%, #4b7dd6 100%)',
+                        borderRadius: '5px',
+                        transition: 'width 0.2s ease',
+                      }}
+                    />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#8b9cb5',
+                      minWidth: '78px',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {currentMana.toLocaleString('pt-BR')} / {maxMana.toLocaleString('pt-BR')}
+                  </span>
+                </div>
+
+                {/* XP Bar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      height: '9px',
+                      background: '#161c27',
+                      border: '1px solid #263245',
+                      borderRadius: '5px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${xpPercent}%`,
+                        background: 'linear-gradient(90deg, #b88628 0%, #e5a93c 100%)',
+                        borderRadius: '5px',
+                        transition: 'width 0.2s ease',
+                      }}
+                    />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#8b9cb5',
+                      minWidth: '78px',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {xpPercent.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '1px', background: '#1c2433', margin: '12px 0 10px 0' }} />
+
+              {/* Skills Grid (7 Skills) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* Row 1: Fist, Club, Sword, Axe */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Fist Fighting">
+                    <span style={{ fontSize: '13px' }}>✊</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.fist}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Club Fighting">
+                    <span style={{ fontSize: '13px' }}>🔨</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.club}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Sword Fighting">
+                    <span style={{ fontSize: '13px' }}>⚔️</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.sword}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Axe Fighting">
+                    <span style={{ fontSize: '13px' }}>🪓</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.axe}</span>
+                  </div>
+                </div>
+
+                {/* Row 2: Distance, Shielding, Magic Level */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Distance Fighting">
+                    <span style={{ fontSize: '13px' }}>🏹</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.distance}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Shielding">
+                    <span style={{ fontSize: '13px' }}>🛡️</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.shielding}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Magic Level">
+                    <span style={{ fontSize: '13px' }}>🔮</span>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.magicLevel}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '1px', background: '#1c2433', margin: '12px 0 10px 0' }} />
+
+              {/* Combat Stats Summary (3 Columns: DANO, ARMADURA, DEFESA) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '6px', textAlign: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#f3b749' }}>{damageRangeStr}</div>
+                  <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>DANO</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#f8fafc' }}>{armorVal}</div>
+                  <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>ARMADURA</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#f8fafc' }}>{defenseVal}</div>
+                  <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>DEFESA</div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '1px', background: '#1c2433', margin: '12px 0 10px 0' }} />
+
+              {/* Bottom Extra Info: Bestiary & Exp Share */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', letterSpacing: '0.04em' }}>
+                    DANO BESTIÁRIO
+                  </span>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#f3b749' }}>
+                    +0%
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', letterSpacing: '0.04em' }}>
+                    COMPARTILHAR EXP
+                  </span>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#f8fafc' }}>
+                    {shareMin} - {shareMax}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -223,29 +630,6 @@ export function WindowDockBar({
 
         <button
           type="button"
-          className={`huntera-square-btn ${windows.equipment?.isOpen ? 'active' : ''}`}
-          onClick={() => toggleWindow('equipment')}
-          title="Equipamentos e Armadura"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M12 2L4 7v10l8 5 8-5V7l-8-5z" />
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          className="huntera-square-btn"
-          onClick={onOpenSkills}
-          title="Skills e Atributos"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg>
-        </button>
-
-        <button
-          type="button"
           className={`huntera-square-btn ${windows.party?.isOpen ? 'active' : ''}`}
           onClick={() => toggleWindow('party')}
           title="Seu Squad / Party"
@@ -303,36 +687,6 @@ export function WindowDockBar({
           📖
         </button>
 
-        {onOpenOutfit && (
-          <button
-            type="button"
-            data-dock-id="outfit-btn"
-            className="huntera-square-btn outfit-btn"
-            onClick={onOpenOutfit}
-            title="Customizar Aparência (Outfit) [Atalho: U]"
-            style={{ borderColor: '#9b59b6', backgroundColor: 'rgba(155, 89, 182, 0.22)', fontSize: '15px' }}
-          >
-            🥋
-          </button>
-        )}
-
-        {onToggleMount && (
-          <button
-            type="button"
-            data-dock-id="mount-btn"
-            className={`huntera-square-btn mount-btn ${isMounted ? 'active' : ''}`}
-            onClick={onToggleMount}
-            title={isMounted ? 'Desmontar da Montaria [Atalho: Ctrl+R]' : 'Montar na Montaria [Atalho: Ctrl+R]'}
-            style={{
-              borderColor: isMounted ? '#2ecc71' : '#27ae60',
-              backgroundColor: isMounted ? 'rgba(46, 204, 113, 0.35)' : 'rgba(39, 174, 96, 0.18)',
-              fontSize: '15px',
-            }}
-          >
-            🐎
-          </button>
-        )}
-
         {isAdmin && (
           <a
             href="/admin"
@@ -343,18 +697,6 @@ export function WindowDockBar({
             🛡️
           </a>
         )}
-
-        <button
-          type="button"
-          className="huntera-square-btn"
-          onClick={resetLayout}
-          title="Organizar Janelas / Reset Layout"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
-          </svg>
-        </button>
 
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <button
@@ -494,6 +836,22 @@ export function WindowDockBar({
                   <span>🎵</span>
                   <span>{inHunt ? 'Trilha pausada (Em Caçada)' : 'Thais Theme (Sunset in the Village)'}</span>
                 </div>
+              </div>
+
+              {/* Window Layout Reset */}
+              <div className="menu-section" style={{ marginTop: '12px', borderTop: '1px solid #3d403c', paddingTop: '10px' }}>
+                <div className="menu-section-title">🪟 Layout da Interface</div>
+                <button
+                  type="button"
+                  className="zoom-reset-btn"
+                  onClick={() => {
+                    resetLayout();
+                    setIsMenuOpen(false);
+                  }}
+                  title="Restaurar posições originais de todas as janelas e barras"
+                >
+                  ↺ Organizar Janelas / Reset Layout
+                </button>
               </div>
             </div>
           )}
