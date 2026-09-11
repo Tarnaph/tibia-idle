@@ -43,6 +43,8 @@ describe('Phase 127: Permanent Persistence for Admin Server Variables and Rates'
         });
       }
     } catch {}
+
+    serverConfigManager.resetToDefaults();
   });
 
   it('1. verifies that updating server config writes to content/server-config.json file', async () => {

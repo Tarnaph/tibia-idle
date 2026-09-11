@@ -234,9 +234,28 @@ export function getOutfitLayerUrls(
 const imageElementCache = new Map<string, HTMLImageElement>();
 const inFlightImagePromises = new Map<string, Promise<HTMLImageElement>>();
 export const failedImageUrls = new Set<string>();
+const failedImageAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const MAX_FAILED_IMAGE_ATTEMPTS = 3;
+const FAILED_IMAGE_RETRY_DELAY_MS = 2000;
+
+export function isImagePermanentlyFailed(url: string): boolean {
+  if (failedImageUrls.has(url)) return true;
+  const entry = failedImageAttempts.get(url);
+  return !!entry && entry.count >= MAX_FAILED_IMAGE_ATTEMPTS;
+}
+
+export function canRetryImage(url: string): boolean {
+  if (failedImageUrls.has(url)) return false;
+  const entry = failedImageAttempts.get(url);
+  if (!entry) return true;
+  if (entry.count >= MAX_FAILED_IMAGE_ATTEMPTS) return false;
+  return Date.now() - entry.lastAttempt >= FAILED_IMAGE_RETRY_DELAY_MS;
+}
 
 export function registerCachedImage(url: string, img: HTMLImageElement): void {
   imageElementCache.set(url, img);
+  failedImageUrls.delete(url);
+  failedImageAttempts.delete(url);
 }
 
 export function registerFailedImage(url: string): void {
@@ -247,6 +266,7 @@ export function clearImageElementCache(): void {
   imageElementCache.clear();
   inFlightImagePromises.clear();
   failedImageUrls.clear();
+  failedImageAttempts.clear();
 }
 
 export function loadImage(url: string): Promise<HTMLImageElement> {
@@ -265,6 +285,10 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
     return inFlight;
   }
 
+  if (failedImageUrls.has(url)) {
+    return Promise.reject(new Error(`Image marked permanently failed at ${url}`));
+  }
+
   // 3. Create managed promise for this URL
   const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
@@ -272,24 +296,35 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
 
     const handleSuccess = () => {
       inFlightImagePromises.delete(url);
+      failedImageUrls.delete(url);
+      failedImageAttempts.delete(url);
       imageElementCache.set(url, img);
       resolve(img);
     };
 
     const handleError = () => {
+      inFlightImagePromises.delete(url);
+
+      const now = Date.now();
+      const entry = failedImageAttempts.get(url) || { count: 0, lastAttempt: 0 };
+      entry.count += 1;
+      entry.lastAttempt = now;
+      failedImageAttempts.set(url, entry);
+
+      if (entry.count >= MAX_FAILED_IMAGE_ATTEMPTS) {
+        failedImageUrls.add(url);
+      }
+
       // Fallback for missing directional mount frames to south base mount
       if (url.includes('/generated/mounts/') && url.includes('-f')) {
         const baseMountUrl = url.replace(/-[a-z]+-f\d+\.png$/, '.png');
         if (baseMountUrl !== url) {
           loadImage(baseMountUrl)
             .then((baseImg) => {
-              inFlightImagePromises.delete(url);
               imageElementCache.set(url, baseImg);
               resolve(baseImg);
             })
             .catch(() => {
-              inFlightImagePromises.delete(url);
-              failedImageUrls.add(url);
               reject(new Error(`Failed to load mount fallback image at ${url}`));
             });
           return;
@@ -302,21 +337,16 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
         if (unmountedAddonUrl !== url) {
           loadImage(unmountedAddonUrl)
             .then((addonImg) => {
-              inFlightImagePromises.delete(url);
               imageElementCache.set(url, addonImg);
               resolve(addonImg);
             })
             .catch(() => {
-              inFlightImagePromises.delete(url);
-              failedImageUrls.add(url);
               reject(new Error(`Failed to load addon fallback image at ${url}`));
             });
           return;
         }
       }
 
-      inFlightImagePromises.delete(url);
-      failedImageUrls.add(url);
       reject(new Error(`Failed to load image at ${url}`));
     };
 
@@ -643,8 +673,8 @@ export function getRecoloredCanvasSync(
   const urls = getOutfitLayerUrls(norm, gender, direction, safeFrame, effectiveAddons, mount, effectiveMounted);
 
   // Check rider base and mask
-  const isBaseFailed = failedImageUrls.has(urls.base);
-  const isMaskFailed = failedImageUrls.has(urls.mask);
+  const isBaseFailed = isImagePermanentlyFailed(urls.base);
+  const isMaskFailed = isImagePermanentlyFailed(urls.mask);
   const baseImg = imageElementCache.get(urls.base);
   const maskImg = imageElementCache.get(urls.mask);
   const isBaseReady = !!(baseImg && baseImg.complete && baseImg.naturalWidth > 0);
@@ -654,7 +684,7 @@ export function getRecoloredCanvasSync(
   let isMountReady = true;
   let mountImg: HTMLImageElement | undefined;
   if (effectiveMounted && urls.mountUrl) {
-    if (failedImageUrls.has(urls.mountUrl)) {
+    if (isImagePermanentlyFailed(urls.mountUrl)) {
       // Inexistent mount: do not block composition
       isMountReady = true;
       mountImg = undefined;
@@ -669,7 +699,7 @@ export function getRecoloredCanvasSync(
   let a1Base: HTMLImageElement | undefined;
   let a1Mask: HTMLImageElement | undefined;
   if (urls.addon1Base && urls.addon1Mask) {
-    if (failedImageUrls.has(urls.addon1Base) || failedImageUrls.has(urls.addon1Mask)) {
+    if (isImagePermanentlyFailed(urls.addon1Base) || isImagePermanentlyFailed(urls.addon1Mask)) {
       // Inexistent addon 1: do not block composition
       isAddon1Ready = true;
       a1Base = undefined;
@@ -686,7 +716,7 @@ export function getRecoloredCanvasSync(
   let a2Base: HTMLImageElement | undefined;
   let a2Mask: HTMLImageElement | undefined;
   if (urls.addon2Base && urls.addon2Mask) {
-    if (failedImageUrls.has(urls.addon2Base) || failedImageUrls.has(urls.addon2Mask)) {
+    if (isImagePermanentlyFailed(urls.addon2Base) || isImagePermanentlyFailed(urls.addon2Mask)) {
       // Inexistent addon 2: do not block composition
       isAddon2Ready = true;
       a2Base = undefined;
@@ -702,19 +732,19 @@ export function getRecoloredCanvasSync(
 
   // IF ANY REQUIRED LAYER IS NOT LOADED:
   if (!allLayersReady) {
-    // Trigger asynchronous load for pending assets (skip already failed ones)
-    if (!isBaseReady && !isBaseFailed) loadImage(urls.base).catch(() => {});
-    if (!isMaskReady && !isMaskFailed) loadImage(urls.mask).catch(() => {});
-    if (effectiveMounted && urls.mountUrl && !isMountReady && !failedImageUrls.has(urls.mountUrl)) {
+    // Trigger asynchronous load for pending assets (skip permanently failed ones, respect retry cooldown)
+    if (!isBaseReady && canRetryImage(urls.base)) loadImage(urls.base).catch(() => {});
+    if (!isMaskReady && canRetryImage(urls.mask)) loadImage(urls.mask).catch(() => {});
+    if (effectiveMounted && urls.mountUrl && !isMountReady && canRetryImage(urls.mountUrl)) {
       loadImage(urls.mountUrl).catch(() => {});
     }
-    if (urls.addon1Base && !isAddon1Ready && !failedImageUrls.has(urls.addon1Base)) {
+    if (urls.addon1Base && !isAddon1Ready && canRetryImage(urls.addon1Base)) {
       loadImage(urls.addon1Base).catch(() => {});
-      if (urls.addon1Mask && !failedImageUrls.has(urls.addon1Mask)) loadImage(urls.addon1Mask).catch(() => {});
+      if (urls.addon1Mask && canRetryImage(urls.addon1Mask)) loadImage(urls.addon1Mask).catch(() => {});
     }
-    if (urls.addon2Base && !isAddon2Ready && !failedImageUrls.has(urls.addon2Base)) {
+    if (urls.addon2Base && !isAddon2Ready && canRetryImage(urls.addon2Base)) {
       loadImage(urls.addon2Base).catch(() => {});
-      if (urls.addon2Mask && !failedImageUrls.has(urls.addon2Mask)) loadImage(urls.addon2Mask).catch(() => {});
+      if (urls.addon2Mask && canRetryImage(urls.addon2Mask)) loadImage(urls.addon2Mask).catch(() => {});
     }
 
     // DO NOT cache under definitive key in recoloredCanvasCache!

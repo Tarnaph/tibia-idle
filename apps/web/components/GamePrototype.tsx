@@ -252,7 +252,9 @@ function GamePrototypeContent() {
     durationMs?: number;
     huntId?: string;
   } | null>(null);
-  const saveProgressRef = useRef<(isDeathPenalty?: boolean) => Promise<void>>(async () => {});
+  const saveProgressRef = useRef<(isDeathPenalty?: boolean, force?: boolean) => Promise<void>>(async () => {});
+  const isSavingRef = useRef<boolean>(false);
+  const lastSaveTimeRef = useRef<number>(0);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   // Security (Phase 116): Derives admin privileges strictly from the validated in-game account.
   // Never let an outdated viewer or leftover session promote a PLAYER account to admin.
@@ -680,7 +682,7 @@ function GamePrototypeContent() {
       } catch {}
     };
     void syncServerRates();
-    const timer = setInterval(syncServerRates, 3000);
+    const timer = setInterval(syncServerRates, 60000);
     return () => clearInterval(timer);
   }, []);
 
@@ -1199,137 +1201,181 @@ function GamePrototypeContent() {
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
   ])), [game.session.characters]);
 
-  // Periodic & On-Unload Auto-Save of active character progress, inventory, gold, and position to Database
-  useEffect(() => {
+  // Track latest character, inventory, position, and economy snapshot for background & logout persistence
+  const latestSaveStateRef = useRef({
+    activeCharacter,
+    onlineCharacter,
+    cityPos,
+    gold: game.session.gold,
+    loot: game.session.loot,
+    bag: game.session.bag,
+    equipment: content.equipment,
+  });
+  latestSaveStateRef.current = {
+    activeCharacter,
+    onlineCharacter,
+    cityPos,
+    gold: game.session.gold,
+    loot: game.session.loot,
+    bag: game.session.bag,
+    equipment: content.equipment,
+  };
+
+  // Robust Auto-Save with Mutex Lock and Throttle
+  const saveProgress = useCallback(async (isDeathPenalty = false, force = false) => {
     const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
-    if (!token || !activeCharacter || !onlineCharacter || activeCharacter.id !== onlineCharacter.id) return;
+    const state = latestSaveStateRef.current;
+    const { activeCharacter: curActive, onlineCharacter: curOnline, cityPos: curPos, gold: curGold, loot: curLoot, bag: curBag, equipment: curEquipment } = state;
 
-    const saveProgress = async (isDeathPenalty = false) => {
-      try {
-        const inventoryPayload: Array<{ slot: string; serverId: number; name: string; count: number }> = [];
-        const savedServerIds = new Set<number>();
+    if (!token || !curActive || !curOnline || curActive.id !== curOnline.id) return;
 
-        // 1. Equipped Items
-        const slots: CharacterEquipmentSlot[] = ['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'];
-        slots.forEach((slot) => {
-          const itemId = activeCharacter.equipment[slot];
-          if (itemId) {
-            const eqDef = findEquipment(content.equipment, itemId);
-            inventoryPayload.push({
-              slot,
-              serverId: itemId,
-              name: eqDef?.name || 'Equipment',
-              count: 1,
-            });
-            savedServerIds.add(itemId);
-          }
-        });
+    // Mutex lock: prevent concurrent /save HTTP requests
+    if (isSavingRef.current) return;
 
-        // 2. Gold Coins
-        if (game.session.gold > 0) {
+    // Throttle: minimum 10 seconds between auto-saves unless forced (e.g. logout or character switch)
+    const now = Date.now();
+    if (!force && lastSaveTimeRef.current > 0 && now - lastSaveTimeRef.current < 10000) return;
+
+    isSavingRef.current = true;
+    lastSaveTimeRef.current = now;
+
+    try {
+      const inventoryPayload: Array<{ slot: string; serverId: number; name: string; count: number }> = [];
+      const savedServerIds = new Set<number>();
+
+      // 1. Equipped Items
+      const slots: CharacterEquipmentSlot[] = ['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'];
+      slots.forEach((slot) => {
+        const itemId = curActive.equipment[slot];
+        if (itemId) {
+          const eqDef = findEquipment(curEquipment, itemId);
           inventoryPayload.push({
-            slot: 'gold',
-            serverId: 2148,
-            name: 'Gold Coin',
-            count: game.session.gold,
-          });
-        }
-
-        // 3. Bag / Bolsa Items
-        if (game.session.bag && game.session.bag.length > 0) {
-          game.session.bag.forEach((stack, idx) => {
-            inventoryPayload.push({
-              slot: `bag_${idx}`,
-              serverId: stack.itemId || 2148,
-              name: stack.name,
-              count: stack.amount,
-            });
-            if (stack.itemId) savedServerIds.add(stack.itemId);
-          });
-        }
-
-        // 4. Loot / Mochila Items
-        if (game.session.loot && game.session.loot.length > 0) {
-          game.session.loot.forEach((stack, idx) => {
-            inventoryPayload.push({
-              slot: `backpack_loot_${idx}`,
-              serverId: stack.itemId || 2148,
-              name: stack.name,
-              count: stack.amount,
-            });
-            if (stack.itemId) savedServerIds.add(stack.itemId);
-          });
-        }
-
-        // 5. Additional Owned Equipment (if any equipment ID in equipmentIds not yet saved)
-        const unequippedIds = activeCharacter.inventory.equipmentIds.filter((id) => !savedServerIds.has(id));
-        unequippedIds.forEach((itemId, idx) => {
-          const eqDef = findEquipment(content.equipment, itemId);
-          inventoryPayload.push({
-            slot: `backpack_${idx}`,
+            slot,
             serverId: itemId,
-            name: eqDef?.name || 'Item',
+            name: eqDef?.name || 'Equipment',
             count: 1,
           });
-        });
+          savedServerIds.add(itemId);
+        }
+      });
 
-        await fetch(`/api/characters/${activeCharacter.id}/save`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            level: activeCharacter.level,
-            experience: Number(activeCharacter.experience),
-            health: activeCharacter.currentHp,
-            maxHealth: activeCharacter.maxHp,
-            mana: activeCharacter.currentMana,
-            maxMana: activeCharacter.maxMana,
-            posX: cityPos.x,
-            posY: cityPos.y,
-            posZ: cityPos.z,
-            skills: [
-              { skillId: 0, skillName: 'Fist Fighting', value: activeCharacter.skills.fist, tries: activeCharacter.skillTries?.fist ? Math.floor(activeCharacter.skillTries.fist) : 0 },
-              { skillId: 1, skillName: 'Club Fighting', value: activeCharacter.skills.club, tries: activeCharacter.skillTries?.club ? Math.floor(activeCharacter.skillTries.club) : 0 },
-              { skillId: 2, skillName: 'Sword Fighting', value: activeCharacter.skills.sword, tries: activeCharacter.skillTries?.sword ? Math.floor(activeCharacter.skillTries.sword) : 0 },
-              { skillId: 3, skillName: 'Axe Fighting', value: activeCharacter.skills.axe, tries: activeCharacter.skillTries?.axe ? Math.floor(activeCharacter.skillTries.axe) : 0 },
-              { skillId: 4, skillName: 'Distance Fighting', value: activeCharacter.skills.distance, tries: activeCharacter.skillTries?.distance ? Math.floor(activeCharacter.skillTries.distance) : 0 },
-              { skillId: 5, skillName: 'Shielding', value: activeCharacter.skills.shielding, tries: activeCharacter.skillTries?.shielding ? Math.floor(activeCharacter.skillTries.shielding) : 0 },
-              { skillId: 7, skillName: 'Magic Level', value: activeCharacter.skills.magicLevel, tries: activeCharacter.skillTries?.magicLevel ? Math.floor(activeCharacter.skillTries.magicLevel) : 0 },
-            ],
-            inventory: inventoryPayload,
-            hotbar: activeCharacter.hotbar,
-            hotbarConfigs: activeCharacter.hotbarConfigs,
-            avatarId: (activeCharacter as any).avatarId ?? 1,
-            outfit: activeCharacter.outfit,
-            outfitHead: activeCharacter.outfitColors?.head,
-            outfitBody: activeCharacter.outfitColors?.primary,
-            outfitLegs: activeCharacter.outfitColors?.secondary,
-            outfitFeet: activeCharacter.outfitColors?.detail,
-            outfitAddons: (activeCharacter as any).addons ?? (activeCharacter as any).outfitAddons ?? 0,
-            mount: activeCharacter.mount,
-            mountActive: activeCharacter.mountActive,
-            isDeathPenalty,
-          }),
+      // 2. Gold Coins
+      if (curGold > 0) {
+        inventoryPayload.push({
+          slot: 'gold',
+          serverId: 2148,
+          name: 'Gold Coin',
+          count: curGold,
         });
-      } catch (err) {
-        // Auto-save silent error handling
       }
+
+      // 3. Bag / Bolsa Items
+      if (curBag && curBag.length > 0) {
+        curBag.forEach((stack, idx) => {
+          inventoryPayload.push({
+            slot: `bag_${idx}`,
+            serverId: stack.itemId || 2148,
+            name: stack.name,
+            count: stack.amount,
+          });
+          if (stack.itemId) savedServerIds.add(stack.itemId);
+        });
+      }
+
+      // 4. Loot / Mochila Items
+      if (curLoot && curLoot.length > 0) {
+        curLoot.forEach((stack, idx) => {
+          inventoryPayload.push({
+            slot: `backpack_loot_${idx}`,
+            serverId: stack.itemId || 2148,
+            name: stack.name,
+            count: stack.amount,
+          });
+          if (stack.itemId) savedServerIds.add(stack.itemId);
+        });
+      }
+
+      // 5. Additional Owned Equipment (if any equipment ID in equipmentIds not yet saved)
+      const unequippedIds = curActive.inventory.equipmentIds.filter((id) => !savedServerIds.has(id));
+      unequippedIds.forEach((itemId, idx) => {
+        const eqDef = findEquipment(curEquipment, itemId);
+        inventoryPayload.push({
+          slot: `backpack_${idx}`,
+          serverId: itemId,
+          name: eqDef?.name || 'Item',
+          count: 1,
+        });
+      });
+
+      await fetch(`/api/characters/${curActive.id}/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          level: curActive.level,
+          experience: Number(curActive.experience),
+          health: curActive.currentHp,
+          maxHealth: curActive.maxHp,
+          mana: curActive.currentMana,
+          maxMana: curActive.maxMana,
+          posX: curPos.x,
+          posY: curPos.y,
+          posZ: curPos.z,
+          skills: [
+            { skillId: 0, skillName: 'Fist Fighting', value: curActive.skills.fist, tries: curActive.skillTries?.fist ? Math.floor(curActive.skillTries.fist) : 0 },
+            { skillId: 1, skillName: 'Club Fighting', value: curActive.skills.club, tries: curActive.skillTries?.club ? Math.floor(curActive.skillTries.club) : 0 },
+            { skillId: 2, skillName: 'Sword Fighting', value: curActive.skills.sword, tries: curActive.skillTries?.sword ? Math.floor(curActive.skillTries.sword) : 0 },
+            { skillId: 3, skillName: 'Axe Fighting', value: curActive.skills.axe, tries: curActive.skillTries?.axe ? Math.floor(curActive.skillTries.axe) : 0 },
+            { skillId: 4, skillName: 'Distance Fighting', value: curActive.skills.distance, tries: curActive.skillTries?.distance ? Math.floor(curActive.skillTries.distance) : 0 },
+            { skillId: 5, skillName: 'Shielding', value: curActive.skills.shielding, tries: curActive.skillTries?.shielding ? Math.floor(curActive.skillTries.shielding) : 0 },
+            { skillId: 7, skillName: 'Magic Level', value: curActive.skills.magicLevel, tries: curActive.skillTries?.magicLevel ? Math.floor(curActive.skillTries.magicLevel) : 0 },
+          ],
+          inventory: inventoryPayload,
+          hotbar: curActive.hotbar,
+          hotbarConfigs: curActive.hotbarConfigs,
+          avatarId: (curActive as any).avatarId ?? 1,
+          outfit: curActive.outfit,
+          outfitHead: curActive.outfitColors?.head,
+          outfitBody: curActive.outfitColors?.primary,
+          outfitLegs: curActive.outfitColors?.secondary,
+          outfitFeet: curActive.outfitColors?.detail,
+          outfitAddons: (curActive as any).addons ?? (curActive as any).outfitAddons ?? 0,
+          mount: curActive.mount,
+          mountActive: curActive.mountActive,
+          isDeathPenalty,
+        }),
+      });
+    } catch (err) {
+      // Auto-save silent error handling
+    } finally {
+      isSavingRef.current = false;
+    }
+  }, []);
+
+  saveProgressRef.current = saveProgress;
+
+  // Periodic & On-Unload Auto-Save of active character progress, inventory, gold, and position to Database
+  // Stabilized lifecycle: depends ONLY on onlineCharacter?.id, NEVER re-running on movement or volatile state updates
+  useEffect(() => {
+    if (!onlineCharacter) return;
+
+    const timer = setInterval(() => {
+      void saveProgress();
+    }, 15000);
+
+    const handleUnload = () => {
+      void saveProgress(false, true);
     };
-
-    saveProgressRef.current = saveProgress;
-
-    const timer = setInterval(saveProgress, 5000);
-    const handleUnload = () => { void saveProgress(); };
     window.addEventListener('beforeunload', handleUnload);
 
     return () => {
       clearInterval(timer);
       window.removeEventListener('beforeunload', handleUnload);
-      void saveProgress();
+      // NOTE: NEVER trigger saveProgress() on component re-render/cleanup!
     };
-  }, [activeCharacter, onlineCharacter, cityPos, game.session.gold, game.session.loot, game.session.bag, content.equipment]);
+  }, [onlineCharacter?.id, saveProgress]);
 
   const activeActor = game.encounter.partyActors.find((a) => a.characterId === activeCharacter.id);
   const hasteBonus = (activeActor?.hasteUntil ?? 0) > game.encounter.elapsedMs ? 50 : 0;
@@ -2354,7 +2400,7 @@ function GamePrototypeContent() {
     stopAllAudio();
     try {
       if (saveProgressRef.current) {
-        await saveProgressRef.current();
+        await saveProgressRef.current(false, true);
       }
     } catch {}
     gameNetwork.disconnect();
@@ -2368,7 +2414,7 @@ function GamePrototypeContent() {
     stopAllAudio();
     try {
       if (saveProgressRef.current) {
-        await saveProgressRef.current();
+        await saveProgressRef.current(false, true);
       }
     } catch {}
     gameNetwork.disconnect();

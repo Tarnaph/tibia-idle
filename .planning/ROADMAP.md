@@ -85,6 +85,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 123: Correção de Addons Invisíveis, Normalização Canônica de Outfits (Noble/Noblewoman), Hidratação de Estado e Persistência Permanente** - Mapeamento canônico de Noble para noblewoman, ponte unificada entre outfitAddons do Prisma e addons do cliente, e persistência permanente autoritativa no PostgreSQL.
 - [x] **Phase 124: Sistema de Exhaust (Mutual Delay Magia/Poção), IA de Exploração Solo e Táticas Cooperativas de Party (Tank Knight, Ranged DPS e Healer Druid)** - Sistema canônico de exhaust entre gastar mana e beber poções (mutual exclusion no tick e delay de 1000ms), IA de exploração solo ativa procurando inimigos na caverna, e táticas avançadas de party com Knight liderando e usando Challenge (exeta res) para proteger o grupo e focando o monstro mais próximo, Druid mantendo 3-4 tiles curando o grupo e usando magias/runas, Sorcerer/Paladin DPS mantendo 3-4 tiles à distância, e sincronização coletiva de alvo no alvo do Knight.
 - [x] **Phase 125: Importação Total do Acervo RealMap 11 (Itens, Monstros, Magias e Requisitos) e Formatação Canônica de Tooltip/Look com Descrições e Vocações** - Importação completa e irrestrita de todos os itens de items.xml/otb com descrições, pesos, requerimentos de vocações/níveis de weapons.xml e movements.xml, centenas de monstros de monsters.xml com loot e atributos, acervo universal de magias de spells.xml, e sistema autêntico de tooltip de "Look" canônico no hover de itens.
+- [x] **Phase 126: Otimização de Carregamento da Seleção de Personagens e Caixa Canônica de Saída/Logout** - Carregamento instantâneo via SWR e prefetch de rotas, inicialização síncrona de token, otimização de chroma-keying e modal autêntico de logout (Trocar de Personagem / Sair do Jogo / Cancelar) com atalho Escape e dock superior.
+- [x] **Phase 127: Persistência Permanente de Variáveis e Rates do Servidor (Admin Server Config)** - Persistência permanente em Prisma DB (ServerConfigRecord) e content/server-config.json de todas as variáveis do servidor configuráveis no painel admin, sincronizadas em tempo real via Colyseus Room.
+- [x] **Phase 128: Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência Definitiva de Outfits e Movimentação** - Desacoplamento do auto-save de referências voláteis via latestSaveStateRef, mutex lock contra requisições concorrentes, throttle de 10s, eliminação de disparos no cleanup de efeitos, resiliência contra erros transitórios de rede em outfitRecolor.ts e estabilidade no loop de movimentação.
 
 ---
 
@@ -2237,6 +2240,30 @@ Plans:
 **Plans:**
 - [x] 127-01-PLAN: Persistência Permanente de Variáveis e Rates do Servidor (Admin Server Config).
 - Resumo de entrega: `.planning/phases/phase-127-server-config-persistence/127-SUMMARY.md`
+
+---
+
+### Phase 128: Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência Definitiva de Outfits e Movimentação
+
+**Goal**: Diagnosticar a causa raiz da quebra recorrente de outfits/montarias e congelamento de movimentação após alterações no cliente, eliminar os disparos concorrentes de requisições de persistência ao banco de dados SQLite, implementar mutex e throttle no auto-save e blindar o carregador de imagens contra timeouts transitórios de conexões HTTP.  
+**Depends on**: Phase 127  
+**Requirements**:
+1. **Desacoplamento e Mutex de Auto-Save (`GamePrototype.tsx`):**
+   - Utilizar `latestSaveStateRef` atualizado síncronamente a cada render sem causar recriações de timers ou desmontagens de hooks.
+   - Implementar mutex lock (`isSavingRef`) para descartar requisições concorrentes enquanto uma já estiver em voo.
+   - Implementar throttle de 10 segundos (`lastSaveTimeRef`) para saves periódicos, preservando bypass de save imediato no logout/switch (`force = true`).
+   - Remover chamada de `saveProgress()` da limpeza do `useEffect` de auto-save.
+   - Desacelerar o polling HTTP de `/api/config` para 60s, priorizando o WebSocket do Colyseus.
+2. **Resiliência e Auto-Cura de Assets (`outfitRecolor.ts`):**
+   - Eliminar banimento imediato de imagens em falhas transitórias de timeout de rede.
+   - Implementar controle de tentativas (`failedImageAttempts`) e cooldown de re-tentativa (`canRetryImage`).
+3. **Qualidade e Testes:**
+   - Criar suíte de testes dedicada `tests/phase128-autosave-mutex-and-sprite-resilience.test.ts`.
+   - Garantir 0 erros de tipagem no `npm run typecheck`.
+**Plans:**
+- [x] 128-01-PLAN: Blindagem Arquitetural de Auto-Save, Prevenção de Esgotamento de Sockets HTTP e Resiliência Definitiva de Outfits e Movimentação.
+- Resumo de entrega: `.planning/phases/phase-128-autosave-mutex-and-sprite-resilience/128-SUMMARY.md`
+
 
 
 
