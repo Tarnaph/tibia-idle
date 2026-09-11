@@ -18,23 +18,35 @@ export async function GET(request: Request) {
     const service = new CharacterService(prisma);
     const characters = await service.getCharactersByAccountId(accountId);
 
-    // Format characters ensuring bigints are serialized properly
-    const formatted = characters.map((c) => ({
-      ...c,
-      addons: c.outfitAddons ?? 0,
-      outfitAddons: c.outfitAddons ?? 0,
-      outfitColors: {
-        head: c.outfitHead ?? 0,
-        primary: c.outfitBody ?? 86,
-        secondary: c.outfitLegs ?? 114,
-        detail: c.outfitFeet ?? 76,
-      },
-      positionX: c.posX,
-      positionY: c.posY,
-      positionZ: c.posZ,
-      experience: Number(c.experience),
-      skills: c.skills.map((s) => ({ ...s, tries: Number(s.tries) })),
-    }));
+    const formatCharacter = (c: any) => {
+      let parsedBestiaryKills: Record<string, number> = {};
+      if (c.bestiaryKillsJson) {
+        try {
+          parsedBestiaryKills = typeof c.bestiaryKillsJson === 'string'
+            ? JSON.parse(c.bestiaryKillsJson)
+            : c.bestiaryKillsJson;
+        } catch {}
+      }
+      return {
+        ...c,
+        addons: c.outfitAddons ?? 0,
+        outfitAddons: c.outfitAddons ?? 0,
+        outfitColors: {
+          head: c.outfitHead ?? 0,
+          primary: c.outfitBody ?? 86,
+          secondary: c.outfitLegs ?? 114,
+          detail: c.outfitFeet ?? 76,
+        },
+        positionX: c.posX,
+        positionY: c.posY,
+        positionZ: c.posZ,
+        experience: Number(c.experience),
+        skills: c.skills ? c.skills.map((s: any) => ({ ...s, tries: Number(s.tries) })) : [],
+        bestiaryKills: parsedBestiaryKills,
+      };
+    };
+
+    const formatted = characters.map(formatCharacter);
 
     return NextResponse.json({ success: true, data: formatted }, { status: 200 });
   } catch (error: any) {
@@ -57,6 +69,15 @@ export async function POST(request: Request) {
       vocationId: Number(body.vocationId),
     });
 
+    let parsedBestiaryKills: Record<string, number> = {};
+    if ((character as any).bestiaryKillsJson) {
+      try {
+        parsedBestiaryKills = typeof (character as any).bestiaryKillsJson === 'string'
+          ? JSON.parse((character as any).bestiaryKillsJson)
+          : (character as any).bestiaryKillsJson;
+      } catch {}
+    }
+
     const formatted = {
       ...character,
       addons: character.outfitAddons ?? 0,
@@ -69,6 +90,7 @@ export async function POST(request: Request) {
       },
       experience: Number(character.experience),
       skills: character.skills.map((s) => ({ ...s, tries: Number(s.tries) })),
+      bestiaryKills: parsedBestiaryKills,
     };
 
     return NextResponse.json({ success: true, data: formatted }, { status: 201 });

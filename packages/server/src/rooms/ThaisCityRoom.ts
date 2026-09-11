@@ -1424,6 +1424,9 @@ export class ThaisCityRoom extends Room<WorldState> {
           kills: newKills,
         });
       }
+
+      // Immediately persist authoritative character state (level, xp, bestiary) to Prisma DB
+      void persistenceManager.saveCharacter(killer);
     }
   }
 

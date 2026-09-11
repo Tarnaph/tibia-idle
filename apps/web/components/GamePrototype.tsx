@@ -1057,10 +1057,18 @@ function GamePrototypeContent() {
     if (charItem.mana) userChar.currentMana = charItem.mana;
     if (charItem.maxMana) userChar.maxMana = charItem.maxMana;
     (userChar as any).avatarId = (charItem as any).avatarId ?? 1;
+    let initialBestiaryKills: Record<string, number> = {};
     if ((charItem as any).bestiaryKills && typeof (charItem as any).bestiaryKills === 'object') {
-      setBestiaryKills((charItem as any).bestiaryKills);
-      (userChar as any).bestiaryKills = (charItem as any).bestiaryKills;
+      initialBestiaryKills = (charItem as any).bestiaryKills;
+    } else if ((charItem as any).bestiaryKillsJson) {
+      try {
+        initialBestiaryKills = typeof (charItem as any).bestiaryKillsJson === 'string'
+          ? JSON.parse((charItem as any).bestiaryKillsJson)
+          : (charItem as any).bestiaryKillsJson;
+      } catch {}
     }
+    setBestiaryKills(initialBestiaryKills);
+    (userChar as any).bestiaryKills = initialBestiaryKills;
     if ((charItem as any).trackedBestiaryId) {
       setTrackedBestiaryMonsterId((charItem as any).trackedBestiaryId);
       (userChar as any).trackedBestiaryId = (charItem as any).trackedBestiaryId;
@@ -1383,7 +1391,7 @@ function GamePrototypeContent() {
           outfitAddons: (curActive as any).addons ?? (curActive as any).outfitAddons ?? 0,
           mount: curActive.mount,
           mountActive: curActive.mountActive,
-          bestiaryKills: (curActive as any).bestiaryKills ?? bestiaryKills,
+          bestiaryKills: { ...((curActive as any).bestiaryKills || {}), ...bestiaryKills },
           trackedBestiaryId: (curActive as any).trackedBestiaryId ?? trackedBestiaryMonsterId ?? null,
           bossPoints: (curActive as any).bossPoints ?? bossPoints ?? 0,
           isDeathPenalty,
@@ -1651,26 +1659,40 @@ function GamePrototypeContent() {
   // Listen to Colyseus server bestiary events
   useEffect(() => {
     const unsubSync = gameNetwork.onBestiarySync((data) => {
-      if (data.kills) setBestiaryKills((prev) => ({ ...prev, ...data.kills }));
+      if (data.kills) {
+        setBestiaryKills((prev) => {
+          const next = { ...prev, ...data.kills };
+          if (activeCharacter) (activeCharacter as any).bestiaryKills = next;
+          return next;
+        });
+      }
       if (data.trackedMonsterId) setTrackedBestiaryMonsterId(data.trackedMonsterId);
       if (typeof data.bossPoints === 'number') setBossPoints(data.bossPoints);
     });
     const unsubFirstKill = gameNetwork.onBestiaryFirstKill((data) => {
       setFirstKillToast(`Você começou o bestiário deste monstro: ${data.monsterName}!`);
       setTrackedBestiaryMonsterId(data.monsterId);
-      setBestiaryKills((prev) => ({ ...prev, [data.monsterId]: data.kills }));
+      setBestiaryKills((prev) => {
+        const next = { ...prev, [data.monsterId]: data.kills };
+        if (activeCharacter) (activeCharacter as any).bestiaryKills = next;
+        return next;
+      });
     });
     const unsubKillUpdate = gameNetwork.onBestiaryKillUpdate((data) => {
-      setBestiaryKills((prev) => ({ ...prev, [data.monsterId]: data.kills }));
+      setBestiaryKills((prev) => {
+        const next = { ...prev, [data.monsterId]: data.kills };
+        if (activeCharacter) (activeCharacter as any).bestiaryKills = next;
+        return next;
+      });
     });
     return () => {
       unsubSync();
       unsubFirstKill();
       unsubKillUpdate();
     };
-  }, []);
+  }, [activeCharacter]);
 
-  // Listen to Idle encounter events for bestiary-first-kill
+  // Listen to Idle encounter events for bestiary progression
   useEffect(() => {
     const firstKillEvent = encounter.events.find((e: any) => e.type === 'bestiary-first-kill');
     if (firstKillEvent && 'monsterName' in firstKillEvent) {
@@ -1680,9 +1702,22 @@ function GamePrototypeContent() {
       if (!trackedBestiaryMonsterId) {
         setTrackedBestiaryMonsterId(mId);
       }
-      setBestiaryKills((prev) => ({ ...prev, [mId]: (prev[mId] || 0) + 1 }));
     }
-  }, [encounter.events, trackedBestiaryMonsterId]);
+    if (activeCharacter && (activeCharacter as any).bestiaryKills) {
+      const charKills = (activeCharacter as any).bestiaryKills;
+      setBestiaryKills((prev) => {
+        let changed = false;
+        const merged = { ...prev };
+        for (const [k, v] of Object.entries(charKills)) {
+          if (typeof v === 'number' && (!merged[k] || merged[k] < v)) {
+            merged[k] = v;
+            changed = true;
+          }
+        }
+        return changed ? merged : prev;
+      });
+    }
+  }, [encounter.events, trackedBestiaryMonsterId, activeCharacter]);
 
   const handleTrackMonster = useCallback((monsterId: string) => {
     const nextId = trackedBestiaryMonsterId === monsterId ? '' : monsterId;
@@ -2567,7 +2602,7 @@ function GamePrototypeContent() {
             characters={game.session.characters}
             activeCharacterId={activeCharacter.id}
             cityPos={cityPos}
-            isWalking={walkingPath !== null}
+            isWalking={walkingPath !== null || heldDirectionRef.current !== null}
             isTraining={isTrainingAtDummy}
             stepDurationMs={cityStepDurationMs}
             onTileClick={handleTileClick}

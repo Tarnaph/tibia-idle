@@ -95,6 +95,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 133: Correção do Botão Jogar Agora e Blindagem da Navegação Client-Side** - Exclusão do `vinext` no `optimizeDeps` do Vite para eliminar incompatibilidade de hash de chunks dinâmicos, tratamento seguro de promises rejeitadas em prefetch e push, listener global de unhandledrejection com redirecionamento para `/game`, e fallback automático com `window.location.assign('/game')`.
 - [x] **Phase 134: Resiliência de Carregamento de Montaria, Troca de Outfit, Atalhos de Dock e Eliminação de Deadlock no Vite RSC** - Resolução de timeout/deadlock no Vite RSC restaurando `optimizeDeps.exclude`, resiliência na renderização de montarias com timeout expandido para 10s e TTL de 15s para falhas transitórias em `outfitRecolor.ts`, botões dedicados de "🥋 Outfit" e "🐎 Montaria" na `WindowDockBar`, atalhos de teclado `U` (Outfit) e `Ctrl+R` (Montaria) no `GamePrototype`, e sincronização robusta de `activeCharacterId` e restauração de montaria no `OutfitModal`.
 - [x] **Phase 135: Correção Definitiva de Persistência de Outfit e Montaria, Sincronização do Personagem Ativo em Thais e Resolução de Estado** - Padronização do salvamento direto no banco via tokens 'colyseus_token'/'tibia_auth_token', passagem e resolução de 'activeCharacterId' em ThaisCityArena eliminando hardcode de 'curChars[0]', restauração confiável de montaria equipada no OutfitModal, handleToggleMount determinístico com salvamento no Prisma e 100% dos testes aprovados.
+- [x] **Phase 136: Inspeção de Habilidades e Estatísticas no Avatar e Limpeza da Barra de Ações Superior** - Exibição de card flutuante autêntico no hover do avatar com HP, MP, XP, 7 skills, dano, armadura, defesa e XP share, e remoção de ícones redundantes do dock superior.
+- [x] **Phase 137: Chat Fixo no Canto Inferior Esquerdo e Remoção do Ícone de Chat da Barra Superior** - Fixação da janela de chat no canto inferior esquerdo com suporte a minimizar/expandir e auto-expandir ao teclar Enter ou receber whispers, e remoção do ícone da barra superior.
+- [x] **Phase 138: Animação Completa de Caminhada de Outfits (8 Passos), Acesso ao Personagem/Aparência pelo Avatar e Persistência Permanente do Bestiário no PostgreSQL** - Restauração do ciclo completo de caminhada com 8 frames em ThaisCityArena, restrição de clamping de 3 frames apenas aos 4 outfits com 3 frames, avatar do dock superior abrindo o modal de Personagem/Aparência (outfit) ao invés de skills, e persistência atômica das mortes do bestiário no banco de dados Prisma em tempo real e hidratação nas rotas de API.
 
 ---
 
@@ -2513,6 +2516,36 @@ Plans:
 **Plans:**
 - [x] 137-PLAN: Chat Fixo no Canto Inferior Esquerdo e Remoção do Ícone de Chat da Barra Superior.
 - Resumo de entrega: `.planning/phases/phase-137-fixed-bottom-left-chat-and-dock-cleanup/137-SUMMARY.md`
+
+---
+
+### Phase 138: Animação Completa de Caminhada de Outfits (8 Passos), Acesso ao Personagem/Aparência pelo Avatar e Persistência Permanente do Bestiário no PostgreSQL
+**Status**: Complete  
+**Goal**: Resolver os três itens de FIX.md: (1) restaurar o ciclo autêntico de caminhada com 8 frames para todos os outfits suportados em ThaisCityArena; (2) direcionar o clique no avatar da barra superior para a janela de "Personagem" (Customizar Aparência / Outfits) em vez de Skills; (3) garantir a persistência permanente no PostgreSQL (via Prisma) das contagens de monstros derrotados no Bestiário por personagem.  
+**Depends on**: Phase 137  
+**Requirements**:
+1. **Restauração da Animação de Caminhada (8 Passos) (`outfitRecolor.ts`, `ThaisCityArena.tsx`, `GamePrototype.tsx`):**
+   - Restringir o clamp de 3 frames exclusivamente ao conjunto `OUTFITS_MAX_FRAMES_3 = new Set(['noble', 'paladin', 'sire', 'sorcerer'])`.
+   - Permitir que todos os outros 74 outfits renderizem o ciclo completo de 9 frames (f0 idle + f1..f8 walk).
+   - Eliminar a linha de fallback que resetava texturas para o frame 0 (sul, parado, sem montaria) quando um frame ainda estava em carregamento assíncrono.
+   - Detecção de movimento contínuo (`charIsMoving = isMoving || Boolean(curWalk)`) e propagação de `isWalking` no `GamePrototype` para teclas de direção WASD/setas e cliques no mapa.
+   - Pré-carregamento sequencial por direção para evitar saturação do pool de conexões HTTP do navegador e aumento de timeout seguro para 12s.
+2. **Clique do Avatar para Personagem / Aparência (`WindowDockBar.tsx`):**
+   - Alteração do handler `onClick` do avatar para invocar prioritariamente `onOpenOutfit()`, mantendo fallbacks limpos para `onOpenProfile()` e `onOpenSkills()`.
+3. **Persistência Permanente de Kills do Bestiário no PostgreSQL (Regra 5 MMORPG State):**
+   - Serialização e parsing seguro de `Character.bestiaryKillsJson` nas rotas `/api/characters` e `/api/characters/[id]`.
+   - Hidratação de `bestiaryKills` no `GamePrototype.tsx` a partir do banco e do payload do personagem ativo.
+   - Sincronização em tempo real dos eventos `bestiary:sync`, `bestiary:firstKill` e `bestiary:killUpdate` do Colyseus com o estado do React e `(activeCharacter as any).bestiaryKills`.
+   - Inclusão e merge de `bestiaryKills` em todas as rotinas periódicas de `saveProgress()`.
+   - Persistência imediata no `ThaisCityRoom.ts` ao abater qualquer criatura via `persistenceManager.saveCharacter(killer)`.
+4. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase138-outfit-walking-bestiary-persistence.test.ts` (8 testes aprovados).
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:**
+- [x] 138-PLAN: Animação Completa de Caminhada de Outfits, Acesso ao Personagem/Aparência pelo Avatar e Persistência Permanente do Bestiário no PostgreSQL.
+- Resumo de entrega: `.planning/phases/phase-138-outfit-walking-bestiary-persistence/138-SUMMARY.md`
+
 
 
 

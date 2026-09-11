@@ -28,10 +28,20 @@ export async function GET(
       );
     }
 
+    let parsedBestiaryKills: Record<string, number> = {};
+    if ((character as any).bestiaryKillsJson) {
+      try {
+        parsedBestiaryKills = typeof (character as any).bestiaryKillsJson === 'string'
+          ? JSON.parse((character as any).bestiaryKillsJson)
+          : (character as any).bestiaryKillsJson;
+      } catch {}
+    }
+
     const formatted = {
       ...character,
       experience: Number(character.experience),
       skills: character.skills.map((s) => ({ ...s, tries: Number(s.tries) })),
+      bestiaryKills: parsedBestiaryKills,
     };
 
     return NextResponse.json({ success: true, data: formatted }, { status: 200 });

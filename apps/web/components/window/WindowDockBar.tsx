@@ -211,8 +211,9 @@ export function WindowDockBar({
           onMouseEnter={handleInspectMouseEnter}
           onMouseLeave={handleInspectMouseLeave}
           onClick={() => {
-            if (onOpenSkills) onOpenSkills();
+            if (onOpenOutfit) onOpenOutfit();
             else if (onOpenProfile) onOpenProfile();
+            else if (onOpenSkills) onOpenSkills();
           }}
         >
           {/* Avatar Box with "Personagem" Tooltip */}

@@ -157,13 +157,15 @@ export interface OutfitCapabilities {
   maxFrames: number;
 }
 
+export const OUTFITS_MAX_FRAMES_3 = new Set(['noble', 'paladin', 'sire', 'sorcerer']);
+
 export function getOutfitCapabilities(outfitId: string): OutfitCapabilities {
   const norm = normalizeOutfitId(outfitId);
   const found = CANONICAL_OUTFITS.find((o) => o.id === norm);
   const hasAddon1 = found?.hasAddon1 ?? true;
   const hasAddon2 = found?.hasAddon2 ?? true;
   const hasMountRider = found?.hasMountRider ?? true;
-  const maxFrames = norm === 'sire' ? 3 : 9;
+  const maxFrames = OUTFITS_MAX_FRAMES_3.has(norm) ? 3 : 9;
   return {
     hasAddon1,
     hasAddon2,
@@ -348,7 +350,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
         settled = true;
         handleError();
       }
-    }, 6000);
+    }, 12000);
 
     const handleSuccess = () => {
       if (settled) return;
@@ -681,15 +683,15 @@ export async function preloadOutfitAllFrames(
   // 1. Prioritize frame 0 (idle) across all 4 directions immediately so standing pose is instantly ready
   await Promise.allSettled(directions.map((dir) => loadAndCacheFrame(dir, 0)));
 
-  // 2. Preload walk frames: up to maxFrames - 1 (e.g. 2 for Sire, 8 for others)
+  // 2. Preload walk frames: up to maxFrames - 1 (e.g. 2 for 3-frame outfits, 8 for others)
   const maxWalkFrame = Math.min(8, caps.maxFrames - 1);
-  const walkPromises: Promise<void>[] = [];
   for (const dir of directions) {
+    const dirPromises: Promise<void>[] = [];
     for (let f = 1; f <= maxWalkFrame; f++) {
-      walkPromises.push(loadAndCacheFrame(dir, f));
+      dirPromises.push(loadAndCacheFrame(dir, f));
     }
+    await Promise.allSettled(dirPromises);
   }
-  await Promise.allSettled(walkPromises);
 }
 
 export function getCanvasCacheKey(
@@ -841,17 +843,17 @@ export function getRecoloredCanvasSync(
       // 3. Try any provisional canvas for this key
       const provFallback = provisionalCanvasCache.get(key);
       if (provFallback) return provFallback;
+    } else {
+      // 4. Fallback for unmounted: current direction frame 0
+      const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, effectiveAddons, undefined, false);
+      const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
+      if (dirFallback) return dirFallback;
+
+      // 5. Fallback for unmounted: south frame 0
+      const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, effectiveAddons, undefined, false);
+      const southFallback = recoloredCanvasCache.get(southFallbackKey);
+      if (southFallback) return southFallback;
     }
-
-    // 4. Fallback for unmounted: current direction frame 0
-    const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, effectiveAddons, undefined, false);
-    const dirFallback = recoloredCanvasCache.get(dirFallbackKey);
-    if (dirFallback) return dirFallback;
-
-    // 5. Fallback for unmounted: south frame 0
-    const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, effectiveAddons, undefined, false);
-    const southFallback = recoloredCanvasCache.get(southFallbackKey);
-    if (southFallback) return southFallback;
     return null;
   }
 

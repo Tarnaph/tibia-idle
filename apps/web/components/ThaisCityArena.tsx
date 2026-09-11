@@ -1109,7 +1109,7 @@ export function ThaisCityArena({
             const charPixelX = currentPixelX;
             const charPixelY = currentPixelY;
             const charDirection = playerDirection;
-            const charIsMoving = isMoving;
+            const charIsMoving = isMoving || Boolean(curWalk);
             const charWalkFrame = charIsMoving ? walkCycle8[Math.floor(now / stepRateMs) % 8] : 0;
 
             view.sprite.scale.x = 1;
@@ -1123,6 +1123,8 @@ export function ThaisCityArena({
             const outfitSig = `${outfitKey}_${charGender}_${isMounted ? (localChar.mount || 'none') : 'none'}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
             if (view.lastOutfitSignature !== outfitSig) {
               view.lastOutfitSignature = outfitSig;
+              view.lastTextureKey = '';
+              view.lastCanvas = undefined;
               preloadOutfitAllFrames(
                 outfitKey,
                 charGender,
@@ -1171,35 +1173,14 @@ export function ThaisCityArena({
                   tex.source.style.scaleMode = 'nearest';
                   view.sprite.texture = tex;
                 }
-                if (isCached) {
-                  view.lastTextureKey = textureKey;
-                }
+                view.lastTextureKey = textureKey;
                 view.lastUrl = 'canvas';
-              } else {
-                // If canvas is not yet ready (layers still downloading), smoothly fall back to unmounted idle frame
-                const fallbackCanvas = getRecoloredCanvasSync(
-                  outfitKey,
-                  charGender,
-                  'south',
-                  0,
-                  colors,
-                  0,
-                  undefined,
-                  false
-                );
-                if (fallbackCanvas && view.lastCanvas !== fallbackCanvas) {
-                  view.lastCanvas = fallbackCanvas;
-                  const tex = Texture.from(fallbackCanvas);
-                  tex.source.style.scaleMode = 'nearest';
-                  view.sprite.texture = tex;
-                  view.lastUrl = 'canvas-provisional';
-                } else if (!localChar.outfitColors && !isMounted) {
-                  const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
-                  if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
-                    view.sprite.texture = loaded[nextUrl];
-                    view.lastUrl = nextUrl;
-                    view.lastTextureKey = nextUrl;
-                  }
+              } else if (!localChar.outfitColors && !isMounted) {
+                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
+                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                  view.sprite.texture = loaded[nextUrl];
+                  view.lastUrl = nextUrl;
+                  view.lastTextureKey = nextUrl;
                 }
               }
             }
