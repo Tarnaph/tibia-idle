@@ -2184,6 +2184,34 @@ Plans:
 - [x] 125-01-PLAN: Importação Total de Itens, Monstros, Magias e Tooltip Canônico de Look no Hover.
 - Resumo de entrega: `.planning/phases/phase-125-full-content-import-and-canonical-look-tooltips/125-SUMMARY.md`
 
+---
+
+### Phase 126: Otimização de Carregamento da Seleção de Personagens e Caixa Canônica de Logout / Troca de Personagem
+
+**Goal**: Eliminar a lentidão e atrasos ao clicar em "Entrar/game" ou "Jogar Agora" na página inicial implementando cache instantâneo SWR, pré-carregamento e desacoplamento de recursos pesados na seleção de personagem, e introduzir caixa de diálogo autêntica no design clássico do jogo ao clicar em sair/logout oferecendo escolha entre sair do jogo ou ir para a seleção de personagem com persistência garantida de progresso.  
+**Depends on**: Phase 125  
+**Requirements**:
+1. **Otimização de Carregamento da Seleção de Personagem (`LandingPage.tsx`, `TibiaAuthCharacterModal.tsx`, `GamePrototype.tsx`):**
+   - Inicializar `token`, `account` e `characters` instantaneamente com cache local (`cavebound_cached_account` e `cavebound_cached_characters`) no primeiro ciclo de renderização, eliminando tela vazia ou falsa tela de login.
+   - Revalidar em segundo plano (`fetchAccountAndCharacters`) atualizando o estado sem bloquear a visualização da UI.
+   - Adicionar prefetching no Next.js (`router.prefetch('/game')`) para transição de rota imediata ao clicar em "Jogar Agora" ou "Entrar / game".
+   - Otimizar `BardChromaVideo` trocando `preload="auto"` no arquivo de 140MB para `preload="none"` / `metadata`, suspendendo cálculos de chroma-key quando pausado e adicionando `loading="lazy"` ao iframe de fundo.
+2. **Caixa Canônica de Logout / Troca de Personagem (`LogoutConfirmModal.tsx` & `GamePrototype.tsx`):**
+   - Criar componente modal `LogoutConfirmModal.tsx` no design autêntico do Tibia/Huntera (bordas douradas, fundo escuro estilizado, botões com relevo e gradientes).
+   - Ao acionar sair/logout (pelo botão de saída no dock superior ou atalho Esc), abrir a caixa perguntando:
+     - **Trocar de Personagem**: salva o progresso do personagem atual no banco de dados, desconecta da sala do jogo e exibe a tela de seleção de personagem mantendo a conta conectada.
+     - **Sair do Jogo**: salva o progresso, desconecta do jogo, limpa tokens de autenticação, desloga da conta e redireciona para a landing page `/`.
+     - **Cancelar**: fecha o diálogo e retorna imediatamente ao jogo.
+3. **Persistência Permanente e Integridade:**
+   - Garantir chamada a `saveProgressRef.current()` antes de qualquer transição de saída ou troca de personagem.
+4. **Qualidade e Estabilidade:**
+   - Criar suíte de testes Vitest dedicada `tests/phase126-character-selection-perf-and-logout-dialog.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`) e 100% de aprovação nos testes (`npm test`).
+**Plans:**
+- [x] 126-01-PLAN: Otimização de Carregamento da Seleção de Personagens e Caixa Canônica de Logout / Troca de Personagem.
+- Resumo de entrega: `.planning/phases/phase-126-character-selection-perf-and-logout-dialog/126-SUMMARY.md`
+
+
 
 
 

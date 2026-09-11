@@ -56,6 +56,11 @@ export function AuthModal({ mode, onMode, onClose }: AuthModalProps) {
       }
       localStorage.setItem('colyseus_token', data.data.token);
       document.cookie = `colyseus_token=${data.data.token}; path=/; max-age=604800; SameSite=Lax`;
+      if (data.data.account) {
+        try {
+          localStorage.setItem('cavebound_cached_account', JSON.stringify(data.data.account));
+        } catch {}
+      }
       window.location.href = '/game';
     } catch (error) {
       setMessage(authErrorMessage(error));

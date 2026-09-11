@@ -59,6 +59,7 @@ import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { PartyInvitationModal } from './party/PartyInvitationModal';
 import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
+import { LogoutConfirmModal } from './character/LogoutConfirmModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
@@ -285,6 +286,7 @@ function GamePrototypeContent() {
   const chatWindowRef = useRef<ChatWindowHandle>(null);
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
   const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // Cross-tab BroadcastChannel session duplicate detector & responder
   useEffect(() => {
@@ -2225,6 +2227,18 @@ function GamePrototypeContent() {
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
 
+      // Phase 126: Esc key toggles the Logout & Switch Character dialog when playing
+      if (e.key === 'Escape' && !showAuthModal) {
+        if (isLogoutModalOpen) {
+          setIsLogoutModalOpen(false);
+          return;
+        }
+        if (!equipmentOpen && !depotOpen && !shopOpen && !skillsModalOpen && !isProfileModalOpen && !huntSelectorOpen && !outfitModalOpen) {
+          setIsLogoutModalOpen(true);
+          return;
+        }
+      }
+
       // Manual movement via arrow keys (and WASD) in city mode
       if (mode !== 'hunt') {
         let deltaX = 0;
@@ -2305,6 +2319,43 @@ function GamePrototypeContent() {
   const currentActor = encounter.partyActors.find((actor) => actor.characterId === activeCharacter.id);
   const prices = new Map(content.economy.items.map((item) => [item.itemId, preferredSellPrice(item)?.price ?? null]));
   const sellableValue = game.session.loot.reduce((total, stack) => total + (stack.itemId === undefined ? 0 : (prices.get(stack.itemId) ?? 0) * stack.amount), 0);
+
+  // Phase 126: Handlers for Character Switch and Full Logout with persistent progress saving
+  const handleSwitchCharacter = useCallback(async () => {
+    setIsLogoutModalOpen(false);
+    stopAllAudio();
+    try {
+      if (saveProgressRef.current) {
+        await saveProgressRef.current();
+      }
+    } catch {}
+    gameNetwork.disconnect();
+    setOnlineCharacter(null);
+    setShowAuthModal(true);
+    setSaleMessage('Retornando à seleção de personagens...');
+  }, []);
+
+  const handleConfirmLogout = useCallback(async () => {
+    setIsLogoutModalOpen(false);
+    stopAllAudio();
+    try {
+      if (saveProgressRef.current) {
+        await saveProgressRef.current();
+      }
+    } catch {}
+    gameNetwork.disconnect();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('colyseus_token');
+      localStorage.removeItem('tibia_auth_token');
+      localStorage.removeItem('cavebound_cached_characters');
+      localStorage.removeItem('cavebound_cached_account');
+      document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    }
+    setOnlineAccount(null);
+    setOnlineCharacter(null);
+    void auth.signOut();
+    window.location.href = '/';
+  }, [auth]);
 
   return (
     <main className="mmorpg-client fullscreen-mode">
@@ -2433,19 +2484,7 @@ function GamePrototypeContent() {
           onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
           onOpenShop={() => setShopOpen((prev) => !prev)}
           onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
-          onExitGame={() => {
-            stopAllAudio();
-            gameNetwork.disconnect();
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('colyseus_token');
-              localStorage.removeItem('tibia_auth_token');
-              document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
-            }
-            setOnlineAccount(null);
-            setOnlineCharacter(null);
-            void auth.signOut();
-            window.location.href = '/';
-          }}
+          onExitGame={() => setIsLogoutModalOpen(true)}
         />
       )}
 
@@ -2820,6 +2859,15 @@ function GamePrototypeContent() {
 
       {/* Phase 104/105: Now Playing Music Track Notification Toast (Slides in from right strictly after loading) */}
       <MusicTrackToast isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />
+
+      {/* Phase 126: Canonical Tibia Logout & Character Switch Modal */}
+      <LogoutConfirmModal
+        open={isLogoutModalOpen}
+        characterName={activeCharacter.name}
+        onSwitchCharacter={handleSwitchCharacter}
+        onLogoutGame={handleConfirmLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
+      />
 
       {/* Tibia Auth & Character Selection Modal */}
       {showAuthModal && (

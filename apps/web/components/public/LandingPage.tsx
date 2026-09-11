@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { useAuth } from '@/apps/web/auth/AuthProvider';
 import { authModalReducer } from '@/packages/auth/src/authActions';
 import type { GameUpdateRow } from '@/packages/auth/src/types';
@@ -84,6 +84,19 @@ export function LandingPage({
   const [selectedUpdate, setSelectedUpdate] = useState<GameUpdateRow | null>(null);
   const [activeVocationTab, setActiveVocationTab] = useState<string>('knight');
 
+  // Performance (Phase 126): Prefetch /game for instant navigation without loading delays
+  useEffect(() => {
+    try {
+      router.prefetch('/game');
+    } catch {}
+  }, [router]);
+
+  const onHoverPlay = () => {
+    try {
+      router.prefetch('/game');
+    } catch {}
+  };
+
   const play = () => {
     if (auth.status === 'authenticated') router.push('/game');
     else dispatchAuth({ type: 'open-login' });
@@ -110,7 +123,7 @@ export function LandingPage({
         <div className="public-account diablo-account">
           {auth.status === 'authenticated' && auth.viewer ? (
             <>
-              <Link className="header-play diablo-cta-btn" href="/game">
+              <Link className="header-play diablo-cta-btn" href="/game" prefetch onMouseEnter={onHoverPlay}>
                 <span>JOGAR AGORA</span>
               </Link>
               {(auth.viewer.role?.toUpperCase() === 'ADMIN' || auth.viewer.role?.toUpperCase() === 'GM') && (
@@ -135,6 +148,7 @@ export function LandingPage({
               className="header-play diablo-cta-btn"
               type="button"
               onClick={play}
+              onMouseEnter={onHoverPlay}
               disabled={auth.status === 'loading'}
             >
               <span>{auth.status === 'loading' ? 'CARREGANDO...' : 'ENTRAR / JOGAR'}</span>
@@ -181,7 +195,7 @@ export function LandingPage({
               Reúna sua party de Knights, Paladins, Sorcerers e Druids. Treine suas habilidades, conquiste loots lendários e evolua sem parar em uma jornada épica nas profundezas.
             </p>
             <div className="hero-actions diablo-hero-actions">
-              <button className="diablo-btn-primary large" type="button" onClick={play}>
+              <button className="diablo-btn-primary large" type="button" onClick={play} onMouseEnter={onHoverPlay}>
                 <span className="diablo-btn-glow" />
                 <span className="diablo-btn-text">⚔ JOGAR AGORA</span>
               </button>
@@ -352,7 +366,7 @@ export function LandingPage({
             <span className="eyebrow diablo-eyebrow">✦ A CAVERNA ESPERA ✦</span>
             <h2>Reúna sua party e comece sua lenda agora.</h2>
             <p>Jogue diretamente pelo navegador, sem downloads e com evolução idle contínua.</p>
-            <button className="diablo-btn-primary large" type="button" onClick={play}>
+            <button className="diablo-btn-primary large" type="button" onClick={play} onMouseEnter={onHoverPlay}>
               <span className="diablo-btn-glow" />
               <span className="diablo-btn-text">⚔ JOGAR CAVEBOUND AGORA</span>
             </button>

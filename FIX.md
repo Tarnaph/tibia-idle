@@ -1,16 +1,15 @@
-# MUDANÇAS - CONCLUÍDAS (Phase 124)
+# MUDANÇAS - CONCLUÍDAS (Phase 126)
 
-- [x] **1 - Exhaust Canônico (Mutual Delay Poção ↔ Magia/Runa):** [CONCLUÍDO]
-  - Adicionado intervalo de 1000ms entre gastar mana e usar poção.
-  - Exclusão mútua por tick (`usedPotionThisTick` e `usedSpellThisTick`), impedindo cast e poção no mesmo instante.
-  - Bloqueio mútuo em combate automático, acionamento manual (`triggerManualHotbarAction`) e poção de emergência.
+- [x] **1 - Carregamento Instantâneo da Seleção de Personagem:** [CONCLUÍDO]
+  - Eliminado o atraso e lentidão ao clicar em "Entrar/game" ou "Jogar agora".
+  - Implementado prefetching automático de rotas Next.js (`router.prefetch('/game')`) na Landing Page e no hover dos botões de ação.
+  - Implementado cache local instantâneo SWR (`cavebound_cached_account` e `cavebound_cached_characters`) no `localStorage`, renderizando a lista de personagens em 0ms enquanto revalida em segundo plano sem travar a interface.
+  - Inicialização síncrona do token JWT prevenindo renderização indesejada do formulário de login.
+  - Otimização do loop de chroma-keying do `BardChromaVideo` (pausa nos cálculos de canvas quando o vídeo está pausado ou carregando), liberando a CPU e evitando engasgos de carregamento.
 
-- [x] **2 - IA de Caçada Solo Inteligente (Dynamic Cave Monster Seeking):** [CONCLUÍDO]
-  - Na caçada solo, quando não houver monstros no campo de visão imediato, a IA não anda para waypoints vazios nem fica parada.
-  - A rota busca dinamicamente o monstro vivo mais próximo em qualquer sala ou corredor da caverna e redireciona o caminho para engajá-lo.
-
-- [x] **3 - Comportamento Tático Avançado em Party:** [CONCLUÍDO]
-  - **Knight (Main Tank):** Vai na frente da marcha liderando a vanguarda; foca sempre no monstro mais próximo; ao detectar inimigos atacando ou focando membros da party, conjura `Challenge` (`exeta res`) forçando os monstros a focarem nele por 6000ms.
-  - **Druid (Healer/Suporte):** Mantém distância tática de 3 a 4 tiles; prioriza curar o Knight com `Heal Friend` (`exura sio`) quando Knight < 85% HP e membros feridos < 80% HP antes de atacar; ataca à distância com magias e runas.
-  - **Sorcerer & Paladin (Ranged DPS):** Mantêm distância tática de 3 a 4 tiles atacando com magias, runas e armas de distância, reposicionando-se caso monstros se aproximem.
-  - **Target Sync:** Todos os membros secundários da party sincronizam e atacam o mesmo monstro que o Knight está atacando.
+- [x] **2 - Caixa Canônica de Saída / Logout no Design Clássico do Jogo:** [CONCLUÍDO]
+  - Ao clicar em sair/logout no dock superior ou pressionar a tecla `Escape` durante o jogo, uma caixa estilizada no design autêntico do Tibia/Huntera é exibida.
+  - Opções disponíveis:
+    - **Trocar de Personagem:** Salva o progresso do personagem atual de forma autoritativa no banco de dados, desconecta da sala e abre a tela de seleção de personagens mantendo a conta conectada.
+    - **Sair do Jogo:** Salva o progresso no banco de dados, desconecta do jogo, limpa as sessões e tokens locais e redireciona para a página inicial `/`.
+    - **Cancelar:** Fecha a caixa e continua jogando imediatamente.

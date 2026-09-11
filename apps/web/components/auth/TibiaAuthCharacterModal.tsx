@@ -45,9 +45,29 @@ const VOCATION_DESCRIPTIONS: Record<number, string> = {
 };
 
 export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout }: TibiaAuthCharacterModalProps) {
-  const [token, setToken] = useState<string | null>(null);
-  const [account, setAccount] = useState<AuthAccount | null>(null);
-  const [characters, setCharacters] = useState<CharacterItem[]>([]);
+  // Performance (Phase 126): Synchronous token initialization and SWR local storage cache
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('colyseus_token') || null;
+  });
+  const [account, setAccount] = useState<AuthAccount | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const cached = localStorage.getItem('cavebound_cached_account');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [characters, setCharacters] = useState<CharacterItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cached = localStorage.getItem('cavebound_cached_characters');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
   const [isRegistering, setIsRegistering] = useState(false);
   const [isCreatingChar, setIsCreatingChar] = useState(false);
 
@@ -141,13 +161,19 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       const charData = (await charRes.json()) as any;
 
       if (meData.success) {
-        setAccount({
+        const nextAccount = {
           ...meData.data,
           displayName: meData.data.displayName || meData.data.email?.split('@')[0] || 'Aventureiro',
-        });
+        };
+        setAccount(nextAccount);
+        try {
+          localStorage.setItem('cavebound_cached_account', JSON.stringify(nextAccount));
+        } catch {}
       } else {
         localStorage.removeItem('colyseus_token');
         localStorage.removeItem('tibia_auth_token');
+        localStorage.removeItem('cavebound_cached_account');
+        localStorage.removeItem('cavebound_cached_characters');
         if (typeof document !== 'undefined') {
           document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
         }
@@ -160,6 +186,9 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
 
       if (charData.success) {
         setCharacters(charData.data);
+        try {
+          localStorage.setItem('cavebound_cached_characters', JSON.stringify(charData.data));
+        } catch {}
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Falha ao comunicar com o servidor.');
@@ -278,6 +307,8 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
   const handleLogout = () => {
     localStorage.removeItem('colyseus_token');
     localStorage.removeItem('tibia_auth_token');
+    localStorage.removeItem('cavebound_cached_account');
+    localStorage.removeItem('cavebound_cached_characters');
     if (typeof document !== 'undefined') {
       document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     }
@@ -374,6 +405,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
         <iframe
           src="https://www.youtube.com/embed/b3Q0iWCTuZI?autoplay=1&mute=1&controls=0&loop=1&playlist=b3Q0iWCTuZI&playsinline=1"
           title="Vídeo de Fundo - Seleção de Personagem"
+          loading="lazy"
           style={{
             position: 'absolute',
             top: '50%',
@@ -1164,6 +1196,13 @@ function BardChromaVideo({
     void startAudio();
 
     const renderFrame = () => {
+      animId = requestAnimationFrame(renderFrame);
+
+      // Performance: Skip heavy CPU pixel loops if video is paused, ended, or not ready
+      if (video.paused || video.ended || video.readyState < 2) {
+        return;
+      }
+
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (ctx && video.videoWidth > 0 && video.videoHeight > 0) {
         if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
@@ -1196,8 +1235,6 @@ function BardChromaVideo({
 
         ctx.putImageData(frame, 0, 0);
       }
-
-      animId = requestAnimationFrame(renderFrame);
     };
 
     animId = requestAnimationFrame(renderFrame);
