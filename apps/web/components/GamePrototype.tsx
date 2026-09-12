@@ -50,6 +50,7 @@ import { GameModalProvider, useGameModal } from '@/apps/web/contexts/GameModalCo
 import { GameModalHost } from './modals/GameModalHost';
 import { isCharacterMounted, canOutfitHaveMount } from '@/apps/web/lib/appearanceService';
 import { PixiArena } from './PixiArena';
+import { assetPreloader } from '@/apps/web/lib/assetPreloader';
 import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
 import { ThaisCityArena, type CityOverheadMessage } from './ThaisCityArena';
@@ -1004,6 +1005,9 @@ function GamePrototypeContent() {
     setOnlineAccount(acc);
     setOnlineCharacter(charItem);
     setShowAuthModal(false);
+
+    // Phase 146: Inicia o pré-carregamento universal de sprites, montarias, magias, itens e animações
+    void assetPreloader.startPreload();
 
     // Phase 103: Start Thais BGM immediately during loading screen!
     playCityBgm();
@@ -2614,6 +2618,7 @@ function GamePrototypeContent() {
       }
     } catch {}
     gameNetwork.disconnect();
+    assetPreloader.reset();
     setOnlineCharacter(null);
     setShowAuthModal(true);
     setSaleMessage('Retornando à seleção de personagens...');
@@ -2628,6 +2633,7 @@ function GamePrototypeContent() {
       }
     } catch {}
     gameNetwork.disconnect();
+    assetPreloader.reset();
     if (typeof window !== 'undefined') {
       localStorage.removeItem('colyseus_token');
       localStorage.removeItem('tibia_auth_token');
@@ -3193,6 +3199,7 @@ function GamePrototypeContent() {
             setOnlineAccount(null);
             setOnlineCharacter(null);
             gameNetwork.disconnect();
+            assetPreloader.reset();
             void auth.signOut();
           }}
           onGoHome={() => {
@@ -3214,6 +3221,7 @@ function GamePrototypeContent() {
               transitionLoading?.message ||
               (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
             }
+            waitForAssets={initialLoadingActive}
             bgImage={loadingConfig.bgImage}
             curiosities={loadingConfig.curiosities}
             onFinish={() => {

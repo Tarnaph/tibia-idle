@@ -2724,6 +2724,30 @@ Plans:
 - [x] 145-01-PLAN: Resolução de Deadlock no Vite Dev Server, Desacoplamento da API de Autenticação e Prevenção de Transport Timeout.
 - Resumo de entrega: `.planning/phases/phase-145-game-load-and-transport-timeout-fix/145-SUMMARY.md`
 
+---
+
+### Phase 146: Sistema Universal de Pré-Carregamento na Tela de Loading
+
+**Goal**: Implementar um orquestrador universal de pré-carregamento de assets (`apps/web/lib/assetPreloader.ts`) integrado à tela de loading (`ExuraLoadingScreen.tsx`) na primeira entrada no jogo após a seleção do personagem, garantindo que o mapa de Thais, todas as montarias, trajes, frames de caminhada, catálogo de magias, runas, poções, efeitos e itens estejam 100% carregados e decodificados em memória assim que o usuário entrar na cidade.
+**Depends on**: Phase 145
+**Requirements**:
+1. **Manifesto Integral e Concorrência de Preload (`apps/web/lib/assetPreloader.ts`)**:
+   - Compilação dos assets fundamentais: mapa de Thais (pisos, paredes, portas, telhados), todas as 20+ montarias em 4 direções, 16 trajes clássicos (male/female, walk frames f0..f4), 146 magias + 34 runas + 18 poções, efeitos de combate e áudio.
+   - Controle de concorrência com 16 workers paralelos, decodificação via `Image.decode()` e integração com o cache compartilhado `imageElementCache`.
+2. **Sincronização com `ExuraLoadingScreen.tsx`**:
+   - Barra de loading magma acompanha o download real dos assets e reflete mensagens dinâmicas de cada etapa.
+   - Conclusão do loading e liberação para a cidade estritamente condicionada ao término dos assets (`100%`).
+3. **Integração no Fluxo do Jogo (`GamePrototype.tsx`)**:
+   - Disparo do preloader no `handleSelectCharacter` e sincronização via `waitForAssets={initialLoadingActive}`.
+   - Reset do preloader nas rotinas de logout e troca de personagem.
+4. **Qualidade e Validação Contínua**:
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte completa de 147 arquivos de teste Vitest (`npm test`).
+**Plans:** Concluído com sucesso.
+- [x] 146-01-PLAN: Sistema Universal de Pré-Carregamento na Tela de Loading.
+- Resumo de entrega: `.planning/phases/phase-146-universal-asset-preloading-loading-screen/146-SUMMARY.md`
+
+
 
 
 

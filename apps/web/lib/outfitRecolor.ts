@@ -249,7 +249,7 @@ export function getOutfitLayerUrls(
   return res;
 }
 
-const imageElementCache = new Map<string, HTMLImageElement>();
+export const imageElementCache = new Map<string, HTMLImageElement>();
 const inFlightImagePromises = new Map<string, Promise<HTMLImageElement>>();
 export const failedImageUrls = new Set<string>();
 const failedImageUrlsWithTimestamp = new Map<string, number>();

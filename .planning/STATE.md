@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-12T16:55:00.000Z"
-last_activity: "2026-09-12 — Conclusão da Phase 145: Resolução de Deadlock no Vite Dev Server, Desacoplamento da API de Autenticação e Prevenção de Transport Timeout."
+last_updated: "2026-09-12T18:55:00.000Z"
+last_activity: "2026-09-12 — Conclusão da Phase 146: Sistema Universal de Pré-Carregamento na Tela de Loading (Sprites, Montarias, Trajes, Magias, Itens e Áudio)."
 progress:
-  total_phases: 145
-  completed_phases: 145
-  total_plans: 145
-  completed_plans: 145
+  total_phases: 146
+  completed_phases: 146
+  total_plans: 146
+  completed_plans: 146
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 145 concluída com êxito.
+**Current focus:** Fase 146 concluída com êxito.
 
 ## Current Position
 
-Phase: 145 of 145 (Concluída)  
+Phase: 146 of 146 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-12 — Conclusão da Phase 145.
+Last activity: 2026-09-12 — Conclusão da Phase 146.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 145
-- Total phases in roadmap: 145
-- Tests status: 146 test suites, 874 testes (100% aprovados)
+- Total phases completed: 146
+- Total phases in roadmap: 146
+- Tests status: 147 test suites, 887 testes (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -70,6 +70,7 @@ Progress: [██████████] 100%
 | 143. Correção do Carregamento Integral da Cyclopedia e Bestiário em Todos os Personagens | 1 | - | - | Complete |
 | 144. Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria | 1 | - | - | Complete |
 | 145. Resolução de Deadlock no Vite Dev Server, Desacoplamento da API de Autenticação e Prevenção de Transport Timeout | 1 | - | - | Complete |
+| 146. Sistema Universal de Pré-Carregamento na Tela de Loading (Sprites, Montarias, Trajes, Magias, Itens e Áudio) | 1 | - | - | Complete |
 
 
 

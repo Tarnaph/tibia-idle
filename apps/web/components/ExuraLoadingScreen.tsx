@@ -10,6 +10,7 @@ import {
   type HuntLoadingConfig,
 } from '@/apps/web/lib/loadingConfig';
 import { onAutoplayBlockedChange, unlockAudio } from '@/apps/web/lib/audioManager';
+import { assetPreloader } from '@/apps/web/lib/assetPreloader';
 
 export {
   THAIS_LORE_CURIOSITIES,
@@ -49,6 +50,10 @@ export interface ExuraLoadingScreenProps {
    * Interval in milliseconds between curiosity rotations. Default: 5000ms (5 seconds).
    */
   curiosityIntervalMs?: number;
+  /**
+   * Optional toggle to wait for universal asset preloading before releasing. Default: false.
+   */
+  waitForAssets?: boolean;
 }
 
 export function ExuraLoadingScreen({
@@ -59,11 +64,13 @@ export function ExuraLoadingScreen({
   bgImage = '/images/loading/thais-loading.jpg',
   curiosities = THAIS_LORE_CURIOSITIES,
   curiosityIntervalMs = 5000,
+  waitForAssets = false,
 }: ExuraLoadingScreenProps) {
   const [progress, setProgress] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isVisible, setIsVisible] = useState(active);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [preloaderMessage, setPreloaderMessage] = useState('');
   const [curiosityIndex, setCuriosityIndex] = useState(() =>
     curiosities && curiosities.length > 0 ? Math.floor(Math.random() * curiosities.length) : 0
   );
@@ -123,6 +130,16 @@ export function ExuraLoadingScreen({
     return () => clearInterval(interval);
   }, [active, curiosities, curiosityIntervalMs]);
 
+  // Phase 146: Inscreve o componente ao progresso real do assetPreloader
+  useEffect(() => {
+    if (!active || !waitForAssets) return;
+    return assetPreloader.onProgress((state) => {
+      if (state.message) {
+        setPreloaderMessage(state.message);
+      }
+    });
+  }, [active, waitForAssets]);
+
   useEffect(() => {
     if (!active) {
       if (isVisible && !isFadingOut) {
@@ -148,13 +165,28 @@ export function ExuraLoadingScreen({
 
     const tick = (now: number) => {
       const elapsed = now - startTime;
-      const pct = Math.min(100, (elapsed / durationMs) * 100);
+      const timePct = Math.min(100, (elapsed / durationMs) * 100);
+
+      // Phase 146: Sincronização autoritativa com o pré-carregamento universal de assets
+      const isAssetsComplete = !waitForAssets || assetPreloader.isComplete();
+      const assetProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
+
+      let effectivePct: number;
+      if (!waitForAssets) {
+        effectivePct = timePct;
+      } else if (!isAssetsComplete) {
+        effectivePct = Math.min(99, Math.max(timePct * 0.4, assetProgressPct));
+      } else {
+        effectivePct = timePct;
+      }
+
+      const pct = Math.min(100, effectivePct);
       setProgress(pct);
 
-      if (pct < 100) {
+      if (pct < 100 || (!isAssetsComplete && waitForAssets)) {
         animationFrameId = requestAnimationFrame(tick);
       } else {
-        // Bar reached 100% after durationMs (10s)
+        // Bar reached 100% after durationMs (10s) and assets 100% preloaded
         setIsFadingOut(true);
         finishTimeoutId = setTimeout(() => {
           setIsVisible(false);
@@ -170,7 +202,7 @@ export function ExuraLoadingScreen({
       cancelAnimationFrame(animationFrameId);
       clearTimeout(finishTimeoutId);
     };
-  }, [active, durationMs]);
+  }, [active, durationMs, waitForAssets]);
 
   if (!isVisible && !active) return null;
 
@@ -537,7 +569,7 @@ export function ExuraLoadingScreen({
               margin: 0,
             }}
           >
-            {message} ({Math.round(progress)}%)
+            {(waitForAssets && preloaderMessage) || message} ({Math.round(progress)}%)
           </p>
         </div>
       </div>
