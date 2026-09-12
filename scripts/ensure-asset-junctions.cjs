@@ -26,10 +26,11 @@ for (const { name, target } of junctions) {
   const linkPath = path.join(assetsDir, name);
   if (!fs.existsSync(linkPath) && fs.existsSync(target)) {
     try {
-      fs.symlinkSync(target, linkPath, 'junction');
-      console.log(`[Assets] Created junction: public/assets/${name} -> ${target}`);
+      const symlinkType = process.platform === 'win32' ? 'junction' : 'dir';
+      fs.symlinkSync(target, linkPath, symlinkType);
+      console.log(`[Assets] Created link: public/assets/${name} -> ${target}`);
     } catch (err) {
-      console.warn(`[Assets] Could not create junction for ${name}:`, err.message);
+      console.warn(`[Assets] Could not create link for ${name}:`, err.message);
     }
   }
 }
