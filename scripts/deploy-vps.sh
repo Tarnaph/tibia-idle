@@ -39,13 +39,15 @@ npm install
 
 # 4.1 Configurar variáveis de ambiente (.env)
 echo "🔑 Configurando arquivo .env..."
-if [ ! -f "$APP_DIR/.env" ]; then
-  cat << 'EOF' > "$APP_DIR/.env"
+cat << 'EOF' > "$APP_DIR/.env"
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="cavebound-jwt-secret-secure-prod-auth-key-2026"
 NEXT_PUBLIC_SITE_URL="http://187.7.16.210:3000"
 EOF
-fi
+
+export DATABASE_URL="file:./dev.db"
+export JWT_SECRET="cavebound-jwt-secret-secure-prod-auth-key-2026"
+export NEXT_PUBLIC_SITE_URL="http://187.7.16.210:3000"
 
 # 5. Configurar banco de dados Prisma SQLite
 echo "🗄️ Inicializando banco de dados Prisma..."
