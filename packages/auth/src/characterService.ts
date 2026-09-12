@@ -447,62 +447,69 @@ export class CharacterService {
       }
     }
 
-    if (skillList.length > 0) {
-      for (const sk of skillList) {
-        const safeTries = sk.tries !== undefined
-          ? (typeof sk.tries === 'bigint' ? sk.tries : BigInt(Math.floor(Number(sk.tries))))
-          : undefined;
+    const executeMutations = async (tx: any) => {
+      if (skillList.length > 0) {
+        for (const sk of skillList) {
+          const safeTries = sk.tries !== undefined
+            ? (typeof sk.tries === 'bigint' ? sk.tries : BigInt(Math.floor(Number(sk.tries))))
+            : undefined;
 
-        await this.prisma.characterSkill.upsert({
-          where: {
-            characterId_skillId: {
+          await tx.characterSkill.upsert({
+            where: {
+              characterId_skillId: {
+                characterId,
+                skillId: sk.skillId,
+              },
+            },
+            update: {
+              value: sk.value,
+              tries: safeTries !== undefined ? safeTries : undefined,
+            },
+            create: {
               characterId,
               skillId: sk.skillId,
+              skillName: sk.skillName,
+              value: sk.value,
+              tries: safeTries !== undefined ? safeTries : BigInt(0),
             },
-          },
-          update: {
-            value: sk.value,
-            tries: safeTries !== undefined ? safeTries : undefined,
-          },
-          create: {
-            characterId,
-            skillId: sk.skillId,
-            skillName: sk.skillName,
-            value: sk.value,
-            tries: safeTries !== undefined ? safeTries : BigInt(0),
-          },
-        });
+          });
+        }
       }
-    }
 
-    // Update inventory items if provided
-    if (data.inventory !== undefined) {
-      await this.prisma.inventoryItem.deleteMany({
-        where: { characterId },
+      // Update inventory items if provided
+      if (data.inventory !== undefined) {
+        await tx.inventoryItem.deleteMany({
+          where: { characterId },
+        });
+        if (data.inventory.length > 0) {
+          await tx.inventoryItem.createMany({
+            data: data.inventory.map((eq) => ({
+              characterId,
+              slot: eq.slot,
+              serverId: eq.serverId,
+              name: eq.name,
+              count: eq.count,
+              tier: 0,
+            })),
+          });
+        }
+      }
+
+      return tx.character.update({
+        where: { id: characterId },
+        data: updateData,
+        include: {
+          skills: true,
+          inventory: true,
+          spells: true,
+        },
       });
-      if (data.inventory.length > 0) {
-        await this.prisma.inventoryItem.createMany({
-          data: data.inventory.map((eq) => ({
-            characterId,
-            slot: eq.slot,
-            serverId: eq.serverId,
-            name: eq.name,
-            count: eq.count,
-            tier: 0,
-          })),
-        });
-      }
-    }
+    };
 
-    return this.prisma.character.update({
-      where: { id: characterId },
-      data: updateData,
-      include: {
-        skills: true,
-        inventory: true,
-        spells: true,
-      },
-    });
+    if (typeof (this.prisma as any).$transaction === 'function') {
+      return (this.prisma as any).$transaction(executeMutations);
+    }
+    return executeMutations(this.prisma);
   }
 
   async calculateOfflineProgress(characterId: string): Promise<{ offlineSeconds: number; triesGained: number } | null> {

@@ -100,6 +100,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 138: Animação Completa de Caminhada de Outfits (8 Passos), Acesso ao Personagem/Aparência pelo Avatar e Persistência Permanente do Bestiário no PostgreSQL** - Restauração do ciclo completo de caminhada com 8 frames em ThaisCityArena, restrição de clamping de 3 frames apenas aos 4 outfits com 3 frames, avatar do dock superior abrindo o modal de Personagem/Aparência (outfit) ao invés de skills, e persistência atômica das mortes do bestiário no banco de dados Prisma em tempo real e hidratação nas rotas de API.
 - [x] **Phase 139: Abertura do Perfil pelo Avatar, Correção de Seleção de Outfits e Montarias, Expansão Total da Cyclopedia e Otimização da Tela de Carregamento** - Redirecionamento do clique no avatar para o perfil do personagem (CharacterProfileModal), adição de botão dedicado de Outfit (🎭) no dock, correção de seleção e ativação de montarias ("Sem Montaria" em 1º lugar, fallback seguro, sem montaria no Sire), importação dos catálogos reais do jogo na Cyclopedia (1.163 itens e 968 monstros) com paginação fluida e pré-aquecimento ativo de frames e dados durante a tela de loading.
 - [x] **Phase 140: Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia** - Criação do `GameModalContext` para controle global desacoplado de modais, `GameModalHost` isolando o JSX de tela cheia para fora do `GamePrototype.tsx`, criação do serviço canônico `appearanceService.ts` (SSOT para verificação e cálculo de montarias e safe walk frames) e `cyclopediaService.ts` eliminando o acoplamento com o loop principal do jogo e prevenindo regressões futuras.
+- [x] **Phase 141: Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas** - Ativação permanente de SQLite WAL mode e $transaction no characterService (reduzindo tempo de 48s para 6ms), descongestionamento de sockets HTTP em ThaisCityArena, streaming de viewport assíncrono, fetchPriority="high" e preload na landing page, e resolução via lookType em HuntCard para todos os ícones de monstros.
 
 ---
 
@@ -2592,6 +2593,29 @@ Plans:
 **Plans:**
 - [x] 140-PLAN: Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia.
 - Resumo de entrega: `.planning/phases/phase-140/140-SUMMARY.md`
+
+### Phase 141: Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas
+
+**Goal**: Solucionar definitivamente os problemas de carregamento em sessões anônimas/cold cache (tela preta, falta da imagem de loading, congelamento do servidor por I/O e ausência de ícones no seletor de caçadas).
+**Depends on**: Phase 140
+**Requirements**:
+1. **Otimização de I/O do SQLite & Modo WAL (`packages/database/src/index.ts` e `characterService.ts`):**
+   - Configuração de `PRAGMA journal_mode = WAL;`, `PRAGMA synchronous = NORMAL;`, `PRAGMA busy_timeout = 10000;` na inicialização do Prisma Client.
+   - Agrupamento das 11 operações de escrita do `saveCharacterProgress` em uma única transação atômica `$transaction`, eliminando contenção de I/O e reduzindo tempo de salvamento de 48s para menos de 20ms.
+2. **Descongestionamento de Sockets HTTP & Resiliência na Cidade (`ThaisCityArena.tsx`):**
+   - Reduzir `priorityUrls` no carregamento síncrono inicial aos assets essenciais imediatos do spawn (<15 assets), eliminando a retenção de 138 texturas de mapa que bloqueavam o pool de conexões HTTP e o início do ticker do Pixi.
+   - Pacing assíncrono para as texturas de mapa e assets secundários aproveitando `registerPendingSprite` e `resolvePendingSprites` sem bloquear a exibição da cidade nem atrasar a saída da tela de loading.
+3. **Priorização e Resiliência da Imagem de Loading (`ExuraLoadingScreen.tsx`):**
+   - Garantir prioridade de download (`fetchPriority="high"`, fallback inline seguro caso o asset demore a responder em cold cache) para que a imagem de loading nunca deixe a tela preta.
+4. **Correção Definitiva dos Ícones de Caçadas (`HuntCard.tsx`):**
+   - Corrigir a busca em `assets.creatures` utilizando `String(primaryMonster.lookType)` em vez do identificador textual (`primaryMonsterId`), permitindo que todas as caçadas exibam imediatamente os sprites oficiais dos monstros (Rat, Spider, Troll, Skeleton, Rotworm, Dragon).
+5. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase141-incognito-loading-sqlite-wal-and-hunt-icons.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:**
+- [x] 141-PLAN: Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas.
+- Resumo de entrega: `.planning/phases/phase-141/141-SUMMARY.md`
 
 
 

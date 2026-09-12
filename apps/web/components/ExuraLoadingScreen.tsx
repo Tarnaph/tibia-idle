@@ -197,12 +197,13 @@ export function ExuraLoadingScreen({
         cursor: autoplayBlocked ? 'pointer' : 'default',
       }}
     >
-      {/* Explicit Artwork Layer with Fallback */}
+      {/* Explicit Artwork Layer with Fallback & Priority Fetch */}
       <img
         src={bgImage || '/images/loading/thais-loading.jpg'}
         alt="Loading artwork"
         loading="eager"
         decoding="sync"
+        fetchPriority="high"
         onError={(e) => {
           const target = e.currentTarget as HTMLImageElement;
           if (!target.src.includes('/images/loading/loading-bg.jpg')) {

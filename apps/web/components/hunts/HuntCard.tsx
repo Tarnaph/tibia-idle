@@ -51,15 +51,28 @@ export function HuntCard({
     return monsters.find((m) => m.id === primaryMonsterId) ?? null;
   }, [monsters, primaryMonsterId]);
 
-  // Monster sprite url
+  // Monster sprite url with lookType resolution & resilient fallbacks
   const monsterSpriteUrl = useMemo(() => {
     if (!primaryMonsterId) return null;
-    const asset = assets.creatures[primaryMonsterId];
-    if (!asset) return null;
-    if (asset.thumbUrl) return asset.thumbUrl;
-    const southFrame = asset.frames?.find((f) => f.direction === 'south');
-    return southFrame?.publicUrl ?? asset.frames?.[0]?.publicUrl ?? null;
-  }, [primaryMonsterId]);
+
+    // 1. Resolve asset by lookType (numeric string), appearanceId, or monsterId
+    const lookType = primaryMonster?.lookType;
+    const appId = (primaryMonster as any)?.appearanceId;
+    const asset =
+      (lookType !== undefined ? assets.creatures[String(lookType)] : undefined) ||
+      (appId !== undefined ? assets.creatures[String(appId)] : undefined) ||
+      assets.creatures[primaryMonsterId] ||
+      (assets as any).assets?.[primaryMonsterId];
+
+    if (asset) {
+      if (asset.thumbUrl) return asset.thumbUrl;
+      const southFrame = asset.frames?.find((f: any) => f.direction === 'south');
+      if (southFrame?.publicUrl) return southFrame.publicUrl;
+      if (asset.frames?.[0]?.publicUrl) return asset.frames[0].publicUrl;
+    }
+
+    return null;
+  }, [primaryMonsterId, primaryMonster]);
 
   // Consolidated loot list
   const lootList = useMemo<LootItemEntry[]>(() => {

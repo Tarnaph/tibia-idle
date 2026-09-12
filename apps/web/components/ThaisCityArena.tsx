@@ -341,15 +341,14 @@ export function ThaisCityArena({
         }
       };
 
-      // 1. Preload ONLY core immediate spawn assets AND viewport textures (~150 textures total, finishes in ~100ms)
+      // 1. Preload ONLY core immediate spawn foundation (<10 textures, finishes in ~20ms)
+      // Never block the map construction or exhaust the browser's 6-connection HTTP pool
       const priorityUrls = [
         floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
-        ...teleportEffectUrls,
-        ...outfitUrls.slice(0, 8),
-        ...spawnViewportUrls,
-      ];
+        ...outfitUrls.slice(0, 4),
+      ].filter(Boolean);
       try {
-        await loadBatch(priorityUrls, 35, 0);
+        await loadBatch(priorityUrls, 6, 0);
       } catch (err) {
         console.warn('Priority asset loading error:', err);
       }
@@ -359,13 +358,15 @@ export function ThaisCityArena({
         return;
       }
 
-      // 2. Stream remaining assets in controlled, paced background batches to never starve HTTP pool
-      const immediateThaisMapUrls = nearbyStreetsUrls;
-      void loadBatch(immediateThaisMapUrls, 15, 25).then(async () => {
+      // 2. Stream viewport and city textures in paced background batches via pendingTileSprites
+      void loadBatch([...spawnViewportUrls], 8, 15).then(async () => {
+        if (disposed) return;
+        await loadBatch(nearbyStreetsUrls, 10, 20);
         if (disposed) return;
 
         // Then load background icons, spells, missiles, and outfits
         const bgAssets = [
+          ...teleportEffectUrls,
           ...ALL_SPELL_ICON_URLS,
           ...fireEffectUrls,
           ...coreMissileUrls,
@@ -373,11 +374,11 @@ export function ThaisCityArena({
           ...thumbUrls,
           ...outfitUrls,
         ].filter((u) => !loaded[u]);
-        await loadBatch(bgAssets, 15, 25);
+        await loadBatch(bgAssets, 12, 25);
         if (disposed) return;
 
         // Finally stream distant city outskirts lazily
-        void loadBatch(distantThaisMapUrls, 20, 40);
+        void loadBatch(distantThaisMapUrls, 15, 35);
       });
 
 

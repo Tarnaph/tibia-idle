@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-12T00:46:00.000Z"
-last_activity: "2026-09-12 — Conclusão da Phase 140: Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia."
+last_updated: "2026-09-12T11:58:00.000Z"
+last_activity: "2026-09-12 — Conclusão da Phase 141: Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas."
 progress:
-  total_phases: 140
-  completed_phases: 140
-  total_plans: 140
-  completed_plans: 140
+  total_phases: 141
+  completed_phases: 141
+  total_plans: 141
+  completed_plans: 141
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 140 Concluída com Sucesso.
+**Current focus:** Phase 141 — Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas (Concluída).
 
 ## Current Position
 
-Phase: 140 of 140 (Concluída)  
+Phase: 141 of 141 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-12 — Conclusão da Phase 140.
+Last activity: 2026-09-12 — Entrega da Phase 141.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 140
-- Total phases in roadmap: 140
-- Tests status: 141 test suites, 833 testes (100% aprovados)
+- Total phases completed: 141
+- Total phases in roadmap: 141
+- Tests status: 142 test suites, 840 testes (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 | 138. Animação de Caminhada, Avatar para Personagem e Persistência do Bestiário | 1 | - | - | Complete |
 | 139. Abertura do Perfil pelo Avatar, Correção de Outfits/Montarias, Expansão Total da Cyclopedia e Otimização do Loading | 1 | - | - | Complete |
 | 140. Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia | 1 | - | - | Complete |
+| 141. Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas | 1 | - | - | Complete |
 
 
 

@@ -84,7 +84,7 @@ export function LandingPage({
   const [selectedUpdate, setSelectedUpdate] = useState<GameUpdateRow | null>(null);
   const [activeVocationTab, setActiveVocationTab] = useState<string>('knight');
 
-  // Performance (Phase 126): Prefetch /game for instant navigation without loading delays
+  // Performance (Phase 126 & 141): Prefetch /game and preload loading artworks for instant incognito entry
   useEffect(() => {
     try {
       const p: any = router.prefetch('/game');
@@ -92,6 +92,17 @@ export function LandingPage({
         p.catch(() => {});
       }
     } catch {}
+
+    if (typeof window !== 'undefined') {
+      const preloadImages = [
+        '/images/loading/thais-loading.jpg',
+        '/images/loading/loading-bg.jpg',
+      ];
+      for (const src of preloadImages) {
+        const img = new Image();
+        img.src = src;
+      }
+    }
   }, [router]);
 
   // Phase 133: Intercept unhandled dynamic module rejections (Vite chunk hash mismatches) and fallback safely
