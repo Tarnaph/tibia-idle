@@ -55,6 +55,7 @@ export default defineConfig(async () => {
       external: ['@prisma/client', 'ws'],
     },
     server: {
+      host: true,
       hmr: { overlay: false },
       watch: {
         ignored: [
