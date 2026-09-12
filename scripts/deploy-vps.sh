@@ -54,9 +54,8 @@ echo "🗄️ Inicializando banco de dados Prisma..."
 npx prisma generate
 npx prisma db push --accept-data-loss
 
-# 6. Preparar assets e conteúdo do jogo
-echo "🎨 Gerando catálogos e assets do jogo..."
-npm run prepare:game
+# 6. Conteúdo e catálogos do jogo
+echo "🎨 Catálogos e assets do jogo prontos em content/generated/."
 
 # 7. Instalar PM2 para rodar os servidores 24/7 em segundo plano
 if ! command -v pm2 >/dev/null 2>&1; then
