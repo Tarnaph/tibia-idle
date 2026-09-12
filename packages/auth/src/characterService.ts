@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { experienceForLevel, levelForExperience } from '../../domain/src';
+import { experienceForLevel, levelForExperience } from '../../domain/src/experience';
 
 export interface CreateCharacterInput {
   accountId: string;

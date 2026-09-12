@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ThaisCityRoom } from '../packages/server/src/rooms/ThaisCityRoom';
 import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 import { MonsterState } from '../packages/server/src/schemas/MonsterState';
 import { experienceForLevel } from '../packages/domain/src';
+import { serverConfigManager } from '../packages/server/src/config/ServerConfigManager';
 import monstersJson from '../content/generated/monsters.json';
 
 describe('Phase 66: Authentic Monster Experience and Level-Up Progression', () => {
@@ -18,8 +19,13 @@ describe('Phase 66: Authentic Monster Experience and Level-Up Progression', () =
   });
 
   it('grants authentic XP and only levels up when threshold is reached in ThaisCityRoom', () => {
-    const room = new ThaisCityRoom();
-    room.onCreate({});
+    const spy = vi.spyOn(serverConfigManager, 'getConfig').mockReturnValue({
+      ...serverConfigManager.getConfig(),
+      expRate: 1.0,
+    });
+    try {
+      const room = new ThaisCityRoom();
+      room.onCreate({});
 
     const player = new PlayerState();
     player.id = 'p-tester';
@@ -45,5 +51,8 @@ describe('Phase 66: Authentic Monster Experience and Level-Up Progression', () =
     (room as any).killMonster(dummy, player);
     expect(player.experience).toBe(4205);
     expect(player.level).toBe(8);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

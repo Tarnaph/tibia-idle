@@ -1734,7 +1734,7 @@ function GamePrototypeContent() {
       unsubFirstKill();
       unsubKillUpdate();
     };
-  }, [activeCharacter]);
+  }, [activeCharacter?.id]);
 
   // Phase 143: Keep bestiary kills, tracked monster and boss points strictly synchronized with active character
   useEffect(() => {

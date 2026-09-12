@@ -101,6 +101,10 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 139: Abertura do Perfil pelo Avatar, Correção de Seleção de Outfits e Montarias, Expansão Total da Cyclopedia e Otimização da Tela de Carregamento** - Redirecionamento do clique no avatar para o perfil do personagem (CharacterProfileModal), adição de botão dedicado de Outfit (🎭) no dock, correção de seleção e ativação de montarias ("Sem Montaria" em 1º lugar, fallback seguro, sem montaria no Sire), importação dos catálogos reais do jogo na Cyclopedia (1.163 itens e 968 monstros) com paginação fluida e pré-aquecimento ativo de frames e dados durante a tela de loading.
 - [x] **Phase 140: Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia** - Criação do `GameModalContext` para controle global desacoplado de modais, `GameModalHost` isolando o JSX de tela cheia para fora do `GamePrototype.tsx`, criação do serviço canônico `appearanceService.ts` (SSOT para verificação e cálculo de montarias e safe walk frames) e `cyclopediaService.ts` eliminando o acoplamento com o loop principal do jogo e prevenindo regressões futuras.
 - [x] **Phase 141: Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas** - Ativação permanente de SQLite WAL mode e $transaction no characterService (reduzindo tempo de 48s para 6ms), descongestionamento de sockets HTTP em ThaisCityArena, streaming de viewport assíncrono, fetchPriority="high" e preload na landing page, e resolução via lookType em HuntCard para todos os ícones de monstros.
+- [x] **Phase 142: Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente** - Estratégia resiliente de timeout em loadImage, aquecimento seguro de cache e alinhamento multi-ambiente.
+- [x] **Phase 143: Correção do Carregamento Integral da Cyclopedia e Bestiário em Todos os Personagens** - Reconciliação autoritativa do bestiário, contagem de kills permanente e carregamento completo de itens e criaturas na Cyclopedia.
+- [x] **Phase 144: Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria** - Desacoplamento de equippedMount e mountActive, preservação da montaria equipada ao andar a pé, resiliência de Ctrl+R e menu de contexto.
+- [x] **Phase 145: Resolução de Deadlock no Vite Dev Server, Desacoplamento da API de Autenticação e Prevenção de Transport Timeout** - Desacoplamento de packages/auth do motor de combate do jogo, proteção contra loops de recompilação do Vite com server.watch.ignored e estabilização de subscrições no GamePrototype.tsx.
 
 ---
 
@@ -2697,6 +2701,29 @@ Plans:
 **Plans:** Concluído com sucesso.
 - [x] 144-01-PLAN: Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria.
 - Resumo de entrega: `.planning/phases/phase-144-unmount-and-no-mount-selection/144-SUMMARY.md`
+
+### Phase 145: Resolução de Deadlock no Vite Dev Server, Desacoplamento da API de Autenticação e Prevenção de Transport Timeout
+
+**Goal**: Diagnosticar e eliminar a causa raiz pela qual o jogo parou de abrir (erros 500 / timeouts de 60 a 80 segundos com `transport invoke timed out after 60000ms`), desacoplando o backend de autenticação do motor de combate do jogo, blindando o Vite contra loops contínuos de recompilação por escritas SQLite/WAL e estabilizando os hooks do Colyseus no frontend.
+**Depends on**: Phase 144
+**Requirements**:
+1. **Desacoplamento de `packages/auth/src/characterService.ts`**:
+   - Redirecionar imports utilitários (`experienceForLevel`, `levelForExperience`) para submódulos dedicados (`../../domain/src/experience`), eliminando o carregamento acidental de todo o grafo pesado do motor de jogo (`combat.ts`, `spatial`, `ServerConfigManager`) nas rotas de autenticação.
+2. **Blindagem do Watcher do Vite Dev Server (`vite.config.ts`)**:
+   - Configurar `server.watch.ignored` para diretórios e arquivos com alta frequência de escrita (`prisma/**`, `.system_generated/**`, `content/generated/**`, `.planning/**`, `scratch/**`, `tests/**`), prevenindo reloads e recompilações em loop infinito no Vite.
+   - Preservar `exclude: ['@prisma/client']` em `optimizeDeps` e `ws` em `ssr.external` para compatibilidade com contratos de testes existentes.
+3. **Estabilização de Subscrições no `GamePrototype.tsx`**:
+   - Estabilizar dependências de `useEffect` de `[activeCharacter]` para `[activeCharacter?.id]` para evitar desinscrição e reinscrição a cada frame/tick de jogo.
+4. **Isolamento de Concorrência em Testes**:
+   - Usar `vi.spyOn` no `tests/phase66-authentic-monster-experience.test.ts` para isolar mutações de taxa de XP e não sobrescrever `content/server-config.json` durante a execução paralela de testes.
+5. **Qualidade e Validação Contínua**:
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte completa de 146 arquivos de teste Vitest (`npm test`).
+   - Respostas de API e `/game` abaixo de 100ms.
+**Plans:** Concluído com sucesso.
+- [x] 145-01-PLAN: Resolução de Deadlock no Vite Dev Server, Desacoplamento da API de Autenticação e Prevenção de Transport Timeout.
+- Resumo de entrega: `.planning/phases/phase-145-game-load-and-transport-timeout-fix/145-SUMMARY.md`
+
 
 
 

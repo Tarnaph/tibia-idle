@@ -56,7 +56,17 @@ export default defineConfig(async () => {
     },
     server: {
       hmr: { overlay: false },
-      ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
+      watch: {
+        ignored: [
+          '**/prisma/**',
+          '**/.system_generated/**',
+          '**/content/generated/**',
+          '**/.planning/**',
+          '**/scratch/**',
+          '**/tests/**',
+        ],
+        ...(isCodexSeatbeltSandbox ? { useFsEvents: false, usePolling: true } : {}),
+      },
     },
     plugins: [
       vinext(),
