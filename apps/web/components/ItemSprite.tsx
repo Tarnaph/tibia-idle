@@ -31,21 +31,41 @@ export function itemVisualAsset(itemId: number | undefined) {
   return visualAssets.items[String(mappedId)];
 }
 
+export function resolveItemSpriteUrl(itemId: number | undefined): string | null {
+  if (itemId === undefined) return null;
+  const mappedId = TEST_ITEM_SPRITE_MAP[itemId] ?? itemId;
+  const asset = visualAssets.items[String(mappedId)];
+  if (asset?.frame?.publicUrl) {
+    return asset.frame.publicUrl;
+  }
+  return `/generated/cyclopedia/items/item-${mappedId}.png`;
+}
+
 export function ItemSprite({ itemId, label, className = '' }: ItemSpriteProps) {
   const asset = itemVisualAsset(itemId);
-  if (!asset?.resolved || !asset.frame) {
+  const spriteUrl = asset?.frame?.publicUrl ?? resolveItemSpriteUrl(itemId);
+
+  if (!spriteUrl) {
     return <span className={`item-sprite item-sprite-fallback ${className}`} aria-label={`${label}: sprite indisponível`}>?</span>;
   }
+
   return (
     // Native img preserves the extracted 32px PNG without an optimization pipeline.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       className={`item-sprite ${className}`}
-      src={asset.frame.publicUrl}
-      alt=""
+      src={spriteUrl}
+      alt={label}
       draggable={false}
-      width={asset.frame.width}
-      height={asset.frame.height}
+      width={asset?.frame?.width ?? 32}
+      height={asset?.frame?.height ?? 32}
+      onError={(e) => {
+        const target = e.currentTarget as HTMLImageElement;
+        const mappedId = itemId !== undefined ? (TEST_ITEM_SPRITE_MAP[itemId] ?? itemId) : undefined;
+        if (mappedId !== undefined && !target.src.includes('tibia1098')) {
+          target.src = `/generated/tibia1098/items/item-${mappedId}.png`;
+        }
+      }}
     />
   );
 }

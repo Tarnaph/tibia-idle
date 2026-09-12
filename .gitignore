@@ -39,6 +39,7 @@ next-env.d.ts
 /work/
 /scratch/
 *.tsbuildinfo
+/public/assets/
 
 # Large binary archives and map/sprite blobs (> 100MB)
 *.otbm

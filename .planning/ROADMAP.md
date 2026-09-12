@@ -2747,6 +2747,35 @@ Plans:
 - [x] 146-01-PLAN: Sistema Universal de Pré-Carregamento na Tela de Loading.
 - Resumo de entrega: `.planning/phases/phase-146-universal-asset-preloading-loading-screen/146-SUMMARY.md`
 
+---
+
+### Phase 147: Organização Oficial de Assets, Diretório Canônico e Otimização de Loading
+
+**Goal**: Criar e estruturar a pasta oficial de imagens (`public/assets/`), catalogando todas as categorias (itens, magias, runas, poções, montarias, monstros, outfits, caçadas, avatares e loading), implementar o módulo central `apps/web/lib/assetPaths.ts`, estabelecer a regra oficial em `.agents/rules/asset-paths.md`, atualizar as diretrizes em `AGENTS.md` e otimizar a tela de carregamento (`ExuraLoadingScreen.tsx` e `assetPreloader.ts`) com duração ágil de ~2.5s, pulo instantâneo por clique/teclado e fallbacks resilientes para os 22.181 itens do Cyclopedia e monstros do Bestiário.
+**Depends on**: Phase 146
+**Requirements**:
+1. **Pasta Oficial e Junções de Assets (`public/assets/`)**:
+   - Mapeamento transparente de `public/assets/items/`, `spells/`, `runes/`, `potions/`, `mounts/`, `monsters/`, `outfits/`, `outfit-thumbs/`, `hunts/`, `avatars/` e `loading/`.
+   - Script automatizado `scripts/ensure-asset-junctions.cjs` integrado ao `postinstall` e `setup:assets`.
+2. **Resolução Canônica e Regras do Agente**:
+   - Criação de `apps/web/lib/assetPaths.ts` com funções `getCanonicalItemUrl`, `getCanonicalSpellUrl`, etc.
+   - Criação da regra `.agents/rules/asset-paths.md` com tabela completa e convenções.
+   - Atualização de `AGENTS.md` com a Seção 6 de Diretriz de Imagens e Assets.
+3. **Otimização de Carregamento e Pulo Instantâneo**:
+   - `ExuraLoadingScreen.tsx` calibrada para transição fluida de ~2.5s no primeiro login.
+   - Mecanismo de pulo imediato (`handleSkip`) ao clicar na tela ou pressionar qualquer tecla (Space/Enter/Escape).
+   - `assetPreloader.ts` com concorrência otimizada, timeout estrito de segurança (2200ms) e `markComplete()`.
+4. **Resiliência de Sprites em Componentes**:
+   - `ItemSprite.tsx` com fallback para os 22.181 itens do Cyclopedia e tratamento de erro resiliente.
+   - `HuntCard.tsx` com resolução para monstros do bestiário e tratamento `onError`.
+5. **Qualidade e Validação Contínua**:
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte completa de 148 arquivos de teste Vitest (`npm test`).
+**Plans:** Concluído com sucesso.
+- [x] 147-01-PLAN: Organização Oficial de Assets, Diretório Canônico e Otimização de Loading.
+- Resumo de entrega: `.planning/phases/phase-147-official-asset-directory-and-fast-loading/147-SUMMARY.md`
+
+
 
 
 

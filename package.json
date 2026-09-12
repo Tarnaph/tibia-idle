@@ -19,7 +19,8 @@
     "extract:tibia1098": "node --experimental-strip-types packages/tibia1098-assets/src/cli.ts",
     "extract:tibia11:icons": "node scripts/extract-tibia11-icons.cjs",
     "import:rotworm": "npm run import:content",
-    "postinstall": "node scripts/patch-http-pipeline.cjs"
+    "setup:assets": "node scripts/ensure-asset-junctions.cjs",
+    "postinstall": "node scripts/patch-http-pipeline.cjs && node scripts/ensure-asset-junctions.cjs"
   },
   "dependencies": {
     "@colyseus/monitor": "0.15.6",

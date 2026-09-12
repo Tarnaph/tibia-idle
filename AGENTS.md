@@ -31,3 +31,20 @@ O assistente Antigravity DEVE **sempre utilizar a skill `/gsd`** e o ecossistema
    - O assistente DEVE analisar proativamente se a informação precisa ser **permanente entre sessões/relogs/restarts do servidor**.
    - Garantir a modelagem no banco de dados Prisma (`prisma/schema.prisma`), persistência no `PrismaPersistenceManager.ts` e carregamento autoritativo no `onJoin` do servidor Colyseus (`ThaisCityRoom.ts`), nunca deixando o progresso puramente em memória transiente de frontend ou runtime temporário.
 
+6. **🖼️ Diretriz de Imagens, Sprites e Assets Visuais (Asset Paths):**
+   - Todas as imagens do jogo estão catalogadas e centralizadas na pasta oficial **`public/assets/`** (e espelhos canônicos em `public/generated/` e `public/images/`):
+     - **Itens:** `public/assets/items/item-${id}.png` (ou `public/generated/cyclopedia/items/` com 22.181 itens).
+     - **Magias e Feitiços:** `public/assets/spells/` (ou `public/spells/` / `public/spells/canonical/`).
+     - **Runas:** `public/assets/runes/` (ou `public/runes/`).
+     - **Poções:** `public/assets/potions/` (ou `public/potions/`).
+     - **Montarias:** `public/assets/mounts/` (ou `public/generated/mounts/`).
+     - **Monstros e Bestiário:** `public/assets/monsters/` (ou `public/generated/bestiary/${monsterId}.png`).
+     - **Outfits e Miniaturas:** `public/assets/outfits/` e `public/assets/outfit-thumbs/`.
+     - **Caçadas:** `public/assets/hunts/` (ou `public/images/hunts/` com fallback para bestiário).
+     - **Avatares:** `public/assets/avatars/` (ou `public/images/avatars/`).
+     - **Loading:** `public/assets/loading/` (ou `public/images/loading/`).
+   - Sempre utilize o módulo helper `apps/web/lib/assetPaths.ts` para resolver URLs canônicas em componentes React.
+   - Sempre implemente manipulação de `onError` com fallbacks para garantir que nenhum item exiba ícone de interrogação `?` ou imagem quebrada.
+   - Consulte a regra completa em `.agents/rules/asset-paths.md`.
+
+

@@ -81,7 +81,8 @@ export function HuntCard({
       if (asset.frames?.[0]?.publicUrl) return asset.frames[0].publicUrl;
     }
 
-    return null;
+    // Canonical bestiary fallback (/generated/bestiary/{primaryMonsterId}.png)
+    return `/generated/bestiary/${primaryMonsterId}.png`;
   }, [primaryMonsterId, primaryMonster]);
 
   // Consolidated loot list
@@ -185,6 +186,16 @@ export function HuntCard({
               className="hunt-card-creature-sprite"
               loading="eager"
               decoding="sync"
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                if (primaryMonsterId) {
+                  if (!target.src.includes('bestiary')) {
+                    target.src = `/generated/bestiary/${primaryMonsterId}.png`;
+                  } else if (!target.src.includes('assets/monsters')) {
+                    target.src = `/assets/monsters/${primaryMonsterId}.png`;
+                  }
+                }
+              }}
             />
           ) : (
             <div className="hunt-card-sprite-placeholder">🐾</div>

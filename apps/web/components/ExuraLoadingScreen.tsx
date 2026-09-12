@@ -162,10 +162,40 @@ export function ExuraLoadingScreen({
     const startTime = performance.now();
     let animationFrameId: number;
     let finishTimeoutId: NodeJS.Timeout;
+    let isHandled = false;
+
+    const handleSkip = () => {
+      if (isHandled) return;
+      isHandled = true;
+      void unlockAudio();
+      assetPreloader.markComplete();
+      setProgress(100);
+      setIsFadingOut(true);
+      cancelAnimationFrame(animationFrameId);
+      finishTimeoutId = setTimeout(() => {
+        setIsVisible(false);
+        setIsFadingOut(false);
+        onFinishRef.current?.();
+      }, 250);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
+        handleSkip();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
 
     const tick = (now: number) => {
+      if (isHandled) return;
       const elapsed = now - startTime;
-      const timePct = Math.min(100, (elapsed / durationMs) * 100);
+      const effectiveDuration = waitForAssets ? Math.min(durationMs, 2500) : durationMs;
+      const timePct = Math.min(100, (elapsed / effectiveDuration) * 100);
+
+      // Timeout de segurança após o tempo efetivo para desobstruir o preloader
+      if (elapsed >= effectiveDuration && waitForAssets && !assetPreloader.isComplete()) {
+        assetPreloader.markComplete();
+      }
 
       // Phase 146: Sincronização autoritativa com o pré-carregamento universal de assets
       const isAssetsComplete = !waitForAssets || assetPreloader.isComplete();
@@ -187,12 +217,13 @@ export function ExuraLoadingScreen({
         animationFrameId = requestAnimationFrame(tick);
       } else {
         // Bar reached 100% after durationMs (10s) and assets 100% preloaded
+        isHandled = true;
         setIsFadingOut(true);
         finishTimeoutId = setTimeout(() => {
           setIsVisible(false);
           setIsFadingOut(false);
           onFinishRef.current?.();
-        }, 400);
+        }, 350);
       }
     };
 
@@ -201,6 +232,7 @@ export function ExuraLoadingScreen({
     return () => {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(finishTimeoutId);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [active, durationMs, waitForAssets]);
 
@@ -216,6 +248,14 @@ export function ExuraLoadingScreen({
       className="exura-loading-overlay"
       onClick={() => {
         void unlockAudio();
+        assetPreloader.markComplete();
+        setProgress(100);
+        setIsFadingOut(true);
+        setTimeout(() => {
+          setIsVisible(false);
+          setIsFadingOut(false);
+          onFinishRef.current?.();
+        }, 200);
       }}
       style={{
         position: 'fixed',
@@ -570,6 +610,19 @@ export function ExuraLoadingScreen({
             }}
           >
             {(waitForAssets && preloaderMessage) || message} ({Math.round(progress)}%)
+          </p>
+          <p
+            style={{
+              margin: '0.35rem 0 0 0',
+              fontFamily: 'sans-serif',
+              fontSize: '0.75rem',
+              color: 'rgba(224, 201, 166, 0.6)',
+              letterSpacing: '0.04em',
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))',
+              pointerEvents: 'none',
+            }}
+          >
+            Clique na tela ou pressione qualquer tecla para entrar imediatamente
           </p>
         </div>
       </div>

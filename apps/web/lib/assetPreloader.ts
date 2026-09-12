@@ -96,11 +96,11 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
     genders.forEach((gender) => {
       directions.forEach((dir) => {
         // Idle frame f0
-        outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0.png`);
+        outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-base.png`);
         outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-mask.png`);
         // Walk frames f1..f4
         for (let f = 1; f <= 4; f++) {
-          outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}.png`);
+          outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-base.png`);
           outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-mask.png`);
         }
       });
@@ -155,20 +155,27 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
 }
 
 /**
- * Carrega e decodifica uma imagem individual no browser
+ * Carrega e decodifica uma imagem individual no browser com timeout estrito de segurança
  */
 async function preloadSingleImage(url: string): Promise<boolean> {
   if (typeof window === 'undefined') return true;
 
-  try {
-    const img = await loadImage(url);
-    if ('decode' in img) {
-      await img.decode().catch(() => {});
-    }
-    return true;
-  } catch {
-    return false;
-  }
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), 350);
+    loadImage(url)
+      .then((img) => {
+        clearTimeout(timer);
+        if ('decode' in img) {
+          img.decode().catch(() => {}).finally(() => resolve(true));
+        } else {
+          resolve(true);
+        }
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        resolve(false);
+      });
+  });
 }
 
 /**
@@ -183,7 +190,7 @@ function preloadAudio(url: string): Promise<boolean> {
       audio.src = url;
       audio.oncanplaythrough = () => resolve(true);
       audio.onerror = () => resolve(false);
-      setTimeout(() => resolve(true), 2500);
+      setTimeout(() => resolve(true), 1500);
     } catch {
       resolve(false);
     }
@@ -225,6 +232,7 @@ class AssetPreloaderService {
   private loadedCount = 0;
   private totalCount = 0;
   private listeners = new Set<PreloadProgressCallback>();
+  private safetyTimer: NodeJS.Timeout | null = null;
 
   public onProgress(cb: PreloadProgressCallback): () => void {
     this.listeners.add(cb);
@@ -268,11 +276,33 @@ class AssetPreloaderService {
     });
   }
 
+  public markComplete(): void {
+    if (this.safetyTimer) {
+      clearTimeout(this.safetyTimer);
+      this.safetyTimer = null;
+    }
+    this.progress = 100;
+    this.isFinished = true;
+    this.isPreloading = false;
+    this.message = 'Mundo 100% carregado! Entrando em Thais...';
+    this.notify();
+  }
+
   public async startPreload(): Promise<void> {
     if (this.isPreloading || this.isFinished) return;
     this.isPreloading = true;
     this.isFinished = false;
     this.progress = 0;
+
+    if (this.safetyTimer) {
+      clearTimeout(this.safetyTimer);
+    }
+    // Timeout de segurança: garante que em 2200ms a tela de loading seja liberada
+    this.safetyTimer = setTimeout(() => {
+      if (!this.isFinished) {
+        this.markComplete();
+      }
+    }, 2200);
 
     const categorized = compileEssentialAssetUrls();
     const categories: Array<{
@@ -296,6 +326,7 @@ class AssetPreloaderService {
     let accumulatedWeight = 0;
 
     for (const cat of categories) {
+      if (this.isFinished) break;
       this.currentCategory = cat.key;
       this.message = `Carregando ${cat.label}...`;
       this.notify();
@@ -305,8 +336,9 @@ class AssetPreloaderService {
 
       await preloadBatchWithConcurrency(
         cat.urls,
-        cat.key === 'audio' ? 2 : 16,
+        cat.key === 'audio' ? 2 : 32,
         () => {
+          if (this.isFinished) return;
           catLoaded++;
           this.loadedCount++;
           const catProgress = (catLoaded / catTotal) * cat.weight;
@@ -317,18 +349,20 @@ class AssetPreloaderService {
       );
 
       accumulatedWeight += cat.weight;
-      this.progress = Math.min(99, Math.round(accumulatedWeight));
-      this.notify();
+      if (!this.isFinished) {
+        this.progress = Math.min(99, Math.round(accumulatedWeight));
+        this.notify();
+      }
     }
 
-    this.progress = 100;
-    this.isFinished = true;
-    this.isPreloading = false;
-    this.message = 'Mundo 100% carregado! Entrando em Thais...';
-    this.notify();
+    this.markComplete();
   }
 
   public reset(): void {
+    if (this.safetyTimer) {
+      clearTimeout(this.safetyTimer);
+      this.safetyTimer = null;
+    }
     this.isPreloading = false;
     this.isFinished = false;
     this.progress = 0;
