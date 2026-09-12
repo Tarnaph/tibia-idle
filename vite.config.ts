@@ -60,6 +60,7 @@ export default defineConfig(async () => {
       watch: {
         ignored: [
           '**/prisma/**',
+          '**/public/**',
           '**/.system_generated/**',
           '**/content/generated/**',
           '**/.planning/**',
