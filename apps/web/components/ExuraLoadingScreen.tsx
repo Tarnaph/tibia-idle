@@ -68,9 +68,24 @@ export function ExuraLoadingScreen({
     curiosities && curiosities.length > 0 ? Math.floor(Math.random() * curiosities.length) : 0
   );
   const [curiosityFade, setCuriosityFade] = useState<'in' | 'out'>('in');
+  const [artworkLoaded, setArtworkLoaded] = useState(false);
 
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
+
+  // Pre-load loading artwork with highest browser priority
+  useEffect(() => {
+    if (typeof window === 'undefined' || !active) return;
+    const targetUrl = bgImage || '/images/loading/thais-loading.jpg';
+    const img = new Image();
+    img.src = targetUrl;
+    img.onload = () => setArtworkLoaded(true);
+    img.onerror = () => {
+      const fallback = new Image();
+      fallback.src = '/images/loading/loading-bg.jpg';
+      fallback.onload = () => setArtworkLoaded(true);
+    };
+  }, [active, bgImage]);
 
   useEffect(() => {
     return onAutoplayBlockedChange((blocked) => {
@@ -184,10 +199,10 @@ export function ExuraLoadingScreen({
         alignItems: 'center',
         justifyContent: 'flex-end',
         paddingBottom: '3.5rem',
+        backgroundColor: '#080403',
         backgroundImage: `url(${bgImage || '/images/loading/thais-loading.jpg'})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundColor: '#150c08',
         userSelect: 'none',
         pointerEvents: isFadingOut ? 'none' : 'auto',
         opacity: isFadingOut ? 0 : 1,
@@ -197,6 +212,15 @@ export function ExuraLoadingScreen({
         cursor: autoplayBlocked ? 'pointer' : 'default',
       }}
     >
+      {/* Instant atmospheric fantasy backdrop gradient while loading in cold cache / incognito */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(circle at 50% 40%, #2c1a10 0%, #170d08 55%, #080403 100%)',
+          zIndex: 0,
+        }}
+      />
       {/* Explicit Artwork Layer with Fallback & Priority Fetch */}
       <img
         src={bgImage || '/images/loading/thais-loading.jpg'}
@@ -204,6 +228,7 @@ export function ExuraLoadingScreen({
         loading="eager"
         decoding="sync"
         fetchPriority="high"
+        onLoad={() => setArtworkLoaded(true)}
         onError={(e) => {
           const target = e.currentTarget as HTMLImageElement;
           if (!target.src.includes('/images/loading/loading-bg.jpg')) {
@@ -220,6 +245,8 @@ export function ExuraLoadingScreen({
           objectPosition: 'center',
           zIndex: 1,
           pointerEvents: 'none',
+          opacity: artworkLoaded ? 1 : 0.85,
+          transition: 'opacity 0.35s ease-in',
         }}
       />
 

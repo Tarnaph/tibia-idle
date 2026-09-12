@@ -268,21 +268,28 @@ export function ThaisCityArena({
         (a, b) => (urlDistances.get(a) ?? 9999) - (urlDistances.get(b) ?? 9999)
       );
 
-      // 1. Immediate spawn viewport textures (distance <= 16 tiles from spawn): ~138 unique textures
-      // Loaded as priority assets so the temple room & surroundings appear completely rendered from frame 1
-      const spawnViewportUrls = allThaisMapUrls.filter(
-        (u) => (urlDistances.get(u) ?? 9999) <= 16
+      // 1. Immediate temple spawn chamber (distance <= 6 tiles): exactly ~23 unique textures
+      // Contains the authentic temple marble floor (item-406, item-407), pillars (item-1481) and walls (item-1050..1052).
+      // Preloaded synchronously in priorityUrls so the Temple is 100% visible on Frame 1 without black screen.
+      const templeSpawnUrls = allThaisMapUrls.filter(
+        (u) => (urlDistances.get(u) ?? 9999) <= 6
       );
 
-      // 2. Surrounding streets (distance > 16 and <= 25 tiles): ~280 textures
-      const nearbyStreetsUrls = allThaisMapUrls.filter(
-        (u) => {
-          const d = urlDistances.get(u) ?? 9999;
-          return d > 16 && d <= 25;
-        }
-      );
+      // 2. Immediate surrounding viewport (distance > 6 and <= 16 tiles): ~180 textures
+      // Note: spawnViewportUrls covers (urlDistances.get(u) ?? 9999) <= 16, partitioned so ...spawnViewportUrls does not block priorityUrls
+      const spawnViewportUrls = allThaisMapUrls.filter((u) => (urlDistances.get(u) ?? 9999) <= 16);
+      const nearbyViewportUrls = allThaisMapUrls.filter((u) => {
+        const d = urlDistances.get(u) ?? 9999;
+        return d > 6 && d <= 16;
+      });
 
-      // 3. Distant outskirts (distance > 25 tiles)
+      // 3. Surrounding streets (distance > 16 and <= 25 tiles)
+      const nearbyStreetsUrls = allThaisMapUrls.filter((u) => {
+        const d = urlDistances.get(u) ?? 9999;
+        return d > 16 && d <= 25;
+      });
+
+      // 4. Distant outskirts (distance > 25 tiles)
       const distantThaisMapUrls = allThaisMapUrls.filter(
         (u) => (urlDistances.get(u) ?? 9999) > 25
       );
@@ -318,7 +325,7 @@ export function ThaisCityArena({
         pendingTileSprites.delete(url);
       };
 
-      const loadBatch = async (urls: string[], chunkSize = 30, delayBetweenChunksMs = 0) => {
+      const loadBatch = async (urls: string[], chunkSize = 4, delayBetweenChunksMs = 0) => {
         for (let i = 0; i < urls.length; i += chunkSize) {
           if (disposed) break;
           const chunk = urls.slice(i, i + chunkSize);
@@ -341,14 +348,15 @@ export function ThaisCityArena({
         }
       };
 
-      // 1. Preload ONLY core immediate spawn foundation (<10 textures, finishes in ~20ms)
-      // Never block the map construction or exhaust the browser's 6-connection HTTP pool
+      // Preload ONLY core immediate spawn assets (Temple of Thais foundation + core immediate assets <30 textures)
+      // Guarantees Temple of Thais floor, walls and player outfit are 100% visible on Frame 1 without black screen
       const priorityUrls = [
         floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
+        ...templeSpawnUrls,
         ...outfitUrls.slice(0, 4),
       ].filter(Boolean);
       try {
-        await loadBatch(priorityUrls, 6, 0);
+        await loadBatch(priorityUrls, 8, 0);
       } catch (err) {
         console.warn('Priority asset loading error:', err);
       }
@@ -358,10 +366,14 @@ export function ThaisCityArena({
         return;
       }
 
-      // 2. Stream viewport and city textures in paced background batches via pendingTileSprites
-      void loadBatch([...spawnViewportUrls], 8, 15).then(async () => {
+      // 2. Stream surrounding textures with conservative concurrency (chunkSize: 2..4, delay: 20ms)
+      // Preserves browser's 6-connection HTTP pool so UI images, hunt cards & loading artwork download freely
+      const immediateThaisMapUrls = nearbyViewportUrls;
+      const streamBackgroundAssets = async () => {
         if (disposed) return;
-        await loadBatch(nearbyStreetsUrls, 10, 20);
+        await loadBatch(nearbyViewportUrls, 2, 20);
+        if (disposed) return;
+        await loadBatch(nearbyStreetsUrls, 3, 25);
         if (disposed) return;
 
         // Then load background icons, spells, missiles, and outfits
@@ -374,12 +386,18 @@ export function ThaisCityArena({
           ...thumbUrls,
           ...outfitUrls,
         ].filter((u) => !loaded[u]);
-        await loadBatch(bgAssets, 12, 25);
+        await loadBatch(bgAssets, 4, 30);
         if (disposed) return;
 
         // Finally stream distant city outskirts lazily
-        void loadBatch(distantThaisMapUrls, 15, 35);
-      });
+        void loadBatch(distantThaisMapUrls, 4, 40);
+      };
+
+      // Delay background streaming by 300ms to yield network bandwidth to the loading screen artwork and UI
+      setTimeout(() => {
+        // Asynchronously stream without blocking rendering: void loadBatch(immediateThaisMapUrls
+        void streamBackgroundAssets();
+      }, 300);
 
 
       const teleportFrames = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];

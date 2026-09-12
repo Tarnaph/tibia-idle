@@ -84,6 +84,7 @@ export async function POST(
       data: sanitizedData,
     }, { status: 200 });
   } catch (error: any) {
+    console.error('[CharacterSave API error]:', error?.message || error);
     try { await request.body?.cancel?.(); } catch {}
     return NextResponse.json(
       { success: false, error: error.message || 'Erro ao salvar progresso do personagem.' },

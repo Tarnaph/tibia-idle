@@ -507,7 +507,10 @@ export class CharacterService {
     };
 
     if (typeof (this.prisma as any).$transaction === 'function') {
-      return (this.prisma as any).$transaction(executeMutations);
+      return (this.prisma as any).$transaction(executeMutations, {
+        maxWait: 10000,
+        timeout: 20000,
+      });
     }
     return executeMutations(this.prisma);
   }

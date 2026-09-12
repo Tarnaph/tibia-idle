@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import type { HuntDefinition } from '@/packages/domain/src';
 import type { MonsterDefinition } from '@/packages/content-schema/src';
 import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
@@ -44,6 +44,16 @@ export function HuntCard({
 }: Props) {
   const backpackBtnRef = useRef<HTMLButtonElement | null>(null);
   const [bgFailed, setBgFailed] = useState(false);
+  const [bgLoaded, setBgLoaded] = useState(false);
+
+  // Pre-load creature sprite and background with priority
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const bg = new Image();
+    bg.src = `/images/hunts/${hunt.id}.jpg`;
+    bg.onload = () => setBgLoaded(true);
+    bg.onerror = () => setBgFailed(true);
+  }, [hunt.id]);
 
   // Monster resolution
   const primaryMonsterId = hunt.monsters[0];
@@ -140,12 +150,24 @@ export function HuntCard({
       {isSelected && <div className="hunt-card-gem hunt-card-gem-top" />}
 
       {/* Top illustration container with scenario backdrop & creature */}
-      <div className="hunt-card-art-box">
+      <div
+        className="hunt-card-art-box"
+        style={{
+          background: 'radial-gradient(ellipse at center, #261710 0%, #130a08 65%, #080403 100%)',
+        }}
+      >
         <img
           src={backgroundImageUrl}
           alt={huntTitle}
           className="hunt-card-art-bg"
+          loading="eager"
+          decoding="sync"
+          onLoad={() => setBgLoaded(true)}
           onError={() => setBgFailed(true)}
+          style={{
+            opacity: bgLoaded ? 1 : 0.65,
+            transition: 'opacity 0.3s ease-in',
+          }}
         />
         <div className="hunt-card-art-vignette" />
 
@@ -155,12 +177,14 @@ export function HuntCard({
         </div>
 
         {/* Crisp pixel-art monster sprite */}
-        <div className="hunt-card-sprite-wrapper">
+        <div className={`hunt-card-sprite-wrapper ${(!bgLoaded || bgFailed) ? 'hunt-card-sprite-centered' : ''}`}>
           {monsterSpriteUrl ? (
             <img
               src={monsterSpriteUrl}
               alt={primaryMonster?.name ?? huntTitle}
               className="hunt-card-creature-sprite"
+              loading="eager"
+              decoding="sync"
             />
           ) : (
             <div className="hunt-card-sprite-placeholder">🐾</div>

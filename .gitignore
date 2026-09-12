@@ -50,4 +50,9 @@ next-env.d.ts
 *.webm
 *.mp3
 
+# SQLite ephemeral WAL and SHM
+prisma/*.db-shm
+prisma/*.db-wal
+
+
 

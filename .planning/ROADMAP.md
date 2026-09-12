@@ -2615,7 +2615,34 @@ Plans:
    - 100% de aprovação na suíte de testes Vitest (`npm test`).
 **Plans:**
 - [x] 141-PLAN: Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas.
-- Resumo de entrega: `.planning/phases/phase-141/141-SUMMARY.md`
+
+### Phase 142: Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente
+
+**Goal**: Eliminar definitivamente todas as falhas de carregamento em sessões anônimas, cold cache e múltiplos ambientes (quando outro desenvolvedor executa o projeto), garantindo que a imagem de loading apareça instantaneamente, a cidade de Thais renderize imediatamente sem tela preta, os ícones e cenários das caçadas carreguem com resiliência, e o pool HTTP/SQLite opere com concorrência fluida sem bloqueios de sockets ou contenção de I/O.
+**Depends on**: Phase 141
+**Requirements**:
+1. **Descongestionamento Total do Pool HTTP de Assets (`ThaisCityArena.tsx`):**
+   - Incorporar as texturas reais do Templo de Thais (mármore `item-406.png`, `item-407.png`, pilares `item-1050..1052`, `item-1481` e raio imediato de 8 tiles) no lote síncrono prioritário (<30 texturas essenciais, carregadas em <100ms).
+   - Bloquear o disparo avassalador de 2.760 texturas do resto de Thais durante a inicialização/loading. As texturas distantes devem ser transmitidas em segundo plano estritamente em baixa prioridade com `requestIdleCallback` / concorrência limitada (máx 2 downloads simultâneos), preservando o limite de 6 sockets HTTP do navegador para o carregamento do jogo.
+2. **Garantia de Renderização Imediata da Imagem de Loading (`ExuraLoadingScreen.tsx`):**
+   - Incorporar placeholder estilizado imediato com blur/gradiente temático e pré-carregamento prioritário assíncrono para que a tela de loading nunca exiba fundo preto em cold cache.
+   - Resiliência contra timeout de download de imagem caso a rede esteja sob carga.
+3. **Resiliência e Cache de Assets de Caçadas (`HuntCard.tsx` & `HuntCarousel.tsx`):**
+   - Pré-carregamento dos 6 sprites de monstros e backgrounds de caçadas em lote único otimizado.
+   - Proteção no carregamento de imagens evitando falhas em cascata de `onError` quando múltiplas abas abrem a lista.
+4. **Blindagem de Concorrência SQLite & Singleton do Prisma (`packages/database/src/index.ts` e `characterService.ts`):**
+   - Singleton estrito no `globalThis` para o `PrismaClient` prevenindo múltiplas instâncias em hot-reload do Vite/Vinext.
+   - Aplicação automática de `PRAGMA journal_mode = WAL;`, `PRAGMA synchronous = NORMAL;`, `PRAGMA busy_timeout = 10000;` e checkpoint limpo de WAL no boot.
+   - Remoção de `dev.db-wal` e `dev.db-shm` do rastreamento de versionamento do Git (adicionando ao `.gitignore`).
+   - Otimização do retorno de `saveCharacterProgress` eliminando queries relacionais pesadas no auto-save e desacelerando o intervalo periódico para 30s.
+5. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase142-incognito-cold-cache-alignment.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:** Concluído com sucesso.
+- [x] 142-01-PLAN: Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente.
+- Resumo de entrega: `.planning/phases/phase-142-incognito-cold-cache-alignment/142-SUMMARY.md`
+
 
 
 

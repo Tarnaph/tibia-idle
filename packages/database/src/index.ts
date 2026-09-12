@@ -4,21 +4,38 @@ if (typeof (globalThis as any).__dirname === 'undefined') {
 
 import { PrismaClient } from '@prisma/client';
 
-let prismaGlobal: PrismaClient | undefined;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+  prismaPragmasConfigured?: boolean;
+};
 
 export function getPrismaClient(): PrismaClient {
   if (typeof window !== 'undefined') {
     throw new Error('PrismaClient cannot be instantiated in browser environments');
   }
 
-  if (!prismaGlobal) {
+  if (!globalForPrisma.prisma) {
     if (!process.env.DATABASE_URL) {
       process.env.DATABASE_URL = 'file:./dev.db';
     }
-    prismaGlobal = new PrismaClient();
+    const client = new PrismaClient();
+
+    // Configure SQLite for resilient concurrency, WAL mode and 10s busy timeout
+    if (!globalForPrisma.prismaPragmasConfigured) {
+      globalForPrisma.prismaPragmasConfigured = true;
+      void (async () => {
+        try {
+          await client.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
+          await client.$queryRawUnsafe('PRAGMA synchronous = NORMAL;');
+          await client.$queryRawUnsafe('PRAGMA busy_timeout = 10000;');
+        } catch {}
+      })();
+    }
+
+    globalForPrisma.prisma = client;
   }
 
-  return prismaGlobal;
+  return globalForPrisma.prisma;
 }
 
 export const prisma = typeof window === 'undefined' ? getPrismaClient() : (null as unknown as PrismaClient);

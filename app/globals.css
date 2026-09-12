@@ -3733,17 +3733,39 @@ h1, h2, h3, p { margin: 0; }
   line-height: 1;
 }
 
-/* Creature Sprite (Hidden when artwork contains integrated creature illustration) */
+/* Creature Sprite Badge & Fallback */
 .hunt-card-sprite-wrapper {
-  display: none;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 6;
+  background: rgba(12, 16, 22, 0.85);
+  border: 1px solid #d4af37;
+  border-radius: 6px;
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.hunt-card-sprite-centered {
+  inset: 0;
+  margin: auto;
+  width: 90px;
+  height: 90px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(10, 10, 12, 0.9) 70%);
+  border: 1.5px solid #d4af37;
+  border-radius: 12px;
 }
 
 .hunt-card-creature-sprite {
-  width: 54px;
-  height: 54px;
+  width: 44px;
+  height: 44px;
   image-rendering: pixelated;
   object-fit: contain;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.9));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.95));
 }
 
 .hunt-card-sprite-placeholder {

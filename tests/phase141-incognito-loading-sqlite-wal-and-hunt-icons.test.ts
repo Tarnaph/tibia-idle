@@ -108,8 +108,8 @@ describe('Phase 141: Incognito Loading, SQLite WAL Mode & Hunt Icons Fixes', () 
       // Must use chunkSize <= 8 to preserve HTTP connection limits
       expect(content).toMatch(/loadBatch\(priorityUrls,\s*[1-8],\s*0\)/);
 
-      // Must stream spawnViewportUrls in background
-      expect(content).toMatch(/void loadBatch\(\[?\.\.\.spawnViewportUrls/);
+      // Must stream viewport textures in background with low concurrency
+      expect(content).toMatch(/(void loadBatch\(\[?\.\.\.spawnViewportUrls|await loadBatch\(nearbyViewportUrls)/);
     });
   });
 

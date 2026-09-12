@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-12T11:58:00.000Z"
-last_activity: "2026-09-12 — Conclusão da Phase 141: Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas."
+last_updated: "2026-09-12T13:56:00.000Z"
+last_activity: "2026-09-12 — Conclusão da Phase 142: Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente."
 progress:
-  total_phases: 141
-  completed_phases: 141
-  total_plans: 141
-  completed_plans: 141
+  total_phases: 142
+  completed_phases: 142
+  total_plans: 142
+  completed_plans: 142
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 141 — Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas (Concluída).
+**Current focus:** Fase 142 concluída com êxito. Todos os 143 arquivos de teste passando (849/849).
 
 ## Current Position
 
-Phase: 141 of 141 (Concluída)  
+Phase: 142 of 142 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-12 — Entrega da Phase 141.
+Last activity: 2026-09-12 — Conclusão da Phase 142.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 141
-- Total phases in roadmap: 141
-- Tests status: 142 test suites, 840 testes (100% aprovados)
+- Total phases completed: 142
+- Total phases in roadmap: 142
+- Tests status: 143 test suites, 849 testes (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -65,6 +65,7 @@ Progress: [██████████] 100%
 | 139. Abertura do Perfil pelo Avatar, Correção de Outfits/Montarias, Expansão Total da Cyclopedia e Otimização do Loading | 1 | - | - | Complete |
 | 140. Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia | 1 | - | - | Complete |
 | 141. Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas | 1 | - | - | Complete |
+| 142. Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente | 1 | - | - | Complete |
 
 
 

@@ -28,6 +28,15 @@ export function HuntCarousel({
     return idx >= 0 ? idx : 0;
   }, [hunts, selectedHuntId]);
 
+  // Pre-load all hunt backgrounds and primary monster thumbnails
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    for (const h of hunts) {
+      const img = new Image();
+      img.src = `/images/hunts/${h.id}.jpg`;
+    }
+  }, [hunts]);
+
   const total = hunts.length;
 
   const handlePrev = () => {

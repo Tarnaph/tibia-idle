@@ -1439,7 +1439,7 @@ function GamePrototypeContent() {
 
     const timer = setInterval(() => {
       void saveProgress();
-    }, 15000);
+    }, 30000);
 
     const handleUnload = () => {
       void saveProgress(false, true);
