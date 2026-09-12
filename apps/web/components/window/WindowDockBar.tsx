@@ -684,7 +684,10 @@ export function WindowDockBar({
         <button
           type="button"
           className="huntera-square-btn cyclopedia-btn"
-          onClick={onOpenCyclopedia}
+          onClick={() => {
+            if (onOpenCyclopedia) onOpenCyclopedia();
+            else gameModal.openCyclopedia();
+          }}
           title="Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character)"
           style={{ borderColor: '#f1c40f', backgroundColor: 'rgba(241, 196, 15, 0.18)', fontSize: '15px' }}
         >

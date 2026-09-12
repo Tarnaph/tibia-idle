@@ -1080,14 +1080,12 @@ function GamePrototypeContent() {
     }
     setBestiaryKills(initialBestiaryKills);
     (userChar as any).bestiaryKills = initialBestiaryKills;
-    if ((charItem as any).trackedBestiaryId) {
-      setTrackedBestiaryMonsterId((charItem as any).trackedBestiaryId);
-      (userChar as any).trackedBestiaryId = (charItem as any).trackedBestiaryId;
-    }
-    if (typeof (charItem as any).bossPoints === 'number') {
-      setBossPoints((charItem as any).bossPoints);
-      (userChar as any).bossPoints = (charItem as any).bossPoints;
-    }
+    const initialTracked = (charItem as any).trackedBestiaryId || '';
+    setTrackedBestiaryMonsterId(initialTracked);
+    (userChar as any).trackedBestiaryId = initialTracked;
+    const initialBossPoints = typeof (charItem as any).bossPoints === 'number' ? (charItem as any).bossPoints : 0;
+    setBossPoints(initialBossPoints);
+    (userChar as any).bossPoints = initialBossPoints;
 
     // Hydrate skills, gold, loot, bag, and inventory items from DB if available
     let loadedGold = 0;
@@ -1716,6 +1714,25 @@ function GamePrototypeContent() {
       unsubKillUpdate();
     };
   }, [activeCharacter]);
+
+  // Phase 143: Keep bestiary kills, tracked monster and boss points strictly synchronized with active character
+  useEffect(() => {
+    if (!activeCharacter) return;
+    const charAny = activeCharacter as any;
+    let kills: Record<string, number> = {};
+    if (charAny.bestiaryKills && typeof charAny.bestiaryKills === 'object') {
+      kills = charAny.bestiaryKills;
+    } else if (charAny.bestiaryKillsJson) {
+      try {
+        kills = typeof charAny.bestiaryKillsJson === 'string'
+          ? JSON.parse(charAny.bestiaryKillsJson)
+          : charAny.bestiaryKillsJson;
+      } catch {}
+    }
+    setBestiaryKills(kills);
+    setTrackedBestiaryMonsterId(charAny.trackedBestiaryId || '');
+    setBossPoints(typeof charAny.bossPoints === 'number' ? charAny.bossPoints : 0);
+  }, [activeCharacter.id]);
 
   // Listen to Idle encounter events for bestiary progression
   useEffect(() => {
@@ -3042,6 +3059,8 @@ function GamePrototypeContent() {
         onTrackMonster={handleTrackMonster}
         characterName={activeCharacter.name}
         characterVocation={activeCharacter.vocation || 'Knight'}
+        character={activeCharacter}
+        stats={activeStats}
       />
 
       <DeathModal

@@ -2643,6 +2643,34 @@ Plans:
 - [x] 142-01-PLAN: Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente.
 - Resumo de entrega: `.planning/phases/phase-142-incognito-cold-cache-alignment/142-SUMMARY.md`
 
+---
+
+### Phase 143: Correção do Carregamento Integral da Cyclopedia e Bestiário em Todos os Personagens
+
+**Goal**: Garantir que todo o acervo da Cyclopedia (1.167 itens, 968 criaturas de Bestiário, Bosstiary e aba Character) carregue integralmente em qualquer ambiente e para todos os personagens da conta, eliminando o isolamento por categorias na busca e assegurando que ao alternar personagens, os dados de progresso e a ficha canônica sejam exibidos com fidelidade.
+**Depends on**: Phase 142
+**Requirements**:
+1. **Resiliência de Importação do Catálogo JSON (`cyclopediaData.ts`):**
+   - Extrair dados de catálogo com suporte robusto tanto a formato direto quanto `{ default: ... }` para itens e monstros, assegurando 1.167 itens e 968 criaturas.
+   - Exportar `ALL_CATEGORIES_LABEL = 'Todas as Categorias'`.
+2. **Navegação Integral e Busca Universal na Cyclopedia (`CyclopediaModal.tsx`):**
+   - Incluir `'Todas as Categorias'` no seletor de categorias exibindo a contagem total de 1.167 itens.
+   - Permitir que a busca textual no catálogo localize itens de qualquer categoria sem restrição impeditiva.
+   - Estruturar a aba `Character` (Aba 5) com ficha completa e autêntica: Nível, Vocação, Vitals (Vida, Mana, XP), Combate (Dano, Armadura, Defesa), Grid de 7 Skills, Resumo de Bestiário e Card de Rastreamento ativo.
+3. **Sincronização ao Alternar Personagens (`GamePrototype.tsx` & `GameModalHost.tsx`):**
+   - Re-hidratar automaticamente `bestiaryKills`, `trackedBestiaryMonsterId` e `bossPoints` no hook de sincronização ao mudar `activeCharacter.id`.
+   - Repassar `character` e `stats` derivados diretamente para `<GameModalHost />` e `<CyclopediaModal />`.
+4. **Resiliência do Botão de Abertura (`WindowDockBar.tsx`):**
+   - Garantir fallback para `gameModal.openCyclopedia()`.
+5. **Qualidade e Não-Regressão:**
+   - Suíte de testes dedicada em `tests/phase143-cyclopedia-full-loading-all-characters.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% dos testes Vitest passando (`npm test`).
+**Plans:** Concluído com sucesso.
+- [x] 143-01-PLAN: Carregamento Integral da Cyclopedia, Busca Global e Sincronização em Todos os Personagens.
+- Resumo de entrega: `.planning/phases/phase-143-cyclopedia-full-loading-all-characters/143-SUMMARY.md`
+
+
 
 
 

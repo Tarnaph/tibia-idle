@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import type { CharacterState, DerivedStats } from '@/packages/domain/src';
+import { experienceForLevel } from '@/packages/domain/src/experience';
 import {
   ITEM_CATEGORIES,
+  ALL_CATEGORIES_LABEL,
   CANONICAL_CYCLOPEDIA_ITEMS,
   CANONICAL_BESTIARY_MONSTERS,
   CANONICAL_BOSSTIARY_BOSSES,
@@ -16,7 +19,7 @@ import {
 
 export type CyclopediaTab = 'items' | 'bestiary' | 'bosstiary' | 'boss-points' | 'character';
 
-interface CyclopediaModalProps {
+export interface CyclopediaModalProps {
   open: boolean;
   onClose: () => void;
   gold?: number;
@@ -27,6 +30,8 @@ interface CyclopediaModalProps {
   initialTab?: CyclopediaTab;
   characterName?: string;
   characterVocation?: string;
+  character?: CharacterState;
+  stats?: DerivedStats;
 }
 
 const ELEMENT_LABELS: Record<string, { label: string; icon: string; color: string }> = {
@@ -50,13 +55,15 @@ export function CyclopediaModal({
   initialTab = 'items',
   characterName = 'Hero',
   characterVocation = 'Knight',
+  character,
+  stats,
 }: CyclopediaModalProps) {
   const [activeTab, setActiveTab] = useState<CyclopediaTab>(initialTab);
 
   // Items tab state
   const [itemSearch, setItemSearch] = useState('');
   const [itemSort, setItemSort] = useState<'name-asc' | 'name-desc' | 'attack-desc' | 'defense-desc' | 'level-asc' | 'price-desc'>('name-asc');
-  const [selectedCategory, setSelectedCategory] = useState<ItemCategory>('Armas (corpo a corpo)');
+  const [selectedCategory, setSelectedCategory] = useState<string>(ALL_CATEGORIES_LABEL);
   const [itemPage, setItemPage] = useState(1);
   const [selectedItemId, setSelectedItemId] = useState<number>(7414);
 
@@ -72,6 +79,7 @@ export function CyclopediaModal({
   // --- Category Counts ---
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
+    counts[ALL_CATEGORIES_LABEL] = CANONICAL_CYCLOPEDIA_ITEMS.length;
     for (const cat of ITEM_CATEGORIES) {
       counts[cat] = CANONICAL_CYCLOPEDIA_ITEMS.filter((it) => it.category === cat).length;
     }
@@ -80,12 +88,15 @@ export function CyclopediaModal({
 
   // --- Filtered and Sorted Items ---
   const filteredItems = useMemo(() => {
+    const query = itemSearch.trim().toLowerCase();
     return CANONICAL_CYCLOPEDIA_ITEMS.filter((it) => {
-      if (it.category !== selectedCategory) return false;
-      if (itemSearch.trim()) {
-        const query = itemSearch.toLowerCase();
+      if (selectedCategory !== ALL_CATEGORIES_LABEL && it.category !== selectedCategory) {
+        return false;
+      }
+      if (query) {
         return (
           it.name.toLowerCase().includes(query) ||
+          it.category.toLowerCase().includes(query) ||
           it.droppedBy.some((d) => d.toLowerCase().includes(query)) ||
           it.categoriesText.toLowerCase().includes(query)
         );
@@ -402,6 +413,30 @@ export function CyclopediaModal({
                     overflowY: 'auto',
                   }}
                 >
+                  {/* Todas as Categorias */}
+                  <div
+                    key={ALL_CATEGORIES_LABEL}
+                    onClick={() => {
+                      setSelectedCategory(ALL_CATEGORIES_LABEL);
+                      setItemPage(1);
+                    }}
+                    style={{
+                      padding: '7px 10px',
+                      fontSize: '11px',
+                      fontWeight: selectedCategory === ALL_CATEGORIES_LABEL ? 'bold' : 'normal',
+                      color: selectedCategory === ALL_CATEGORIES_LABEL ? '#f3d067' : '#9ca3af',
+                      backgroundColor: selectedCategory === ALL_CATEGORIES_LABEL ? '#2b3038' : 'transparent',
+                      borderBottom: '1px solid #20242a',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span>{ALL_CATEGORIES_LABEL}</span>
+                    <span style={{ fontSize: '10px', opacity: 0.8 }}>({CANONICAL_CYCLOPEDIA_ITEMS.length})</span>
+                  </div>
+
                   {ITEM_CATEGORIES.map((cat) => {
                     const count = categoryCounts[cat] || 0;
                     const isCatSelected = selectedCategory === cat;
@@ -1351,123 +1386,250 @@ export function CyclopediaModal({
           {/* ========================================================= */}
           {/* TAB 5: CHARACTER                                          */}
           {/* ========================================================= */}
-          {activeTab === 'character' && (
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Profile Overview */}
-              <div
-                style={{
-                  padding: '16px 20px',
-                  backgroundColor: '#1b1e23',
-                  border: '1px solid #363d47',
-                  borderRadius: '3px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '16px',
-                }}
-              >
-                <div style={{ fontSize: '32px' }}>👤</div>
-                <div>
-                  <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>
-                    {characterName}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#f3d067' }}>
-                    Vocação: {characterVocation} · Registro Oficial de Exploração
-                  </div>
-                </div>
-              </div>
+          {activeTab === 'character' && (() => {
+            const charName = character?.name || characterName;
+            const charVoc = character?.promotion || character?.vocation || characterVocation;
+            const charLevel = character?.level || 1;
+            const charExp = character?.experience || 0;
+            const currentLevelBaseExp = experienceForLevel(charLevel);
+            const nextLevelExp = experienceForLevel(charLevel + 1);
+            const expDiff = Math.max(1, nextLevelExp - currentLevelBaseExp);
+            const expProgress = Math.min(100, Math.max(0, Math.floor(((charExp - currentLevelBaseExp) / expDiff) * 100)));
+            const curHp = character?.currentHp ?? 150;
+            const maxHp = character?.maxHp ?? 150;
+            const curMana = character?.currentMana ?? 50;
+            const maxMana = character?.maxMana ?? 50;
+            const hpPct = Math.min(100, Math.max(0, Math.round((curHp / Math.max(1, maxHp)) * 100)));
+            const manaPct = Math.min(100, Math.max(0, Math.round((curMana / Math.max(1, maxMana)) * 100)));
 
-              {/* Statistics Summary Cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                <div style={{ padding: '14px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
-                  <div style={{ fontSize: '10px', color: '#8c95a0', marginBottom: '4px' }}>CRIATURAS DESCOBERTAS</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff' }}>
-                    {Object.keys(bestiaryKills).length} / {CANONICAL_BESTIARY_MONSTERS.length}
-                  </div>
-                </div>
+            const charSkills = character?.skills;
+            const getSkill = (v: any, def = 10): number =>
+              typeof v === 'number' ? v : typeof v?.level === 'number' ? v.level : def;
 
-                <div style={{ padding: '14px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
-                  <div style={{ fontSize: '10px', color: '#8c95a0', marginBottom: '4px' }}>BESTIÁRIOS COMPLETOS</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#2ecc71' }}>
-                    {
-                      CANONICAL_BESTIARY_MONSTERS.filter((m) => (bestiaryKills[m.id.toLowerCase()] || 0) >= m.killsNeeded)
-                        .length
-                    }
-                  </div>
-                </div>
+            const damageStr = stats
+              ? typeof (stats as any).minDamage === 'number'
+                ? `${(stats as any).minDamage} - ${(stats as any).maxDamage}`
+                : `${stats.attack}`
+              : '15 - 45';
+            const armorVal = stats?.armor ?? 0;
+            const defenseVal = stats?.defense ?? 0;
 
-                <div style={{ padding: '14px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
-                  <div style={{ fontSize: '10px', color: '#8c95a0', marginBottom: '4px' }}>PONTOS DE BOSSTIARY</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#f1c40f' }}>
-                    {formatNumberWithDots(bossPoints)} pts
-                  </div>
-                </div>
-              </div>
+            const skillsList: Array<{ name: string; icon: string; level: number }> = [
+              { name: 'Fist Fighting', icon: '✊', level: getSkill(charSkills?.fist, 10) },
+              { name: 'Club Fighting', icon: '🔨', level: getSkill(charSkills?.club, 10) },
+              { name: 'Sword Fighting', icon: '⚔️', level: getSkill(charSkills?.sword, 10) },
+              { name: 'Axe Fighting', icon: '🪓', level: getSkill(charSkills?.axe, 10) },
+              { name: 'Distance Fighting', icon: '🏹', level: getSkill(charSkills?.distance, 10) },
+              { name: 'Shielding', icon: '🛡️', level: getSkill(charSkills?.shielding, 10) },
+              {
+                name: 'Magic Level',
+                icon: '🔮',
+                level: getSkill(charSkills?.magicLevel ?? (charSkills as any)?.magic, 0),
+              },
+            ];
 
-              {/* Currently Tracked Monster Info */}
-              <div
-                style={{
-                  flex: 1,
-                  padding: '16px',
-                  backgroundColor: '#1b1e23',
-                  border: '1px solid #363d47',
-                  borderRadius: '3px',
-                }}
-              >
-                <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#f3d067', marginBottom: '10px' }}>
-                  RASTREAMENTO ATIVO NA TELA
-                </div>
-
-                {trackedMonsterId ? (
-                  (() => {
-                    const tracked = CANONICAL_BESTIARY_MONSTERS.find(
-                      (m) => m.id.toLowerCase() === trackedMonsterId.toLowerCase()
-                    );
-                    if (!tracked) {
-                      return <div style={{ fontSize: '11px', color: '#8c95a0' }}>Nenhuma criatura selecionada.</div>;
-                    }
-                    const kills = bestiaryKills[tracked.id.toLowerCase()] || 0;
-                    return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        <img
-                          src={tracked.spriteUrl}
-                          alt=""
-                          style={{ width: '40px', height: '40px', imageRendering: 'pixelated' }}
-                        />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#ffffff' }}>
-                            {tracked.name}
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#a0aec0' }}>
-                            Progresso: {formatNumberWithDots(kills)} / {formatNumberWithDots(tracked.killsNeeded)} mortes
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => onTrackMonster?.('')}
-                          style={{
-                            padding: '6px 12px',
-                            backgroundColor: '#3b2525',
-                            border: '1px solid #753838',
-                            color: '#fc8181',
-                            borderRadius: '2px',
-                            cursor: 'pointer',
-                            fontSize: '10px',
-                            fontWeight: 'bold',
-                          }}
-                        >
-                          Parar de Rastrear
-                        </button>
+            return (
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', paddingRight: '4px' }}>
+                {/* Profile Overview Header */}
+                <div
+                  style={{
+                    padding: '12px 18px',
+                    backgroundColor: '#1b1e23',
+                    border: '1px solid #363d47',
+                    borderRadius: '3px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ fontSize: '32px' }}>👤</div>
+                    <div>
+                      <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>
+                        {charName}
                       </div>
-                    );
-                  })()
-                ) : (
-                  <div style={{ fontSize: '11px', color: '#8c95a0' }}>
-                    Nenhuma criatura fixada no momento. Abra a aba Bestiary e clique em "• Rastrear na tela" para fixar uma criatura no HUD.
+                      <div style={{ fontSize: '11px', color: '#6bb3f2', fontWeight: 600 }}>
+                        {charVoc.toUpperCase()} · LVL {charLevel}
+                      </div>
+                    </div>
                   </div>
-                )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '10px', padding: '3px 8px', backgroundColor: '#2d333e', border: '1px solid #485261', borderRadius: '3px', color: '#2ecc71', fontWeight: 'bold' }}>
+                      PREMIUM ACCOUNT
+                    </span>
+                  </div>
+                </div>
+
+                {/* Vitals Bars: HP, Mana, XP */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  {/* Health */}
+                  <div style={{ padding: '10px 12px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#de4a6e', fontWeight: 'bold', marginBottom: '4px' }}>
+                      <span>VIDA (HP)</span>
+                      <span>{curHp} / {maxHp}</span>
+                    </div>
+                    <div style={{ height: '6px', backgroundColor: '#101215', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ width: `${hpPct}%`, height: '100%', backgroundColor: '#de4a6e', transition: 'width 0.2s' }} />
+                    </div>
+                  </div>
+
+                  {/* Mana */}
+                  <div style={{ padding: '10px 12px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#4b77be', fontWeight: 'bold', marginBottom: '4px' }}>
+                      <span>MANA (MP)</span>
+                      <span>{curMana} / {maxMana}</span>
+                    </div>
+                    <div style={{ height: '6px', backgroundColor: '#101215', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ width: `${manaPct}%`, height: '100%', backgroundColor: '#4b77be', transition: 'width 0.2s' }} />
+                    </div>
+                  </div>
+
+                  {/* XP Progress */}
+                  <div style={{ padding: '10px 12px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#f3b749', fontWeight: 'bold', marginBottom: '4px' }}>
+                      <span>EXPERIÊNCIA (XP)</span>
+                      <span>{expProgress}%</span>
+                    </div>
+                    <div style={{ height: '6px', backgroundColor: '#101215', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ width: `${expProgress}%`, height: '100%', backgroundColor: '#f3b749', transition: 'width 0.2s' }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Combat & Skills Row */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '10px' }}>
+                  {/* Combat Stats */}
+                  <div style={{ padding: '12px', backgroundColor: '#1b1e23', border: '1px solid #363d47', borderRadius: '3px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#f3d067', borderBottom: '1px solid #292e37', paddingBottom: '4px' }}>
+                      ATRIBUTOS DE COMBATE
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                      <span style={{ color: '#8c95a0' }}>Dano Estimado</span>
+                      <span style={{ color: '#ffffff', fontWeight: 'bold' }}>{damageStr}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                      <span style={{ color: '#8c95a0' }}>Armadura Total</span>
+                      <span style={{ color: '#2ecc71', fontWeight: 'bold' }}>{armorVal}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                      <span style={{ color: '#8c95a0' }}>Defesa de Escudo</span>
+                      <span style={{ color: '#3498db', fontWeight: 'bold' }}>{defenseVal}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                      <span style={{ color: '#8c95a0' }}>XP Acumulada</span>
+                      <span style={{ color: '#f1c40f', fontWeight: 'bold' }}>{formatNumberWithDots(charExp)}</span>
+                    </div>
+                  </div>
+
+                  {/* Skills Grid */}
+                  <div style={{ padding: '12px', backgroundColor: '#1b1e23', border: '1px solid #363d47', borderRadius: '3px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#f3d067', borderBottom: '1px solid #292e37', paddingBottom: '4px', marginBottom: '8px' }}>
+                      HABILIDADES (SKILLS)
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                      {skillsList.map((sk) => (
+                        <div key={sk.name} style={{ padding: '6px 8px', backgroundColor: '#21262d', border: '1px solid #30363d', borderRadius: '2px', textAlign: 'center' }}>
+                          <div style={{ fontSize: '14px', marginBottom: '2px' }}>{sk.icon}</div>
+                          <div style={{ fontSize: '9px', color: '#8c95a0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sk.name.replace(' Fighting', '')}</div>
+                          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#ffffff' }}>{sk.level}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Statistics Summary Cards: Bestiary & Bosses */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  <div style={{ padding: '10px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
+                    <div style={{ fontSize: '9px', color: '#8c95a0', marginBottom: '2px' }}>CRIATURAS DESCOBERTAS</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>
+                      {Object.keys(bestiaryKills).length} / {CANONICAL_BESTIARY_MONSTERS.length}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '10px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
+                    <div style={{ fontSize: '9px', color: '#8c95a0', marginBottom: '2px' }}>BESTIÁRIOS COMPLETOS</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2ecc71' }}>
+                      {
+                        CANONICAL_BESTIARY_MONSTERS.filter((m) => (bestiaryKills[m.id.toLowerCase()] || 0) >= m.killsNeeded)
+                          .length
+                      }
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '10px', backgroundColor: '#1e2228', border: '1px solid #313742', borderRadius: '3px' }}>
+                    <div style={{ fontSize: '9px', color: '#8c95a0', marginBottom: '2px' }}>PONTOS DE BOSSTIARY</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#f1c40f' }}>
+                      {formatNumberWithDots(bossPoints)} pts
+                    </div>
+                  </div>
+                </div>
+
+                {/* Currently Tracked Monster Info */}
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    backgroundColor: '#1b1e23',
+                    border: '1px solid #363d47',
+                    borderRadius: '3px',
+                  }}
+                >
+                  <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#f3d067', marginBottom: '8px' }}>
+                    RASTREAMENTO ATIVO NA TELA
+                  </div>
+
+                  {trackedMonsterId ? (
+                    (() => {
+                      const tracked = CANONICAL_BESTIARY_MONSTERS.find(
+                        (m) => m.id.toLowerCase() === trackedMonsterId.toLowerCase()
+                      );
+                      if (!tracked) {
+                        return <div style={{ fontSize: '11px', color: '#8c95a0' }}>Nenhuma criatura selecionada.</div>;
+                      }
+                      const kills = bestiaryKills[tracked.id.toLowerCase()] || 0;
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                          <img
+                            src={tracked.spriteUrl}
+                            alt=""
+                            style={{ width: '40px', height: '40px', imageRendering: 'pixelated' }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#ffffff' }}>
+                              {tracked.name}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#a0aec0' }}>
+                              Progresso: {formatNumberWithDots(kills)} / {formatNumberWithDots(tracked.killsNeeded)} mortes
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => onTrackMonster?.('')}
+                            style={{
+                              padding: '6px 12px',
+                              backgroundColor: '#3b2525',
+                              border: '1px solid #753838',
+                              color: '#fc8181',
+                              borderRadius: '2px',
+                              cursor: 'pointer',
+                              fontSize: '10px',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            Parar de Rastrear
+                          </button>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <div style={{ fontSize: '11px', color: '#8c95a0' }}>
+                      Nenhuma criatura fixada no momento. Abra a aba Bestiary e clique em "• Rastrear na tela" para fixar uma criatura no HUD.
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* ===================== BOTTOM FOOTER BAR ===================== */}

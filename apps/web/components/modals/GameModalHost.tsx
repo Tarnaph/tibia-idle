@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { CharacterState, GameContent } from '@/packages/domain/src/types';
+import type { CharacterState, DerivedStats, GameContent } from '@/packages/domain/src';
 import { useGameModal } from '../../contexts/GameModalContext';
 import { OutfitModal } from '../OutfitModal';
 import { CyclopediaModal } from '../CyclopediaModal';
@@ -31,6 +31,8 @@ export interface GameModalHostProps {
   onTrackMonster?: (monsterId: string) => void;
   characterName?: string;
   characterVocation?: string;
+  character?: CharacterState;
+  stats?: DerivedStats;
 }
 
 /**
@@ -52,6 +54,8 @@ export function GameModalHost({
   onTrackMonster,
   characterName = 'Hero',
   characterVocation = 'Knight',
+  character,
+  stats,
 }: GameModalHostProps) {
   const {
     isModalOpen,
@@ -74,6 +78,7 @@ export function GameModalHost({
 
   const targetOutfitCharId = outfitPayload?.characterId || activeCharacterId;
   const targetProfileCharId = profilePayload?.characterId || activeCharacterId;
+  const effectiveChar = character || characters.find((c) => c.id === activeCharacterId) || characters[0];
 
   return (
     <>
@@ -106,8 +111,10 @@ export function GameModalHost({
           bossPoints={bossPoints}
           onTrackMonster={onTrackMonster}
           initialTab={cyclopediaPayload?.initialTab || 'items'}
-          characterName={characterName}
-          characterVocation={characterVocation}
+          characterName={characterName || effectiveChar?.name}
+          characterVocation={characterVocation || effectiveChar?.vocation}
+          character={effectiveChar}
+          stats={stats}
         />
       )}
 

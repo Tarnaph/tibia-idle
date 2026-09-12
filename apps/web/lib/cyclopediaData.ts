@@ -83,7 +83,10 @@ export const ITEM_CATEGORIES = [
   'Trinkets',
 ] as const;
 
+export const ALL_CATEGORIES_LABEL = 'Todas as Categorias';
+
 export type ItemCategory = (typeof ITEM_CATEGORIES)[number];
+
 
 // Canonical items list matching reference Screenshots 1 and authentic Tibia item catalog
 const INITIAL_CANONICAL_ITEMS: ItemEntry[] = [
@@ -624,8 +627,10 @@ const canonicalItemMap = new Map<number, ItemEntry>();
 for (const it of INITIAL_CANONICAL_ITEMS) {
   canonicalItemMap.set(it.id, it);
 }
-if (rawCyclopediaCatalog && Array.isArray((rawCyclopediaCatalog as any).items)) {
-  for (const it of ((rawCyclopediaCatalog as any).items as ItemEntry[])) {
+const rawCatalog = (rawCyclopediaCatalog as any)?.default || rawCyclopediaCatalog;
+const rawItems = rawCatalog?.items || (rawCyclopediaCatalog as any)?.items;
+if (Array.isArray(rawItems)) {
+  for (const it of (rawItems as ItemEntry[])) {
     if (!canonicalItemMap.has(it.id)) {
       canonicalItemMap.set(it.id, it);
     }
@@ -1117,8 +1122,9 @@ const canonicalMonsterMap = new Map<string, BestiaryMonster>();
 for (const m of INITIAL_CANONICAL_MONSTERS) {
   canonicalMonsterMap.set(m.id.toLowerCase(), m);
 }
-if (rawCyclopediaCatalog && Array.isArray((rawCyclopediaCatalog as any).monsters)) {
-  for (const m of ((rawCyclopediaCatalog as any).monsters as BestiaryMonster[])) {
+const rawMonsters = rawCatalog?.monsters || (rawCyclopediaCatalog as any)?.monsters;
+if (Array.isArray(rawMonsters)) {
+  for (const m of (rawMonsters as BestiaryMonster[])) {
     const k = m.id.toLowerCase();
     if (!canonicalMonsterMap.has(k)) {
       canonicalMonsterMap.set(k, m);

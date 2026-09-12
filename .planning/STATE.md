@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-12T13:56:00.000Z"
-last_activity: "2026-09-12 — Conclusão da Phase 142: Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente."
+last_updated: "2026-09-12T14:46:00.000Z"
+last_activity: "2026-09-12 — Conclusão da Phase 143: Correção do Carregamento Integral da Cyclopedia e Bestiário em Todos os Personagens."
 progress:
-  total_phases: 142
-  completed_phases: 142
-  total_plans: 142
-  completed_plans: 142
+  total_phases: 143
+  completed_phases: 143
+  total_plans: 143
+  completed_plans: 143
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 142 concluída com êxito. Todos os 143 arquivos de teste passando (849/849).
+**Current focus:** Fase 143 concluída com êxito. Todos os 145 arquivos de teste passando (865/865).
 
 ## Current Position
 
-Phase: 142 of 142 (Concluída)  
+Phase: 143 of 143 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-12 — Conclusão da Phase 142.
+Last activity: 2026-09-12 — Conclusão da Phase 143.
 
 Progress: [██████████] 100%
 
@@ -35,13 +35,14 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 142
-- Total phases in roadmap: 142
-- Tests status: 143 test suites, 849 testes (100% aprovados)
+- Total phases completed: 143
+- Total phases in roadmap: 143
+- Tests status: 145 test suites, 865 testes (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
 **By Phase:**
+
 
 | Phase | Plans | Total | Avg/Plan | Status |
 |---|---|---|---|---|
