@@ -89,8 +89,8 @@ const PARSED_MOUNTS: MountOption[] = (rawMountsJson as Array<{
 }));
 
 export const AVAILABLE_MOUNTS: MountOption[] = [
-  ...PARSED_MOUNTS,
   { id: 'none', name: 'Sem Montaria', speedBonus: 0, description: 'Caminhe normalmente a pé pelo mapa.' },
+  ...PARSED_MOUNTS,
 ];
 
 // Backwards compatibility for tests that import TIBIA_PALETTE
@@ -126,7 +126,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const [topTab, setTopTab] = useState<'character' | 'outfit'>('outfit');
   const [selectedTab, setSelectedTab] = useState<'outfits' | 'mounts'>('outfits');
   const [selectedOutfit, setSelectedOutfit] = useState('Knight');
-  const [selectedMount, setSelectedMount] = useState('donkey');
+  const [selectedMount, setSelectedMount] = useState('none');
   const [mountActive, setMountActive] = useState(false);
   const [addon1, setAddon1] = useState(false);
   const [addon2, setAddon2] = useState(false);
@@ -170,7 +170,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       if (char) {
         const outfit = char.outfit || char.baseVocation || 'Knight';
         setSelectedOutfit(outfit);
-        const userMount = char.mount && char.mount !== 'none' ? char.mount : 'donkey';
+        const userMount = char.mount && char.mount !== 'none' ? char.mount : 'none';
         setSelectedMount(userMount);
         const caps = getOutfitCapabilities(outfit);
         const hasMount = Boolean(char.mount && char.mount !== 'none');
@@ -184,7 +184,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     }
   }, [selectedCharId, activeCharacterId, open, characters]);
 
-  const isMounted = mountActive && selectedMount !== 'none' && currentCaps.hasMountRider;
+  const isMounted = Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider);
   const currentDir = DIRECTIONS[directionIdx];
 
   const handleSelectOutfit = (outfitId: string) => {
@@ -196,8 +196,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     if (!caps.hasAddon2 && addon2) {
       setAddon2(false);
     }
-    if (!caps.hasMountRider && mountActive) {
+    if (!caps.hasMountRider) {
       setMountActive(false);
+    } else if (selectedMount && selectedMount !== 'none') {
+      setMountActive(true);
     }
   };
 
@@ -276,7 +278,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     let addonsVal = 0;
     if (addon1 && currentCaps.hasAddon1) addonsVal |= 1;
     if (addon2 && currentCaps.hasAddon2) addonsVal |= 2;
-    const isMnt = mountActive && selectedMount !== 'none' && currentCaps.hasMountRider;
+    const isMnt = Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider);
     onSave(effectiveCharId, {
       outfit: selectedOutfit,
       mount: selectedMount,
@@ -401,19 +403,27 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
               </label>
             </div>
 
-            <div className={`tibia-beveled-check-box ${!currentCaps.hasMountRider || selectedMount === 'none' ? 'disabled opacity-50' : ''}`}>
+            <div className={`tibia-beveled-check-box ${!currentCaps.hasMountRider ? 'disabled opacity-50' : ''}`}>
               <label className="tibia-check-label">
                 <input
                   type="checkbox"
-                  checked={mountActive && selectedMount !== 'none' && currentCaps.hasMountRider}
-                  disabled={selectedMount === 'none' || !currentCaps.hasMountRider}
-                  onChange={(e) => setMountActive(e.target.checked)}
+                  checked={Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider)}
+                  disabled={!currentCaps.hasMountRider}
+                  onChange={(e) => {
+                    const nextVal = e.target.checked;
+                    setMountActive(nextVal);
+                    if (nextVal && (!selectedMount || selectedMount === 'none')) {
+                      setSelectedMount('donkey');
+                    }
+                  }}
                   className="tibia-custom-checkbox"
                 />
                 <span className="tibia-check-text">
                   {!currentCaps.hasMountRider
-                    ? 'Montaria (Sem suporte)'
-                    : AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || 'Sem Montaria'}
+                    ? 'Montaria (Sem suporte neste traje)'
+                    : (!mountActive || selectedMount === 'none')
+                    ? 'Montaria (Desativada)'
+                    : `Montaria: ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
                 </span>
               </label>
             </div>

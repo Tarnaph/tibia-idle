@@ -98,6 +98,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 136: Inspeção de Habilidades e Estatísticas no Avatar e Limpeza da Barra de Ações Superior** - Exibição de card flutuante autêntico no hover do avatar com HP, MP, XP, 7 skills, dano, armadura, defesa e XP share, e remoção de ícones redundantes do dock superior.
 - [x] **Phase 137: Chat Fixo no Canto Inferior Esquerdo e Remoção do Ícone de Chat da Barra Superior** - Fixação da janela de chat no canto inferior esquerdo com suporte a minimizar/expandir e auto-expandir ao teclar Enter ou receber whispers, e remoção do ícone da barra superior.
 - [x] **Phase 138: Animação Completa de Caminhada de Outfits (8 Passos), Acesso ao Personagem/Aparência pelo Avatar e Persistência Permanente do Bestiário no PostgreSQL** - Restauração do ciclo completo de caminhada com 8 frames em ThaisCityArena, restrição de clamping de 3 frames apenas aos 4 outfits com 3 frames, avatar do dock superior abrindo o modal de Personagem/Aparência (outfit) ao invés de skills, e persistência atômica das mortes do bestiário no banco de dados Prisma em tempo real e hidratação nas rotas de API.
+- [x] **Phase 139: Abertura do Perfil pelo Avatar, Correção de Seleção de Outfits e Montarias, Expansão Total da Cyclopedia e Otimização da Tela de Carregamento** - Redirecionamento do clique no avatar para o perfil do personagem (CharacterProfileModal), adição de botão dedicado de Outfit (🎭) no dock, correção de seleção e ativação de montarias ("Sem Montaria" em 1º lugar, fallback seguro, sem montaria no Sire), importação dos catálogos reais do jogo na Cyclopedia (1.163 itens e 968 monstros) com paginação fluida e pré-aquecimento ativo de frames e dados durante a tela de loading.
 
 ---
 
@@ -2545,6 +2546,34 @@ Plans:
 **Plans:**
 - [x] 138-PLAN: Animação Completa de Caminhada de Outfits, Acesso ao Personagem/Aparência pelo Avatar e Persistência Permanente do Bestiário no PostgreSQL.
 - Resumo de entrega: `.planning/phases/phase-138-outfit-walking-bestiary-persistence/138-SUMMARY.md`
+
+### Phase 139: Abertura do Perfil pelo Avatar, Correção de Seleção de Outfits e Montarias, Expansão Total da Cyclopedia e Otimização da Tela de Carregamento
+
+**Goal**: Redirecionar o clique no avatar do dock para o Perfil de Personagem (`CharacterProfileModal`), corrigir o sistema de seleção e ativação de outfits e montarias no `OutfitModal`, conectar a Cyclopedia aos catálogos integrais do jogo (1.163 itens de equipamento com 22.181 sprites e 968 monstros do bestiário), e aproveitar a tela de loading de 10s para pré-aquecer texturas e dados em memória sem necessitar aumentar o tempo de espera.
+**Depends on**: Phase 138
+**Requirements**:
+1. **Clique do Avatar no Dock:** O clique no avatar do `WindowDockBar.tsx` deve abrir o modal de Perfil do Personagem (`onOpenProfile()`). Criar botão dedicado com máscara/teatro (`🎭`) no dock superior para o modal de Outfit (`onOpenOutfit()`).
+2. **Correção de Outfits e Montarias:**
+   - Opção "Sem Montaria" (`none`) posicionada no topo (1º item) de `AVAILABLE_MOUNTS`.
+   - Estado padrão de montaria limpo quando o jogador não possui montaria ativa.
+   - Sincronização entre outfits com e sem suporte a montaria (`hasMountRider`), desativando com segurança em trajes como Sire.
+   - Correção do checkbox de montaria e valor booleano estrito no `handleSave`.
+   - Correção de escala visual do preview de montarias no CSS (`transform: scale(2.0)`).
+   - Estabilidade na renderização no `ThaisCityArena.tsx` preservando o canvas anterior durante transições de frames.
+3. **Expansão Integral da Cyclopedia:**
+   - Conexão do catálogo integral de equipamentos (`1.163` itens) e criaturas do bestiário (`968` monstros) em `content/generated/cyclopedia-catalog.json`.
+   - Inclusão de paginação fluida (25 monstros por página) para renderização a 60fps sem sobrecarga da DOM.
+4. **Otimização da Tela de Loading:**
+   - Aproveitamento ativo da janela de 10 segundos da tela de carregamento para pré-carregar frames de caminhada e montaria (`preloadOutfitAllFrames`) e pré-aquecer os catálogos da Cyclopedia (`getCyclopediaItems()`, `getBestiaryMonsters()`).
+   - Resposta conclusiva: 10 segundos é suficiente e não precisa ser estendido; o sistema agora utiliza esse tempo ativamente para pré-carregar tudo.
+5. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase139-avatar-profile-outfit-mount-cyclopedia.test.ts` (9 testes aprovados, 100%).
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:**
+- [x] 139-PLAN: Abertura do Perfil pelo Avatar, Correção de Seleção de Outfits e Montarias, Expansão Total da Cyclopedia e Otimização da Tela de Carregamento.
+- Resumo de entrega: `.planning/phases/phase-139/139-SUMMARY.md`
+
 
 
 

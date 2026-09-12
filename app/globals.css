@@ -5434,8 +5434,9 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .tibia-preview-sprite.mounted {
-  max-width: 82%;
-  max-height: 82%;
+  transform: scale(2.0);
+  max-width: 64px;
+  max-height: 64px;
   object-fit: contain;
 }
 

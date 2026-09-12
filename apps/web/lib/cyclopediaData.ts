@@ -1,5 +1,6 @@
 // apps/web/lib/cyclopediaData.ts
 // Data motor for Tibia 11 Authentic Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character)
+import rawCyclopediaCatalog from '@/content/generated/cyclopedia-catalog.json';
 
 export interface ItemEntry {
   id: number;
@@ -83,7 +84,7 @@ export const ITEM_CATEGORIES = [
 export type ItemCategory = (typeof ITEM_CATEGORIES)[number];
 
 // Canonical items list matching reference Screenshots 1 and authentic Tibia item catalog
-export const CANONICAL_CYCLOPEDIA_ITEMS: ItemEntry[] = [
+const INITIAL_CANONICAL_ITEMS: ItemEntry[] = [
   {
     id: 7414,
     name: 'Abyss hammer',
@@ -617,8 +618,21 @@ export const CANONICAL_CYCLOPEDIA_ITEMS: ItemEntry[] = [
   },
 ];
 
+const canonicalItemMap = new Map<number, ItemEntry>();
+for (const it of INITIAL_CANONICAL_ITEMS) {
+  canonicalItemMap.set(it.id, it);
+}
+if (rawCyclopediaCatalog && Array.isArray((rawCyclopediaCatalog as any).items)) {
+  for (const it of ((rawCyclopediaCatalog as any).items as ItemEntry[])) {
+    if (!canonicalItemMap.has(it.id)) {
+      canonicalItemMap.set(it.id, it);
+    }
+  }
+}
+export const CANONICAL_CYCLOPEDIA_ITEMS: ItemEntry[] = Array.from(canonicalItemMap.values());
+
 // Canonical Bestiary monsters matching Screenshot 2 & 3
-export const CANONICAL_BESTIARY_MONSTERS: BestiaryMonster[] = [
+const INITIAL_CANONICAL_MONSTERS: BestiaryMonster[] = [
   {
     id: 'spider',
     name: 'Spider',
@@ -1096,6 +1110,28 @@ export const CANONICAL_BESTIARY_MONSTERS: BestiaryMonster[] = [
     locations: ['Goroma', 'Hellgate', 'Edron Demon Hell', 'Yalahar Magician Quarter'],
   },
 ];
+
+const canonicalMonsterMap = new Map<string, BestiaryMonster>();
+for (const m of INITIAL_CANONICAL_MONSTERS) {
+  canonicalMonsterMap.set(m.id.toLowerCase(), m);
+}
+if (rawCyclopediaCatalog && Array.isArray((rawCyclopediaCatalog as any).monsters)) {
+  for (const m of ((rawCyclopediaCatalog as any).monsters as BestiaryMonster[])) {
+    const k = m.id.toLowerCase();
+    if (!canonicalMonsterMap.has(k)) {
+      canonicalMonsterMap.set(k, m);
+    }
+  }
+}
+export const CANONICAL_BESTIARY_MONSTERS: BestiaryMonster[] = Array.from(canonicalMonsterMap.values());
+
+export function getCyclopediaItems(): ItemEntry[] {
+  return CANONICAL_CYCLOPEDIA_ITEMS;
+}
+
+export function getBestiaryMonsters(): BestiaryMonster[] {
+  return CANONICAL_BESTIARY_MONSTERS;
+}
 
 // Canonical Bosstiary bosses matching Screenshot 4 & 5
 export const CANONICAL_BOSSTIARY_BOSSES: BosstiaryBoss[] = [

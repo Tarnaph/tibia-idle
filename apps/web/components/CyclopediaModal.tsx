@@ -62,6 +62,7 @@ export function CyclopediaModal({
 
   // Bestiary tab state
   const [bestiarySearch, setBestiarySearch] = useState('');
+  const [bestiaryPage, setBestiaryPage] = useState(1);
   const [selectedMonster, setSelectedMonster] = useState<BestiaryMonster | null>(null);
 
   // Bosstiary tab state
@@ -130,6 +131,10 @@ export function CyclopediaModal({
       (m) => m.name.toLowerCase().includes(q) || m.locations.some((loc) => loc.toLowerCase().includes(q))
     );
   }, [bestiarySearch]);
+
+  const bestiaryPerPage = 25;
+  const totalBestiaryPages = Math.max(1, Math.ceil(filteredMonsters.length / bestiaryPerPage));
+  const currentPageMonsters = filteredMonsters.slice((bestiaryPage - 1) * bestiaryPerPage, bestiaryPage * bestiaryPerPage);
 
   // --- Filtered Bosstiary Bosses ---
   const filteredBosses = useMemo(() => {
@@ -671,7 +676,10 @@ export function CyclopediaModal({
                     type="text"
                     placeholder="Buscar criatura..."
                     value={bestiarySearch}
-                    onChange={(e) => setBestiarySearch(e.target.value)}
+                    onChange={(e) => {
+                      setBestiarySearch(e.target.value);
+                      setBestiaryPage(1);
+                    }}
                     style={{
                       height: '28px',
                       padding: '0 10px',
@@ -684,7 +692,7 @@ export function CyclopediaModal({
                     }}
                   />
 
-                  {/* 5x3 Creatures Grid */}
+                  {/* 5x5 Creatures Grid */}
                   <div
                     style={{
                       flex: 1,
@@ -696,7 +704,7 @@ export function CyclopediaModal({
                       paddingRight: '4px',
                     }}
                   >
-                    {filteredMonsters.map((monster) => {
+                    {currentPageMonsters.map((monster) => {
                       const monsterKey = monster.id.toLowerCase();
                       const currentKills = bestiaryKills[monsterKey] || 0;
                       const isComplete = currentKills >= monster.killsNeeded;
@@ -744,6 +752,62 @@ export function CyclopediaModal({
                         </div>
                       );
                     })}
+                  </div>
+
+                  {/* Bestiary Pagination Controls */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '8px 12px',
+                      backgroundColor: '#171a20',
+                      border: '1px solid #2d3440',
+                      borderRadius: '2px',
+                      fontSize: '11px',
+                      color: '#9ca3af',
+                    }}
+                  >
+                    <span>
+                      Página <strong style={{ color: '#ffffff' }}>{bestiaryPage}</strong> de{' '}
+                      <strong style={{ color: '#ffffff' }}>{totalBestiaryPages}</strong> ({filteredMonsters.length} criaturas)
+                    </span>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setBestiaryPage((p) => Math.max(1, p - 1))}
+                        disabled={bestiaryPage <= 1}
+                        style={{
+                          backgroundColor: bestiaryPage <= 1 ? '#1f242d' : '#2b323e',
+                          color: bestiaryPage <= 1 ? '#4b5563' : '#ffffff',
+                          border: '1px solid #3d4654',
+                          borderRadius: '2px',
+                          padding: '3px 10px',
+                          cursor: bestiaryPage <= 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                        }}
+                      >
+                        ◀ Anterior
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBestiaryPage((p) => Math.min(totalBestiaryPages, p + 1))}
+                        disabled={bestiaryPage >= totalBestiaryPages}
+                        style={{
+                          backgroundColor: bestiaryPage >= totalBestiaryPages ? '#1f242d' : '#2b323e',
+                          color: bestiaryPage >= totalBestiaryPages ? '#4b5563' : '#ffffff',
+                          border: '1px solid #3d4654',
+                          borderRadius: '2px',
+                          padding: '3px 10px',
+                          cursor: bestiaryPage >= totalBestiaryPages ? 'not-allowed' : 'pointer',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                        }}
+                      >
+                        Próxima ▶
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (

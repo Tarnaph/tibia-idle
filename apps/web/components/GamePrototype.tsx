@@ -42,7 +42,7 @@ import { VocationChoiceModal } from './VocationChoiceModal';
 import { OutfitModal } from './OutfitModal';
 import { CyclopediaModal } from './CyclopediaModal';
 import { BestiaryTrackerHUD } from './BestiaryTrackerHUD';
-import { CANONICAL_BESTIARY_MONSTERS } from '../lib/cyclopediaData';
+import { CANONICAL_BESTIARY_MONSTERS, getCyclopediaItems, getBestiaryMonsters } from '../lib/cyclopediaData';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { CharacterProfileModal } from './CharacterProfileModal';
@@ -1234,6 +1234,21 @@ function GamePrototypeContent() {
       .catch((err) => {
         console.error('Falha ao conectar ao servidor Colyseus:', err);
       });
+
+    // Phase 139: Actively utilize the 10s loading window to preload all walk + mount frames & warm Cyclopedia cache
+    preloadOutfitAllFrames(
+      userChar.outfit || 'Knight',
+      userChar.gender || 'male',
+      userChar.outfitColors,
+      userChar.addons,
+      userChar.mount,
+      Boolean(userChar.mountActive)
+    ).catch(() => {});
+
+    try {
+      getCyclopediaItems();
+      getBestiaryMonsters();
+    } catch {}
 
     // Set character readiness and clear loading flag
     setIsCharacterReady(true);

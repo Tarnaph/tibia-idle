@@ -211,9 +211,9 @@ export function WindowDockBar({
           onMouseEnter={handleInspectMouseEnter}
           onMouseLeave={handleInspectMouseLeave}
           onClick={() => {
-            if (onOpenOutfit) onOpenOutfit();
-            else if (onOpenProfile) onOpenProfile();
+            if (onOpenProfile) onOpenProfile();
             else if (onOpenSkills) onOpenSkills();
+            else if (onOpenOutfit) onOpenOutfit();
           }}
         >
           {/* Avatar Box with "Personagem" Tooltip */}
@@ -667,6 +667,16 @@ export function WindowDockBar({
           </svg>
         </button>
 
+
+        <button
+          type="button"
+          className="huntera-square-btn outfit-btn"
+          onClick={onOpenOutfit}
+          title="Customizar Aparência / Outfit & Montaria (Ctrl+U)"
+          style={{ borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.18)', fontSize: '15px' }}
+        >
+          🎭
+        </button>
 
         <button
           type="button"

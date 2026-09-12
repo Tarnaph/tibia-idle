@@ -11,7 +11,7 @@ import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@
 import type { ExtractedFrame, ItemVisualAssetMapping, Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
-import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
+import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames, getOutfitCapabilities } from '@/apps/web/lib/outfitRecolor';
 import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
@@ -1124,7 +1124,6 @@ export function ThaisCityArena({
             if (view.lastOutfitSignature !== outfitSig) {
               view.lastOutfitSignature = outfitSig;
               view.lastTextureKey = '';
-              view.lastCanvas = undefined;
               preloadOutfitAllFrames(
                 outfitKey,
                 charGender,
@@ -1135,15 +1134,23 @@ export function ThaisCityArena({
               ).catch(() => {});
             }
 
+            const normOutfit = normalizeOutfitId(outfitKey);
+            const caps = getOutfitCapabilities(normOutfit);
+            const safeFrame = caps.maxFrames <= 3
+              ? (charWalkFrame === 0 ? 0 : ((Math.abs(charWalkFrame) - 1) % 2) + 1)
+              : Math.max(0, Math.min(8, charWalkFrame));
+            const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+            const effectiveMounted = isMounted && caps.hasMountRider;
+
             const textureKey = getCanvasCacheKey(
-              normalizeOutfitId(outfitKey),
+              normOutfit,
               charGender,
               charDirection as any,
-              charWalkFrame,
+              safeFrame,
               colors,
-              addons,
+              effectiveAddons,
               localChar.mount,
-              isMounted
+              effectiveMounted
             );
             const isCached = isOutfitCanvasCached(
               outfitKey,

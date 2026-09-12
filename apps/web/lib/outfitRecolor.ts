@@ -350,7 +350,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
         settled = true;
         handleError();
       }
-    }, 12000);
+    }, 3500);
 
     const handleSuccess = () => {
       if (settled) return;
