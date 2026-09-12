@@ -45,8 +45,10 @@ import { BestiaryTrackerHUD } from './BestiaryTrackerHUD';
 import { CANONICAL_BESTIARY_MONSTERS, getCyclopediaItems, getBestiaryMonsters } from '../lib/cyclopediaData';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
-import { CharacterProfileModal } from './CharacterProfileModal';
 import { preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
+import { GameModalProvider, useGameModal } from '@/apps/web/contexts/GameModalContext';
+import { GameModalHost } from './modals/GameModalHost';
+import { isCharacterMounted, canOutfitHaveMount } from '@/apps/web/lib/appearanceService';
 import { PixiArena } from './PixiArena';
 import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
@@ -137,9 +139,11 @@ export function GamePrototype() {
   }
 
   return (
-    <WindowManagerProvider>
-      <GamePrototypeContent />
-    </WindowManagerProvider>
+    <GameModalProvider>
+      <WindowManagerProvider>
+        <GamePrototypeContent />
+      </WindowManagerProvider>
+    </GameModalProvider>
   );
 }
 
@@ -200,6 +204,7 @@ function useGameTicker(callback: () => void, intervalMs: number, active: boolean
 }
 
 function GamePrototypeContent() {
+  const gameModal = useGameModal();
   const [seed, setSeed] = useState(defaultSeed);
   const [game, setGame] = useState(() => createIdleGame(defaultSeed, content));
   const [mode, setMode] = useState<'training' | 'hunt'>('training');
@@ -219,6 +224,12 @@ function GamePrototypeContent() {
   const [levelUpMessage, setLevelUpMessage] = useState<{ text: string; timestamp: number } | null>(null);
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  useEffect(() => {
+    if (isProfileModalOpen) {
+      gameModal.openProfile();
+      setIsProfileModalOpen(false);
+    }
+  }, [isProfileModalOpen, gameModal]);
   const [hotbarConfigSlot, setHotbarConfigSlot] = useState<number | null>(null);
   const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>(THAIS_TEMPLE_POSITION);
   const [walkingPath, setWalkingPath] = useState<{
@@ -1531,10 +1542,9 @@ function GamePrototypeContent() {
   }, [activeCharacter.name, activeCharacter.id, mode]);
 
   const handleOpenOutfitModal = useCallback((characterId?: string) => {
-    setOutfitModalCharId(characterId || activeCharacter.id);
-    setOutfitModalOpen(true);
+    gameModal.openOutfit(characterId || activeCharacter.id);
     setCharContextMenu(null);
-  }, [activeCharacter.id]);
+  }, [activeCharacter.id, gameModal]);
 
   const handleSaveOutfit = useCallback((characterId: string, customization: {
     outfit: string;
@@ -2722,9 +2732,9 @@ function GamePrototypeContent() {
           onSelectHunt={() => setHuntSelectorOpen(true)}
           onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
           onOpenShop={() => setShopOpen((prev) => !prev)}
-          onOpenOutfit={() => handleOpenOutfitModal(activeCharacter.id)}
-          onOpenCyclopedia={() => setCyclopediaModalOpen((prev) => !prev)}
-          isMounted={Boolean(activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none')}
+          onOpenOutfit={() => gameModal.openOutfit(activeCharacter.id)}
+          onOpenCyclopedia={() => gameModal.openCyclopedia()}
+          isMounted={isCharacterMounted(activeCharacter)}
           onToggleMount={() => handleToggleMount(activeCharacter.id)}
           onExitGame={() => setIsLogoutModalOpen(true)}
         />
@@ -2992,46 +3002,47 @@ function GamePrototypeContent() {
         onCreate={createMember}
       />
 
-      {outfitModalOpen && (
-        <OutfitModal
-          open={outfitModalOpen}
-          characters={game.session.characters}
-          activeCharacterId={outfitModalCharId || activeCharacter.id}
-          onClose={() => setOutfitModalOpen(false)}
-          onOpenCharacterProfile={(charId) => {
-            setOutfitModalOpen(false);
-            if (charId) {
-              setGame((cur) => selectCharacter(cur, charId));
-            }
-            setIsProfileModalOpen(true);
-          }}
-          onSave={handleSaveOutfit}
-        />
-      )}
-
       {currentlyTrackedMonster && (
         <BestiaryTrackerHUD
           monster={currentlyTrackedMonster}
           kills={bestiaryKills[currentlyTrackedMonster.id.toLowerCase()] || 0}
           firstKillAlert={firstKillToast}
           onClose={() => handleTrackMonster(currentlyTrackedMonster.id)}
-          onOpenCyclopedia={() => setCyclopediaModalOpen(true)}
+          onOpenCyclopedia={() => gameModal.openCyclopedia()}
         />
       )}
 
-      {cyclopediaModalOpen && (
-        <CyclopediaModal
-          open={cyclopediaModalOpen}
-          onClose={() => setCyclopediaModalOpen(false)}
-          gold={game.session.gold}
-          bestiaryKills={bestiaryKills}
-          trackedMonsterId={trackedBestiaryMonsterId}
-          bossPoints={bossPoints}
-          onTrackMonster={handleTrackMonster}
-          characterName={activeCharacter.name}
-          characterVocation={activeCharacter.vocation || 'Knight'}
-        />
-      )}
+      {/* Decoupled Game Modal Host for Outfits, Cyclopedia, and Profile */}
+      <GameModalHost
+        characters={game.session.characters}
+        activeCharacterId={activeCharacter.id}
+        onSelectCharacter={(charId) => {
+          setGame((cur) => selectCharacter(cur, charId));
+        }}
+        onSaveOutfit={handleSaveOutfit}
+        content={content}
+        avatarId={(activeCharacter as any).avatarId ?? 1}
+        onSelectAvatar={(newAvatarId) => {
+          setGame((cur) => {
+            const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
+            if (char) {
+              (char as any).avatarId = newAvatarId;
+            }
+            return { ...cur };
+          });
+          gameNetwork.sendSetAvatar(newAvatarId);
+          if (saveProgressRef.current) {
+            saveProgressRef.current();
+          }
+        }}
+        gold={game.session.gold}
+        bestiaryKills={bestiaryKills}
+        trackedMonsterId={trackedBestiaryMonsterId}
+        bossPoints={bossPoints}
+        onTrackMonster={handleTrackMonster}
+        characterName={activeCharacter.name}
+        characterVocation={activeCharacter.vocation || 'Knight'}
+      />
 
       <DeathModal
         open={isDeathModalOpen}
@@ -3101,8 +3112,7 @@ function GamePrototypeContent() {
             y={charContextMenu.y}
             character={dummyChar}
             onSetOutfit={() => {
-              setOutfitModalCharId(dummyChar.id);
-              setOutfitModalOpen(true);
+              gameModal.openOutfit(dummyChar.id);
             }}
             onToggleMount={() => handleToggleMount(dummyChar.id)}
             onInviteParty={() => handleInviteParty(dummyChar.name)}
@@ -3122,36 +3132,6 @@ function GamePrototypeContent() {
 
       {/* Global Item Tooltip & Player Inspection (Highest z-index, always on top) */}
       <GlobalItemTooltip />
-
-      {/* Character Profile Modal & Sheet (matching user reference mockup) */}
-      <CharacterProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        characters={game.session.characters}
-        selectedCharacterId={activeCharacter.id}
-        onSelectCharacter={(charId) => {
-          setGame((cur) => selectCharacter(cur, charId));
-        }}
-        onOpenOutfit={(charId) => {
-          setIsProfileModalOpen(false);
-          handleOpenOutfitModal(charId || activeCharacter.id);
-        }}
-        content={content}
-        avatarId={(activeCharacter as any).avatarId ?? 1}
-        onSelectAvatar={(newAvatarId) => {
-          setGame((cur) => {
-            const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
-            if (char) {
-              (char as any).avatarId = newAvatarId;
-            }
-            return { ...cur };
-          });
-          gameNetwork.sendSetAvatar(newAvatarId);
-          if (saveProgressRef.current) {
-            saveProgressRef.current();
-          }
-        }}
-      />
 
       {/* Phase 104/105: Now Playing Music Track Notification Toast (Slides in from right strictly after loading) */}
       <MusicTrackToast isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />

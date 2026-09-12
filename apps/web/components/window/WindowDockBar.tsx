@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useWindowManager, type WindowId } from './WindowManagerContext';
+import { useGameModal } from '@/apps/web/contexts/GameModalContext';
 import { AutoIdleButton } from '../AutoIdleButton';
 import { getZoomMultiplier, setZoomMultiplier, resetZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 import type { CharacterState, DerivedStats } from '@/packages/domain/src';
@@ -76,6 +77,7 @@ export function WindowDockBar({
   onExitGame,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
+  const gameModal = useGameModal();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
@@ -214,6 +216,7 @@ export function WindowDockBar({
             if (onOpenProfile) onOpenProfile();
             else if (onOpenSkills) onOpenSkills();
             else if (onOpenOutfit) onOpenOutfit();
+            else gameModal.openProfile();
           }}
         >
           {/* Avatar Box with "Personagem" Tooltip */}

@@ -18,6 +18,8 @@ export interface ItemEntry {
   spriteUrl: string;
 }
 
+export type CyclopediaItem = ItemEntry;
+
 export interface ElementalResistances {
   physical: number; // -100 to 100 (% of damage modification/resistance)
   energy: number;

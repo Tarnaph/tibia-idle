@@ -99,6 +99,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 137: Chat Fixo no Canto Inferior Esquerdo e Remoção do Ícone de Chat da Barra Superior** - Fixação da janela de chat no canto inferior esquerdo com suporte a minimizar/expandir e auto-expandir ao teclar Enter ou receber whispers, e remoção do ícone da barra superior.
 - [x] **Phase 138: Animação Completa de Caminhada de Outfits (8 Passos), Acesso ao Personagem/Aparência pelo Avatar e Persistência Permanente do Bestiário no PostgreSQL** - Restauração do ciclo completo de caminhada com 8 frames em ThaisCityArena, restrição de clamping de 3 frames apenas aos 4 outfits com 3 frames, avatar do dock superior abrindo o modal de Personagem/Aparência (outfit) ao invés de skills, e persistência atômica das mortes do bestiário no banco de dados Prisma em tempo real e hidratação nas rotas de API.
 - [x] **Phase 139: Abertura do Perfil pelo Avatar, Correção de Seleção de Outfits e Montarias, Expansão Total da Cyclopedia e Otimização da Tela de Carregamento** - Redirecionamento do clique no avatar para o perfil do personagem (CharacterProfileModal), adição de botão dedicado de Outfit (🎭) no dock, correção de seleção e ativação de montarias ("Sem Montaria" em 1º lugar, fallback seguro, sem montaria no Sire), importação dos catálogos reais do jogo na Cyclopedia (1.163 itens e 968 monstros) com paginação fluida e pré-aquecimento ativo de frames e dados durante a tela de loading.
+- [x] **Phase 140: Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia** - Criação do `GameModalContext` para controle global desacoplado de modais, `GameModalHost` isolando o JSX de tela cheia para fora do `GamePrototype.tsx`, criação do serviço canônico `appearanceService.ts` (SSOT para verificação e cálculo de montarias e safe walk frames) e `cyclopediaService.ts` eliminando o acoplamento com o loop principal do jogo e prevenindo regressões futuras.
 
 ---
 
@@ -2573,6 +2574,25 @@ Plans:
 **Plans:**
 - [x] 139-PLAN: Abertura do Perfil pelo Avatar, Correção de Seleção de Outfits e Montarias, Expansão Total da Cyclopedia e Otimização da Tela de Carregamento.
 - Resumo de entrega: `.planning/phases/phase-139/139-SUMMARY.md`
+
+### Phase 140: Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia
+
+**Goal**: Diagnosticar as causas raízes que levavam alterações em outras partes do jogo a quebrar Outfits, Montarias e Cyclopedia, e implementar uma separação arquitetural definitiva via `GameModalContext`, `GameModalHost`, `appearanceService` e `cyclopediaService`, blindando esses módulos contra regressões.
+**Depends on**: Phase 139
+**Requirements**:
+1. **Investigação Completa de Causa Raiz:** Mapear acoplamento por monolito (`GamePrototype.tsx`), falta de contexto centralizado para modais, conflito de estado duplo de montaria e dependência de re-renders do cliente.
+2. **Contexto Centralizado de Modais (`GameModalContext.tsx`):** Provedor global com métodos desacoplados (`openOutfit`, `openCyclopedia`, `openProfile`, `openSkills`, etc.) eliminando prop-drilling.
+3. **Hospedeiro Desacoplado de Modais (`GameModalHost.tsx`):** Remoção de centenas de linhas de JSX de modais de dentro do `GamePrototypeContent`.
+4. **Single Source of Truth de Aparência (`appearanceService.ts`):** Centralização das regras determinísticas de montaria (`isCharacterMounted`), suporte a trajes (`canOutfitHaveMount`), clamping seguro de frames de caminhada (`getSafeWalkFrame`) e rótulos de status.
+5. **Serviço de Consulta da Cyclopedia (`cyclopediaService.ts`):** Camada de consulta com cache e cálculo canônico de progresso e tiers do bestiário.
+6. **Garantia de Qualidade e Conformidade GSD:**
+   - Suíte de testes dedicada em `tests/phase140-modal-isolation-and-decoupling.test.ts` (12 testes aprovados, 100%).
+   - 0 erros no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:**
+- [x] 140-PLAN: Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia.
+- Resumo de entrega: `.planning/phases/phase-140/140-SUMMARY.md`
+
 
 
 
