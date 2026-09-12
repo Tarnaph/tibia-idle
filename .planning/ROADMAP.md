@@ -2670,6 +2670,35 @@ Plans:
 - [x] 143-01-PLAN: Carregamento Integral da Cyclopedia, Busca Global e Sincronização em Todos os Personagens.
 - Resumo de entrega: `.planning/phases/phase-143-cyclopedia-full-loading-all-characters/143-SUMMARY.md`
 
+---
+
+### Phase 144: Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria
+
+**Goal**: Investigar e corrigir a causa raiz pela qual ao apertar para ficar sem montaria pelo menu de montarias o personagem/jogo apresentava anomalias, assegurando a preservação da montaria equipada, resiliência do atalho `Ctrl+R`, menu de contexto e transição visual fluida no Pixi sem sprites presos ou texturas ausentes.
+**Depends on**: Phase 143
+**Requirements**:
+1. **Preservação da Montaria Equipada ao Selecionar "Sem Montaria" (`OutfitModal.tsx`)**:
+   - Desacoplar o estado `equippedMount` de `mountActive`, de modo que ao clicar em "Sem Montaria", `mountActive` se torne `false` sem destruir a montaria anteriormente equipada (Donkey, Widow Queen, etc.).
+   - Destacar o card "Sem Montaria" quando o jogador estiver a pé (`!mountActive || selectedMount === 'none'`).
+   - O checkbox de montaria no painel lateral esquerdo deve exibir o nome da montaria equipada memorizada (ex.: `Montaria (Desativada - Widow Queen)`) e restaurá-la sem forçar regressão a 'donkey'.
+   - `handleSave` persiste `{ mount: effectiveMount, mountActive: isMnt }`, garantindo que o personagem nunca perca sua montaria equipada ao escolher caminhar a pé.
+   - Estabilizar dependências de `useEffect` no `OutfitModal.tsx` para eliminar risco de loops em cascata (`Maximum update depth exceeded`).
+2. **Resiliência do Atalho `Ctrl+R` e Menu de Contexto (`GamePrototype.tsx` & `CharacterContextMenu.tsx`)**:
+   - No `handleToggleMount`, se o personagem estiver sem montaria definida, adotar fallback seguro para `'donkey'`, permitindo montar e desmontar livremente por `Ctrl+R`.
+   - Exibir o botão `🐎 Montar / Desmontar` de forma consistente no menu de contexto do personagem.
+   - Pré-carregar tanto a pose a pé (`isMounted: false`) quanto a pose montada (`isMounted: true`) durante a tela de loading de 10s no login.
+3. **Resolução Imediata de Texturas a Pé (`outfitRecolor.ts` & `ThaisCityArena.tsx`)**:
+   - Adicionar fallbacks a pé em `provisionalCanvasCache` e geração imediata de canvas provisório quando base e máscara estiverem carregadas em `getRecoloredCanvasSync`, prevenindo retorno `null`.
+   - Garantir que `ThaisCityArena.tsx` atualize a textura do sprite local e remoto sem manter poses montadas congeladas.
+4. **Qualidade e Validação Contínua**:
+   - Criar suíte de testes dedicada em `tests/phase144-unmount-and-no-mount-selection.test.ts`.
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes Vitest (`npm test`).
+**Plans:** Concluído com sucesso.
+- [x] 144-01-PLAN: Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria.
+- Resumo de entrega: `.planning/phases/phase-144-unmount-and-no-mount-selection/144-SUMMARY.md`
+
+
 
 
 

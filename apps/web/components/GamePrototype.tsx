@@ -1244,15 +1244,26 @@ function GamePrototypeContent() {
         console.error('Falha ao conectar ao servidor Colyseus:', err);
       });
 
-    // Phase 139: Actively utilize the 10s loading window to preload all walk + mount frames & warm Cyclopedia cache
+    // Phase 139 & Phase 144: Preload both walk (on foot) and mount frames so transitions are instant
     preloadOutfitAllFrames(
       userChar.outfit || 'Knight',
       userChar.gender || 'male',
       userChar.outfitColors,
       userChar.addons,
       userChar.mount,
-      Boolean(userChar.mountActive)
+      false
     ).catch(() => {});
+
+    if (userChar.mount && userChar.mount !== 'none') {
+      preloadOutfitAllFrames(
+        userChar.outfit || 'Knight',
+        userChar.gender || 'male',
+        userChar.outfitColors,
+        userChar.addons,
+        userChar.mount,
+        true
+      ).catch(() => {});
+    }
 
     try {
       getCyclopediaItems();
@@ -1602,26 +1613,35 @@ function GamePrototypeContent() {
       if (!target) return cur;
 
       if (!target.mount || target.mount === 'none') {
-        setSaleMessage('Você não tem uma montaria selecionada. Abra o menu de Outfit (Ctrl+U) para escolher sua montaria.');
-        return cur;
+        target.mount = 'donkey';
       }
 
+      const effectiveMount = target.mount || 'donkey';
       const nextMountActive = !target.mountActive;
       const targetOutfitKey = target.outfit || target.vocation || 'Knight';
       const targetGender = target.gender || 'male';
       const targetColors = target.outfitColors;
       const targetAddons = (target as any).addons || (target as any).outfitAddons || 0;
-      const targetMount = target.mount;
 
+      // Preload both states to guarantee instant visual transition
       preloadOutfitAllFrames(
         targetOutfitKey,
         targetGender,
         targetColors,
         targetAddons,
-        targetMount,
-        nextMountActive
+        effectiveMount,
+        false
+      ).catch(() => {});
+      preloadOutfitAllFrames(
+        targetOutfitKey,
+        targetGender,
+        targetColors,
+        targetAddons,
+        effectiveMount,
+        true
       ).catch(() => {});
 
+      gameNetwork.sendChangeOutfit({ mount: effectiveMount });
       gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
 
       const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
@@ -1633,6 +1653,7 @@ function GamePrototypeContent() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
+            mount: effectiveMount,
             mountActive: nextMountActive,
           }),
         }).catch((err) => {
@@ -1647,7 +1668,7 @@ function GamePrototypeContent() {
         session: {
           ...cur.session,
           characters: cur.session.characters.map((char) =>
-            char.id === target.id ? { ...char, mountActive: nextMountActive } : char
+            char.id === target.id ? { ...char, mount: effectiveMount, mountActive: nextMountActive } : char
           ),
         },
       };

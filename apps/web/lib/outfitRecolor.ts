@@ -853,6 +853,31 @@ export function getRecoloredCanvasSync(
       const southFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, effectiveAddons, undefined, false);
       const southFallback = recoloredCanvasCache.get(southFallbackKey);
       if (southFallback) return southFallback;
+
+      // 6. Try any provisional canvas for this key
+      const provFallback = provisionalCanvasCache.get(key);
+      if (provFallback) return provFallback;
+
+      // 7. Try provisional canvas for dir or south
+      const provDirFallback = provisionalCanvasCache.get(dirFallbackKey);
+      if (provDirFallback) return provDirFallback;
+      const provSouthFallback = provisionalCanvasCache.get(southFallbackKey);
+      if (provSouthFallback) return provSouthFallback;
+
+      // 8. If base and mask are loaded, generate an immediate provisional canvas so character never disappears
+      if (isBaseReady && isMaskReady && baseImg && maskImg) {
+        const provW = 64;
+        const provH = 64;
+        const provCanvas = document.createElement('canvas');
+        provCanvas.width = provW;
+        provCanvas.height = provH;
+        const provCtx = provCanvas.getContext('2d');
+        if (provCtx) {
+          drawRecoloredLayer(provCtx, baseImg, maskImg, colors, provW, provH, 0, 0);
+          provisionalCanvasCache.set(key, provCanvas);
+          return provCanvas;
+        }
+      }
     }
     return null;
   }

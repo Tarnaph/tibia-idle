@@ -76,7 +76,7 @@ export function CharacterContextMenu({
         🥋 Set Outfit
       </button>
 
-      {character.mount && character.mount !== 'none' && (
+      {onToggleMount && (
         <button
           type="button"
           className="context-menu-item"

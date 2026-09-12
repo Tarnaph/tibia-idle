@@ -1201,7 +1201,7 @@ export function ThaisCityArena({
                 }
                 view.lastTextureKey = textureKey;
                 view.lastUrl = 'canvas';
-              } else if (!localChar.outfitColors && !isMounted) {
+              } else if (!isMounted) {
                 const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
                 if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
                   view.sprite.texture = loaded[nextUrl];

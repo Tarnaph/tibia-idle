@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-12T14:46:00.000Z"
-last_activity: "2026-09-12 — Conclusão da Phase 143: Correção do Carregamento Integral da Cyclopedia e Bestiário em Todos os Personagens."
+last_updated: "2026-09-12T15:14:00.000Z"
+last_activity: "2026-09-12 — Conclusão da Phase 144: Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria."
 progress:
-  total_phases: 143
-  completed_phases: 143
-  total_plans: 143
-  completed_plans: 143
+  total_phases: 144
+  completed_phases: 144
+  total_plans: 144
+  completed_plans: 144
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 143 concluída com êxito. Todos os 145 arquivos de teste passando (865/865).
+**Current focus:** Fase 144 concluída com êxito.
 
 ## Current Position
 
-Phase: 143 of 143 (Concluída)  
+Phase: 144 of 144 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-12 — Conclusão da Phase 143.
+Last activity: 2026-09-12 — Conclusão da Phase 144.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 143
-- Total phases in roadmap: 143
-- Tests status: 145 test suites, 865 testes (100% aprovados)
+- Total phases completed: 144
+- Total phases in roadmap: 144
+- Tests status: 146 test suites, 874 testes (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -67,6 +67,8 @@ Progress: [██████████] 100%
 | 140. Investigação de Acoplamento, Isolamento Arquitetural e Blindagem Modular de Outfits, Montarias e Cyclopedia | 1 | - | - | Complete |
 | 141. Eliminação de Tela Preta em Sessão Anônima, Otimização de I/O SQLite/WAL, Resiliência de Sockets e Correção dos Ícones de Caçadas | 1 | - | - | Complete |
 | 142. Resolução Definitiva de Cold Cache, Carregamento em Sessão Anônima e Alinhamento Multi-Ambiente | 1 | - | - | Complete |
+| 143. Correção do Carregamento Integral da Cyclopedia e Bestiário em Todos os Personagens | 1 | - | - | Complete |
+| 144. Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria | 1 | - | - | Complete |
 
 
 

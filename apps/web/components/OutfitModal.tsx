@@ -127,6 +127,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const [selectedTab, setSelectedTab] = useState<'outfits' | 'mounts'>('outfits');
   const [selectedOutfit, setSelectedOutfit] = useState('Knight');
   const [selectedMount, setSelectedMount] = useState('none');
+  const [equippedMount, setEquippedMount] = useState('donkey');
   const [mountActive, setMountActive] = useState(false);
   const [addon1, setAddon1] = useState(false);
   const [addon2, setAddon2] = useState(false);
@@ -170,19 +171,21 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       if (char) {
         const outfit = char.outfit || char.baseVocation || 'Knight';
         setSelectedOutfit(outfit);
-        const userMount = char.mount && char.mount !== 'none' ? char.mount : 'none';
-        setSelectedMount(userMount);
-        const caps = getOutfitCapabilities(outfit);
         const hasMount = Boolean(char.mount && char.mount !== 'none');
+        const userMount = hasMount ? char.mount! : 'none';
+        const effectiveEq = hasMount ? char.mount! : 'donkey';
+        setEquippedMount(effectiveEq);
+        const caps = getOutfitCapabilities(outfit);
         const isMntActive = caps.hasMountRider && hasMount && (char.mountActive !== undefined ? char.mountActive : true);
         setMountActive(Boolean(isMntActive));
+        setSelectedMount(isMntActive ? effectiveEq : 'none');
         const addons = char.addons || 0;
         setAddon1(caps.hasAddon1 && (addons & 1) !== 0);
         setAddon2(caps.hasAddon2 && (addons & 2) !== 0);
         if (char.outfitColors) setColors(char.outfitColors);
       }
     }
-  }, [selectedCharId, activeCharacterId, open, characters]);
+  }, [selectedCharId, activeCharacterId, open]);
 
   const isMounted = Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider);
   const currentDir = DIRECTIONS[directionIdx];
@@ -279,21 +282,33 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     if (addon1 && currentCaps.hasAddon1) addonsVal |= 1;
     if (addon2 && currentCaps.hasAddon2) addonsVal |= 2;
     const isMnt = Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider);
+    const effectiveMount = isMnt ? selectedMount : (equippedMount || selectedMount || 'donkey');
     onSave(effectiveCharId, {
       outfit: selectedOutfit,
-      mount: selectedMount,
+      mount: effectiveMount,
       mountActive: isMnt,
       addons: addonsVal,
       outfitColors: colors,
     });
+    // Preload both unmounted (foot) and mounted frames so transitions are instant
     preloadOutfitAllFrames(
       selectedOutfit,
       activeChar.gender || 'male',
       colors,
       addonsVal,
-      selectedMount,
-      isMnt
+      effectiveMount,
+      false
     ).catch(() => {});
+    if (effectiveMount && effectiveMount !== 'none') {
+      preloadOutfitAllFrames(
+        selectedOutfit,
+        activeChar.gender || 'male',
+        colors,
+        addonsVal,
+        effectiveMount,
+        true
+      ).catch(() => {});
+    }
     onClose();
   };
 
@@ -412,8 +427,11 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                   onChange={(e) => {
                     const nextVal = e.target.checked;
                     setMountActive(nextVal);
-                    if (nextVal && (!selectedMount || selectedMount === 'none')) {
-                      setSelectedMount('donkey');
+                    if (nextVal) {
+                      const mountToRestore = (equippedMount && equippedMount !== 'none') ? equippedMount : 'donkey';
+                      setSelectedMount(mountToRestore);
+                    } else {
+                      setSelectedMount('none');
                     }
                   }}
                   className="tibia-custom-checkbox"
@@ -422,7 +440,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                   {!currentCaps.hasMountRider
                     ? 'Montaria (Sem suporte neste traje)'
                     : (!mountActive || selectedMount === 'none')
-                    ? 'Montaria (Desativada)'
+                    ? `Montaria (Desativada - ${AVAILABLE_MOUNTS.find((m) => m.id === equippedMount)?.name || equippedMount || 'Donkey'})`
                     : `Montaria: ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
                 </span>
               </label>
@@ -560,15 +578,22 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                 })
               ) : (
                 AVAILABLE_MOUNTS.map((mount) => {
-                  const isSelected = normalizeMountId(selectedMount) === normalizeMountId(mount.id);
+                  const isCardActive = mount.id === 'none'
+                    ? (!mountActive || selectedMount === 'none')
+                    : (mountActive && normalizeMountId(selectedMount) === normalizeMountId(mount.id));
                   return (
                     <div
                       key={mount.id}
-                      className={`tibia-card-item ${isSelected ? 'active' : ''}`}
+                      className={`tibia-card-item ${isCardActive ? 'active' : ''}`}
                       onClick={() => {
-                        setSelectedMount(mount.id);
-                        if (mount.id !== 'none') setMountActive(true);
-                        else setMountActive(false);
+                        if (mount.id === 'none') {
+                          setSelectedMount('none');
+                          setMountActive(false);
+                        } else {
+                          setEquippedMount(mount.id);
+                          setSelectedMount(mount.id);
+                          setMountActive(true);
+                        }
                       }}
                     >
                       <div className="tibia-card-sprite-wrap">
