@@ -255,8 +255,8 @@ export const failedImageUrls = new Set<string>();
 const failedImageUrlsWithTimestamp = new Map<string, number>();
 const failedImageAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_FAILED_IMAGE_ATTEMPTS = 3;
-const FAILED_IMAGE_RETRY_DELAY_MS = 2000;
-const FAILED_IMAGE_TTL_MS = 15000;
+const FAILED_IMAGE_RETRY_DELAY_MS = 1000;
+const FAILED_IMAGE_TTL_MS = 2000;
 
 export function isImagePermanentlyFailed(url: string): boolean {
   const failedAt = failedImageUrlsWithTimestamp.get(url);
@@ -281,7 +281,7 @@ export function isImagePermanentlyFailed(url: string): boolean {
     failedImageAttempts.delete(url);
     return false;
   }
-  return failedImageUrls.has(url);
+  return false;
 }
 
 export function canRetryImage(url: string): boolean {
@@ -342,7 +342,12 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
   // 3. Create managed promise for this URL with safety timeout
   const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    const isCrossOrigin = typeof window !== 'undefined' &&
+      (url.startsWith('http://') || url.startsWith('https://')) &&
+      !url.startsWith(window.location.origin);
+    if (isCrossOrigin) {
+      img.crossOrigin = 'anonymous';
+    }
 
     let settled = false;
     const timeout = setTimeout(() => {
@@ -578,6 +583,7 @@ export async function renderRecoloredOutfit(
   if (isCurrent && !isCurrent()) return;
 
   // 2. Load rider/base layer
+  let hasDrawnContent = false;
   try {
     let baseImg: HTMLImageElement;
     let maskImg: HTMLImageElement;
@@ -596,8 +602,20 @@ export async function renderRecoloredOutfit(
     }
     if (isCurrent && !isCurrent()) return;
     drawRecoloredLayer(offCtx, baseImg, maskImg, colors, w, h, offset.x, offset.y);
+    hasDrawnContent = true;
   } catch {
-    // ignore
+    // Robust fallback to south idle f0 frame
+    try {
+      const norm = normalizeOutfitId(outfitId);
+      const fbBase = `/generated/outfits/${norm}-${gender}-south-f0-base.png`;
+      const fbMask = `/generated/outfits/${norm}-${gender}-south-f0-mask.png`;
+      const [fb0Base, fb0Mask] = await Promise.all([loadImage(fbBase), loadImage(fbMask)]);
+      if (isCurrent && !isCurrent()) return;
+      drawRecoloredLayer(offCtx, fb0Base, fb0Mask, colors, w, h, 0, 0);
+      hasDrawnContent = true;
+    } catch {
+      // ignore
+    }
   }
   if (isCurrent && !isCurrent()) return;
 
@@ -625,13 +643,15 @@ export async function renderRecoloredOutfit(
   }
   if (isCurrent && !isCurrent()) return;
 
-  // 5. Blit offscreen buffer to visible targetCanvas in a single synchronous operation
-  if (targetCanvas.width !== w) targetCanvas.width = w;
-  if (targetCanvas.height !== h) targetCanvas.height = h;
-  const targetCtx = targetCanvas.getContext('2d');
-  if (targetCtx) {
-    targetCtx.clearRect(0, 0, w, h);
-    targetCtx.drawImage(offCanvas, 0, 0);
+  // 5. Blit offscreen buffer to visible targetCanvas only when content was actually drawn
+  if (hasDrawnContent || (isMounted && urls.mountUrl)) {
+    if (targetCanvas.width !== w) targetCanvas.width = w;
+    if (targetCanvas.height !== h) targetCanvas.height = h;
+    const targetCtx = targetCanvas.getContext('2d');
+    if (targetCtx) {
+      targetCtx.clearRect(0, 0, w, h);
+      targetCtx.drawImage(offCanvas, 0, 0);
+    }
   }
 }
 
@@ -685,13 +705,13 @@ export async function preloadOutfitAllFrames(
 
   // 2. Preload walk frames: up to maxFrames - 1 (e.g. 2 for 3-frame outfits, 8 for others)
   const maxWalkFrame = Math.min(8, caps.maxFrames - 1);
+  const walkPromises: Promise<void>[] = [];
   for (const dir of directions) {
-    const dirPromises: Promise<void>[] = [];
     for (let f = 1; f <= maxWalkFrame; f++) {
-      dirPromises.push(loadAndCacheFrame(dir, f));
+      walkPromises.push(loadAndCacheFrame(dir, f));
     }
-    await Promise.allSettled(dirPromises);
   }
+  await Promise.allSettled(walkPromises);
 }
 
 export function getCanvasCacheKey(

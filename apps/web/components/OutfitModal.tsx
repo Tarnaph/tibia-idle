@@ -204,6 +204,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     } else if (selectedMount && selectedMount !== 'none') {
       setMountActive(true);
     }
+    preloadOutfitAllFrames(outfitId, charGender, colors, 0, selectedMount, mountActive && caps.hasMountRider).catch(() => {});
   };
 
   // Live recolor preview on canvas whenever outfit, direction, colors, addons, or mount change
@@ -213,9 +214,11 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
 
     if (previewCanvasRef.current) {
       const thisGen = ++renderGenRef.current;
+      const caps = getOutfitCapabilities(selectedOutfit);
       let addonsVal = 0;
-      if (addon1 && currentCaps.hasAddon1) addonsVal |= 1;
-      if (addon2 && currentCaps.hasAddon2) addonsVal |= 2;
+      if (addon1 && caps.hasAddon1) addonsVal |= 1;
+      if (addon2 && caps.hasAddon2) addonsVal |= 2;
+      const effectiveMounted = Boolean(mountActive && selectedMount !== 'none' && caps.hasMountRider);
       renderRecoloredOutfit(
         previewCanvasRef.current,
         selectedOutfit,
@@ -225,7 +228,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         colors,
         addonsVal,
         selectedMount,
-        isMounted,
+        effectiveMounted,
         () => renderGenRef.current === thisGen
       ).catch((err) => {
         console.warn('Outfit preview render non-fatal exception caught:', err);
@@ -237,13 +240,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     charGender,
     currentDir,
     colors,
-    isMounted,
+    mountActive,
     addon1,
     addon2,
     selectedMount,
-    currentCaps.hasAddon1,
-    currentCaps.hasAddon2,
-    currentCaps.hasMountRider,
   ]);
 
   if (!open) return null;

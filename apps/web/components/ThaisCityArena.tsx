@@ -992,11 +992,10 @@ export function ThaisCityArena({
 
             const normOutfit = normalizeOutfitId(localChar.outfit || localChar.vocation || 'Knight');
             const caps = getOutfitCapabilities(normOutfit);
-            const stepParity = Math.abs(curPos.x + curPos.y) % 2;
-            const stepProgress = sample.progress ?? 0;
-            const subFrame = Math.min(3, Math.max(0, Math.floor(stepProgress * 4)));
+            const walkCycleDuration = Math.max(160, curStepDuration * 2);
+            const cyclePhase = (now % walkCycleDuration) / walkCycleDuration;
             const charWalkFrame = charIsMoving
-              ? (caps.maxFrames <= 3 ? (stepParity === 0 ? 1 : 2) : (1 + (stepParity === 0 ? 0 : 4) + subFrame))
+              ? (caps.maxFrames <= 3 ? (1 + (Math.floor(cyclePhase * 2) % 2)) : (1 + (Math.floor(cyclePhase * 8) % 8)))
               : 0;
 
             view.sprite.scale.x = 1;
@@ -1011,6 +1010,7 @@ export function ThaisCityArena({
             if (view.lastOutfitSignature !== outfitSig) {
               view.lastOutfitSignature = outfitSig;
               view.lastTextureKey = '';
+              view.lastCanvas = undefined;
               preloadOutfitAllFrames(
                 outfitKey,
                 charGender,
@@ -1065,7 +1065,9 @@ export function ThaisCityArena({
                   tex.source.style.scaleMode = 'nearest';
                   view.sprite.texture = tex;
                 }
-                view.lastTextureKey = textureKey;
+                if (isCached) {
+                  view.lastTextureKey = textureKey;
+                }
                 view.lastUrl = 'canvas';
               } else if (!isMounted) {
                 const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, safeFrame);
@@ -1473,10 +1475,10 @@ export function ThaisCityArena({
             const rAddons = p.outfitAddons || 0;
             const rNormOutfit = normalizeOutfitId(outfitKey);
             const rCaps = getOutfitCapabilities(rNormOutfit);
-            const rParity = Math.abs((p.x ?? 0) + (p.y ?? 0)) % 2;
-            const rSubFrame = Math.min(3, Math.max(0, Math.floor((sample.progress ?? 0) * 4)));
+            const rWalkCycleDuration = 400;
+            const rCyclePhase = (now % rWalkCycleDuration) / rWalkCycleDuration;
             const rWalkFrame = isMoving
-              ? (rCaps.maxFrames <= 3 ? (rParity === 0 ? 1 : 2) : (1 + (rParity === 0 ? 0 : 4) + rSubFrame))
+              ? (rCaps.maxFrames <= 3 ? (1 + (Math.floor(rCyclePhase * 2) % 2)) : (1 + (Math.floor(rCyclePhase * 8) % 8)))
               : 0;
             const rSafeFrame = rCaps.maxFrames <= 3
               ? (rWalkFrame === 0 ? 0 : ((Math.abs(rWalkFrame) - 1) % 2) + 1)

@@ -1625,6 +1625,19 @@ function GamePrototypeContent() {
       },
     }));
 
+    setOnlineCharacter((prev) => {
+      if (!prev || prev.id !== characterId) return prev;
+      return {
+        ...prev,
+        outfit: customization.outfit,
+        mount: customization.mount,
+        mountActive: customization.mountActive,
+        addons: customization.addons,
+        outfitAddons: customization.addons,
+        outfitColors: customization.outfitColors,
+      } as any;
+    });
+
     // Broadcast outfit change to live Colyseus server so all remote players update instantly
     gameNetwork.sendChangeOutfit(customization);
 
@@ -1648,6 +1661,10 @@ function GamePrototypeContent() {
       }).catch((err) => {
         console.warn('Falha ao salvar customização do outfit:', err);
       });
+    }
+
+    if (saveProgressRef.current) {
+      saveProgressRef.current(false, true).catch(() => {});
     }
   }, []);
 
