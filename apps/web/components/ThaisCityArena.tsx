@@ -1013,7 +1013,7 @@ export function ThaisCityArena({
             const charGender = localChar.gender === 'female' ? 'female' : 'male';
             const addons = (localChar as any).addons || (localChar as any).outfitAddons || 0;
 
-            // Trigger proactive preloading whenever player outfit, mount, addons or colors change
+            // Trigger proactive preloading whenever player outfit, mount, addons, colors or direction change
             const outfitSig = `${outfitKey}_${charGender}_${isMounted ? (localChar.mount || 'none') : 'none'}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
             if (view.lastOutfitSignature !== outfitSig) {
               view.lastOutfitSignature = outfitSig;
@@ -1025,8 +1025,22 @@ export function ThaisCityArena({
                 colors,
                 addons,
                 localChar.mount,
-                isMounted
+                isMounted,
+                charDirection as any
               ).catch(() => {});
+            } else if ((view as any).lastDirection !== charDirection) {
+              (view as any).lastDirection = charDirection;
+              if (!isOutfitCanvasCached(outfitKey, charGender, charDirection as any, 1, colors, addons, localChar.mount, isMounted)) {
+                preloadOutfitAllFrames(
+                  outfitKey,
+                  charGender,
+                  colors,
+                  addons,
+                  localChar.mount,
+                  isMounted,
+                  charDirection as any
+                ).catch(() => {});
+              }
             }
 
             const safeFrame = caps.maxFrames <= 3
@@ -1067,10 +1081,11 @@ export function ThaisCityArena({
                 isMounted
               );
               if (canvas) {
-                if (view.lastCanvas !== canvas) {
+                if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
                   view.lastCanvas = canvas;
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
+                  (tex.source as any).update?.();
                   view.sprite.texture = tex;
                 }
                 if (isCached) {
@@ -1443,12 +1458,16 @@ export function ThaisCityArena({
             });
             if (!view) return;
 
+            const rMounted = Boolean(p.mountActive && p.mount && p.mount !== 'none');
+            const rAddons = (p as any).outfitAddons ?? (p as any).addons ?? 0;
+            const rDir = p.direction || 'south';
+
             const colorsKey = colors ? `${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}` : 'none';
             if (view.lastOutfitKey !== outfitKey || view.lastColorsKey !== colorsKey) {
               view.lastOutfitKey = outfitKey;
               view.lastColorsKey = colorsKey;
               if (colors) {
-                preloadOutfitAllFrames(outfitKey, 'male', colors).catch(() => {});
+                preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted, rDir as any).catch(() => {});
               }
             }
 
@@ -1479,8 +1498,6 @@ export function ThaisCityArena({
             view.root.visible = (p.z ?? 7) === curPos.z;
             if (!view.root.visible) return;
 
-            const rMounted = Boolean(p.mountActive && p.mount && p.mount !== 'none');
-            const rAddons = p.outfitAddons || 0;
             const rNormOutfit = normalizeOutfitId(outfitKey);
             const rCaps = getOutfitCapabilities(rNormOutfit);
             const rWalkCycleDuration = 400;
@@ -1505,10 +1522,11 @@ export function ThaisCityArena({
               if (colors) {
                 const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted);
                 if (canvas) {
-                  if (view.lastCanvas !== canvas) {
+                  if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
                     view.lastCanvas = canvas;
                     const tex = Texture.from(canvas);
                     tex.source.style.scaleMode = 'nearest';
+                    (tex.source as any).update?.();
                     view.sprite.texture = tex;
                   }
                   if (isCached) {
@@ -1517,7 +1535,7 @@ export function ThaisCityArena({
                   view.lastUrl = 'canvas';
                   updated = true;
                 } else {
-                  preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted).catch(() => {});
+                  preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted, dir as any).catch(() => {});
                 }
               }
               if (!updated && !rMounted) {

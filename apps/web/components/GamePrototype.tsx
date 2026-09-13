@@ -72,6 +72,7 @@ import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/
 import { PartyInvitationModal } from './party/PartyInvitationModal';
 import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
 import { LogoutConfirmModal } from './character/LogoutConfirmModal';
+import { PromotionModal } from './character/PromotionModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
@@ -281,6 +282,8 @@ function GamePrototypeContent() {
   const [remotePlayers, setRemotePlayers] = useState<Map<string, RemotePlayerSnapshot>>(new Map());
   const [outfitModalOpen, setOutfitModalOpen] = useState(false);
   const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
+  const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
+  const hasShownPromotionPopupRef = useRef<boolean>(false);
   const [cyclopediaModalOpen, setCyclopediaModalOpen] = useState(false);
   const [trackedBestiaryMonsterId, setTrackedBestiaryMonsterId] = useState<string>('');
   const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
@@ -1638,31 +1641,34 @@ function GamePrototypeContent() {
       } as any;
     });
 
+    // Synchronously update latestSaveStateRef so background auto-save or immediate save never stomps with stale state
+    if (latestSaveStateRef.current.activeCharacter && latestSaveStateRef.current.activeCharacter.id === characterId) {
+      latestSaveStateRef.current.activeCharacter = {
+        ...latestSaveStateRef.current.activeCharacter,
+        outfit: customization.outfit,
+        mount: customization.mount,
+        mountActive: customization.mountActive,
+        addons: customization.addons,
+        outfitAddons: customization.addons,
+        outfitColors: customization.outfitColors,
+      } as any;
+    }
+    if (latestSaveStateRef.current.onlineCharacter && latestSaveStateRef.current.onlineCharacter.id === characterId) {
+      latestSaveStateRef.current.onlineCharacter = {
+        ...latestSaveStateRef.current.onlineCharacter,
+        outfit: customization.outfit,
+        mount: customization.mount,
+        mountActive: customization.mountActive,
+        addons: customization.addons,
+        outfitAddons: customization.addons,
+        outfitColors: customization.outfitColors,
+      } as any;
+    }
+
     // Broadcast outfit change to live Colyseus server so all remote players update instantly
     gameNetwork.sendChangeOutfit(customization);
 
-    // Persist permanently to database via save endpoint
-    const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
-    if (token && characterId) {
-      fetch(`/api/characters/${characterId}/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          outfit: customization.outfit,
-          mount: customization.mount,
-          mountActive: customization.mountActive,
-          outfitAddons: customization.addons,
-          addons: customization.addons,
-          outfitColors: customization.outfitColors,
-        }),
-      }).catch((err) => {
-        console.warn('Falha ao salvar customização do outfit:', err);
-      });
-    }
-
+    // Persist permanently to database with unified authoritative state
     if (saveProgressRef.current) {
       saveProgressRef.current(false, true).catch(() => {});
     }
@@ -1684,14 +1690,32 @@ function GamePrototypeContent() {
       const targetColors = target.outfitColors;
       const targetAddons = (target as any).addons || (target as any).outfitAddons || 0;
 
+      // Synchronously update latestSaveStateRef
+      if (latestSaveStateRef.current.activeCharacter && latestSaveStateRef.current.activeCharacter.id === target.id) {
+        latestSaveStateRef.current.activeCharacter = {
+          ...latestSaveStateRef.current.activeCharacter,
+          mount: effectiveMount,
+          mountActive: nextMountActive,
+        } as any;
+      }
+      if (latestSaveStateRef.current.onlineCharacter && latestSaveStateRef.current.onlineCharacter.id === target.id) {
+        latestSaveStateRef.current.onlineCharacter = {
+          ...latestSaveStateRef.current.onlineCharacter,
+          mount: effectiveMount,
+          mountActive: nextMountActive,
+        } as any;
+      }
+
       // Preload both states to guarantee instant visual transition
+      const targetDir = ((target as any).direction as any) || 'south';
       preloadOutfitAllFrames(
         targetOutfitKey,
         targetGender,
         targetColors,
         targetAddons,
         effectiveMount,
-        false
+        false,
+        targetDir
       ).catch(() => {});
       preloadOutfitAllFrames(
         targetOutfitKey,
@@ -1699,27 +1723,15 @@ function GamePrototypeContent() {
         targetColors,
         targetAddons,
         effectiveMount,
-        true
+        true,
+        targetDir
       ).catch(() => {});
 
       gameNetwork.sendChangeOutfit({ mount: effectiveMount });
       gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
 
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
-      if (token && target.id) {
-        fetch(`/api/characters/${target.id}/save`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            mount: effectiveMount,
-            mountActive: nextMountActive,
-          }),
-        }).catch((err) => {
-          console.warn('Falha ao salvar estado de montaria:', err);
-        });
+      if (saveProgressRef.current) {
+        saveProgressRef.current(false, true).catch(() => {});
       }
 
       setSaleMessage(nextMountActive ? '🐎 Você montou na sua montaria!' : '🚶 Você desmontou da montaria.');
@@ -2402,6 +2414,19 @@ function GamePrototypeContent() {
     });
   };
 
+  // Proactively display celebratory promotion modal once character reaches Level 20 in safe area
+  useEffect(() => {
+    if (
+      activeCharacter.level >= 20 &&
+      !activeCharacter.promotion &&
+      mode !== 'hunt' &&
+      !hasShownPromotionPopupRef.current
+    ) {
+      hasShownPromotionPopupRef.current = true;
+      setIsPromotionModalOpen(true);
+    }
+  }, [activeCharacter.level, activeCharacter.promotion, mode]);
+
   const handleSaveHotbarSlot = (slotIndex: number, actionId: number | null, config?: any) => {
     setGame((current) => {
       const activeId = current.session.selectedCharacterId;
@@ -2838,6 +2863,7 @@ function GamePrototypeContent() {
           isMounted={isCharacterMounted(activeCharacter)}
           onToggleMount={() => handleToggleMount(activeCharacter.id)}
           onExitGame={() => setIsLogoutModalOpen(true)}
+          onOpenPromotion={() => setIsPromotionModalOpen(true)}
         />
       )}
 
@@ -3037,13 +3063,35 @@ function GamePrototypeContent() {
       />
 
       <VocationChoiceModal
-        open={activeCharacter.level >= 8 && activeCharacter.vocation === 'None'}
+        open={!activeCharacter.vocation || activeCharacter.vocation === 'None'}
         characterName={activeCharacter.name}
         takenVocations={getTakenAccountVocations(game.session.characters, activeCharacter.id)}
         onSelectVocation={(vocName) => {
           const res = chooseCharacterVocation(game, activeCharacter.id, vocName, content);
           if (res.ok) {
-            setGame(res.state);
+            const defaultOutfit =
+              vocName === 'Knight' ? 'Knight'
+              : vocName === 'Paladin' ? 'Hunter'
+              : vocName === 'Sorcerer' ? 'Mage'
+              : 'Druid';
+
+            const updatedState = {
+              ...res.state,
+              session: {
+                ...res.state.session,
+                characters: res.state.session.characters.map((c) =>
+                  c.id === activeCharacter.id ? { ...c, outfit: defaultOutfit } : c
+                ),
+              },
+            };
+            setGame(updatedState);
+            setOnlineCharacter((prev) =>
+              prev ? { ...prev, vocation: vocName, baseVocation: vocName, outfit: defaultOutfit } as any : prev
+            );
+            gameNetwork.sendChangeOutfit({ outfit: defaultOutfit, mount: 'none', mountActive: false, addons: 0 });
+            if (saveProgressRef.current) {
+              saveProgressRef.current(false, true).catch(() => {});
+            }
             setSaleMessage(`Parabéns! ${activeCharacter.name} agora é um ${vocName}!`);
           } else if (res.error) {
             setSaleMessage(res.error);
@@ -3145,6 +3193,14 @@ function GamePrototypeContent() {
         characterVocation={activeCharacter.vocation || 'Knight'}
         character={activeCharacter}
         stats={activeStats}
+      />
+
+      <PromotionModal
+        open={isPromotionModalOpen}
+        character={activeCharacter}
+        gold={game.session.gold}
+        onClose={() => setIsPromotionModalOpen(false)}
+        onPromote={() => handlePromoteCharacter(activeCharacter.id)}
       />
 
       <DeathModal

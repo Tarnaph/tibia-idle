@@ -47,6 +47,7 @@ interface WindowDockBarProps {
   isMounted?: boolean;
   onToggleMount?: () => void;
   onExitGame?: () => void;
+  onOpenPromotion?: () => void;
 }
 
 export function WindowDockBar({
@@ -75,6 +76,7 @@ export function WindowDockBar({
   isMounted = false,
   onToggleMount,
   onExitGame,
+  onOpenPromotion,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
   const gameModal = useGameModal();
@@ -548,6 +550,58 @@ export function WindowDockBar({
                   </span>
                 </div>
               </div>
+
+              {/* Promotion Section (Level 20+) */}
+              {character && character.level >= 20 && (
+                <>
+                  <div style={{ height: '1px', background: '#1c2433', margin: '10px 0 8px 0' }} />
+                  {!character.promotion ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenPromotion?.();
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '7px 10px',
+                        borderRadius: '4px',
+                        border: '1px solid #ca8a04',
+                        background: 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)',
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontWeight: 900,
+                        letterSpacing: '0.04em',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 10px rgba(202, 138, 4, 0.35)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <span>👑</span>
+                      <span>PROMOVER VOCAÇÃO (20.000 GP)</span>
+                    </button>
+                  ) : (
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(34, 197, 94, 0.12)',
+                        padding: '5px 8px',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
+                      }}
+                    >
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#86efac' }}>👑 STATUS</span>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#4ade80' }}>Vocação Promovida</span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>

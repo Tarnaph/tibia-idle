@@ -112,6 +112,8 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 150: Arquitetura Active Player First de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão** - Redução do preloader para ~85 assets focados no personagem ativo, remoção do timeout arbitrário de 2.0s, normalização de rat.png e cave-rat.png e testes de integridade.
 - [x] **Phase 151: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading** - Empacotamento de 1.082 itens em thais-atlas.png/json e criaturas em creatures-atlas.png/json, redução de ~19.13MB de JSONs monolíticos estáticos do bundle do cliente, eliminação definitiva da tela de congelamento inicial e renderização instantânea de Thais no Frame 1.
 - [x] **Phase 152: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy** - Eliminação definitiva de erro 'database disk image is malformed', restauração da integridade na VPS com 100% dos personagens, desrastreamento de dev.db no git, blindagem no .gitignore e proteção do script de deploy.
+- [x] **Phase 155: Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells Atlas, Equipment Atlas & Hunt Zone Loading)** - 1px extrusion no atlas de Thais, atlas unificado de magias/runas, atlas canônico de equipamentos e zone loading para caçadas.
+- [x] **Phase 156: Curadoria de Magias, Escolha de Vocação, Promoção e Correções de Outfits & Caminhada** - Filtragem estrita de magias com ícones CipSoft, escolha de vocação ao nascer no Nível 1 com outfits autênticos, promoção no Nível 20 no Character Hover Card e correção de salvamento e caminhada sem deslizamento.
 
 ---
 
@@ -2978,6 +2980,23 @@ Plans:
 - [x] 155-03-PLAN: Zone Loading & Atlas de Monstros por Caçada em PixiArena.
 
 - Resumo de entrega: `.planning/phases/phase-155-modular-atlases-and-zone-loading/155-SUMMARY.md`
+
+---
+
+### Phase 156: Curadoria de Magias, Escolha de Vocação, Promoção e Correções de Outfits & Caminhada
+
+**Objetivos:**
+1. **Curadoria de Magias na Hotbar:** Filtragem restrita via `resolveActionImagePath !== null`, eliminando magias sem ícones oficiais CipSoft e utilitários não combatentes.
+2. **Escolha de Vocação Canônica:** Abertura imediata do `VocationChoiceModal` ao nascer sem vocação (`None`), com outfits autênticos e persistência no Prisma DB.
+3. **Promoção de Vocação no Nível 20:** `PromotionModal` com visualização de addons, 20.000 GP de custo e integração no Character Hover Card do `WindowDockBar`.
+4. **Correção de Outfits, Montarias e Animação de Caminhada (`FIX.md`):** Eliminação de race condition no salvamento, catálogo `OUTFITS_WITH_MOUNTS` para blindar montarias, fast-path no preview e `preloadOutfitAllFrames` priorizando direção ativa para recuperar a movimentação das pernas ao andar em Thais.
+
+**Plans:**
+- [x] 156-01-PLAN: Curadoria de Magias no Hotbar & Escolha Canônica de Vocação ao Nascer.
+- [x] 156-02-PLAN: Modal de Promoção Nível 20 & Integração no Character Hover Card.
+- [x] 156-03-PLAN: Correção Definitiva do Preview, Salvamento de Outfits/Montarias e Animação de Caminhada.
+
+- Resumo de entrega: `.planning/phases/phase-156-curated-spells-vocation-choice-promotion-and-outfit-fixes/156-SUMMARY.md`
 
 
 

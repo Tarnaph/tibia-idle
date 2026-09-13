@@ -20,6 +20,7 @@ interface VocationOption {
   role: string;
   description: string;
   icon: string;
+  thumbUrl: string;
 }
 
 const VOCATIONS: VocationOption[] = [
@@ -27,29 +28,33 @@ const VOCATIONS: VocationOption[] = [
     id: 'Knight',
     name: 'Knight',
     role: 'Corpo a Corpo & Tank',
-    description: 'Mestre no combate de proximidade, alta vida (HP), armadura pesada e proteção na linha de frente.',
+    description: 'Mestre no combate de proximidade com espadas, machados e maças. Altíssima vida (HP), armadura pesada e proteção na linha de frente.',
     icon: '⚔️',
+    thumbUrl: '/generated/outfit-thumbs/knight.png',
   },
   {
     id: 'Paladin',
     name: 'Paladin',
     role: 'Distância & Precisão',
-    description: 'Especialista em arcos, lança-dardos e munições de distância com equilíbrio entre HP e Mana.',
+    description: 'Especialista em arcos, lanças e combate à distância. Equilíbrio entre vida e mana, com alto dano físico e magias sagradas.',
     icon: '🏹',
+    thumbUrl: '/generated/outfit-thumbs/hunter.png',
   },
   {
     id: 'Sorcerer',
     name: 'Sorcerer',
-    role: 'Magia Ofensiva',
-    description: 'Dominador de feitiços devastadores de fogo e energia com regeneração acelerada de Mana.',
+    role: 'Magia Ofensiva Destrutiva',
+    description: 'Dominador de feitiços devastadores de fogo, energia e morte. Enorme reserva e regeneração acelerada de Mana.',
     icon: '🔮',
+    thumbUrl: '/generated/outfit-thumbs/mage.png',
   },
   {
     id: 'Druid',
     name: 'Druid',
     role: 'Magia de Cura & Elementos',
-    description: 'Guardião mestre em magias de cura de grupo, gelo e terra com grande reserva mística.',
+    description: 'Guardião da natureza mestre em magias de cura de grupo, gelo e terra. Suporte indispensável para qualquer grupo.',
     icon: '🌿',
+    thumbUrl: '/generated/outfit-thumbs/mage.png',
   },
 ];
 
@@ -115,10 +120,10 @@ export function VocationChoiceModal({
           }}
         >
           <h2 style={{ margin: 0, fontSize: '18px', color: '#ffd700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            🏆 Escolha sua Vocação (Nível 8)
+            🏆 Escolha sua Vocação
           </h2>
           <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#9aa4b2' }}>
-            Parabéns <strong>{characterName}</strong>! Você atingiu o Nível 8 e agora deve escolher a sua vocação permanente.
+            Bem-vindo(a) a Thais, <strong>{characterName}</strong>! Escolha sua vocação permanente para definir seu estilo de jogo e habilidades.
           </p>
         </div>
 
@@ -127,9 +132,6 @@ export function VocationChoiceModal({
           {VOCATIONS.map((voc) => {
             const isTaken = takenSet.has(voc.id);
             const isSelected = selected === voc.id && !isTaken;
-            const outfitFrame =
-              assets.outfits[voc.id]?.frames.find((f) => f.direction === 'south') ??
-              assets.outfits[voc.id]?.frames[0];
 
             return (
               <div
@@ -167,12 +169,19 @@ export function VocationChoiceModal({
                     flexShrink: 0,
                   }}
                 >
-                  {outfitFrame ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={outfitFrame.publicUrl} alt={voc.name} style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
-                  ) : (
-                    <span style={{ fontSize: '20px' }}>{voc.icon}</span>
-                  )}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={voc.thumbUrl}
+                    alt={voc.name}
+                    style={{ width: '36px', height: '36px', objectFit: 'contain', imageRendering: 'pixelated' }}
+                    onError={(e) => {
+                      // Fallback to combat assets frame if thumbnail fails
+                      const fallbackUrl = assets.outfits[voc.id]?.frames.find((f) => f.direction === 'south')?.publicUrl;
+                      if (fallbackUrl) {
+                        e.currentTarget.src = fallbackUrl;
+                      }
+                    }}
+                  />
                 </div>
 
                 <div style={{ flex: 1 }}>

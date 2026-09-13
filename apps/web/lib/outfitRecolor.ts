@@ -157,6 +157,22 @@ export interface OutfitCapabilities {
   maxFrames: number;
 }
 
+export const OUTFITS_WITH_MOUNTS = new Set([
+  'afflicted', 'arena-champion', 'assassin', 'barbarian', 'battle-mage', 'beastmaster',
+  'beggar', 'brotherhood', 'cave-explorer', 'ceremonial-garb', 'champion', 'chaos-acolyte',
+  'citizen', 'conjurer', 'crystal-warlord', 'death-herald', 'deepling', 'demon-hunter',
+  'demon-outfit', 'discoverer', 'dream-warden', 'druid', 'elementalist', 'entrepreneur',
+  'evoker', 'festive-outfit', 'glooth-engineer', 'grove-keeper', 'herbalist', 'hunter',
+  'insectoid', 'jersey', 'jester', 'knight', 'lupine-warden', 'mage',
+  'makeshift-warrior', 'mercenary', 'newly-wed', 'nightmare', 'noblewoman', 'norsewoman',
+  'oriental', 'pharaoh', 'philosopher', 'pirate', 'pumpkin-mummy', 'puppeteer',
+  'ranger', 'recruiter', 'retro-citizen', 'retro-hunter', 'retro-knight', 'retro-noblewoman',
+  'retro-summoner', 'retro-warrior', 'retro-wizard', 'rift-warrior', 'royal-pumpkin', 'sea-dog',
+  'seaweaver', 'shaman', 'siege-master', 'sinister-archer', 'soil-guardian', 'spirit-caller',
+  'summoner', 'sun-priest', 'trophy-hunter', 'warmaster', 'warrior', 'wayfarer',
+  'winter-warden', 'wizard', 'yalaharian'
+]);
+
 export const OUTFITS_MAX_FRAMES_3 = new Set(['noble', 'paladin', 'sire', 'sorcerer']);
 
 export function getOutfitCapabilities(outfitId: string): OutfitCapabilities {
@@ -164,7 +180,7 @@ export function getOutfitCapabilities(outfitId: string): OutfitCapabilities {
   const found = CANONICAL_OUTFITS.find((o) => o.id === norm);
   const hasAddon1 = found?.hasAddon1 ?? true;
   const hasAddon2 = found?.hasAddon2 ?? true;
-  const hasMountRider = found?.hasMountRider ?? true;
+  const hasMountRider = OUTFITS_WITH_MOUNTS.has(norm);
   const maxFrames = OUTFITS_MAX_FRAMES_3.has(norm) ? 3 : 9;
   return {
     hasAddon1,
@@ -564,6 +580,21 @@ export async function renderRecoloredOutfit(
 
   const w = 64;
   const h = 64;
+
+  // Fast-path: If definitive recolored canvas is already in synchronous memory cache, draw immediately
+  const syncCanvas = getRecoloredCanvasSync(outfitId, gender, direction, frame, colors, addons, mount, isMounted);
+  if (syncCanvas) {
+    if (isCurrent && !isCurrent()) return;
+    if (targetCanvas.width !== w) targetCanvas.width = w;
+    if (targetCanvas.height !== h) targetCanvas.height = h;
+    const targetCtx = targetCanvas.getContext('2d');
+    if (targetCtx) {
+      targetCtx.clearRect(0, 0, w, h);
+      targetCtx.drawImage(syncCanvas, 0, 0);
+    }
+    return;
+  }
+
   const offCanvas = document.createElement('canvas');
   offCanvas.width = w;
   offCanvas.height = h;
@@ -675,7 +706,8 @@ export async function preloadOutfitAllFrames(
   colors?: OutfitColors,
   addons: number = 0,
   mount?: string,
-  isMounted: boolean = false
+  isMounted: boolean = false,
+  priorityDir: 'south' | 'east' | 'north' | 'west' = 'south'
 ): Promise<void> {
   if (typeof window === 'undefined') return;
   const norm = normalizeOutfitId(outfitId);
@@ -703,18 +735,30 @@ export async function preloadOutfitAllFrames(
     }
   };
 
-  // 1. Prioritize frame 0 (idle) across all 4 directions immediately so standing pose is instantly ready
-  await Promise.allSettled(directions.map((dir) => loadAndCacheFrame(dir, 0)));
-
-  // 2. Preload walk frames: up to maxFrames - 1 (e.g. 2 for 3-frame outfits, 8 for others)
   const maxWalkFrame = Math.min(8, caps.maxFrames - 1);
-  const walkPromises: Promise<void>[] = [];
-  for (const dir of directions) {
+
+  // 1. TOP PRIORITY: Idle (f0) and all walking frames for the priority facing direction FIRST!
+  // This loads in < 30ms so character walking legs animate immediately without sliding
+  const priorityFrames: number[] = [0];
+  for (let f = 1; f <= maxWalkFrame; f++) {
+    priorityFrames.push(f);
+  }
+  await Promise.allSettled(priorityFrames.map((f) => loadAndCacheFrame(priorityDir, f)));
+
+  // 2. Idle frames (f0) across the other 3 directions
+  const otherDirs = directions.filter((d) => d !== priorityDir);
+  await Promise.allSettled(otherDirs.map((dir) => loadAndCacheFrame(dir, 0)));
+
+  // 3. Preload remaining walk frames for the other directions in background
+  const remainingPromises: Promise<void>[] = [];
+  for (const dir of otherDirs) {
     for (let f = 1; f <= maxWalkFrame; f++) {
-      walkPromises.push(loadAndCacheFrame(dir, f));
+      remainingPromises.push(loadAndCacheFrame(dir, f));
     }
   }
-  await Promise.allSettled(walkPromises);
+  if (remainingPromises.length > 0) {
+    await Promise.allSettled(remainingPromises);
+  }
 }
 
 export function getCanvasCacheKey(

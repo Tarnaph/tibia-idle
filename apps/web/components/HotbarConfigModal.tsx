@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { SpellDefinition } from '@/packages/content-schema/src';
-import { Tibia11ActionIcon } from './Tibia11ActionIcon';
+import { Tibia11ActionIcon, resolveActionImagePath } from './Tibia11ActionIcon';
 import {
   HOTBAR_POTIONS,
   HOTBAR_RUNES,
@@ -89,10 +89,13 @@ export function HotbarConfigModal({
 
   if (!open) return null;
 
-  // Spells filtered for vocation
-  const availableSpells = content.spells.filter((spell) =>
-    spell.vocations?.includes(character.vocation) || spell.vocations?.includes(character.baseVocation)
-  );
+  // Spells filtered for vocation and authentic official CipSoft icon
+  const availableSpells = content.spells.filter((spell) => {
+    const matchesVocation =
+      spell.vocations?.includes(character.vocation) || spell.vocations?.includes(character.baseVocation);
+    if (!matchesVocation) return false;
+    return resolveActionImagePath(spell.spellId, 'spell', spell.name) !== null;
+  });
 
   // Runes filtered for vocation
   const availableRunes = HOTBAR_RUNES.filter((rune) =>

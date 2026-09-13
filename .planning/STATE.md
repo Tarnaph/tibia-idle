@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-13T17:35:00.000Z"
-last_activity: "2026-09-13 — Conclusão da Phase 155: Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells Atlas, Equipment Atlas & Hunt Zone Loading)."
+last_updated: "2026-09-13T18:40:00.000Z"
+last_activity: "2026-09-13 — Conclusão da Phase 156: Curadoria de Magias no Hotbar, Escolha Canônica de Vocação, Promoção de Personagem no Hover Card e Correção de Outfits/Caminhada."
 progress:
-  total_phases: 155
-  completed_phases: 155
-  total_plans: 157
-  completed_plans: 157
+  total_phases: 156
+  completed_phases: 156
+  total_plans: 160
+  completed_plans: 160
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 155: Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells Atlas, Equipment Atlas & Hunt Zone Loading) (Concluída).
+**Current focus:** Fase 156: Curadoria de Magias, Escolha de Vocação, Promoção e Correções de Outfits & Caminhada (Concluída).
 
 ## Current Position
 
-Phase: 155 of 155 (Concluída)  
+Phase: 156 of 156 (Concluída)  
 Plan: 3 of 3 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 155.
+Last activity: 2026-09-13 — Conclusão da Phase 156.
 
 Progress: [██████████] 100%
 

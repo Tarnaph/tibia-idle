@@ -204,7 +204,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     } else if (selectedMount && selectedMount !== 'none') {
       setMountActive(true);
     }
-    preloadOutfitAllFrames(outfitId, charGender, colors, 0, selectedMount, mountActive && caps.hasMountRider).catch(() => {});
+    preloadOutfitAllFrames(outfitId, charGender, colors, 0, selectedMount, mountActive && caps.hasMountRider, currentDir).catch(() => {});
   };
 
   // Live recolor preview on canvas whenever outfit, direction, colors, addons, or mount change
@@ -297,16 +297,18 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       colors,
       addonsVal,
       effectiveMount,
-      false
+      false,
+      currentDir
     ).catch(() => {});
-    if (effectiveMount && effectiveMount !== 'none') {
+    if (effectiveMount && effectiveMount !== 'none' && currentCaps.hasMountRider) {
       preloadOutfitAllFrames(
         selectedOutfit,
         activeChar.gender || 'male',
         colors,
         addonsVal,
         effectiveMount,
-        true
+        true,
+        currentDir
       ).catch(() => {});
     }
     onClose();
