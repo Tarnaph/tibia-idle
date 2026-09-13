@@ -120,6 +120,25 @@ function ValueRow({ label, value, changed = false }: { label: string; value: str
 }
 
 export function GamePrototype() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        className="mmorpg-client-root"
+        style={{
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: '#0a0c10',
+        }}
+      />
+    );
+  }
+
   return (
     <GameModalProvider>
       <WindowManagerProvider>
@@ -2876,7 +2895,7 @@ function GamePrototypeContent() {
           <ol className="combat-log-list" style={{ maxHeight: '220px', overflowY: 'auto', padding: 0, margin: 0, listStyle: 'none' }}>
             {encounter.log.slice(-30).map((entry) => (
               <li key={entry.id} style={{ fontSize: '10px', padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '6px' }}>
-                <time style={{ color: '#889088' }}>#{entry.round.toString().padStart(2, '0')}</time>
+                <time suppressHydrationWarning style={{ color: '#889088' }}>#{entry.round.toString().padStart(2, '0')}</time>
                 <span style={{ color: '#d5ded6' }}>{entry.message}</span>
               </li>
             ))}

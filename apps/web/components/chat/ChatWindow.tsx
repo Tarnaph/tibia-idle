@@ -444,7 +444,7 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                   padding: isWhisper ? '1px 4px' : '0',
                 }}
               >
-                <time style={{ color: '#606a74', fontSize: '9.5px', flexShrink: 0 }}>
+                <time suppressHydrationWarning style={{ color: '#606a74', fontSize: '9.5px', flexShrink: 0 }}>
                   {formatTime(msg.timestamp)}
                 </time>
                 <span
