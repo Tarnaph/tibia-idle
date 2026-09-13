@@ -49,6 +49,7 @@ export default defineConfig(async () => {
       __dirname: JSON.stringify(process.cwd()),
     },
     optimizeDeps: {
+      include: ['next/dynamic'],
       exclude: ['@prisma/client'],
     },
     ssr: {
