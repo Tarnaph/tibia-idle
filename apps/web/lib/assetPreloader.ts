@@ -33,6 +33,109 @@ export interface CategorizedAssetUrls {
   audio: string[];
 }
 
+export interface ActivePlayerPreloadContext {
+  outfit?: string;
+  gender?: 'male' | 'female';
+  outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+  addons?: number;
+  mount?: string;
+  isMounted?: boolean;
+  hotbarUrls?: string[];
+}
+
+/**
+ * Phase 150: Extrai os assets fundamentais e prioritários estritamente para o personagem ativo.
+ * Garante que traje (idle + passos de caminhada f1..f4), montaria ativa e chão do spawn carregem 100% no Frame 1.
+ */
+export function compileActivePlayerAssetUrls(ctx?: ActivePlayerPreloadContext): CategorizedAssetUrls {
+  const mapUrls = new Set<string>();
+  const mountUrls = new Set<string>();
+  const outfitUrls = new Set<string>();
+  const spellUrls = new Set<string>();
+  const effectUrls = new Set<string>();
+  const itemUrls = new Set<string>();
+  const audioUrls = new Set<string>();
+
+  const directions = ['south', 'east', 'north', 'west'] as const;
+
+  // 1. Outfit do jogador ativo: frames idle f0 e passos de caminhada f1..f4 nas 4 direções
+  const rawOutfit = (ctx?.outfit || 'knight').toLowerCase().trim();
+  const cleanOutfit = rawOutfit.replace(/[^a-z0-9]+/g, '-');
+  const outfit = cleanOutfit.includes('sorcerer') ? 'mage' : cleanOutfit.includes('paladin') ? 'hunter' : (cleanOutfit || 'knight');
+  const gender = ctx?.gender === 'female' ? 'female' : 'male';
+
+  outfitUrls.add(`/generated/outfit-thumbs/${outfit}.png`);
+  outfitUrls.add(`/generated/outfit-thumbs/citizen.png`);
+
+  directions.forEach((dir) => {
+    // Idle frame f0
+    outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-base.png`);
+    outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-mask.png`);
+    // Walk frames prioritários f1..f4 (garante passos fluidos sem deslizar)
+    for (let f = 1; f <= 4; f++) {
+      outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-base.png`);
+      outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-mask.png`);
+    }
+  });
+
+  // 2. Montaria ativa do jogador (somente a montaria que ele estiver usando!)
+  if (ctx?.isMounted && ctx?.mount && ctx?.mount !== 'none') {
+    const mountId = ctx.mount.toLowerCase().trim();
+    directions.forEach((dir) => {
+      mountUrls.add(`/generated/mounts/${mountId}-${dir}-f0.png`);
+    });
+  }
+
+  // 3. Mapa imediato do spawn de Thais (raio restrito de 4 tiles ao redor do spawn 32369, 32241)
+  const SPAWN_X = 32369;
+  const SPAWN_Y = 32241;
+  const upperTiles = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];
+  const allTiles = [...thaisCityJson.tiles, ...upperTiles];
+  for (const t of allTiles) {
+    if (Math.abs(t.x - SPAWN_X) <= 3 && Math.abs(t.y - SPAWN_Y) <= 3) {
+      for (const id of t.serverItemIds) {
+        const mapping = visualAssets.mapItems[String(id)];
+        if (mapping?.frames && mapping.frames.length > 0) {
+          for (const f of mapping.frames) {
+            if (f.publicUrl) mapUrls.add(f.publicUrl);
+          }
+        } else if (mapping?.frame?.publicUrl) {
+          mapUrls.add(mapping.frame.publicUrl);
+        }
+      }
+    }
+  }
+  if (visualAssets.assets?.trainingFloor?.frames?.[0]?.publicUrl) {
+    mapUrls.add(visualAssets.assets.trainingFloor.frames[0].publicUrl);
+  }
+
+  // 4. Magias da hotbar do jogador
+  if (ctx?.hotbarUrls && ctx.hotbarUrls.length > 0) {
+    ctx.hotbarUrls.forEach((url) => {
+      if (url) spellUrls.add(url);
+    });
+  } else {
+    ['/spells/exura.png', '/spells/exori.png', '/potions/health-potion.png', '/potions/mana-potion.png'].forEach((u) => spellUrls.add(u));
+  }
+
+  // 5. Itens e moedas essenciais
+  itemUrls.add('/assets/items/item-2160.png'); // Crystal Coin / Gold
+  itemUrls.add('/assets/items/item-2148.png'); // Gold Coin
+
+  // 6. Áudio essencial de Thais
+  audioUrls.add('/songs/sunset-in-the-village.mp3');
+
+  return {
+    map: Array.from(mapUrls),
+    mounts: Array.from(mountUrls),
+    outfits: Array.from(outfitUrls),
+    spells: Array.from(spellUrls),
+    effects: Array.from(effectUrls),
+    items: Array.from(itemUrls),
+    audio: Array.from(audioUrls),
+  };
+}
+
 /**
  * Extrai e compila a lista completa de todos os assets fundamentais do jogo
  */
@@ -149,11 +252,11 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
 /**
  * Carrega e decodifica uma imagem individual no browser com timeout estrito de segurança
  */
-async function preloadSingleImage(url: string): Promise<boolean> {
+async function preloadSingleImage(url: string, timeoutMs: number = 2500): Promise<boolean> {
   if (typeof window === 'undefined') return true;
 
   return new Promise((resolve) => {
-    const timer = setTimeout(() => resolve(false), 350);
+    const timer = setTimeout(() => resolve(false), timeoutMs);
     loadImage(url)
       .then((img) => {
         clearTimeout(timer);
@@ -280,7 +383,11 @@ class AssetPreloaderService {
     this.notify();
   }
 
-  public async startPreload(): Promise<void> {
+  /**
+   * Phase 150: Pré-carrega prioritariamente os assets exclusivos do personagem ativo
+   * e libera a entrada no jogo sem cortes prematuros nem dependência de 1.900 arquivos.
+   */
+  public async startPreload(ctx?: ActivePlayerPreloadContext): Promise<void> {
     if (this.isPreloading || this.isFinished) return;
     this.isPreloading = true;
     this.isFinished = false;
@@ -289,28 +396,28 @@ class AssetPreloaderService {
     if (this.safetyTimer) {
       clearTimeout(this.safetyTimer);
     }
-    // Timeout de segurança: garante que em 2200ms a tela de loading seja liberada
+    // Timeout emergencial amplo de 10s caso ocorra queda total de conexão
     this.safetyTimer = setTimeout(() => {
       if (!this.isFinished) {
         this.markComplete();
       }
-    }, 2200);
+    }, 10000);
 
-    const categorized = compileEssentialAssetUrls();
-    const categories: Array<{
+    const categorized = compileActivePlayerAssetUrls(ctx);
+    const allCategories: Array<{
       key: keyof CategorizedAssetUrls;
       label: string;
       weight: number; // Porcentagem do total
       urls: string[];
     }> = [
-      { key: 'map', label: 'mapa e cenários de Thais', weight: 28, urls: categorized.map },
-      { key: 'mounts', label: 'montarias e criaturas', weight: 20, urls: categorized.mounts },
-      { key: 'outfits', label: 'trajes e animações de personagens', weight: 20, urls: categorized.outfits },
-      { key: 'spells', label: 'catálogo de magias, runas e poções', weight: 15, urls: categorized.spells },
-      { key: 'effects', label: 'efeitos de combate e projéteis', weight: 7, urls: categorized.effects },
-      { key: 'items', label: 'equipamentos e itens do mundo', weight: 6, urls: categorized.items },
-      { key: 'audio', label: 'áudios e ambientação sonora', weight: 4, urls: categorized.audio },
+      { key: 'outfits', label: 'traje e animações de caminhada', weight: 50, urls: categorized.outfits },
+      { key: 'mounts', label: 'montaria ativa', weight: 15, urls: categorized.mounts },
+      { key: 'map', label: 'mapa e templo de Thais', weight: 25, urls: categorized.map },
+      { key: 'spells', label: 'ações da hotbar', weight: 5, urls: categorized.spells },
+      { key: 'items', label: 'equipamentos iniciais', weight: 3, urls: categorized.items },
+      { key: 'audio', label: 'áudio ambiente', weight: 2, urls: categorized.audio },
     ];
+    const categories = allCategories.filter((c) => c.urls.length > 0);
 
     this.totalCount = categories.reduce((sum, c) => sum + c.urls.length, 0);
     this.loadedCount = 0;
@@ -328,7 +435,7 @@ class AssetPreloaderService {
 
       await preloadBatchWithConcurrency(
         cat.urls,
-        cat.key === 'audio' ? 2 : 32,
+        cat.key === 'audio' ? 2 : 6,
         () => {
           if (this.isFinished) return;
           catLoaded++;
@@ -348,6 +455,32 @@ class AssetPreloaderService {
     }
 
     this.markComplete();
+
+    // Streaming silencioso em segundo plano para o restante do catálogo (sem bloquear a jogabilidade)
+    void this.startDeferredBackgroundPreload();
+  }
+
+  /**
+   * Transmite o catálogo expandido em segundo plano com baixa concorrência
+   */
+  private async startDeferredBackgroundPreload(): Promise<void> {
+    if (typeof window === 'undefined') return;
+    try {
+      await new Promise((r) => setTimeout(r, 1000));
+      const otherOutfits = ['paladin', 'sorcerer', 'druid', 'citizen'];
+      const bgOutfitUrls: string[] = [];
+      const directions = ['south', 'east', 'north', 'west'] as const;
+      otherOutfits.forEach((outfit) => {
+        bgOutfitUrls.push(`/generated/outfit-thumbs/${outfit}.png`);
+        directions.forEach((dir) => {
+          bgOutfitUrls.push(`/generated/outfits/${outfit}-male-${dir}-f0-base.png`);
+          bgOutfitUrls.push(`/generated/outfits/${outfit}-male-${dir}-f0-mask.png`);
+        });
+      });
+      await preloadBatchWithConcurrency(bgOutfitUrls, 2, () => {});
+    } catch {
+      // Background preload falha silenciosamente sem impactar jogo
+    }
   }
 
   public reset(): void {

@@ -1006,9 +1006,7 @@ function GamePrototypeContent() {
     setOnlineCharacter(charItem);
     setShowAuthModal(false);
 
-    // Phase 146: Inicia o pré-carregamento universal de sprites, montarias, magias, itens e animações
-    void assetPreloader.startPreload();
-
+    // Phase 150: O pré-carregamento Active Player First será iniciado logo abaixo com os dados completos do personagem
     // Phase 103: Start Thais BGM immediately during loading screen!
     playCityBgm();
 
@@ -1213,6 +1211,16 @@ function GamePrototypeContent() {
       (charItem as any).outfit ||
       (charLookType && LOOKTYPE_NAME_MAP[charLookType]) ||
       vocName;
+
+    // Phase 150: Inicia o pré-carregamento prioritário enfocado estritamente no personagem ativo
+    void assetPreloader.startPreload({
+      outfit: userChar.outfit,
+      gender: userChar.gender,
+      outfitColors: userChar.outfitColors,
+      addons: userChar.addons,
+      mount: userChar.mount,
+      isMounted: userChar.mountActive,
+    });
 
     setGame((cur) => {
       // Newly created or selected character starts ALONE as sole main character in squad

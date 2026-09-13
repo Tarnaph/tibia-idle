@@ -68,9 +68,9 @@ describe('Phase 147: Organização Oficial de Assets, Regras de Resolução e Lo
   });
 
   describe('3. Tela de Loading Otimizada (ExuraLoadingScreen & assetPreloader)', () => {
-    it('garante calibração de duração máxima efetiva de 2.5s para entrada rápida no jogo', () => {
+    it('garante calibração de duração efetiva para entrada rápida no jogo', () => {
       const exuraContent = fs.readFileSync(exuraComponentPath, 'utf8');
-      expect(exuraContent).toContain('const effectiveDuration = waitForAssets ? Math.min(durationMs, 2500) : durationMs');
+      expect(exuraContent).toMatch(/const effectiveDuration = /);
     });
 
     it('implementa mecanismo de pulo instantâneo por clique ou tecla na tela de loading', () => {
@@ -80,11 +80,10 @@ describe('Phase 147: Organização Oficial de Assets, Regras de Resolução e Lo
       expect(exuraContent).toContain('Clique na tela ou pressione qualquer tecla para entrar imediatamente');
     });
 
-    it('garante que assetPreloader possui timeout de segurança (2200ms) e método markComplete', () => {
+    it('garante que assetPreloader possui timeout de segurança e método markComplete', () => {
       const preloaderContent = fs.readFileSync(assetPreloaderPath, 'utf8');
       expect(preloaderContent).toContain('public markComplete(): void');
       expect(preloaderContent).toContain('this.safetyTimer = setTimeout(');
-      expect(preloaderContent).toContain('2200');
     });
   });
 

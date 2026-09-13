@@ -115,7 +115,7 @@ describe('Phase 146: Sistema Universal de Pré-Carregamento na Tela de Loading',
     });
 
     it('dispara assetPreloader.startPreload() imediatamente no handleSelectCharacter', () => {
-      expect(gameProtoCode).toContain('void assetPreloader.startPreload()');
+      expect(gameProtoCode).toMatch(/void assetPreloader\.startPreload\(/);
     });
 
     it('passa waitForAssets={initialLoadingActive} para ExuraLoadingScreen', () => {

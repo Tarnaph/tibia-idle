@@ -193,6 +193,8 @@ export function HuntCard({
                     target.src = `/generated/bestiary/${primaryMonsterId}.png`;
                   } else if (!target.src.includes('assets/monsters')) {
                     target.src = `/assets/monsters/${primaryMonsterId}.png`;
+                  } else if (!target.src.includes('monster-')) {
+                    target.src = `/generated/tibia1098/monster-${primaryMonsterId}-thumb.png`;
                   }
                 }
               }}

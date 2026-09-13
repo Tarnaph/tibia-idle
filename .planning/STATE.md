@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-13T02:40:00.000Z"
-last_activity: "2026-09-13 — Concluída Phase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens."
+last_updated: "2026-09-13T03:18:00.000Z"
+last_activity: "2026-09-13 — Concluída Phase 150: Arquitetura Active Player First de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão."
 progress:
-  total_phases: 149
-  completed_phases: 149
-  total_plans: 149
-  completed_plans: 149
+  total_phases: 150
+  completed_phases: 150
+  total_plans: 150
+  completed_plans: 150
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens (Concluída com Sucesso).
+**Current focus:** Fase 150: Arquitetura "Active Player First" de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão (Concluída com Sucesso).
 
 ## Current Position
 
-Phase: 149 of 149 (Concluída)  
+Phase: 150 of 150 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 149.
+Last activity: 2026-09-13 — Conclusão da Phase 150.
 
 Progress: [██████████] 100%
 

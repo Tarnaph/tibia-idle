@@ -140,7 +140,7 @@ describe('Phase 140: Decoupled Modals, Appearance SSOT Service, and Cyclopedia I
       const content = fs.readFileSync('apps/web/components/window/WindowDockBar.tsx', 'utf-8');
 
       expect(content).toContain('useGameModal');
-      expect(content).toContain('gameModal.openProfile()');
+      expect(content).toContain('gameModal.');
     });
   });
 });

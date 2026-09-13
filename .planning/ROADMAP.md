@@ -2827,8 +2827,29 @@ Plans:
    - 0 erros de tipagem (`npm run typecheck`).
    - Validação direta da API retornando HTTP 200 com os personagens do usuário (`designerosa@outlook.com`).
 **Plans:** Concluído com sucesso.
-- [x] 149-01-PLAN: Recuperação de Integridade do Banco SQLite no Servidor VPS e Separação de Códigos HTTP.
-- Resumo de entrega: `.planning/phases/phase-149-sqlite-wal-characters-api-resilience/149-SUMMARY.md`
+---
+
+### Phase 150: Arquitetura "Active Player First" de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão
+
+**Goal**: Eliminar definitivamente o carregamento incompleto do jogo e a animação travada de caminhada, substituindo a fila monolítica de 1.900 assets por uma arquitetura "Active Player First" focada no personagem ativo (~35 assets essenciais), removendo o corte arbitrário de 2.0s da tela de loading, normalizando fisicamente sprites de criaturas (como `rat.png`) e criando testes automatizados de contrato que impeçam regressões futuras.
+**Depends on**: Phase 149
+**Requirements**:
+1. **Arquitetura "Active Player First" no Pré-Carregador (`assetPreloader.ts`)**:
+   - Reduzir a fila crítica do preloader de login para carregar exclusivamente o traje do personagem ativo (sexo, cores, direções, frames f0..f4 de base e máscara), sua montaria equipada (se houver), o entorno do spawn do templo e suas magias ativas (~35 a 50 assets).
+   - Transferir as outras 128 montarias, outros trajes e itens distantes para streaming em background ou sob demanda (ao abrir o modal correspondente).
+2. **Remoção de Cortes Prematuros no Loading (`ExuraLoadingScreen.tsx` & `assetPreloader.ts`)**:
+   - Remover os timers artificiais (`Math.min(..., 2000)`, `safetyTimer = 2200ms`, `timeout = 350ms`) que forçavam a tela a fechar antes de concluir o download dos passos.
+   - Liberar a entrada no jogo somente quando o pacote essencial do jogador ativo estiver 100% decodificado na memória.
+3. **Normalização Física de Sprites de Criaturas e Resiliência em `HuntCard.tsx` e `assetPaths.ts`**:
+   - Garantir a existência física de `rat.png` em `public/assets/monsters/` e `public/generated/bestiary/` a partir de `public/generated/tibia1098/monster-rat-thumb.png`.
+   - Implementar fallback no resolvedor de criaturas para que qualquer monstro de caçada tenha imagem válida no disco.
+4. **Blindagem com Testes Automatizados de Integridade e Contrato**:
+   - Criar `tests/phase150-active-player-first-preload-and-assets-integrity.test.ts` cobrindo o orçamento do preloader ativo (<60 URLs), integridade dos sprites de todos os monstros de caçadas e resolução das 4 vocações base sem fallback para idle frame 0.
+   - 0 erros no typecheck (`npm run typecheck`) e 100% dos testes Vitest passando.
+**Plans:** Concluído com sucesso.
+- [x] 150-01-PLAN: Arquitetura Active Player First, Remoção de Timeouts Prematuros, Normalização de Monstros e Testes de Integridade.
+- Resumo de entrega: `.planning/phases/phase-150-active-player-first-preload-and-assets-integrity/150-SUMMARY.md`
+
 
 
 

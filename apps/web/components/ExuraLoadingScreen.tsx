@@ -189,15 +189,10 @@ export function ExuraLoadingScreen({
     const tick = (now: number) => {
       if (isHandled) return;
       const elapsed = now - startTime;
-      const effectiveDuration = waitForAssets ? Math.min(durationMs, 2500) : durationMs;
+      const effectiveDuration = durationMs;
       const timePct = Math.min(100, (elapsed / effectiveDuration) * 100);
 
-      // Timeout de segurança após o tempo efetivo para desobstruir o preloader
-      if (elapsed >= effectiveDuration && waitForAssets && !assetPreloader.isComplete()) {
-        assetPreloader.markComplete();
-      }
-
-      // Phase 146: Sincronização autoritativa com o pré-carregamento universal de assets
+      // Phase 146 & 150: Sincronização autoritativa com o pré-carregamento do jogador ativo
       const isAssetsComplete = !waitForAssets || assetPreloader.isComplete();
       const assetProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
 
@@ -207,7 +202,7 @@ export function ExuraLoadingScreen({
       } else if (!isAssetsComplete) {
         effectivePct = Math.min(99, Math.max(timePct * 0.4, assetProgressPct));
       } else {
-        effectivePct = timePct;
+        effectivePct = Math.max(timePct, assetProgressPct);
       }
 
       const pct = Math.min(100, effectivePct);
