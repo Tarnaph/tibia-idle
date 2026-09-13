@@ -55,7 +55,8 @@ npx prisma generate
 npx prisma db push --accept-data-loss
 
 # 6. Conteúdo e catálogos do jogo
-echo "🎨 Catálogos e assets do jogo prontos em content/generated/."
+echo "🎨 Configurando links de assets oficiais (/public/assets/)..."
+node scripts/ensure-asset-junctions.cjs
 
 # 7. Instalar PM2 para rodar os servidores 24/7 em segundo plano
 if ! command -v pm2 >/dev/null 2>&1; then
