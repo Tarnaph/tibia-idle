@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-13T18:40:00.000Z"
-last_activity: "2026-09-13 — Conclusão da Phase 156: Curadoria de Magias no Hotbar, Escolha Canônica de Vocação, Promoção de Personagem no Hover Card e Correção de Outfits/Caminhada."
+last_updated: "2026-09-13T19:27:00.000Z"
+last_activity: "2026-09-13 — Conclusão da Phase 157: Resolução Definitiva de Sessão Ativa / Falso Positivo de Multi-Abas no Logoff e Troca de Personagem."
 progress:
-  total_phases: 156
-  completed_phases: 156
-  total_plans: 160
-  completed_plans: 160
+  total_phases: 157
+  completed_phases: 157
+  total_plans: 162
+  completed_plans: 162
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 156: Curadoria de Magias, Escolha de Vocação, Promoção e Correções de Outfits & Caminhada (Concluída).
+**Current focus:** Fase 157: Resolução Definitiva de Sessão Ativa / Falso Positivo de Multi-Abas no Logoff e Troca de Personagem (Concluída).
 
 ## Current Position
 
-Phase: 156 of 156 (Concluída)  
-Plan: 3 of 3 in current phase  
+Phase: 157 of 157 (Concluída)  
+Plan: 2 of 2 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 156.
+Last activity: 2026-09-13 — Conclusão da Phase 157.
 
 Progress: [██████████] 100%
 

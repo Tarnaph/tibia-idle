@@ -278,6 +278,11 @@ function GamePrototypeContent() {
   const roleUpper = String(activeRole || '').toUpperCase();
   const isAdmin = roleUpper === 'ADMIN' || roleUpper === 'GM';
   const [onlineCharacter, setOnlineCharacter] = useState<CharacterItem | null>(null);
+  const onlineCharacterRef = useRef(onlineCharacter);
+  onlineCharacterRef.current = onlineCharacter;
+  const showAuthModalRef = useRef(showAuthModal);
+  showAuthModalRef.current = showAuthModal;
+  const gameSessionChannelRef = useRef<BroadcastChannel | null>(null);
   const [isConnectedServer, setIsConnectedServer] = useState(false);
   const [remotePlayers, setRemotePlayers] = useState<Map<string, RemotePlayerSnapshot>>(new Map());
   const [outfitModalOpen, setOutfitModalOpen] = useState(false);
@@ -351,34 +356,93 @@ function GamePrototypeContent() {
 
     try {
       channel = new BroadcastChannel(channelName);
+      gameSessionChannelRef.current = channel;
 
       channel.onmessage = (event) => {
         if (!event.data) return;
 
-        // Active game tab responds to new tab's PING
-        if (event.data.type === 'SESSION_PING' && event.data.tabId !== currentTabId) {
+        // Active game tab responds to new tab's PING ONLY if ACTUALLY playing in the game
+        // (i.e. character is loaded into the world AND auth modal is closed)
+        if (
+          event.data.type === 'SESSION_PING' &&
+          event.data.tabId !== currentTabId &&
+          Boolean(onlineCharacterRef.current && !showAuthModalRef.current)
+        ) {
           channel?.postMessage({
             type: 'SESSION_PONG',
             targetTabId: event.data.tabId,
+            inGame: true,
+            characterName: onlineCharacterRef.current?.name,
           });
         }
 
-        // New tab receives confirmation that an active session already exists in another tab
-        if (event.data.type === 'SESSION_PONG' && event.data.targetTabId === currentTabId) {
+        // Another tab or the user forced disconnect to take over
+        if (
+          event.data.type === 'FORCE_DISCONNECT_OTHER_SESSIONS' &&
+          event.data.accountId === onlineAccount.id &&
+          event.data.initiatorTabId !== currentTabId
+        ) {
+          if (onlineCharacterRef.current && !showAuthModalRef.current) {
+            try {
+              if (saveProgressRef.current) {
+                void saveProgressRef.current(false, true);
+              }
+            } catch {}
+            gameNetwork.disconnect();
+            setOnlineCharacter(null);
+            setShowAuthModal(true);
+            setDuplicateSessionError(
+              'Sua sessão foi encerrada porque você entrou em outra aba ou dispositivo.'
+            );
+            try {
+              channel?.postMessage({ type: 'SESSION_CLOSED', tabId: currentTabId });
+            } catch {}
+          }
+        }
+
+        // Only trigger duplicate session error if another tab responded that it is ACTUALLY in-game
+        if (
+          event.data.type === 'SESSION_PONG' &&
+          event.data.targetTabId === currentTabId &&
+          event.data.inGame === true
+        ) {
           setDuplicateSessionError(
             'Sua conta já possui uma sessão ativa em outra aba do navegador. Apenas uma conexão por conta é permitida.'
           );
         }
+
+        // Active session closed in other tab
+        if (event.data.type === 'SESSION_CLOSED') {
+          setDuplicateSessionError((prev) => (prev?.includes('outra aba') ? null : prev));
+        }
       };
 
-      // Announce this tab to check if another tab is already active
-      channel.postMessage({ type: 'SESSION_PING', tabId: currentTabId });
+      // Only announce to check other tabs if WE are entering the game
+      if (onlineCharacterRef.current && !showAuthModalRef.current) {
+        channel.postMessage({ type: 'SESSION_PING', tabId: currentTabId });
+      }
     } catch (err) {
       // Ignore if BroadcastChannel not supported
     }
 
+    const handleBeforeUnload = () => {
+      try {
+        channel?.postMessage({ type: 'SESSION_CLOSED', tabId: currentTabId });
+      } catch {}
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
-      if (channel) channel.close();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (channel) {
+        try {
+          channel.postMessage({ type: 'SESSION_CLOSED', tabId: currentTabId });
+        } catch {}
+        channel.close();
+        if (gameSessionChannelRef.current === channel) {
+          gameSessionChannelRef.current = null;
+        }
+      }
     };
   }, [onlineAccount?.id]);
 
@@ -2699,11 +2763,17 @@ function GamePrototypeContent() {
         await saveProgressRef.current(false, true);
       }
     } catch {}
+    if (gameSessionChannelRef.current) {
+      try {
+        gameSessionChannelRef.current.postMessage({ type: 'SESSION_CLOSED' });
+      } catch {}
+    }
     gameNetwork.disconnect();
     assetPreloader.reset();
     setOnlineCharacter(null);
     setShowAuthModal(true);
     setSaleMessage('Retornando à seleção de personagens...');
+    setDuplicateSessionError(null);
   }, []);
 
   const handleConfirmLogout = useCallback(async () => {
@@ -2714,6 +2784,11 @@ function GamePrototypeContent() {
         await saveProgressRef.current(false, true);
       }
     } catch {}
+    if (gameSessionChannelRef.current) {
+      try {
+        gameSessionChannelRef.current.postMessage({ type: 'SESSION_CLOSED' });
+      } catch {}
+    }
     gameNetwork.disconnect();
     assetPreloader.reset();
     if (typeof window !== 'undefined') {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 export interface AuthAccount {
   id: string;
@@ -112,32 +112,131 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
   };
 
   const [activeSessionWarning, setActiveSessionWarning] = useState<string | null>(null);
+  const sessionChannelRef = useRef<BroadcastChannel | null>(null);
+  const currentModalTabIdRef = useRef<string>(
+    typeof window !== 'undefined' ? Math.random().toString(36).substring(2, 9) : 'modal'
+  );
+  const [isVerifyingSession, setIsVerifyingSession] = useState(false);
+  const startFadeOutAndEnterRef = useRef<(char: CharacterItem, bypassWarning?: boolean) => Promise<void>>(
+    async () => {}
+  );
 
   // Cross-tab active session detector for character selection modal
   useEffect(() => {
     if (typeof window === 'undefined' || !account?.id) return;
     const channelName = `tibia_session_${account.id}`;
     let channel: BroadcastChannel | null = null;
-    const currentTabId = Math.random().toString(36).substring(2, 9);
+    const currentTabId = currentModalTabIdRef.current;
 
     try {
       channel = new BroadcastChannel(channelName);
+      sessionChannelRef.current = channel;
+
       channel.onmessage = (event) => {
         if (!event.data) return;
-        if (event.data.type === 'SESSION_PING' && event.data.tabId !== currentTabId) {
-          channel?.postMessage({ type: 'SESSION_PONG', targetTabId: event.data.tabId });
+
+        // NOTE: Character selection modal NEVER responds to SESSION_PING with SESSION_PONG.
+        // The modal is only a selection lobby and NOT an active game session!
+
+        // Active in-game tab responded to our ping
+        if (
+          event.data.type === 'SESSION_PONG' &&
+          event.data.targetTabId === currentTabId &&
+          event.data.inGame === true
+        ) {
+          setActiveSessionWarning(
+            'Esta conta já está conectada em outra aba do navegador. Apenas uma sessão por conta é permitida.'
+          );
         }
-        if (event.data.type === 'SESSION_PONG' && event.data.targetTabId === currentTabId) {
-          setActiveSessionWarning('Esta conta já está conectada em outra aba do navegador. Apenas uma sessão por conta é permitida.');
+
+        // Active game session was closed (logout, switch character, or tab closed)
+        if (event.data.type === 'SESSION_CLOSED') {
+          setActiveSessionWarning(null);
+          setErrorMsg((prev) => (prev?.includes('outra aba') ? null : prev));
         }
       };
+
+      // Initial query: is there any tab currently actively playing the game?
       channel.postMessage({ type: 'SESSION_PING', tabId: currentTabId });
     } catch {}
 
     return () => {
-      if (channel) channel.close();
+      if (channel) {
+        channel.close();
+        if (sessionChannelRef.current === channel) {
+          sessionChannelRef.current = null;
+        }
+      }
     };
   }, [account?.id]);
+
+  const verifyActiveSession = useCallback(
+    async (timeoutMs = 250): Promise<boolean> => {
+      if (typeof window === 'undefined' || !account?.id || !sessionChannelRef.current) {
+        setActiveSessionWarning(null);
+        return false;
+      }
+      const channel = sessionChannelRef.current;
+      const checkTabId = Math.random().toString(36).substring(2, 9);
+      let hasActiveInGamePong = false;
+
+      return new Promise<boolean>((resolve) => {
+        const handleMessage = (event: MessageEvent) => {
+          if (
+            event.data &&
+            event.data.type === 'SESSION_PONG' &&
+            event.data.targetTabId === checkTabId &&
+            event.data.inGame === true
+          ) {
+            hasActiveInGamePong = true;
+          }
+        };
+
+        channel.addEventListener('message', handleMessage);
+        channel.postMessage({ type: 'SESSION_PING', tabId: checkTabId });
+
+        setTimeout(() => {
+          channel.removeEventListener('message', handleMessage);
+          if (!hasActiveInGamePong) {
+            setActiveSessionWarning(null);
+            setErrorMsg((prev) => (prev?.includes('outra aba') ? null : prev));
+            resolve(false);
+          } else {
+            setActiveSessionWarning(
+              'Esta conta já está conectada em outra aba do navegador. Apenas uma sessão por conta é permitida.'
+            );
+            resolve(true);
+          }
+        }, timeoutMs);
+      });
+    },
+    [account?.id]
+  );
+
+  const handleForceDisconnectOtherSessions = useCallback(
+    async (charToEnter?: CharacterItem) => {
+      if (sessionChannelRef.current && account?.id) {
+        try {
+          sessionChannelRef.current.postMessage({
+            type: 'FORCE_DISCONNECT_OTHER_SESSIONS',
+            accountId: account.id,
+            initiatorTabId: currentModalTabIdRef.current,
+          });
+        } catch {}
+      }
+      // Clear warning immediately
+      setActiveSessionWarning(null);
+      setErrorMsg(null);
+
+      // Brief grace period for the other tab to disconnect and save
+      await new Promise((r) => setTimeout(r, 150));
+
+      if (charToEnter && startFadeOutAndEnterRef.current) {
+        void startFadeOutAndEnterRef.current(charToEnter, true);
+      }
+    },
+    [account?.id]
+  );
 
   // Check saved token on mount
   useEffect(() => {
@@ -305,6 +404,11 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
   };
 
   const handleLogout = () => {
+    if (sessionChannelRef.current) {
+      try {
+        sessionChannelRef.current.postMessage({ type: 'SESSION_CLOSED' });
+      } catch {}
+    }
     localStorage.removeItem('colyseus_token');
     localStorage.removeItem('tibia_auth_token');
     localStorage.removeItem('cavebound_cached_account');
@@ -315,36 +419,52 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
     setToken(null);
     setAccount(null);
     setCharacters([]);
+    setActiveSessionWarning(null);
+    setErrorMsg(null);
     onLogout?.();
   };
 
   const [isEnteringGame, setIsEnteringGame] = useState(false);
 
-  const startFadeOutAndEnter = (char: CharacterItem) => {
-    if (isEnteringGame) return;
-    if (activeSessionWarning) {
-      setErrorMsg(activeSessionWarning);
-      return;
-    }
-    setIsEnteringGame(true);
+  const startFadeOutAndEnter = useCallback(
+    async (char: CharacterItem, bypassWarning = false) => {
+      if (isEnteringGame) return;
+      if (!bypassWarning && activeSessionWarning) {
+        setIsVerifyingSession(true);
+        const isStillActive = await verifyActiveSession(250);
+        setIsVerifyingSession(false);
+        if (isStillActive) {
+          setErrorMsg(
+            'Esta conta já está conectada em outra aba do navegador. Apenas uma sessão por conta é permitida.'
+          );
+          return;
+        }
+      }
+      setIsEnteringGame(true);
 
-    const currentToken = token || localStorage.getItem('colyseus_token') || '';
-    const currentAccount = account || {
-      id: char.id,
-      email: '',
-      displayName: char.name,
-      role: 'PLAYER' as const,
-    };
+      const currentToken = token || localStorage.getItem('colyseus_token') || '';
+      const currentAccount = account || {
+        id: char.id,
+        email: '',
+        displayName: char.name,
+        role: 'PLAYER' as const,
+      };
 
-    const video = videoRef.current;
-    if (video) {
-      try {
-        video.pause();
-      } catch {}
-    }
+      const video = videoRef.current;
+      if (video) {
+        try {
+          video.pause();
+        } catch {}
+      }
 
-    onSelectCharacter(currentToken, char, currentAccount);
-  };
+      onSelectCharacter(currentToken, char, currentAccount);
+    },
+    [isEnteringGame, activeSessionWarning, verifyActiveSession, token, account, onSelectCharacter]
+  );
+
+  useEffect(() => {
+    startFadeOutAndEnterRef.current = startFadeOutAndEnter;
+  }, [startFadeOutAndEnter]);
 
   return (
     <div
@@ -550,7 +670,50 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                     marginBottom: '18px',
                   }}
                 >
-                  ⚠️ {errorMsg}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>⚠️ {errorMsg}</span>
+                  </div>
+                  {errorMsg.includes('outra aba') && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setIsVerifyingSession(true);
+                          await verifyActiveSession(300);
+                          setIsVerifyingSession(false);
+                        }}
+                        disabled={isVerifyingSession}
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: '11px',
+                          backgroundColor: '#2b3442',
+                          color: '#f3e5ab',
+                          border: '1px solid #4a5a73',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {isVerifyingSession ? 'Verificando...' : '🔄 Verificar Novamente'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleForceDisconnectOtherSessions()}
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: '11px',
+                          backgroundColor: '#8b1e1e',
+                          color: '#ffffff',
+                          border: '1px solid #c55',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        ⚡ Desconectar Outra Aba e Liberar
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

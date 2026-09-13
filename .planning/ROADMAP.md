@@ -2998,6 +2998,23 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-156-curated-spells-vocation-choice-promotion-and-outfit-fixes/156-SUMMARY.md`
 
+---
+
+### Phase 157: Resolução Definitiva de Sessão Ativa / Falso Positivo de Multi-Abas no Logoff e Troca de Personagem
+
+**Objetivos:**
+1. **Desativação do Responder no Modal de Seleção:** Remover a resposta `SESSION_PING` do `TibiaAuthCharacterModal` para que a tela de seleção nunca finja ser uma sessão ativa em jogo.
+2. **Condicionamento Rigoroso em GamePrototype:** Somente responder `SESSION_PONG` com `inGame: true` se o personagem estiver realmente no jogo (`onlineCharacter !== null && !showAuthModal`), eliminando o auto-bloqueio na mesma aba.
+3. **Propagação de `SESSION_CLOSED`:** Transmitir o fechamento de sessão em `handleSwitchCharacter`, `handleConfirmLogout` e `beforeunload`.
+4. **Verificação Dinâmica e Resolução de Conflitos:** Adicionar verificação em tempo real (ping) ao clicar em "Entrar no Jogo", além dos botões "Verificar Novamente" e "Desconectar Outra Aba e Entrar" no banner de aviso.
+
+**Plans:**
+- [x] 157-01-PLAN: Desativação do Responder no Modal, Envio de SESSION_CLOSED e Condicionamento no GamePrototype.
+- [x] 157-02-PLAN: Verificação Dinâmica no Entrar no Jogo, Botões de Recuperação e Ações de Desconexão Forçada.
+
+- Resumo de entrega: `.planning/phases/phase-157-cross-tab-session-detection-and-logout-resolution/157-SUMMARY.md`
+
+
 
 
 
