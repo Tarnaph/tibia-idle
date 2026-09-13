@@ -111,7 +111,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens** - Reparo de integridade (reindex e vacuum) no dev.db da VPS, ativação de SQLite WAL mode e busy_timeout=10000ms para prevenir corrupção concorrente e separação estrita de erro de token (401) de erro de banco (500) na rota /api/characters.
 - [x] **Phase 150: Arquitetura Active Player First de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão** - Redução do preloader para ~85 assets focados no personagem ativo, remoção do timeout arbitrário de 2.0s, normalização de rat.png e cave-rat.png e testes de integridade.
 - [x] **Phase 151: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading** - Empacotamento de 1.082 itens em thais-atlas.png/json e criaturas em creatures-atlas.png/json, redução de ~19.13MB de JSONs monolíticos estáticos do bundle do cliente, eliminação definitiva da tela de congelamento inicial e renderização instantânea de Thais no Frame 1.
-- [ ] **Phase 152: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy** - Eliminação definitiva de erro 'database disk image is malformed', restauração da integridade na VPS com 100% dos personagens, desrastreamento de dev.db no git, blindagem no .gitignore e proteção do script de deploy.
+- [x] **Phase 152: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy** - Eliminação definitiva de erro 'database disk image is malformed', restauração da integridade na VPS com 100% dos personagens, desrastreamento de dev.db no git, blindagem no .gitignore e proteção do script de deploy.
 
 ---
 
@@ -2901,7 +2901,9 @@ Plans:
    - Teste de login com `designerosa@outlook.com` no ambiente ao vivo da VPS.
 
 **Plans:**
-- [ ] 152-01-PLAN: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy.
+- [x] 152-01-PLAN: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy.
+
+- Resumo de entrega: `.planning/phases/phase-152-sqlite-integrity-and-deploy-shield/152-SUMMARY.md`
 
 
 
