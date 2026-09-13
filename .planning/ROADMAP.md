@@ -111,6 +111,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens** - Reparo de integridade (reindex e vacuum) no dev.db da VPS, ativação de SQLite WAL mode e busy_timeout=10000ms para prevenir corrupção concorrente e separação estrita de erro de token (401) de erro de banco (500) na rota /api/characters.
 - [x] **Phase 150: Arquitetura Active Player First de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão** - Redução do preloader para ~85 assets focados no personagem ativo, remoção do timeout arbitrário de 2.0s, normalização de rat.png e cave-rat.png e testes de integridade.
 - [x] **Phase 151: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading** - Empacotamento de 1.082 itens em thais-atlas.png/json e criaturas em creatures-atlas.png/json, redução de ~19.13MB de JSONs monolíticos estáticos do bundle do cliente, eliminação definitiva da tela de congelamento inicial e renderização instantânea de Thais no Frame 1.
+- [ ] **Phase 152: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy** - Eliminação definitiva de erro 'database disk image is malformed', restauração da integridade na VPS com 100% dos personagens, desrastreamento de dev.db no git, blindagem no .gitignore e proteção do script de deploy.
 
 ---
 
@@ -2878,6 +2879,29 @@ Plans:
 - [x] 151-01-PLAN: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading.
 
 - Resumo de entrega: `.planning/phases/phase-151-texture-atlases-single-loading-instant-world/151-SUMMARY.md`
+
+---
+
+### Phase 152: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy
+
+**Goal**: Eliminar definitivamente o erro `database disk image is malformed (extended_code: 11)` na VPS, restaurar 100% dos dados dos jogadores a partir do backup íntegro verificado (`recovered.db`), desrastrear `prisma/dev.db` do Git (`git rm --cached`) e blindar o `.gitignore` e os scripts de deploy contra qualquer sobrescrita ou corrupção de banco em deploys futuros.
+**Depends on**: Phase 151
+**Requirements**:
+1. **Desrastreamento de Banco no Git & Blindagem de .gitignore**:
+   - Executar `git rm --cached prisma/dev.db` para que o banco nunca seja manipulado pelo Git.
+   - Adicionar `prisma/*.db*`, `*.db*` ao `.gitignore`.
+2. **Restauração de Integridade na VPS**:
+   - Restaurar `/root/tibia-idle/prisma/dev.db` a partir de `/root/test_recovery/recovered.db` (onde todas as contas e personagens estão íntegros e verificados com `PRAGMA integrity_check = ok`).
+   - Limpar arquivos WAL e SHM desincronizados e aplicar `PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 10000; VACUUM;`.
+3. **Blindagem do Script de Deploy**:
+   - Alterar `scratch/deploy-to-vps.mjs` para garantir que o banco nunca seja tocado por `git reset --hard`.
+4. **Testes Automatizados e Validação E2E**:
+   - Criar `tests/phase152-sqlite-integrity-and-deploy-shield.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`) e 100% de testes aprovados.
+   - Teste de login com `designerosa@outlook.com` no ambiente ao vivo da VPS.
+
+**Plans:**
+- [ ] 152-01-PLAN: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy.
 
 
 

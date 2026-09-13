@@ -51,9 +51,15 @@ next-env.d.ts
 *.webm
 *.mp3
 
-# SQLite ephemeral WAL and SHM
+# SQLite database files, backups, WAL and SHM
+prisma/*.db*
+prisma/*.db
 prisma/*.db-shm
 prisma/*.db-wal
+prisma/*.db-journal
+prisma/*.bak
+dev.db*
+*.sqlite
 
 
 
