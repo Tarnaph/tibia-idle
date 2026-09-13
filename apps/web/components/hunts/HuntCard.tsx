@@ -3,12 +3,12 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import type { HuntDefinition } from '@/packages/domain/src';
 import type { MonsterDefinition } from '@/packages/content-schema/src';
-import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-combat-assets.json';
 import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 import { ItemSprite } from '../ItemSprite';
 import type { LootItemEntry } from './HuntLootTooltip';
 
-const assets = visualAssetsJson as Tibia1098AssetManifest;
+const assets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 
 interface Props {
   hunt: HuntDefinition;

@@ -1,0 +1,9269 @@
+{
+  "103": {
+    "frames": [
+      "item-103-f0",
+      "item-103-f1",
+      "item-103-f2",
+      "item-103-f3",
+      "item-103-f4",
+      "item-103-f5",
+      "item-103-f6",
+      "item-103-f7",
+      "item-103-f8",
+      "item-103-f9",
+      "item-103-f10",
+      "item-103-f11"
+    ],
+    "defaultFrame": "item-103-f0",
+    "animSpeed": 200
+  },
+  "104": {
+    "frames": [
+      "item-104-f0",
+      "item-104-f1",
+      "item-104-f2",
+      "item-104-f3",
+      "item-104-f4",
+      "item-104-f5",
+      "item-104-f6",
+      "item-104-f7",
+      "item-104-f8",
+      "item-104-f9",
+      "item-104-f10",
+      "item-104-f11",
+      "item-104-f12",
+      "item-104-f13",
+      "item-104-f14",
+      "item-104-f15"
+    ],
+    "defaultFrame": "item-104-f0",
+    "animSpeed": 200
+  },
+  "368": {
+    "frames": [
+      "item-368-f0",
+      "item-368-f1",
+      "item-368-f2",
+      "item-368-f3",
+      "item-368-f4",
+      "item-368-f5",
+      "item-368-f6",
+      "item-368-f7",
+      "item-368-f8"
+    ],
+    "defaultFrame": "item-368-f0",
+    "animSpeed": 200
+  },
+  "406": {
+    "frames": [
+      "item-406-f0",
+      "item-406-f1",
+      "item-406-f2",
+      "item-406-f3",
+      "item-406-f4",
+      "item-406-f5",
+      "item-406-f6",
+      "item-406-f7"
+    ],
+    "defaultFrame": "item-406-f0",
+    "animSpeed": 200
+  },
+  "407": {
+    "frames": [
+      "item-407-f0",
+      "item-407-f1",
+      "item-407-f2",
+      "item-407-f3",
+      "item-407-f4",
+      "item-407-f5",
+      "item-407-f6",
+      "item-407-f7"
+    ],
+    "defaultFrame": "item-407-f0",
+    "animSpeed": 200
+  },
+  "413": {
+    "frames": [
+      "item-413-f0",
+      "item-413-f1",
+      "item-413-f2",
+      "item-413-f3"
+    ],
+    "defaultFrame": "item-413-f0",
+    "animSpeed": 200
+  },
+  "414": {
+    "frames": [
+      "item-414-f0"
+    ],
+    "defaultFrame": "item-414-f0",
+    "animSpeed": 200
+  },
+  "424": {
+    "frames": [
+      "item-424-f0",
+      "item-424-f1",
+      "item-424-f2",
+      "item-424-f3",
+      "item-424-f4",
+      "item-424-f5",
+      "item-424-f6",
+      "item-424-f7"
+    ],
+    "defaultFrame": "item-424-f0",
+    "animSpeed": 200
+  },
+  "429": {
+    "frames": [
+      "item-429-f0"
+    ],
+    "defaultFrame": "item-429-f0",
+    "animSpeed": 200
+  },
+  "430": {
+    "frames": [
+      "item-430-f0"
+    ],
+    "defaultFrame": "item-430-f0",
+    "animSpeed": 200
+  },
+  "432": {
+    "frames": [
+      "item-432-f0"
+    ],
+    "defaultFrame": "item-432-f0",
+    "animSpeed": 200
+  },
+  "433": {
+    "frames": [
+      "item-433-f0"
+    ],
+    "defaultFrame": "item-433-f0",
+    "animSpeed": 200
+  },
+  "434": {
+    "frames": [
+      "item-434-f0"
+    ],
+    "defaultFrame": "item-434-f0",
+    "animSpeed": 200
+  },
+  "435": {
+    "frames": [
+      "item-435-f0"
+    ],
+    "defaultFrame": "item-435-f0",
+    "animSpeed": 200
+  },
+  "436": {
+    "frames": [
+      "item-436-f0"
+    ],
+    "defaultFrame": "item-436-f0",
+    "animSpeed": 200
+  },
+  "437": {
+    "frames": [
+      "item-437-f0"
+    ],
+    "defaultFrame": "item-437-f0",
+    "animSpeed": 200
+  },
+  "438": {
+    "frames": [
+      "item-438-f0"
+    ],
+    "defaultFrame": "item-438-f0",
+    "animSpeed": 200
+  },
+  "439": {
+    "frames": [
+      "item-439-f0"
+    ],
+    "defaultFrame": "item-439-f0",
+    "animSpeed": 200
+  },
+  "440": {
+    "frames": [
+      "item-440-f0"
+    ],
+    "defaultFrame": "item-440-f0",
+    "animSpeed": 200
+  },
+  "441": {
+    "frames": [
+      "item-441-f0"
+    ],
+    "defaultFrame": "item-441-f0",
+    "animSpeed": 200
+  },
+  "442": {
+    "frames": [
+      "item-442-f0"
+    ],
+    "defaultFrame": "item-442-f0",
+    "animSpeed": 200
+  },
+  "443": {
+    "frames": [
+      "item-443-f0"
+    ],
+    "defaultFrame": "item-443-f0",
+    "animSpeed": 200
+  },
+  "444": {
+    "frames": [
+      "item-444-f0"
+    ],
+    "defaultFrame": "item-444-f0",
+    "animSpeed": 200
+  },
+  "445": {
+    "frames": [
+      "item-445-f0"
+    ],
+    "defaultFrame": "item-445-f0",
+    "animSpeed": 200
+  },
+  "458": {
+    "frames": [
+      "item-458-f0"
+    ],
+    "defaultFrame": "item-458-f0",
+    "animSpeed": 200
+  },
+  "459": {
+    "frames": [
+      "item-459-f0"
+    ],
+    "defaultFrame": "item-459-f0",
+    "animSpeed": 200
+  },
+  "468": {
+    "frames": [
+      "item-468-f0"
+    ],
+    "defaultFrame": "item-468-f0",
+    "animSpeed": 200
+  },
+  "470": {
+    "frames": [
+      "item-470-f0"
+    ],
+    "defaultFrame": "item-470-f0",
+    "animSpeed": 200
+  },
+  "471": {
+    "frames": [
+      "item-471-f0"
+    ],
+    "defaultFrame": "item-471-f0",
+    "animSpeed": 200
+  },
+  "472": {
+    "frames": [
+      "item-472-f0"
+    ],
+    "defaultFrame": "item-472-f0",
+    "animSpeed": 200
+  },
+  "473": {
+    "frames": [
+      "item-473-f0"
+    ],
+    "defaultFrame": "item-473-f0",
+    "animSpeed": 200
+  },
+  "474": {
+    "frames": [
+      "item-474-f0"
+    ],
+    "defaultFrame": "item-474-f0",
+    "animSpeed": 200
+  },
+  "477": {
+    "frames": [
+      "item-477-f0",
+      "item-477-f1",
+      "item-477-f2",
+      "item-477-f3"
+    ],
+    "defaultFrame": "item-477-f0",
+    "animSpeed": 200
+  },
+  "724": {
+    "frames": [
+      "item-724-f0",
+      "item-724-f1",
+      "item-724-f2",
+      "item-724-f3",
+      "item-724-f4",
+      "item-724-f5",
+      "item-724-f6",
+      "item-724-f7"
+    ],
+    "defaultFrame": "item-724-f0",
+    "animSpeed": 200
+  },
+  "804": {
+    "frames": [
+      "item-804-f0"
+    ],
+    "defaultFrame": "item-804-f0",
+    "animSpeed": 200
+  },
+  "874": {
+    "frames": [
+      "item-874-f0",
+      "item-874-f1",
+      "item-874-f2",
+      "item-874-f3"
+    ],
+    "defaultFrame": "item-874-f0",
+    "animSpeed": 200
+  },
+  "877": {
+    "frames": [
+      "item-877-f0"
+    ],
+    "defaultFrame": "item-877-f0",
+    "animSpeed": 200
+  },
+  "893": {
+    "frames": [
+      "item-893-f0",
+      "item-893-f1",
+      "item-893-f2",
+      "item-893-f3"
+    ],
+    "defaultFrame": "item-893-f0",
+    "animSpeed": 200
+  },
+  "919": {
+    "frames": [
+      "item-919-f0",
+      "item-919-f1",
+      "item-919-f2",
+      "item-919-f3",
+      "item-919-f4",
+      "item-919-f5",
+      "item-919-f6",
+      "item-919-f7",
+      "item-919-f8",
+      "item-919-f9",
+      "item-919-f10",
+      "item-919-f11",
+      "item-919-f12",
+      "item-919-f13",
+      "item-919-f14",
+      "item-919-f15"
+    ],
+    "defaultFrame": "item-919-f0",
+    "animSpeed": 200
+  },
+  "920": {
+    "frames": [
+      "item-920-f0",
+      "item-920-f1",
+      "item-920-f2",
+      "item-920-f3",
+      "item-920-f4",
+      "item-920-f5",
+      "item-920-f6",
+      "item-920-f7"
+    ],
+    "defaultFrame": "item-920-f0",
+    "animSpeed": 200
+  },
+  "921": {
+    "frames": [
+      "item-921-f0"
+    ],
+    "defaultFrame": "item-921-f0",
+    "animSpeed": 200
+  },
+  "922": {
+    "frames": [
+      "item-922-f0"
+    ],
+    "defaultFrame": "item-922-f0",
+    "animSpeed": 200
+  },
+  "923": {
+    "frames": [
+      "item-923-f0"
+    ],
+    "defaultFrame": "item-923-f0",
+    "animSpeed": 200
+  },
+  "925": {
+    "frames": [
+      "item-925-f0"
+    ],
+    "defaultFrame": "item-925-f0",
+    "animSpeed": 200
+  },
+  "926": {
+    "frames": [
+      "item-926-f0"
+    ],
+    "defaultFrame": "item-926-f0",
+    "animSpeed": 200
+  },
+  "927": {
+    "frames": [
+      "item-927-f0"
+    ],
+    "defaultFrame": "item-927-f0",
+    "animSpeed": 200
+  },
+  "928": {
+    "frames": [
+      "item-928-f0"
+    ],
+    "defaultFrame": "item-928-f0",
+    "animSpeed": 200
+  },
+  "929": {
+    "frames": [
+      "item-929-f0"
+    ],
+    "defaultFrame": "item-929-f0",
+    "animSpeed": 200
+  },
+  "930": {
+    "frames": [
+      "item-930-f0"
+    ],
+    "defaultFrame": "item-930-f0",
+    "animSpeed": 200
+  },
+  "931": {
+    "frames": [
+      "item-931-f0"
+    ],
+    "defaultFrame": "item-931-f0",
+    "animSpeed": 200
+  },
+  "932": {
+    "frames": [
+      "item-932-f0"
+    ],
+    "defaultFrame": "item-932-f0",
+    "animSpeed": 200
+  },
+  "933": {
+    "frames": [
+      "item-933-f0"
+    ],
+    "defaultFrame": "item-933-f0",
+    "animSpeed": 200
+  },
+  "934": {
+    "frames": [
+      "item-934-f0"
+    ],
+    "defaultFrame": "item-934-f0",
+    "animSpeed": 200
+  },
+  "935": {
+    "frames": [
+      "item-935-f0"
+    ],
+    "defaultFrame": "item-935-f0",
+    "animSpeed": 200
+  },
+  "936": {
+    "frames": [
+      "item-936-f0"
+    ],
+    "defaultFrame": "item-936-f0",
+    "animSpeed": 200
+  },
+  "937": {
+    "frames": [
+      "item-937-f0"
+    ],
+    "defaultFrame": "item-937-f0",
+    "animSpeed": 200
+  },
+  "938": {
+    "frames": [
+      "item-938-f0"
+    ],
+    "defaultFrame": "item-938-f0",
+    "animSpeed": 200
+  },
+  "939": {
+    "frames": [
+      "item-939-f0"
+    ],
+    "defaultFrame": "item-939-f0",
+    "animSpeed": 200
+  },
+  "940": {
+    "frames": [
+      "item-940-f0"
+    ],
+    "defaultFrame": "item-940-f0",
+    "animSpeed": 200
+  },
+  "941": {
+    "frames": [
+      "item-941-f0"
+    ],
+    "defaultFrame": "item-941-f0",
+    "animSpeed": 200
+  },
+  "942": {
+    "frames": [
+      "item-942-f0"
+    ],
+    "defaultFrame": "item-942-f0",
+    "animSpeed": 200
+  },
+  "943": {
+    "frames": [
+      "item-943-f0"
+    ],
+    "defaultFrame": "item-943-f0",
+    "animSpeed": 200
+  },
+  "944": {
+    "frames": [
+      "item-944-f0"
+    ],
+    "defaultFrame": "item-944-f0",
+    "animSpeed": 200
+  },
+  "945": {
+    "frames": [
+      "item-945-f0"
+    ],
+    "defaultFrame": "item-945-f0",
+    "animSpeed": 200
+  },
+  "946": {
+    "frames": [
+      "item-946-f0"
+    ],
+    "defaultFrame": "item-946-f0",
+    "animSpeed": 200
+  },
+  "947": {
+    "frames": [
+      "item-947-f0"
+    ],
+    "defaultFrame": "item-947-f0",
+    "animSpeed": 200
+  },
+  "948": {
+    "frames": [
+      "item-948-f0"
+    ],
+    "defaultFrame": "item-948-f0",
+    "animSpeed": 200
+  },
+  "949": {
+    "frames": [
+      "item-949-f0"
+    ],
+    "defaultFrame": "item-949-f0",
+    "animSpeed": 200
+  },
+  "950": {
+    "frames": [
+      "item-950-f0"
+    ],
+    "defaultFrame": "item-950-f0",
+    "animSpeed": 200
+  },
+  "951": {
+    "frames": [
+      "item-951-f0"
+    ],
+    "defaultFrame": "item-951-f0",
+    "animSpeed": 200
+  },
+  "952": {
+    "frames": [
+      "item-952-f0"
+    ],
+    "defaultFrame": "item-952-f0",
+    "animSpeed": 200
+  },
+  "953": {
+    "frames": [
+      "item-953-f0"
+    ],
+    "defaultFrame": "item-953-f0",
+    "animSpeed": 200
+  },
+  "954": {
+    "frames": [
+      "item-954-f0"
+    ],
+    "defaultFrame": "item-954-f0",
+    "animSpeed": 200
+  },
+  "1025": {
+    "frames": [
+      "item-1025-f0"
+    ],
+    "defaultFrame": "item-1025-f0",
+    "animSpeed": 200
+  },
+  "1026": {
+    "frames": [
+      "item-1026-f0"
+    ],
+    "defaultFrame": "item-1026-f0",
+    "animSpeed": 200
+  },
+  "1027": {
+    "frames": [
+      "item-1027-f0"
+    ],
+    "defaultFrame": "item-1027-f0",
+    "animSpeed": 200
+  },
+  "1028": {
+    "frames": [
+      "item-1028-f0"
+    ],
+    "defaultFrame": "item-1028-f0",
+    "animSpeed": 200
+  },
+  "1029": {
+    "frames": [
+      "item-1029-f0"
+    ],
+    "defaultFrame": "item-1029-f0",
+    "animSpeed": 200
+  },
+  "1030": {
+    "frames": [
+      "item-1030-f0"
+    ],
+    "defaultFrame": "item-1030-f0",
+    "animSpeed": 200
+  },
+  "1031": {
+    "frames": [
+      "item-1031-f0"
+    ],
+    "defaultFrame": "item-1031-f0",
+    "animSpeed": 200
+  },
+  "1032": {
+    "frames": [
+      "item-1032-f0"
+    ],
+    "defaultFrame": "item-1032-f0",
+    "animSpeed": 200
+  },
+  "1033": {
+    "frames": [
+      "item-1033-f0"
+    ],
+    "defaultFrame": "item-1033-f0",
+    "animSpeed": 200
+  },
+  "1034": {
+    "frames": [
+      "item-1034-f0"
+    ],
+    "defaultFrame": "item-1034-f0",
+    "animSpeed": 200
+  },
+  "1035": {
+    "frames": [
+      "item-1035-f0"
+    ],
+    "defaultFrame": "item-1035-f0",
+    "animSpeed": 200
+  },
+  "1036": {
+    "frames": [
+      "item-1036-f0",
+      "item-1036-f1",
+      "item-1036-f2"
+    ],
+    "defaultFrame": "item-1036-f0",
+    "animSpeed": 200
+  },
+  "1037": {
+    "frames": [
+      "item-1037-f0",
+      "item-1037-f1",
+      "item-1037-f2"
+    ],
+    "defaultFrame": "item-1037-f0",
+    "animSpeed": 200
+  },
+  "1038": {
+    "frames": [
+      "item-1038-f0"
+    ],
+    "defaultFrame": "item-1038-f0",
+    "animSpeed": 200
+  },
+  "1039": {
+    "frames": [
+      "item-1039-f0"
+    ],
+    "defaultFrame": "item-1039-f0",
+    "animSpeed": 200
+  },
+  "1040": {
+    "frames": [
+      "item-1040-f0"
+    ],
+    "defaultFrame": "item-1040-f0",
+    "animSpeed": 200
+  },
+  "1041": {
+    "frames": [
+      "item-1041-f0"
+    ],
+    "defaultFrame": "item-1041-f0",
+    "animSpeed": 200
+  },
+  "1042": {
+    "frames": [
+      "item-1042-f0"
+    ],
+    "defaultFrame": "item-1042-f0",
+    "animSpeed": 200
+  },
+  "1043": {
+    "frames": [
+      "item-1043-f0"
+    ],
+    "defaultFrame": "item-1043-f0",
+    "animSpeed": 200
+  },
+  "1044": {
+    "frames": [
+      "item-1044-f0"
+    ],
+    "defaultFrame": "item-1044-f0",
+    "animSpeed": 200
+  },
+  "1045": {
+    "frames": [
+      "item-1045-f0"
+    ],
+    "defaultFrame": "item-1045-f0",
+    "animSpeed": 200
+  },
+  "1046": {
+    "frames": [
+      "item-1046-f0"
+    ],
+    "defaultFrame": "item-1046-f0",
+    "animSpeed": 200
+  },
+  "1049": {
+    "frames": [
+      "item-1049-f0",
+      "item-1049-f1"
+    ],
+    "defaultFrame": "item-1049-f0",
+    "animSpeed": 200
+  },
+  "1050": {
+    "frames": [
+      "item-1050-f0",
+      "item-1050-f1"
+    ],
+    "defaultFrame": "item-1050-f0",
+    "animSpeed": 200
+  },
+  "1051": {
+    "frames": [
+      "item-1051-f0"
+    ],
+    "defaultFrame": "item-1051-f0",
+    "animSpeed": 200
+  },
+  "1052": {
+    "frames": [
+      "item-1052-f0",
+      "item-1052-f1"
+    ],
+    "defaultFrame": "item-1052-f0",
+    "animSpeed": 200
+  },
+  "1053": {
+    "frames": [
+      "item-1053-f0"
+    ],
+    "defaultFrame": "item-1053-f0",
+    "animSpeed": 200
+  },
+  "1054": {
+    "frames": [
+      "item-1054-f0",
+      "item-1054-f1"
+    ],
+    "defaultFrame": "item-1054-f0",
+    "animSpeed": 200
+  },
+  "1055": {
+    "frames": [
+      "item-1055-f0"
+    ],
+    "defaultFrame": "item-1055-f0",
+    "animSpeed": 200
+  },
+  "1056": {
+    "frames": [
+      "item-1056-f0",
+      "item-1056-f1"
+    ],
+    "defaultFrame": "item-1056-f0",
+    "animSpeed": 200
+  },
+  "1057": {
+    "frames": [
+      "item-1057-f0"
+    ],
+    "defaultFrame": "item-1057-f0",
+    "animSpeed": 200
+  },
+  "1058": {
+    "frames": [
+      "item-1058-f0",
+      "item-1058-f1"
+    ],
+    "defaultFrame": "item-1058-f0",
+    "animSpeed": 200
+  },
+  "1059": {
+    "frames": [
+      "item-1059-f0"
+    ],
+    "defaultFrame": "item-1059-f0",
+    "animSpeed": 200
+  },
+  "1205": {
+    "frames": [
+      "item-1205-f0"
+    ],
+    "defaultFrame": "item-1205-f0",
+    "animSpeed": 200
+  },
+  "1206": {
+    "frames": [
+      "item-1206-f0"
+    ],
+    "defaultFrame": "item-1206-f0",
+    "animSpeed": 200
+  },
+  "1207": {
+    "frames": [
+      "item-1207-f0"
+    ],
+    "defaultFrame": "item-1207-f0",
+    "animSpeed": 200
+  },
+  "1208": {
+    "frames": [
+      "item-1208-f0"
+    ],
+    "defaultFrame": "item-1208-f0",
+    "animSpeed": 200
+  },
+  "1210": {
+    "frames": [
+      "item-1210-f0"
+    ],
+    "defaultFrame": "item-1210-f0",
+    "animSpeed": 200
+  },
+  "1212": {
+    "frames": [
+      "item-1212-f0"
+    ],
+    "defaultFrame": "item-1212-f0",
+    "animSpeed": 200
+  },
+  "1213": {
+    "frames": [
+      "item-1213-f0"
+    ],
+    "defaultFrame": "item-1213-f0",
+    "animSpeed": 200
+  },
+  "1214": {
+    "frames": [
+      "item-1214-f0"
+    ],
+    "defaultFrame": "item-1214-f0",
+    "animSpeed": 200
+  },
+  "1215": {
+    "frames": [
+      "item-1215-f0"
+    ],
+    "defaultFrame": "item-1215-f0",
+    "animSpeed": 200
+  },
+  "1216": {
+    "frames": [
+      "item-1216-f0"
+    ],
+    "defaultFrame": "item-1216-f0",
+    "animSpeed": 200
+  },
+  "1217": {
+    "frames": [
+      "item-1217-f0"
+    ],
+    "defaultFrame": "item-1217-f0",
+    "animSpeed": 200
+  },
+  "1218": {
+    "frames": [
+      "item-1218-f0"
+    ],
+    "defaultFrame": "item-1218-f0",
+    "animSpeed": 200
+  },
+  "1219": {
+    "frames": [
+      "item-1219-f0"
+    ],
+    "defaultFrame": "item-1219-f0",
+    "animSpeed": 200
+  },
+  "1221": {
+    "frames": [
+      "item-1221-f0"
+    ],
+    "defaultFrame": "item-1221-f0",
+    "animSpeed": 200
+  },
+  "1266": {
+    "frames": [
+      "item-1266-f0"
+    ],
+    "defaultFrame": "item-1266-f0",
+    "animSpeed": 200
+  },
+  "1267": {
+    "frames": [
+      "item-1267-f0",
+      "item-1267-f1"
+    ],
+    "defaultFrame": "item-1267-f0",
+    "animSpeed": 200
+  },
+  "1268": {
+    "frames": [
+      "item-1268-f0",
+      "item-1268-f1"
+    ],
+    "defaultFrame": "item-1268-f0",
+    "animSpeed": 200
+  },
+  "1284": {
+    "frames": [
+      "item-1284-f0"
+    ],
+    "defaultFrame": "item-1284-f0",
+    "animSpeed": 200
+  },
+  "1300": {
+    "frames": [
+      "item-1300-f0"
+    ],
+    "defaultFrame": "item-1300-f0",
+    "animSpeed": 200
+  },
+  "1301": {
+    "frames": [
+      "item-1301-f0"
+    ],
+    "defaultFrame": "item-1301-f0",
+    "animSpeed": 200
+  },
+  "1302": {
+    "frames": [
+      "item-1302-f0"
+    ],
+    "defaultFrame": "item-1302-f0",
+    "animSpeed": 200
+  },
+  "1303": {
+    "frames": [
+      "item-1303-f0"
+    ],
+    "defaultFrame": "item-1303-f0",
+    "animSpeed": 200
+  },
+  "1305": {
+    "frames": [
+      "item-1305-f0"
+    ],
+    "defaultFrame": "item-1305-f0",
+    "animSpeed": 200
+  },
+  "1306": {
+    "frames": [
+      "item-1306-f0"
+    ],
+    "defaultFrame": "item-1306-f0",
+    "animSpeed": 200
+  },
+  "1354": {
+    "frames": [
+      "item-1354-f0"
+    ],
+    "defaultFrame": "item-1354-f0",
+    "animSpeed": 200
+  },
+  "1360": {
+    "frames": [
+      "item-1360-f0",
+      "item-1360-f1",
+      "item-1360-f2",
+      "item-1360-f3",
+      "item-1360-f4"
+    ],
+    "defaultFrame": "item-1360-f0",
+    "animSpeed": 200
+  },
+  "1361": {
+    "frames": [
+      "item-1361-f0",
+      "item-1361-f1",
+      "item-1361-f2",
+      "item-1361-f3",
+      "item-1361-f4"
+    ],
+    "defaultFrame": "item-1361-f0",
+    "animSpeed": 200
+  },
+  "1362": {
+    "frames": [
+      "item-1362-f0",
+      "item-1362-f1",
+      "item-1362-f2",
+      "item-1362-f3",
+      "item-1362-f4"
+    ],
+    "defaultFrame": "item-1362-f0",
+    "animSpeed": 200
+  },
+  "1363": {
+    "frames": [
+      "item-1363-f0",
+      "item-1363-f1",
+      "item-1363-f2",
+      "item-1363-f3",
+      "item-1363-f4"
+    ],
+    "defaultFrame": "item-1363-f0",
+    "animSpeed": 200
+  },
+  "1368": {
+    "frames": [
+      "item-1368-f0"
+    ],
+    "defaultFrame": "item-1368-f0",
+    "animSpeed": 200
+  },
+  "1369": {
+    "frames": [
+      "item-1369-f0"
+    ],
+    "defaultFrame": "item-1369-f0",
+    "animSpeed": 200
+  },
+  "1381": {
+    "frames": [
+      "item-1381-f0",
+      "item-1381-f1",
+      "item-1381-f2",
+      "item-1381-f3",
+      "item-1381-f4",
+      "item-1381-f5",
+      "item-1381-f6",
+      "item-1381-f7"
+    ],
+    "defaultFrame": "item-1381-f0",
+    "animSpeed": 200
+  },
+  "1382": {
+    "frames": [
+      "item-1382-f0",
+      "item-1382-f1",
+      "item-1382-f2",
+      "item-1382-f3",
+      "item-1382-f4",
+      "item-1382-f5",
+      "item-1382-f6",
+      "item-1382-f7"
+    ],
+    "defaultFrame": "item-1382-f0",
+    "animSpeed": 200
+  },
+  "1383": {
+    "frames": [
+      "item-1383-f0",
+      "item-1383-f1",
+      "item-1383-f2",
+      "item-1383-f3",
+      "item-1383-f4",
+      "item-1383-f5",
+      "item-1383-f6",
+      "item-1383-f7"
+    ],
+    "defaultFrame": "item-1383-f0",
+    "animSpeed": 200
+  },
+  "1384": {
+    "frames": [
+      "item-1384-f0",
+      "item-1384-f1",
+      "item-1384-f2",
+      "item-1384-f3",
+      "item-1384-f4",
+      "item-1384-f5",
+      "item-1384-f6",
+      "item-1384-f7"
+    ],
+    "defaultFrame": "item-1384-f0",
+    "animSpeed": 200
+  },
+  "1385": {
+    "frames": [
+      "item-1385-f0"
+    ],
+    "defaultFrame": "item-1385-f0",
+    "animSpeed": 200
+  },
+  "1386": {
+    "frames": [
+      "item-1386-f0"
+    ],
+    "defaultFrame": "item-1386-f0",
+    "animSpeed": 200
+  },
+  "1387": {
+    "frames": [
+      "item-1387-f0",
+      "item-1387-f1",
+      "item-1387-f2",
+      "item-1387-f3",
+      "item-1387-f4",
+      "item-1387-f5",
+      "item-1387-f6",
+      "item-1387-f7",
+      "item-1387-f8",
+      "item-1387-f9",
+      "item-1387-f10",
+      "item-1387-f11"
+    ],
+    "defaultFrame": "item-1387-f0",
+    "animSpeed": 200
+  },
+  "1388": {
+    "frames": [
+      "item-1388-f0"
+    ],
+    "defaultFrame": "item-1388-f0",
+    "animSpeed": 200
+  },
+  "1389": {
+    "frames": [
+      "item-1389-f0"
+    ],
+    "defaultFrame": "item-1389-f0",
+    "animSpeed": 200
+  },
+  "1396": {
+    "frames": [
+      "item-1396-f0"
+    ],
+    "defaultFrame": "item-1396-f0",
+    "animSpeed": 200
+  },
+  "1429": {
+    "frames": [
+      "item-1429-f0"
+    ],
+    "defaultFrame": "item-1429-f0",
+    "animSpeed": 200
+  },
+  "1431": {
+    "frames": [
+      "item-1431-f0"
+    ],
+    "defaultFrame": "item-1431-f0",
+    "animSpeed": 200
+  },
+  "1433": {
+    "frames": [
+      "item-1433-f0"
+    ],
+    "defaultFrame": "item-1433-f0",
+    "animSpeed": 200
+  },
+  "1434": {
+    "frames": [
+      "item-1434-f0"
+    ],
+    "defaultFrame": "item-1434-f0",
+    "animSpeed": 200
+  },
+  "1438": {
+    "frames": [
+      "item-1438-f0"
+    ],
+    "defaultFrame": "item-1438-f0",
+    "animSpeed": 200
+  },
+  "1439": {
+    "frames": [
+      "item-1439-f0"
+    ],
+    "defaultFrame": "item-1439-f0",
+    "animSpeed": 200
+  },
+  "1442": {
+    "frames": [
+      "item-1442-f0"
+    ],
+    "defaultFrame": "item-1442-f0",
+    "animSpeed": 200
+  },
+  "1443": {
+    "frames": [
+      "item-1443-f0"
+    ],
+    "defaultFrame": "item-1443-f0",
+    "animSpeed": 200
+  },
+  "1448": {
+    "frames": [
+      "item-1448-f0"
+    ],
+    "defaultFrame": "item-1448-f0",
+    "animSpeed": 200
+  },
+  "1479": {
+    "frames": [
+      "item-1479-f0"
+    ],
+    "defaultFrame": "item-1479-f0",
+    "animSpeed": 200
+  },
+  "1480": {
+    "frames": [
+      "item-1480-f0",
+      "item-1480-f1",
+      "item-1480-f2",
+      "item-1480-f3",
+      "item-1480-f4",
+      "item-1480-f5",
+      "item-1480-f6",
+      "item-1480-f7"
+    ],
+    "defaultFrame": "item-1480-f0",
+    "animSpeed": 200
+  },
+  "1481": {
+    "frames": [
+      "item-1481-f0",
+      "item-1481-f1",
+      "item-1481-f2",
+      "item-1481-f3",
+      "item-1481-f4",
+      "item-1481-f5",
+      "item-1481-f6",
+      "item-1481-f7"
+    ],
+    "defaultFrame": "item-1481-f0",
+    "animSpeed": 200
+  },
+  "1484": {
+    "frames": [
+      "item-1484-f0",
+      "item-1484-f1",
+      "item-1484-f2",
+      "item-1484-f3",
+      "item-1484-f4",
+      "item-1484-f5"
+    ],
+    "defaultFrame": "item-1484-f0",
+    "animSpeed": 200
+  },
+  "1515": {
+    "frames": [
+      "item-1515-f0"
+    ],
+    "defaultFrame": "item-1515-f0",
+    "animSpeed": 200
+  },
+  "1516": {
+    "frames": [
+      "item-1516-f0"
+    ],
+    "defaultFrame": "item-1516-f0",
+    "animSpeed": 200
+  },
+  "1517": {
+    "frames": [
+      "item-1517-f0"
+    ],
+    "defaultFrame": "item-1517-f0",
+    "animSpeed": 200
+  },
+  "1518": {
+    "frames": [
+      "item-1518-f0"
+    ],
+    "defaultFrame": "item-1518-f0",
+    "animSpeed": 200
+  },
+  "1519": {
+    "frames": [
+      "item-1519-f0"
+    ],
+    "defaultFrame": "item-1519-f0",
+    "animSpeed": 200
+  },
+  "1520": {
+    "frames": [
+      "item-1520-f0"
+    ],
+    "defaultFrame": "item-1520-f0",
+    "animSpeed": 200
+  },
+  "1521": {
+    "frames": [
+      "item-1521-f0"
+    ],
+    "defaultFrame": "item-1521-f0",
+    "animSpeed": 200
+  },
+  "1523": {
+    "frames": [
+      "item-1523-f0"
+    ],
+    "defaultFrame": "item-1523-f0",
+    "animSpeed": 200
+  },
+  "1524": {
+    "frames": [
+      "item-1524-f0",
+      "item-1524-f1"
+    ],
+    "defaultFrame": "item-1524-f0",
+    "animSpeed": 200
+  },
+  "1525": {
+    "frames": [
+      "item-1525-f0",
+      "item-1525-f1"
+    ],
+    "defaultFrame": "item-1525-f0",
+    "animSpeed": 200
+  },
+  "1526": {
+    "frames": [
+      "item-1526-f0",
+      "item-1526-f1"
+    ],
+    "defaultFrame": "item-1526-f0",
+    "animSpeed": 200
+  },
+  "1527": {
+    "frames": [
+      "item-1527-f0",
+      "item-1527-f1"
+    ],
+    "defaultFrame": "item-1527-f0",
+    "animSpeed": 200
+  },
+  "1528": {
+    "frames": [
+      "item-1528-f0"
+    ],
+    "defaultFrame": "item-1528-f0",
+    "animSpeed": 200
+  },
+  "1530": {
+    "frames": [
+      "item-1530-f0"
+    ],
+    "defaultFrame": "item-1530-f0",
+    "animSpeed": 200
+  },
+  "1533": {
+    "frames": [
+      "item-1533-f0"
+    ],
+    "defaultFrame": "item-1533-f0",
+    "animSpeed": 200
+  },
+  "1534": {
+    "frames": [
+      "item-1534-f0"
+    ],
+    "defaultFrame": "item-1534-f0",
+    "animSpeed": 200
+  },
+  "1535": {
+    "frames": [
+      "item-1535-f0"
+    ],
+    "defaultFrame": "item-1535-f0",
+    "animSpeed": 200
+  },
+  "1536": {
+    "frames": [
+      "item-1536-f0"
+    ],
+    "defaultFrame": "item-1536-f0",
+    "animSpeed": 200
+  },
+  "1537": {
+    "frames": [
+      "item-1537-f0"
+    ],
+    "defaultFrame": "item-1537-f0",
+    "animSpeed": 200
+  },
+  "1538": {
+    "frames": [
+      "item-1538-f0"
+    ],
+    "defaultFrame": "item-1538-f0",
+    "animSpeed": 200
+  },
+  "1539": {
+    "frames": [
+      "item-1539-f0"
+    ],
+    "defaultFrame": "item-1539-f0",
+    "animSpeed": 200
+  },
+  "1541": {
+    "frames": [
+      "item-1541-f0"
+    ],
+    "defaultFrame": "item-1541-f0",
+    "animSpeed": 200
+  },
+  "1548": {
+    "frames": [
+      "item-1548-f0"
+    ],
+    "defaultFrame": "item-1548-f0",
+    "animSpeed": 200
+  },
+  "1608": {
+    "frames": [
+      "item-1608-f0"
+    ],
+    "defaultFrame": "item-1608-f0",
+    "animSpeed": 200
+  },
+  "1609": {
+    "frames": [
+      "item-1609-f0"
+    ],
+    "defaultFrame": "item-1609-f0",
+    "animSpeed": 200
+  },
+  "1610": {
+    "frames": [
+      "item-1610-f0"
+    ],
+    "defaultFrame": "item-1610-f0",
+    "animSpeed": 200
+  },
+  "1611": {
+    "frames": [
+      "item-1611-f0"
+    ],
+    "defaultFrame": "item-1611-f0",
+    "animSpeed": 200
+  },
+  "1612": {
+    "frames": [
+      "item-1612-f0"
+    ],
+    "defaultFrame": "item-1612-f0",
+    "animSpeed": 200
+  },
+  "1613": {
+    "frames": [
+      "item-1613-f0"
+    ],
+    "defaultFrame": "item-1613-f0",
+    "animSpeed": 200
+  },
+  "1617": {
+    "frames": [
+      "item-1617-f0"
+    ],
+    "defaultFrame": "item-1617-f0",
+    "animSpeed": 200
+  },
+  "1618": {
+    "frames": [
+      "item-1618-f0"
+    ],
+    "defaultFrame": "item-1618-f0",
+    "animSpeed": 200
+  },
+  "1619": {
+    "frames": [
+      "item-1619-f0"
+    ],
+    "defaultFrame": "item-1619-f0",
+    "animSpeed": 200
+  },
+  "1620": {
+    "frames": [
+      "item-1620-f0"
+    ],
+    "defaultFrame": "item-1620-f0",
+    "animSpeed": 200
+  },
+  "1621": {
+    "frames": [
+      "item-1621-f0"
+    ],
+    "defaultFrame": "item-1621-f0",
+    "animSpeed": 200
+  },
+  "1622": {
+    "frames": [
+      "item-1622-f0"
+    ],
+    "defaultFrame": "item-1622-f0",
+    "animSpeed": 200
+  },
+  "1623": {
+    "frames": [
+      "item-1623-f0"
+    ],
+    "defaultFrame": "item-1623-f0",
+    "animSpeed": 200
+  },
+  "1624": {
+    "frames": [
+      "item-1624-f0"
+    ],
+    "defaultFrame": "item-1624-f0",
+    "animSpeed": 200
+  },
+  "1625": {
+    "frames": [
+      "item-1625-f0"
+    ],
+    "defaultFrame": "item-1625-f0",
+    "animSpeed": 200
+  },
+  "1626": {
+    "frames": [
+      "item-1626-f0"
+    ],
+    "defaultFrame": "item-1626-f0",
+    "animSpeed": 200
+  },
+  "1627": {
+    "frames": [
+      "item-1627-f0"
+    ],
+    "defaultFrame": "item-1627-f0",
+    "animSpeed": 200
+  },
+  "1628": {
+    "frames": [
+      "item-1628-f0"
+    ],
+    "defaultFrame": "item-1628-f0",
+    "animSpeed": 200
+  },
+  "1629": {
+    "frames": [
+      "item-1629-f0"
+    ],
+    "defaultFrame": "item-1629-f0",
+    "animSpeed": 200
+  },
+  "1630": {
+    "frames": [
+      "item-1630-f0"
+    ],
+    "defaultFrame": "item-1630-f0",
+    "animSpeed": 200
+  },
+  "1631": {
+    "frames": [
+      "item-1631-f0"
+    ],
+    "defaultFrame": "item-1631-f0",
+    "animSpeed": 200
+  },
+  "1632": {
+    "frames": [
+      "item-1632-f0"
+    ],
+    "defaultFrame": "item-1632-f0",
+    "animSpeed": 200
+  },
+  "1633": {
+    "frames": [
+      "item-1633-f0"
+    ],
+    "defaultFrame": "item-1633-f0",
+    "animSpeed": 200
+  },
+  "1634": {
+    "frames": [
+      "item-1634-f0"
+    ],
+    "defaultFrame": "item-1634-f0",
+    "animSpeed": 200
+  },
+  "1638": {
+    "frames": [
+      "item-1638-f0"
+    ],
+    "defaultFrame": "item-1638-f0",
+    "animSpeed": 200
+  },
+  "1640": {
+    "frames": [
+      "item-1640-f0"
+    ],
+    "defaultFrame": "item-1640-f0",
+    "animSpeed": 200
+  },
+  "1642": {
+    "frames": [
+      "item-1642-f0"
+    ],
+    "defaultFrame": "item-1642-f0",
+    "animSpeed": 200
+  },
+  "1643": {
+    "frames": [
+      "item-1643-f0"
+    ],
+    "defaultFrame": "item-1643-f0",
+    "animSpeed": 200
+  },
+  "1644": {
+    "frames": [
+      "item-1644-f0"
+    ],
+    "defaultFrame": "item-1644-f0",
+    "animSpeed": 200
+  },
+  "1645": {
+    "frames": [
+      "item-1645-f0"
+    ],
+    "defaultFrame": "item-1645-f0",
+    "animSpeed": 200
+  },
+  "1650": {
+    "frames": [
+      "item-1650-f0"
+    ],
+    "defaultFrame": "item-1650-f0",
+    "animSpeed": 200
+  },
+  "1651": {
+    "frames": [
+      "item-1651-f0"
+    ],
+    "defaultFrame": "item-1651-f0",
+    "animSpeed": 200
+  },
+  "1652": {
+    "frames": [
+      "item-1652-f0"
+    ],
+    "defaultFrame": "item-1652-f0",
+    "animSpeed": 200
+  },
+  "1653": {
+    "frames": [
+      "item-1653-f0"
+    ],
+    "defaultFrame": "item-1653-f0",
+    "animSpeed": 200
+  },
+  "1657": {
+    "frames": [
+      "item-1657-f0"
+    ],
+    "defaultFrame": "item-1657-f0",
+    "animSpeed": 200
+  },
+  "1662": {
+    "frames": [
+      "item-1662-f0"
+    ],
+    "defaultFrame": "item-1662-f0",
+    "animSpeed": 200
+  },
+  "1663": {
+    "frames": [
+      "item-1663-f0"
+    ],
+    "defaultFrame": "item-1663-f0",
+    "animSpeed": 200
+  },
+  "1694": {
+    "frames": [
+      "item-1694-f0"
+    ],
+    "defaultFrame": "item-1694-f0",
+    "animSpeed": 200
+  },
+  "1695": {
+    "frames": [
+      "item-1695-f0"
+    ],
+    "defaultFrame": "item-1695-f0",
+    "animSpeed": 200
+  },
+  "1712": {
+    "frames": [
+      "item-1712-f0"
+    ],
+    "defaultFrame": "item-1712-f0",
+    "animSpeed": 200
+  },
+  "1713": {
+    "frames": [
+      "item-1713-f0"
+    ],
+    "defaultFrame": "item-1713-f0",
+    "animSpeed": 200
+  },
+  "1716": {
+    "frames": [
+      "item-1716-f0"
+    ],
+    "defaultFrame": "item-1716-f0",
+    "animSpeed": 200
+  },
+  "1717": {
+    "frames": [
+      "item-1717-f0"
+    ],
+    "defaultFrame": "item-1717-f0",
+    "animSpeed": 200
+  },
+  "1718": {
+    "frames": [
+      "item-1718-f0"
+    ],
+    "defaultFrame": "item-1718-f0",
+    "animSpeed": 200
+  },
+  "1719": {
+    "frames": [
+      "item-1719-f0"
+    ],
+    "defaultFrame": "item-1719-f0",
+    "animSpeed": 200
+  },
+  "1720": {
+    "frames": [
+      "item-1720-f0"
+    ],
+    "defaultFrame": "item-1720-f0",
+    "animSpeed": 200
+  },
+  "1721": {
+    "frames": [
+      "item-1721-f0"
+    ],
+    "defaultFrame": "item-1721-f0",
+    "animSpeed": 200
+  },
+  "1722": {
+    "frames": [
+      "item-1722-f0"
+    ],
+    "defaultFrame": "item-1722-f0",
+    "animSpeed": 200
+  },
+  "1723": {
+    "frames": [
+      "item-1723-f0"
+    ],
+    "defaultFrame": "item-1723-f0",
+    "animSpeed": 200
+  },
+  "1738": {
+    "frames": [
+      "item-1738-f0"
+    ],
+    "defaultFrame": "item-1738-f0",
+    "animSpeed": 200
+  },
+  "1739": {
+    "frames": [
+      "item-1739-f0"
+    ],
+    "defaultFrame": "item-1739-f0",
+    "animSpeed": 200
+  },
+  "1740": {
+    "frames": [
+      "item-1740-f0"
+    ],
+    "defaultFrame": "item-1740-f0",
+    "animSpeed": 200
+  },
+  "1741": {
+    "frames": [
+      "item-1741-f0"
+    ],
+    "defaultFrame": "item-1741-f0",
+    "animSpeed": 200
+  },
+  "1747": {
+    "frames": [
+      "item-1747-f0"
+    ],
+    "defaultFrame": "item-1747-f0",
+    "animSpeed": 200
+  },
+  "1750": {
+    "frames": [
+      "item-1750-f0"
+    ],
+    "defaultFrame": "item-1750-f0",
+    "animSpeed": 200
+  },
+  "1752": {
+    "frames": [
+      "item-1752-f0"
+    ],
+    "defaultFrame": "item-1752-f0",
+    "animSpeed": 200
+  },
+  "1753": {
+    "frames": [
+      "item-1753-f0"
+    ],
+    "defaultFrame": "item-1753-f0",
+    "animSpeed": 200
+  },
+  "1754": {
+    "frames": [
+      "item-1754-f0"
+    ],
+    "defaultFrame": "item-1754-f0",
+    "animSpeed": 200
+  },
+  "1755": {
+    "frames": [
+      "item-1755-f0"
+    ],
+    "defaultFrame": "item-1755-f0",
+    "animSpeed": 200
+  },
+  "1760": {
+    "frames": [
+      "item-1760-f0"
+    ],
+    "defaultFrame": "item-1760-f0",
+    "animSpeed": 200
+  },
+  "1761": {
+    "frames": [
+      "item-1761-f0"
+    ],
+    "defaultFrame": "item-1761-f0",
+    "animSpeed": 200
+  },
+  "1770": {
+    "frames": [
+      "item-1770-f0"
+    ],
+    "defaultFrame": "item-1770-f0",
+    "animSpeed": 200
+  },
+  "1772": {
+    "frames": [
+      "item-1772-f0"
+    ],
+    "defaultFrame": "item-1772-f0",
+    "animSpeed": 200
+  },
+  "1773": {
+    "frames": [
+      "item-1773-f0"
+    ],
+    "defaultFrame": "item-1773-f0",
+    "animSpeed": 200
+  },
+  "1774": {
+    "frames": [
+      "item-1774-f0"
+    ],
+    "defaultFrame": "item-1774-f0",
+    "animSpeed": 200
+  },
+  "1775": {
+    "frames": [
+      "item-1775-f0",
+      "item-1775-f1",
+      "item-1775-f2",
+      "item-1775-f3",
+      "item-1775-f4",
+      "item-1775-f5",
+      "item-1775-f6",
+      "item-1775-f7"
+    ],
+    "defaultFrame": "item-1775-f0",
+    "animSpeed": 200
+  },
+  "1776": {
+    "frames": [
+      "item-1776-f0"
+    ],
+    "defaultFrame": "item-1776-f0",
+    "animSpeed": 200
+  },
+  "1777": {
+    "frames": [
+      "item-1777-f0"
+    ],
+    "defaultFrame": "item-1777-f0",
+    "animSpeed": 200
+  },
+  "1786": {
+    "frames": [
+      "item-1786-f0",
+      "item-1786-f1",
+      "item-1786-f2",
+      "item-1786-f3",
+      "item-1786-f4",
+      "item-1786-f5",
+      "item-1786-f6",
+      "item-1786-f7"
+    ],
+    "defaultFrame": "item-1786-f0",
+    "animSpeed": 200
+  },
+  "1787": {
+    "frames": [
+      "item-1787-f0"
+    ],
+    "defaultFrame": "item-1787-f0",
+    "animSpeed": 200
+  },
+  "1790": {
+    "frames": [
+      "item-1790-f0",
+      "item-1790-f1",
+      "item-1790-f2",
+      "item-1790-f3",
+      "item-1790-f4",
+      "item-1790-f5",
+      "item-1790-f6",
+      "item-1790-f7"
+    ],
+    "defaultFrame": "item-1790-f0",
+    "animSpeed": 200
+  },
+  "1794": {
+    "frames": [
+      "item-1794-f0"
+    ],
+    "defaultFrame": "item-1794-f0",
+    "animSpeed": 200
+  },
+  "1795": {
+    "frames": [
+      "item-1795-f0"
+    ],
+    "defaultFrame": "item-1795-f0",
+    "animSpeed": 200
+  },
+  "1796": {
+    "frames": [
+      "item-1796-f0"
+    ],
+    "defaultFrame": "item-1796-f0",
+    "animSpeed": 200
+  },
+  "1797": {
+    "frames": [
+      "item-1797-f0"
+    ],
+    "defaultFrame": "item-1797-f0",
+    "animSpeed": 200
+  },
+  "1798": {
+    "frames": [
+      "item-1798-f0"
+    ],
+    "defaultFrame": "item-1798-f0",
+    "animSpeed": 200
+  },
+  "1799": {
+    "frames": [
+      "item-1799-f0"
+    ],
+    "defaultFrame": "item-1799-f0",
+    "animSpeed": 200
+  },
+  "1800": {
+    "frames": [
+      "item-1800-f0"
+    ],
+    "defaultFrame": "item-1800-f0",
+    "animSpeed": 200
+  },
+  "1801": {
+    "frames": [
+      "item-1801-f0"
+    ],
+    "defaultFrame": "item-1801-f0",
+    "animSpeed": 200
+  },
+  "1802": {
+    "frames": [
+      "item-1802-f0"
+    ],
+    "defaultFrame": "item-1802-f0",
+    "animSpeed": 200
+  },
+  "1810": {
+    "frames": [
+      "item-1810-f0"
+    ],
+    "defaultFrame": "item-1810-f0",
+    "animSpeed": 200
+  },
+  "1811": {
+    "frames": [
+      "item-1811-f0"
+    ],
+    "defaultFrame": "item-1811-f0",
+    "animSpeed": 200
+  },
+  "1813": {
+    "frames": [
+      "item-1813-f0"
+    ],
+    "defaultFrame": "item-1813-f0",
+    "animSpeed": 200
+  },
+  "1815": {
+    "frames": [
+      "item-1815-f0"
+    ],
+    "defaultFrame": "item-1815-f0",
+    "animSpeed": 200
+  },
+  "1818": {
+    "frames": [
+      "item-1818-f0"
+    ],
+    "defaultFrame": "item-1818-f0",
+    "animSpeed": 200
+  },
+  "1819": {
+    "frames": [
+      "item-1819-f0"
+    ],
+    "defaultFrame": "item-1819-f0",
+    "animSpeed": 200
+  },
+  "1820": {
+    "frames": [
+      "item-1820-f0"
+    ],
+    "defaultFrame": "item-1820-f0",
+    "animSpeed": 200
+  },
+  "1827": {
+    "frames": [
+      "item-1827-f0"
+    ],
+    "defaultFrame": "item-1827-f0",
+    "animSpeed": 200
+  },
+  "1828": {
+    "frames": [
+      "item-1828-f0"
+    ],
+    "defaultFrame": "item-1828-f0",
+    "animSpeed": 200
+  },
+  "1839": {
+    "frames": [
+      "item-1839-f0"
+    ],
+    "defaultFrame": "item-1839-f0",
+    "animSpeed": 200
+  },
+  "1840": {
+    "frames": [
+      "item-1840-f0"
+    ],
+    "defaultFrame": "item-1840-f0",
+    "animSpeed": 200
+  },
+  "1883": {
+    "frames": [
+      "item-1883-f0"
+    ],
+    "defaultFrame": "item-1883-f0",
+    "animSpeed": 200
+  },
+  "1884": {
+    "frames": [
+      "item-1884-f0"
+    ],
+    "defaultFrame": "item-1884-f0",
+    "animSpeed": 200
+  },
+  "1906": {
+    "frames": [
+      "item-1906-f0"
+    ],
+    "defaultFrame": "item-1906-f0",
+    "animSpeed": 200
+  },
+  "1946": {
+    "frames": [
+      "item-1946-f0"
+    ],
+    "defaultFrame": "item-1946-f0",
+    "animSpeed": 200
+  },
+  "1950": {
+    "frames": [
+      "item-1950-f0"
+    ],
+    "defaultFrame": "item-1950-f0",
+    "animSpeed": 200
+  },
+  "1952": {
+    "frames": [
+      "item-1952-f0"
+    ],
+    "defaultFrame": "item-1952-f0",
+    "animSpeed": 200
+  },
+  "1953": {
+    "frames": [
+      "item-1953-f0"
+    ],
+    "defaultFrame": "item-1953-f0",
+    "animSpeed": 200
+  },
+  "1959": {
+    "frames": [
+      "item-1959-f0"
+    ],
+    "defaultFrame": "item-1959-f0",
+    "animSpeed": 200
+  },
+  "1960": {
+    "frames": [
+      "item-1960-f0"
+    ],
+    "defaultFrame": "item-1960-f0",
+    "animSpeed": 200
+  },
+  "1961": {
+    "frames": [
+      "item-1961-f0"
+    ],
+    "defaultFrame": "item-1961-f0",
+    "animSpeed": 200
+  },
+  "1964": {
+    "frames": [
+      "item-1964-f0"
+    ],
+    "defaultFrame": "item-1964-f0",
+    "animSpeed": 200
+  },
+  "1987": {
+    "frames": [
+      "item-1987-f0"
+    ],
+    "defaultFrame": "item-1987-f0",
+    "animSpeed": 200
+  },
+  "2005": {
+    "frames": [
+      "item-2005-f0",
+      "item-2005-f1",
+      "item-2005-f2",
+      "item-2005-f3",
+      "item-2005-f4",
+      "item-2005-f5",
+      "item-2005-f6",
+      "item-2005-f7"
+    ],
+    "defaultFrame": "item-2005-f0",
+    "animSpeed": 200
+  },
+  "2007": {
+    "frames": [
+      "item-2007-f0"
+    ],
+    "defaultFrame": "item-2007-f0",
+    "animSpeed": 200
+  },
+  "2013": {
+    "frames": [
+      "item-2013-f0"
+    ],
+    "defaultFrame": "item-2013-f0",
+    "animSpeed": 200
+  },
+  "2014": {
+    "frames": [
+      "item-2014-f0"
+    ],
+    "defaultFrame": "item-2014-f0",
+    "animSpeed": 200
+  },
+  "2022": {
+    "frames": [
+      "item-2022-f0"
+    ],
+    "defaultFrame": "item-2022-f0",
+    "animSpeed": 200
+  },
+  "2023": {
+    "frames": [
+      "item-2023-f0"
+    ],
+    "defaultFrame": "item-2023-f0",
+    "animSpeed": 200
+  },
+  "2024": {
+    "frames": [
+      "item-2024-f0"
+    ],
+    "defaultFrame": "item-2024-f0",
+    "animSpeed": 200
+  },
+  "2026": {
+    "frames": [
+      "item-2026-f0",
+      "item-2026-f1",
+      "item-2026-f2",
+      "item-2026-f3",
+      "item-2026-f4",
+      "item-2026-f5",
+      "item-2026-f6",
+      "item-2026-f7"
+    ],
+    "defaultFrame": "item-2026-f0",
+    "animSpeed": 200
+  },
+  "2028": {
+    "frames": [
+      "item-2028-f0",
+      "item-2028-f1",
+      "item-2028-f2",
+      "item-2028-f3",
+      "item-2028-f4",
+      "item-2028-f5",
+      "item-2028-f6",
+      "item-2028-f7"
+    ],
+    "defaultFrame": "item-2028-f0",
+    "animSpeed": 200
+  },
+  "2029": {
+    "frames": [
+      "item-2029-f0",
+      "item-2029-f1",
+      "item-2029-f2",
+      "item-2029-f3",
+      "item-2029-f4",
+      "item-2029-f5",
+      "item-2029-f6",
+      "item-2029-f7"
+    ],
+    "defaultFrame": "item-2029-f0",
+    "animSpeed": 200
+  },
+  "2030": {
+    "frames": [
+      "item-2030-f0",
+      "item-2030-f1",
+      "item-2030-f2",
+      "item-2030-f3",
+      "item-2030-f4",
+      "item-2030-f5",
+      "item-2030-f6",
+      "item-2030-f7"
+    ],
+    "defaultFrame": "item-2030-f0",
+    "animSpeed": 200
+  },
+  "2033": {
+    "frames": [
+      "item-2033-f0"
+    ],
+    "defaultFrame": "item-2033-f0",
+    "animSpeed": 200
+  },
+  "2037": {
+    "frames": [
+      "item-2037-f0"
+    ],
+    "defaultFrame": "item-2037-f0",
+    "animSpeed": 200
+  },
+  "2038": {
+    "frames": [
+      "item-2038-f0",
+      "item-2038-f1",
+      "item-2038-f2",
+      "item-2038-f3",
+      "item-2038-f4"
+    ],
+    "defaultFrame": "item-2038-f0",
+    "animSpeed": 200
+  },
+  "2039": {
+    "frames": [
+      "item-2039-f0"
+    ],
+    "defaultFrame": "item-2039-f0",
+    "animSpeed": 200
+  },
+  "2040": {
+    "frames": [
+      "item-2040-f0",
+      "item-2040-f1",
+      "item-2040-f2",
+      "item-2040-f3",
+      "item-2040-f4"
+    ],
+    "defaultFrame": "item-2040-f0",
+    "animSpeed": 200
+  },
+  "2041": {
+    "frames": [
+      "item-2041-f0"
+    ],
+    "defaultFrame": "item-2041-f0",
+    "animSpeed": 200
+  },
+  "2057": {
+    "frames": [
+      "item-2057-f0",
+      "item-2057-f1",
+      "item-2057-f2",
+      "item-2057-f3"
+    ],
+    "defaultFrame": "item-2057-f0",
+    "animSpeed": 200
+  },
+  "2058": {
+    "frames": [
+      "item-2058-f0"
+    ],
+    "defaultFrame": "item-2058-f0",
+    "animSpeed": 200
+  },
+  "2059": {
+    "frames": [
+      "item-2059-f0",
+      "item-2059-f1",
+      "item-2059-f2",
+      "item-2059-f3",
+      "item-2059-f4",
+      "item-2059-f5"
+    ],
+    "defaultFrame": "item-2059-f0",
+    "animSpeed": 200
+  },
+  "2060": {
+    "frames": [
+      "item-2060-f0"
+    ],
+    "defaultFrame": "item-2060-f0",
+    "animSpeed": 200
+  },
+  "2061": {
+    "frames": [
+      "item-2061-f0",
+      "item-2061-f1",
+      "item-2061-f2",
+      "item-2061-f3",
+      "item-2061-f4",
+      "item-2061-f5"
+    ],
+    "defaultFrame": "item-2061-f0",
+    "animSpeed": 200
+  },
+  "2067": {
+    "frames": [
+      "item-2067-f0",
+      "item-2067-f1",
+      "item-2067-f2",
+      "item-2067-f3",
+      "item-2067-f4"
+    ],
+    "defaultFrame": "item-2067-f0",
+    "animSpeed": 200
+  },
+  "2072": {
+    "frames": [
+      "item-2072-f0"
+    ],
+    "defaultFrame": "item-2072-f0",
+    "animSpeed": 200
+  },
+  "2100": {
+    "frames": [
+      "item-2100-f0"
+    ],
+    "defaultFrame": "item-2100-f0",
+    "animSpeed": 200
+  },
+  "2101": {
+    "frames": [
+      "item-2101-f0"
+    ],
+    "defaultFrame": "item-2101-f0",
+    "animSpeed": 200
+  },
+  "2102": {
+    "frames": [
+      "item-2102-f0"
+    ],
+    "defaultFrame": "item-2102-f0",
+    "animSpeed": 200
+  },
+  "2103": {
+    "frames": [
+      "item-2103-f0"
+    ],
+    "defaultFrame": "item-2103-f0",
+    "animSpeed": 200
+  },
+  "2160": {
+    "frames": [
+      "item-2160-f0",
+      "item-2160-f1",
+      "item-2160-f2",
+      "item-2160-f3",
+      "item-2160-f4",
+      "item-2160-f5",
+      "item-2160-f6",
+      "item-2160-f7"
+    ],
+    "defaultFrame": "item-2160-f0",
+    "animSpeed": 200
+  },
+  "2220": {
+    "frames": [
+      "item-2220-f0"
+    ],
+    "defaultFrame": "item-2220-f0",
+    "animSpeed": 200
+  },
+  "2221": {
+    "frames": [
+      "item-2221-f0"
+    ],
+    "defaultFrame": "item-2221-f0",
+    "animSpeed": 200
+  },
+  "2227": {
+    "frames": [
+      "item-2227-f0"
+    ],
+    "defaultFrame": "item-2227-f0",
+    "animSpeed": 200
+  },
+  "2228": {
+    "frames": [
+      "item-2228-f0"
+    ],
+    "defaultFrame": "item-2228-f0",
+    "animSpeed": 200
+  },
+  "2231": {
+    "frames": [
+      "item-2231-f0"
+    ],
+    "defaultFrame": "item-2231-f0",
+    "animSpeed": 200
+  },
+  "2232": {
+    "frames": [
+      "item-2232-f0"
+    ],
+    "defaultFrame": "item-2232-f0",
+    "animSpeed": 200
+  },
+  "2237": {
+    "frames": [
+      "item-2237-f0"
+    ],
+    "defaultFrame": "item-2237-f0",
+    "animSpeed": 200
+  },
+  "2241": {
+    "frames": [
+      "item-2241-f0"
+    ],
+    "defaultFrame": "item-2241-f0",
+    "animSpeed": 200
+  },
+  "2242": {
+    "frames": [
+      "item-2242-f0"
+    ],
+    "defaultFrame": "item-2242-f0",
+    "animSpeed": 200
+  },
+  "2243": {
+    "frames": [
+      "item-2243-f0"
+    ],
+    "defaultFrame": "item-2243-f0",
+    "animSpeed": 200
+  },
+  "2260": {
+    "frames": [
+      "item-2260-f0"
+    ],
+    "defaultFrame": "item-2260-f0",
+    "animSpeed": 200
+  },
+  "2376": {
+    "frames": [
+      "item-2376-f0"
+    ],
+    "defaultFrame": "item-2376-f0",
+    "animSpeed": 200
+  },
+  "2455": {
+    "frames": [
+      "item-2455-f0"
+    ],
+    "defaultFrame": "item-2455-f0",
+    "animSpeed": 200
+  },
+  "2456": {
+    "frames": [
+      "item-2456-f0"
+    ],
+    "defaultFrame": "item-2456-f0",
+    "animSpeed": 200
+  },
+  "2464": {
+    "frames": [
+      "item-2464-f0"
+    ],
+    "defaultFrame": "item-2464-f0",
+    "animSpeed": 200
+  },
+  "2498": {
+    "frames": [
+      "item-2498-f0"
+    ],
+    "defaultFrame": "item-2498-f0",
+    "animSpeed": 200
+  },
+  "2548": {
+    "frames": [
+      "item-2548-f0"
+    ],
+    "defaultFrame": "item-2548-f0",
+    "animSpeed": 200
+  },
+  "2549": {
+    "frames": [
+      "item-2549-f0"
+    ],
+    "defaultFrame": "item-2549-f0",
+    "animSpeed": 200
+  },
+  "2561": {
+    "frames": [
+      "item-2561-f0"
+    ],
+    "defaultFrame": "item-2561-f0",
+    "animSpeed": 200
+  },
+  "2562": {
+    "frames": [
+      "item-2562-f0",
+      "item-2562-f1",
+      "item-2562-f2",
+      "item-2562-f3",
+      "item-2562-f4",
+      "item-2562-f5",
+      "item-2562-f6",
+      "item-2562-f7"
+    ],
+    "defaultFrame": "item-2562-f0",
+    "animSpeed": 200
+  },
+  "2563": {
+    "frames": [
+      "item-2563-f0"
+    ],
+    "defaultFrame": "item-2563-f0",
+    "animSpeed": 200
+  },
+  "2567": {
+    "frames": [
+      "item-2567-f0"
+    ],
+    "defaultFrame": "item-2567-f0",
+    "animSpeed": 200
+  },
+  "2568": {
+    "frames": [
+      "item-2568-f0"
+    ],
+    "defaultFrame": "item-2568-f0",
+    "animSpeed": 200
+  },
+  "2569": {
+    "frames": [
+      "item-2569-f0"
+    ],
+    "defaultFrame": "item-2569-f0",
+    "animSpeed": 200
+  },
+  "2589": {
+    "frames": [
+      "item-2589-f0"
+    ],
+    "defaultFrame": "item-2589-f0",
+    "animSpeed": 200
+  },
+  "2591": {
+    "frames": [
+      "item-2591-f0"
+    ],
+    "defaultFrame": "item-2591-f0",
+    "animSpeed": 200
+  },
+  "2593": {
+    "frames": [
+      "item-2593-f0"
+    ],
+    "defaultFrame": "item-2593-f0",
+    "animSpeed": 200
+  },
+  "2601": {
+    "frames": [
+      "item-2601-f0",
+      "item-2601-f1"
+    ],
+    "defaultFrame": "item-2601-f0",
+    "animSpeed": 200
+  },
+  "2606": {
+    "frames": [
+      "item-2606-f0"
+    ],
+    "defaultFrame": "item-2606-f0",
+    "animSpeed": 200
+  },
+  "2607": {
+    "frames": [
+      "item-2607-f0"
+    ],
+    "defaultFrame": "item-2607-f0",
+    "animSpeed": 200
+  },
+  "2692": {
+    "frames": [
+      "item-2692-f0"
+    ],
+    "defaultFrame": "item-2692-f0",
+    "animSpeed": 200
+  },
+  "2693": {
+    "frames": [
+      "item-2693-f0"
+    ],
+    "defaultFrame": "item-2693-f0",
+    "animSpeed": 200
+  },
+  "2700": {
+    "frames": [
+      "item-2700-f0"
+    ],
+    "defaultFrame": "item-2700-f0",
+    "animSpeed": 200
+  },
+  "2701": {
+    "frames": [
+      "item-2701-f0"
+    ],
+    "defaultFrame": "item-2701-f0",
+    "animSpeed": 200
+  },
+  "2702": {
+    "frames": [
+      "item-2702-f0"
+    ],
+    "defaultFrame": "item-2702-f0",
+    "animSpeed": 200
+  },
+  "2703": {
+    "frames": [
+      "item-2703-f0"
+    ],
+    "defaultFrame": "item-2703-f0",
+    "animSpeed": 200
+  },
+  "2704": {
+    "frames": [
+      "item-2704-f0"
+    ],
+    "defaultFrame": "item-2704-f0",
+    "animSpeed": 200
+  },
+  "2705": {
+    "frames": [
+      "item-2705-f0"
+    ],
+    "defaultFrame": "item-2705-f0",
+    "animSpeed": 200
+  },
+  "2706": {
+    "frames": [
+      "item-2706-f0"
+    ],
+    "defaultFrame": "item-2706-f0",
+    "animSpeed": 200
+  },
+  "2707": {
+    "frames": [
+      "item-2707-f0"
+    ],
+    "defaultFrame": "item-2707-f0",
+    "animSpeed": 200
+  },
+  "2708": {
+    "frames": [
+      "item-2708-f0"
+    ],
+    "defaultFrame": "item-2708-f0",
+    "animSpeed": 200
+  },
+  "2709": {
+    "frames": [
+      "item-2709-f0"
+    ],
+    "defaultFrame": "item-2709-f0",
+    "animSpeed": 200
+  },
+  "2710": {
+    "frames": [
+      "item-2710-f0"
+    ],
+    "defaultFrame": "item-2710-f0",
+    "animSpeed": 200
+  },
+  "2711": {
+    "frames": [
+      "item-2711-f0"
+    ],
+    "defaultFrame": "item-2711-f0",
+    "animSpeed": 200
+  },
+  "2712": {
+    "frames": [
+      "item-2712-f0"
+    ],
+    "defaultFrame": "item-2712-f0",
+    "animSpeed": 200
+  },
+  "2713": {
+    "frames": [
+      "item-2713-f0"
+    ],
+    "defaultFrame": "item-2713-f0",
+    "animSpeed": 200
+  },
+  "2714": {
+    "frames": [
+      "item-2714-f0"
+    ],
+    "defaultFrame": "item-2714-f0",
+    "animSpeed": 200
+  },
+  "2715": {
+    "frames": [
+      "item-2715-f0"
+    ],
+    "defaultFrame": "item-2715-f0",
+    "animSpeed": 200
+  },
+  "2716": {
+    "frames": [
+      "item-2716-f0"
+    ],
+    "defaultFrame": "item-2716-f0",
+    "animSpeed": 200
+  },
+  "2717": {
+    "frames": [
+      "item-2717-f0"
+    ],
+    "defaultFrame": "item-2717-f0",
+    "animSpeed": 200
+  },
+  "2719": {
+    "frames": [
+      "item-2719-f0"
+    ],
+    "defaultFrame": "item-2719-f0",
+    "animSpeed": 200
+  },
+  "2720": {
+    "frames": [
+      "item-2720-f0"
+    ],
+    "defaultFrame": "item-2720-f0",
+    "animSpeed": 200
+  },
+  "2722": {
+    "frames": [
+      "item-2722-f0"
+    ],
+    "defaultFrame": "item-2722-f0",
+    "animSpeed": 200
+  },
+  "2740": {
+    "frames": [
+      "item-2740-f0"
+    ],
+    "defaultFrame": "item-2740-f0",
+    "animSpeed": 200
+  },
+  "2742": {
+    "frames": [
+      "item-2742-f0"
+    ],
+    "defaultFrame": "item-2742-f0",
+    "animSpeed": 200
+  },
+  "2743": {
+    "frames": [
+      "item-2743-f0"
+    ],
+    "defaultFrame": "item-2743-f0",
+    "animSpeed": 200
+  },
+  "2752": {
+    "frames": [
+      "item-2752-f0"
+    ],
+    "defaultFrame": "item-2752-f0",
+    "animSpeed": 200
+  },
+  "2753": {
+    "frames": [
+      "item-2753-f0"
+    ],
+    "defaultFrame": "item-2753-f0",
+    "animSpeed": 200
+  },
+  "2756": {
+    "frames": [
+      "item-2756-f0"
+    ],
+    "defaultFrame": "item-2756-f0",
+    "animSpeed": 200
+  },
+  "2757": {
+    "frames": [
+      "item-2757-f0"
+    ],
+    "defaultFrame": "item-2757-f0",
+    "animSpeed": 200
+  },
+  "2758": {
+    "frames": [
+      "item-2758-f0"
+    ],
+    "defaultFrame": "item-2758-f0",
+    "animSpeed": 200
+  },
+  "2760": {
+    "frames": [
+      "item-2760-f0"
+    ],
+    "defaultFrame": "item-2760-f0",
+    "animSpeed": 200
+  },
+  "2767": {
+    "frames": [
+      "item-2767-f0"
+    ],
+    "defaultFrame": "item-2767-f0",
+    "animSpeed": 200
+  },
+  "2768": {
+    "frames": [
+      "item-2768-f0"
+    ],
+    "defaultFrame": "item-2768-f0",
+    "animSpeed": 200
+  },
+  "2769": {
+    "frames": [
+      "item-2769-f0"
+    ],
+    "defaultFrame": "item-2769-f0",
+    "animSpeed": 200
+  },
+  "2770": {
+    "frames": [
+      "item-2770-f0"
+    ],
+    "defaultFrame": "item-2770-f0",
+    "animSpeed": 200
+  },
+  "2771": {
+    "frames": [
+      "item-2771-f0"
+    ],
+    "defaultFrame": "item-2771-f0",
+    "animSpeed": 200
+  },
+  "2772": {
+    "frames": [
+      "item-2772-f0"
+    ],
+    "defaultFrame": "item-2772-f0",
+    "animSpeed": 200
+  },
+  "2773": {
+    "frames": [
+      "item-2773-f0"
+    ],
+    "defaultFrame": "item-2773-f0",
+    "animSpeed": 200
+  },
+  "2774": {
+    "frames": [
+      "item-2774-f0"
+    ],
+    "defaultFrame": "item-2774-f0",
+    "animSpeed": 200
+  },
+  "2775": {
+    "frames": [
+      "item-2775-f0"
+    ],
+    "defaultFrame": "item-2775-f0",
+    "animSpeed": 200
+  },
+  "2776": {
+    "frames": [
+      "item-2776-f0"
+    ],
+    "defaultFrame": "item-2776-f0",
+    "animSpeed": 200
+  },
+  "2777": {
+    "frames": [
+      "item-2777-f0"
+    ],
+    "defaultFrame": "item-2777-f0",
+    "animSpeed": 200
+  },
+  "2778": {
+    "frames": [
+      "item-2778-f0"
+    ],
+    "defaultFrame": "item-2778-f0",
+    "animSpeed": 200
+  },
+  "2779": {
+    "frames": [
+      "item-2779-f0"
+    ],
+    "defaultFrame": "item-2779-f0",
+    "animSpeed": 200
+  },
+  "2780": {
+    "frames": [
+      "item-2780-f0"
+    ],
+    "defaultFrame": "item-2780-f0",
+    "animSpeed": 200
+  },
+  "2785": {
+    "frames": [
+      "item-2785-f0"
+    ],
+    "defaultFrame": "item-2785-f0",
+    "animSpeed": 200
+  },
+  "2802": {
+    "frames": [
+      "item-2802-f0"
+    ],
+    "defaultFrame": "item-2802-f0",
+    "animSpeed": 200
+  },
+  "3298": {
+    "frames": [
+      "item-3298-f0",
+      "item-3298-f1",
+      "item-3298-f2",
+      "item-3298-f3"
+    ],
+    "defaultFrame": "item-3298-f0",
+    "animSpeed": 200
+  },
+  "3299": {
+    "frames": [
+      "item-3299-f0",
+      "item-3299-f1",
+      "item-3299-f2",
+      "item-3299-f3"
+    ],
+    "defaultFrame": "item-3299-f0",
+    "animSpeed": 200
+  },
+  "3300": {
+    "frames": [
+      "item-3300-f0",
+      "item-3300-f1",
+      "item-3300-f2",
+      "item-3300-f3"
+    ],
+    "defaultFrame": "item-3300-f0",
+    "animSpeed": 200
+  },
+  "3301": {
+    "frames": [
+      "item-3301-f0",
+      "item-3301-f1",
+      "item-3301-f2",
+      "item-3301-f3"
+    ],
+    "defaultFrame": "item-3301-f0",
+    "animSpeed": 200
+  },
+  "3304": {
+    "frames": [
+      "item-3304-f0"
+    ],
+    "defaultFrame": "item-3304-f0",
+    "animSpeed": 200
+  },
+  "3305": {
+    "frames": [
+      "item-3305-f0"
+    ],
+    "defaultFrame": "item-3305-f0",
+    "animSpeed": 200
+  },
+  "3587": {
+    "frames": [
+      "item-3587-f0"
+    ],
+    "defaultFrame": "item-3587-f0",
+    "animSpeed": 200
+  },
+  "3588": {
+    "frames": [
+      "item-3588-f0"
+    ],
+    "defaultFrame": "item-3588-f0",
+    "animSpeed": 200
+  },
+  "3589": {
+    "frames": [
+      "item-3589-f0"
+    ],
+    "defaultFrame": "item-3589-f0",
+    "animSpeed": 200
+  },
+  "3591": {
+    "frames": [
+      "item-3591-f0"
+    ],
+    "defaultFrame": "item-3591-f0",
+    "animSpeed": 200
+  },
+  "3611": {
+    "frames": [
+      "item-3611-f0"
+    ],
+    "defaultFrame": "item-3611-f0",
+    "animSpeed": 200
+  },
+  "3612": {
+    "frames": [
+      "item-3612-f0"
+    ],
+    "defaultFrame": "item-3612-f0",
+    "animSpeed": 200
+  },
+  "3613": {
+    "frames": [
+      "item-3613-f0"
+    ],
+    "defaultFrame": "item-3613-f0",
+    "animSpeed": 200
+  },
+  "3614": {
+    "frames": [
+      "item-3614-f0"
+    ],
+    "defaultFrame": "item-3614-f0",
+    "animSpeed": 200
+  },
+  "3617": {
+    "frames": [
+      "item-3617-f0"
+    ],
+    "defaultFrame": "item-3617-f0",
+    "animSpeed": 200
+  },
+  "3618": {
+    "frames": [
+      "item-3618-f0"
+    ],
+    "defaultFrame": "item-3618-f0",
+    "animSpeed": 200
+  },
+  "3619": {
+    "frames": [
+      "item-3619-f0"
+    ],
+    "defaultFrame": "item-3619-f0",
+    "animSpeed": 200
+  },
+  "3620": {
+    "frames": [
+      "item-3620-f0"
+    ],
+    "defaultFrame": "item-3620-f0",
+    "animSpeed": 200
+  },
+  "3621": {
+    "frames": [
+      "item-3621-f0"
+    ],
+    "defaultFrame": "item-3621-f0",
+    "animSpeed": 200
+  },
+  "3622": {
+    "frames": [
+      "item-3622-f0"
+    ],
+    "defaultFrame": "item-3622-f0",
+    "animSpeed": 200
+  },
+  "3623": {
+    "frames": [
+      "item-3623-f0"
+    ],
+    "defaultFrame": "item-3623-f0",
+    "animSpeed": 200
+  },
+  "3648": {
+    "frames": [
+      "item-3648-f0"
+    ],
+    "defaultFrame": "item-3648-f0",
+    "animSpeed": 200
+  },
+  "3650": {
+    "frames": [
+      "item-3650-f0"
+    ],
+    "defaultFrame": "item-3650-f0",
+    "animSpeed": 200
+  },
+  "3651": {
+    "frames": [
+      "item-3651-f0"
+    ],
+    "defaultFrame": "item-3651-f0",
+    "animSpeed": 200
+  },
+  "3652": {
+    "frames": [
+      "item-3652-f0"
+    ],
+    "defaultFrame": "item-3652-f0",
+    "animSpeed": 200
+  },
+  "3653": {
+    "frames": [
+      "item-3653-f0"
+    ],
+    "defaultFrame": "item-3653-f0",
+    "animSpeed": 200
+  },
+  "3654": {
+    "frames": [
+      "item-3654-f0"
+    ],
+    "defaultFrame": "item-3654-f0",
+    "animSpeed": 200
+  },
+  "3655": {
+    "frames": [
+      "item-3655-f0"
+    ],
+    "defaultFrame": "item-3655-f0",
+    "animSpeed": 200
+  },
+  "3656": {
+    "frames": [
+      "item-3656-f0"
+    ],
+    "defaultFrame": "item-3656-f0",
+    "animSpeed": 200
+  },
+  "3657": {
+    "frames": [
+      "item-3657-f0"
+    ],
+    "defaultFrame": "item-3657-f0",
+    "animSpeed": 200
+  },
+  "3667": {
+    "frames": [
+      "item-3667-f0"
+    ],
+    "defaultFrame": "item-3667-f0",
+    "animSpeed": 200
+  },
+  "3744": {
+    "frames": [
+      "item-3744-f0",
+      "item-3744-f1",
+      "item-3744-f2"
+    ],
+    "defaultFrame": "item-3744-f0",
+    "animSpeed": 200
+  },
+  "3805": {
+    "frames": [
+      "item-3805-f0"
+    ],
+    "defaultFrame": "item-3805-f0",
+    "animSpeed": 200
+  },
+  "3816": {
+    "frames": [
+      "item-3816-f0"
+    ],
+    "defaultFrame": "item-3816-f0",
+    "animSpeed": 200
+  },
+  "4018": {
+    "frames": [
+      "item-4018-f0"
+    ],
+    "defaultFrame": "item-4018-f0",
+    "animSpeed": 200
+  },
+  "4152": {
+    "frames": [
+      "item-4152-f0"
+    ],
+    "defaultFrame": "item-4152-f0",
+    "animSpeed": 200
+  },
+  "4153": {
+    "frames": [
+      "item-4153-f0"
+    ],
+    "defaultFrame": "item-4153-f0",
+    "animSpeed": 200
+  },
+  "4154": {
+    "frames": [
+      "item-4154-f0"
+    ],
+    "defaultFrame": "item-4154-f0",
+    "animSpeed": 200
+  },
+  "4156": {
+    "frames": [
+      "item-4156-f0"
+    ],
+    "defaultFrame": "item-4156-f0",
+    "animSpeed": 200
+  },
+  "4157": {
+    "frames": [
+      "item-4157-f0"
+    ],
+    "defaultFrame": "item-4157-f0",
+    "animSpeed": 200
+  },
+  "4405": {
+    "frames": [
+      "item-4405-f0"
+    ],
+    "defaultFrame": "item-4405-f0",
+    "animSpeed": 200
+  },
+  "4406": {
+    "frames": [
+      "item-4406-f0"
+    ],
+    "defaultFrame": "item-4406-f0",
+    "animSpeed": 200
+  },
+  "4407": {
+    "frames": [
+      "item-4407-f0"
+    ],
+    "defaultFrame": "item-4407-f0",
+    "animSpeed": 200
+  },
+  "4408": {
+    "frames": [
+      "item-4408-f0"
+    ],
+    "defaultFrame": "item-4408-f0",
+    "animSpeed": 200
+  },
+  "4409": {
+    "frames": [
+      "item-4409-f0"
+    ],
+    "defaultFrame": "item-4409-f0",
+    "animSpeed": 200
+  },
+  "4410": {
+    "frames": [
+      "item-4410-f0"
+    ],
+    "defaultFrame": "item-4410-f0",
+    "animSpeed": 200
+  },
+  "4411": {
+    "frames": [
+      "item-4411-f0"
+    ],
+    "defaultFrame": "item-4411-f0",
+    "animSpeed": 200
+  },
+  "4412": {
+    "frames": [
+      "item-4412-f0"
+    ],
+    "defaultFrame": "item-4412-f0",
+    "animSpeed": 200
+  },
+  "4413": {
+    "frames": [
+      "item-4413-f0"
+    ],
+    "defaultFrame": "item-4413-f0",
+    "animSpeed": 200
+  },
+  "4414": {
+    "frames": [
+      "item-4414-f0"
+    ],
+    "defaultFrame": "item-4414-f0",
+    "animSpeed": 200
+  },
+  "4415": {
+    "frames": [
+      "item-4415-f0"
+    ],
+    "defaultFrame": "item-4415-f0",
+    "animSpeed": 200
+  },
+  "4416": {
+    "frames": [
+      "item-4416-f0"
+    ],
+    "defaultFrame": "item-4416-f0",
+    "animSpeed": 200
+  },
+  "4417": {
+    "frames": [
+      "item-4417-f0"
+    ],
+    "defaultFrame": "item-4417-f0",
+    "animSpeed": 200
+  },
+  "4418": {
+    "frames": [
+      "item-4418-f0"
+    ],
+    "defaultFrame": "item-4418-f0",
+    "animSpeed": 200
+  },
+  "4419": {
+    "frames": [
+      "item-4419-f0"
+    ],
+    "defaultFrame": "item-4419-f0",
+    "animSpeed": 200
+  },
+  "4420": {
+    "frames": [
+      "item-4420-f0"
+    ],
+    "defaultFrame": "item-4420-f0",
+    "animSpeed": 200
+  },
+  "4421": {
+    "frames": [
+      "item-4421-f0"
+    ],
+    "defaultFrame": "item-4421-f0",
+    "animSpeed": 200
+  },
+  "4456": {
+    "frames": [
+      "item-4456-f0"
+    ],
+    "defaultFrame": "item-4456-f0",
+    "animSpeed": 200
+  },
+  "4457": {
+    "frames": [
+      "item-4457-f0"
+    ],
+    "defaultFrame": "item-4457-f0",
+    "animSpeed": 200
+  },
+  "4458": {
+    "frames": [
+      "item-4458-f0"
+    ],
+    "defaultFrame": "item-4458-f0",
+    "animSpeed": 200
+  },
+  "4459": {
+    "frames": [
+      "item-4459-f0"
+    ],
+    "defaultFrame": "item-4459-f0",
+    "animSpeed": 200
+  },
+  "4460": {
+    "frames": [
+      "item-4460-f0"
+    ],
+    "defaultFrame": "item-4460-f0",
+    "animSpeed": 200
+  },
+  "4461": {
+    "frames": [
+      "item-4461-f0"
+    ],
+    "defaultFrame": "item-4461-f0",
+    "animSpeed": 200
+  },
+  "4463": {
+    "frames": [
+      "item-4463-f0"
+    ],
+    "defaultFrame": "item-4463-f0",
+    "animSpeed": 200
+  },
+  "4464": {
+    "frames": [
+      "item-4464-f0"
+    ],
+    "defaultFrame": "item-4464-f0",
+    "animSpeed": 200
+  },
+  "4466": {
+    "frames": [
+      "item-4466-f0"
+    ],
+    "defaultFrame": "item-4466-f0",
+    "animSpeed": 200
+  },
+  "4467": {
+    "frames": [
+      "item-4467-f0"
+    ],
+    "defaultFrame": "item-4467-f0",
+    "animSpeed": 200
+  },
+  "4468": {
+    "frames": [
+      "item-4468-f0",
+      "item-4468-f1",
+      "item-4468-f2",
+      "item-4468-f3"
+    ],
+    "defaultFrame": "item-4468-f0",
+    "animSpeed": 200
+  },
+  "4469": {
+    "frames": [
+      "item-4469-f0",
+      "item-4469-f1",
+      "item-4469-f2",
+      "item-4469-f3"
+    ],
+    "defaultFrame": "item-4469-f0",
+    "animSpeed": 200
+  },
+  "4470": {
+    "frames": [
+      "item-4470-f0"
+    ],
+    "defaultFrame": "item-4470-f0",
+    "animSpeed": 200
+  },
+  "4471": {
+    "frames": [
+      "item-4471-f0",
+      "item-4471-f1",
+      "item-4471-f2",
+      "item-4471-f3"
+    ],
+    "defaultFrame": "item-4471-f0",
+    "animSpeed": 200
+  },
+  "4472": {
+    "frames": [
+      "item-4472-f0",
+      "item-4472-f1",
+      "item-4472-f2",
+      "item-4472-f3"
+    ],
+    "defaultFrame": "item-4472-f0",
+    "animSpeed": 200
+  },
+  "4474": {
+    "frames": [
+      "item-4474-f0",
+      "item-4474-f1"
+    ],
+    "defaultFrame": "item-4474-f0",
+    "animSpeed": 200
+  },
+  "4475": {
+    "frames": [
+      "item-4475-f0",
+      "item-4475-f1"
+    ],
+    "defaultFrame": "item-4475-f0",
+    "animSpeed": 200
+  },
+  "4476": {
+    "frames": [
+      "item-4476-f0",
+      "item-4476-f1"
+    ],
+    "defaultFrame": "item-4476-f0",
+    "animSpeed": 200
+  },
+  "4479": {
+    "frames": [
+      "item-4479-f0"
+    ],
+    "defaultFrame": "item-4479-f0",
+    "animSpeed": 200
+  },
+  "4514": {
+    "frames": [
+      "item-4514-f0",
+      "item-4514-f1"
+    ],
+    "defaultFrame": "item-4514-f0",
+    "animSpeed": 200
+  },
+  "4523": {
+    "frames": [
+      "item-4523-f0"
+    ],
+    "defaultFrame": "item-4523-f0",
+    "animSpeed": 200
+  },
+  "4526": {
+    "frames": [
+      "item-4526-f0",
+      "item-4526-f1",
+      "item-4526-f2",
+      "item-4526-f3"
+    ],
+    "defaultFrame": "item-4526-f0",
+    "animSpeed": 200
+  },
+  "4529": {
+    "frames": [
+      "item-4529-f0"
+    ],
+    "defaultFrame": "item-4529-f0",
+    "animSpeed": 200
+  },
+  "4532": {
+    "frames": [
+      "item-4532-f0"
+    ],
+    "defaultFrame": "item-4532-f0",
+    "animSpeed": 200
+  },
+  "4542": {
+    "frames": [
+      "item-4542-f0",
+      "item-4542-f1"
+    ],
+    "defaultFrame": "item-4542-f0",
+    "animSpeed": 200
+  },
+  "4543": {
+    "frames": [
+      "item-4543-f0",
+      "item-4543-f1"
+    ],
+    "defaultFrame": "item-4543-f0",
+    "animSpeed": 200
+  },
+  "4544": {
+    "frames": [
+      "item-4544-f0",
+      "item-4544-f1"
+    ],
+    "defaultFrame": "item-4544-f0",
+    "animSpeed": 200
+  },
+  "4545": {
+    "frames": [
+      "item-4545-f0",
+      "item-4545-f1"
+    ],
+    "defaultFrame": "item-4545-f0",
+    "animSpeed": 200
+  },
+  "4546": {
+    "frames": [
+      "item-4546-f0",
+      "item-4546-f1"
+    ],
+    "defaultFrame": "item-4546-f0",
+    "animSpeed": 200
+  },
+  "4547": {
+    "frames": [
+      "item-4547-f0",
+      "item-4547-f1"
+    ],
+    "defaultFrame": "item-4547-f0",
+    "animSpeed": 200
+  },
+  "4548": {
+    "frames": [
+      "item-4548-f0",
+      "item-4548-f1"
+    ],
+    "defaultFrame": "item-4548-f0",
+    "animSpeed": 200
+  },
+  "4549": {
+    "frames": [
+      "item-4549-f0",
+      "item-4549-f1"
+    ],
+    "defaultFrame": "item-4549-f0",
+    "animSpeed": 200
+  },
+  "4550": {
+    "frames": [
+      "item-4550-f0"
+    ],
+    "defaultFrame": "item-4550-f0",
+    "animSpeed": 200
+  },
+  "4551": {
+    "frames": [
+      "item-4551-f0"
+    ],
+    "defaultFrame": "item-4551-f0",
+    "animSpeed": 200
+  },
+  "4552": {
+    "frames": [
+      "item-4552-f0"
+    ],
+    "defaultFrame": "item-4552-f0",
+    "animSpeed": 200
+  },
+  "4553": {
+    "frames": [
+      "item-4553-f0"
+    ],
+    "defaultFrame": "item-4553-f0",
+    "animSpeed": 200
+  },
+  "4566": {
+    "frames": [
+      "item-4566-f0"
+    ],
+    "defaultFrame": "item-4566-f0",
+    "animSpeed": 200
+  },
+  "4570": {
+    "frames": [
+      "item-4570-f0"
+    ],
+    "defaultFrame": "item-4570-f0",
+    "animSpeed": 200
+  },
+  "4571": {
+    "frames": [
+      "item-4571-f0"
+    ],
+    "defaultFrame": "item-4571-f0",
+    "animSpeed": 200
+  },
+  "4572": {
+    "frames": [
+      "item-4572-f0"
+    ],
+    "defaultFrame": "item-4572-f0",
+    "animSpeed": 200
+  },
+  "4573": {
+    "frames": [
+      "item-4573-f0"
+    ],
+    "defaultFrame": "item-4573-f0",
+    "animSpeed": 200
+  },
+  "4574": {
+    "frames": [
+      "item-4574-f0"
+    ],
+    "defaultFrame": "item-4574-f0",
+    "animSpeed": 200
+  },
+  "4575": {
+    "frames": [
+      "item-4575-f0"
+    ],
+    "defaultFrame": "item-4575-f0",
+    "animSpeed": 200
+  },
+  "4576": {
+    "frames": [
+      "item-4576-f0"
+    ],
+    "defaultFrame": "item-4576-f0",
+    "animSpeed": 200
+  },
+  "4577": {
+    "frames": [
+      "item-4577-f0"
+    ],
+    "defaultFrame": "item-4577-f0",
+    "animSpeed": 200
+  },
+  "4578": {
+    "frames": [
+      "item-4578-f0"
+    ],
+    "defaultFrame": "item-4578-f0",
+    "animSpeed": 200
+  },
+  "4579": {
+    "frames": [
+      "item-4579-f0"
+    ],
+    "defaultFrame": "item-4579-f0",
+    "animSpeed": 200
+  },
+  "4580": {
+    "frames": [
+      "item-4580-f0"
+    ],
+    "defaultFrame": "item-4580-f0",
+    "animSpeed": 200
+  },
+  "4581": {
+    "frames": [
+      "item-4581-f0"
+    ],
+    "defaultFrame": "item-4581-f0",
+    "animSpeed": 200
+  },
+  "4582": {
+    "frames": [
+      "item-4582-f0"
+    ],
+    "defaultFrame": "item-4582-f0",
+    "animSpeed": 200
+  },
+  "4583": {
+    "frames": [
+      "item-4583-f0"
+    ],
+    "defaultFrame": "item-4583-f0",
+    "animSpeed": 200
+  },
+  "4584": {
+    "frames": [
+      "item-4584-f0"
+    ],
+    "defaultFrame": "item-4584-f0",
+    "animSpeed": 200
+  },
+  "4585": {
+    "frames": [
+      "item-4585-f0"
+    ],
+    "defaultFrame": "item-4585-f0",
+    "animSpeed": 200
+  },
+  "4586": {
+    "frames": [
+      "item-4586-f0"
+    ],
+    "defaultFrame": "item-4586-f0",
+    "animSpeed": 200
+  },
+  "4587": {
+    "frames": [
+      "item-4587-f0"
+    ],
+    "defaultFrame": "item-4587-f0",
+    "animSpeed": 200
+  },
+  "4588": {
+    "frames": [
+      "item-4588-f0"
+    ],
+    "defaultFrame": "item-4588-f0",
+    "animSpeed": 200
+  },
+  "4589": {
+    "frames": [
+      "item-4589-f0"
+    ],
+    "defaultFrame": "item-4589-f0",
+    "animSpeed": 200
+  },
+  "4590": {
+    "frames": [
+      "item-4590-f0"
+    ],
+    "defaultFrame": "item-4590-f0",
+    "animSpeed": 200
+  },
+  "4591": {
+    "frames": [
+      "item-4591-f0"
+    ],
+    "defaultFrame": "item-4591-f0",
+    "animSpeed": 200
+  },
+  "4592": {
+    "frames": [
+      "item-4592-f0"
+    ],
+    "defaultFrame": "item-4592-f0",
+    "animSpeed": 200
+  },
+  "4593": {
+    "frames": [
+      "item-4593-f0"
+    ],
+    "defaultFrame": "item-4593-f0",
+    "animSpeed": 200
+  },
+  "4594": {
+    "frames": [
+      "item-4594-f0"
+    ],
+    "defaultFrame": "item-4594-f0",
+    "animSpeed": 200
+  },
+  "4595": {
+    "frames": [
+      "item-4595-f0"
+    ],
+    "defaultFrame": "item-4595-f0",
+    "animSpeed": 200
+  },
+  "4596": {
+    "frames": [
+      "item-4596-f0",
+      "item-4596-f1"
+    ],
+    "defaultFrame": "item-4596-f0",
+    "animSpeed": 200
+  },
+  "4597": {
+    "frames": [
+      "item-4597-f0",
+      "item-4597-f1"
+    ],
+    "defaultFrame": "item-4597-f0",
+    "animSpeed": 200
+  },
+  "4598": {
+    "frames": [
+      "item-4598-f0",
+      "item-4598-f1"
+    ],
+    "defaultFrame": "item-4598-f0",
+    "animSpeed": 200
+  },
+  "4599": {
+    "frames": [
+      "item-4599-f0",
+      "item-4599-f1"
+    ],
+    "defaultFrame": "item-4599-f0",
+    "animSpeed": 200
+  },
+  "4600": {
+    "frames": [
+      "item-4600-f0"
+    ],
+    "defaultFrame": "item-4600-f0",
+    "animSpeed": 200
+  },
+  "4601": {
+    "frames": [
+      "item-4601-f0"
+    ],
+    "defaultFrame": "item-4601-f0",
+    "animSpeed": 200
+  },
+  "4602": {
+    "frames": [
+      "item-4602-f0"
+    ],
+    "defaultFrame": "item-4602-f0",
+    "animSpeed": 200
+  },
+  "4603": {
+    "frames": [
+      "item-4603-f0"
+    ],
+    "defaultFrame": "item-4603-f0",
+    "animSpeed": 200
+  },
+  "4604": {
+    "frames": [
+      "item-4604-f0"
+    ],
+    "defaultFrame": "item-4604-f0",
+    "animSpeed": 200
+  },
+  "4606": {
+    "frames": [
+      "item-4606-f0"
+    ],
+    "defaultFrame": "item-4606-f0",
+    "animSpeed": 200
+  },
+  "4608": {
+    "frames": [
+      "item-4608-f0",
+      "item-4608-f1",
+      "item-4608-f2",
+      "item-4608-f3",
+      "item-4608-f4",
+      "item-4608-f5",
+      "item-4608-f6",
+      "item-4608-f7",
+      "item-4608-f8",
+      "item-4608-f9",
+      "item-4608-f10",
+      "item-4608-f11",
+      "item-4608-f12",
+      "item-4608-f13"
+    ],
+    "defaultFrame": "item-4608-f0",
+    "animSpeed": 200
+  },
+  "4609": {
+    "frames": [
+      "item-4609-f0",
+      "item-4609-f1",
+      "item-4609-f2",
+      "item-4609-f3",
+      "item-4609-f4",
+      "item-4609-f5",
+      "item-4609-f6",
+      "item-4609-f7",
+      "item-4609-f8",
+      "item-4609-f9",
+      "item-4609-f10",
+      "item-4609-f11",
+      "item-4609-f12",
+      "item-4609-f13"
+    ],
+    "defaultFrame": "item-4609-f0",
+    "animSpeed": 200
+  },
+  "4610": {
+    "frames": [
+      "item-4610-f0",
+      "item-4610-f1",
+      "item-4610-f2",
+      "item-4610-f3",
+      "item-4610-f4",
+      "item-4610-f5",
+      "item-4610-f6",
+      "item-4610-f7",
+      "item-4610-f8",
+      "item-4610-f9",
+      "item-4610-f10",
+      "item-4610-f11",
+      "item-4610-f12",
+      "item-4610-f13",
+      "item-4610-f14",
+      "item-4610-f15",
+      "item-4610-f16",
+      "item-4610-f17",
+      "item-4610-f18",
+      "item-4610-f19",
+      "item-4610-f20",
+      "item-4610-f21",
+      "item-4610-f22",
+      "item-4610-f23",
+      "item-4610-f24",
+      "item-4610-f25",
+      "item-4610-f26",
+      "item-4610-f27",
+      "item-4610-f28",
+      "item-4610-f29",
+      "item-4610-f30",
+      "item-4610-f31",
+      "item-4610-f32",
+      "item-4610-f33",
+      "item-4610-f34",
+      "item-4610-f35",
+      "item-4610-f36",
+      "item-4610-f37",
+      "item-4610-f38",
+      "item-4610-f39",
+      "item-4610-f40",
+      "item-4610-f41",
+      "item-4610-f42",
+      "item-4610-f43",
+      "item-4610-f44",
+      "item-4610-f45",
+      "item-4610-f46",
+      "item-4610-f47",
+      "item-4610-f48",
+      "item-4610-f49",
+      "item-4610-f50",
+      "item-4610-f51",
+      "item-4610-f52",
+      "item-4610-f53",
+      "item-4610-f54",
+      "item-4610-f55",
+      "item-4610-f56",
+      "item-4610-f57",
+      "item-4610-f58",
+      "item-4610-f59",
+      "item-4610-f60",
+      "item-4610-f61",
+      "item-4610-f62",
+      "item-4610-f63",
+      "item-4610-f64",
+      "item-4610-f65",
+      "item-4610-f66",
+      "item-4610-f67",
+      "item-4610-f68",
+      "item-4610-f69",
+      "item-4610-f70",
+      "item-4610-f71",
+      "item-4610-f72",
+      "item-4610-f73",
+      "item-4610-f74",
+      "item-4610-f75",
+      "item-4610-f76",
+      "item-4610-f77",
+      "item-4610-f78",
+      "item-4610-f79",
+      "item-4610-f80",
+      "item-4610-f81",
+      "item-4610-f82",
+      "item-4610-f83",
+      "item-4610-f84",
+      "item-4610-f85",
+      "item-4610-f86",
+      "item-4610-f87",
+      "item-4610-f88",
+      "item-4610-f89",
+      "item-4610-f90",
+      "item-4610-f91",
+      "item-4610-f92",
+      "item-4610-f93",
+      "item-4610-f94",
+      "item-4610-f95",
+      "item-4610-f96",
+      "item-4610-f97",
+      "item-4610-f98",
+      "item-4610-f99",
+      "item-4610-f100",
+      "item-4610-f101",
+      "item-4610-f102",
+      "item-4610-f103",
+      "item-4610-f104",
+      "item-4610-f105",
+      "item-4610-f106",
+      "item-4610-f107",
+      "item-4610-f108",
+      "item-4610-f109",
+      "item-4610-f110",
+      "item-4610-f111"
+    ],
+    "defaultFrame": "item-4610-f0",
+    "animSpeed": 200
+  },
+  "4611": {
+    "frames": [
+      "item-4611-f0",
+      "item-4611-f1",
+      "item-4611-f2",
+      "item-4611-f3",
+      "item-4611-f4",
+      "item-4611-f5",
+      "item-4611-f6",
+      "item-4611-f7",
+      "item-4611-f8",
+      "item-4611-f9",
+      "item-4611-f10",
+      "item-4611-f11",
+      "item-4611-f12",
+      "item-4611-f13",
+      "item-4611-f14",
+      "item-4611-f15",
+      "item-4611-f16",
+      "item-4611-f17",
+      "item-4611-f18",
+      "item-4611-f19",
+      "item-4611-f20",
+      "item-4611-f21",
+      "item-4611-f22",
+      "item-4611-f23",
+      "item-4611-f24",
+      "item-4611-f25",
+      "item-4611-f26",
+      "item-4611-f27",
+      "item-4611-f28",
+      "item-4611-f29",
+      "item-4611-f30",
+      "item-4611-f31",
+      "item-4611-f32",
+      "item-4611-f33",
+      "item-4611-f34",
+      "item-4611-f35",
+      "item-4611-f36",
+      "item-4611-f37",
+      "item-4611-f38",
+      "item-4611-f39",
+      "item-4611-f40",
+      "item-4611-f41",
+      "item-4611-f42",
+      "item-4611-f43",
+      "item-4611-f44",
+      "item-4611-f45",
+      "item-4611-f46",
+      "item-4611-f47",
+      "item-4611-f48",
+      "item-4611-f49",
+      "item-4611-f50",
+      "item-4611-f51",
+      "item-4611-f52",
+      "item-4611-f53",
+      "item-4611-f54",
+      "item-4611-f55",
+      "item-4611-f56",
+      "item-4611-f57",
+      "item-4611-f58",
+      "item-4611-f59",
+      "item-4611-f60",
+      "item-4611-f61",
+      "item-4611-f62",
+      "item-4611-f63",
+      "item-4611-f64",
+      "item-4611-f65",
+      "item-4611-f66",
+      "item-4611-f67",
+      "item-4611-f68",
+      "item-4611-f69",
+      "item-4611-f70",
+      "item-4611-f71",
+      "item-4611-f72",
+      "item-4611-f73",
+      "item-4611-f74",
+      "item-4611-f75",
+      "item-4611-f76",
+      "item-4611-f77",
+      "item-4611-f78",
+      "item-4611-f79",
+      "item-4611-f80",
+      "item-4611-f81",
+      "item-4611-f82",
+      "item-4611-f83",
+      "item-4611-f84",
+      "item-4611-f85",
+      "item-4611-f86",
+      "item-4611-f87",
+      "item-4611-f88",
+      "item-4611-f89",
+      "item-4611-f90",
+      "item-4611-f91",
+      "item-4611-f92",
+      "item-4611-f93",
+      "item-4611-f94",
+      "item-4611-f95",
+      "item-4611-f96",
+      "item-4611-f97",
+      "item-4611-f98",
+      "item-4611-f99",
+      "item-4611-f100",
+      "item-4611-f101",
+      "item-4611-f102",
+      "item-4611-f103",
+      "item-4611-f104",
+      "item-4611-f105",
+      "item-4611-f106",
+      "item-4611-f107",
+      "item-4611-f108",
+      "item-4611-f109",
+      "item-4611-f110",
+      "item-4611-f111"
+    ],
+    "defaultFrame": "item-4611-f0",
+    "animSpeed": 200
+  },
+  "4612": {
+    "frames": [
+      "item-4612-f0",
+      "item-4612-f1",
+      "item-4612-f2",
+      "item-4612-f3",
+      "item-4612-f4",
+      "item-4612-f5",
+      "item-4612-f6",
+      "item-4612-f7",
+      "item-4612-f8",
+      "item-4612-f9",
+      "item-4612-f10",
+      "item-4612-f11",
+      "item-4612-f12",
+      "item-4612-f13",
+      "item-4612-f14",
+      "item-4612-f15",
+      "item-4612-f16",
+      "item-4612-f17",
+      "item-4612-f18",
+      "item-4612-f19",
+      "item-4612-f20",
+      "item-4612-f21",
+      "item-4612-f22",
+      "item-4612-f23",
+      "item-4612-f24",
+      "item-4612-f25",
+      "item-4612-f26",
+      "item-4612-f27",
+      "item-4612-f28",
+      "item-4612-f29",
+      "item-4612-f30",
+      "item-4612-f31",
+      "item-4612-f32",
+      "item-4612-f33",
+      "item-4612-f34",
+      "item-4612-f35",
+      "item-4612-f36",
+      "item-4612-f37",
+      "item-4612-f38",
+      "item-4612-f39",
+      "item-4612-f40",
+      "item-4612-f41",
+      "item-4612-f42",
+      "item-4612-f43",
+      "item-4612-f44",
+      "item-4612-f45",
+      "item-4612-f46",
+      "item-4612-f47",
+      "item-4612-f48",
+      "item-4612-f49",
+      "item-4612-f50",
+      "item-4612-f51",
+      "item-4612-f52",
+      "item-4612-f53",
+      "item-4612-f54",
+      "item-4612-f55",
+      "item-4612-f56",
+      "item-4612-f57",
+      "item-4612-f58",
+      "item-4612-f59",
+      "item-4612-f60",
+      "item-4612-f61",
+      "item-4612-f62",
+      "item-4612-f63",
+      "item-4612-f64",
+      "item-4612-f65",
+      "item-4612-f66",
+      "item-4612-f67",
+      "item-4612-f68",
+      "item-4612-f69",
+      "item-4612-f70",
+      "item-4612-f71",
+      "item-4612-f72",
+      "item-4612-f73",
+      "item-4612-f74",
+      "item-4612-f75",
+      "item-4612-f76",
+      "item-4612-f77",
+      "item-4612-f78",
+      "item-4612-f79",
+      "item-4612-f80",
+      "item-4612-f81",
+      "item-4612-f82",
+      "item-4612-f83",
+      "item-4612-f84",
+      "item-4612-f85",
+      "item-4612-f86",
+      "item-4612-f87",
+      "item-4612-f88",
+      "item-4612-f89",
+      "item-4612-f90",
+      "item-4612-f91",
+      "item-4612-f92",
+      "item-4612-f93",
+      "item-4612-f94",
+      "item-4612-f95",
+      "item-4612-f96",
+      "item-4612-f97",
+      "item-4612-f98",
+      "item-4612-f99",
+      "item-4612-f100",
+      "item-4612-f101",
+      "item-4612-f102",
+      "item-4612-f103",
+      "item-4612-f104",
+      "item-4612-f105",
+      "item-4612-f106",
+      "item-4612-f107",
+      "item-4612-f108",
+      "item-4612-f109",
+      "item-4612-f110",
+      "item-4612-f111"
+    ],
+    "defaultFrame": "item-4612-f0",
+    "animSpeed": 200
+  },
+  "4613": {
+    "frames": [
+      "item-4613-f0",
+      "item-4613-f1",
+      "item-4613-f2",
+      "item-4613-f3",
+      "item-4613-f4",
+      "item-4613-f5",
+      "item-4613-f6",
+      "item-4613-f7",
+      "item-4613-f8",
+      "item-4613-f9",
+      "item-4613-f10",
+      "item-4613-f11",
+      "item-4613-f12",
+      "item-4613-f13",
+      "item-4613-f14",
+      "item-4613-f15",
+      "item-4613-f16",
+      "item-4613-f17",
+      "item-4613-f18",
+      "item-4613-f19",
+      "item-4613-f20",
+      "item-4613-f21",
+      "item-4613-f22",
+      "item-4613-f23",
+      "item-4613-f24",
+      "item-4613-f25",
+      "item-4613-f26",
+      "item-4613-f27",
+      "item-4613-f28",
+      "item-4613-f29",
+      "item-4613-f30",
+      "item-4613-f31",
+      "item-4613-f32",
+      "item-4613-f33",
+      "item-4613-f34",
+      "item-4613-f35",
+      "item-4613-f36",
+      "item-4613-f37",
+      "item-4613-f38",
+      "item-4613-f39",
+      "item-4613-f40",
+      "item-4613-f41",
+      "item-4613-f42",
+      "item-4613-f43",
+      "item-4613-f44",
+      "item-4613-f45",
+      "item-4613-f46",
+      "item-4613-f47",
+      "item-4613-f48",
+      "item-4613-f49",
+      "item-4613-f50",
+      "item-4613-f51",
+      "item-4613-f52",
+      "item-4613-f53",
+      "item-4613-f54",
+      "item-4613-f55",
+      "item-4613-f56",
+      "item-4613-f57",
+      "item-4613-f58",
+      "item-4613-f59",
+      "item-4613-f60",
+      "item-4613-f61",
+      "item-4613-f62",
+      "item-4613-f63",
+      "item-4613-f64",
+      "item-4613-f65",
+      "item-4613-f66",
+      "item-4613-f67",
+      "item-4613-f68",
+      "item-4613-f69",
+      "item-4613-f70",
+      "item-4613-f71",
+      "item-4613-f72",
+      "item-4613-f73",
+      "item-4613-f74",
+      "item-4613-f75",
+      "item-4613-f76",
+      "item-4613-f77",
+      "item-4613-f78",
+      "item-4613-f79",
+      "item-4613-f80",
+      "item-4613-f81",
+      "item-4613-f82",
+      "item-4613-f83",
+      "item-4613-f84",
+      "item-4613-f85",
+      "item-4613-f86",
+      "item-4613-f87",
+      "item-4613-f88",
+      "item-4613-f89",
+      "item-4613-f90",
+      "item-4613-f91",
+      "item-4613-f92",
+      "item-4613-f93",
+      "item-4613-f94",
+      "item-4613-f95",
+      "item-4613-f96",
+      "item-4613-f97",
+      "item-4613-f98",
+      "item-4613-f99",
+      "item-4613-f100",
+      "item-4613-f101",
+      "item-4613-f102",
+      "item-4613-f103",
+      "item-4613-f104",
+      "item-4613-f105",
+      "item-4613-f106",
+      "item-4613-f107",
+      "item-4613-f108",
+      "item-4613-f109",
+      "item-4613-f110",
+      "item-4613-f111"
+    ],
+    "defaultFrame": "item-4613-f0",
+    "animSpeed": 200
+  },
+  "4614": {
+    "frames": [
+      "item-4614-f0",
+      "item-4614-f1",
+      "item-4614-f2",
+      "item-4614-f3",
+      "item-4614-f4",
+      "item-4614-f5",
+      "item-4614-f6",
+      "item-4614-f7",
+      "item-4614-f8",
+      "item-4614-f9",
+      "item-4614-f10",
+      "item-4614-f11",
+      "item-4614-f12",
+      "item-4614-f13"
+    ],
+    "defaultFrame": "item-4614-f0",
+    "animSpeed": 200
+  },
+  "4615": {
+    "frames": [
+      "item-4615-f0",
+      "item-4615-f1",
+      "item-4615-f2",
+      "item-4615-f3",
+      "item-4615-f4",
+      "item-4615-f5",
+      "item-4615-f6",
+      "item-4615-f7",
+      "item-4615-f8",
+      "item-4615-f9",
+      "item-4615-f10",
+      "item-4615-f11",
+      "item-4615-f12",
+      "item-4615-f13"
+    ],
+    "defaultFrame": "item-4615-f0",
+    "animSpeed": 200
+  },
+  "4616": {
+    "frames": [
+      "item-4616-f0",
+      "item-4616-f1",
+      "item-4616-f2",
+      "item-4616-f3",
+      "item-4616-f4",
+      "item-4616-f5",
+      "item-4616-f6",
+      "item-4616-f7",
+      "item-4616-f8",
+      "item-4616-f9",
+      "item-4616-f10",
+      "item-4616-f11",
+      "item-4616-f12",
+      "item-4616-f13"
+    ],
+    "defaultFrame": "item-4616-f0",
+    "animSpeed": 200
+  },
+  "4617": {
+    "frames": [
+      "item-4617-f0",
+      "item-4617-f1",
+      "item-4617-f2",
+      "item-4617-f3",
+      "item-4617-f4",
+      "item-4617-f5",
+      "item-4617-f6",
+      "item-4617-f7",
+      "item-4617-f8",
+      "item-4617-f9",
+      "item-4617-f10",
+      "item-4617-f11",
+      "item-4617-f12",
+      "item-4617-f13"
+    ],
+    "defaultFrame": "item-4617-f0",
+    "animSpeed": 200
+  },
+  "4618": {
+    "frames": [
+      "item-4618-f0",
+      "item-4618-f1",
+      "item-4618-f2",
+      "item-4618-f3",
+      "item-4618-f4",
+      "item-4618-f5",
+      "item-4618-f6",
+      "item-4618-f7",
+      "item-4618-f8",
+      "item-4618-f9",
+      "item-4618-f10",
+      "item-4618-f11",
+      "item-4618-f12",
+      "item-4618-f13"
+    ],
+    "defaultFrame": "item-4618-f0",
+    "animSpeed": 200
+  },
+  "4619": {
+    "frames": [
+      "item-4619-f0",
+      "item-4619-f1",
+      "item-4619-f2",
+      "item-4619-f3",
+      "item-4619-f4",
+      "item-4619-f5",
+      "item-4619-f6",
+      "item-4619-f7",
+      "item-4619-f8",
+      "item-4619-f9",
+      "item-4619-f10",
+      "item-4619-f11",
+      "item-4619-f12",
+      "item-4619-f13"
+    ],
+    "defaultFrame": "item-4619-f0",
+    "animSpeed": 200
+  },
+  "4644": {
+    "frames": [
+      "item-4644-f0",
+      "item-4644-f1",
+      "item-4644-f2",
+      "item-4644-f3",
+      "item-4644-f4",
+      "item-4644-f5",
+      "item-4644-f6",
+      "item-4644-f7",
+      "item-4644-f8",
+      "item-4644-f9",
+      "item-4644-f10",
+      "item-4644-f11",
+      "item-4644-f12",
+      "item-4644-f13",
+      "item-4644-f14",
+      "item-4644-f15",
+      "item-4644-f16",
+      "item-4644-f17",
+      "item-4644-f18",
+      "item-4644-f19",
+      "item-4644-f20",
+      "item-4644-f21",
+      "item-4644-f22",
+      "item-4644-f23",
+      "item-4644-f24",
+      "item-4644-f25",
+      "item-4644-f26",
+      "item-4644-f27",
+      "item-4644-f28",
+      "item-4644-f29",
+      "item-4644-f30",
+      "item-4644-f31",
+      "item-4644-f32",
+      "item-4644-f33",
+      "item-4644-f34",
+      "item-4644-f35",
+      "item-4644-f36",
+      "item-4644-f37",
+      "item-4644-f38",
+      "item-4644-f39",
+      "item-4644-f40",
+      "item-4644-f41"
+    ],
+    "defaultFrame": "item-4644-f0",
+    "animSpeed": 200
+  },
+  "4645": {
+    "frames": [
+      "item-4645-f0",
+      "item-4645-f1",
+      "item-4645-f2",
+      "item-4645-f3",
+      "item-4645-f4",
+      "item-4645-f5",
+      "item-4645-f6",
+      "item-4645-f7",
+      "item-4645-f8",
+      "item-4645-f9",
+      "item-4645-f10",
+      "item-4645-f11",
+      "item-4645-f12",
+      "item-4645-f13",
+      "item-4645-f14",
+      "item-4645-f15",
+      "item-4645-f16",
+      "item-4645-f17",
+      "item-4645-f18",
+      "item-4645-f19",
+      "item-4645-f20",
+      "item-4645-f21",
+      "item-4645-f22",
+      "item-4645-f23",
+      "item-4645-f24",
+      "item-4645-f25",
+      "item-4645-f26",
+      "item-4645-f27",
+      "item-4645-f28",
+      "item-4645-f29",
+      "item-4645-f30",
+      "item-4645-f31",
+      "item-4645-f32",
+      "item-4645-f33",
+      "item-4645-f34",
+      "item-4645-f35",
+      "item-4645-f36",
+      "item-4645-f37",
+      "item-4645-f38",
+      "item-4645-f39",
+      "item-4645-f40",
+      "item-4645-f41"
+    ],
+    "defaultFrame": "item-4645-f0",
+    "animSpeed": 200
+  },
+  "4646": {
+    "frames": [
+      "item-4646-f0",
+      "item-4646-f1",
+      "item-4646-f2",
+      "item-4646-f3",
+      "item-4646-f4",
+      "item-4646-f5",
+      "item-4646-f6",
+      "item-4646-f7",
+      "item-4646-f8",
+      "item-4646-f9",
+      "item-4646-f10",
+      "item-4646-f11",
+      "item-4646-f12",
+      "item-4646-f13",
+      "item-4646-f14",
+      "item-4646-f15",
+      "item-4646-f16",
+      "item-4646-f17",
+      "item-4646-f18",
+      "item-4646-f19",
+      "item-4646-f20",
+      "item-4646-f21",
+      "item-4646-f22",
+      "item-4646-f23",
+      "item-4646-f24",
+      "item-4646-f25",
+      "item-4646-f26",
+      "item-4646-f27",
+      "item-4646-f28",
+      "item-4646-f29",
+      "item-4646-f30",
+      "item-4646-f31",
+      "item-4646-f32",
+      "item-4646-f33",
+      "item-4646-f34",
+      "item-4646-f35",
+      "item-4646-f36",
+      "item-4646-f37",
+      "item-4646-f38",
+      "item-4646-f39",
+      "item-4646-f40",
+      "item-4646-f41"
+    ],
+    "defaultFrame": "item-4646-f0",
+    "animSpeed": 200
+  },
+  "4647": {
+    "frames": [
+      "item-4647-f0",
+      "item-4647-f1",
+      "item-4647-f2",
+      "item-4647-f3",
+      "item-4647-f4",
+      "item-4647-f5",
+      "item-4647-f6",
+      "item-4647-f7",
+      "item-4647-f8",
+      "item-4647-f9",
+      "item-4647-f10",
+      "item-4647-f11",
+      "item-4647-f12",
+      "item-4647-f13",
+      "item-4647-f14",
+      "item-4647-f15",
+      "item-4647-f16",
+      "item-4647-f17",
+      "item-4647-f18",
+      "item-4647-f19",
+      "item-4647-f20",
+      "item-4647-f21",
+      "item-4647-f22",
+      "item-4647-f23",
+      "item-4647-f24",
+      "item-4647-f25",
+      "item-4647-f26",
+      "item-4647-f27",
+      "item-4647-f28",
+      "item-4647-f29",
+      "item-4647-f30",
+      "item-4647-f31",
+      "item-4647-f32",
+      "item-4647-f33",
+      "item-4647-f34",
+      "item-4647-f35",
+      "item-4647-f36",
+      "item-4647-f37",
+      "item-4647-f38",
+      "item-4647-f39",
+      "item-4647-f40",
+      "item-4647-f41"
+    ],
+    "defaultFrame": "item-4647-f0",
+    "animSpeed": 200
+  },
+  "4648": {
+    "frames": [
+      "item-4648-f0",
+      "item-4648-f1",
+      "item-4648-f2",
+      "item-4648-f3",
+      "item-4648-f4",
+      "item-4648-f5",
+      "item-4648-f6",
+      "item-4648-f7",
+      "item-4648-f8",
+      "item-4648-f9",
+      "item-4648-f10",
+      "item-4648-f11",
+      "item-4648-f12",
+      "item-4648-f13"
+    ],
+    "defaultFrame": "item-4648-f0",
+    "animSpeed": 200
+  },
+  "4649": {
+    "frames": [
+      "item-4649-f0",
+      "item-4649-f1",
+      "item-4649-f2",
+      "item-4649-f3",
+      "item-4649-f4",
+      "item-4649-f5",
+      "item-4649-f6",
+      "item-4649-f7",
+      "item-4649-f8",
+      "item-4649-f9",
+      "item-4649-f10",
+      "item-4649-f11",
+      "item-4649-f12",
+      "item-4649-f13"
+    ],
+    "defaultFrame": "item-4649-f0",
+    "animSpeed": 200
+  },
+  "4650": {
+    "frames": [
+      "item-4650-f0",
+      "item-4650-f1",
+      "item-4650-f2",
+      "item-4650-f3",
+      "item-4650-f4",
+      "item-4650-f5",
+      "item-4650-f6",
+      "item-4650-f7",
+      "item-4650-f8",
+      "item-4650-f9",
+      "item-4650-f10",
+      "item-4650-f11",
+      "item-4650-f12",
+      "item-4650-f13"
+    ],
+    "defaultFrame": "item-4650-f0",
+    "animSpeed": 200
+  },
+  "4651": {
+    "frames": [
+      "item-4651-f0",
+      "item-4651-f1",
+      "item-4651-f2",
+      "item-4651-f3",
+      "item-4651-f4",
+      "item-4651-f5",
+      "item-4651-f6",
+      "item-4651-f7",
+      "item-4651-f8",
+      "item-4651-f9",
+      "item-4651-f10",
+      "item-4651-f11",
+      "item-4651-f12",
+      "item-4651-f13"
+    ],
+    "defaultFrame": "item-4651-f0",
+    "animSpeed": 200
+  },
+  "4652": {
+    "frames": [
+      "item-4652-f0",
+      "item-4652-f1",
+      "item-4652-f2",
+      "item-4652-f3",
+      "item-4652-f4",
+      "item-4652-f5",
+      "item-4652-f6",
+      "item-4652-f7",
+      "item-4652-f8",
+      "item-4652-f9",
+      "item-4652-f10",
+      "item-4652-f11",
+      "item-4652-f12",
+      "item-4652-f13"
+    ],
+    "defaultFrame": "item-4652-f0",
+    "animSpeed": 200
+  },
+  "4653": {
+    "frames": [
+      "item-4653-f0",
+      "item-4653-f1",
+      "item-4653-f2",
+      "item-4653-f3",
+      "item-4653-f4",
+      "item-4653-f5",
+      "item-4653-f6",
+      "item-4653-f7",
+      "item-4653-f8",
+      "item-4653-f9",
+      "item-4653-f10",
+      "item-4653-f11",
+      "item-4653-f12",
+      "item-4653-f13"
+    ],
+    "defaultFrame": "item-4653-f0",
+    "animSpeed": 200
+  },
+  "4654": {
+    "frames": [
+      "item-4654-f0",
+      "item-4654-f1",
+      "item-4654-f2",
+      "item-4654-f3",
+      "item-4654-f4",
+      "item-4654-f5",
+      "item-4654-f6",
+      "item-4654-f7",
+      "item-4654-f8",
+      "item-4654-f9",
+      "item-4654-f10",
+      "item-4654-f11",
+      "item-4654-f12",
+      "item-4654-f13"
+    ],
+    "defaultFrame": "item-4654-f0",
+    "animSpeed": 200
+  },
+  "4655": {
+    "frames": [
+      "item-4655-f0",
+      "item-4655-f1",
+      "item-4655-f2",
+      "item-4655-f3",
+      "item-4655-f4",
+      "item-4655-f5",
+      "item-4655-f6",
+      "item-4655-f7",
+      "item-4655-f8",
+      "item-4655-f9",
+      "item-4655-f10",
+      "item-4655-f11",
+      "item-4655-f12",
+      "item-4655-f13"
+    ],
+    "defaultFrame": "item-4655-f0",
+    "animSpeed": 200
+  },
+  "4664": {
+    "frames": [
+      "item-4664-f0",
+      "item-4664-f1",
+      "item-4664-f2",
+      "item-4664-f3",
+      "item-4664-f4",
+      "item-4664-f5",
+      "item-4664-f6",
+      "item-4664-f7",
+      "item-4664-f8",
+      "item-4664-f9",
+      "item-4664-f10",
+      "item-4664-f11",
+      "item-4664-f12",
+      "item-4664-f13"
+    ],
+    "defaultFrame": "item-4664-f0",
+    "animSpeed": 200
+  },
+  "4665": {
+    "frames": [
+      "item-4665-f0",
+      "item-4665-f1",
+      "item-4665-f2",
+      "item-4665-f3",
+      "item-4665-f4",
+      "item-4665-f5",
+      "item-4665-f6",
+      "item-4665-f7",
+      "item-4665-f8",
+      "item-4665-f9",
+      "item-4665-f10",
+      "item-4665-f11",
+      "item-4665-f12",
+      "item-4665-f13"
+    ],
+    "defaultFrame": "item-4665-f0",
+    "animSpeed": 200
+  },
+  "4666": {
+    "frames": [
+      "item-4666-f0",
+      "item-4666-f1",
+      "item-4666-f2",
+      "item-4666-f3",
+      "item-4666-f4",
+      "item-4666-f5",
+      "item-4666-f6",
+      "item-4666-f7",
+      "item-4666-f8",
+      "item-4666-f9",
+      "item-4666-f10",
+      "item-4666-f11",
+      "item-4666-f12",
+      "item-4666-f13",
+      "item-4666-f14",
+      "item-4666-f15",
+      "item-4666-f16",
+      "item-4666-f17",
+      "item-4666-f18",
+      "item-4666-f19",
+      "item-4666-f20",
+      "item-4666-f21",
+      "item-4666-f22",
+      "item-4666-f23",
+      "item-4666-f24",
+      "item-4666-f25",
+      "item-4666-f26",
+      "item-4666-f27",
+      "item-4666-f28",
+      "item-4666-f29",
+      "item-4666-f30",
+      "item-4666-f31",
+      "item-4666-f32",
+      "item-4666-f33",
+      "item-4666-f34",
+      "item-4666-f35",
+      "item-4666-f36",
+      "item-4666-f37",
+      "item-4666-f38",
+      "item-4666-f39",
+      "item-4666-f40",
+      "item-4666-f41",
+      "item-4666-f42",
+      "item-4666-f43",
+      "item-4666-f44",
+      "item-4666-f45",
+      "item-4666-f46",
+      "item-4666-f47",
+      "item-4666-f48",
+      "item-4666-f49",
+      "item-4666-f50",
+      "item-4666-f51",
+      "item-4666-f52",
+      "item-4666-f53",
+      "item-4666-f54",
+      "item-4666-f55",
+      "item-4666-f56",
+      "item-4666-f57",
+      "item-4666-f58",
+      "item-4666-f59",
+      "item-4666-f60",
+      "item-4666-f61",
+      "item-4666-f62",
+      "item-4666-f63",
+      "item-4666-f64",
+      "item-4666-f65",
+      "item-4666-f66",
+      "item-4666-f67",
+      "item-4666-f68",
+      "item-4666-f69",
+      "item-4666-f70",
+      "item-4666-f71",
+      "item-4666-f72",
+      "item-4666-f73",
+      "item-4666-f74",
+      "item-4666-f75",
+      "item-4666-f76",
+      "item-4666-f77",
+      "item-4666-f78",
+      "item-4666-f79",
+      "item-4666-f80",
+      "item-4666-f81",
+      "item-4666-f82",
+      "item-4666-f83",
+      "item-4666-f84",
+      "item-4666-f85",
+      "item-4666-f86",
+      "item-4666-f87",
+      "item-4666-f88",
+      "item-4666-f89",
+      "item-4666-f90",
+      "item-4666-f91",
+      "item-4666-f92",
+      "item-4666-f93",
+      "item-4666-f94",
+      "item-4666-f95",
+      "item-4666-f96",
+      "item-4666-f97",
+      "item-4666-f98",
+      "item-4666-f99",
+      "item-4666-f100",
+      "item-4666-f101",
+      "item-4666-f102",
+      "item-4666-f103",
+      "item-4666-f104",
+      "item-4666-f105",
+      "item-4666-f106",
+      "item-4666-f107",
+      "item-4666-f108",
+      "item-4666-f109",
+      "item-4666-f110",
+      "item-4666-f111"
+    ],
+    "defaultFrame": "item-4666-f0",
+    "animSpeed": 200
+  },
+  "4667": {
+    "frames": [
+      "item-4667-f0"
+    ],
+    "defaultFrame": "item-4667-f0",
+    "animSpeed": 200
+  },
+  "4668": {
+    "frames": [
+      "item-4668-f0"
+    ],
+    "defaultFrame": "item-4668-f0",
+    "animSpeed": 200
+  },
+  "4669": {
+    "frames": [
+      "item-4669-f0"
+    ],
+    "defaultFrame": "item-4669-f0",
+    "animSpeed": 200
+  },
+  "4670": {
+    "frames": [
+      "item-4670-f0"
+    ],
+    "defaultFrame": "item-4670-f0",
+    "animSpeed": 200
+  },
+  "4671": {
+    "frames": [
+      "item-4671-f0"
+    ],
+    "defaultFrame": "item-4671-f0",
+    "animSpeed": 200
+  },
+  "4672": {
+    "frames": [
+      "item-4672-f0"
+    ],
+    "defaultFrame": "item-4672-f0",
+    "animSpeed": 200
+  },
+  "4673": {
+    "frames": [
+      "item-4673-f0"
+    ],
+    "defaultFrame": "item-4673-f0",
+    "animSpeed": 200
+  },
+  "4674": {
+    "frames": [
+      "item-4674-f0"
+    ],
+    "defaultFrame": "item-4674-f0",
+    "animSpeed": 200
+  },
+  "4676": {
+    "frames": [
+      "item-4676-f0"
+    ],
+    "defaultFrame": "item-4676-f0",
+    "animSpeed": 200
+  },
+  "4677": {
+    "frames": [
+      "item-4677-f0"
+    ],
+    "defaultFrame": "item-4677-f0",
+    "animSpeed": 200
+  },
+  "4678": {
+    "frames": [
+      "item-4678-f0"
+    ],
+    "defaultFrame": "item-4678-f0",
+    "animSpeed": 200
+  },
+  "4691": {
+    "frames": [
+      "item-4691-f0"
+    ],
+    "defaultFrame": "item-4691-f0",
+    "animSpeed": 200
+  },
+  "4692": {
+    "frames": [
+      "item-4692-f0"
+    ],
+    "defaultFrame": "item-4692-f0",
+    "animSpeed": 200
+  },
+  "4693": {
+    "frames": [
+      "item-4693-f0"
+    ],
+    "defaultFrame": "item-4693-f0",
+    "animSpeed": 200
+  },
+  "4694": {
+    "frames": [
+      "item-4694-f0"
+    ],
+    "defaultFrame": "item-4694-f0",
+    "animSpeed": 200
+  },
+  "4695": {
+    "frames": [
+      "item-4695-f0"
+    ],
+    "defaultFrame": "item-4695-f0",
+    "animSpeed": 200
+  },
+  "4696": {
+    "frames": [
+      "item-4696-f0"
+    ],
+    "defaultFrame": "item-4696-f0",
+    "animSpeed": 200
+  },
+  "4697": {
+    "frames": [
+      "item-4697-f0"
+    ],
+    "defaultFrame": "item-4697-f0",
+    "animSpeed": 200
+  },
+  "4698": {
+    "frames": [
+      "item-4698-f0"
+    ],
+    "defaultFrame": "item-4698-f0",
+    "animSpeed": 200
+  },
+  "4699": {
+    "frames": [
+      "item-4699-f0"
+    ],
+    "defaultFrame": "item-4699-f0",
+    "animSpeed": 200
+  },
+  "4700": {
+    "frames": [
+      "item-4700-f0"
+    ],
+    "defaultFrame": "item-4700-f0",
+    "animSpeed": 200
+  },
+  "4701": {
+    "frames": [
+      "item-4701-f0"
+    ],
+    "defaultFrame": "item-4701-f0",
+    "animSpeed": 200
+  },
+  "4713": {
+    "frames": [
+      "item-4713-f0"
+    ],
+    "defaultFrame": "item-4713-f0",
+    "animSpeed": 200
+  },
+  "4714": {
+    "frames": [
+      "item-4714-f0"
+    ],
+    "defaultFrame": "item-4714-f0",
+    "animSpeed": 200
+  },
+  "4715": {
+    "frames": [
+      "item-4715-f0"
+    ],
+    "defaultFrame": "item-4715-f0",
+    "animSpeed": 200
+  },
+  "4716": {
+    "frames": [
+      "item-4716-f0"
+    ],
+    "defaultFrame": "item-4716-f0",
+    "animSpeed": 200
+  },
+  "4717": {
+    "frames": [
+      "item-4717-f0"
+    ],
+    "defaultFrame": "item-4717-f0",
+    "animSpeed": 200
+  },
+  "4718": {
+    "frames": [
+      "item-4718-f0"
+    ],
+    "defaultFrame": "item-4718-f0",
+    "animSpeed": 200
+  },
+  "4719": {
+    "frames": [
+      "item-4719-f0"
+    ],
+    "defaultFrame": "item-4719-f0",
+    "animSpeed": 200
+  },
+  "4720": {
+    "frames": [
+      "item-4720-f0"
+    ],
+    "defaultFrame": "item-4720-f0",
+    "animSpeed": 200
+  },
+  "4721": {
+    "frames": [
+      "item-4721-f0"
+    ],
+    "defaultFrame": "item-4721-f0",
+    "animSpeed": 200
+  },
+  "4722": {
+    "frames": [
+      "item-4722-f0"
+    ],
+    "defaultFrame": "item-4722-f0",
+    "animSpeed": 200
+  },
+  "4723": {
+    "frames": [
+      "item-4723-f0"
+    ],
+    "defaultFrame": "item-4723-f0",
+    "animSpeed": 200
+  },
+  "4724": {
+    "frames": [
+      "item-4724-f0"
+    ],
+    "defaultFrame": "item-4724-f0",
+    "animSpeed": 200
+  },
+  "4740": {
+    "frames": [
+      "item-4740-f0"
+    ],
+    "defaultFrame": "item-4740-f0",
+    "animSpeed": 200
+  },
+  "4741": {
+    "frames": [
+      "item-4741-f0"
+    ],
+    "defaultFrame": "item-4741-f0",
+    "animSpeed": 200
+  },
+  "4743": {
+    "frames": [
+      "item-4743-f0"
+    ],
+    "defaultFrame": "item-4743-f0",
+    "animSpeed": 200
+  },
+  "4749": {
+    "frames": [
+      "item-4749-f0",
+      "item-4749-f1",
+      "item-4749-f2",
+      "item-4749-f3",
+      "item-4749-f4",
+      "item-4749-f5",
+      "item-4749-f6",
+      "item-4749-f7",
+      "item-4749-f8"
+    ],
+    "defaultFrame": "item-4749-f0",
+    "animSpeed": 200
+  },
+  "4750": {
+    "frames": [
+      "item-4750-f0",
+      "item-4750-f1",
+      "item-4750-f2",
+      "item-4750-f3"
+    ],
+    "defaultFrame": "item-4750-f0",
+    "animSpeed": 200
+  },
+  "4751": {
+    "frames": [
+      "item-4751-f0",
+      "item-4751-f1",
+      "item-4751-f2",
+      "item-4751-f3",
+      "item-4751-f4",
+      "item-4751-f5"
+    ],
+    "defaultFrame": "item-4751-f0",
+    "animSpeed": 200
+  },
+  "4752": {
+    "frames": [
+      "item-4752-f0",
+      "item-4752-f1",
+      "item-4752-f2",
+      "item-4752-f3",
+      "item-4752-f4",
+      "item-4752-f5",
+      "item-4752-f6",
+      "item-4752-f7"
+    ],
+    "defaultFrame": "item-4752-f0",
+    "animSpeed": 200
+  },
+  "4753": {
+    "frames": [
+      "item-4753-f0",
+      "item-4753-f1",
+      "item-4753-f2",
+      "item-4753-f3",
+      "item-4753-f4",
+      "item-4753-f5",
+      "item-4753-f6",
+      "item-4753-f7"
+    ],
+    "defaultFrame": "item-4753-f0",
+    "animSpeed": 200
+  },
+  "4754": {
+    "frames": [
+      "item-4754-f0",
+      "item-4754-f1",
+      "item-4754-f2",
+      "item-4754-f3",
+      "item-4754-f4",
+      "item-4754-f5",
+      "item-4754-f6",
+      "item-4754-f7",
+      "item-4754-f8",
+      "item-4754-f9",
+      "item-4754-f10",
+      "item-4754-f11",
+      "item-4754-f12"
+    ],
+    "defaultFrame": "item-4754-f0",
+    "animSpeed": 200
+  },
+  "4755": {
+    "frames": [
+      "item-4755-f0",
+      "item-4755-f1",
+      "item-4755-f2",
+      "item-4755-f3",
+      "item-4755-f4",
+      "item-4755-f5",
+      "item-4755-f6",
+      "item-4755-f7",
+      "item-4755-f8",
+      "item-4755-f9",
+      "item-4755-f10",
+      "item-4755-f11"
+    ],
+    "defaultFrame": "item-4755-f0",
+    "animSpeed": 200
+  },
+  "4772": {
+    "frames": [
+      "item-4772-f0",
+      "item-4772-f1"
+    ],
+    "defaultFrame": "item-4772-f0",
+    "animSpeed": 200
+  },
+  "4773": {
+    "frames": [
+      "item-4773-f0",
+      "item-4773-f1"
+    ],
+    "defaultFrame": "item-4773-f0",
+    "animSpeed": 200
+  },
+  "4776": {
+    "frames": [
+      "item-4776-f0"
+    ],
+    "defaultFrame": "item-4776-f0",
+    "animSpeed": 200
+  },
+  "4777": {
+    "frames": [
+      "item-4777-f0"
+    ],
+    "defaultFrame": "item-4777-f0",
+    "animSpeed": 200
+  },
+  "4778": {
+    "frames": [
+      "item-4778-f0"
+    ],
+    "defaultFrame": "item-4778-f0",
+    "animSpeed": 200
+  },
+  "4779": {
+    "frames": [
+      "item-4779-f0"
+    ],
+    "defaultFrame": "item-4779-f0",
+    "animSpeed": 200
+  },
+  "4859": {
+    "frames": [
+      "item-4859-f0"
+    ],
+    "defaultFrame": "item-4859-f0",
+    "animSpeed": 200
+  },
+  "4883": {
+    "frames": [
+      "item-4883-f0"
+    ],
+    "defaultFrame": "item-4883-f0",
+    "animSpeed": 200
+  },
+  "4884": {
+    "frames": [
+      "item-4884-f0"
+    ],
+    "defaultFrame": "item-4884-f0",
+    "animSpeed": 200
+  },
+  "4885": {
+    "frames": [
+      "item-4885-f0"
+    ],
+    "defaultFrame": "item-4885-f0",
+    "animSpeed": 200
+  },
+  "4887": {
+    "frames": [
+      "item-4887-f0"
+    ],
+    "defaultFrame": "item-4887-f0",
+    "animSpeed": 200
+  },
+  "4888": {
+    "frames": [
+      "item-4888-f0"
+    ],
+    "defaultFrame": "item-4888-f0",
+    "animSpeed": 200
+  },
+  "4889": {
+    "frames": [
+      "item-4889-f0"
+    ],
+    "defaultFrame": "item-4889-f0",
+    "animSpeed": 200
+  },
+  "4890": {
+    "frames": [
+      "item-4890-f0"
+    ],
+    "defaultFrame": "item-4890-f0",
+    "animSpeed": 200
+  },
+  "4891": {
+    "frames": [
+      "item-4891-f0"
+    ],
+    "defaultFrame": "item-4891-f0",
+    "animSpeed": 200
+  },
+  "4893": {
+    "frames": [
+      "item-4893-f0"
+    ],
+    "defaultFrame": "item-4893-f0",
+    "animSpeed": 200
+  },
+  "4894": {
+    "frames": [
+      "item-4894-f0"
+    ],
+    "defaultFrame": "item-4894-f0",
+    "animSpeed": 200
+  },
+  "4895": {
+    "frames": [
+      "item-4895-f0"
+    ],
+    "defaultFrame": "item-4895-f0",
+    "animSpeed": 200
+  },
+  "4896": {
+    "frames": [
+      "item-4896-f0"
+    ],
+    "defaultFrame": "item-4896-f0",
+    "animSpeed": 200
+  },
+  "4906": {
+    "frames": [
+      "item-4906-f0"
+    ],
+    "defaultFrame": "item-4906-f0",
+    "animSpeed": 200
+  },
+  "4907": {
+    "frames": [
+      "item-4907-f0"
+    ],
+    "defaultFrame": "item-4907-f0",
+    "animSpeed": 200
+  },
+  "4908": {
+    "frames": [
+      "item-4908-f0"
+    ],
+    "defaultFrame": "item-4908-f0",
+    "animSpeed": 200
+  },
+  "4909": {
+    "frames": [
+      "item-4909-f0"
+    ],
+    "defaultFrame": "item-4909-f0",
+    "animSpeed": 200
+  },
+  "4910": {
+    "frames": [
+      "item-4910-f0"
+    ],
+    "defaultFrame": "item-4910-f0",
+    "animSpeed": 200
+  },
+  "4911": {
+    "frames": [
+      "item-4911-f0"
+    ],
+    "defaultFrame": "item-4911-f0",
+    "animSpeed": 200
+  },
+  "4912": {
+    "frames": [
+      "item-4912-f0"
+    ],
+    "defaultFrame": "item-4912-f0",
+    "animSpeed": 200
+  },
+  "4916": {
+    "frames": [
+      "item-4916-f0"
+    ],
+    "defaultFrame": "item-4916-f0",
+    "animSpeed": 200
+  },
+  "4917": {
+    "frames": [
+      "item-4917-f0"
+    ],
+    "defaultFrame": "item-4917-f0",
+    "animSpeed": 200
+  },
+  "4922": {
+    "frames": [
+      "item-4922-f0"
+    ],
+    "defaultFrame": "item-4922-f0",
+    "animSpeed": 200
+  },
+  "4923": {
+    "frames": [
+      "item-4923-f0"
+    ],
+    "defaultFrame": "item-4923-f0",
+    "animSpeed": 200
+  },
+  "4924": {
+    "frames": [
+      "item-4924-f0"
+    ],
+    "defaultFrame": "item-4924-f0",
+    "animSpeed": 200
+  },
+  "4927": {
+    "frames": [
+      "item-4927-f0"
+    ],
+    "defaultFrame": "item-4927-f0",
+    "animSpeed": 200
+  },
+  "4928": {
+    "frames": [
+      "item-4928-f0"
+    ],
+    "defaultFrame": "item-4928-f0",
+    "animSpeed": 200
+  },
+  "4929": {
+    "frames": [
+      "item-4929-f0"
+    ],
+    "defaultFrame": "item-4929-f0",
+    "animSpeed": 200
+  },
+  "4931": {
+    "frames": [
+      "item-4931-f0"
+    ],
+    "defaultFrame": "item-4931-f0",
+    "animSpeed": 200
+  },
+  "4942": {
+    "frames": [
+      "item-4942-f0"
+    ],
+    "defaultFrame": "item-4942-f0",
+    "animSpeed": 200
+  },
+  "4948": {
+    "frames": [
+      "item-4948-f0"
+    ],
+    "defaultFrame": "item-4948-f0",
+    "animSpeed": 200
+  },
+  "4949": {
+    "frames": [
+      "item-4949-f0"
+    ],
+    "defaultFrame": "item-4949-f0",
+    "animSpeed": 200
+  },
+  "4950": {
+    "frames": [
+      "item-4950-f0"
+    ],
+    "defaultFrame": "item-4950-f0",
+    "animSpeed": 200
+  },
+  "4966": {
+    "frames": [
+      "item-4966-f0"
+    ],
+    "defaultFrame": "item-4966-f0",
+    "animSpeed": 200
+  },
+  "4968": {
+    "frames": [
+      "item-4968-f0"
+    ],
+    "defaultFrame": "item-4968-f0",
+    "animSpeed": 200
+  },
+  "4972": {
+    "frames": [
+      "item-4972-f0"
+    ],
+    "defaultFrame": "item-4972-f0",
+    "animSpeed": 200
+  },
+  "4973": {
+    "frames": [
+      "item-4973-f0"
+    ],
+    "defaultFrame": "item-4973-f0",
+    "animSpeed": 200
+  },
+  "4975": {
+    "frames": [
+      "item-4975-f0"
+    ],
+    "defaultFrame": "item-4975-f0",
+    "animSpeed": 200
+  },
+  "4977": {
+    "frames": [
+      "item-4977-f0"
+    ],
+    "defaultFrame": "item-4977-f0",
+    "animSpeed": 200
+  },
+  "4978": {
+    "frames": [
+      "item-4978-f0"
+    ],
+    "defaultFrame": "item-4978-f0",
+    "animSpeed": 200
+  },
+  "4979": {
+    "frames": [
+      "item-4979-f0"
+    ],
+    "defaultFrame": "item-4979-f0",
+    "animSpeed": 200
+  },
+  "4980": {
+    "frames": [
+      "item-4980-f0"
+    ],
+    "defaultFrame": "item-4980-f0",
+    "animSpeed": 200
+  },
+  "4981": {
+    "frames": [
+      "item-4981-f0"
+    ],
+    "defaultFrame": "item-4981-f0",
+    "animSpeed": 200
+  },
+  "4982": {
+    "frames": [
+      "item-4982-f0"
+    ],
+    "defaultFrame": "item-4982-f0",
+    "animSpeed": 200
+  },
+  "4988": {
+    "frames": [
+      "item-4988-f0"
+    ],
+    "defaultFrame": "item-4988-f0",
+    "animSpeed": 200
+  },
+  "5003": {
+    "frames": [
+      "item-5003-f0"
+    ],
+    "defaultFrame": "item-5003-f0",
+    "animSpeed": 200
+  },
+  "5004": {
+    "frames": [
+      "item-5004-f0"
+    ],
+    "defaultFrame": "item-5004-f0",
+    "animSpeed": 200
+  },
+  "5045": {
+    "frames": [
+      "item-5045-f0"
+    ],
+    "defaultFrame": "item-5045-f0",
+    "animSpeed": 200
+  },
+  "5048": {
+    "frames": [
+      "item-5048-f0"
+    ],
+    "defaultFrame": "item-5048-f0",
+    "animSpeed": 200
+  },
+  "5049": {
+    "frames": [
+      "item-5049-f0"
+    ],
+    "defaultFrame": "item-5049-f0",
+    "animSpeed": 200
+  },
+  "5050": {
+    "frames": [
+      "item-5050-f0"
+    ],
+    "defaultFrame": "item-5050-f0",
+    "animSpeed": 200
+  },
+  "5051": {
+    "frames": [
+      "item-5051-f0"
+    ],
+    "defaultFrame": "item-5051-f0",
+    "animSpeed": 200
+  },
+  "5052": {
+    "frames": [
+      "item-5052-f0"
+    ],
+    "defaultFrame": "item-5052-f0",
+    "animSpeed": 200
+  },
+  "5054": {
+    "frames": [
+      "item-5054-f0"
+    ],
+    "defaultFrame": "item-5054-f0",
+    "animSpeed": 200
+  },
+  "5064": {
+    "frames": [
+      "item-5064-f0",
+      "item-5064-f1",
+      "item-5064-f2",
+      "item-5064-f3",
+      "item-5064-f4"
+    ],
+    "defaultFrame": "item-5064-f0",
+    "animSpeed": 200
+  },
+  "5067": {
+    "frames": [
+      "item-5067-f0",
+      "item-5067-f1",
+      "item-5067-f2",
+      "item-5067-f3",
+      "item-5067-f4"
+    ],
+    "defaultFrame": "item-5067-f0",
+    "animSpeed": 200
+  },
+  "5099": {
+    "frames": [
+      "item-5099-f0"
+    ],
+    "defaultFrame": "item-5099-f0",
+    "animSpeed": 200
+  },
+  "5101": {
+    "frames": [
+      "item-5101-f0"
+    ],
+    "defaultFrame": "item-5101-f0",
+    "animSpeed": 200
+  },
+  "5105": {
+    "frames": [
+      "item-5105-f0",
+      "item-5105-f1",
+      "item-5105-f2",
+      "item-5105-f3"
+    ],
+    "defaultFrame": "item-5105-f0",
+    "animSpeed": 200
+  },
+  "5107": {
+    "frames": [
+      "item-5107-f0"
+    ],
+    "defaultFrame": "item-5107-f0",
+    "animSpeed": 200
+  },
+  "5108": {
+    "frames": [
+      "item-5108-f0"
+    ],
+    "defaultFrame": "item-5108-f0",
+    "animSpeed": 200
+  },
+  "5110": {
+    "frames": [
+      "item-5110-f0"
+    ],
+    "defaultFrame": "item-5110-f0",
+    "animSpeed": 200
+  },
+  "5114": {
+    "frames": [
+      "item-5114-f0",
+      "item-5114-f1",
+      "item-5114-f2",
+      "item-5114-f3"
+    ],
+    "defaultFrame": "item-5114-f0",
+    "animSpeed": 200
+  },
+  "5147": {
+    "frames": [
+      "item-5147-f0"
+    ],
+    "defaultFrame": "item-5147-f0",
+    "animSpeed": 200
+  },
+  "5150": {
+    "frames": [
+      "item-5150-f0"
+    ],
+    "defaultFrame": "item-5150-f0",
+    "animSpeed": 200
+  },
+  "5151": {
+    "frames": [
+      "item-5151-f0"
+    ],
+    "defaultFrame": "item-5151-f0",
+    "animSpeed": 200
+  },
+  "5152": {
+    "frames": [
+      "item-5152-f0",
+      "item-5152-f1"
+    ],
+    "defaultFrame": "item-5152-f0",
+    "animSpeed": 200
+  },
+  "5153": {
+    "frames": [
+      "item-5153-f0"
+    ],
+    "defaultFrame": "item-5153-f0",
+    "animSpeed": 200
+  },
+  "5154": {
+    "frames": [
+      "item-5154-f0",
+      "item-5154-f1"
+    ],
+    "defaultFrame": "item-5154-f0",
+    "animSpeed": 200
+  },
+  "5155": {
+    "frames": [
+      "item-5155-f0"
+    ],
+    "defaultFrame": "item-5155-f0",
+    "animSpeed": 200
+  },
+  "5159": {
+    "frames": [
+      "item-5159-f0"
+    ],
+    "defaultFrame": "item-5159-f0",
+    "animSpeed": 200
+  },
+  "5160": {
+    "frames": [
+      "item-5160-f0"
+    ],
+    "defaultFrame": "item-5160-f0",
+    "animSpeed": 200
+  },
+  "5162": {
+    "frames": [
+      "item-5162-f0"
+    ],
+    "defaultFrame": "item-5162-f0",
+    "animSpeed": 200
+  },
+  "5163": {
+    "frames": [
+      "item-5163-f0"
+    ],
+    "defaultFrame": "item-5163-f0",
+    "animSpeed": 200
+  },
+  "5165": {
+    "frames": [
+      "item-5165-f0"
+    ],
+    "defaultFrame": "item-5165-f0",
+    "animSpeed": 200
+  },
+  "5166": {
+    "frames": [
+      "item-5166-f0"
+    ],
+    "defaultFrame": "item-5166-f0",
+    "animSpeed": 200
+  },
+  "5167": {
+    "frames": [
+      "item-5167-f0"
+    ],
+    "defaultFrame": "item-5167-f0",
+    "animSpeed": 200
+  },
+  "5168": {
+    "frames": [
+      "item-5168-f0"
+    ],
+    "defaultFrame": "item-5168-f0",
+    "animSpeed": 200
+  },
+  "5169": {
+    "frames": [
+      "item-5169-f0"
+    ],
+    "defaultFrame": "item-5169-f0",
+    "animSpeed": 200
+  },
+  "5195": {
+    "frames": [
+      "item-5195-f0"
+    ],
+    "defaultFrame": "item-5195-f0",
+    "animSpeed": 200
+  },
+  "5196": {
+    "frames": [
+      "item-5196-f0"
+    ],
+    "defaultFrame": "item-5196-f0",
+    "animSpeed": 200
+  },
+  "5197": {
+    "frames": [
+      "item-5197-f0"
+    ],
+    "defaultFrame": "item-5197-f0",
+    "animSpeed": 200
+  },
+  "5199": {
+    "frames": [
+      "item-5199-f0"
+    ],
+    "defaultFrame": "item-5199-f0",
+    "animSpeed": 200
+  },
+  "5200": {
+    "frames": [
+      "item-5200-f0"
+    ],
+    "defaultFrame": "item-5200-f0",
+    "animSpeed": 200
+  },
+  "5201": {
+    "frames": [
+      "item-5201-f0"
+    ],
+    "defaultFrame": "item-5201-f0",
+    "animSpeed": 200
+  },
+  "5254": {
+    "frames": [
+      "item-5254-f0"
+    ],
+    "defaultFrame": "item-5254-f0",
+    "animSpeed": 200
+  },
+  "5258": {
+    "frames": [
+      "item-5258-f0"
+    ],
+    "defaultFrame": "item-5258-f0",
+    "animSpeed": 200
+  },
+  "5333": {
+    "frames": [
+      "item-5333-f0"
+    ],
+    "defaultFrame": "item-5333-f0",
+    "animSpeed": 200
+  },
+  "5335": {
+    "frames": [
+      "item-5335-f0"
+    ],
+    "defaultFrame": "item-5335-f0",
+    "animSpeed": 200
+  },
+  "5339": {
+    "frames": [
+      "item-5339-f0"
+    ],
+    "defaultFrame": "item-5339-f0",
+    "animSpeed": 200
+  },
+  "5348": {
+    "frames": [
+      "item-5348-f0"
+    ],
+    "defaultFrame": "item-5348-f0",
+    "animSpeed": 200
+  },
+  "5366": {
+    "frames": [
+      "item-5366-f0"
+    ],
+    "defaultFrame": "item-5366-f0",
+    "animSpeed": 200
+  },
+  "5371": {
+    "frames": [
+      "item-5371-f0"
+    ],
+    "defaultFrame": "item-5371-f0",
+    "animSpeed": 200
+  },
+  "5372": {
+    "frames": [
+      "item-5372-f0"
+    ],
+    "defaultFrame": "item-5372-f0",
+    "animSpeed": 200
+  },
+  "5384": {
+    "frames": [
+      "item-5384-f0"
+    ],
+    "defaultFrame": "item-5384-f0",
+    "animSpeed": 200
+  },
+  "5386": {
+    "frames": [
+      "item-5386-f0"
+    ],
+    "defaultFrame": "item-5386-f0",
+    "animSpeed": 200
+  },
+  "5424": {
+    "frames": [
+      "item-5424-f0",
+      "item-5424-f1",
+      "item-5424-f2",
+      "item-5424-f3",
+      "item-5424-f4",
+      "item-5424-f5",
+      "item-5424-f6"
+    ],
+    "defaultFrame": "item-5424-f0",
+    "animSpeed": 200
+  },
+  "5425": {
+    "frames": [
+      "item-5425-f0",
+      "item-5425-f1",
+      "item-5425-f2",
+      "item-5425-f3",
+      "item-5425-f4",
+      "item-5425-f5",
+      "item-5425-f6"
+    ],
+    "defaultFrame": "item-5425-f0",
+    "animSpeed": 200
+  },
+  "5469": {
+    "frames": [
+      "item-5469-f0"
+    ],
+    "defaultFrame": "item-5469-f0",
+    "animSpeed": 200
+  },
+  "5470": {
+    "frames": [
+      "item-5470-f0"
+    ],
+    "defaultFrame": "item-5470-f0",
+    "animSpeed": 200
+  },
+  "5578": {
+    "frames": [
+      "item-5578-f0"
+    ],
+    "defaultFrame": "item-5578-f0",
+    "animSpeed": 200
+  },
+  "5579": {
+    "frames": [
+      "item-5579-f0"
+    ],
+    "defaultFrame": "item-5579-f0",
+    "animSpeed": 200
+  },
+  "5580": {
+    "frames": [
+      "item-5580-f0"
+    ],
+    "defaultFrame": "item-5580-f0",
+    "animSpeed": 200
+  },
+  "5581": {
+    "frames": [
+      "item-5581-f0"
+    ],
+    "defaultFrame": "item-5581-f0",
+    "animSpeed": 200
+  },
+  "5582": {
+    "frames": [
+      "item-5582-f0"
+    ],
+    "defaultFrame": "item-5582-f0",
+    "animSpeed": 200
+  },
+  "5583": {
+    "frames": [
+      "item-5583-f0"
+    ],
+    "defaultFrame": "item-5583-f0",
+    "animSpeed": 200
+  },
+  "5587": {
+    "frames": [
+      "item-5587-f0"
+    ],
+    "defaultFrame": "item-5587-f0",
+    "animSpeed": 200
+  },
+  "5588": {
+    "frames": [
+      "item-5588-f0"
+    ],
+    "defaultFrame": "item-5588-f0",
+    "animSpeed": 200
+  },
+  "5589": {
+    "frames": [
+      "item-5589-f0"
+    ],
+    "defaultFrame": "item-5589-f0",
+    "animSpeed": 200
+  },
+  "5590": {
+    "frames": [
+      "item-5590-f0"
+    ],
+    "defaultFrame": "item-5590-f0",
+    "animSpeed": 200
+  },
+  "5591": {
+    "frames": [
+      "item-5591-f0"
+    ],
+    "defaultFrame": "item-5591-f0",
+    "animSpeed": 200
+  },
+  "5592": {
+    "frames": [
+      "item-5592-f0"
+    ],
+    "defaultFrame": "item-5592-f0",
+    "animSpeed": 200
+  },
+  "5593": {
+    "frames": [
+      "item-5593-f0"
+    ],
+    "defaultFrame": "item-5593-f0",
+    "animSpeed": 200
+  },
+  "5594": {
+    "frames": [
+      "item-5594-f0"
+    ],
+    "defaultFrame": "item-5594-f0",
+    "animSpeed": 200
+  },
+  "5595": {
+    "frames": [
+      "item-5595-f0"
+    ],
+    "defaultFrame": "item-5595-f0",
+    "animSpeed": 200
+  },
+  "5597": {
+    "frames": [
+      "item-5597-f0"
+    ],
+    "defaultFrame": "item-5597-f0",
+    "animSpeed": 200
+  },
+  "5655": {
+    "frames": [
+      "item-5655-f0"
+    ],
+    "defaultFrame": "item-5655-f0",
+    "animSpeed": 200
+  },
+  "5656": {
+    "frames": [
+      "item-5656-f0"
+    ],
+    "defaultFrame": "item-5656-f0",
+    "animSpeed": 200
+  },
+  "5675": {
+    "frames": [
+      "item-5675-f0",
+      "item-5675-f1",
+      "item-5675-f2",
+      "item-5675-f3",
+      "item-5675-f4",
+      "item-5675-f5",
+      "item-5675-f6",
+      "item-5675-f7"
+    ],
+    "defaultFrame": "item-5675-f0",
+    "animSpeed": 200
+  },
+  "5691": {
+    "frames": [
+      "item-5691-f0"
+    ],
+    "defaultFrame": "item-5691-f0",
+    "animSpeed": 200
+  },
+  "5695": {
+    "frames": [
+      "item-5695-f0"
+    ],
+    "defaultFrame": "item-5695-f0",
+    "animSpeed": 200
+  },
+  "5696": {
+    "frames": [
+      "item-5696-f0"
+    ],
+    "defaultFrame": "item-5696-f0",
+    "animSpeed": 200
+  },
+  "5697": {
+    "frames": [
+      "item-5697-f0"
+    ],
+    "defaultFrame": "item-5697-f0",
+    "animSpeed": 200
+  },
+  "5698": {
+    "frames": [
+      "item-5698-f0"
+    ],
+    "defaultFrame": "item-5698-f0",
+    "animSpeed": 200
+  },
+  "5699": {
+    "frames": [
+      "item-5699-f0"
+    ],
+    "defaultFrame": "item-5699-f0",
+    "animSpeed": 200
+  },
+  "5700": {
+    "frames": [
+      "item-5700-f0"
+    ],
+    "defaultFrame": "item-5700-f0",
+    "animSpeed": 200
+  },
+  "5768": {
+    "frames": [
+      "item-5768-f0"
+    ],
+    "defaultFrame": "item-5768-f0",
+    "animSpeed": 200
+  },
+  "5769": {
+    "frames": [
+      "item-5769-f0"
+    ],
+    "defaultFrame": "item-5769-f0",
+    "animSpeed": 200
+  },
+  "5771": {
+    "frames": [
+      "item-5771-f0"
+    ],
+    "defaultFrame": "item-5771-f0",
+    "animSpeed": 200
+  },
+  "5772": {
+    "frames": [
+      "item-5772-f0"
+    ],
+    "defaultFrame": "item-5772-f0",
+    "animSpeed": 200
+  },
+  "5773": {
+    "frames": [
+      "item-5773-f0"
+    ],
+    "defaultFrame": "item-5773-f0",
+    "animSpeed": 200
+  },
+  "5774": {
+    "frames": [
+      "item-5774-f0"
+    ],
+    "defaultFrame": "item-5774-f0",
+    "animSpeed": 200
+  },
+  "5777": {
+    "frames": [
+      "item-5777-f0"
+    ],
+    "defaultFrame": "item-5777-f0",
+    "animSpeed": 200
+  },
+  "5817": {
+    "frames": [
+      "item-5817-f0"
+    ],
+    "defaultFrame": "item-5817-f0",
+    "animSpeed": 200
+  },
+  "5819": {
+    "frames": [
+      "item-5819-f0"
+    ],
+    "defaultFrame": "item-5819-f0",
+    "animSpeed": 200
+  },
+  "5820": {
+    "frames": [
+      "item-5820-f0"
+    ],
+    "defaultFrame": "item-5820-f0",
+    "animSpeed": 200
+  },
+  "5821": {
+    "frames": [
+      "item-5821-f0"
+    ],
+    "defaultFrame": "item-5821-f0",
+    "animSpeed": 200
+  },
+  "5822": {
+    "frames": [
+      "item-5822-f0"
+    ],
+    "defaultFrame": "item-5822-f0",
+    "animSpeed": 200
+  },
+  "5823": {
+    "frames": [
+      "item-5823-f0"
+    ],
+    "defaultFrame": "item-5823-f0",
+    "animSpeed": 200
+  },
+  "5853": {
+    "frames": [
+      "item-5853-f0"
+    ],
+    "defaultFrame": "item-5853-f0",
+    "animSpeed": 200
+  },
+  "5855": {
+    "frames": [
+      "item-5855-f0"
+    ],
+    "defaultFrame": "item-5855-f0",
+    "animSpeed": 200
+  },
+  "5915": {
+    "frames": [
+      "item-5915-f0"
+    ],
+    "defaultFrame": "item-5915-f0",
+    "animSpeed": 200
+  },
+  "6116": {
+    "frames": [
+      "item-6116-f0",
+      "item-6116-f1",
+      "item-6116-f2",
+      "item-6116-f3",
+      "item-6116-f4"
+    ],
+    "defaultFrame": "item-6116-f0",
+    "animSpeed": 200
+  },
+  "6117": {
+    "frames": [
+      "item-6117-f0",
+      "item-6117-f1",
+      "item-6117-f2",
+      "item-6117-f3",
+      "item-6117-f4"
+    ],
+    "defaultFrame": "item-6117-f0",
+    "animSpeed": 200
+  },
+  "6121": {
+    "frames": [
+      "item-6121-f0"
+    ],
+    "defaultFrame": "item-6121-f0",
+    "animSpeed": 200
+  },
+  "6130": {
+    "frames": [
+      "item-6130-f0"
+    ],
+    "defaultFrame": "item-6130-f0",
+    "animSpeed": 200
+  },
+  "6175": {
+    "frames": [
+      "item-6175-f0"
+    ],
+    "defaultFrame": "item-6175-f0",
+    "animSpeed": 200
+  },
+  "6177": {
+    "frames": [
+      "item-6177-f0"
+    ],
+    "defaultFrame": "item-6177-f0",
+    "animSpeed": 200
+  },
+  "6216": {
+    "frames": [
+      "item-6216-f0",
+      "item-6216-f1",
+      "item-6216-f2",
+      "item-6216-f3"
+    ],
+    "defaultFrame": "item-6216-f0",
+    "animSpeed": 200
+  },
+  "6217": {
+    "frames": [
+      "item-6217-f0",
+      "item-6217-f1",
+      "item-6217-f2",
+      "item-6217-f3"
+    ],
+    "defaultFrame": "item-6217-f0",
+    "animSpeed": 200
+  },
+  "6218": {
+    "frames": [
+      "item-6218-f0",
+      "item-6218-f1",
+      "item-6218-f2",
+      "item-6218-f3"
+    ],
+    "defaultFrame": "item-6218-f0",
+    "animSpeed": 200
+  },
+  "6219": {
+    "frames": [
+      "item-6219-f0",
+      "item-6219-f1",
+      "item-6219-f2",
+      "item-6219-f3"
+    ],
+    "defaultFrame": "item-6219-f0",
+    "animSpeed": 200
+  },
+  "6249": {
+    "frames": [
+      "item-6249-f0"
+    ],
+    "defaultFrame": "item-6249-f0",
+    "animSpeed": 200
+  },
+  "6250": {
+    "frames": [
+      "item-6250-f0"
+    ],
+    "defaultFrame": "item-6250-f0",
+    "animSpeed": 200
+  },
+  "6251": {
+    "frames": [
+      "item-6251-f0"
+    ],
+    "defaultFrame": "item-6251-f0",
+    "animSpeed": 200
+  },
+  "6252": {
+    "frames": [
+      "item-6252-f0"
+    ],
+    "defaultFrame": "item-6252-f0",
+    "animSpeed": 200
+  },
+  "6253": {
+    "frames": [
+      "item-6253-f0"
+    ],
+    "defaultFrame": "item-6253-f0",
+    "animSpeed": 200
+  },
+  "6374": {
+    "frames": [
+      "item-6374-f0",
+      "item-6374-f1",
+      "item-6374-f2",
+      "item-6374-f3"
+    ],
+    "defaultFrame": "item-6374-f0",
+    "animSpeed": 200
+  },
+  "6375": {
+    "frames": [
+      "item-6375-f0",
+      "item-6375-f1"
+    ],
+    "defaultFrame": "item-6375-f0",
+    "animSpeed": 200
+  },
+  "6376": {
+    "frames": [
+      "item-6376-f0",
+      "item-6376-f1"
+    ],
+    "defaultFrame": "item-6376-f0",
+    "animSpeed": 200
+  },
+  "6377": {
+    "frames": [
+      "item-6377-f0",
+      "item-6377-f1"
+    ],
+    "defaultFrame": "item-6377-f0",
+    "animSpeed": 200
+  },
+  "6378": {
+    "frames": [
+      "item-6378-f0",
+      "item-6378-f1"
+    ],
+    "defaultFrame": "item-6378-f0",
+    "animSpeed": 200
+  },
+  "6379": {
+    "frames": [
+      "item-6379-f0"
+    ],
+    "defaultFrame": "item-6379-f0",
+    "animSpeed": 200
+  },
+  "6380": {
+    "frames": [
+      "item-6380-f0"
+    ],
+    "defaultFrame": "item-6380-f0",
+    "animSpeed": 200
+  },
+  "6381": {
+    "frames": [
+      "item-6381-f0"
+    ],
+    "defaultFrame": "item-6381-f0",
+    "animSpeed": 200
+  },
+  "6382": {
+    "frames": [
+      "item-6382-f0"
+    ],
+    "defaultFrame": "item-6382-f0",
+    "animSpeed": 200
+  },
+  "6383": {
+    "frames": [
+      "item-6383-f0"
+    ],
+    "defaultFrame": "item-6383-f0",
+    "animSpeed": 200
+  },
+  "6384": {
+    "frames": [
+      "item-6384-f0"
+    ],
+    "defaultFrame": "item-6384-f0",
+    "animSpeed": 200
+  },
+  "6385": {
+    "frames": [
+      "item-6385-f0"
+    ],
+    "defaultFrame": "item-6385-f0",
+    "animSpeed": 200
+  },
+  "6386": {
+    "frames": [
+      "item-6386-f0"
+    ],
+    "defaultFrame": "item-6386-f0",
+    "animSpeed": 200
+  },
+  "6436": {
+    "frames": [
+      "item-6436-f0"
+    ],
+    "defaultFrame": "item-6436-f0",
+    "animSpeed": 200
+  },
+  "6437": {
+    "frames": [
+      "item-6437-f0"
+    ],
+    "defaultFrame": "item-6437-f0",
+    "animSpeed": 200
+  },
+  "6438": {
+    "frames": [
+      "item-6438-f0"
+    ],
+    "defaultFrame": "item-6438-f0",
+    "animSpeed": 200
+  },
+  "6439": {
+    "frames": [
+      "item-6439-f0"
+    ],
+    "defaultFrame": "item-6439-f0",
+    "animSpeed": 200
+  },
+  "6440": {
+    "frames": [
+      "item-6440-f0"
+    ],
+    "defaultFrame": "item-6440-f0",
+    "animSpeed": 200
+  },
+  "6441": {
+    "frames": [
+      "item-6441-f0"
+    ],
+    "defaultFrame": "item-6441-f0",
+    "animSpeed": 200
+  },
+  "6442": {
+    "frames": [
+      "item-6442-f0"
+    ],
+    "defaultFrame": "item-6442-f0",
+    "animSpeed": 200
+  },
+  "6443": {
+    "frames": [
+      "item-6443-f0"
+    ],
+    "defaultFrame": "item-6443-f0",
+    "animSpeed": 200
+  },
+  "6446": {
+    "frames": [
+      "item-6446-f0",
+      "item-6446-f1"
+    ],
+    "defaultFrame": "item-6446-f0",
+    "animSpeed": 200
+  },
+  "6447": {
+    "frames": [
+      "item-6447-f0",
+      "item-6447-f1"
+    ],
+    "defaultFrame": "item-6447-f0",
+    "animSpeed": 200
+  },
+  "6476": {
+    "frames": [
+      "item-6476-f0",
+      "item-6476-f1",
+      "item-6476-f2",
+      "item-6476-f3"
+    ],
+    "defaultFrame": "item-6476-f0",
+    "animSpeed": 200
+  },
+  "6477": {
+    "frames": [
+      "item-6477-f0",
+      "item-6477-f1"
+    ],
+    "defaultFrame": "item-6477-f0",
+    "animSpeed": 200
+  },
+  "6478": {
+    "frames": [
+      "item-6478-f0",
+      "item-6478-f1"
+    ],
+    "defaultFrame": "item-6478-f0",
+    "animSpeed": 200
+  },
+  "6479": {
+    "frames": [
+      "item-6479-f0",
+      "item-6479-f1"
+    ],
+    "defaultFrame": "item-6479-f0",
+    "animSpeed": 200
+  },
+  "6480": {
+    "frames": [
+      "item-6480-f0",
+      "item-6480-f1"
+    ],
+    "defaultFrame": "item-6480-f0",
+    "animSpeed": 200
+  },
+  "6481": {
+    "frames": [
+      "item-6481-f0"
+    ],
+    "defaultFrame": "item-6481-f0",
+    "animSpeed": 200
+  },
+  "6482": {
+    "frames": [
+      "item-6482-f0"
+    ],
+    "defaultFrame": "item-6482-f0",
+    "animSpeed": 200
+  },
+  "6483": {
+    "frames": [
+      "item-6483-f0"
+    ],
+    "defaultFrame": "item-6483-f0",
+    "animSpeed": 200
+  },
+  "6484": {
+    "frames": [
+      "item-6484-f0"
+    ],
+    "defaultFrame": "item-6484-f0",
+    "animSpeed": 200
+  },
+  "6485": {
+    "frames": [
+      "item-6485-f0"
+    ],
+    "defaultFrame": "item-6485-f0",
+    "animSpeed": 200
+  },
+  "6486": {
+    "frames": [
+      "item-6486-f0"
+    ],
+    "defaultFrame": "item-6486-f0",
+    "animSpeed": 200
+  },
+  "6487": {
+    "frames": [
+      "item-6487-f0"
+    ],
+    "defaultFrame": "item-6487-f0",
+    "animSpeed": 200
+  },
+  "6488": {
+    "frames": [
+      "item-6488-f0"
+    ],
+    "defaultFrame": "item-6488-f0",
+    "animSpeed": 200
+  },
+  "6696": {
+    "frames": [
+      "item-6696-f0"
+    ],
+    "defaultFrame": "item-6696-f0",
+    "animSpeed": 200
+  },
+  "6698": {
+    "frames": [
+      "item-6698-f0"
+    ],
+    "defaultFrame": "item-6698-f0",
+    "animSpeed": 200
+  },
+  "6699": {
+    "frames": [
+      "item-6699-f0"
+    ],
+    "defaultFrame": "item-6699-f0",
+    "animSpeed": 200
+  },
+  "6700": {
+    "frames": [
+      "item-6700-f0"
+    ],
+    "defaultFrame": "item-6700-f0",
+    "animSpeed": 200
+  },
+  "6701": {
+    "frames": [
+      "item-6701-f0"
+    ],
+    "defaultFrame": "item-6701-f0",
+    "animSpeed": 200
+  },
+  "6702": {
+    "frames": [
+      "item-6702-f0"
+    ],
+    "defaultFrame": "item-6702-f0",
+    "animSpeed": 200
+  },
+  "6730": {
+    "frames": [
+      "item-6730-f0"
+    ],
+    "defaultFrame": "item-6730-f0",
+    "animSpeed": 200
+  },
+  "6763": {
+    "frames": [
+      "item-6763-f0"
+    ],
+    "defaultFrame": "item-6763-f0",
+    "animSpeed": 200
+  },
+  "6886": {
+    "frames": [
+      "item-6886-f0"
+    ],
+    "defaultFrame": "item-6886-f0",
+    "animSpeed": 200
+  },
+  "6888": {
+    "frames": [
+      "item-6888-f0"
+    ],
+    "defaultFrame": "item-6888-f0",
+    "animSpeed": 200
+  },
+  "7108": {
+    "frames": [
+      "item-7108-f0",
+      "item-7108-f1",
+      "item-7108-f2",
+      "item-7108-f3",
+      "item-7108-f4",
+      "item-7108-f5",
+      "item-7108-f6",
+      "item-7108-f7",
+      "item-7108-f8",
+      "item-7108-f9",
+      "item-7108-f10"
+    ],
+    "defaultFrame": "item-7108-f0",
+    "animSpeed": 200
+  },
+  "7109": {
+    "frames": [
+      "item-7109-f0",
+      "item-7109-f1",
+      "item-7109-f2",
+      "item-7109-f3",
+      "item-7109-f4",
+      "item-7109-f5",
+      "item-7109-f6",
+      "item-7109-f7",
+      "item-7109-f8",
+      "item-7109-f9",
+      "item-7109-f10"
+    ],
+    "defaultFrame": "item-7109-f0",
+    "animSpeed": 200
+  },
+  "7232": {
+    "frames": [
+      "item-7232-f0"
+    ],
+    "defaultFrame": "item-7232-f0",
+    "animSpeed": 200
+  },
+  "7233": {
+    "frames": [
+      "item-7233-f0"
+    ],
+    "defaultFrame": "item-7233-f0",
+    "animSpeed": 200
+  },
+  "7481": {
+    "frames": [
+      "item-7481-f0"
+    ],
+    "defaultFrame": "item-7481-f0",
+    "animSpeed": 200
+  },
+  "7490": {
+    "frames": [
+      "item-7490-f0"
+    ],
+    "defaultFrame": "item-7490-f0",
+    "animSpeed": 200
+  },
+  "7589": {
+    "frames": [
+      "item-7589-f0"
+    ],
+    "defaultFrame": "item-7589-f0",
+    "animSpeed": 200
+  },
+  "7653": {
+    "frames": [
+      "item-7653-f0",
+      "item-7653-f1"
+    ],
+    "defaultFrame": "item-7653-f0",
+    "animSpeed": 200
+  },
+  "7656": {
+    "frames": [
+      "item-7656-f0",
+      "item-7656-f1"
+    ],
+    "defaultFrame": "item-7656-f0",
+    "animSpeed": 200
+  },
+  "7657": {
+    "frames": [
+      "item-7657-f0",
+      "item-7657-f1",
+      "item-7657-f2",
+      "item-7657-f3"
+    ],
+    "defaultFrame": "item-7657-f0",
+    "animSpeed": 200
+  },
+  "7658": {
+    "frames": [
+      "item-7658-f0",
+      "item-7658-f1",
+      "item-7658-f2",
+      "item-7658-f3"
+    ],
+    "defaultFrame": "item-7658-f0",
+    "animSpeed": 200
+  },
+  "7659": {
+    "frames": [
+      "item-7659-f0",
+      "item-7659-f1",
+      "item-7659-f2",
+      "item-7659-f3"
+    ],
+    "defaultFrame": "item-7659-f0",
+    "animSpeed": 200
+  },
+  "7660": {
+    "frames": [
+      "item-7660-f0",
+      "item-7660-f1",
+      "item-7660-f2",
+      "item-7660-f3"
+    ],
+    "defaultFrame": "item-7660-f0",
+    "animSpeed": 200
+  },
+  "7661": {
+    "frames": [
+      "item-7661-f0"
+    ],
+    "defaultFrame": "item-7661-f0",
+    "animSpeed": 200
+  },
+  "7662": {
+    "frames": [
+      "item-7662-f0"
+    ],
+    "defaultFrame": "item-7662-f0",
+    "animSpeed": 200
+  },
+  "7663": {
+    "frames": [
+      "item-7663-f0"
+    ],
+    "defaultFrame": "item-7663-f0",
+    "animSpeed": 200
+  },
+  "7664": {
+    "frames": [
+      "item-7664-f0"
+    ],
+    "defaultFrame": "item-7664-f0",
+    "animSpeed": 200
+  },
+  "7709": {
+    "frames": [
+      "item-7709-f0",
+      "item-7709-f1"
+    ],
+    "defaultFrame": "item-7709-f0",
+    "animSpeed": 200
+  },
+  "7710": {
+    "frames": [
+      "item-7710-f0",
+      "item-7710-f1"
+    ],
+    "defaultFrame": "item-7710-f0",
+    "animSpeed": 200
+  },
+  "7823": {
+    "frames": [
+      "item-7823-f0"
+    ],
+    "defaultFrame": "item-7823-f0",
+    "animSpeed": 200
+  },
+  "7852": {
+    "frames": [
+      "item-7852-f0",
+      "item-7852-f1",
+      "item-7852-f2",
+      "item-7852-f3"
+    ],
+    "defaultFrame": "item-7852-f0",
+    "animSpeed": 200
+  },
+  "7853": {
+    "frames": [
+      "item-7853-f0",
+      "item-7853-f1",
+      "item-7853-f2",
+      "item-7853-f3"
+    ],
+    "defaultFrame": "item-7853-f0",
+    "animSpeed": 200
+  },
+  "8011": {
+    "frames": [
+      "item-8011-f0",
+      "item-8011-f1"
+    ],
+    "defaultFrame": "item-8011-f0",
+    "animSpeed": 200
+  },
+  "8013": {
+    "frames": [
+      "item-8013-f0",
+      "item-8013-f1"
+    ],
+    "defaultFrame": "item-8013-f0",
+    "animSpeed": 200
+  },
+  "8046": {
+    "frames": [
+      "item-8046-f0",
+      "item-8046-f1",
+      "item-8046-f2",
+      "item-8046-f3",
+      "item-8046-f4",
+      "item-8046-f5",
+      "item-8046-f6",
+      "item-8046-f7",
+      "item-8046-f8",
+      "item-8046-f9",
+      "item-8046-f10",
+      "item-8046-f11"
+    ],
+    "defaultFrame": "item-8046-f0",
+    "animSpeed": 200
+  },
+  "8047": {
+    "frames": [
+      "item-8047-f0",
+      "item-8047-f1",
+      "item-8047-f2",
+      "item-8047-f3",
+      "item-8047-f4",
+      "item-8047-f5",
+      "item-8047-f6",
+      "item-8047-f7",
+      "item-8047-f8",
+      "item-8047-f9",
+      "item-8047-f10",
+      "item-8047-f11"
+    ],
+    "defaultFrame": "item-8047-f0",
+    "animSpeed": 200
+  },
+  "8058": {
+    "frames": [
+      "item-8058-f0",
+      "item-8058-f1",
+      "item-8058-f2",
+      "item-8058-f3",
+      "item-8058-f4"
+    ],
+    "defaultFrame": "item-8058-f0",
+    "animSpeed": 200
+  },
+  "8144": {
+    "frames": [
+      "item-8144-f0"
+    ],
+    "defaultFrame": "item-8144-f0",
+    "animSpeed": 200
+  },
+  "8145": {
+    "frames": [
+      "item-8145-f0"
+    ],
+    "defaultFrame": "item-8145-f0",
+    "animSpeed": 200
+  },
+  "8146": {
+    "frames": [
+      "item-8146-f0"
+    ],
+    "defaultFrame": "item-8146-f0",
+    "animSpeed": 200
+  },
+  "8147": {
+    "frames": [
+      "item-8147-f0"
+    ],
+    "defaultFrame": "item-8147-f0",
+    "animSpeed": 200
+  },
+  "8156": {
+    "frames": [
+      "item-8156-f0"
+    ],
+    "defaultFrame": "item-8156-f0",
+    "animSpeed": 200
+  },
+  "8157": {
+    "frames": [
+      "item-8157-f0"
+    ],
+    "defaultFrame": "item-8157-f0",
+    "animSpeed": 200
+  },
+  "8158": {
+    "frames": [
+      "item-8158-f0"
+    ],
+    "defaultFrame": "item-8158-f0",
+    "animSpeed": 200
+  },
+  "8159": {
+    "frames": [
+      "item-8159-f0"
+    ],
+    "defaultFrame": "item-8159-f0",
+    "animSpeed": 200
+  },
+  "8167": {
+    "frames": [
+      "item-8167-f0"
+    ],
+    "defaultFrame": "item-8167-f0",
+    "animSpeed": 200
+  },
+  "8174": {
+    "frames": [
+      "item-8174-f0",
+      "item-8174-f1",
+      "item-8174-f2",
+      "item-8174-f3",
+      "item-8174-f4"
+    ],
+    "defaultFrame": "item-8174-f0",
+    "animSpeed": 200
+  },
+  "8242": {
+    "frames": [
+      "item-8242-f0",
+      "item-8242-f1",
+      "item-8242-f2",
+      "item-8242-f3"
+    ],
+    "defaultFrame": "item-8242-f0",
+    "animSpeed": 200
+  },
+  "8243": {
+    "frames": [
+      "item-8243-f0"
+    ],
+    "defaultFrame": "item-8243-f0",
+    "animSpeed": 200
+  },
+  "8279": {
+    "frames": [
+      "item-8279-f0"
+    ],
+    "defaultFrame": "item-8279-f0",
+    "animSpeed": 200
+  },
+  "8281": {
+    "frames": [
+      "item-8281-f0"
+    ],
+    "defaultFrame": "item-8281-f0",
+    "animSpeed": 200
+  },
+  "8282": {
+    "frames": [
+      "item-8282-f0"
+    ],
+    "defaultFrame": "item-8282-f0",
+    "animSpeed": 200
+  },
+  "8283": {
+    "frames": [
+      "item-8283-f0"
+    ],
+    "defaultFrame": "item-8283-f0",
+    "animSpeed": 200
+  },
+  "8284": {
+    "frames": [
+      "item-8284-f0"
+    ],
+    "defaultFrame": "item-8284-f0",
+    "animSpeed": 200
+  },
+  "8285": {
+    "frames": [
+      "item-8285-f0"
+    ],
+    "defaultFrame": "item-8285-f0",
+    "animSpeed": 200
+  },
+  "8313": {
+    "frames": [
+      "item-8313-f0"
+    ],
+    "defaultFrame": "item-8313-f0",
+    "animSpeed": 200
+  },
+  "8641": {
+    "frames": [
+      "item-8641-f0",
+      "item-8641-f1",
+      "item-8641-f2",
+      "item-8641-f3",
+      "item-8641-f4"
+    ],
+    "defaultFrame": "item-8641-f0",
+    "animSpeed": 200
+  },
+  "8646": {
+    "frames": [
+      "item-8646-f0"
+    ],
+    "defaultFrame": "item-8646-f0",
+    "animSpeed": 200
+  },
+  "8647": {
+    "frames": [
+      "item-8647-f0"
+    ],
+    "defaultFrame": "item-8647-f0",
+    "animSpeed": 200
+  },
+  "8648": {
+    "frames": [
+      "item-8648-f0"
+    ],
+    "defaultFrame": "item-8648-f0",
+    "animSpeed": 200
+  },
+  "8653": {
+    "frames": [
+      "item-8653-f0"
+    ],
+    "defaultFrame": "item-8653-f0",
+    "animSpeed": 200
+  },
+  "8670": {
+    "frames": [
+      "item-8670-f0",
+      "item-8670-f1",
+      "item-8670-f2",
+      "item-8670-f3",
+      "item-8670-f4",
+      "item-8670-f5"
+    ],
+    "defaultFrame": "item-8670-f0",
+    "animSpeed": 200
+  },
+  "8671": {
+    "frames": [
+      "item-8671-f0"
+    ],
+    "defaultFrame": "item-8671-f0",
+    "animSpeed": 200
+  },
+  "8682": {
+    "frames": [
+      "item-8682-f0"
+    ],
+    "defaultFrame": "item-8682-f0",
+    "animSpeed": 200
+  },
+  "8683": {
+    "frames": [
+      "item-8683-f0"
+    ],
+    "defaultFrame": "item-8683-f0",
+    "animSpeed": 200
+  },
+  "8684": {
+    "frames": [
+      "item-8684-f0",
+      "item-8684-f1",
+      "item-8684-f2",
+      "item-8684-f3",
+      "item-8684-f4"
+    ],
+    "defaultFrame": "item-8684-f0",
+    "animSpeed": 200
+  },
+  "8731": {
+    "frames": [
+      "item-8731-f0"
+    ],
+    "defaultFrame": "item-8731-f0",
+    "animSpeed": 200
+  },
+  "8732": {
+    "frames": [
+      "item-8732-f0"
+    ],
+    "defaultFrame": "item-8732-f0",
+    "animSpeed": 200
+  },
+  "8733": {
+    "frames": [
+      "item-8733-f0"
+    ],
+    "defaultFrame": "item-8733-f0",
+    "animSpeed": 200
+  },
+  "8734": {
+    "frames": [
+      "item-8734-f0"
+    ],
+    "defaultFrame": "item-8734-f0",
+    "animSpeed": 200
+  },
+  "8735": {
+    "frames": [
+      "item-8735-f0"
+    ],
+    "defaultFrame": "item-8735-f0",
+    "animSpeed": 200
+  },
+  "8738": {
+    "frames": [
+      "item-8738-f0"
+    ],
+    "defaultFrame": "item-8738-f0",
+    "animSpeed": 200
+  },
+  "8739": {
+    "frames": [
+      "item-8739-f0"
+    ],
+    "defaultFrame": "item-8739-f0",
+    "animSpeed": 200
+  },
+  "8741": {
+    "frames": [
+      "item-8741-f0"
+    ],
+    "defaultFrame": "item-8741-f0",
+    "animSpeed": 200
+  },
+  "8743": {
+    "frames": [
+      "item-8743-f0"
+    ],
+    "defaultFrame": "item-8743-f0",
+    "animSpeed": 200
+  },
+  "8746": {
+    "frames": [
+      "item-8746-f0"
+    ],
+    "defaultFrame": "item-8746-f0",
+    "animSpeed": 200
+  },
+  "8747": {
+    "frames": [
+      "item-8747-f0"
+    ],
+    "defaultFrame": "item-8747-f0",
+    "animSpeed": 200
+  },
+  "8779": {
+    "frames": [
+      "item-8779-f0"
+    ],
+    "defaultFrame": "item-8779-f0",
+    "animSpeed": 200
+  },
+  "8780": {
+    "frames": [
+      "item-8780-f0"
+    ],
+    "defaultFrame": "item-8780-f0",
+    "animSpeed": 200
+  },
+  "8836": {
+    "frames": [
+      "item-8836-f0"
+    ],
+    "defaultFrame": "item-8836-f0",
+    "animSpeed": 200
+  },
+  "9043": {
+    "frames": [
+      "item-9043-f0",
+      "item-9043-f1",
+      "item-9043-f2",
+      "item-9043-f3"
+    ],
+    "defaultFrame": "item-9043-f0",
+    "animSpeed": 200
+  },
+  "9044": {
+    "frames": [
+      "item-9044-f0"
+    ],
+    "defaultFrame": "item-9044-f0",
+    "animSpeed": 200
+  },
+  "9045": {
+    "frames": [
+      "item-9045-f0"
+    ],
+    "defaultFrame": "item-9045-f0",
+    "animSpeed": 200
+  },
+  "9046": {
+    "frames": [
+      "item-9046-f0"
+    ],
+    "defaultFrame": "item-9046-f0",
+    "animSpeed": 200
+  },
+  "9047": {
+    "frames": [
+      "item-9047-f0"
+    ],
+    "defaultFrame": "item-9047-f0",
+    "animSpeed": 200
+  },
+  "9048": {
+    "frames": [
+      "item-9048-f0"
+    ],
+    "defaultFrame": "item-9048-f0",
+    "animSpeed": 200
+  },
+  "9049": {
+    "frames": [
+      "item-9049-f0"
+    ],
+    "defaultFrame": "item-9049-f0",
+    "animSpeed": 200
+  },
+  "9050": {
+    "frames": [
+      "item-9050-f0"
+    ],
+    "defaultFrame": "item-9050-f0",
+    "animSpeed": 200
+  },
+  "9051": {
+    "frames": [
+      "item-9051-f0"
+    ],
+    "defaultFrame": "item-9051-f0",
+    "animSpeed": 200
+  },
+  "9052": {
+    "frames": [
+      "item-9052-f0"
+    ],
+    "defaultFrame": "item-9052-f0",
+    "animSpeed": 200
+  },
+  "9053": {
+    "frames": [
+      "item-9053-f0"
+    ],
+    "defaultFrame": "item-9053-f0",
+    "animSpeed": 200
+  },
+  "9054": {
+    "frames": [
+      "item-9054-f0"
+    ],
+    "defaultFrame": "item-9054-f0",
+    "animSpeed": 200
+  },
+  "9055": {
+    "frames": [
+      "item-9055-f0"
+    ],
+    "defaultFrame": "item-9055-f0",
+    "animSpeed": 200
+  },
+  "9056": {
+    "frames": [
+      "item-9056-f0"
+    ],
+    "defaultFrame": "item-9056-f0",
+    "animSpeed": 200
+  },
+  "9057": {
+    "frames": [
+      "item-9057-f0"
+    ],
+    "defaultFrame": "item-9057-f0",
+    "animSpeed": 200
+  },
+  "9058": {
+    "frames": [
+      "item-9058-f0"
+    ],
+    "defaultFrame": "item-9058-f0",
+    "animSpeed": 200
+  },
+  "9060": {
+    "frames": [
+      "item-9060-f0"
+    ],
+    "defaultFrame": "item-9060-f0",
+    "animSpeed": 200
+  },
+  "9061": {
+    "frames": [
+      "item-9061-f0"
+    ],
+    "defaultFrame": "item-9061-f0",
+    "animSpeed": 200
+  },
+  "9067": {
+    "frames": [
+      "item-9067-f0"
+    ],
+    "defaultFrame": "item-9067-f0",
+    "animSpeed": 200
+  },
+  "9224": {
+    "frames": [
+      "item-9224-f0",
+      "item-9224-f1",
+      "item-9224-f2",
+      "item-9224-f3"
+    ],
+    "defaultFrame": "item-9224-f0",
+    "animSpeed": 200
+  },
+  "9225": {
+    "frames": [
+      "item-9225-f0",
+      "item-9225-f1",
+      "item-9225-f2",
+      "item-9225-f3"
+    ],
+    "defaultFrame": "item-9225-f0",
+    "animSpeed": 200
+  },
+  "9226": {
+    "frames": [
+      "item-9226-f0"
+    ],
+    "defaultFrame": "item-9226-f0",
+    "animSpeed": 200
+  },
+  "9227": {
+    "frames": [
+      "item-9227-f0"
+    ],
+    "defaultFrame": "item-9227-f0",
+    "animSpeed": 200
+  },
+  "9228": {
+    "frames": [
+      "item-9228-f0"
+    ],
+    "defaultFrame": "item-9228-f0",
+    "animSpeed": 200
+  },
+  "9229": {
+    "frames": [
+      "item-9229-f0"
+    ],
+    "defaultFrame": "item-9229-f0",
+    "animSpeed": 200
+  },
+  "9231": {
+    "frames": [
+      "item-9231-f0"
+    ],
+    "defaultFrame": "item-9231-f0",
+    "animSpeed": 200
+  },
+  "9232": {
+    "frames": [
+      "item-9232-f0"
+    ],
+    "defaultFrame": "item-9232-f0",
+    "animSpeed": 200
+  },
+  "9300": {
+    "frames": [
+      "item-9300-f0",
+      "item-9300-f1",
+      "item-9300-f2",
+      "item-9300-f3"
+    ],
+    "defaultFrame": "item-9300-f0",
+    "animSpeed": 200
+  },
+  "9301": {
+    "frames": [
+      "item-9301-f0",
+      "item-9301-f1",
+      "item-9301-f2",
+      "item-9301-f3"
+    ],
+    "defaultFrame": "item-9301-f0",
+    "animSpeed": 200
+  },
+  "9303": {
+    "frames": [
+      "item-9303-f0"
+    ],
+    "defaultFrame": "item-9303-f0",
+    "animSpeed": 200
+  },
+  "9387": {
+    "frames": [
+      "item-9387-f0",
+      "item-9387-f1",
+      "item-9387-f2",
+      "item-9387-f3"
+    ],
+    "defaultFrame": "item-9387-f0",
+    "animSpeed": 200
+  },
+  "9388": {
+    "frames": [
+      "item-9388-f0",
+      "item-9388-f1",
+      "item-9388-f2",
+      "item-9388-f3"
+    ],
+    "defaultFrame": "item-9388-f0",
+    "animSpeed": 200
+  },
+  "9389": {
+    "frames": [
+      "item-9389-f0",
+      "item-9389-f1",
+      "item-9389-f2",
+      "item-9389-f3"
+    ],
+    "defaultFrame": "item-9389-f0",
+    "animSpeed": 200
+  },
+  "9390": {
+    "frames": [
+      "item-9390-f0",
+      "item-9390-f1",
+      "item-9390-f2"
+    ],
+    "defaultFrame": "item-9390-f0",
+    "animSpeed": 200
+  },
+  "9392": {
+    "frames": [
+      "item-9392-f0"
+    ],
+    "defaultFrame": "item-9392-f0",
+    "animSpeed": 200
+  },
+  "9405": {
+    "frames": [
+      "item-9405-f0",
+      "item-9405-f1",
+      "item-9405-f2",
+      "item-9405-f3"
+    ],
+    "defaultFrame": "item-9405-f0",
+    "animSpeed": 200
+  },
+  "9406": {
+    "frames": [
+      "item-9406-f0"
+    ],
+    "defaultFrame": "item-9406-f0",
+    "animSpeed": 200
+  },
+  "9407": {
+    "frames": [
+      "item-9407-f0"
+    ],
+    "defaultFrame": "item-9407-f0",
+    "animSpeed": 200
+  },
+  "9408": {
+    "frames": [
+      "item-9408-f0"
+    ],
+    "defaultFrame": "item-9408-f0",
+    "animSpeed": 200
+  },
+  "9410": {
+    "frames": [
+      "item-9410-f0",
+      "item-9410-f1",
+      "item-9410-f2",
+      "item-9410-f3"
+    ],
+    "defaultFrame": "item-9410-f0",
+    "animSpeed": 200
+  },
+  "9411": {
+    "frames": [
+      "item-9411-f0"
+    ],
+    "defaultFrame": "item-9411-f0",
+    "animSpeed": 200
+  },
+  "9412": {
+    "frames": [
+      "item-9412-f0"
+    ],
+    "defaultFrame": "item-9412-f0",
+    "animSpeed": 200
+  },
+  "9413": {
+    "frames": [
+      "item-9413-f0"
+    ],
+    "defaultFrame": "item-9413-f0",
+    "animSpeed": 200
+  },
+  "9414": {
+    "frames": [
+      "item-9414-f0"
+    ],
+    "defaultFrame": "item-9414-f0",
+    "animSpeed": 200
+  },
+  "9434": {
+    "frames": [
+      "item-9434-f0"
+    ],
+    "defaultFrame": "item-9434-f0",
+    "animSpeed": 200
+  },
+  "9435": {
+    "frames": [
+      "item-9435-f0"
+    ],
+    "defaultFrame": "item-9435-f0",
+    "animSpeed": 200
+  },
+  "9436": {
+    "frames": [
+      "item-9436-f0"
+    ],
+    "defaultFrame": "item-9436-f0",
+    "animSpeed": 200
+  },
+  "9437": {
+    "frames": [
+      "item-9437-f0"
+    ],
+    "defaultFrame": "item-9437-f0",
+    "animSpeed": 200
+  },
+  "9438": {
+    "frames": [
+      "item-9438-f0"
+    ],
+    "defaultFrame": "item-9438-f0",
+    "animSpeed": 200
+  },
+  "9440": {
+    "frames": [
+      "item-9440-f0",
+      "item-9440-f1",
+      "item-9440-f2",
+      "item-9440-f3",
+      "item-9440-f4",
+      "item-9440-f5"
+    ],
+    "defaultFrame": "item-9440-f0",
+    "animSpeed": 200
+  },
+  "9471": {
+    "frames": [
+      "item-9471-f0"
+    ],
+    "defaultFrame": "item-9471-f0",
+    "animSpeed": 200
+  },
+  "9472": {
+    "frames": [
+      "item-9472-f0"
+    ],
+    "defaultFrame": "item-9472-f0",
+    "animSpeed": 200
+  },
+  "9473": {
+    "frames": [
+      "item-9473-f0"
+    ],
+    "defaultFrame": "item-9473-f0",
+    "animSpeed": 200
+  },
+  "9474": {
+    "frames": [
+      "item-9474-f0"
+    ],
+    "defaultFrame": "item-9474-f0",
+    "animSpeed": 200
+  },
+  "9475": {
+    "frames": [
+      "item-9475-f0"
+    ],
+    "defaultFrame": "item-9475-f0",
+    "animSpeed": 200
+  },
+  "9476": {
+    "frames": [
+      "item-9476-f0"
+    ],
+    "defaultFrame": "item-9476-f0",
+    "animSpeed": 200
+  },
+  "9477": {
+    "frames": [
+      "item-9477-f0"
+    ],
+    "defaultFrame": "item-9477-f0",
+    "animSpeed": 200
+  },
+  "9478": {
+    "frames": [
+      "item-9478-f0"
+    ],
+    "defaultFrame": "item-9478-f0",
+    "animSpeed": 200
+  },
+  "9479": {
+    "frames": [
+      "item-9479-f0"
+    ],
+    "defaultFrame": "item-9479-f0",
+    "animSpeed": 200
+  },
+  "9481": {
+    "frames": [
+      "item-9481-f0"
+    ],
+    "defaultFrame": "item-9481-f0",
+    "animSpeed": 200
+  },
+  "9482": {
+    "frames": [
+      "item-9482-f0"
+    ],
+    "defaultFrame": "item-9482-f0",
+    "animSpeed": 200
+  },
+  "9483": {
+    "frames": [
+      "item-9483-f0"
+    ],
+    "defaultFrame": "item-9483-f0",
+    "animSpeed": 200
+  },
+  "9484": {
+    "frames": [
+      "item-9484-f0"
+    ],
+    "defaultFrame": "item-9484-f0",
+    "animSpeed": 200
+  },
+  "9485": {
+    "frames": [
+      "item-9485-f0"
+    ],
+    "defaultFrame": "item-9485-f0",
+    "animSpeed": 200
+  },
+  "9505": {
+    "frames": [
+      "item-9505-f0"
+    ],
+    "defaultFrame": "item-9505-f0",
+    "animSpeed": 200
+  },
+  "9507": {
+    "frames": [
+      "item-9507-f0"
+    ],
+    "defaultFrame": "item-9507-f0",
+    "animSpeed": 200
+  },
+  "9531": {
+    "frames": [
+      "item-9531-f0"
+    ],
+    "defaultFrame": "item-9531-f0",
+    "animSpeed": 200
+  },
+  "9533": {
+    "frames": [
+      "item-9533-f0"
+    ],
+    "defaultFrame": "item-9533-f0",
+    "animSpeed": 200
+  },
+  "9569": {
+    "frames": [
+      "item-9569-f0",
+      "item-9569-f1"
+    ],
+    "defaultFrame": "item-9569-f0",
+    "animSpeed": 200
+  },
+  "9588": {
+    "frames": [
+      "item-9588-f0",
+      "item-9588-f1",
+      "item-9588-f2",
+      "item-9588-f3",
+      "item-9588-f4",
+      "item-9588-f5",
+      "item-9588-f6",
+      "item-9588-f7",
+      "item-9588-f8",
+      "item-9588-f9",
+      "item-9588-f10",
+      "item-9588-f11",
+      "item-9588-f12",
+      "item-9588-f13"
+    ],
+    "defaultFrame": "item-9588-f0",
+    "animSpeed": 200
+  },
+  "9589": {
+    "frames": [
+      "item-9589-f0"
+    ],
+    "defaultFrame": "item-9589-f0",
+    "animSpeed": 200
+  },
+  "9590": {
+    "frames": [
+      "item-9590-f0",
+      "item-9590-f1",
+      "item-9590-f2",
+      "item-9590-f3",
+      "item-9590-f4",
+      "item-9590-f5",
+      "item-9590-f6",
+      "item-9590-f7",
+      "item-9590-f8",
+      "item-9590-f9",
+      "item-9590-f10",
+      "item-9590-f11",
+      "item-9590-f12",
+      "item-9590-f13"
+    ],
+    "defaultFrame": "item-9590-f0",
+    "animSpeed": 200
+  },
+  "9591": {
+    "frames": [
+      "item-9591-f0"
+    ],
+    "defaultFrame": "item-9591-f0",
+    "animSpeed": 200
+  },
+  "9592": {
+    "frames": [
+      "item-9592-f0",
+      "item-9592-f1",
+      "item-9592-f2",
+      "item-9592-f3",
+      "item-9592-f4",
+      "item-9592-f5",
+      "item-9592-f6",
+      "item-9592-f7",
+      "item-9592-f8",
+      "item-9592-f9",
+      "item-9592-f10",
+      "item-9592-f11",
+      "item-9592-f12",
+      "item-9592-f13"
+    ],
+    "defaultFrame": "item-9592-f0",
+    "animSpeed": 200
+  },
+  "9593": {
+    "frames": [
+      "item-9593-f0"
+    ],
+    "defaultFrame": "item-9593-f0",
+    "animSpeed": 200
+  },
+  "9594": {
+    "frames": [
+      "item-9594-f0",
+      "item-9594-f1",
+      "item-9594-f2",
+      "item-9594-f3",
+      "item-9594-f4",
+      "item-9594-f5",
+      "item-9594-f6",
+      "item-9594-f7",
+      "item-9594-f8",
+      "item-9594-f9",
+      "item-9594-f10",
+      "item-9594-f11",
+      "item-9594-f12",
+      "item-9594-f13"
+    ],
+    "defaultFrame": "item-9594-f0",
+    "animSpeed": 200
+  },
+  "9595": {
+    "frames": [
+      "item-9595-f0"
+    ],
+    "defaultFrame": "item-9595-f0",
+    "animSpeed": 200
+  },
+  "9596": {
+    "frames": [
+      "item-9596-f0"
+    ],
+    "defaultFrame": "item-9596-f0",
+    "animSpeed": 200
+  },
+  "9597": {
+    "frames": [
+      "item-9597-f0",
+      "item-9597-f1",
+      "item-9597-f2",
+      "item-9597-f3"
+    ],
+    "defaultFrame": "item-9597-f0",
+    "animSpeed": 200
+  },
+  "9598": {
+    "frames": [
+      "item-9598-f0",
+      "item-9598-f1",
+      "item-9598-f2",
+      "item-9598-f3",
+      "item-9598-f4",
+      "item-9598-f5",
+      "item-9598-f6"
+    ],
+    "defaultFrame": "item-9598-f0",
+    "animSpeed": 200
+  },
+  "9599": {
+    "frames": [
+      "item-9599-f0",
+      "item-9599-f1",
+      "item-9599-f2",
+      "item-9599-f3",
+      "item-9599-f4",
+      "item-9599-f5",
+      "item-9599-f6"
+    ],
+    "defaultFrame": "item-9599-f0",
+    "animSpeed": 200
+  },
+  "9600": {
+    "frames": [
+      "item-9600-f0",
+      "item-9600-f1",
+      "item-9600-f2",
+      "item-9600-f3"
+    ],
+    "defaultFrame": "item-9600-f0",
+    "animSpeed": 200
+  },
+  "9623": {
+    "frames": [
+      "item-9623-f0"
+    ],
+    "defaultFrame": "item-9623-f0",
+    "animSpeed": 200
+  },
+  "9644": {
+    "frames": [
+      "item-9644-f0"
+    ],
+    "defaultFrame": "item-9644-f0",
+    "animSpeed": 200
+  },
+  "9646": {
+    "frames": [
+      "item-9646-f0"
+    ],
+    "defaultFrame": "item-9646-f0",
+    "animSpeed": 200
+  },
+  "9661": {
+    "frames": [
+      "item-9661-f0"
+    ],
+    "defaultFrame": "item-9661-f0",
+    "animSpeed": 200
+  },
+  "9791": {
+    "frames": [
+      "item-9791-f0",
+      "item-9791-f1",
+      "item-9791-f2",
+      "item-9791-f3",
+      "item-9791-f4",
+      "item-9791-f5",
+      "item-9791-f6",
+      "item-9791-f7",
+      "item-9791-f8",
+      "item-9791-f9",
+      "item-9791-f10",
+      "item-9791-f11",
+      "item-9791-f12",
+      "item-9791-f13",
+      "item-9791-f14",
+      "item-9791-f15",
+      "item-9791-f16",
+      "item-9791-f17"
+    ],
+    "defaultFrame": "item-9791-f0",
+    "animSpeed": 200
+  },
+  "9800": {
+    "frames": [
+      "item-9800-f0"
+    ],
+    "defaultFrame": "item-9800-f0",
+    "animSpeed": 200
+  },
+  "9885": {
+    "frames": [
+      "item-9885-f0",
+      "item-9885-f1",
+      "item-9885-f2",
+      "item-9885-f3",
+      "item-9885-f4",
+      "item-9885-f5",
+      "item-9885-f6",
+      "item-9885-f7"
+    ],
+    "defaultFrame": "item-9885-f0",
+    "animSpeed": 200
+  },
+  "9939": {
+    "frames": [
+      "item-9939-f0"
+    ],
+    "defaultFrame": "item-9939-f0",
+    "animSpeed": 200
+  },
+  "9940": {
+    "frames": [
+      "item-9940-f0"
+    ],
+    "defaultFrame": "item-9940-f0",
+    "animSpeed": 200
+  },
+  "9943": {
+    "frames": [
+      "item-9943-f0"
+    ],
+    "defaultFrame": "item-9943-f0",
+    "animSpeed": 200
+  },
+  "9944": {
+    "frames": [
+      "item-9944-f0"
+    ],
+    "defaultFrame": "item-9944-f0",
+    "animSpeed": 200
+  },
+  "9945": {
+    "frames": [
+      "item-9945-f0"
+    ],
+    "defaultFrame": "item-9945-f0",
+    "animSpeed": 200
+  },
+  "9951": {
+    "frames": [
+      "item-9951-f0"
+    ],
+    "defaultFrame": "item-9951-f0",
+    "animSpeed": 200
+  },
+  "9952": {
+    "frames": [
+      "item-9952-f0"
+    ],
+    "defaultFrame": "item-9952-f0",
+    "animSpeed": 200
+  },
+  "10190": {
+    "frames": [
+      "item-10190-f0"
+    ],
+    "defaultFrame": "item-10190-f0",
+    "animSpeed": 200
+  },
+  "10191": {
+    "frames": [
+      "item-10191-f0"
+    ],
+    "defaultFrame": "item-10191-f0",
+    "animSpeed": 200
+  },
+  "10194": {
+    "frames": [
+      "item-10194-f0"
+    ],
+    "defaultFrame": "item-10194-f0",
+    "animSpeed": 200
+  },
+  "10197": {
+    "frames": [
+      "item-10197-f0"
+    ],
+    "defaultFrame": "item-10197-f0",
+    "animSpeed": 200
+  },
+  "10200": {
+    "frames": [
+      "item-10200-f0"
+    ],
+    "defaultFrame": "item-10200-f0",
+    "animSpeed": 200
+  },
+  "10201": {
+    "frames": [
+      "item-10201-f0"
+    ],
+    "defaultFrame": "item-10201-f0",
+    "animSpeed": 200
+  },
+  "10202": {
+    "frames": [
+      "item-10202-f0"
+    ],
+    "defaultFrame": "item-10202-f0",
+    "animSpeed": 200
+  },
+  "10213": {
+    "frames": [
+      "item-10213-f0"
+    ],
+    "defaultFrame": "item-10213-f0",
+    "animSpeed": 200
+  },
+  "10214": {
+    "frames": [
+      "item-10214-f0"
+    ],
+    "defaultFrame": "item-10214-f0",
+    "animSpeed": 200
+  },
+  "10249": {
+    "frames": [
+      "item-10249-f0",
+      "item-10249-f1"
+    ],
+    "defaultFrame": "item-10249-f0",
+    "animSpeed": 200
+  },
+  "10251": {
+    "frames": [
+      "item-10251-f0"
+    ],
+    "defaultFrame": "item-10251-f0",
+    "animSpeed": 200
+  },
+  "10253": {
+    "frames": [
+      "item-10253-f0"
+    ],
+    "defaultFrame": "item-10253-f0",
+    "animSpeed": 200
+  },
+  "10260": {
+    "frames": [
+      "item-10260-f0"
+    ],
+    "defaultFrame": "item-10260-f0",
+    "animSpeed": 200
+  },
+  "10261": {
+    "frames": [
+      "item-10261-f0"
+    ],
+    "defaultFrame": "item-10261-f0",
+    "animSpeed": 200
+  },
+  "10286": {
+    "frames": [
+      "item-10286-f0"
+    ],
+    "defaultFrame": "item-10286-f0",
+    "animSpeed": 200
+  },
+  "10287": {
+    "frames": [
+      "item-10287-f0"
+    ],
+    "defaultFrame": "item-10287-f0",
+    "animSpeed": 200
+  },
+  "10345": {
+    "frames": [
+      "item-10345-f0"
+    ],
+    "defaultFrame": "item-10345-f0",
+    "animSpeed": 200
+  },
+  "10346": {
+    "frames": [
+      "item-10346-f0"
+    ],
+    "defaultFrame": "item-10346-f0",
+    "animSpeed": 200
+  },
+  "10406": {
+    "frames": [
+      "item-10406-f0"
+    ],
+    "defaultFrame": "item-10406-f0",
+    "animSpeed": 200
+  },
+  "10433": {
+    "frames": [
+      "item-10433-f0"
+    ],
+    "defaultFrame": "item-10433-f0",
+    "animSpeed": 200
+  },
+  "10434": {
+    "frames": [
+      "item-10434-f0"
+    ],
+    "defaultFrame": "item-10434-f0",
+    "animSpeed": 200
+  },
+  "10436": {
+    "frames": [
+      "item-10436-f0"
+    ],
+    "defaultFrame": "item-10436-f0",
+    "animSpeed": 200
+  },
+  "10437": {
+    "frames": [
+      "item-10437-f0"
+    ],
+    "defaultFrame": "item-10437-f0",
+    "animSpeed": 200
+  },
+  "10438": {
+    "frames": [
+      "item-10438-f0"
+    ],
+    "defaultFrame": "item-10438-f0",
+    "animSpeed": 200
+  },
+  "10439": {
+    "frames": [
+      "item-10439-f0"
+    ],
+    "defaultFrame": "item-10439-f0",
+    "animSpeed": 200
+  },
+  "10440": {
+    "frames": [
+      "item-10440-f0"
+    ],
+    "defaultFrame": "item-10440-f0",
+    "animSpeed": 200
+  },
+  "10441": {
+    "frames": [
+      "item-10441-f0"
+    ],
+    "defaultFrame": "item-10441-f0",
+    "animSpeed": 200
+  },
+  "10442": {
+    "frames": [
+      "item-10442-f0"
+    ],
+    "defaultFrame": "item-10442-f0",
+    "animSpeed": 200
+  },
+  "10443": {
+    "frames": [
+      "item-10443-f0"
+    ],
+    "defaultFrame": "item-10443-f0",
+    "animSpeed": 200
+  },
+  "10444": {
+    "frames": [
+      "item-10444-f0"
+    ],
+    "defaultFrame": "item-10444-f0",
+    "animSpeed": 200
+  },
+  "10445": {
+    "frames": [
+      "item-10445-f0"
+    ],
+    "defaultFrame": "item-10445-f0",
+    "animSpeed": 200
+  },
+  "10446": {
+    "frames": [
+      "item-10446-f0"
+    ],
+    "defaultFrame": "item-10446-f0",
+    "animSpeed": 200
+  },
+  "10447": {
+    "frames": [
+      "item-10447-f0"
+    ],
+    "defaultFrame": "item-10447-f0",
+    "animSpeed": 200
+  },
+  "10448": {
+    "frames": [
+      "item-10448-f0"
+    ],
+    "defaultFrame": "item-10448-f0",
+    "animSpeed": 200
+  },
+  "10456": {
+    "frames": [
+      "item-10456-f0"
+    ],
+    "defaultFrame": "item-10456-f0",
+    "animSpeed": 200
+  },
+  "10459": {
+    "frames": [
+      "item-10459-f0"
+    ],
+    "defaultFrame": "item-10459-f0",
+    "animSpeed": 200
+  },
+  "10492": {
+    "frames": [
+      "item-10492-f0"
+    ],
+    "defaultFrame": "item-10492-f0",
+    "animSpeed": 200
+  },
+  "10493": {
+    "frames": [
+      "item-10493-f0"
+    ],
+    "defaultFrame": "item-10493-f0",
+    "animSpeed": 200
+  },
+  "10494": {
+    "frames": [
+      "item-10494-f0"
+    ],
+    "defaultFrame": "item-10494-f0",
+    "animSpeed": 200
+  },
+  "10495": {
+    "frames": [
+      "item-10495-f0"
+    ],
+    "defaultFrame": "item-10495-f0",
+    "animSpeed": 200
+  },
+  "10496": {
+    "frames": [
+      "item-10496-f0"
+    ],
+    "defaultFrame": "item-10496-f0",
+    "animSpeed": 200
+  },
+  "10497": {
+    "frames": [
+      "item-10497-f0"
+    ],
+    "defaultFrame": "item-10497-f0",
+    "animSpeed": 200
+  },
+  "10498": {
+    "frames": [
+      "item-10498-f0"
+    ],
+    "defaultFrame": "item-10498-f0",
+    "animSpeed": 200
+  },
+  "10967": {
+    "frames": [
+      "item-10967-f0"
+    ],
+    "defaultFrame": "item-10967-f0",
+    "animSpeed": 200
+  },
+  "11062": {
+    "frames": [
+      "item-11062-f0",
+      "item-11062-f1",
+      "item-11062-f2",
+      "item-11062-f3",
+      "item-11062-f4",
+      "item-11062-f5",
+      "item-11062-f6",
+      "item-11062-f7"
+    ],
+    "defaultFrame": "item-11062-f0",
+    "animSpeed": 200
+  },
+  "11063": {
+    "frames": [
+      "item-11063-f0",
+      "item-11063-f1",
+      "item-11063-f2",
+      "item-11063-f3",
+      "item-11063-f4",
+      "item-11063-f5",
+      "item-11063-f6",
+      "item-11063-f7"
+    ],
+    "defaultFrame": "item-11063-f0",
+    "animSpeed": 200
+  },
+  "11561": {
+    "frames": [
+      "item-11561-f0",
+      "item-11561-f1",
+      "item-11561-f2",
+      "item-11561-f3",
+      "item-11561-f4",
+      "item-11561-f5",
+      "item-11561-f6",
+      "item-11561-f7",
+      "item-11561-f8",
+      "item-11561-f9",
+      "item-11561-f10",
+      "item-11561-f11",
+      "item-11561-f12",
+      "item-11561-f13",
+      "item-11561-f14",
+      "item-11561-f15"
+    ],
+    "defaultFrame": "item-11561-f0",
+    "animSpeed": 200
+  },
+  "11632": {
+    "frames": [
+      "item-11632-f0"
+    ],
+    "defaultFrame": "item-11632-f0",
+    "animSpeed": 200
+  },
+  "11633": {
+    "frames": [
+      "item-11633-f0"
+    ],
+    "defaultFrame": "item-11633-f0",
+    "animSpeed": 200
+  },
+  "11637": {
+    "frames": [
+      "item-11637-f0"
+    ],
+    "defaultFrame": "item-11637-f0",
+    "animSpeed": 200
+  },
+  "11776": {
+    "frames": [
+      "item-11776-f0"
+    ],
+    "defaultFrame": "item-11776-f0",
+    "animSpeed": 200
+  },
+  "11785": {
+    "frames": [
+      "item-11785-f0"
+    ],
+    "defaultFrame": "item-11785-f0",
+    "animSpeed": 200
+  },
+  "11786": {
+    "frames": [
+      "item-11786-f0"
+    ],
+    "defaultFrame": "item-11786-f0",
+    "animSpeed": 200
+  },
+  "11787": {
+    "frames": [
+      "item-11787-f0"
+    ],
+    "defaultFrame": "item-11787-f0",
+    "animSpeed": 200
+  },
+  "11788": {
+    "frames": [
+      "item-11788-f0"
+    ],
+    "defaultFrame": "item-11788-f0",
+    "animSpeed": 200
+  },
+  "12397": {
+    "frames": [
+      "item-12397-f0"
+    ],
+    "defaultFrame": "item-12397-f0",
+    "animSpeed": 200
+  },
+  "12801": {
+    "frames": [
+      "item-12801-f0"
+    ],
+    "defaultFrame": "item-12801-f0",
+    "animSpeed": 200
+  },
+  "13263": {
+    "frames": [
+      "item-13263-f0"
+    ],
+    "defaultFrame": "item-13263-f0",
+    "animSpeed": 200
+  },
+  "13496": {
+    "frames": [
+      "item-13496-f0",
+      "item-13496-f1",
+      "item-13496-f2",
+      "item-13496-f3"
+    ],
+    "defaultFrame": "item-13496-f0",
+    "animSpeed": 200
+  },
+  "13572": {
+    "frames": [
+      "item-13572-f0",
+      "item-13572-f1",
+      "item-13572-f2",
+      "item-13572-f3",
+      "item-13572-f4",
+      "item-13572-f5",
+      "item-13572-f6",
+      "item-13572-f7"
+    ],
+    "defaultFrame": "item-13572-f0",
+    "animSpeed": 200
+  },
+  "13573": {
+    "frames": [
+      "item-13573-f0",
+      "item-13573-f1",
+      "item-13573-f2",
+      "item-13573-f3",
+      "item-13573-f4",
+      "item-13573-f5",
+      "item-13573-f6",
+      "item-13573-f7"
+    ],
+    "defaultFrame": "item-13573-f0",
+    "animSpeed": 200
+  },
+  "15820": {
+    "frames": [
+      "item-15820-f0"
+    ],
+    "defaultFrame": "item-15820-f0",
+    "animSpeed": 200
+  },
+  "15821": {
+    "frames": [
+      "item-15821-f0"
+    ],
+    "defaultFrame": "item-15821-f0",
+    "animSpeed": 200
+  },
+  "15822": {
+    "frames": [
+      "item-15822-f0"
+    ],
+    "defaultFrame": "item-15822-f0",
+    "animSpeed": 200
+  },
+  "15823": {
+    "frames": [
+      "item-15823-f0"
+    ],
+    "defaultFrame": "item-15823-f0",
+    "animSpeed": 200
+  },
+  "18488": {
+    "frames": [
+      "item-18488-f0"
+    ],
+    "defaultFrame": "item-18488-f0",
+    "animSpeed": 200
+  },
+  "18489": {
+    "frames": [
+      "item-18489-f0"
+    ],
+    "defaultFrame": "item-18489-f0",
+    "animSpeed": 200
+  },
+  "18490": {
+    "frames": [
+      "item-18490-f0"
+    ],
+    "defaultFrame": "item-18490-f0",
+    "animSpeed": 200
+  },
+  "18491": {
+    "frames": [
+      "item-18491-f0"
+    ],
+    "defaultFrame": "item-18491-f0",
+    "animSpeed": 200
+  },
+  "18492": {
+    "frames": [
+      "item-18492-f0"
+    ],
+    "defaultFrame": "item-18492-f0",
+    "animSpeed": 200
+  },
+  "19671": {
+    "frames": [
+      "item-19671-f0"
+    ],
+    "defaultFrame": "item-19671-f0",
+    "animSpeed": 200
+  },
+  "19673": {
+    "frames": [
+      "item-19673-f0"
+    ],
+    "defaultFrame": "item-19673-f0",
+    "animSpeed": 200
+  },
+  "19676": {
+    "frames": [
+      "item-19676-f0"
+    ],
+    "defaultFrame": "item-19676-f0",
+    "animSpeed": 200
+  },
+  "19677": {
+    "frames": [
+      "item-19677-f0"
+    ],
+    "defaultFrame": "item-19677-f0",
+    "animSpeed": 200
+  },
+  "19678": {
+    "frames": [
+      "item-19678-f0"
+    ],
+    "defaultFrame": "item-19678-f0",
+    "animSpeed": 200
+  },
+  "19679": {
+    "frames": [
+      "item-19679-f0"
+    ],
+    "defaultFrame": "item-19679-f0",
+    "animSpeed": 200
+  },
+  "19681": {
+    "frames": [
+      "item-19681-f0"
+    ],
+    "defaultFrame": "item-19681-f0",
+    "animSpeed": 200
+  },
+  "19682": {
+    "frames": [
+      "item-19682-f0"
+    ],
+    "defaultFrame": "item-19682-f0",
+    "animSpeed": 200
+  },
+  "19749": {
+    "frames": [
+      "item-19749-f0"
+    ],
+    "defaultFrame": "item-19749-f0",
+    "animSpeed": 200
+  },
+  "19757": {
+    "frames": [
+      "item-19757-f0"
+    ],
+    "defaultFrame": "item-19757-f0",
+    "animSpeed": 200
+  },
+  "19824": {
+    "frames": [
+      "item-19824-f0"
+    ],
+    "defaultFrame": "item-19824-f0",
+    "animSpeed": 200
+  },
+  "20007": {
+    "frames": [
+      "item-20007-f0"
+    ],
+    "defaultFrame": "item-20007-f0",
+    "animSpeed": 200
+  },
+  "20009": {
+    "frames": [
+      "item-20009-f0"
+    ],
+    "defaultFrame": "item-20009-f0",
+    "animSpeed": 200
+  },
+  "20012": {
+    "frames": [
+      "item-20012-f0"
+    ],
+    "defaultFrame": "item-20012-f0",
+    "animSpeed": 200
+  },
+  "20013": {
+    "frames": [
+      "item-20013-f0"
+    ],
+    "defaultFrame": "item-20013-f0",
+    "animSpeed": 200
+  },
+  "20014": {
+    "frames": [
+      "item-20014-f0"
+    ],
+    "defaultFrame": "item-20014-f0",
+    "animSpeed": 200
+  },
+  "20016": {
+    "frames": [
+      "item-20016-f0"
+    ],
+    "defaultFrame": "item-20016-f0",
+    "animSpeed": 200
+  },
+  "20018": {
+    "frames": [
+      "item-20018-f0"
+    ],
+    "defaultFrame": "item-20018-f0",
+    "animSpeed": 200
+  },
+  "20027": {
+    "frames": [
+      "item-20027-f0"
+    ],
+    "defaultFrame": "item-20027-f0",
+    "animSpeed": 200
+  },
+  "20033": {
+    "frames": [
+      "item-20033-f0"
+    ],
+    "defaultFrame": "item-20033-f0",
+    "animSpeed": 200
+  },
+  "20034": {
+    "frames": [
+      "item-20034-f0"
+    ],
+    "defaultFrame": "item-20034-f0",
+    "animSpeed": 200
+  },
+  "20035": {
+    "frames": [
+      "item-20035-f0"
+    ],
+    "defaultFrame": "item-20035-f0",
+    "animSpeed": 200
+  },
+  "20040": {
+    "frames": [
+      "item-20040-f0"
+    ],
+    "defaultFrame": "item-20040-f0",
+    "animSpeed": 200
+  },
+  "20041": {
+    "frames": [
+      "item-20041-f0"
+    ],
+    "defaultFrame": "item-20041-f0",
+    "animSpeed": 200
+  },
+  "20042": {
+    "frames": [
+      "item-20042-f0"
+    ],
+    "defaultFrame": "item-20042-f0",
+    "animSpeed": 200
+  },
+  "20043": {
+    "frames": [
+      "item-20043-f0"
+    ],
+    "defaultFrame": "item-20043-f0",
+    "animSpeed": 200
+  },
+  "20046": {
+    "frames": [
+      "item-20046-f0"
+    ],
+    "defaultFrame": "item-20046-f0",
+    "animSpeed": 200
+  },
+  "20047": {
+    "frames": [
+      "item-20047-f0"
+    ],
+    "defaultFrame": "item-20047-f0",
+    "animSpeed": 200
+  },
+  "20052": {
+    "frames": [
+      "item-20052-f0"
+    ],
+    "defaultFrame": "item-20052-f0",
+    "animSpeed": 200
+  },
+  "20053": {
+    "frames": [
+      "item-20053-f0"
+    ],
+    "defaultFrame": "item-20053-f0",
+    "animSpeed": 200
+  },
+  "20065": {
+    "frames": [
+      "item-20065-f0"
+    ],
+    "defaultFrame": "item-20065-f0",
+    "animSpeed": 200
+  },
+  "20066": {
+    "frames": [
+      "item-20066-f0"
+    ],
+    "defaultFrame": "item-20066-f0",
+    "animSpeed": 200
+  },
+  "20067": {
+    "frames": [
+      "item-20067-f0"
+    ],
+    "defaultFrame": "item-20067-f0",
+    "animSpeed": 200
+  },
+  "20068": {
+    "frames": [
+      "item-20068-f0"
+    ],
+    "defaultFrame": "item-20068-f0",
+    "animSpeed": 200
+  },
+  "20077": {
+    "frames": [
+      "item-20077-f0"
+    ],
+    "defaultFrame": "item-20077-f0",
+    "animSpeed": 200
+  },
+  "20080": {
+    "frames": [
+      "item-20080-f0"
+    ],
+    "defaultFrame": "item-20080-f0",
+    "animSpeed": 200
+  },
+  "21584": {
+    "frames": [
+      "item-21584-f0"
+    ],
+    "defaultFrame": "item-21584-f0",
+    "animSpeed": 200
+  },
+  "22280": {
+    "frames": [
+      "item-22280-f0"
+    ],
+    "defaultFrame": "item-22280-f0",
+    "animSpeed": 200
+  },
+  "22281": {
+    "frames": [
+      "item-22281-f0"
+    ],
+    "defaultFrame": "item-22281-f0",
+    "animSpeed": 200
+  },
+  "25452": {
+    "frames": [
+      "item-25452-f0"
+    ],
+    "defaultFrame": "item-25452-f0",
+    "animSpeed": 200
+  },
+  "27729": {
+    "frames": [
+      "item-27729-f0",
+      "item-27729-f1",
+      "item-27729-f2",
+      "item-27729-f3"
+    ],
+    "defaultFrame": "item-27729-f0",
+    "animSpeed": 200
+  },
+  "29089": {
+    "frames": [
+      "item-29089-f0"
+    ],
+    "defaultFrame": "item-29089-f0",
+    "animSpeed": 200
+  },
+  "29090": {
+    "frames": [
+      "item-29090-f0"
+    ],
+    "defaultFrame": "item-29090-f0",
+    "animSpeed": 200
+  },
+  "trainingFloor": {
+    "defaultFrame": "asset-trainingFloor"
+  },
+  "trainingWall": {
+    "defaultFrame": "asset-trainingWall"
+  },
+  "trainingRug": {
+    "defaultFrame": "asset-trainingRug"
+  },
+  "trainingDummy": {
+    "defaultFrame": "asset-trainingDummy"
+  },
+  "trainingDecor": {
+    "defaultFrame": "asset-trainingDecor"
+  }
+}

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-09-13T03:18:00.000Z"
-last_activity: "2026-09-13 — Concluída Phase 150: Arquitetura Active Player First de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão."
+status: complete
+last_updated: "2026-09-13T04:20:00.000Z"
+last_activity: "2026-09-13 — Conclusão da Phase 151: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading."
 progress:
-  total_phases: 150
-  completed_phases: 150
-  total_plans: 150
-  completed_plans: 150
+  total_phases: 151
+  completed_phases: 151
+  total_plans: 151
+  completed_plans: 151
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 150: Arquitetura "Active Player First" de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão (Concluída com Sucesso).
+**Current focus:** Fase 151: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading (Concluída).
 
 ## Current Position
 
-Phase: 150 of 150 (Concluída)  
+Phase: 151 of 151 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 150.
+Last activity: 2026-09-13 — Conclusão da Phase 151.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 149
-- Total phases in roadmap: 149
-- Tests status: 149 test suites (100% aprovados)
+- Total phases completed: 151
+- Total phases in roadmap: 151
+- Tests status: 152 test suites (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -74,6 +74,8 @@ Progress: [██████████] 100%
 | 147. Organização Oficial de Assets, Diretório Canônico e Otimização de Loading | 1 | - | - | Complete |
 | 148. Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário | 1 | - | - | Complete |
 | 149. Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens | 1 | - | - | Complete |
+| 150. Arquitetura Active Player First de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão | 1 | - | - | Complete |
+| 151. Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading | 1 | - | - | Complete |
 
 
 

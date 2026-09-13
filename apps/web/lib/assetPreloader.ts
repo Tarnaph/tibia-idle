@@ -1,13 +1,8 @@
 'use client';
 
-import thaisCityJson from '@/content/generated/thais-city.json';
-import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
 import rawMountsJson from '@/content/generated/mounts.json';
-import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 import { ALL_SPELL_ICON_URLS } from '@/apps/web/components/Tibia11ActionIcon';
 import { imageElementCache, loadImage } from '@/apps/web/lib/outfitRecolor';
-
-const visualAssets = visualAssetsJson as Tibia1098AssetManifest;
 
 export interface PreloadProgressState {
   progress: number; // 0 to 100
@@ -86,28 +81,9 @@ export function compileActivePlayerAssetUrls(ctx?: ActivePlayerPreloadContext): 
     });
   }
 
-  // 3. Mapa imediato do spawn de Thais (raio restrito de 4 tiles ao redor do spawn 32369, 32241)
-  const SPAWN_X = 32369;
-  const SPAWN_Y = 32241;
-  const upperTiles = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];
-  const allTiles = [...thaisCityJson.tiles, ...upperTiles];
-  for (const t of allTiles) {
-    if (Math.abs(t.x - SPAWN_X) <= 3 && Math.abs(t.y - SPAWN_Y) <= 3) {
-      for (const id of t.serverItemIds) {
-        const mapping = visualAssets.mapItems[String(id)];
-        if (mapping?.frames && mapping.frames.length > 0) {
-          for (const f of mapping.frames) {
-            if (f.publicUrl) mapUrls.add(f.publicUrl);
-          }
-        } else if (mapping?.frame?.publicUrl) {
-          mapUrls.add(mapping.frame.publicUrl);
-        }
-      }
-    }
-  }
-  if (visualAssets.assets?.trainingFloor?.frames?.[0]?.publicUrl) {
-    mapUrls.add(visualAssets.assets.trainingFloor.frames[0].publicUrl);
-  }
+  // 3. Atlases de Textura do mundo de Thais e criaturas/UI
+  mapUrls.add('/generated/atlases/thais-atlas.png');
+  mapUrls.add('/generated/atlases/creatures-atlas.png');
 
   // 4. Magias da hotbar do jogador
   if (ctx?.hotbarUrls && ctx.hotbarUrls.length > 0) {
@@ -148,29 +124,11 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
   const itemUrls = new Set<string>();
   const audioUrls = new Set<string>();
 
-  // 1. Mapa de Thais: Apenas os tiles do Templo de Thais e entorno imediato (raio visual de 15 tiles do spawn 32369, 32241)
-  const SPAWN_X = 32369;
-  const SPAWN_Y = 32241;
-  const upperTiles = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];
-  const allTiles = [...thaisCityJson.tiles, ...upperTiles];
-  for (const t of allTiles) {
-    if (Math.abs(t.x - SPAWN_X) <= 8 && Math.abs(t.y - SPAWN_Y) <= 6) {
-      for (const id of t.serverItemIds) {
-        const mapping = visualAssets.mapItems[String(id)];
-        if (mapping?.frames && mapping.frames.length > 0) {
-          for (const f of mapping.frames) {
-            if (f.publicUrl) mapUrls.add(f.publicUrl);
-          }
-        } else if (mapping?.frame?.publicUrl) {
-          mapUrls.add(mapping.frame.publicUrl);
-        }
-      }
-    }
-  }
-
-  // Assets fixos do templo e treinamento
-  if (visualAssets.assets?.trainingFloor?.frames?.[0]?.publicUrl) {
-    mapUrls.add(visualAssets.assets.trainingFloor.frames[0].publicUrl);
+  // 1. Atlases de Textura do mundo de Thais e criaturas/UI + itens essenciais de mapa
+  mapUrls.add('/generated/atlases/thais-atlas.png');
+  mapUrls.add('/generated/atlases/creatures-atlas.png');
+  for (let i = 100; i <= 280; i++) {
+    mapUrls.add(`/assets/items/item-${i}.png`);
   }
 
   // 2. Montarias Canônicas (todos os frames idle f0 válidos existentes para as 129 montarias)
@@ -208,31 +166,14 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
     if (url) spellUrls.add(url);
   });
 
-  // 5. Efeitos Visuais e Mísseis
-  if (visualAssets.missiles) {
-    Object.values(visualAssets.missiles).slice(0, 10).forEach((m) => {
-      m.frames.forEach((f) => {
-        if (f.publicUrl) effectUrls.add(f.publicUrl);
-      });
-    });
-  }
-  if (visualAssets.effects) {
-    Object.values(visualAssets.effects).slice(0, 15).forEach((e) => {
-      e.frames.forEach((f) => {
-        if (f.publicUrl) effectUrls.add(f.publicUrl);
-      });
-    });
+  // 5. Efeitos Visuais e Mísseis prioritários
+  for (let i = 1; i <= 30; i++) {
+    effectUrls.add(`/generated/tibia1098/effect-${i}-static-frame-0.png`);
   }
 
   // 6. Itens Canônicos Iniciais
-  if (visualAssets.items) {
-    const starterItems = Object.keys(visualAssets.items).slice(0, 120);
-    starterItems.forEach((key) => {
-      const item = visualAssets.items[key];
-      if (item?.frame?.publicUrl) {
-        itemUrls.add(item.frame.publicUrl);
-      }
-    });
+  for (let i = 2140; i <= 2260; i++) {
+    itemUrls.add(`/assets/items/item-${i}.png`);
   }
 
   // 7. Áudio

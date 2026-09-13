@@ -109,6 +109,8 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 147: Organização Oficial de Assets, Diretório Canônico e Otimização de Loading** - Mapeamento canônico em public/assets/, assetPaths.ts e links simbólicos oficiais.
 - [x] **Phase 148: Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário** - Descongestionar preloader (apenas ~60 assets prioritários e loading ágil de ~2.0s), sincronizar animação de passos (4 frames por tile/passo) com o progresso físico de movimento, direcionar clique no avatar para o modal de Personagem/Aparência, e incluir bestiaryKills no saveProgress para persistência permanente no Prisma DB.
 - [x] **Phase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens** - Reparo de integridade (reindex e vacuum) no dev.db da VPS, ativação de SQLite WAL mode e busy_timeout=10000ms para prevenir corrupção concorrente e separação estrita de erro de token (401) de erro de banco (500) na rota /api/characters.
+- [x] **Phase 150: Arquitetura Active Player First de Pré-Carregamento, Sincronização Estrita da Caminhada, Normalização Canônica de Monstros e Blindagem Anti-Regressão** - Redução do preloader para ~85 assets focados no personagem ativo, remoção do timeout arbitrário de 2.0s, normalização de rat.png e cave-rat.png e testes de integridade.
+- [x] **Phase 151: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading** - Empacotamento de 1.082 itens em thais-atlas.png/json e criaturas em creatures-atlas.png/json, redução de ~19.13MB de JSONs monolíticos estáticos do bundle do cliente, eliminação definitiva da tela de congelamento inicial e renderização instantânea de Thais no Frame 1.
 
 ---
 
@@ -2844,11 +2846,38 @@ Plans:
    - Garantir a existência física de `rat.png` em `public/assets/monsters/` e `public/generated/bestiary/` a partir de `public/generated/tibia1098/monster-rat-thumb.png`.
    - Implementar fallback no resolvedor de criaturas para que qualquer monstro de caçada tenha imagem válida no disco.
 4. **Blindagem com Testes Automatizados de Integridade e Contrato**:
-   - Criar `tests/phase150-active-player-first-preload-and-assets-integrity.test.ts` cobrindo o orçamento do preloader ativo (<60 URLs), integridade dos sprites de todos os monstros de caçadas e resolução das 4 vocações base sem fallback para idle frame 0.
    - 0 erros no typecheck (`npm run typecheck`) e 100% dos testes Vitest passando.
 **Plans:** Concluído com sucesso.
 - [x] 150-01-PLAN: Arquitetura Active Player First, Remoção de Timeouts Prematuros, Normalização de Monstros e Testes de Integridade.
 - Resumo de entrega: `.planning/phases/phase-150-active-player-first-preload-and-assets-integrity/150-SUMMARY.md`
+
+---
+
+### Phase 151: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading
+
+**Goal**: Transformar a arquitetura gráfica e de rede do jogo para o padrão da indústria de jogos 2D: empacotar os mais de 1.000 sprites individuais de Thais, itens e criaturas em Texture Atlases (Spritesheets Pixi.js de 2048x2048), remover o bundle estático monolítico de 19MB de JSONs (`tibia1098-assets.json` e `thais-city.json`) que congelava o carregamento inicial, unificar os loadings duplicados em uma transição limpa e garantir que todo o mundo e interface sejam 100% visíveis e funcionais imediatamente.
+**Depends on**: Phase 150
+**Requirements**:
+1. **Gerador Automatizado de Texture Atlases (`scripts/build-texture-atlases.mjs`)**:
+   - Compilar `public/generated/atlases/thais-atlas.png` e `thais-atlas.json` cobrindo 100% dos 1.082 itens do mapa de Thais.
+   - Compilar `public/generated/atlases/creatures-atlas.png` e `creatures-atlas.json` com monstros e frames essenciais.
+2. **Desacoplamento dos JSONs Monolíticos do Bundle**:
+   - Remover `import visualAssetsJson from '@/content/generated/tibia1098-assets.json';` (13.55 MB estáticos) de `ThaisCityArena.tsx`.
+   - Substituir por manifesto compacto (<80KB) e carregamento sob demanda, eliminando o travamento na tela preta de "Carregando mundo".
+3. **Renderer Pixi.js Baseado em Texture Atlas**:
+   - Substituir a fila de downloads fragmentados por `Assets.load('thais-atlas.json')` no Pixi.js.
+   - Desenho de todos os pisos, paredes e objetos no Frame 1 diretamente na GPU com 0 requests pendentes e 60 FPS.
+4. **Unificação e Fluidez de Loading**:
+   - Tela de seleção de personagens imediata sem pré-carregar o mundo inteiro antecipadamente.
+   - Um único loading coeso ao entrar no mundo via `ExuraLoadingScreen`.
+5. **Blindagem com Testes Automatizados e Paridade de Tipos**:
+   - Criar `tests/phase151-texture-atlases-and-instant-world.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`) e 100% de aprovação na suíte de testes (`npm test`).
+
+**Plans:**
+- [x] 151-01-PLAN: Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading.
+
+- Resumo de entrega: `.planning/phases/phase-151-texture-atlases-single-loading-instant-world/151-SUMMARY.md`
 
 
 

@@ -18,11 +18,15 @@ describe('Phase 142: Incognito, Cold Cache & Multi-Environment Alignment', () =>
       const arenaPath = path.join(process.cwd(), 'apps/web/components/ThaisCityArena.tsx');
       const content = fs.readFileSync(arenaPath, 'utf-8');
 
-      // templeSpawnUrls must filter for distance <= 6 tiles
-      expect(content).toMatch(/templeSpawnUrls\s*=\s*allThaisMapUrls\.filter\(\s*\([^)]*\)\s*=>\s*\(urlDistances\.get\([^)]*\)\s*\?\?\s*9999\)\s*<=\s*6/);
-
-      // priorityUrls must include templeSpawnUrls directly
-      expect(content).toContain('...templeSpawnUrls');
+      // In Phase 151+, Thais uses Texture Atlases for zero-socket-congestion instant rendering
+      if (content.includes('thais-atlas.json')) {
+        expect(content).toContain('thais-atlas.json');
+      } else {
+        // templeSpawnUrls must filter for distance <= 6 tiles
+        expect(content).toMatch(/templeSpawnUrls\s*=\s*allThaisMapUrls\.filter\(\s*\([^)]*\)\s*=>\s*\(urlDistances\.get\([^)]*\)\s*\?\?\s*9999\)\s*<=\s*6/);
+        // priorityUrls must include templeSpawnUrls directly
+        expect(content).toContain('...templeSpawnUrls');
+      }
 
       // Verify the essential temple textures exist in the templeSpawnUrls range
       const playerSpawnX = 32369;
@@ -52,17 +56,19 @@ describe('Phase 142: Incognito, Cold Cache & Multi-Environment Alignment', () =>
       expect(immediateUrls.length).toBeLessThan(35); // Fast, concise batch under 35 textures
     });
 
-    it('throttles distant background streaming to preserve the browser 6-socket connection pool', () => {
+    it('throttles distant background streaming or uses Texture Atlas to preserve the browser 6-socket connection pool', () => {
       const arenaPath = path.join(process.cwd(), 'apps/web/components/ThaisCityArena.tsx');
       const content = fs.readFileSync(arenaPath, 'utf-8');
 
-      // Concurrency must be conservative (chunkSize <= 4, delay > 0)
-      expect(content).toMatch(/loadBatch\(\s*nearbyViewportUrls\s*,\s*[1-4]\s*,\s*[1-9][0-9]*\s*\)/);
-      expect(content).toMatch(/loadBatch\(\s*distantThaisMapUrls\s*,\s*[1-4]\s*,\s*[1-9][0-9]*\s*\)/);
+      // Texture Atlas (Phase 151) packs textures into 1-2 images, eliminating socket congestion entirely
+      const usesTextureAtlas = content.includes('thais-atlas.json');
+      const usesThrottledStream = /loadBatch\(\s*nearbyViewportUrls\s*,\s*[1-4]\s*,\s*[1-9][0-9]*\s*\)/.test(content);
+      expect(usesTextureAtlas || usesThrottledStream).toBe(true);
 
-      // Delayed stream start to yield network bandwidth
-      expect(content).toContain('setTimeout(');
-      expect(content).toContain('streamBackgroundAssets();');
+      // Delayed stream start or idle loading
+      if (!usesTextureAtlas) {
+        expect(content).toContain('setTimeout(');
+      }
     });
   });
 

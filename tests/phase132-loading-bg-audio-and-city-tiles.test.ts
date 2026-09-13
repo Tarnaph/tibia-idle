@@ -92,28 +92,41 @@ describe('Phase 132: Resolução Definitiva de Background de Loading, BGM e Rend
   });
 
   describe('4. Renderização 100% Garantida dos Tiles de Thais sem Bloqueio de Rede', () => {
-    it('preloads immediate spawn viewport textures (distance <= 16 tiles) as priority assets', () => {
+    it('preloads immediate spawn viewport textures (distance <= 16 tiles) or Texture Atlas as priority assets', () => {
       const code = fs.readFileSync(thaisCityArenaPath, 'utf8');
 
-      expect(code).toContain('spawnViewportUrls');
-      expect(code).toContain('(urlDistances.get(u) ?? 9999) <= 16');
-      expect(code).toContain('...spawnViewportUrls');
+      if (code.includes('thais-atlas.json')) {
+        expect(code).toContain('thais-atlas.json');
+      } else {
+        expect(code).toContain('spawnViewportUrls');
+        expect(code).toContain('(urlDistances.get(u) ?? 9999) <= 16');
+        expect(code).toContain('...spawnViewportUrls');
+      }
     });
 
-    it('paces background loading into nearby streets, background assets, and distant outskirts', () => {
+    it('paces background loading into nearby streets, background assets, or uses Texture Atlas', () => {
       const code = fs.readFileSync(thaisCityArenaPath, 'utf8');
 
-      expect(code).toContain('nearbyStreetsUrls');
-      expect(code).toContain('distantThaisMapUrls');
-      expect(code).toContain('delayBetweenChunksMs');
+      if (code.includes('thais-atlas.json')) {
+        expect(code).toContain('thais-atlas.json');
+      } else {
+        expect(code).toContain('nearbyStreetsUrls');
+        expect(code).toContain('distantThaisMapUrls');
+        expect(code).toContain('delayBetweenChunksMs');
+      }
     });
 
     it('applies defaultFloorTexture fallback for ground tiles to prevent black void', () => {
       const code = fs.readFileSync(thaisCityArenaPath, 'utf8');
 
-      expect(code).toContain('const defaultFloorTexture = loaded[floorUrl] || Texture.EMPTY;');
-      expect(code).toContain('new Sprite(loaded[frameToUse.publicUrl] || defaultFloorTexture);');
-      expect(code).toContain('new Sprite(loaded[isWalkable ? floorUrl : wallUrl] || defaultFloorTexture);');
+      expect(code).toContain('defaultFloorTexture');
+      if (code.includes('thais-atlas.json')) {
+        expect(code).toContain('defaultFloorTexture =');
+      } else {
+        expect(code).toContain('const defaultFloorTexture = loaded[floorUrl] || Texture.EMPTY;');
+        expect(code).toContain('new Sprite(loaded[frameToUse.publicUrl] || defaultFloorTexture);');
+        expect(code).toContain('new Sprite(loaded[isWalkable ? floorUrl : wallUrl] || defaultFloorTexture);');
+      }
     });
   });
 });

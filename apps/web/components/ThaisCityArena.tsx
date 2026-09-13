@@ -4,11 +4,12 @@ import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
 import thaisCityJson from '@/content/generated/thais-city.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
-import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
+import thaisItemMetaJson from '@/content/generated/thais-item-metadata.json';
+import fxAssetsJson from '@/content/generated/tibia1098-fx.json';
 import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
 import type { HuntRegionCatalog } from '@/packages/content-schema/src';
 import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
-import type { ExtractedFrame, ItemVisualAssetMapping, Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
+import type { ExtractedFrame, ItemVisualAssetMapping, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
 import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames, getOutfitCapabilities } from '@/apps/web/lib/outfitRecolor';
@@ -48,7 +49,42 @@ interface Props {
   isCharacterVisible?: boolean;
 }
 
-const visualAssets = visualAssetsJson as Tibia1098AssetManifest;
+interface ThaisItemFrame {
+  key: string;
+  px: number;
+  py: number;
+  animFrame: number;
+}
+
+interface ThaisItemMetadata {
+  isGround: boolean;
+  width: number;
+  height: number;
+  patternX: number;
+  patternY: number;
+  animFrames?: number;
+  animDurationMs?: number;
+  frames?: ThaisItemFrame[] | string[];
+}
+
+const thaisItemMeta = thaisItemMetaJson as unknown as Record<string, ThaisItemMetadata>;
+const fxAssets = fxAssetsJson as {
+  effects: Record<string, { frames: Array<{ publicUrl: string }> }>;
+  missiles: Record<string, { frames: Array<{ publicUrl: string }> }>;
+  assets: Record<string, { frames: Array<{ publicUrl: string }> }>;
+};
+
+function resolveTileFrameKey(meta: ThaisItemMetadata | undefined, tileX: number, tileY: number): string | null {
+  if (!meta || !meta.frames || meta.frames.length === 0) return null;
+  const fList = meta.frames;
+  if (typeof fList[0] === 'string') return fList[0] as string;
+  const typedFrames = fList as ThaisItemFrame[];
+  if (typedFrames.length === 1) return typedFrames[0].key;
+  const px = (meta.patternX ?? 1) > 1 ? Math.abs(tileX) % meta.patternX! : 0;
+  const py = (meta.patternY ?? 1) > 1 ? Math.abs(tileY) % meta.patternY! : 0;
+  const matched = typedFrames.find((f) => f.px === px && f.py === py && f.animFrame === 0) ?? typedFrames[0];
+  return matched.key;
+}
 const thaisData = thaisCityJson as {
   bounds: { minX: number; maxX: number; minY: number; maxY: number; z: number };
   temple: { x: number; y: number; z: number };
@@ -220,145 +256,23 @@ export function ThaisCityArena({
       world.addChild(floor7Container, floor6Container, actorsLayer, effectsLayer);
       app.stage.addChild(world, overlayLayer);
 
-      // Collect essential assets
-      const floorUrl = visualAssets.assets.trainingFloor.frames[0].publicUrl;
-      const wallUrl = visualAssets.assets.trainingWall.frames[0].publicUrl;
-      const rugUrl = visualAssets.assets.trainingRug.frames[0].publicUrl;
-      const dummyUrl = visualAssets.assets.trainingDummy.frames[0].publicUrl;
-      const decorUrl = visualAssets.assets.trainingDecor.frames[0].publicUrl;
-      const mountUrl = '/generated/mounts/donkey_rider_south.png';
-      const thumbUrls = [
-        'citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner', 'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire', 'assassin', 'pirate', 'oriental', 'beggar'
-      ].map((id) => `/generated/outfit-thumbs/${id}.png`);
-      const outfitUrls = Object.values(visualAssets.outfits).flatMap((outfit) =>
-        outfit.frames.map((f) => f.publicUrl)
-      );
-      const teleportEffectUrls = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
-      const fireEffectUrls = visualAssets.effects['16']?.frames.map((f) => f.publicUrl) ?? [];
-      const coreMissileUrls = Object.values(visualAssets.missiles).flatMap((m) =>
-        m.frames.map((f) => f.publicUrl)
-      );
-      const coreEffectUrls = Object.values(visualAssets.effects).flatMap((e) =>
-        e.frames.map((f) => f.publicUrl)
-      );
-      const upperTilesList = (thaisData as { upperTiles?: typeof thaisData.tiles }).upperTiles ?? [];
-      const thaisAllTiles = [...thaisData.tiles, ...upperTilesList];
-      const playerSpawnX = 32369;
-      const playerSpawnY = 32241;
-
-      // Calculate minimal distance from temple spawn to each texture URL in Thais
-      const urlDistances = new Map<string, number>();
-      for (const t of thaisAllTiles) {
-        const dist = Math.hypot(t.x - playerSpawnX, t.y - playerSpawnY);
-        for (const id of t.serverItemIds) {
-          const mapping = visualAssets.mapItems[String(id)];
-          if (mapping?.frames && mapping.frames.length > 0) {
-            for (const f of mapping.frames) {
-              const prev = urlDistances.get(f.publicUrl) ?? Infinity;
-              if (dist < prev) urlDistances.set(f.publicUrl, dist);
-            }
-          } else if (mapping?.frame) {
-            const prev = urlDistances.get(mapping.frame.publicUrl) ?? Infinity;
-            if (dist < prev) urlDistances.set(mapping.frame.publicUrl, dist);
-          }
-        }
-      }
-
-      const allThaisMapUrls = Array.from(urlDistances.keys()).sort(
-        (a, b) => (urlDistances.get(a) ?? 9999) - (urlDistances.get(b) ?? 9999)
-      );
-
-      // 1. Immediate temple spawn chamber (distance <= 6 tiles): exactly ~23 unique textures
-      // Contains the authentic temple marble floor (item-406, item-407), pillars (item-1481) and walls (item-1050..1052).
-      // Preloaded synchronously in priorityUrls so the Temple is 100% visible on Frame 1 without black screen.
-      const templeSpawnUrls = allThaisMapUrls.filter(
-        (u) => (urlDistances.get(u) ?? 9999) <= 6
-      );
-
-      // 2. Immediate surrounding viewport (distance > 6 and <= 16 tiles): ~180 textures
-      // Note: spawnViewportUrls covers (urlDistances.get(u) ?? 9999) <= 16, partitioned so ...spawnViewportUrls does not block priorityUrls
-      const spawnViewportUrls = allThaisMapUrls.filter((u) => (urlDistances.get(u) ?? 9999) <= 16);
-      const nearbyViewportUrls = allThaisMapUrls.filter((u) => {
-        const d = urlDistances.get(u) ?? 9999;
-        return d > 6 && d <= 16;
-      });
-
-      // 3. Surrounding streets (distance > 16 and <= 25 tiles)
-      const nearbyStreetsUrls = allThaisMapUrls.filter((u) => {
-        const d = urlDistances.get(u) ?? 9999;
-        return d > 16 && d <= 25;
-      });
-
-      // 4. Distant outskirts (distance > 25 tiles)
-      const distantThaisMapUrls = allThaisMapUrls.filter(
-        (u) => (urlDistances.get(u) ?? 9999) > 25
-      );
-
+      // Texture Atlases: All 1,082 Thais items + creatures & UI icons packed in 2 texture atlases
+      const atlasTextures: Record<string, PixiTexture> = {};
       const loaded: Record<string, PixiTexture> = {};
 
-      interface PendingSpriteTarget {
-        sprite: InstanceType<typeof Sprite>;
-        offsetX?: number;
-        offsetY?: number;
-      }
-      const pendingTileSprites = new Map<string, PendingSpriteTarget[]>();
-
-      const registerPendingSprite = (url: string, target: PendingSpriteTarget) => {
-        let list = pendingTileSprites.get(url);
-        if (!list) {
-          list = [];
-          pendingTileSprites.set(url, list);
-        }
-        list.push(target);
-      };
-
-      const resolvePendingSprites = (url: string, texture: PixiTexture) => {
-        const list = pendingTileSprites.get(url);
-        if (!list || list.length === 0) return;
-        for (const item of list) {
-          try {
-            if (!item.sprite.destroyed) {
-              item.sprite.texture = texture;
-            }
-          } catch {}
-        }
-        pendingTileSprites.delete(url);
-      };
-
-      const loadBatch = async (urls: string[], chunkSize = 4, delayBetweenChunksMs = 0) => {
-        for (let i = 0; i < urls.length; i += chunkSize) {
-          if (disposed) break;
-          const chunk = urls.slice(i, i + chunkSize);
-          await Promise.allSettled(
-            chunk.map(async (url) => {
-              if (loaded[url]) return;
-              try {
-                const texture = await Assets.load<PixiTexture>(url);
-                if (texture) {
-                  texture.source.style.scaleMode = 'nearest';
-                  loaded[url] = texture;
-                  resolvePendingSprites(url, texture);
-                }
-              } catch {}
-            })
-          );
-          if (delayBetweenChunksMs > 0 && i + chunkSize < urls.length) {
-            await new Promise((resolve) => setTimeout(resolve, delayBetweenChunksMs));
-          }
-        }
-      };
-
-      // Preload ONLY core immediate spawn assets (Temple of Thais foundation + core immediate assets <30 textures)
-      // Guarantees Temple of Thais floor, walls and player outfit are 100% visible on Frame 1 without black screen
-      const priorityUrls = [
-        floorUrl, wallUrl, rugUrl, dummyUrl, decorUrl, mountUrl,
-        ...templeSpawnUrls,
-        ...outfitUrls.slice(0, 4),
-      ].filter(Boolean);
       try {
-        await loadBatch(priorityUrls, 8, 0);
+        const [thaisAtlasSheet, creaturesAtlasSheet] = await Promise.all([
+          Assets.load<any>('/generated/atlases/thais-atlas.json'),
+          Assets.load<any>('/generated/atlases/creatures-atlas.json'),
+        ]);
+        if (thaisAtlasSheet?.textures) {
+          Object.assign(atlasTextures, thaisAtlasSheet.textures);
+        }
+        if (creaturesAtlasSheet?.textures) {
+          Object.assign(atlasTextures, creaturesAtlasSheet.textures);
+        }
       } catch (err) {
-        console.warn('Priority asset loading error:', err);
+        console.warn('Texture Atlas loading failed, falling back:', err);
       }
 
       if (disposed) {
@@ -366,41 +280,29 @@ export function ThaisCityArena({
         return;
       }
 
-      // 2. Stream surrounding textures with conservative concurrency (chunkSize: 2..4, delay: 20ms)
-      // Preserves browser's 6-connection HTTP pool so UI images, hunt cards & loading artwork download freely
-      const immediateThaisMapUrls = nearbyViewportUrls;
-      const streamBackgroundAssets = async () => {
+      // Preload background UI thumbnails and spell icons in idle time
+      setTimeout(async () => {
         if (disposed) return;
-        await loadBatch(nearbyViewportUrls, 2, 20);
-        if (disposed) return;
-        await loadBatch(nearbyStreetsUrls, 3, 25);
-        if (disposed) return;
-
-        // Then load background icons, spells, missiles, and outfits
         const bgAssets = [
-          ...teleportEffectUrls,
           ...ALL_SPELL_ICON_URLS,
-          ...fireEffectUrls,
-          ...coreMissileUrls,
-          ...coreEffectUrls,
-          ...thumbUrls,
-          ...outfitUrls,
-        ].filter((u) => !loaded[u]);
-        await loadBatch(bgAssets, 4, 30);
-        if (disposed) return;
-
-        // Finally stream distant city outskirts lazily
-        void loadBatch(distantThaisMapUrls, 4, 40);
-      };
-
-      // Delay background streaming by 300ms to yield network bandwidth to the loading screen artwork and UI
-      setTimeout(() => {
-        // Asynchronously stream without blocking rendering: void loadBatch(immediateThaisMapUrls
-        void streamBackgroundAssets();
+          '/generated/mounts/donkey_rider_south.png',
+        ];
+        for (const u of bgAssets) {
+          if (disposed) break;
+          if (u && !loaded[u]) {
+            try {
+              const tex = await Assets.load<PixiTexture>(u);
+              if (tex) {
+                tex.source.style.scaleMode = 'nearest';
+                loaded[u] = tex;
+              }
+            } catch {}
+          }
+        }
       }, 300);
 
-
-      const teleportFrames = visualAssets.effects['11']?.frames.map((f) => f.publicUrl) ?? [];
+      const teleportMeta = thaisItemMeta['effect-11'];
+      const teleportFrames = (teleportMeta?.frames as string[]) || [];
       const teleportEffects: Array<{
         sprite: InstanceType<typeof Sprite>;
         frames: string[];
@@ -423,7 +325,7 @@ export function ThaisCityArena({
 
       const unsubNetworkCombat = gameNetwork.onCombatEvent((ev) => {
         if (ev.effectId) {
-          const fxMapping = visualAssets.effects[String(ev.effectId)];
+          const fxMapping = fxAssets.effects[String(ev.effectId)];
           if (fxMapping && fxMapping.frames.length > 0) {
             const firstFrameUrl = fxMapping.frames[0].publicUrl;
             const targetX = ev.posX ?? ev.x ?? 0;
@@ -438,7 +340,7 @@ export function ThaisCityArena({
               startedAt: performance.now(),
               durationMs: Math.max(300, fxMapping.frames.length * 70),
               kind: 'effect',
-              frames: fxMapping.frames.map((f) => f.publicUrl),
+              frames: fxMapping.frames.map((f: { publicUrl: string }) => f.publicUrl),
             });
             if (!loaded[firstFrameUrl]) {
               void Assets.load<PixiTexture>(firstFrameUrl).then((tex) => {
@@ -456,8 +358,9 @@ export function ThaisCityArena({
       const triggerTeleportEffect = (px: number, py: number) => {
         if (teleportFrames.length === 0) return;
         const firstFrame = teleportFrames[0];
-        if (!firstFrame || !loaded[firstFrame]) return;
-        const sp = new Sprite(loaded[firstFrame]);
+        const tex = atlasTextures[firstFrame] || loaded[firstFrame];
+        if (!tex) return;
+        const sp = new Sprite(tex);
         sp.anchor.set(0.5, 0.5);
         sp.position.set(px, py - 6);
         sp.zIndex = py + 999;
@@ -498,35 +401,18 @@ export function ThaisCityArena({
 
       // Training dummies placed in the training room on Z:7
       const dummyPos = thaisData.trainingDummy;
-      const dummySprite = new Sprite(loaded[dummyUrl] || Texture.EMPTY);
+      const dummySprite = new Sprite(atlasTextures['asset-trainingDummy'] || Texture.EMPTY);
       dummySprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
       dummySprite.position.set(dummyPos.x * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, dummyPos.y * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
       dummySprite.roundPixels = true;
       dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
       objectsLayerZ7.addChild(dummySprite);
-      if (!loaded[dummyUrl]) {
-        registerPendingSprite(dummyUrl, { sprite: dummySprite });
-      }
 
       const animatedMapSprites: Array<{
         sprite: InstanceType<typeof Sprite>;
         frames: string[];
         frameDurationMs: number;
       }> = [];
-
-      function resolveTileFrame(mapping: ItemVisualAssetMapping, tileX: number, tileY: number) {
-        if (!mapping) return null;
-        let frameToUse = mapping.frame;
-        if (mapping.frames && mapping.frames.length > 1 && mapping.appearance) {
-          const px = mapping.appearance.patternX > 1 ? Math.abs(tileX) % mapping.appearance.patternX : 0;
-          const py = mapping.appearance.patternY > 1 ? Math.abs(tileY) % mapping.appearance.patternY : 0;
-          const matchedFrame = mapping.frames.find((f: any) => f.pattern?.x === px && f.pattern?.y === py) ?? mapping.frames[0];
-          if (matchedFrame) {
-            frameToUse = matchedFrame;
-          }
-        }
-        return frameToUse;
-      }
 
       // Pre-render tiles for Thais Z:7 (ground/streets) and Z:6 (roofs/piers)
       tileMapByZ.forEach((zMap, zLevel) => {
@@ -538,25 +424,24 @@ export function ThaisCityArena({
           const py = tile.y * TILE_SIZE;
 
           let hasGroundSprite = false;
-          const defaultFloorTexture = loaded[floorUrl] || Texture.EMPTY;
+          const defaultFloorTexture = atlasTextures['asset-trainingFloor'] || Texture.EMPTY;
+
           for (const sId of tile.serverItemIds) {
-            const mapping = visualAssets.mapItems[String(sId)];
-            if (mapping?.isGround) {
-              const frameToUse = resolveTileFrame(mapping, tile.x, tile.y);
-              if (frameToUse) {
-                const sp = new Sprite(loaded[frameToUse.publicUrl] || defaultFloorTexture);
+            const meta = thaisItemMeta[String(sId)];
+            if (meta?.isGround) {
+              const frameKey = resolveTileFrameKey(meta, tile.x, tile.y);
+              if (frameKey) {
+                const tex = atlasTextures[frameKey] || defaultFloorTexture;
+                const sp = new Sprite(tex);
                 sp.position.set(px, py);
                 sp.roundPixels = true;
                 targetTerrain.addChild(sp);
                 hasGroundSprite = true;
-                if (!loaded[frameToUse.publicUrl]) {
-                  registerPendingSprite(frameToUse.publicUrl, { sprite: sp });
-                }
-                if (mapping.frames && mapping.frames.length > 1 && mapping.appearance?.frames && mapping.appearance.frames > 1) {
+                if (meta.frames && meta.frames.length > 1 && (meta.animFrames ?? 1) > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
-                    frames: mapping.frames.map((f) => f.publicUrl),
-                    frameDurationMs: mapping.animDurationMs || 180,
+                    frames: (meta.frames as ThaisItemFrame[]).map((f) => f.key),
+                    frameDurationMs: meta.animDurationMs || 180,
                   });
                 }
                 break;
@@ -565,25 +450,24 @@ export function ThaisCityArena({
           }
 
           for (const sId of tile.serverItemIds) {
-            const mapping = visualAssets.mapItems[String(sId)];
-            if (mapping && !mapping.isGround) {
-              const frameToUse = resolveTileFrame(mapping, tile.x, tile.y);
-              if (frameToUse) {
-                const sp = new Sprite(loaded[frameToUse.publicUrl] || Texture.EMPTY);
+            const meta = thaisItemMeta[String(sId)];
+            if (meta && !meta.isGround) {
+              const frameKey = resolveTileFrameKey(meta, tile.x, tile.y);
+              if (frameKey) {
+                const tex = atlasTextures[frameKey] || Texture.EMPTY;
+                const sp = new Sprite(tex);
+                const frameToUse = { width: meta.width || 32, height: meta.height || 32 };
                 const offsetY = frameToUse.height > 32 ? -(frameToUse.height - 32) : 0;
                 const offsetX = frameToUse.width > 32 ? -(frameToUse.width - 32) : 0;
                 sp.position.set(px + offsetX, py + offsetY);
                 sp.roundPixels = true;
                 sp.zIndex = py + 32;
                 targetObjects.addChild(sp);
-                if (!loaded[frameToUse.publicUrl]) {
-                  registerPendingSprite(frameToUse.publicUrl, { sprite: sp, offsetX, offsetY });
-                }
-                if (mapping.frames && mapping.frames.length > 1 && mapping.appearance?.frames && mapping.appearance.frames > 1) {
+                if (meta.frames && meta.frames.length > 1 && (meta.animFrames ?? 1) > 1) {
                   animatedMapSprites.push({
                     sprite: sp,
-                    frames: mapping.frames.map((f) => f.publicUrl),
-                    frameDurationMs: mapping.animDurationMs || 180,
+                    frames: (meta.frames as ThaisItemFrame[]).map((f) => f.key),
+                    frameDurationMs: meta.animDurationMs || 180,
                   });
                 }
               }
@@ -592,13 +476,11 @@ export function ThaisCityArena({
 
           if (!hasGroundSprite) {
             const isWalkable = tile.walkable;
-            const floorSp = new Sprite(loaded[isWalkable ? floorUrl : wallUrl] || defaultFloorTexture);
+            const fallbackKey = isWalkable ? 'asset-trainingFloor' : 'asset-trainingWall';
+            const floorSp = new Sprite(atlasTextures[fallbackKey] || defaultFloorTexture);
             floorSp.position.set(px, py);
             floorSp.roundPixels = true;
             targetTerrain.addChild(floorSp);
-            if (!loaded[isWalkable ? floorUrl : wallUrl]) {
-              registerPendingSprite(isWalkable ? floorUrl : wallUrl, { sprite: floorSp });
-            }
           }
         });
       });
@@ -873,24 +755,6 @@ export function ThaisCityArena({
         if (lower === 'dragon' || lower === '34') {
           return `/generated/tibia1098/monster-dragon-${direction}-frame-${frame % 3}.png`;
         }
-        const normKey = vocationOrOutfit.includes('Sire')
-          ? 'Sire'
-          : vocationOrOutfit.includes('Sorcerer') || vocationOrOutfit.includes('Mage')
-          ? 'Sorcerer'
-          : vocationOrOutfit.includes('Druid')
-          ? 'Druid'
-          : vocationOrOutfit.includes('Paladin') || vocationOrOutfit.includes('Hunter')
-          ? 'Paladin'
-          : vocationOrOutfit.includes('Knight')
-          ? 'Knight'
-          : vocationOrOutfit;
-        const outfit = visualAssets.outfits[normKey];
-        if (outfit) {
-          const dirFrames = outfit.frames.filter((f) => f.direction === direction);
-          const candidates = dirFrames.length > 0 ? dirFrames : outfit.frames.filter((f) => f.direction === 'south');
-          const match = candidates.find((f) => f.frame === frame) ?? candidates[0];
-          return match?.publicUrl ?? outfit.frames[0]?.publicUrl ?? '';
-        }
         const idLower = normalizeOutfitId(vocationOrOutfit);
         return `/generated/outfit-thumbs/${idLower}.png`;
       }
@@ -941,11 +805,8 @@ export function ThaisCityArena({
         }
 
         if (!tex) {
-          const fallback = visualAssets.outfits['Knight']?.frames[0]?.publicUrl;
-          if (fallback) tex = loaded[fallback];
-        }
-        if (!tex) {
-          tex = Texture.WHITE;
+          const fallback = atlasTextures['thumb-knight'] || atlasTextures['thumb-citizen'] || Texture.WHITE;
+          tex = fallback;
         }
 
         const root = new Container();
@@ -1003,8 +864,9 @@ export function ThaisCityArena({
             teleportEffects.splice(i, 1);
           } else {
             const frameIdx = Math.floor((elapsed / fx.durationMs) * fx.frames.length);
-            const url = fx.frames[Math.min(frameIdx, fx.frames.length - 1)];
-            if (url && loaded[url]) fx.sprite.texture = loaded[url];
+            const key = fx.frames[Math.min(frameIdx, fx.frames.length - 1)];
+            const tex = atlasTextures[key] || loaded[key];
+            if (tex) fx.sprite.texture = tex;
           }
         }
 
@@ -1016,9 +878,10 @@ export function ThaisCityArena({
         // 1. Animate all animated map elements (mystic blue fire, teleports, torches, lamps, fountains, water)
         for (const anim of animatedMapSprites) {
           const frameIdx = Math.floor(now / anim.frameDurationMs) % anim.frames.length;
-          const url = anim.frames[frameIdx];
-          if (url && loaded[url] && anim.sprite.texture !== loaded[url]) {
-            anim.sprite.texture = loaded[url];
+          const key = anim.frames[frameIdx];
+          const tex = atlasTextures[key] || loaded[key];
+          if (tex && anim.sprite.texture !== tex) {
+            anim.sprite.texture = tex;
           }
         }
 
@@ -1241,7 +1104,7 @@ export function ThaisCityArena({
           lastProcessedVisualEvents = incomingVisuals;
           for (const ev of incomingVisuals) {
             if (ev.type === 'projectile-launched') {
-              const mMapping = visualAssets.missiles[String(ev.projectileId)];
+              const mMapping = fxAssets.missiles[String(ev.projectileId)];
               if (mMapping && mMapping.frames.length > 0) {
                 const fUrl = mMapping.frames[0].publicUrl;
                 if (loaded[fUrl]) {
@@ -1261,7 +1124,7 @@ export function ThaisCityArena({
                 }
               }
             } else if (ev.type === 'projectile-hit' || ev.type === 'melee-hit') {
-              const fxMapping = visualAssets.effects[String(ev.effectId)];
+              const fxMapping = fxAssets.effects[String(ev.effectId)];
               if (fxMapping && fxMapping.frames.length > 0) {
                 const fUrl = fxMapping.frames[0].publicUrl;
                 if (loaded[fUrl]) {
@@ -1275,7 +1138,7 @@ export function ThaisCityArena({
                     startedAt: now,
                     durationMs: Math.max(300, fxMapping.frames.length * 70),
                     kind: 'effect',
-                    frames: fxMapping.frames.map((f) => f.publicUrl),
+                    frames: fxMapping.frames.map((f: { publicUrl: string }) => f.publicUrl),
                   });
                 }
               }
@@ -1284,7 +1147,7 @@ export function ThaisCityArena({
                 ? (ev as any).projectileId
                 : 'projectileId' in ev && (ev as any).projectileId === 'weapon-type' ? 24 : null;
               if (projectileId) {
-                const mMapping = visualAssets.missiles[String(projectileId)];
+                const mMapping = fxAssets.missiles[String(projectileId)];
                 if (mMapping && mMapping.frames.length > 0) {
                   const fUrl = mMapping.frames[0].publicUrl;
                   if (loaded[fUrl]) {
@@ -1309,7 +1172,7 @@ export function ThaisCityArena({
               }
               const effectId = 'effectId' in ev ? (ev as any).effectId : null;
               if (effectId && effectId > 0) {
-                const fxMapping = visualAssets.effects[String(effectId)];
+                const fxMapping = fxAssets.effects[String(effectId)];
                 if (fxMapping && fxMapping.frames.length > 0) {
                   const fUrl = fxMapping.frames[0].publicUrl;
                   if (loaded[fUrl]) {
@@ -1333,7 +1196,7 @@ export function ThaisCityArena({
                       startedAt: now + effectDelay,
                       durationMs: Math.max(300, fxMapping.frames.length * 70),
                       kind: 'effect',
-                      frames: fxMapping.frames.map((f) => f.publicUrl),
+                      frames: fxMapping.frames.map((f: { publicUrl: string }) => f.publicUrl),
                     });
                   }
                 }
@@ -1394,7 +1257,7 @@ export function ThaisCityArena({
             } else if (ev.type === 'training-action') {
               // Direct training action event from domain training system
               if (ev.projectileId) {
-                const mMapping = visualAssets.missiles[String(ev.projectileId)];
+                const mMapping = fxAssets.missiles[String(ev.projectileId)];
                 if (mMapping && mMapping.frames.length > 0) {
                   const fUrl = mMapping.frames[0].publicUrl;
                   if (loaded[fUrl]) {
@@ -1413,7 +1276,7 @@ export function ThaisCityArena({
                 }
               }
               if (ev.effectId) {
-                const fxMapping = visualAssets.effects[String(ev.effectId)];
+                const fxMapping = fxAssets.effects[String(ev.effectId)];
                 if (fxMapping && fxMapping.frames.length > 0) {
                   const fUrl = fxMapping.frames[0].publicUrl;
                   if (loaded[fUrl]) {
@@ -1427,7 +1290,7 @@ export function ThaisCityArena({
                       startedAt: now + (ev.projectileId ? 250 : 0),
                       durationMs: Math.max(300, fxMapping.frames.length * 70),
                       kind: 'effect',
-                      frames: fxMapping.frames.map((f) => f.publicUrl),
+                      frames: fxMapping.frames.map((f: { publicUrl: string }) => f.publicUrl),
                     });
                   }
                 }
@@ -1465,8 +1328,9 @@ export function ThaisCityArena({
               Math.floor(progress * vis.frames.length)
             );
             const frameUrl = vis.frames[frameIdx];
-            if (frameUrl && loaded[frameUrl] && 'texture' in vis.root) {
-              (vis.root as InstanceType<typeof Sprite>).texture = loaded[frameUrl];
+            const tex = atlasTextures[frameUrl] || loaded[frameUrl];
+            if (tex && 'texture' in vis.root) {
+              (vis.root as InstanceType<typeof Sprite>).texture = tex;
             }
           }
         }

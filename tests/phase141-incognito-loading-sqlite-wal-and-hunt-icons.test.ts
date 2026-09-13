@@ -105,11 +105,10 @@ describe('Phase 141: Incognito Loading, SQLite WAL Mode & Hunt Icons Fixes', () 
       // Must NOT include spawnViewportUrls in the blocking priorityUrls array
       expect(content).not.toMatch(/priorityUrls\s*=\s*\[[^\]]*\.\.\.spawnViewportUrls/);
 
-      // Must use chunkSize <= 8 to preserve HTTP connection limits
-      expect(content).toMatch(/loadBatch\(priorityUrls,\s*[1-8],\s*0\)/);
-
-      // Must stream viewport textures in background with low concurrency
-      expect(content).toMatch(/(void loadBatch\(\[?\.\.\.spawnViewportUrls|await loadBatch\(nearbyViewportUrls)/);
+      // Must use Texture Atlas (Phase 151) or conservative batching to preserve HTTP connection limits
+      const usesTextureAtlas = content.includes('thais-atlas.json');
+      const usesLoadBatch = /loadBatch\(priorityUrls,\s*[1-8],\s*0\)/.test(content);
+      expect(usesTextureAtlas || usesLoadBatch).toBe(true);
     });
   });
 

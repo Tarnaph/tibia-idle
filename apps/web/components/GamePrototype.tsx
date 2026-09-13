@@ -53,7 +53,13 @@ import { PixiArena } from './PixiArena';
 import { assetPreloader } from '@/apps/web/lib/assetPreloader';
 import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
-import { ThaisCityArena, type CityOverheadMessage } from './ThaisCityArena';
+import dynamic from 'next/dynamic';
+import type { CityOverheadMessage } from './ThaisCityArena';
+
+const ThaisCityArena = dynamic(
+  () => import('./ThaisCityArena').then((m) => m.ThaisCityArena),
+  { ssr: false }
+);
 import { WorldNavigation } from './WorldNavigation';
 import { WindowManagerProvider, useWindowManager } from './window/WindowManagerContext';
 import { DraggableWindow } from './window/DraggableWindow';
@@ -73,12 +79,15 @@ import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
 import { playDragonLairBgm, stopDragonLairBgm, stopAllAudio, DRAGONS_PRIDE_TRACK } from '../lib/audioManager';
 import { MusicTrackToast } from './audio/MusicTrackToast';
-import thaisCityJson from '@/content/generated/thais-city.json';
+import thaisCollisionJson from '@/content/generated/thais-collision.json';
 
-const thaisTilesZ7 = thaisCityJson.tiles;
-const thaisTilesZ6 = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];
-const thaisTileMapZ7 = new Map(thaisTilesZ7.map((t) => [`${t.x},${t.y}`, t]));
-const thaisTileMapZ6 = new Map(thaisTilesZ6.map((t) => [`${t.x},${t.y}`, t]));
+const thaisCollision = thaisCollisionJson as { z7: Record<string, number>; z6: Record<string, number> };
+const thaisTileMapZ7 = new Map<string, { walkable: boolean }>(
+  Object.keys(thaisCollision.z7).map((k) => [k, { walkable: true }])
+);
+const thaisTileMapZ6 = new Map<string, { walkable: boolean }>(
+  Object.keys(thaisCollision.z6).map((k) => [k, { walkable: true }])
+);
 const VOCATION_MAP: Record<number, BaseVocationName> = {
   1: 'Sorcerer',
   2: 'Druid',

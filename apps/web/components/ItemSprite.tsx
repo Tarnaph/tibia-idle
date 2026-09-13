@@ -1,7 +1,7 @@
-import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-combat-assets.json';
 import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 
-const visualAssets = visualAssetsJson as Tibia1098AssetManifest;
+const visualAssets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 
 interface ItemSpriteProps {
   itemId?: number;

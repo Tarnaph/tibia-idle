@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
-import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
+import visualAssetsJson from '@/content/generated/tibia1098-combat-assets.json';
 import { RUNE_PROJECTILE_FLIGHT_MS, type CardinalDirection, type GameState, type GridPosition } from '@/packages/domain/src';
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
 import type { Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
