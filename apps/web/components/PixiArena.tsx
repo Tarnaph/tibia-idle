@@ -158,7 +158,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       // Current room map items
       for (const tile of game.encounter.room.map.tiles) {
         for (const sId of tile.serverItemIds ?? []) {
-          const m = visualAssets.mapItems[String(sId)];
+          const m = visualAssets.mapItems?.[String(sId)];
           if (m?.frame) priorityUrls.add(m.frame.publicUrl);
           if (m?.frames) {
             for (const f of m.frames) priorityUrls.add(f.publicUrl);
@@ -202,14 +202,22 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       // Stream remaining map items and creature frames in background without blocking
       void (async () => {
         const backgroundUrls = new Set<string>();
-        for (const asset of [...Object.values(visualAssets.creatures), ...Object.values(visualAssets.outfits), ...Object.values(visualAssets.effects), ...Object.values(visualAssets.missiles)]) {
-          for (const frame of asset.frames) {
+        for (const asset of [
+          ...Object.values(visualAssets.creatures || {}),
+          ...Object.values(visualAssets.outfits || {}),
+          ...Object.values(visualAssets.effects || {}),
+          ...Object.values(visualAssets.missiles || {}),
+        ]) {
+          for (const frame of asset?.frames || []) {
             if (!loaded[frame.publicUrl]) backgroundUrls.add(frame.publicUrl);
           }
         }
-        for (const item of [...Object.values(visualAssets.corpses), ...Object.values(visualAssets.mapItems)]) {
-          if (item.frame && !loaded[item.frame.publicUrl]) backgroundUrls.add(item.frame.publicUrl);
-          if (item.frames) {
+        for (const item of [
+          ...Object.values(visualAssets.corpses || {}),
+          ...Object.values(visualAssets.mapItems || {}),
+        ]) {
+          if (item?.frame && !loaded[item.frame.publicUrl]) backgroundUrls.add(item.frame.publicUrl);
+          if (item?.frames) {
             for (const frame of item.frames) {
               if (!loaded[frame.publicUrl]) backgroundUrls.add(frame.publicUrl);
             }
@@ -294,7 +302,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const point = worldPoint(tile.position);
           let rendered = false;
           for (const serverId of tile.serverItemIds ?? []) {
-            const mapping = visualAssets.mapItems[String(serverId)];
+            const mapping = visualAssets.mapItems?.[String(serverId)];
             if (!mapping) {
               if (debug) console.warn(`Unresolved map item ID ${serverId} on tile (${tile.position.x}, ${tile.position.y})`);
               continue;
@@ -505,7 +513,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         for (const [id, view] of views) if (!liveIds.has(id)) { view.root.destroy({ children: true }); views.delete(id); }
         for (const layer of [corpses]) layer.removeChildren().forEach((child) => child.destroy({ children: true }));
         for (const corpse of state.encounter.corpses) {
-          const mapping = visualAssets.corpses[corpse.monsterId]; if (!mapping?.frame) continue;
+          const mapping = visualAssets.corpses?.[corpse.monsterId]; if (!mapping?.frame) continue;
           const tex = loaded[mapping.frame.publicUrl];
           if (!tex) {
             void ensureTexture(mapping.frame.publicUrl);

@@ -18,7 +18,7 @@ describe('Phase 151: Texture Atlases, Decoupled JSONs, and Instant World Loading
     expect(atlasData.meta).toBeDefined();
     expect(atlasData.meta.image).toBe('thais-atlas.png');
     expect(atlasData.meta.size.w).toBe(2048);
-    expect(atlasData.meta.size.h).toBe(2048);
+    expect(atlasData.meta.size.h).toBeGreaterThanOrEqual(2048);
 
     // Verify key assets are packed
     expect(atlasData.frames['asset-trainingFloor']).toBeDefined();
@@ -79,11 +79,12 @@ describe('Phase 151: Texture Atlases, Decoupled JSONs, and Instant World Loading
     expect(combat.missiles).toBeDefined();
     expect(combat.items).toBeDefined();
 
-    // Must NOT contain the 12MB mapItems
-    expect((combat as any).mapItems).toBeUndefined();
+    // Must contain compact mapItems and corpses for PixiArena hunt rooms and corpse rendering
+    expect(combat.mapItems).toBeDefined();
+    expect(combat.corpses).toBeDefined();
 
     const sizeMb = fs.statSync(combatPath).size / (1024 * 1024);
-    expect(sizeMb).toBeLessThan(5.0); // Less than 5MB (massive reduction from 13.55MB)
+    expect(sizeMb).toBeLessThan(6.5); // Less than 6.5MB (massive reduction from 13.55MB)
   });
 
   it('verifies client components in apps/web do NOT statically import the 13.5MB tibia1098-assets.json', () => {

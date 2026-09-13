@@ -2905,6 +2905,34 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-152-sqlite-integrity-and-deploy-shield/152-SUMMARY.md`
 
+---
+
+### Phase 153: Shelf Packing 2D no Atlas de Thais & Blindagem do PixiArena para Itens de Caçada
+
+**Goal**: Corrigir as distorções visuais em itens multi-tile na cidade de Thais (pilares cortados, altares partidos e paredes truncadas causados pelo grid fixo 32x32) implementando algoritmo determinístico de Shelf Bin-Packing 2D no atlas de texturas, e eliminar a falha `UNHANDLED PROMISE REJECTION: Cannot read properties of undefined (reading '8133')` incluindo `mapItems` e `corpses` em `tibia1098-combat-assets.json` junto com guardas defensivas no `PixiArena.tsx`.
+**Depends on**: Phase 152
+**Requirements**:
+1. **Algoritmo de Shelf Bin-Packing 2D no `build-thais-atlas.mjs`**:
+   - Ordenar frames por altura decrescente e largura decrescente.
+   - Empacotar itens de dimensões variáveis (32x32, 64x64, 64x32, 32x64) sem sobreposição espacial.
+   - Registrar as dimensões reais `{ w, h }` de cada frame no `thais-atlas.json` para que o PixiJS extraia o frame completo sem corte.
+2. **Inclusão de `mapItems` e `corpses` no `build-combat-assets.mjs`**:
+   - Incluir todos os itens de mapa e corpos compactados (sem hashes redundantes) no `tibia1098-combat-assets.json`.
+   - Garantir que itens de hunt (como `8133`) estejam disponíveis.
+3. **Blindagem Defensiva no `PixiArena.tsx`**:
+   - Utilizar encadeamento opcional `visualAssets.mapItems?.[String(sId)]` e `visualAssets.corpses?.[corpse.monsterId]`.
+   - Utilizar fallback `|| {}` para todas as iterações de `Object.values`.
+4. **Testes Automatizados e Validação**:
+   - Criar `tests/phase153-thais-shelf-packing-and-combat-safety.test.ts`.
+   - 0 erros no TypeScript (`npm run typecheck`) e 100% de testes aprovados (929/929).
+   - Deploy na VPS e validação visual de Thais e hunts.
+
+**Plans:**
+- [x] 153-01-PLAN: Shelf Packing 2D no Atlas de Thais & Blindagem do PixiArena para Itens de Caçada.
+
+- Resumo de entrega: `.planning/phases/phase-153-atlas-shelf-packing-and-pixi-arena-shield/153-SUMMARY.md`
+
+
 
 
 

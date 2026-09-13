@@ -40,7 +40,9 @@ async function buildThaisAtlas() {
         const frameKey = `item-${id}-f${idx}`;
         const localPath = path.join('./public', f.publicUrl);
         if (fs.existsSync(localPath)) {
-          framesToPack.push({ key: frameKey, localPath });
+          const w = f.width || (mapping.appearance?.width ? mapping.appearance.width * 32 : 32);
+          const h = f.height || (mapping.appearance?.height ? mapping.appearance.height * 32 : 32);
+          framesToPack.push({ key: frameKey, localPath, width: w, height: h });
           frames.push({
             key: frameKey,
             px: f.pattern?.x || 0,
@@ -53,7 +55,9 @@ async function buildThaisAtlas() {
       const frameKey = `item-${id}`;
       const localPath = path.join('./public', mapping.frame.publicUrl);
       if (fs.existsSync(localPath)) {
-        framesToPack.push({ key: frameKey, localPath });
+        const w = mapping.frame.width || (mapping.appearance?.width ? mapping.appearance.width * 32 : 32);
+        const h = mapping.frame.height || (mapping.appearance?.height ? mapping.appearance.height * 32 : 32);
+        framesToPack.push({ key: frameKey, localPath, width: w, height: h });
         frames.push({
           key: frameKey,
           px: 0,
@@ -85,7 +89,7 @@ async function buildThaisAtlas() {
       const frameKey = `asset-${tid}`;
       const localPath = path.join('./public', asset.frames[0].publicUrl);
       if (fs.existsSync(localPath)) {
-        framesToPack.push({ key: frameKey, localPath });
+        framesToPack.push({ key: frameKey, localPath, width: 32, height: 32 });
         thaisItemMeta[tid] = {
           isGround: tid === 'trainingFloor' || tid === 'trainingRug',
           width: 32,
@@ -110,7 +114,7 @@ async function buildThaisAtlas() {
         const frameKey = `effect-${eid}-f${idx}`;
         const localPath = path.join('./public', f.publicUrl);
         if (fs.existsSync(localPath)) {
-          framesToPack.push({ key: frameKey, localPath });
+          framesToPack.push({ key: frameKey, localPath, width: f.width || 32, height: f.height || 32 });
           effFrames.push(frameKey);
         }
       });
@@ -121,55 +125,68 @@ async function buildThaisAtlas() {
     }
   }
 
-  console.log(`Total frames to pack: ${framesToPack.length} (Capacity: ${MAX_SLOTS})`);
-  if (framesToPack.length > MAX_SLOTS) {
-    throw new Error(`Frames exceed atlas capacity: ${framesToPack.length} > ${MAX_SLOTS}`);
+  console.log(`Total frames to pack: ${framesToPack.length}`);
+
+  // Shelf Bin-Packing: Sort by height DESC, width DESC, key ASC
+  const sorted = [...framesToPack].sort((a, b) => b.height - a.height || b.width - a.width || a.key.localeCompare(b.key));
+
+  let currentX = 0;
+  let currentY = 0;
+  let shelfHeight = 0;
+  const overlays = [];
+  const atlasFrames = {};
+
+  for (const item of sorted) {
+    if (currentX + item.width > ATLAS_SIZE) {
+      currentX = 0;
+      currentY += shelfHeight;
+      shelfHeight = 0;
+    }
+
+    overlays.push({
+      input: item.localPath,
+      left: currentX,
+      top: currentY,
+    });
+
+    atlasFrames[item.key] = {
+      frame: { x: currentX, y: currentY, w: item.width, h: item.height },
+      rotated: false,
+      trimmed: false,
+      spriteSourceSize: { x: 0, y: 0, w: item.width, h: item.height },
+      sourceSize: { w: item.width, h: item.height },
+    };
+
+    currentX += item.width;
+    if (item.height > shelfHeight) {
+      shelfHeight = item.height;
+    }
   }
 
-  const overlays = [];
+  const totalHeight = currentY + shelfHeight;
+  console.log(`Packed into 2D Shelf Atlas: ${ATLAS_SIZE}x${totalHeight}px`);
+
   const atlasJson = {
-    frames: {},
+    frames: atlasFrames,
     meta: {
       image: 'thais-atlas.png',
       format: 'RGBA8888',
-      size: { w: ATLAS_SIZE, h: ATLAS_SIZE },
+      size: { w: ATLAS_SIZE, h: totalHeight },
       scale: 1,
     },
   };
 
-  for (let i = 0; i < framesToPack.length; i++) {
-    const item = framesToPack[i];
-    const col = i % SLOTS_PER_ROW;
-    const row = Math.floor(i / SLOTS_PER_ROW);
-    const left = col * TILE_SIZE;
-    const top = row * TILE_SIZE;
-
-    overlays.push({
-      input: item.localPath,
-      left,
-      top,
-    });
-
-    atlasJson.frames[item.key] = {
-      frame: { x: left, y: top, w: TILE_SIZE, h: TILE_SIZE },
-      rotated: false,
-      trimmed: false,
-      spriteSourceSize: { x: 0, y: 0, w: TILE_SIZE, h: TILE_SIZE },
-      sourceSize: { w: TILE_SIZE, h: TILE_SIZE },
-    };
-  }
-
-  console.log('Rendering 2048x2048 PNG with sharp...');
+  console.log(`Rendering ${ATLAS_SIZE}x${totalHeight} PNG with sharp...`);
   const blankCanvas = sharp({
     create: {
       width: ATLAS_SIZE,
-      height: ATLAS_SIZE,
+      height: totalHeight,
       channels: 4,
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     },
   });
 
-  const finalPng = await blankCanvas.composite(overlays).png({ compressionLevel: 9 }).toBuffer();
+  const finalPng = await blankCanvas.composite(overlays).png({ compressionLevel: 8 }).toBuffer();
 
   const atlasPngPath = path.join(outDir, 'thais-atlas.png');
   const atlasJsonPath = path.join(outDir, 'thais-atlas.json');
