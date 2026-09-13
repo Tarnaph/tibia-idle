@@ -90,6 +90,7 @@ const thaisTileMapZ6 = new Map<string, { walkable: boolean }>(
   Object.keys(thaisCollision.z6).map((k) => [k, { walkable: true }])
 );
 const VOCATION_MAP: Record<number, BaseVocationName> = {
+  0: 'None',
   1: 'Sorcerer',
   2: 'Druid',
   3: 'Paladin',
@@ -1096,8 +1097,9 @@ function GamePrototypeContent() {
       ((charItem as any).vocationName as BaseVocationName) ||
       ((charItem as any).vocation as BaseVocationName) ||
       VOCATION_MAP[charItem.vocationId] ||
-      'Knight';
-    const userChar = createCharacter(charItem.id, charItem.name, vocName, content, 'male');
+      (charItem.vocationId === 0 ? 'None' : 'Knight');
+    const charGender = ((charItem as any).gender as 'male' | 'female') || 'male';
+    const userChar = createCharacter(charItem.id, charItem.name, vocName, content, charGender);
 
     // Promotion hydration
     if ((charItem as any).promotion) {
@@ -1265,6 +1267,10 @@ function GamePrototypeContent() {
       132: 'Noble',
       133: 'Summoner',
       134: 'Warrior',
+      136: 'Citizen',
+      137: 'Paladin',
+      138: 'Sorcerer',
+      139: 'Knight',
       143: 'Barbarian',
       144: 'Druid',
       999: 'Sire',
@@ -1540,6 +1546,8 @@ function GamePrototypeContent() {
           bestiaryKills: curBestiaryKills,
           trackedBestiaryId: curTrackedBestiaryId,
           bossPoints: curBossPoints,
+          vocationName: curActive.vocation,
+          promotion: curActive.promotion,
           isDeathPenalty,
         }),
       });
@@ -3138,32 +3146,57 @@ function GamePrototypeContent() {
       />
 
       <VocationChoiceModal
-        open={!activeCharacter.vocation || activeCharacter.vocation === 'None'}
+        open={activeCharacter.level >= 8 && (!activeCharacter.vocation || activeCharacter.vocation === 'None')}
         characterName={activeCharacter.name}
         takenVocations={getTakenAccountVocations(game.session.characters, activeCharacter.id)}
         onSelectVocation={(vocName) => {
           const res = chooseCharacterVocation(game, activeCharacter.id, vocName, content);
           if (res.ok) {
+            const charGender = activeCharacter.gender || ((onlineCharacter as any)?.gender) || 'male';
             const defaultOutfit =
               vocName === 'Knight' ? 'Knight'
               : vocName === 'Paladin' ? 'Hunter'
               : vocName === 'Sorcerer' ? 'Mage'
               : 'Druid';
 
+            const defaultLookType =
+              vocName === 'Knight' ? (charGender === 'female' ? 139 : 131)
+              : vocName === 'Paladin' ? (charGender === 'female' ? 137 : 129)
+              : (charGender === 'female' ? 138 : 130);
+
             const updatedState = {
               ...res.state,
               session: {
                 ...res.state.session,
                 characters: res.state.session.characters.map((c) =>
-                  c.id === activeCharacter.id ? { ...c, outfit: defaultOutfit } : c
+                  c.id === activeCharacter.id ? { ...c, outfit: defaultOutfit, outfitLookType: defaultLookType } : c
                 ),
               },
             };
             setGame(updatedState);
             setOnlineCharacter((prev) =>
-              prev ? { ...prev, vocation: vocName, baseVocation: vocName, outfit: defaultOutfit } as any : prev
+              prev ? { ...prev, vocation: vocName, baseVocation: vocName, outfit: defaultOutfit, outfitLookType: defaultLookType } as any : prev
             );
-            gameNetwork.sendChangeOutfit({ outfit: defaultOutfit, mount: 'none', mountActive: false, addons: 0 });
+            gameNetwork.sendChangeOutfit({ outfit: defaultOutfit, lookType: defaultLookType, mount: 'none', mountActive: false, addons: 0 });
+            
+            // Phase 158: Persistência permanente imediata da nova vocação e outfit no banco SQLite
+            const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+            if (token && activeCharacter.id && !activeCharacter.id.startsWith('char-guest')) {
+              fetch(`/api/characters/${activeCharacter.id}/save`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                  vocationName: vocName,
+                  outfit: defaultOutfit,
+                  outfitLookType: defaultLookType,
+                  health: updatedState.session.characters.find((c) => c.id === activeCharacter.id)?.maxHp,
+                  maxHealth: updatedState.session.characters.find((c) => c.id === activeCharacter.id)?.maxHp,
+                  mana: updatedState.session.characters.find((c) => c.id === activeCharacter.id)?.maxMana,
+                  maxMana: updatedState.session.characters.find((c) => c.id === activeCharacter.id)?.maxMana,
+                }),
+              }).catch(() => {});
+            }
+
             if (saveProgressRef.current) {
               saveProgressRef.current(false, true).catch(() => {});
             }

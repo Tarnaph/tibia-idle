@@ -79,13 +79,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { name?: string; vocationId?: number | string };
+    const body = (await request.json()) as { name?: string; vocationId?: number | string; gender?: 'male' | 'female' };
     const service = new CharacterService(prisma);
 
     const character = await service.createCharacter({
       accountId,
       name: body.name || '',
       vocationId: Number(body.vocationId),
+      gender: body.gender === 'female' ? 'female' : 'male',
     });
 
     let parsedBestiaryKills: Record<string, number> = {};

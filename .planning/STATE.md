@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-13T19:27:00.000Z"
-last_activity: "2026-09-13 — Conclusão da Phase 157: Resolução Definitiva de Sessão Ativa / Falso Positivo de Multi-Abas no Logoff e Troca de Personagem."
+last_updated: "2026-09-13T20:00:00.000Z"
+last_activity: "2026-09-13 — Concluída Phase 158: Suporte à Vocação 'None' no Domínio, Entrada sem Crash e Seleção de Gênero (Masculino / Feminino) na Criação."
 progress:
-  total_phases: 157
-  completed_phases: 157
-  total_plans: 162
-  completed_plans: 162
+  total_phases: 158
+  completed_phases: 158
+  total_plans: 164
+  completed_plans: 164
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 157: Resolução Definitiva de Sessão Ativa / Falso Positivo de Multi-Abas no Logoff e Troca de Personagem (Concluída).
+**Current focus:** Fase 158 concluída com sucesso.
 
 ## Current Position
 
-Phase: 157 of 157 (Concluída)  
+Phase: 158 of 158 (Concluída)  
 Plan: 2 of 2 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 157.
+Last activity: 2026-09-13 — Conclusão da Phase 158 com 0 erros de tipo e 100% de testes aprovados.
 
 Progress: [██████████] 100%
 

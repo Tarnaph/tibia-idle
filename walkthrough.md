@@ -1,76 +1,65 @@
-# Walkthrough: Phase 156 — Curadoria de Magias, Escolha de Vocação, Promoção de Personagem e Correções de Outfits & Caminhada
+# Walkthrough - Phase 158: Suporte à Vocação 'None' e Seleção de Gênero (Masculino / Feminino) na Criação
 
-Implementação completa dos 4 pilares de gameplay aprovados pelo usuário e resolução definitiva dos itens apontados em [FIX.md](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/FIX.md).
+## 🎯 Resumo da Entrega
 
----
-
-## 1. Curadoria de Magias no Hotbar (Sem Ícones Quebrados)
-
-### O Que Foi Feito
-- No [HotbarConfigModal.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/HotbarConfigModal.tsx), importamos `resolveActionImagePath` de [Tibia11ActionIcon.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/Tibia11ActionIcon.tsx).
-- As magias disponíveis agora passam pelo filtro estrito:
-  ```tsx
-  const availableSpells = useMemo(() => {
-    return (gameData.spells || []).filter((s) => {
-      // 1. Deve possuir ícone oficial CipSoft
-      const hasOfficialIcon = resolveActionImagePath(s.id, 'spell', s.speech) !== null;
-      if (!hasOfficialIcon) return false;
-      // 2. Filtro de busca de texto
-      if (searchQuery.trim()) { ... }
-      return true;
-    });
-  }, [gameData.spells, searchQuery]);
-  ```
-- **Resultado:** Magias que não possuíam ícone oficial CipSoft ou magias sem utilidade no combate idle (`Magic Rope`, `Levitate`, `Creature Illusion`, `Light`, `Buzz`, `Magic Patch`, etc.) foram retiradas da tela de configuração. Nenhum item na interface exibe ícone de interrogação `?` ou imagem quebrada.
+Nesta fase, resolvemos a causa raiz do erro de entrada no jogo (`Missing vocation None.`) e implementamos a seleção completa e persistente de sexo/gênero (**♂ Masculino / ♀ Feminino**) na criação de personagens.
 
 ---
 
-## 2. Escolha Canônica de Vocação ao Nascer
+## 🛠️ Modificações Realizadas
 
-### O Que Foi Feito
-- **Gatilho de Spawn:** Em [GamePrototype.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/GamePrototype.tsx), assim que o jogador entra com um personagem recém-criado (`!activeCharacter.vocation || activeCharacter.vocation === 'None'`), o [VocationChoiceModal.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/VocationChoiceModal.tsx) abre instantaneamente no templo.
-- **Visual dos Cards:** Cada card de vocação (`Knight`, `Paladin`, `Sorcerer`, `Druid`) utiliza miniaturas autênticas `/generated/outfit-thumbs/` (`knight.png`, `hunter.png`, `mage.png`) com fallbacks canônicos, descrições fiéis da função de combate e estatísticas de avanço.
-- **Definição e Persistência:** Ao escolher:
-  - O personagem recebe a vocação selecionada.
-  - O outfit inicial é configurado automaticamente (`Knight` para Knight, `Hunter` para Paladin, `Mage` para Sorcerer/Druid).
-  - A vocação e outfit são sincronizados via Colyseus WebSocket e persistidos permanentemente no PostgreSQL via `/api/characters/[id]/save`.
+### 1. Suporte Seguro à Vocação 'None' no Domínio
+- **`packages/domain/src/party.ts`**:
+  - Definida e exportada a constante `NONE_VOCATION_DEFINITION: VocationDefinition` com id 0, multiplicadores e ganhos neutros.
+  - Atualizado `vocationFor(content, name)` para retornar `NONE_VOCATION_DEFINITION` de forma segura sempre que `name === 'None' || !name`, prevenindo exceções durante `deriveStats`.
+  - Adicionado fallback seguro em `starterFor` para quando `content.starterLoadouts` estiver vazio.
+  - Atualizada `calculateStatsForLevel` para calcular stats autênticos de personagens sem vocação.
+
+### 2. Persistência Permanente de Sexo/Gênero no Prisma (MMORPG State Rule 5)
+- **`prisma/schema.prisma`**:
+  - Adicionada a coluna `gender String @default("male")` à tabela `Character`.
+  - Sincronizado o schema com o banco SQLite (`prisma db push`) e gerado o Prisma Client (`prisma generate`).
+
+### 3. Backend e Starter Outfits por Gênero
+- **`packages/auth/src/characterService.ts`**:
+  - Adicionado `gender?: 'male' | 'female'` em `CreateCharacterInput`.
+  - Criada função `getStarterLookType(vocationId, gender)` para atribuir o visual canônico correspondente:
+    - **None (0):** Citizen Male = 128 | Citizen Female = 136
+    - **Sorcerer / Druid (1, 2):** Mage Male = 130 | Mage Female = 138
+    - **Paladin (3):** Hunter Male = 129 | Hunter Female = 137
+    - **Knight (4):** Knight Male = 131 | Knight Female = 139
+  - Persistido `gender` e `outfitLookType` na criação no banco.
+- **`app/api/characters/route.ts`**:
+  - Rota `POST /api/characters`: recebe `gender` do cliente e repassa ao serviço.
+  - Rota `GET /api/characters`: retorna `gender` de cada personagem.
+
+### 4. Interface com Seletor de Sexo/Gênero e Badges na Lista
+- **`apps/web/components/auth/TibiaAuthCharacterModal.tsx`**:
+  - Adicionado estado `charGender: 'male' | 'female'` com toggle estilizado na criação:
+    - **♂ Masculino** (destaque azul)
+    - **♀ Feminino** (destaque rosa)
+  - Cards de personagens na lista exibem badges coloridas indicando o gênero (`♂ Masculino` ou `♀ Feminino`).
+  - Enviado `gender: charGender` na requisição `POST /api/characters`.
+
+### 5. Suporte no Game Prototype
+- **`apps/web/components/GamePrototype.tsx`**:
+  - Mapeado `0: 'None'` em `VOCATION_MAP`.
+  - Ao carregar o personagem, passa o `gender` recuperado para `createCharacter`.
+  - Mapeados lookTypes femininos (136, 137, 138, 139) em `LOOKTYPE_NAME_MAP`.
+  - No modal de escolha de vocação (Nível 8+), define o lookType e outfit corretos de acordo com o sexo do personagem.
 
 ---
 
-## 3. Promoção de Vocação no Nível 20 (Character Hover Card)
+## 🧪 Validação dos Testes
 
-### O Que Foi Feito
-- **Novo Componente:** Criado [PromotionModal.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/character/PromotionModal.tsx):
-  - Exibe o novo título de elite (*Elite Knight*, *Royal Paladin*, *Master Sorcerer*, *Elder Druid*).
-  - Exibe o outfit completo com Addon 1 e Addon 2.
-  - Custo oficial de **20.000 GP**, validado contra o saldo de ouro do jogador.
-  - Lista completa de vantagens permanentes: +50% velocidade de regeneração de HP e MP, +10% velocidade de ataque físico/mágico, redução da penalidade de morte de 10% para 7%, e desbloqueio de magias de elite.
-- **Gatilho no Hover Card:** Integrado no Character Hover Card do [WindowDockBar.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/window/WindowDockBar.tsx) com botão dourado `👑 PROMOVER VOCAÇÃO (20.000 GP)`.
-- **Aviso Automático em Zona Segura:** Ao atingir o Nível 20 pela primeira vez, se o jogador estiver fora de combate na cidade de Thais, o modal de promoção é sugerido automaticamente.
-
----
-
-## 4. Resolução Definitiva dos Erros de `FIX.md` (Preview, Salvamento e Caminhada)
-
-### Diagnósticos e Correções Realizadas
-1. **Preview do OutfitModal:**
-   - Adicionada verificação rápida síncrona `getRecoloredCanvasSync` no topo de `renderRecoloredOutfit`, desenhando em 0ms no canvas de preview assim que uma cor ou traje em cache é selecionado.
-   - Catalogado o conjunto canônico `OUTFITS_WITH_MOUNTS` em [outfitRecolor.ts](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/lib/outfitRecolor.ts), garantindo que outfits sem sprites de montaria (`hasMountRider: false`) não tentem carregar camadas inexistentes que geravam falhas e travavam a composição.
-2. **Salvamento de Outfits e Montarias:**
-   - Eliminada a race condition em `handleSaveOutfit` e `handleToggleMount` no [GamePrototype.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/GamePrototype.tsx). O `latestSaveStateRef.current` agora é atualizado de forma síncrona com os novos dados de outfit, cores e montaria antes de disparar o save, impedindo que o auto-save sobrescreva o banco com o estado antigo.
-3. **Animação das Pernas / Fim do Deslizamento do Personagem:**
-   - **Preload Otimizado:** `preloadOutfitAllFrames` agora aceita `priorityDir` e carrega de forma imediata (em menos de 30ms) o frame idle (f0) e todos os frames de caminhada (f1..f8) da direção que o player está virado, ao invés de enfileirar 224 requisições desordenadas.
-   - **Atualização Dinâmica do Sprite:** No [ThaisCityArena.tsx](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia/apps/web/components/ThaisCityArena.tsx), a textura do PixiJS é atualizada sempre que `view.lastTextureKey !== textureKey`, executando `(tex.source as any).update?.()`.
-   - **Resultado:** O personagem mexe as pernas com fluidez máxima em todas as direções (sul, leste, norte, oeste) sem deslizar ou travar.
-
----
-
-## 5. Validação Automatizada e Qualidade
-
-- **TypeScript Typecheck:** `node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc --noEmit --incremental false`
-  - **Status:** **0 erros** de compilação em todo o repositório.
-- **Vitest Unit Tests:**
-  - `tests/phase155-modular-atlases.test.ts` (4/4 aprovados)
-  - `tests/phase156-outfits-and-vocation.test.ts` (3/3 aprovados)
-  - **Status:** **100% de aprovação** em 7 testes.
-- **Filtro Online:** Nenhuma chamada redundante por tick, payloads enxutos no Colyseus WebSocket e texturas geradas e cacheadas inteiramente no cliente.
+1. **Vitest Test Suite:**
+   - Suíte `tests/phase158-vocation-none-and-character-gender.test.ts` criada e aprovada (8/8 testes).
+   - Testes de regressão executados:
+     - `phase158-vocation-none-and-character-gender.test.ts`: 8/8 aprovados
+     - `phase76-vocation-choice-level8.test.ts`: 5/5 aprovados
+     - `phase154-outfit-preview-save-and-walking-animation.test.ts`: 7/7 aprovados
+     - `phase135-outfit-mount-persistence-and-city-sync.test.ts`: 5/5 aprovados
+     - `phase157-session-duplicate-and-logout.test.ts`: 13/13 aprovados
+     - **Resultado:** 38/38 testes aprovados (100%).
+2. **TypeScript Typecheck:**
+   - `tsc --noEmit --incremental false`: **0 erros de tipagem**.

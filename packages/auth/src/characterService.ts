@@ -4,7 +4,24 @@ import { experienceForLevel, levelForExperience } from '../../domain/src/experie
 export interface CreateCharacterInput {
   accountId: string;
   name: string;
-  vocationId: number; // 1: Sorcerer, 2: Druid, 3: Paladin, 4: Knight
+  vocationId: number; // 0: None, 1: Sorcerer, 2: Druid, 3: Paladin, 4: Knight
+  gender?: 'male' | 'female';
+}
+
+export function getStarterLookType(vocationId: number, gender: 'male' | 'female' = 'male'): number {
+  const isFemale = gender === 'female';
+  switch (vocationId) {
+    case 1: // Sorcerer
+    case 2: // Druid
+      return isFemale ? 138 : 130;
+    case 3: // Paladin
+      return isFemale ? 137 : 129;
+    case 4: // Knight
+      return isFemale ? 139 : 131;
+    case 0: // None
+    default:
+      return isFemale ? 136 : 128;
+  }
 }
 
 export interface VocationStarterConfig {
@@ -218,12 +235,16 @@ export class CharacterService {
       throw new Error(`O nome "${trimmedName}" já está em uso por outro aventureiro. Escolha outro nome.`);
     }
 
+    const gender = input.gender === 'female' ? 'female' : 'male';
+    const outfitLookType = getStarterLookType(config.vocationId, gender);
+
     try {
       // Create character with relational starter kit
       return await this.prisma.character.create({
         data: {
           accountId: input.accountId,
           name: trimmedName,
+          gender,
           vocationId: config.vocationId,
           vocationName: config.name,
           level: 1,
@@ -233,7 +254,8 @@ export class CharacterService {
           mana: config.baseMp,
           maxMana: config.baseMp,
           capacity: config.capacity,
-          outfitLookType: config.outfitLookType,
+          outfitLookType,
+          outfit: config.vocationId === 0 ? 'Citizen' : config.name,
           posX: THAIS_TEMPLE_SPAWN.posX,
           posY: THAIS_TEMPLE_SPAWN.posY,
           posZ: THAIS_TEMPLE_SPAWN.posZ,

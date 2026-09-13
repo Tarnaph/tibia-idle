@@ -12,6 +12,7 @@ export interface AuthAccount {
 export interface CharacterItem {
   id: string;
   name: string;
+  gender?: 'male' | 'female';
   vocationId: number;
   level: number;
   health: number;
@@ -76,6 +77,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [charName, setCharName] = useState('');
+  const [charGender, setCharGender] = useState<'male' | 'female'>('male');
   const [selectedVocation, setSelectedVocation] = useState<number>(4);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -363,7 +365,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: charName, vocationId: 0 }),
+        body: JSON.stringify({ name: charName, vocationId: 0, gender: charGender }),
       });
       const data = (await res.json()) as any;
       if (!data.success) {
@@ -371,6 +373,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       }
       setIsCreatingChar(false);
       setCharName('');
+      setCharGender('male');
       await fetchAccountAndCharacters(token);
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -907,6 +910,58 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                   </div>
 
                   <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '6px' }}>Sexo / Gênero</label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setCharGender('male')}
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          padding: '10px 14px',
+                          backgroundColor: charGender === 'male' ? '#1c2838' : '#11161d',
+                          border: charGender === 'male' ? '2px solid #4a90e2' : '1px solid #2b3442',
+                          color: charGender === 'male' ? '#64b5f6' : '#888',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          fontSize: '13px',
+                          boxShadow: charGender === 'male' ? '0 0 12px rgba(74, 144, 226, 0.35)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <span style={{ fontSize: '16px' }}>♂</span> Masculino
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCharGender('female')}
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          padding: '10px 14px',
+                          backgroundColor: charGender === 'female' ? '#2f1b2b' : '#11161d',
+                          border: charGender === 'female' ? '2px solid #e066a5' : '1px solid #2b3442',
+                          color: charGender === 'female' ? '#f48fb1' : '#888',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          fontSize: '13px',
+                          boxShadow: charGender === 'female' ? '0 0 12px rgba(224, 102, 165, 0.35)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <span style={{ fontSize: '16px' }}>♀</span> Feminino
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
                     <div
                       style={{
                         fontSize: '11px',
@@ -1018,7 +1073,25 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                             }}
                           >
                             <div>
-                              <div style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '15px', textShadow: '1px 1px 2px #000' }}>{char.name}</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '15px', textShadow: '1px 1px 2px #000' }}>{char.name}</span>
+                                <span
+                                  style={{
+                                    fontSize: '11px',
+                                    padding: '2px 8px',
+                                    borderRadius: '3px',
+                                    backgroundColor: char.gender === 'female' ? 'rgba(233, 30, 99, 0.25)' : 'rgba(33, 150, 243, 0.25)',
+                                    color: char.gender === 'female' ? '#f48fb1' : '#90caf9',
+                                    border: char.gender === 'female' ? '1px solid rgba(233, 30, 99, 0.4)' : '1px solid rgba(33, 150, 243, 0.4)',
+                                    fontWeight: 'bold',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '3px',
+                                  }}
+                                >
+                                  {char.gender === 'female' ? '♀ Feminino' : '♂ Masculino'}
+                                </span>
+                              </div>
                               <div style={{ fontSize: '11px', color: '#ffffff', marginTop: '3px', textShadow: '1px 1px 2px #000', opacity: 0.95 }}>
                                 Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
                               </div>

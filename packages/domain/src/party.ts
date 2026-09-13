@@ -23,7 +23,42 @@ function emptyTries(): SkillTries {
   return { fist: 0, club: 0, sword: 0, axe: 0, distance: 0, shielding: 0, magicLevel: 0 };
 }
 
+export const NONE_VOCATION_DEFINITION: VocationDefinition = {
+  id: 0,
+  name: 'None',
+  baseVocation: 'None',
+  promoted: false,
+  fromVocationId: 0,
+  gainHp: 5,
+  gainMana: 5,
+  gainCap: 10,
+  healthGainTicks: 12,
+  healthGainAmount: 1,
+  manaGainTicks: 6,
+  manaGainAmount: 1,
+  manaMultiplier: 1.0,
+  attackSpeedMs: 2000,
+  baseSpeed: 220,
+  meleeDamageMultiplier: 1,
+  distanceDamageMultiplier: 1,
+  defenseMultiplier: 1,
+  armorMultiplier: 1,
+  skillMultipliers: {
+    fist: 1.5,
+    club: 2.0,
+    sword: 2.0,
+    axe: 2.0,
+    distance: 2.0,
+    shielding: 1.5,
+  },
+  sourceFile: 'data/XML/vocations.xml',
+  sourceId: 0,
+};
+
 export function vocationFor(content: GameContent, name: VocationName): VocationDefinition {
+  if (name === 'None' || !name) {
+    return content.vocations.find((candidate) => candidate.name === 'None') ?? NONE_VOCATION_DEFINITION;
+  }
   const vocation = content.vocations.find((candidate) => candidate.name === name);
   if (!vocation) throw new Error(`Missing vocation ${name}.`);
   return vocation;
@@ -31,16 +66,25 @@ export function vocationFor(content: GameContent, name: VocationName): VocationD
 
 export function starterFor(content: GameContent, name: BaseVocationName): StarterLoadoutDefinition {
   const starter = content.starterLoadouts.find((candidate) => candidate.vocation === name);
-  if (!starter) return content.starterLoadouts[0];
+  if (!starter) {
+    return content.starterLoadouts[0] ?? {
+      vocation: 'None',
+      equipped: { head: 0, armor: 2651, legs: 2649, boots: 2643, leftHand: 2512, rightHand: 2382 },
+      sourceFile: 'data/creaturescripts/scripts/custom/firstitems.lua',
+      sourceVocationId: 0,
+      warnings: [],
+    };
+  }
   return starter;
 }
 
 export function calculateStatsForLevel(vocationName: string, level: number): { maxHp: number; maxMana: number; maxCap: number } {
   const isKnight = vocationName === 'Knight' || vocationName === 'Elite Knight';
   const isPaladin = vocationName === 'Paladin' || vocationName === 'Royal Paladin';
-  const gainHp = isKnight ? 15 : isPaladin ? 10 : 5;
-  const gainMana = isKnight ? 5 : isPaladin ? 15 : 30;
-  const gainCap = isKnight ? 25 : isPaladin ? 20 : 10;
+  const isNone = vocationName === 'None' || !vocationName;
+  const gainHp = isNone ? 5 : isKnight ? 15 : isPaladin ? 10 : 5;
+  const gainMana = isNone ? 0 : isKnight ? 5 : isPaladin ? 15 : 30;
+  const gainCap = isNone ? 10 : isKnight ? 25 : isPaladin ? 20 : 10;
   const levelsAboveOne = Math.max(0, level - 1);
   return {
     maxHp: 150 + levelsAboveOne * gainHp,

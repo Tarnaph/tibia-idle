@@ -87,7 +87,7 @@ describe('Phase 154: Outfit Preview, Save Persistence & Fluid Walking Animation'
     const content = fs.readFileSync(filePath, 'utf-8');
 
     expect(content).toContain('effectiveMounted = Boolean(mountActive && selectedMount !== \'none\' && caps.hasMountRider);');
-    expect(content).toContain('preloadOutfitAllFrames(outfitId, charGender, colors, 0, selectedMount, mountActive && caps.hasMountRider)');
+    expect(content).toContain('preloadOutfitAllFrames(outfitId, charGender, colors, 0, selectedMount, mountActive && caps.hasMountRider');
   });
 
   it('GamePrototype.tsx updates onlineCharacter and calls saveProgressRef in handleSaveOutfit', () => {

@@ -114,6 +114,8 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 152: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy** - Eliminação definitiva de erro 'database disk image is malformed', restauração da integridade na VPS com 100% dos personagens, desrastreamento de dev.db no git, blindagem no .gitignore e proteção do script de deploy.
 - [x] **Phase 155: Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells Atlas, Equipment Atlas & Hunt Zone Loading)** - 1px extrusion no atlas de Thais, atlas unificado de magias/runas, atlas canônico de equipamentos e zone loading para caçadas.
 - [x] **Phase 156: Curadoria de Magias, Escolha de Vocação, Promoção e Correções de Outfits & Caminhada** - Filtragem estrita de magias com ícones CipSoft, escolha de vocação ao nascer no Nível 1 com outfits autênticos, promoção no Nível 20 no Character Hover Card e correção de salvamento e caminhada sem deslizamento.
+- [x] **Phase 157: Eliminação de Falsos Positivos de Sessão Ativa, Logout Sincronizado e Prevenção de Desconexão Involuntária** - Heartbeat em tempo real via BroadcastChannel/WebSocket, limpeza imediata no logout, eliminação de falsos avisos de "conta já conectada" e botão de forçar desconexão de abas antigas.
+- [x] **Phase 158: Suporte à Vocação 'None' no Domínio, Entrada sem Crash e Seleção de Sexo (Masculino / Feminino) na Criação de Personagens** - Eliminação de runtime error `Missing vocation None.`, definição de NONE_VOCATION_DEFINITION, seleção de sexo/gênero (♂ Masculino / ♀ Feminino) com persistência no Prisma e lookTypes canônicos por gênero.
 
 ---
 
@@ -3013,6 +3015,21 @@ Plans:
 - [x] 157-02-PLAN: Verificação Dinâmica no Entrar no Jogo, Botões de Recuperação e Ações de Desconexão Forçada.
 
 - Resumo de entrega: `.planning/phases/phase-157-cross-tab-session-detection-and-logout-resolution/157-SUMMARY.md`
+
+---
+
+### Phase 158: Suporte à Vocação 'None' (Rookgaard), Escolha no Nível 1 e Seleção de Gênero na Criação
+
+**Objetivos:**
+1. **Definição de Vocação 'None':** Eliminar o runtime error `Missing vocation None.` definindo `NONE_VOCATION_DEFINITION` e fazendo `vocationFor(content, 'None')` retornar a definição base.
+2. **Escolha de Vocação no Nível 1:** Ajustar `changeCharacterVocation` para permitir a escolha inicial quando o personagem nascer como `None`.
+3. **Seleção de Sexo (Masculino / Feminino):** Adicionar campo `gender` no schema Prisma, persistir na criação e incluir botões ♂ Masculino e ♀ Feminino no modal.
+4. **Outfits e LookTypes por Sexo:** Atribuir lookTypes canônicos para masculino (Citizen 128) e feminino (Citizen 136).
+
+**Plans:**
+- [x] 158-01-PLAN: Definição de Vocação 'None' no Domínio, Fallbacks Seguros e Escolha no Nível 8+.
+- [x] 158-02-PLAN: Modelagem de Sexo no Prisma, Rota de Criação e Seletor Visual na Interface.
+
 
 
 

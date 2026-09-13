@@ -12,7 +12,7 @@
     "build": "vinext build",
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "typecheck": "tsc --noEmit --incremental false",
+    "typecheck": "node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc --noEmit --incremental false",
     "test": "vitest run",
     "prepare:game": "npm run import:content && npm run extract:tibia1098 && node scripts/extract-tibia11-icons.cjs",
     "import:content": "node --experimental-strip-types packages/realmap11-importer/src/cli.ts",
