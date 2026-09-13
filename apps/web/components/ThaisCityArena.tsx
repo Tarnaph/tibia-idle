@@ -1118,10 +1118,7 @@ export function ThaisCityArena({
           }
         });
 
-        // 4. Update local player character: authentic Tibia 10.98 walk cycle (f0 = idle, f1..f8 = 8 fluid steps)
-        const walkCycle8 = [1, 2, 3, 4, 5, 6, 7, 8];
-        const stepRateMs = Math.max(25, Math.floor(curStepDuration / 8));
-
+        // 4. Update local player character: authentic Tibia walk cycle synchronized with tile movement
         if (localChar) {
           const view = ensureActorView(localChar);
           if (view) {
@@ -1129,7 +1126,15 @@ export function ThaisCityArena({
             const charPixelY = currentPixelY;
             const charDirection = playerDirection;
             const charIsMoving = isMoving || Boolean(curWalk);
-            const charWalkFrame = charIsMoving ? walkCycle8[Math.floor(now / stepRateMs) % 8] : 0;
+
+            const normOutfit = normalizeOutfitId(localChar.outfit || localChar.vocation || 'Knight');
+            const caps = getOutfitCapabilities(normOutfit);
+            const stepParity = Math.abs(curPos.x + curPos.y) % 2;
+            const stepProgress = sample.progress ?? 0;
+            const subFrame = Math.min(3, Math.max(0, Math.floor(stepProgress * 4)));
+            const charWalkFrame = charIsMoving
+              ? (caps.maxFrames <= 3 ? (stepParity === 0 ? 1 : 2) : (1 + (stepParity === 0 ? 0 : 4) + subFrame))
+              : 0;
 
             view.sprite.scale.x = 1;
             const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
@@ -1153,8 +1158,6 @@ export function ThaisCityArena({
               ).catch(() => {});
             }
 
-            const normOutfit = normalizeOutfitId(outfitKey);
-            const caps = getOutfitCapabilities(normOutfit);
             const safeFrame = caps.maxFrames <= 3
               ? (charWalkFrame === 0 ? 0 : ((Math.abs(charWalkFrame) - 1) % 2) + 1)
               : Math.max(0, Math.min(8, charWalkFrame));
@@ -1175,7 +1178,7 @@ export function ThaisCityArena({
               outfitKey,
               charGender,
               charDirection as any,
-              charWalkFrame,
+              safeFrame,
               colors,
               addons,
               localChar.mount,
@@ -1186,7 +1189,7 @@ export function ThaisCityArena({
                 outfitKey,
                 charGender,
                 charDirection as any,
-                charWalkFrame,
+                safeFrame,
                 colors,
                 addons,
                 localChar.mount,
@@ -1202,7 +1205,7 @@ export function ThaisCityArena({
                 view.lastTextureKey = textureKey;
                 view.lastUrl = 'canvas';
               } else if (!isMounted) {
-                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, charWalkFrame);
+                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, safeFrame);
                 if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
                   view.sprite.texture = loaded[nextUrl];
                   view.lastUrl = nextUrl;
@@ -1604,19 +1607,29 @@ export function ThaisCityArena({
 
             const rMounted = Boolean(p.mountActive && p.mount && p.mount !== 'none');
             const rAddons = p.outfitAddons || 0;
-            const walkFrame = isMoving ? walkCycle8[Math.floor(now / stepRateMs) % 8] : 0;
+            const rNormOutfit = normalizeOutfitId(outfitKey);
+            const rCaps = getOutfitCapabilities(rNormOutfit);
+            const rParity = Math.abs((p.x ?? 0) + (p.y ?? 0)) % 2;
+            const rSubFrame = Math.min(3, Math.max(0, Math.floor((sample.progress ?? 0) * 4)));
+            const rWalkFrame = isMoving
+              ? (rCaps.maxFrames <= 3 ? (rParity === 0 ? 1 : 2) : (1 + (rParity === 0 ? 0 : 4) + rSubFrame))
+              : 0;
+            const rSafeFrame = rCaps.maxFrames <= 3
+              ? (rWalkFrame === 0 ? 0 : ((Math.abs(rWalkFrame) - 1) % 2) + 1)
+              : Math.max(0, Math.min(8, rWalkFrame));
+
             const textureKey = colors
-              ? getCanvasCacheKey(normalizeOutfitId(outfitKey), 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted)
-              : `${outfitKey}_male_${dir}_${walkFrame}`;
+              ? getCanvasCacheKey(rNormOutfit, 'male', dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted)
+              : `${outfitKey}_male_${dir}_${rSafeFrame}`;
 
             const isCached = colors
-              ? isOutfitCanvasCached(outfitKey, 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted)
+              ? isOutfitCanvasCached(outfitKey, 'male', dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted)
               : true;
 
             if (view.lastTextureKey !== textureKey || !isCached) {
               let updated = false;
               if (colors) {
-                const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, walkFrame, colors, rAddons, p.mount, rMounted);
+                const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted);
                 if (canvas) {
                   if (view.lastCanvas !== canvas) {
                     view.lastCanvas = canvas;
@@ -1634,7 +1647,7 @@ export function ThaisCityArena({
                 }
               }
               if (!updated && !rMounted) {
-                const url = getOutfitFrameUrl(outfitKey, dir, walkFrame);
+                const url = getOutfitFrameUrl(outfitKey, dir, rSafeFrame);
                 if (url && loaded[url]) {
                   view.sprite.texture = loaded[url];
                   view.lastUrl = url;

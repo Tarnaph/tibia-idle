@@ -105,6 +105,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 143: Correção do Carregamento Integral da Cyclopedia e Bestiário em Todos os Personagens** - Reconciliação autoritativa do bestiário, contagem de kills permanente e carregamento completo de itens e criaturas na Cyclopedia.
 - [x] **Phase 144: Correção Definitiva de Desativação de Montaria pelo Menu de Montarias e Sincronização de Estado Sem Montaria** - Desacoplamento de equippedMount e mountActive, preservação da montaria equipada ao andar a pé, resiliência de Ctrl+R e menu de contexto.
 - [x] **Phase 145: Resolução de Deadlock no Vite Dev Server, Desacoplamento da API de Autenticação e Prevenção de Transport Timeout** - Desacoplamento de packages/auth do motor de combate do jogo, proteção contra loops de recompilação do Vite com server.watch.ignored e estabilização de subscrições no GamePrototype.tsx.
+- [x] **Phase 146: Sistema Universal de Pré-Carregamento na Tela de Loading (Sprites, Montarias, Trajes, Magias, Itens e Áudio)** - Pré-aquecimento de texturas e sons com barra de progresso autoritativa no assetPreloader.
+- [x] **Phase 147: Organização Oficial de Assets, Diretório Canônico e Otimização de Loading** - Mapeamento canônico em public/assets/, assetPaths.ts e links simbólicos oficiais.
+- [x] **Phase 148: Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário** - Descongestionar preloader (apenas ~60 assets prioritários e loading ágil de ~2.0s), sincronizar animação de passos (4 frames por tile/passo) com o progresso físico de movimento, direcionar clique no avatar para o modal de Personagem/Aparência, e incluir bestiaryKills no saveProgress para persistência permanente no Prisma DB.
 
 ---
 
@@ -2774,6 +2777,35 @@ Plans:
 **Plans:** Concluído com sucesso.
 - [x] 147-01-PLAN: Organização Oficial de Assets, Diretório Canônico e Otimização de Loading.
 - Resumo de entrega: `.planning/phases/phase-147-official-asset-directory-and-fast-loading/147-SUMMARY.md`
+
+---
+
+### Phase 148: Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário
+
+**Goal**: Resolver definitivamente a lentidão de entrada no jogo enxugando o `assetPreloader.ts` para carregar apenas os assets estritamente prioritários (~60 assets em vez de 5.000+), corrigir a animação de caminhada em `ThaisCityArena.tsx` sincronizando a alternância de frames (4 passos por tile) diretamente com o progresso de movimento físico do `VisualMotionTrack`, direcionar o clique do avatar na `WindowDockBar` para o modal de Personagem/Aparência e garantir que as mortes do bestiário sejam persistidas permanentemente no banco Prisma incluindo `bestiaryKills` no `latestSaveStateRef` do `saveProgress`.
+**Depends on**: Phase 147
+**Requirements**:
+1. **Descongestionamento do Preloader & Loading Ágil (~2.0s)**:
+   - Em `assetPreloader.ts`, remover a enumeração em lote de todos os 2.760 tiles da cidade e 1.032 montarias (eliminando dezenas de URLs inexistentes e 404s).
+   - Carregar apenas os assets fundamentais de inicialização (~60 arquivos essenciais: templo de Thais, hud, molduras, magias essenciais e outfit ativo).
+   - Calibrar o `durationMs` da `ExuraLoadingScreen` para um carregamento suave de 2.0s a 2.5s (com pulo instantâneo por clique/tecla já suportado).
+2. **Animação Autêntica de Caminhada Sincronizada**:
+   - Em `ThaisCityArena.tsx`, eliminar a fórmula caótica `walkCycle8[Math.floor(now / stepRateMs) % 8]` que cicla frames a cada 30ms em tempo de relógio.
+   - Vincular a animação ao progresso real do passo (`sample.renderPosition` / progresso da interpolação de movimento do tile):
+     - Passo 1 (pé esquerdo): frames 1 a 4.
+     - Passo 2 (pé direito): frames 5 a 8 (ou alternância 1 e 2 para trajes de 3 frames).
+     - Parado: estritamente frame 0 (idle com pés juntos).
+   - Corrigir a passagem de `safeFrame` nas chamadas `isOutfitCanvasCached` e `getRecoloredCanvasSync`.
+3. **Clique no Avatar Direcionado para o Modal de Personagem**:
+   - No `WindowDockBar.tsx` e `GamePrototype.tsx`, configurar o clique na caixa do avatar superior para acionar diretamente o modal de Personagem/Aparência (`gameModal.openOutfit(...)`).
+4. **Persistência Permanente do Bestiário no Banco de Dados**:
+   - Em `GamePrototype.tsx`, incluir `bestiaryKills` no `latestSaveStateRef.current` para que o callback `saveProgress` leia sempre os abates atualizados em vez do fechamento vazio `{}` inicial, salvando com sucesso no Prisma DB (`bestiaryKillsJson`).
+5. **Qualidade e Validação Contínua**:
+   - 0 erros de tipagem no TypeScript (`npm run typecheck`).
+   - 100% de aprovação na suíte de testes (`npm test`).
+**Plans:** Concluído com sucesso.
+- [x] 148-01-PLAN: Otimização Rápida de Carregamento, Animação de Caminhada, Atalho do Avatar e Persistência do Bestiário.
+- Resumo de entrega: `.planning/phases/phase-148-fast-loading-walk-animation-avatar-and-bestiary/148-SUMMARY.md`
 
 
 

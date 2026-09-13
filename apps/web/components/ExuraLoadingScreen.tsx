@@ -58,7 +58,7 @@ export interface ExuraLoadingScreenProps {
 
 export function ExuraLoadingScreen({
   active,
-  durationMs = 10000,
+  durationMs = 2000,
   message = 'Carregando o mundo de Thais...',
   onFinish,
   bgImage = '/images/loading/thais-loading.jpg',

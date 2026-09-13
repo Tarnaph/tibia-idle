@@ -45,50 +45,43 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
   const itemUrls = new Set<string>();
   const audioUrls = new Set<string>();
 
-  // 1. Mapa de Thais (Piscinas, Pisos, Paredes, Telhados e Decorações)
+  // 1. Mapa de Thais: Apenas os tiles do Templo de Thais e entorno imediato (raio visual de 15 tiles do spawn 32369, 32241)
+  const SPAWN_X = 32369;
+  const SPAWN_Y = 32241;
   const upperTiles = (thaisCityJson as { upperTiles?: typeof thaisCityJson.tiles }).upperTiles ?? [];
   const allTiles = [...thaisCityJson.tiles, ...upperTiles];
   for (const t of allTiles) {
-    for (const id of t.serverItemIds) {
-      const mapping = visualAssets.mapItems[String(id)];
-      if (mapping?.frames && mapping.frames.length > 0) {
-        for (const f of mapping.frames) {
-          if (f.publicUrl) mapUrls.add(f.publicUrl);
+    if (Math.abs(t.x - SPAWN_X) <= 8 && Math.abs(t.y - SPAWN_Y) <= 6) {
+      for (const id of t.serverItemIds) {
+        const mapping = visualAssets.mapItems[String(id)];
+        if (mapping?.frames && mapping.frames.length > 0) {
+          for (const f of mapping.frames) {
+            if (f.publicUrl) mapUrls.add(f.publicUrl);
+          }
+        } else if (mapping?.frame?.publicUrl) {
+          mapUrls.add(mapping.frame.publicUrl);
         }
-      } else if (mapping?.frame?.publicUrl) {
-        mapUrls.add(mapping.frame.publicUrl);
       }
     }
   }
 
-  // Assets fixos de treinamento e templo
+  // Assets fixos do templo e treinamento
   if (visualAssets.assets?.trainingFloor?.frames?.[0]?.publicUrl) {
     mapUrls.add(visualAssets.assets.trainingFloor.frames[0].publicUrl);
   }
-  if (visualAssets.assets?.trainingWall?.frames?.[0]?.publicUrl) {
-    mapUrls.add(visualAssets.assets.trainingWall.frames[0].publicUrl);
-  }
-  if (visualAssets.assets?.trainingDummy?.frames?.[0]?.publicUrl) {
-    mapUrls.add(visualAssets.assets.trainingDummy.frames[0].publicUrl);
-  }
 
-  // 2. Montarias (Todas as montarias do jogo em todas as direções)
+  // 2. Montarias Canônicas (todos os frames idle f0 válidos existentes para as 129 montarias)
   const directions = ['south', 'east', 'north', 'west'];
   (rawMountsJson as Array<{ id: string }>).forEach((m) => {
     if (!m.id || m.id === 'none') return;
     directions.forEach((dir) => {
-      mountUrls.add(`/generated/mounts/${m.id}_rider_${dir}.png`);
+      // Carrega frames idle existentes f0 (sem URLs fantasmas de rider que causavam 404 e lentidão)
       mountUrls.add(`/generated/mounts/${m.id}-${dir}-f0.png`);
     });
   });
-  mountUrls.add('/generated/mounts/donkey_rider_south.png');
 
-  // 3. Outfits & Vocações (Trajes principais, feminino e masculino, f0 a f4)
-  const coreOutfits = [
-    'citizen', 'hunter', 'mage', 'knight', 'noble', 'summoner',
-    'warrior', 'barbarian', 'druid', 'sorcerer', 'paladin', 'sire',
-    'assassin', 'pirate', 'oriental', 'beggar'
-  ];
+  // 3. Outfits Principais das 4 Vocações e Citizen (f0 idle e f1..f4 passos)
+  const coreOutfits = ['knight', 'paladin', 'sorcerer', 'druid', 'citizen'];
   const genders = ['male', 'female'];
 
   coreOutfits.forEach((outfit) => {
@@ -98,7 +91,7 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
         // Idle frame f0
         outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-base.png`);
         outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-mask.png`);
-        // Walk frames f1..f4
+        // Walk frames prioritários f1..f4
         for (let f = 1; f <= 4; f++) {
           outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-base.png`);
           outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-mask.png`);
@@ -107,32 +100,31 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
     });
   });
 
-  // 4. Magias, Runas e Poções
+  // 4. Todas as Magias, Runas e Poções Canônicas
   ALL_SPELL_ICON_URLS.forEach((url) => {
     if (url) spellUrls.add(url);
   });
 
   // 5. Efeitos Visuais e Mísseis
   if (visualAssets.missiles) {
-    Object.values(visualAssets.missiles).forEach((m) => {
+    Object.values(visualAssets.missiles).slice(0, 10).forEach((m) => {
       m.frames.forEach((f) => {
         if (f.publicUrl) effectUrls.add(f.publicUrl);
       });
     });
   }
   if (visualAssets.effects) {
-    Object.values(visualAssets.effects).forEach((e) => {
+    Object.values(visualAssets.effects).slice(0, 15).forEach((e) => {
       e.frames.forEach((f) => {
         if (f.publicUrl) effectUrls.add(f.publicUrl);
       });
     });
   }
 
-  // 6. Itens Canônicos Essenciais
+  // 6. Itens Canônicos Iniciais
   if (visualAssets.items) {
-    // Equipamentos principais e itens frequentes
-    const coreItemKeys = Object.keys(visualAssets.items).slice(0, 350);
-    coreItemKeys.forEach((key) => {
+    const starterItems = Object.keys(visualAssets.items).slice(0, 120);
+    starterItems.forEach((key) => {
       const item = visualAssets.items[key];
       if (item?.frame?.publicUrl) {
         itemUrls.add(item.frame.publicUrl);

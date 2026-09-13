@@ -1288,7 +1288,18 @@ function GamePrototypeContent() {
   ])), [game.session.characters]);
 
   // Track latest character, inventory, position, and economy snapshot for background & logout persistence
-  const latestSaveStateRef = useRef({
+  const latestSaveStateRef = useRef<{
+    activeCharacter: typeof activeCharacter;
+    onlineCharacter: typeof onlineCharacter;
+    cityPos: typeof cityPos;
+    gold: number;
+    loot: typeof game.session.loot;
+    bag: typeof game.session.bag;
+    equipment: typeof content.equipment;
+    bestiaryKills: Record<string, number>;
+    trackedBestiaryId: string | null;
+    bossPoints: number;
+  }>({
     activeCharacter,
     onlineCharacter,
     cityPos,
@@ -1296,6 +1307,9 @@ function GamePrototypeContent() {
     loot: game.session.loot,
     bag: game.session.bag,
     equipment: content.equipment,
+    bestiaryKills: {},
+    trackedBestiaryId: null,
+    bossPoints: 0,
   });
   latestSaveStateRef.current = {
     activeCharacter,
@@ -1305,13 +1319,31 @@ function GamePrototypeContent() {
     loot: game.session.loot,
     bag: game.session.bag,
     equipment: content.equipment,
+    bestiaryKills: {
+      ...((game.session as any)?.bestiaryKills || {}),
+      ...((activeCharacter as any)?.bestiaryKills || {}),
+      ...bestiaryKills,
+    },
+    trackedBestiaryId: (activeCharacter as any)?.trackedBestiaryId || trackedBestiaryMonsterId || null,
+    bossPoints: (activeCharacter as any)?.bossPoints ?? bossPoints ?? 0,
   };
 
   // Robust Auto-Save with Mutex Lock and Throttle
   const saveProgress = useCallback(async (isDeathPenalty = false, force = false) => {
     const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
     const state = latestSaveStateRef.current;
-    const { activeCharacter: curActive, onlineCharacter: curOnline, cityPos: curPos, gold: curGold, loot: curLoot, bag: curBag, equipment: curEquipment } = state;
+    const {
+      activeCharacter: curActive,
+      onlineCharacter: curOnline,
+      cityPos: curPos,
+      gold: curGold,
+      loot: curLoot,
+      bag: curBag,
+      equipment: curEquipment,
+      bestiaryKills: curBestiaryKills,
+      trackedBestiaryId: curTrackedBestiaryId,
+      bossPoints: curBossPoints,
+    } = state;
 
     if (!token || !curActive || !curOnline || curActive.id !== curOnline.id) return;
 
@@ -1430,9 +1462,9 @@ function GamePrototypeContent() {
           outfitAddons: (curActive as any).addons ?? (curActive as any).outfitAddons ?? 0,
           mount: curActive.mount,
           mountActive: curActive.mountActive,
-          bestiaryKills: { ...((curActive as any).bestiaryKills || {}), ...bestiaryKills },
-          trackedBestiaryId: (curActive as any).trackedBestiaryId ?? trackedBestiaryMonsterId ?? null,
-          bossPoints: (curActive as any).bossPoints ?? bossPoints ?? 0,
+          bestiaryKills: curBestiaryKills,
+          trackedBestiaryId: curTrackedBestiaryId,
+          bossPoints: curBossPoints,
           isDeathPenalty,
         }),
       });
@@ -2760,7 +2792,7 @@ function GamePrototypeContent() {
           staminaMinutes={activeCharacter.staminaMinutes ?? 15}
           maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
           avatarId={(activeCharacter as any).avatarId ?? 1}
-          onOpenProfile={() => setIsProfileModalOpen(true)}
+          onOpenProfile={() => gameModal.openOutfit(activeCharacter.id)}
           onToggleAutoIdle={() => {
             const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
             setGame((cur) => {
@@ -3216,7 +3248,7 @@ function GamePrototypeContent() {
         return (
           <ExuraLoadingScreen
             active={initialLoadingActive || Boolean(transitionLoading?.active)}
-            durationMs={transitionLoading?.durationMs ?? 10000}
+            durationMs={transitionLoading?.durationMs ?? 2000}
             message={
               transitionLoading?.message ||
               (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')

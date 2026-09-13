@@ -40,6 +40,7 @@ export interface MotionSample {
   direction: CardinalDirection;
   moving: boolean;
   queuedSegments: number;
+  progress?: number;
 }
 
 interface MotionSegment {
@@ -118,6 +119,7 @@ export class VisualMotionTrack {
         direction: this.lastDirection,
         moving: false,
         queuedSegments: this.segments.length,
+        progress: 0,
       };
     }
     const progress = Math.min(1, Math.max(0, (now - active.startsAt) / Math.max(1, active.endsAt - active.startsAt)));
@@ -132,6 +134,7 @@ export class VisualMotionTrack {
       direction,
       moving: true,
       queuedSegments: this.segments.length,
+      progress,
     };
   }
 }
