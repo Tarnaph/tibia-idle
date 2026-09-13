@@ -56,6 +56,12 @@ export default defineConfig(async () => {
     },
     server: {
       host: true,
+      cors: true,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+        'Access-Control-Allow-Headers': '*',
+      },
       hmr: { overlay: false },
       watch: {
         ignored: [
