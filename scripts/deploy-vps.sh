@@ -53,6 +53,8 @@ export NEXT_PUBLIC_SITE_URL="http://187.7.16.210:3000"
 echo "🗄️ Inicializando banco de dados Prisma..."
 npx prisma generate
 npx prisma db push --accept-data-loss
+sqlite3 "$APP_DIR/prisma/dev.db" "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=10000;" || true
+sqlite3 "$APP_DIR/dev.db" "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=10000;" || true
 
 # 6. Conteúdo e catálogos do jogo
 echo "🎨 Configurando links de assets oficiais (/public/assets/)..."

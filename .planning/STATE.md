@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-12T23:25:00.000Z"
-last_activity: "2026-09-12 — Concluída Phase 148: Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário."
+last_updated: "2026-09-13T02:40:00.000Z"
+last_activity: "2026-09-13 — Concluída Phase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens."
 progress:
-  total_phases: 148
-  completed_phases: 148
-  total_plans: 148
-  completed_plans: 148
+  total_phases: 149
+  completed_phases: 149
+  total_plans: 149
+  completed_plans: 149
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 148: Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário (Concluída com Sucesso).
+**Current focus:** Fase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens (Concluída com Sucesso).
 
 ## Current Position
 
-Phase: 148 of 148 (Concluída)  
+Phase: 149 of 149 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-12 — Conclusão da Phase 148.
+Last activity: 2026-09-13 — Conclusão da Phase 149.
 
 Progress: [██████████] 100%
 
@@ -35,9 +35,9 @@ Progress: [██████████] 100%
 ## Performance Metrics
 
 **Velocity:**
-- Total phases completed: 148
-- Total phases in roadmap: 148
-- Tests status: 148 test suites (100% aprovados)
+- Total phases completed: 149
+- Total phases in roadmap: 149
+- Tests status: 149 test suites (100% aprovados)
 - Typecheck status: 0 erros (TypeScript 5.9)
 - Lint status: 0 erros
 
@@ -73,6 +73,7 @@ Progress: [██████████] 100%
 | 146. Sistema Universal de Pré-Carregamento na Tela de Loading (Sprites, Montarias, Trajes, Magias, Itens e Áudio) | 1 | - | - | Complete |
 | 147. Organização Oficial de Assets, Diretório Canônico e Otimização de Loading | 1 | - | - | Complete |
 | 148. Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário | 1 | - | - | Complete |
+| 149. Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens | 1 | - | - | Complete |
 
 
 

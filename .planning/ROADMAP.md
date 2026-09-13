@@ -108,6 +108,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 146: Sistema Universal de Pré-Carregamento na Tela de Loading (Sprites, Montarias, Trajes, Magias, Itens e Áudio)** - Pré-aquecimento de texturas e sons com barra de progresso autoritativa no assetPreloader.
 - [x] **Phase 147: Organização Oficial de Assets, Diretório Canônico e Otimização de Loading** - Mapeamento canônico em public/assets/, assetPaths.ts e links simbólicos oficiais.
 - [x] **Phase 148: Otimização Rápida de Carregamento, Animação Autêntica de Caminhada Sincronizada com Passos, Atalho do Avatar para Personagem e Persistência Permanente do Bestiário** - Descongestionar preloader (apenas ~60 assets prioritários e loading ágil de ~2.0s), sincronizar animação de passos (4 frames por tile/passo) com o progresso físico de movimento, direcionar clique no avatar para o modal de Personagem/Aparência, e incluir bestiaryKills no saveProgress para persistência permanente no Prisma DB.
+- [x] **Phase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens** - Reparo de integridade (reindex e vacuum) no dev.db da VPS, ativação de SQLite WAL mode e busy_timeout=10000ms para prevenir corrupção concorrente e separação estrita de erro de token (401) de erro de banco (500) na rota /api/characters.
 
 ---
 
@@ -2806,6 +2807,28 @@ Plans:
 **Plans:** Concluído com sucesso.
 - [x] 148-01-PLAN: Otimização Rápida de Carregamento, Animação de Caminhada, Atalho do Avatar e Persistência do Bestiário.
 - Resumo de entrega: `.planning/phases/phase-148-fast-loading-walk-animation-avatar-and-bestiary/148-SUMMARY.md`
+
+---
+
+### Phase 149: Recuperação de Integridade do Banco SQLite no Servidor VPS, Ativação de WAL Mode e Separação de Códigos HTTP (401 vs 500) na API de Personagens
+
+**Goal**: Diagnosticar e resolver a falha de carregamento de personagens na seleção do servidor de produção (`187.7.16.210:3000`), reparando a corrupção de índices da base SQLite (`dev.db`), ativando modo WAL com busy_timeout de 10s para blindagem contra acessos concorrentes entre o servidor Web e Colyseus, e separando os códigos HTTP de autenticação (401) de falhas internas de banco (500) em `/api/characters`.
+**Depends on**: Phase 148
+**Requirements**:
+1. **Reparo de Integridade do Banco de Dados no Servidor**:
+   - Diagnosticar corrupção de índices B-Tree (`SqliteError: database disk image is malformed`).
+   - Executar `REINDEX;` e `VACUUM;` na base `prisma/dev.db` da VPS, validando `PRAGMA integrity_check` retornando `ok`.
+2. **Blindagem Concorrente Permanente com SQLite WAL**:
+   - Ativar `PRAGMA journal_mode = WAL;` e `PRAGMA busy_timeout = 10000;` na VPS e atualizar `scripts/deploy-vps.sh` para persistência em novos deploys.
+3. **Resiliência de Códigos HTTP em `/api/characters`**:
+   - Separar a validação do token JWT (`401 Autenticação necessária`) de erros operacionais de banco de dados (`500 Erro ao listar personagens`).
+4. **Qualidade e Validação Contínua**:
+   - Teste automatizado `tests/phase149-sqlite-wal-characters-api-resilience.test.ts` aprovado.
+   - 0 erros de tipagem (`npm run typecheck`).
+   - Validação direta da API retornando HTTP 200 com os personagens do usuário (`designerosa@outlook.com`).
+**Plans:** Concluído com sucesso.
+- [x] 149-01-PLAN: Recuperação de Integridade do Banco SQLite no Servidor VPS e Separação de Códigos HTTP.
+- Resumo de entrega: `.planning/phases/phase-149-sqlite-wal-characters-api-resilience/149-SUMMARY.md`
 
 
 

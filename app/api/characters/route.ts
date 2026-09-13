@@ -13,8 +13,17 @@ function getAuthAccountId(request: Request): string {
 }
 
 export async function GET(request: Request) {
+  let accountId: string;
   try {
-    const accountId = getAuthAccountId(request);
+    accountId = getAuthAccountId(request);
+  } catch (authError: any) {
+    return NextResponse.json(
+      { success: false, error: authError.message || 'Autenticação necessária.' },
+      { status: 401 }
+    );
+  }
+
+  try {
     const service = new CharacterService(prisma);
     const characters = await service.getCharactersByAccountId(accountId);
 
@@ -50,16 +59,26 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, data: formatted }, { status: 200 });
   } catch (error: any) {
+    console.error('[GET /api/characters] Database error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Erro ao listar personagens.' },
-      { status: 401 }
+      { status: 500 }
     );
   }
 }
 
 export async function POST(request: Request) {
+  let accountId: string;
   try {
-    const accountId = getAuthAccountId(request);
+    accountId = getAuthAccountId(request);
+  } catch (authError: any) {
+    return NextResponse.json(
+      { success: false, error: authError.message || 'Autenticação necessária.' },
+      { status: 401 }
+    );
+  }
+
+  try {
     const body = (await request.json()) as { name?: string; vocationId?: number | string };
     const service = new CharacterService(prisma);
 
@@ -95,6 +114,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: formatted }, { status: 201 });
   } catch (error: any) {
+    console.error('[POST /api/characters] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Erro ao criar personagem.' },
       { status: 400 }
