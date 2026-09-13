@@ -2932,6 +2932,24 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-153-atlas-shelf-packing-and-pixi-arena-shield/153-SUMMARY.md`
 
+---
+
+### Phase 154: Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada
+
+**Goal**: Corrigir com precisão cirúrgica os 3 problemas críticos reportados em `FIX.md`: (1) preview imediato e sem falhas de CORS ao selecionar outfits e montarias; (2) persistência permanente no banco e sincronização ao salvar; (3) animação fluida e contínua de caminhada em Thais sem deslizar congelado.  
+**Depends on**: Phase 153  
+**Requirements**:
+1. Cabeçalhos de CORS (`Access-Control-Allow-Origin: *`) configurados em `next.config.ts` e `vite.config.ts`.
+2. Otimização de `loadImage`, fallback e concorrência em `apps/web/lib/outfitRecolor.ts`.
+3. Sincronização contínua de caminhada `(now % walkCycleDuration) / walkCycleDuration` (frames 1..8) e eliminação do envenenamento de chave de textura em `ThaisCityArena.tsx`.
+4. Persistência de `onlineCharacter` e chamada a `saveProgressRef` em `GamePrototype.tsx`.
+5. Testes automatizados cobrindo todos os fluxos com 100% de sucesso.
+
+**Plans:**
+- [x] 154-01-PLAN: Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada.
+
+- Resumo de entrega: `.planning/phases/phase-154-outfit-preview-save-and-walking-animation/154-SUMMARY.md`
+
 
 
 

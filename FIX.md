@@ -1,9 +1,5 @@
 # CORREÇÕES
 
-Outfits bugaram novamente, animação do personagem andando faltando, 
+As imagens estão sendo carregadas, preserve isso, porém: ao clicar em um outfit não carrega ele no prewview e ao apertar em salvar também não muda, assim como as montarias, e o mais crítico de todos a animação do personagem continua travada deslizando pelo mapa ao invés de andar.
 
-Ao apertar no avatar la em cima não é para abrir skills é para abrir "personagem" que fica junto com os outfits.
-
-Ao matar bichos no bestiário precisa ficar salvo também no banco de dados daquele personagem
-
-
+Esse é o problema mais crítico, o jogo continua injogável.

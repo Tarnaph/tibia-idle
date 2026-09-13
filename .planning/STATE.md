@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-13T04:55:00.000Z"
-last_activity: "2026-09-13 — Conclusão da Phase 153: Shelf Packing 2D no Atlas de Thais & Blindagem do PixiArena para Itens de Caçada."
+last_updated: "2026-09-13T16:00:00.000Z"
+last_activity: "2026-09-13 — Conclusão da Phase 154: Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada."
 progress:
-  total_phases: 153
-  completed_phases: 153
-  total_plans: 153
-  completed_plans: 153
+  total_phases: 154
+  completed_phases: 154
+  total_plans: 154
+  completed_plans: 154
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 152: Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy (Concluída).
+**Current focus:** Fase 154: Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada (Concluída).
 
 ## Current Position
 
-Phase: 152 of 152 (Concluída)  
+Phase: 154 of 154 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 152.
+Last activity: 2026-09-13 — Conclusão da Phase 154.
 
 Progress: [██████████] 100%
 
@@ -78,6 +78,7 @@ Progress: [██████████] 100%
 | 151. Arquitetura de Texture Atlas (Spritesheets), Desacoplamento de JSONs Monolíticos e Unificação de Loading | 1 | - | - | Complete |
 | 152. Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy | 1 | - | - | Complete |
 | 153. Shelf Packing 2D no Atlas de Thais & Blindagem do PixiArena para Itens de Caçada | 1 | - | - | Complete |
+| 154. Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada | 1 | - | - | Complete |
 
 
 
