@@ -261,15 +261,29 @@ export function ThaisCityArena({
       const loaded: Record<string, PixiTexture> = {};
 
       try {
-        const [thaisAtlasSheet, creaturesAtlasSheet] = await Promise.all([
+        const [thaisAtlasSheet, creaturesAtlasSheet, spellsAtlasSheet] = await Promise.all([
           Assets.load<any>('/generated/atlases/thais-atlas.json'),
           Assets.load<any>('/generated/atlases/creatures-atlas.json'),
+          Assets.load<any>('/generated/atlases/spells-atlas.json'),
         ]);
         if (thaisAtlasSheet?.textures) {
+          if (thaisAtlasSheet.texture?.source?.style) {
+            thaisAtlasSheet.texture.source.style.scaleMode = 'nearest';
+          }
           Object.assign(atlasTextures, thaisAtlasSheet.textures);
         }
         if (creaturesAtlasSheet?.textures) {
+          if (creaturesAtlasSheet.texture?.source?.style) {
+            creaturesAtlasSheet.texture.source.style.scaleMode = 'nearest';
+          }
           Object.assign(atlasTextures, creaturesAtlasSheet.textures);
+        }
+        if (spellsAtlasSheet?.textures) {
+          if (spellsAtlasSheet.texture?.source?.style) {
+            spellsAtlasSheet.texture.source.style.scaleMode = 'nearest';
+          }
+          Object.assign(atlasTextures, spellsAtlasSheet.textures);
+          Object.assign(loaded, spellsAtlasSheet.textures);
         }
       } catch (err) {
         console.warn('Texture Atlas loading failed, falling back:', err);
@@ -280,24 +294,18 @@ export function ThaisCityArena({
         return;
       }
 
-      // Preload background UI thumbnails and spell icons in idle time
+      // Preload donkey rider mount fallback in idle time
       setTimeout(async () => {
         if (disposed) return;
-        const bgAssets = [
-          ...ALL_SPELL_ICON_URLS,
-          '/generated/mounts/donkey_rider_south.png',
-        ];
-        for (const u of bgAssets) {
-          if (disposed) break;
-          if (u && !loaded[u]) {
-            try {
-              const tex = await Assets.load<PixiTexture>(u);
-              if (tex) {
-                tex.source.style.scaleMode = 'nearest';
-                loaded[u] = tex;
-              }
-            } catch {}
-          }
+        const u = '/generated/mounts/donkey_rider_south.png';
+        if (!loaded[u]) {
+          try {
+            const tex = await Assets.load<PixiTexture>(u);
+            if (tex) {
+              tex.source.style.scaleMode = 'nearest';
+              loaded[u] = tex;
+            }
+          } catch {}
         }
       }, 300);
 

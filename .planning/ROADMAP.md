@@ -2950,6 +2950,36 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-154-outfit-preview-save-and-walking-animation/154-SUMMARY.md`
 
+---
+
+### Phase 155: Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells Atlas, Equipment Atlas & Hunt Zone Loading)
+
+**Goal**: Implementar a arquitetura modular de spritesheets e zone loading para eliminar gargalos de requisições HTTP individuais, extinguir os riscos de textura na tela (atlas bleeding) e prover carregamento atômico e instantâneo de magias, equipamentos e monstros de caçada.  
+**Depends on**: Phase 154  
+**Requirements**:
+1. **Extrusão de 1px e Eliminação de Riscos no Atlas de Thais:**
+   - Adicionar 1px de extrusão/padding nas bordas dos tiles gerados em `scripts/build-thais-atlas.mjs` e garantir `scaleMode: 'nearest'` em `ThaisCityArena.tsx`, eliminando costuras subpixel na câmera.
+2. **Atlas Unificado de Magias e Runas (`spells-atlas`):**
+   - Criar script gerador `scripts/build-spells-atlas.mjs` para compilar todas as ~214 magias e runas de `public/spells/canonical/` e `public/runes/` em um único atlas de ~180 KB.
+   - Integrar no carregamento inicial (`assetPreloader.ts`) e no sistema de exibição de magias/hotkeys.
+3. **Atlas Canônico de Equipamentos e Consumíveis (`equipment-atlas`):**
+   - Criar script `scripts/build-equipment-atlas.mjs` compilando os ~1.200 itens usáveis (armas, armaduras, calças, elmos, botas, escudos, anéis, amuletos, mochilas e poções) em um atlas leve de ~1.5 MB carregado no boot.
+   - Fornecer lookup instantâneo para inventário, paperdoll e depot, preservando fallback para os 21.000 itens decorativos.
+4. **Zone Loading & Atlas de Monstros por Caçada (`hunt-atlases`):**
+   - Criar gerador `scripts/build-hunt-atlases.mjs` que empacota os frames completos dos monstros de cada hunt (`rat-cellars`, `rotworm-cave`, etc.) em atlases dedicados por caçada.
+   - Carregar o atlas da hunt durante a tela de transição de caçada em `PixiArena.tsx`, eliminando chamadas HTTP individuais (`ensureTexture`) durante o combate.
+5. **Qualidade e Testes:**
+   - Testes automatizados no Vitest cobrindo a integridade dos atlases e mapeamento de texturas.
+   - 0 erros no `npm run typecheck`.
+
+**Plans:**
+- [x] 155-01-PLAN: Extrusão de 1px no Atlas de Thais & Atlas Unificado de Magias e Runas.
+- [x] 155-02-PLAN: Atlas Canônico de Equipamentos & Consumíveis Base no Carregamento Inicial.
+- [x] 155-03-PLAN: Zone Loading & Atlas de Monstros por Caçada em PixiArena.
+
+- Resumo de entrega: `.planning/phases/phase-155-modular-atlases-and-zone-loading/155-SUMMARY.md`
+
+
 
 
 

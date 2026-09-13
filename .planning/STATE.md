@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-13T16:00:00.000Z"
-last_activity: "2026-09-13 — Conclusão da Phase 154: Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada."
+last_updated: "2026-09-13T17:35:00.000Z"
+last_activity: "2026-09-13 — Conclusão da Phase 155: Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells Atlas, Equipment Atlas & Hunt Zone Loading)."
 progress:
-  total_phases: 154
-  completed_phases: 154
-  total_plans: 154
-  completed_plans: 154
+  total_phases: 155
+  completed_phases: 155
+  total_plans: 157
+  completed_plans: 157
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 154: Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada (Concluída).
+**Current focus:** Fase 155: Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells Atlas, Equipment Atlas & Hunt Zone Loading) (Concluída).
 
 ## Current Position
 
-Phase: 154 of 154 (Concluída)  
-Plan: 1 of 1 in current phase  
+Phase: 155 of 155 (Concluída)  
+Plan: 3 of 3 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 154.
+Last activity: 2026-09-13 — Conclusão da Phase 155.
 
 Progress: [██████████] 100%
 

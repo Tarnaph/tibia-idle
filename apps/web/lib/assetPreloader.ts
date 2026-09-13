@@ -81,9 +81,11 @@ export function compileActivePlayerAssetUrls(ctx?: ActivePlayerPreloadContext): 
     });
   }
 
-  // 3. Atlases de Textura do mundo de Thais e criaturas/UI
+  // 3. Atlases de Textura do mundo de Thais, criaturas/UI, magias/runas e equipamentos
   mapUrls.add('/generated/atlases/thais-atlas.png');
   mapUrls.add('/generated/atlases/creatures-atlas.png');
+  mapUrls.add('/generated/atlases/spells-atlas.png');
+  mapUrls.add('/generated/atlases/equipment-atlas.png');
 
   // 4. Magias da hotbar do jogador
   if (ctx?.hotbarUrls && ctx.hotbarUrls.length > 0) {
@@ -124,9 +126,11 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
   const itemUrls = new Set<string>();
   const audioUrls = new Set<string>();
 
-  // 1. Atlases de Textura do mundo de Thais e criaturas/UI + itens essenciais de mapa
+  // 1. Atlases de Textura: Thais, Criaturas/UI, Magias/Runas e Equipamentos Canônicos
   mapUrls.add('/generated/atlases/thais-atlas.png');
   mapUrls.add('/generated/atlases/creatures-atlas.png');
+  mapUrls.add('/generated/atlases/spells-atlas.png');
+  mapUrls.add('/generated/atlases/equipment-atlas.png');
   for (let i = 100; i <= 280; i++) {
     mapUrls.add(`/assets/items/item-${i}.png`);
   }

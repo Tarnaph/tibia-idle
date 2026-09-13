@@ -19,9 +19,9 @@ describe('Phase 154: Outfit Preview, Save Persistence & Fluid Walking Animation'
       expect(Array.isArray(headers)).toBe(true);
       const catchAll = headers.find((h: any) => h.source === '/:path*');
       expect(catchAll).toBeDefined();
-      const corsHeader = catchAll.headers.find((h: any) => h.key === 'Access-Control-Allow-Origin');
+      const corsHeader = catchAll?.headers?.find((h: any) => h.key === 'Access-Control-Allow-Origin');
       expect(corsHeader).toBeDefined();
-      expect(corsHeader.value).toBe('*');
+      expect(corsHeader?.value).toBe('*');
     }
   });
 

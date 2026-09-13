@@ -144,7 +144,47 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         return undefined;
       };
 
-      // 1. Gather high-priority immediate assets for current encounter
+      // 1. Load global atlases first (spells, equipment, creatures)
+      try {
+        const [spellsSheet, equipSheet, creaturesSheet] = await Promise.all([
+          Assets.load<any>('/generated/atlases/spells-atlas.json').catch(() => null),
+          Assets.load<any>('/generated/atlases/equipment-atlas.json').catch(() => null),
+          Assets.load<any>('/generated/atlases/creatures-atlas.json').catch(() => null),
+        ]);
+        if (spellsSheet?.textures) {
+          if (spellsSheet.texture?.source?.style) spellsSheet.texture.source.style.scaleMode = 'nearest';
+          Object.assign(loaded, spellsSheet.textures);
+        }
+        if (equipSheet?.textures) {
+          if (equipSheet.texture?.source?.style) equipSheet.texture.source.style.scaleMode = 'nearest';
+          Object.assign(loaded, equipSheet.textures);
+        }
+        if (creaturesSheet?.textures) {
+          if (creaturesSheet.texture?.source?.style) creaturesSheet.texture.source.style.scaleMode = 'nearest';
+          Object.assign(loaded, creaturesSheet.textures);
+        }
+      } catch (err) {
+        console.warn('[PixiArena] Global atlas loading caught:', err);
+      }
+
+      const loadedHuntAtlases = new Set<string>();
+      const loadHuntAtlas = async (huntId?: string) => {
+        if (!huntId || loadedHuntAtlases.has(huntId)) return;
+        loadedHuntAtlases.add(huntId);
+        try {
+          const sheet = await Assets.load<any>(`/generated/atlases/hunt-${huntId}-atlas.json`).catch(() => null);
+          if (sheet?.textures) {
+            if (sheet.texture?.source?.style) sheet.texture.source.style.scaleMode = 'nearest';
+            Object.assign(loaded, sheet.textures);
+          }
+        } catch {}
+      };
+
+      if (game.encounter.hunt?.id) {
+        await loadHuntAtlas(game.encounter.hunt.id);
+      }
+
+      // 2. Gather remaining high-priority immediate assets for current encounter
       const priorityUrls = new Set<string>();
 
       // Base terrain assets
@@ -474,6 +514,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
 
         if (activeRoom !== currentEncounterKey || isReset) {
           activeRoom = currentEncounterKey;
+          if (state.encounter.hunt?.id) {
+            void loadHuntAtlas(state.encounter.hunt.id);
+          }
           cameraInitialized = false;
           for (const view of views.values()) view.root.destroy({ children: true });
           views.clear(); effects.removeChildren().forEach((child) => child.destroy({ children: true })); timed.length = 0; pendingImpacts.length = 0;

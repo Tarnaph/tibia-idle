@@ -270,6 +270,9 @@ export function isImagePermanentlyFailed(url: string): boolean {
     failedImageAttempts.delete(url);
     return false;
   }
+  if (failedImageUrls.has(url)) {
+    return true;
+  }
   const entry = failedImageAttempts.get(url);
   if (entry && entry.count >= MAX_FAILED_IMAGE_ATTEMPTS) {
     if (Date.now() - entry.lastAttempt < FAILED_IMAGE_TTL_MS) {

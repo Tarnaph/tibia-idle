@@ -130,41 +130,55 @@ async function buildThaisAtlas() {
   // Shelf Bin-Packing: Sort by height DESC, width DESC, key ASC
   const sorted = [...framesToPack].sort((a, b) => b.height - a.height || b.width - a.width || a.key.localeCompare(b.key));
 
+  console.log(`Extruding ${sorted.length} frames with 1px border replication to prevent atlas bleeding seams...`);
+  const extrudedItems = await Promise.all(sorted.map(async (item) => {
+    const extrudedBuffer = await sharp(item.localPath)
+      .extend({ top: 1, bottom: 1, left: 1, right: 1, extendWith: 'copy' })
+      .png()
+      .toBuffer();
+    return {
+      ...item,
+      extrudedBuffer,
+      packedWidth: item.width + 2,
+      packedHeight: item.height + 2,
+    };
+  }));
+
   let currentX = 0;
   let currentY = 0;
   let shelfHeight = 0;
   const overlays = [];
   const atlasFrames = {};
 
-  for (const item of sorted) {
-    if (currentX + item.width > ATLAS_SIZE) {
+  for (const item of extrudedItems) {
+    if (currentX + item.packedWidth > ATLAS_SIZE) {
       currentX = 0;
       currentY += shelfHeight;
       shelfHeight = 0;
     }
 
     overlays.push({
-      input: item.localPath,
+      input: item.extrudedBuffer,
       left: currentX,
       top: currentY,
     });
 
     atlasFrames[item.key] = {
-      frame: { x: currentX, y: currentY, w: item.width, h: item.height },
+      frame: { x: currentX + 1, y: currentY + 1, w: item.width, h: item.height },
       rotated: false,
       trimmed: false,
       spriteSourceSize: { x: 0, y: 0, w: item.width, h: item.height },
       sourceSize: { w: item.width, h: item.height },
     };
 
-    currentX += item.width;
-    if (item.height > shelfHeight) {
-      shelfHeight = item.height;
+    currentX += item.packedWidth;
+    if (item.packedHeight > shelfHeight) {
+      shelfHeight = item.packedHeight;
     }
   }
 
   const totalHeight = currentY + shelfHeight;
-  console.log(`Packed into 2D Shelf Atlas: ${ATLAS_SIZE}x${totalHeight}px`);
+  console.log(`Packed into 2D Extruded Shelf Atlas: ${ATLAS_SIZE}x${totalHeight}px`);
 
   const atlasJson = {
     frames: atlasFrames,
