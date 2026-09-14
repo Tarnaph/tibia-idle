@@ -6,7 +6,7 @@ import thaisCityJson from '@/content/generated/thais-city.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
 import thaisItemMetaJson from '@/content/generated/thais-item-metadata.json';
 import fxAssetsJson from '@/content/generated/tibia1098-fx.json';
-import type { CharacterState, CombatVisualEvent } from '@/packages/domain/src';
+import { THAIS_TRAINING_DUMMIES, type CharacterState, type CombatVisualEvent } from '@/packages/domain/src';
 import type { HuntRegionCatalog } from '@/packages/content-schema/src';
 import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
 import type { ExtractedFrame, ItemVisualAssetMapping, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
@@ -261,16 +261,26 @@ export function ThaisCityArena({
       const loaded: Record<string, PixiTexture> = {};
 
       try {
-        const [thaisAtlasSheet, creaturesAtlasSheet, spellsAtlasSheet] = await Promise.all([
-          Assets.load<any>('/generated/atlases/thais-atlas.json'),
+        const [thaisAtlasSheet, creaturesAtlasSheet, spellsAtlasSheet, directDummyTex] = await Promise.all([
+          Assets.load<any>('/generated/atlases/thais-atlas.json?v=164_dummies').catch(() => Assets.load<any>('/generated/atlases/thais-atlas.json')),
           Assets.load<any>('/generated/atlases/creatures-atlas.json'),
           Assets.load<any>('/generated/atlases/spells-atlas.json'),
+          Assets.load<any>('/assets/items/item-5787.png')
+            .catch(() => Assets.load<any>('/generated/tibia1098/items/item-5787.png'))
+            .catch(() => null),
         ]);
         if (thaisAtlasSheet?.textures) {
           if (thaisAtlasSheet.texture?.source?.style) {
             thaisAtlasSheet.texture.source.style.scaleMode = 'nearest';
           }
           Object.assign(atlasTextures, thaisAtlasSheet.textures);
+        }
+        if (directDummyTex) {
+          if (directDummyTex.source?.style) {
+            directDummyTex.source.style.scaleMode = 'nearest';
+          }
+          atlasTextures['item-5787-direct'] = directDummyTex;
+          atlasTextures['item-5787-f0'] = directDummyTex;
         }
         if (creaturesAtlasSheet?.textures) {
           if (creaturesAtlasSheet.texture?.source?.style) {
@@ -407,14 +417,19 @@ export function ThaisCityArena({
         getTileMapForZ(t.z ?? 6).set(`${t.x},${t.y}`, t);
       }
 
-      // Training dummies placed in the training room on Z:7
-      const dummyPos = thaisData.trainingDummy;
-      const dummySprite = new Sprite(atlasTextures['asset-trainingDummy'] || Texture.EMPTY);
-      dummySprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
-      dummySprite.position.set(dummyPos.x * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetX, dummyPos.y * TILE_SIZE + 16 + creatureVisualLayout.spriteOffsetY);
-      dummySprite.roundPixels = true;
-      dummySprite.zIndex = dummyPos.y * TILE_SIZE + 16;
-      objectsLayerZ7.addChild(dummySprite);
+      // Training dummies placed in the Thais Depot on Z:7
+      for (const dummy of THAIS_TRAINING_DUMMIES) {
+        const dummyTex =
+          atlasTextures['item-5787-f0'] ||
+          atlasTextures['item-5787-direct'] ||
+          atlasTextures['asset-trainingDummy'] ||
+          Texture.EMPTY;
+        const dummySprite = new Sprite(dummyTex);
+        dummySprite.position.set(dummy.position.x * TILE_SIZE, dummy.position.y * TILE_SIZE);
+        dummySprite.roundPixels = true;
+        dummySprite.zIndex = dummy.position.y * TILE_SIZE + 32;
+        objectsLayerZ7.addChild(dummySprite);
+      }
 
       const animatedMapSprites: Array<{
         sprite: InstanceType<typeof Sprite>;
@@ -458,6 +473,7 @@ export function ThaisCityArena({
           }
 
           for (const sId of tile.serverItemIds) {
+            if (sId === 5787) continue;
             const meta = thaisItemMeta[String(sId)];
             if (meta && !meta.isGround) {
               const frameKey = resolveTileFrameKey(meta, tile.x, tile.y);
@@ -1127,6 +1143,10 @@ export function ThaisCityArena({
         const incomingVisuals = latestRef.current.visualEvents;
         if (incomingVisuals && incomingVisuals !== lastProcessedVisualEvents) {
           lastProcessedVisualEvents = incomingVisuals;
+          const activeChar = latestRef.current.characters.find((c) => c.id === latestRef.current.activeCharacterId);
+          const dummyPos = (activeChar as any)?.training?.dummyId
+            ? (THAIS_TRAINING_DUMMIES.find((d) => d.id === (activeChar as any)?.training?.dummyId)?.position ?? THAIS_TRAINING_DUMMIES[0].position)
+            : (thaisData.trainingDummy ?? THAIS_TRAINING_DUMMIES[0].position);
           for (const ev of incomingVisuals) {
             if (ev.type === 'projectile-launched') {
               const mMapping = fxAssets.missiles[String(ev.projectileId)];
