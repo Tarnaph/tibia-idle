@@ -846,7 +846,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         // Classic Tibia Solid Red Target Rectangle around focused target matching reference
         targetReticle.clear();
         if (latestRef.current.isCharacterVisible !== false) {
-          const activeActor = state.encounter.partyActors.find((a) => a.alive);
+          const activeActor = (state.session.cameraTargetCharacterId ? state.encounter.partyActors.find((a) => a.alive && a.characterId === state.session.cameraTargetCharacterId) : undefined)
+            ?? (state.session.selectedCharacterId ? state.encounter.partyActors.find((a) => a.alive && a.characterId === state.session.selectedCharacterId) : undefined)
+            ?? state.encounter.partyActors.find((a) => a.alive);
           const targetId = activeActor?.targetId ?? state.session.characters.find((c) => c.id === activeActor?.characterId)?.combatState.targetId;
           if (targetId) {
             const targetView = views.get(targetId);

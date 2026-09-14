@@ -219,19 +219,32 @@ export function movePartyTowardTargets(
         continue;
       }
     } else {
-      if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
+      const currentLockedEnemy = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : undefined;
+      if (currentLockedEnemy) {
+        // 1. Target Lock Ativo: O ator já possui um alvo travado e vivo. Persegue estritamente este alvo sem roubo por proximidade!
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([currentLockedEnemy.id]), activeStrategy, minRange);
+        actor.targetId = currentLockedEnemy.id;
+        if (isMain) {
+          mainTargetId = currentLockedEnemy.id;
+          mainTargetEnemy = currentLockedEnemy;
+        }
+      } else if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
+        // 2. Membro secundário seguindo o alvo do líder
         selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
-      }
-      if (!selected && allowedEnemyIds) {
-        selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange);
-      }
-      if (!selected) {
-        selected = nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy, minRange);
-      }
-      actor.targetId = selected?.enemy.id ?? null;
-      if (isMain && selected) {
-        mainTargetId = selected.enemy.id;
-        mainTargetEnemy = selected.enemy;
+        actor.targetId = selected?.enemy.id ?? mainTargetEnemy.id;
+      } else {
+        // 3. Sem alvo travado: Seleciona o alvo mais próximo elegível (auto-retargeting clássico de caçada)
+        if (allowedEnemyIds) {
+          selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange);
+        }
+        if (!selected) {
+          selected = nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy, minRange);
+        }
+        actor.targetId = selected?.enemy.id ?? null;
+        if (isMain && selected) {
+          mainTargetId = selected.enemy.id;
+          mainTargetEnemy = selected.enemy;
+        }
       }
     }
 

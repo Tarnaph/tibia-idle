@@ -807,15 +807,25 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
           }
           const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns['attack'] ?? 0) <= encounter.elapsedMs;
           if (runeReady) {
-            const rawEligible = ((encounter.isMultiplayerParty && !isLeader && leaderTarget) || (isParty && !isFocusLead && focusTarget))
-              ? [focusTarget ?? leaderTarget!]
+            const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : null;
+            const targetToPrioritize = ((encounter.isMultiplayerParty && !isLeader && leaderTarget) || (isParty && !isFocusLead && focusTarget))
+              ? (focusTarget ?? leaderTarget)
+              : lockedTarget;
+
+            const rawEligible = targetToPrioritize
+              ? [targetToPrioritize]
               : encounter.enemies.filter((enemy) => enemy.alive);
 
             const eligibleEnemies = rawEligible.filter((enemy) => !isIgnored(enemy.name));
 
             const inRange = eligibleEnemies
               .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
-              .sort((left, right) => meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id));
+              .sort((left, right) => {
+                const isLeft = left.id === targetToPrioritize?.id;
+                const isRight = right.id === targetToPrioritize?.id;
+                if (isLeft !== isRight) return isLeft ? -1 : 1;
+                return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
+              });
 
             if (inRange.length > 0) {
               const primaryTarget = inRange[0];
@@ -1056,15 +1066,21 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               if (!condMet) continue;
             }
           } else {
-            const rawEnemies = ((encounter.isMultiplayerParty && !isLeader && leaderTarget) || (isParty && !isFocusLead && focusTarget))
-              ? [focusTarget ?? leaderTarget!]
+            const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : null;
+            const targetToPrioritize = ((encounter.isMultiplayerParty && !isLeader && leaderTarget) || (isParty && !isFocusLead && focusTarget))
+              ? (focusTarget ?? leaderTarget)
+              : lockedTarget;
+
+            const rawEnemies = (targetToPrioritize && spell.area === 'target')
+              ? [targetToPrioritize]
               : encounter.enemies.filter((enemy) => enemy.alive);
+
             const eligibleEnemies = rawEnemies.filter((e) => !isIgnored(e.name));
             const range = Math.max(1, spell.range);
             const inRange = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
               .sort((left, right) => {
-                const isLeftTarget = left.id === (focusTarget?.id ?? actor.targetId);
-                const isRightTarget = right.id === (focusTarget?.id ?? actor.targetId);
+                const isLeftTarget = left.id === targetToPrioritize?.id;
+                const isRightTarget = right.id === targetToPrioritize?.id;
                 if (isLeftTarget !== isRightTarget) return isLeftTarget ? -1 : 1;
                 return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
               });
@@ -1346,8 +1362,10 @@ export function triggerManualHotbarAction(
   if (action.kind === 'rune') {
     const rune = action.rune;
     if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
-    const inRange = encounter.enemies
-      .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
+    const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : null;
+    const candidates = lockedTarget ? [lockedTarget] : encounter.enemies.filter((enemy) => enemy.alive);
+    const inRange = candidates
+      .filter((enemy) => meleeDistance(actor.position, enemy.position) <= rune.range)
       .sort((left, right) => {
         const isLeftTarget = left.id === actor.targetId;
         const isRightTarget = right.id === actor.targetId;
@@ -1537,7 +1555,9 @@ export function triggerManualHotbarAction(
     targets = encounter.enemies.filter((enemy) => enemy.alive && waveTileMap.has(`${enemy.position.x},${enemy.position.y}`));
   } else {
     const spellRange = Math.max(1, spell.range);
-    const inRange = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= spellRange)
+    const lockedTarget = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : null;
+    const candidates = (lockedTarget && spell.area === 'target') ? [lockedTarget] : encounter.enemies.filter((enemy) => enemy.alive);
+    const inRange = candidates.filter((enemy) => meleeDistance(actor.position, enemy.position) <= spellRange)
       .sort((left, right) => {
         const isLeftTarget = left.id === actor.targetId;
         const isRightTarget = right.id === actor.targetId;
@@ -1703,11 +1723,19 @@ function playerAttacks(state: GameState, content: GameContent): void {
     if (isParty && !isFocusLead && leadTarget) {
       target = meleeDistance(actor.position, leadTarget.position) <= range ? leadTarget : undefined;
     } else {
-      const lockedTarget = encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive);
-      target = lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range ? lockedTarget : undefined;
-      if (!target) {
-        target = encounter.enemies.find((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
-        if (target && !lockedTarget) actor.targetId = target.id;
+      const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : undefined;
+      if (lockedTarget) {
+        // Target Lock Prioritário Estrito: ataca SOMENTE o alvo travado se estiver no alcance.
+        // Se estiver fora de alcance (ex: se aproximando), NÃO golpeia outros monstros vizinhos!
+        target = meleeDistance(actor.position, lockedTarget.position) <= range ? lockedTarget : undefined;
+      } else {
+        // Sem alvo travado: auto-targeting no monstro vivo mais próximo dentro do alcance
+        const inRangeEnemies = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
+        if (inRangeEnemies.length > 0) {
+          inRangeEnemies.sort((a, b) => meleeDistance(actor.position, a.position) - meleeDistance(actor.position, b.position) || a.id.localeCompare(b.id));
+          target = inRangeEnemies[0];
+          actor.targetId = target.id;
+        }
       }
     }
 

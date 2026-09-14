@@ -77,3 +77,19 @@
      - 💚 **Healing:** Verde restaurador (`#62e58a`)
      - 💧 **Mana:** Azul cobalto (`#3399ff`)
    - Preservação da cor do elemento em projéteis e runas de área com impacto retardado (`pendingImpacts`).
+
+---
+
+## 🎯 Phase 162: Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano)
+1. **Target Lock Prioritário na Movimentação e Pathfinding (`movement.ts`):**
+   - Preservação estrita do alvo focado pelo jogador (`actor.targetId`): o algoritmo de perseguição de caçada foca exclusivamente a criatura alvejada.
+   - Eliminação do roubo de alvo por proximidade física de monstros não alvejados em `movePartyTowardTargets`.
+2. **Eliminação do Redirecionamento de Ataque em Alvos Vizinhos (`combat.ts`):**
+   - Em `playerAttacks`, se o personagem possui um alvo travado (`lockedTarget`), os golpes físicos, flechas e tiros de wand atacam exclusivamente esse alvo assim que ele entra no alcance.
+   - Se o alvo travado estiver fora do alcance (personagem ainda se aproximando), o personagem aguarda sem redirecionar golpes para monstros vizinhos.
+   - O ataque automático a qualquer monstro no alcance opera estritamente quando não há alvo fixado (`!actor.targetId`).
+3. **Prioridade Absoluta do Alvo Travado em Magias e Runas Ofensivas:**
+   - Magias de alvo único (`exori flam`, `exori vis`, `exori mort`, etc.) e runas ofensivas (SD, HMM, GFB) focam com prioridade máxima a criatura marcada com a mira vermelha.
+   - Bloqueio de redirecionamento involuntário para criaturas vizinhas caso o alvo travado esteja temporariamente fora de alcance.
+4. **Auto-Retargeting Limpo pós-Morte:**
+   - Ao morrer o monstro travado, o target lock é limpo com segurança, restaurando a seleção automática do próximo monstro mais próximo para continuidade fluida da caçada.

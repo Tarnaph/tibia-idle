@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-13T23:09:00.000Z"
-last_activity: "2026-09-13 — Concluída Phase 161: Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos."
+status: completed
+last_updated: "2026-09-13T23:37:00.000Z"
+last_activity: "2026-09-13 — Phase 162: Target Lock Autêntico do Tibia Concluída com Sucesso (100% de Testes e 0 Erros de Tipagem)."
 progress:
-  total_phases: 161
-  completed_phases: 161
-  total_plans: 167
-  completed_plans: 167
+  total_phases: 162
+  completed_phases: 162
+  total_plans: 168
+  completed_plans: 168
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 161 concluída com sucesso.
+**Current focus:** Phase 162: Target Lock Autêntico do Tibia.
 
 ## Current Position
 
-Phase: 161 of 161 (Concluída)  
+Phase: 162 of 162 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 161 com 0 erros de tipo e 100% de testes aprovados.
+Last activity: 2026-09-13 — Target Lock Autêntico do Tibia implementado com sucesso no motor de movimentação, ataques físicos, magias e runas.
 
 Progress: [██████████] 100%
 
@@ -79,6 +79,14 @@ Progress: [██████████] 100%
 | 152. Recuperação Definitiva do Banco SQLite, Desrastreamento no Git e Blindagem de Deploy | 1 | - | - | Complete |
 | 153. Shelf Packing 2D no Atlas de Thais & Blindagem do PixiArena para Itens de Caçada | 1 | - | - | Complete |
 | 154. Correção Definitiva de Preview e Persistência de Outfits/Montarias e Animação Fluida de Caminhada | 1 | - | - | Complete |
+| 155. Arquitetura Integral de Atlases Modulares (Thais Extrusion, Spells, Equipments & Hunt Zones) | 3 | - | - | Complete |
+| 156. Curadoria de Magias, Escolha de Vocação, Promoção e Correções de Outfits & Caminhada | 3 | - | - | Complete |
+| 157. Resolução Definitiva de Sessão Ativa / Falso Positivo de Multi-Abas no Logoff e Troca de Personagem | 2 | - | - | Complete |
+| 158. Suporte à Vocação 'None' (Rookgaard), Escolha no Nível 1 e Seleção de Gênero na Criação | 2 | - | - | Complete |
+| 159. Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados | 1 | - | - | Complete |
+| 160. Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites | 1 | - | - | Complete |
+| 161. Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos | 1 | - | - | Complete |
+| 162. Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano) | 1 | - | - | Complete |
 
 
 

@@ -119,6 +119,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 159: Resolução de Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados** - Miniaturas dinâmicas conforme gênero do personagem, reset de addons ao trocar de traje e remoção de "Sorcerer" e "Paladin" duplicados.
 - [x] **Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites** - Janela flutuante arrastável (drag & drop) no canto superior direito, rastreamento simultâneo de múltiplos monstros da hunt e saneamento de sprites canônicos da Cyclopedia (sem demon no rat).
 - [x] **Phase 161: Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos** - Adotar cores autênticas da CipSoft para danos de Physical, Fire, Energy, Earth, Ice, Holy, Death, Healing e Mana no PixiJS com propagação de elementos nos eventos de combate.
+- [x] **Phase 162: Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano)** - Alvo marcado (retângulo vermelho) com perseguição estrita em movement.ts, ataques básicos sem bater em criaturas vizinhas fora do alvo, runas/magias focadas no alvo travado e auto-retargeting limpo pós-morte.
 
 ---
 
@@ -3084,6 +3085,22 @@ Plans:
 - [x] 161-01-PLAN: Propagação de Elementos no Domínio de Combate e Renderização de Cores Oficiais de Dano Elemental no PixiArena.
 
 - Resumo de entrega: `.planning/phases/phase-161-elemental-damage-colors-and-resistances/161-SUMMARY.md`
+
+### Phase 162: Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano)
+
+**Goal**: Implementar o comportamento 100% autêntico de Target Lock (mira vermelha fixa) do Tibia, garantindo que o monstro alvejado pelo jogador seja focado exclusivamente pelo motor de movimentação (`movement.ts`) e pelos sistemas de ataque básico (`playerAttacks`), magias e runas em `combat.ts`, eliminando trocas involuntárias de alvo por proximidade física e ataques em criaturas vizinhas indesejadas.  
+**Depends on**: Phase 161  
+**Requirements**:
+1. Preservar `actor.targetId` em `movePartyTowardTargets` caso o monstro esteja vivo, perseguindo estritamente esse monstro sem sobrescrever o alvo por monstros mais próximos.
+2. Em `playerAttacks`, se houver um alvo travado (`lockedTarget`), atacar exclusivamente esse alvo assim que entrar no alcance; se estiver fora do alcance, aguardar aproximação sem atacar monstros vizinhos adjacentes.
+3. Em `castAutomaticSpells` e `triggerManualHotbarAction`, direcionar magias e runas de ataque com prioridade absoluta para a criatura marcada pelo quadrado vermelho.
+4. Limpar o alvo travado com segurança na morte da criatura (`defeatEnemy`), restaurando o auto-retargeting para dar continuidade à caçada.
+5. Cobertura de testes unitários com Vitest (`tests/phase162-authentic-target-lock.test.ts`) e 0 erros de TypeScript (`npm run typecheck`).
+
+**Plans:**
+- [x] 162-01-PLAN: Target Lock Autêntico no Motor de Movimentação, Ataques Físicos, Magias e Runas.
+
+- Resumo de entrega: `.planning/phases/phase-162-authentic-target-lock/162-SUMMARY.md`
 
 
 
