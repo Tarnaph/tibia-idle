@@ -220,8 +220,8 @@ export interface LootStack { itemId?: number; name: string; amount: number }
 export interface ItemLootPreference { itemId: number; autoLoot: boolean; lockSell: boolean; quickSell: boolean }
 
 export type CombatEvent =
-  | { type: 'player-attack'; sourceId: string; targetId: string; damage: number }
-  | { type: 'enemy-attack'; sourceId: string; targetId: string; damage: number }
+  | { type: 'player-attack'; sourceId: string; targetId: string; damage: number; element?: string }
+  | { type: 'enemy-attack'; sourceId: string; targetId: string; damage: number; element?: string }
   | { type: 'enemy-death'; enemyId: string; corpseId: number }
   | { type: 'loot'; itemName: string; amount: number }
   | { type: 'level-up'; characterId: string; level: number; previousLevel?: number; message?: string }
@@ -233,7 +233,7 @@ export type CombatEvent =
   | { type: 'room-transition'; room: number }
   | { type: 'hunt-complete' }
   | { type: 'player-death'; characterId: string }
-  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string; delayMs?: number }
+  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string; delayMs?: number; element?: string }
   | { type: 'spell-visual'; sourceId: string; targetId?: string; targetPosition?: GridPosition; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null; delayMs?: number };
 
 export type CombatVisualEvent =

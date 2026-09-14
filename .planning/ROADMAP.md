@@ -118,6 +118,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 158: Suporte à Vocação 'None' no Domínio, Entrada sem Crash e Seleção de Sexo (Masculino / Feminino) na Criação de Personagens** - Eliminação de runtime error `Missing vocation None.`, definição de NONE_VOCATION_DEFINITION, seleção de sexo/gênero (♂ Masculino / ♀ Feminino) com persistência no Prisma e lookTypes canônicos por gênero.
 - [x] **Phase 159: Resolução de Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados** - Miniaturas dinâmicas conforme gênero do personagem, reset de addons ao trocar de traje e remoção de "Sorcerer" e "Paladin" duplicados.
 - [x] **Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites** - Janela flutuante arrastável (drag & drop) no canto superior direito, rastreamento simultâneo de múltiplos monstros da hunt e saneamento de sprites canônicos da Cyclopedia (sem demon no rat).
+- [x] **Phase 161: Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos** - Adotar cores autênticas da CipSoft para danos de Physical, Fire, Energy, Earth, Ice, Holy, Death, Healing e Mana no PixiJS com propagação de elementos nos eventos de combate.
 
 ---
 
@@ -3067,6 +3068,23 @@ Plans:
 - [x] 160-01-PLAN: Saneamento de Sprites de Monstros da Cyclopedia, Rastreamento Multi-Monstros por Caçada e HUD Flutuante Arrastável no Canto Superior Direito.
 
 - Resumo de entrega: `.planning/phases/phase-160-bestiary-floating-hud-and-sprite-sync/160-SUMMARY.md`
+
+### Phase 161: Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos
+
+**Goal**: Adotar cores autênticas da CipSoft (`const.h` do TFS / RealMap 11) para todos os danos flutuantes exibidos durante o combate, propagando o elemento (`physical`, `fire`, `energy`, `earth`, `ice`, `holy`, `death`, `healing` e `mana`) dos ataques básicos (wands, rods e armas corpo a corpo), magias e runas para o motor visual PixiJS.  
+**Depends on**: Phase 160  
+**Requirements**:
+1. Extensão de `CombatEvent` em `packages/domain/src/types.ts` com a propriedade opcional `element?: string` em `player-attack`, `enemy-attack` e `spell-cast`.
+2. Emissão de `element` em todos os eventos de combate em `packages/domain/src/combat.ts` (wands, rods, armas melee, magias e runas).
+3. Mapeamento de cores oficiais e bordas de alto contraste em `apps/web/components/PixiArena.tsx` para cada elemento.
+4. Preservação de elementos em projéteis e runas de área com impacto diferido (`pendingImpacts`).
+5. Suíte de testes automatizados (`tests/phase161-elemental-damage-colors-and-resistances.test.ts`) e 0 erros no TypeScript (`npm run typecheck`).
+
+**Plans:**
+- [x] 161-01-PLAN: Propagação de Elementos no Domínio de Combate e Renderização de Cores Oficiais de Dano Elemental no PixiArena.
+
+- Resumo de entrega: `.planning/phases/phase-161-elemental-damage-colors-and-resistances/161-SUMMARY.md`
+
 
 
 

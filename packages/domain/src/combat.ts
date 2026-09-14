@@ -920,6 +920,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                   healing: false,
                   speech: rune.name,
                   delayMs: impactDelay,
+                  element: rune.combatType,
                 });
                 addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
                 if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
@@ -1115,7 +1116,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             const targetCharacter = state.session.characters.find((candidate) => candidate.id === targetActor!.characterId)!;
             const healed = Math.min(amount, targetCharacter.maxHp - targetActor.hp);
             targetActor.hp += healed;
-            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, amount: healed, healing: true, speech: spellSpeech });
+            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, amount: healed, healing: true, speech: spellSpeech, element: 'healing' });
             encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: targetActor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
             addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
             syncCharacterResources(state, targetActor);
@@ -1127,7 +1128,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
             else actor.hasteUntil = encounter.elapsedMs + duration;
 
-            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech, element: 'support' });
             encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
             addLog(state, `${character.name} usou ${spell.name}.`);
             usedSpellThisTick = true;
@@ -1165,7 +1166,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             for (const target of targets) {
               const damage = resistedDamage(amount, target, spell.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
-              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech });
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech, element: spell.combatType });
               if (spell.area !== 'square-1x1' && spell.area !== 'wave-4') {
                 encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
               }
@@ -1173,7 +1174,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
             }
             if (targets.length === 0) {
-              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech, element: spell.combatType || 'support' });
               addLog(state, `${character.name} usou ${spell.name}.`);
             }
             usedSpellThisTick = true;
@@ -1446,6 +1447,7 @@ export function triggerManualHotbarAction(
         healing: false,
         speech: rune.name,
         delayMs: impactDelay,
+        element: rune.combatType,
       });
       addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
       if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
@@ -1494,7 +1496,7 @@ export function triggerManualHotbarAction(
   if (spell.group === 'healing') {
     const healed = Math.min(amount, character.maxHp - actor.hp);
     actor.hp += healed;
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: healed, healing: true, speech: spellSpeech });
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: healed, healing: true, speech: spellSpeech, element: 'healing' });
     encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
     syncCharacterResources(state, actor);
@@ -1507,7 +1509,7 @@ export function triggerManualHotbarAction(
     else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
     else actor.hasteUntil = encounter.elapsedMs + duration;
 
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech, element: 'support' });
     encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     addLog(state, `${character.name} usou ${spell.name}.`);
     syncCharacterResources(state, actor);
@@ -1579,7 +1581,7 @@ export function triggerManualHotbarAction(
   for (const target of targets) {
     const damage = resistedDamage(amount, target, spell.combatType, content);
     target.hp = Math.max(0, target.hp - damage);
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech });
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech, element: spell.combatType });
     if (spell.area !== 'square-1x1' && spell.area !== 'wave-4') {
       encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     }
@@ -1588,7 +1590,7 @@ export function triggerManualHotbarAction(
   }
 
   if (targets.length === 0) {
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech });
+    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech, element: spell.combatType || 'support' });
     addLog(state, `${character.name} usou ${spell.name}.`);
   }
   syncCharacterResources(state, actor);
@@ -1617,7 +1619,7 @@ function playerAttacks(state: GameState, content: GameContent): void {
         }
         encounter.rngState = rng.state;
         target.hp = Math.max(0, target.hp - damage);
-        encounter.events.push({ type: 'player-attack', sourceId: actor.characterId, targetId: target.id, damage });
+        encounter.events.push({ type: 'player-attack', sourceId: actor.characterId, targetId: target.id, damage, element: pending.element || 'physical' });
         if (pending.ranged) {
           const effectId = pending.effectId ?? 12;
           encounter.visualEvents.push({ type: 'projectile-hit', sourceId: actor.characterId, targetId: target.id, effectId });
@@ -1879,7 +1881,7 @@ function enemyAttacks(state: GameState, content: GameContent): void {
         target.hp = Math.max(0, target.hp - damage);
       }
     }
-    encounter.events.push({ type: 'enemy-attack', sourceId: enemy.id, targetId: target.characterId, damage });
+    encounter.events.push({ type: 'enemy-attack', sourceId: enemy.id, targetId: target.characterId, damage, element: 'physical' });
     addLog(state, `${enemy.name} causou ${damage} em ${character.name}.`);
     if (target.hp <= 0) {
       target.alive = false; target.path = [];

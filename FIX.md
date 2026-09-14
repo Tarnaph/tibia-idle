@@ -58,3 +58,22 @@
    - Posição inicial no canto superior direito (`top: 58px`, `right: 20px`), livre de sobreposição com controles essenciais.
    - Drag & drop fluido via Pointer Events com persistência de coordenadas em `localStorage`.
    - Suporte a minimizar (`_`) e fechar (`✕`) com reabertura automática ao iniciar caçadas.
+
+---
+
+## 🌈 Phase 161: Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos
+1. **Propagação de Elementos no Motor de Combate:**
+   - Extensão de `CombatEvent` (`types.ts`) para incluir `element?: string` em `player-attack`, `enemy-attack` e `spell-cast`.
+   - Propagação em `combat.ts` para ataques corpo a corpo e projéteis físicos (`physical`), wands e rods (`energy`, `fire`, `earth`, `ice`, `death`), magias e runas de ataque (`fire`, `energy`, `earth`, `ice`, `holy`, `death`), e cura (`healing`).
+2. **Renderização Visual no PixiJS com Paleta Canônica CipSoft:**
+   - Criação do helper `getCombatTextColor` em `PixiArena.tsx` definindo cores autênticas com bordas de alto contraste:
+     - 🩸 **Physical:** Vermelho sangue (`#ff4444`)
+     - 🔥 **Fire:** Laranja incandescente (`#ff8800`)
+     - ⚡ **Energy:** Ciano elétrico brilhante (`#00e6e6`)
+     - 🌿 **Earth / Poison:** Verde vibrante tóxico (`#2cd92c`)
+     - ❄️ **Ice:** Azul celeste gélido (`#66ccff`)
+     - ☀️ **Holy:** Amarelo solar dourado (`#ffea33`)
+     - 💀 **Death:** Roxo místico / Violeta profundo (`#b84dff`)
+     - 💚 **Healing:** Verde restaurador (`#62e58a`)
+     - 💧 **Mana:** Azul cobalto (`#3399ff`)
+   - Preservação da cor do elemento em projéteis e runas de área com impacto retardado (`pendingImpacts`).

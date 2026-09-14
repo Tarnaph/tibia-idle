@@ -33,8 +33,40 @@ interface ActorView {
   lastOutfitSig?: string;
   attackUntil: number;
 }
-interface TimedVisual { root: Container | Sprite | Text; startedAt: number; durationMs: number; kind: 'float' | 'effect' | 'missile'; from?: GridPosition; to?: GridPosition; frames?: string[] }
-interface PendingImpact { targetId: string; amount: number; impactAt: number }
+interface TimedVisual { root: Container | Sprite | Text; startedAt: number; durationMs: number; kind: 'float' | 'effect' | 'missile'; from?: GridPosition; to?: GridPosition; frames?: string[]; }
+interface PendingImpact { targetId: string; amount: number; impactAt: number; element?: string }
+
+export interface CombatTextColor {
+  fill: number;
+  stroke: number;
+}
+
+export function getCombatTextColor(element?: string, isHealing?: boolean): CombatTextColor {
+  if (isHealing || element === 'healing') {
+    return { fill: 0x62e58a, stroke: 0x072611 }; // Cura: Verde claro com borda escura
+  }
+  if (element === 'mana') {
+    return { fill: 0x3399ff, stroke: 0x051a33 }; // Mana: Azul cobalto
+  }
+  switch (element?.toLowerCase()) {
+    case 'fire':
+      return { fill: 0xff8800, stroke: 0x331100 }; // Fogo: Laranja incandescente
+    case 'energy':
+      return { fill: 0x00e6e6, stroke: 0x002b2b }; // Energia: Ciano elétrico
+    case 'earth':
+    case 'poison':
+      return { fill: 0x2cd92c, stroke: 0x062b06 }; // Terra / Veneno: Verde vibrante
+    case 'ice':
+      return { fill: 0x66ccff, stroke: 0x0a2638 }; // Gelo: Azul celeste gélido
+    case 'holy':
+      return { fill: 0xffea33, stroke: 0x383300 }; // Sagrado: Amarelo solar dourado
+    case 'death':
+      return { fill: 0xb84dff, stroke: 0x240638 }; // Morte: Roxo / Violeta profundo
+    case 'physical':
+    default:
+      return { fill: 0xff4444, stroke: 0x1a0504 }; // Físico: Vermelho clássico
+  }
+}
 
 const visualAssets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 const TILE_SIZE = 32;
@@ -656,15 +688,17 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
               const isHealing = event.type === 'spell-cast' && event.healing;
               const prefix = isHealing ? '+' : '';
               const delay = (event.type === 'spell-cast' && typeof event.delayMs === 'number') ? event.delayMs : 0;
+              const element = (event as any).element;
               if (delay > 0 && !isHealing) {
-                pendingImpacts.push({ targetId, amount, impactAt: now + delay });
+                pendingImpacts.push({ targetId, amount, impactAt: now + delay, element });
               }
+              const colorConfig = getCombatTextColor(element, isHealing);
               const text = new Text({
                 text: `${prefix}${amount}`,
                 resolution: 2,
                 style: {
-                  fill: isHealing ? 0x62e58a : 0xff766b,
-                  stroke: { color: 0x1a0504, width: 2 },
+                  fill: colorConfig.fill,
+                  stroke: { color: colorConfig.stroke, width: 2 },
                   fontSize: 7,
                   fontFamily: 'Verdana, Arial, sans-serif',
                   fontWeight: '700',
