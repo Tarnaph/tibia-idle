@@ -123,3 +123,186 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
   }
   return next;
 }
+
+export interface TrainingTimeEstimate {
+  remainingSeconds: number;
+  formattedTime: string;
+  progressPercent: number;
+  currentLevel: number;
+  targetLevel: number;
+  currentTries: number;
+  requiredTries: number;
+}
+
+export function calculateTrainingTimeEstimate(
+  character: CharacterState,
+  skill: TrainableSkill,
+  content: GameContent,
+  serverSkillRate?: number
+): TrainingTimeEstimate {
+  const vocation = vocationFor(content, character.vocation);
+  const currentLevel = character.skills[skill] ?? 10;
+  const targetLevel = currentLevel + 1;
+  const currentTries = character.skillTries[skill] ?? 0;
+  const requiredTries = skill === 'magicLevel'
+    ? requiredMagicTries(vocation, Math.max(1, targetLevel))
+    : requiredSkillTries(vocation, skill, targetLevel);
+
+  const neededTries = Math.max(0, requiredTries - currentTries);
+  const progressPercent = requiredTries > 0 ? Math.min(100, Math.max(0, (currentTries / requiredTries) * 100)) : 100;
+
+  const effectiveSkillRate = serverSkillRate ?? serverConfigManager.getConfig().skillRate ?? 1.0;
+
+  let triesPerSecond = 0;
+  if (skill === 'magicLevel') {
+    const regIntervalSec = Math.max(0.1, vocation.manaGainTicks || 2);
+    const manaPerSec = (vocation.manaGainAmount || 2) / regIntervalSec;
+    triesPerSecond = manaPerSec * (content.rateMagic || 1.0) * effectiveSkillRate;
+  } else if (skill === 'distance') {
+    // 1 action every 4 seconds
+    triesPerSecond = (1 / 4) * (content.rateSkill || 1.0) * effectiveSkillRate;
+  } else {
+    // Melee (sword, axe, club, fist) & Shielding: 1 action every 2 seconds
+    triesPerSecond = (1 / 2) * (content.rateSkill || 1.0) * effectiveSkillRate;
+  }
+
+  const remainingSeconds = triesPerSecond > 0 ? Math.ceil(neededTries / triesPerSecond) : 0;
+
+  let formattedTime = '';
+  if (remainingSeconds <= 0) {
+    formattedTime = 'Pronto para upar!';
+  } else {
+    const hours = Math.floor(remainingSeconds / 3600);
+    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+    const seconds = remainingSeconds % 60;
+    if (hours > 0) {
+      formattedTime = `${hours}h ${minutes}min`;
+    } else if (minutes > 0) {
+      formattedTime = `${minutes}min ${seconds}s`;
+    } else {
+      formattedTime = `${seconds}s`;
+    }
+  }
+
+  return {
+    remainingSeconds,
+    formattedTime,
+    progressPercent,
+    currentLevel,
+    targetLevel,
+    currentTries,
+    requiredTries,
+  };
+}
+
+export interface TrainingDummyInfo {
+  id: number;
+  position: { x: number; y: number; z: number };
+}
+
+export const THAIS_TRAINING_DUMMIES: TrainingDummyInfo[] = [
+  { id: 1, position: { x: 32349, y: 32219, z: 7 } },
+  { id: 2, position: { x: 32349, y: 32221, z: 7 } },
+  { id: 3, position: { x: 32349, y: 32223, z: 7 } },
+];
+
+export const THAIS_TRAINING_APPROACH_POINT = { x: 32345, y: 32220, z: 7 };
+
+/**
+ * Encontra a melhor vaga ao redor do dummy alvo para o personagem:
+ * - Vocações Melee (Knight / None): priorizam tiles adjacentes (dist = 1); se todos estiverem lotados, espalham-se a dist = 2.
+ * - Vocações Ranged (Druid, Sorcerer, Paladin e promoções): priorizam adjacente; se todos os adjacentes estiverem lotados, posicionam-se a 2 ou 3 tiles de distância para atacar de longe.
+ */
+export function findBestTrainingTile(
+  dummyPos: { x: number; y: number; z: number },
+  vocationName: string,
+  occupiedKeys: ReadonlySet<string>,
+  isWalkableFn: (pos: { x: number; y: number; z: number }) => boolean
+): { x: number; y: number; z: number } | null {
+  const isRangedVocation =
+    vocationName.includes('Sorcerer') ||
+    vocationName.includes('Druid') ||
+    vocationName.includes('Paladin');
+
+  const z = dummyPos.z;
+
+  // 1. Gera candidatos adjacentes (distância 1)
+  const adjacentOffsets = [
+    { dx: -1, dy: 0 },
+    { dx: -1, dy: -1 },
+    { dx: -1, dy: 1 },
+    { dx: 0, dy: -1 },
+    { dx: 0, dy: 1 },
+    { dx: 1, dy: 0 },
+    { dx: 1, dy: -1 },
+    { dx: 1, dy: 1 },
+  ];
+
+  const availableAdjacent: Array<{ x: number; y: number; z: number }> = [];
+  for (const off of adjacentOffsets) {
+    const pos = { x: dummyPos.x + off.dx, y: dummyPos.y + off.dy, z };
+    const key = `${pos.x},${pos.y},${pos.z}`;
+    if (!occupiedKeys.has(key) && isWalkableFn(pos)) {
+      availableAdjacent.push(pos);
+    }
+  }
+
+  // Se houver vaga adjacente livre, ocupa a melhor vaga adjacente
+  if (availableAdjacent.length > 0) {
+    // Prioriza o lado oeste (mais próximo da entrada do Depot: x menor)
+    availableAdjacent.sort((a, b) => a.x - b.x || a.y - b.y);
+    return availableAdjacent[0];
+  }
+
+  // 2. Se todos os adjacentes estiverem ocupados:
+  // Para Ranged (Paladins e Mages), posiciona-se a 2 ou 3 tiles de distância para atirar de longe
+  if (isRangedVocation) {
+    const rangedCandidates: Array<{ x: number; y: number; z: number; dist: number }> = [];
+    for (let dist = 2; dist <= 3; dist++) {
+      for (let dx = -dist; dx <= dist; dx++) {
+        for (let dy = -dist; dy <= dist; dy++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) === dist) {
+            const pos = { x: dummyPos.x + dx, y: dummyPos.y + dy, z };
+            const key = `${pos.x},${pos.y},${pos.z}`;
+            if (!occupiedKeys.has(key) && isWalkableFn(pos)) {
+              rangedCandidates.push({ ...pos, dist });
+            }
+          }
+        }
+      }
+    }
+    if (rangedCandidates.length > 0) {
+      // Prioriza tiles a oeste e mais próximos
+      rangedCandidates.sort((a, b) => a.dist - b.dist || a.x - b.x || a.y - b.y);
+      return { x: rangedCandidates[0].x, y: rangedCandidates[0].y, z };
+    }
+  }
+
+  // Para Knights (ou fallback geral), busca qualquer tile livre na coroa de distância 2
+  const secondaryCandidates: Array<{ x: number; y: number; z: number }> = [];
+  for (let dx = -2; dx <= 2; dx++) {
+    for (let dy = -2; dy <= 2; dy++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) === 2) {
+        const pos = { x: dummyPos.x + dx, y: dummyPos.y + dy, z };
+        const key = `${pos.x},${pos.y},${pos.z}`;
+        if (!occupiedKeys.has(key) && isWalkableFn(pos)) {
+          secondaryCandidates.push(pos);
+        }
+      }
+    }
+  }
+
+  if (secondaryCandidates.length > 0) {
+    secondaryCandidates.sort((a, b) => a.x - b.x || a.y - b.y);
+    return secondaryCandidates[0];
+  }
+
+  // Fallback seguro: primeiro tile adjacente caminhável
+  for (const off of adjacentOffsets) {
+    const pos = { x: dummyPos.x + off.dx, y: dummyPos.y + off.dy, z };
+    if (isWalkableFn(pos)) return pos;
+  }
+
+  return null;
+}
+

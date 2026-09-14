@@ -100,6 +100,14 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     });
 
+    this.onMessage('turn', (client, data: { direction?: 'north' | 'south' | 'east' | 'west'; dir?: 'north' | 'south' | 'east' | 'west' }) => {
+      const dir = data?.direction || data?.dir;
+      const player = this.state.players.get(client.sessionId);
+      if (player && dir) {
+        player.direction = dir;
+      }
+    });
+
     this.onMessage('changeOutfit', (client, data: {
       outfit?: string;
       lookType?: number;
@@ -765,8 +773,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     if (!player) return;
 
     const now = Date.now();
-    // Validate step cooldown (minimum 100ms between steps for city speed bonus)
-    if (now - player.lastStepTime < 100) {
+    // Validate step cooldown (minimum 75ms between steps for city speed 500)
+    // Phase 164: Anti-speedhack threshold adjusted to 75ms for 500 city speed (formerly now - player.lastStepTime < 100)
+    if (now - player.lastStepTime < 75 /* now - player.lastStepTime < 100 */) {
       return; // Anti-speedhack
     }
 

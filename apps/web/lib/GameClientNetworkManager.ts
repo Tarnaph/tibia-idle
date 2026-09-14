@@ -491,6 +491,14 @@ export class GameClientNetworkManager {
     });
   }
 
+  sendTurn(direction: 'north' | 'south' | 'east' | 'west'): void {
+    if (!this.room) return;
+    this.room.send('turn', {
+      direction,
+      dir: direction,
+    });
+  }
+
   sendChangeOutfit(customization: {
     outfit?: string;
     lookType?: number;

@@ -20,6 +20,7 @@ import {
   triggerManualHotbarAction, findHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations, getHuntWorldEntrance,
   calculateDeathPenaltyReport, type DeathPenaltyReport,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
+  THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
 } from '@/packages/domain/src';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
@@ -32,7 +33,8 @@ import { QuickSellWindow } from './QuickSellWindow';
 import { ShopWindow } from './ShopWindow';
 import { HotbarConfigModal } from './HotbarConfigModal';
 import { HuntHeader } from './HuntHeader';
-import { HuntSelector } from './HuntSelector';
+import { HuntSelector, type ActiveTab } from './HuntSelector';
+import { TrainingProgressHUD } from './TrainingProgressHUD';
 import { IdleHeader } from './IdleHeader';
 import { ItemSprite } from './ItemSprite';
 import { ItemTooltip } from './ItemTooltip';
@@ -212,6 +214,7 @@ function GamePrototypeContent() {
   const [game, setGame] = useState(() => createIdleGame(defaultSeed, content));
   const [mode, setMode] = useState<'training' | 'hunt'>('training');
   const [huntSelectorOpen, setHuntSelectorOpen] = useState(false);
+  const [huntSelectorTab, setHuntSelectorTab] = useState<ActiveTab>('CAÇADAS');
   const [partyModalOpen, setPartyModalOpen] = useState(false);
   const [debugGrid, setDebugGrid] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
@@ -1589,7 +1592,8 @@ function GamePrototypeContent() {
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
   // +100 points of speed for players when in the city
   const citySpeedBonus = 100;
-  const cityPlayerSpeed = playerSpeed + citySpeedBonus;
+  // Phase 164: Fixed city speed of 500 in Thais (formerly: const cityPlayerSpeed = playerSpeed + citySpeedBonus;)
+  const cityPlayerSpeed = THAIS_CITY_FIXED_SPEED;
   const cityStepDurationMs = calculateStepDurationMs(cityPlayerSpeed);
   const heldDirectionRef = useRef<{ dx: number; dy: number } | null>(null);
   const lastStepTimeRef = useRef(0);
@@ -2364,18 +2368,123 @@ function GamePrototypeContent() {
   };
   exitHuntRef.current = exitHunt;
 
+  const activeTrainingSkillKey: TrainableSkill = useMemo(() => {
+    switch (activeTrainingSkill) {
+      case 'Club Fighting': return 'club';
+      case 'Axe Fighting': return 'axe';
+      case 'Distance Fighting': return 'distance';
+      case 'Shielding': return 'shielding';
+      case 'Magic Level': return 'magicLevel';
+      case 'Fist Fighting': return 'fist';
+      default: return 'sword';
+    }
+  }, [activeTrainingSkill]);
+
+  const trainingEstimate: TrainingTimeEstimate = useMemo(() => {
+    return calculateTrainingTimeEstimate(
+      activeCharacter,
+      activeTrainingSkillKey,
+      content,
+      serverConfigManager.getConfig().skillRate
+    );
+  }, [activeCharacter, activeTrainingSkillKey, content, isTrainingAtDummy]);
+
+  const handleOpenTrainingMenu = useCallback(() => {
+    if (mode === 'hunt') {
+      setSaleMessage('O menu de treino só fica disponível em Thais.');
+      return;
+    }
+    setHuntSelectorTab('TREINO');
+    setHuntSelectorOpen(true);
+  }, [mode]);
+
   const handleStartTraining = (skillName: string) => {
+    if (mode === 'hunt') {
+      setSaleMessage('O treino nos dummies só pode ser realizado em Thais.');
+      return;
+    }
     setActiveTrainingSkill(skillName);
     setMode('training');
-    const dummyPos = { x: 32349, y: 32238, z: 7 };
-    setWalkingPath({
-      waypoints: [dummyPos],
-      destinationName: 'Bonecos de Treino',
-      onArrive: () => {
+    setIsTrainingAtDummy(false);
+
+    const activeTileMap = cityPos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+
+    const proceedToDummyAllocation = () => {
+      // 1. Sorteia um dos 3 dummies aleatoriamente
+      const chosenDummy = THAIS_TRAINING_DUMMIES[Math.floor(Math.random() * THAIS_TRAINING_DUMMIES.length)];
+
+      // 2. Coleta posições ocupadas por outros jogadores
+      const occupiedKeys = new Set<string>();
+      for (const rp of remotePlayers.values()) {
+        occupiedKeys.add(`${rp.x},${rp.y},${rp.z}`);
+      }
+
+      const isWalkableFn = (pos: { x: number; y: number; z: number }) => {
+        const tMap = pos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+        const tile = tMap.get(`${pos.x},${pos.y}`);
+        return Boolean(tile && tile.walkable);
+      };
+
+      const charVoc = activeCharacter.vocation || activeCharacter.baseVocation || 'Knight';
+      const bestTile = findBestTrainingTile(chosenDummy.position, charVoc, occupiedKeys, isWalkableFn) || {
+        x: chosenDummy.position.x - 1,
+        y: chosenDummy.position.y,
+        z: chosenDummy.position.z,
+      };
+
+      // Se o personagem já estiver no tile ideal
+      if (cityPos.x === bestTile.x && cityPos.y === bestTile.y && cityPos.z === bestTile.z) {
+        const dx = chosenDummy.position.x - bestTile.x;
+        const dy = chosenDummy.position.y - bestTile.y;
+        const dir = dy < 0 ? 'north' : dy > 0 ? 'south' : dx < 0 ? 'west' : 'east';
+        gameNetwork.sendTurn(dir);
         setIsTrainingAtDummy(true);
-        setSaleMessage(`Treinando ${skillName} no dummy (32349, 32238, 7).`);
-      },
-    });
+        setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
+        return;
+      }
+
+      // Rota do ponto atual até o tile do dummy
+      const pathToDummy = findCityPath(activeTileMap, cityPos, bestTile);
+      if (pathToDummy.length > 0) {
+        setWalkingPath({
+          waypoints: pathToDummy,
+          destinationName: `Boneco de Treino #${chosenDummy.id}`,
+          currentIndex: 0,
+          onArrive: () => {
+            const dx = chosenDummy.position.x - bestTile.x;
+            const dy = chosenDummy.position.y - bestTile.y;
+            const dir = dy < 0 ? 'north' : dy > 0 ? 'south' : dx < 0 ? 'west' : 'east';
+            gameNetwork.sendTurn(dir);
+            setIsTrainingAtDummy(true);
+            setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
+          },
+        });
+      } else {
+        setIsTrainingAtDummy(true);
+        setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
+      }
+    };
+
+    // Se já estiver no ponto de aproximação ou a até 2 tiles de distância dele no andar Z=7
+    const distToApproach = Math.hypot(cityPos.x - THAIS_TRAINING_APPROACH_POINT.x, cityPos.y - THAIS_TRAINING_APPROACH_POINT.y);
+    if (distToApproach <= 2 && cityPos.z === THAIS_TRAINING_APPROACH_POINT.z) {
+      proceedToDummyAllocation();
+      return;
+    }
+
+    // Calcula rota até a coordenada de aproximação (32345, 32220, 7)
+    const pathToApproach = findCityPath(activeTileMap, cityPos, THAIS_TRAINING_APPROACH_POINT);
+    if (pathToApproach.length > 0) {
+      setWalkingPath({
+        waypoints: pathToApproach,
+        destinationName: 'Pátio de Treino de Thais',
+        currentIndex: 0,
+        onArrive: proceedToDummyAllocation,
+      });
+      setSaleMessage(`Indo até o pátio de treino de Thais para treinar ${skillName}...`);
+    } else {
+      proceedToDummyAllocation();
+    }
   };
   const beginOrRestart = () => {
     if (mode === 'training') { setHuntSelectorOpen(true); return; }
@@ -2596,6 +2705,12 @@ function GamePrototypeContent() {
     const action = findHotbarAction(actionId, content);
     const spellWords = action?.kind === 'spell' ? action.spell.words : action?.kind === 'potion' ? 'Aaaah...' : action?.kind === 'rune' ? action.rune.name : undefined;
 
+    // Phase 164: Block haste spells in Thais city since 500 fixed speed is already active
+    if (mode !== 'hunt' && spellWords && (spellWords.toLowerCase().includes('utani hur') || spellWords.toLowerCase().includes('utani gran hur'))) {
+      setSaleMessage('Velocidade máxima da cidade (500) já está ativa. Haste desnecessário em Thais.');
+      return;
+    }
+
     setGame((current) => {
       const next = structuredClone(current);
       const triggered = triggerManualHotbarAction(next, activeCharacter.id, actionId, content);
@@ -2616,7 +2731,7 @@ function GamePrototypeContent() {
       }
       return current;
     });
-  }, [activeCharacter.hotbar, activeCharacter.id, activeCharacter.name, content]);
+  }, [activeCharacter.hotbar, activeCharacter.id, activeCharacter.name, content, mode]);
 
   // Continuous follower leash: if leader is far away (>1.4 SQM), path automatically to follow the leader
   useEffect(() => {
@@ -2920,6 +3035,17 @@ function GamePrototypeContent() {
             </div>
           </div>
         )}
+        {isTrainingAtDummy && mode !== 'hunt' && !showAuthModal && (
+          <TrainingProgressHUD
+            skill={activeTrainingSkillKey}
+            skillLabel={activeTrainingSkill}
+            estimate={trainingEstimate}
+            onStopTraining={() => {
+              setIsTrainingAtDummy(false);
+              setSaleMessage('Treino no boneco finalizado. Você agora pode se movimentar livremente.');
+            }}
+          />
+        )}
         {mode === 'hunt' && !showAuthModal && (
           <div className="city-location-hud hunt-location-hud">
             <div className="city-hud-header">
@@ -3144,7 +3270,11 @@ function GamePrototypeContent() {
         onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
         onOpenDepot={() => setDepotOpen(true)}
         onOpenQuickSell={() => setQuickSellOpen(true)}
-        onSelectHunt={() => setHuntSelectorOpen(true)}
+        onOpenTraining={handleOpenTrainingMenu}
+        onSelectHunt={() => {
+          setHuntSelectorTab('CAÇADAS');
+          setHuntSelectorOpen(true);
+        }}
         onChangeStance={(stance) => setGame((cur) => setCharacterStance(cur, activeCharacter.id, stance))}
         onChangeTargetDistance={(dist) => setGame((cur) => setCharacterTargetDistance(cur, activeCharacter.id, dist))}
         onChangeTargetStrategy={(strat) => setGame((cur) => setCharacterTargetStrategy(cur, activeCharacter.id, strat))}
@@ -3269,6 +3399,7 @@ function GamePrototypeContent() {
       />
       <HuntSelector
         open={huntSelectorOpen}
+        initialTab={huntSelectorTab}
         hunts={content.hunts}
         monsters={content.monsters}
         level={leader.level}

@@ -3118,6 +3118,22 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-163-bestiary-bodyblock-and-directional-spells/163-SUMMARY.md`
 
+### Phase 164: Sistema de Treino nos Dummies de Thais, Alocação Dinâmica de Vagas e Velocidade Urbana (500 Speed)
+
+**Goal**: Implementar o sistema autêntico e completo de treino nos 3 dummies do pátio do Depot de Thais (ID 5787 em `(32349, 32219, 7)`, `(32349, 32221, 7)`, `(32349, 32223, 7)`), acessível exclusivamente em Thais (`!inHunt`); navegação autônoma até o ponto de acesso `(32345, 32220, 7)` e distribuição inteligente de vagas em volta dos dummies (prioridade adjacente para knights e ataque à distância para mages/paladins quando lotado); HUD central translúcido com progresso em tempo real, barra percentual e tempo estimado em horas/minutos baseado na fórmula de skills do Tibia e nos multiplicadores do servidor (`serverSkillRate`); animações contínuas de ataque no dummy orientadas com sincronização multiplayer Colyseus; velocidade urbana padrão de 500 de speed em Thais com desativação do Utani Hur na cidade e ajuste do anti-speedhack do servidor para 75ms.  
+**Depends on**: Phase 163  
+**Requirements**:
+1. Botão e fluxo de Treino disponíveis estritamente em Thais (`!inHunt`), com bloqueio claro durante caçadas ativas.
+2. Navegação autônoma em Thais até o ponto de acesso `(32345, 32220, 7)` e escolha aleatória equilibrada entre os 3 dummies.
+3. Algoritmo de vagas de treino: busca por tile vago adjacente; se todos os tiles adjacentes estiverem lotados por outros jogadores, vocações à distância (Sorcerer, Druid, Paladin e promoções) posicionam-se a 2-3 tiles de distância e atacam de longe, enquanto Knights continuam se espalhando nos tiles livres mais próximos.
+4. Animação de ataque contínua voltada para o dummy (`directionBetween`), geração de efeitos visuais de impacto (`effectId: 10` para físico, projéteis/efeitos elementais para wands) e sincronização na sala Colyseus (`ThaisCityRoom.ts`).
+5. HUD central de treino flutuante exibindo a skill em progresso, nível atual, barra de progresso (0-100%), tempo estimado restante em horas e minutos (fórmula canônica do Tibia com `rateSkill`, `rateMagic` e `serverSkillRate`), e botão "Parar Treino".
+6. Velocidade padrão urbana fixada em 500 de speed em Thais (`cityPlayerSpeed = 500`), com desativação do `utani hur` na cidade e ajuste da tolerância anti-speedhack em `ThaisCityRoom.ts` para 75ms.
+7. Testes unitários com Vitest e 0 erros de TypeScript (`npm run typecheck`).
+
+**Plans:**
+- [x] 164-01-PLAN: Sistema de Treino nos Dummies de Thais, Alocação Dinâmica de Vagas (Melee/Ranged), HUD com Tempo Restante e Velocidade Urbana de 500 Speed.
+
 
 
 

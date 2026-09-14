@@ -14,6 +14,7 @@ interface Props {
   currentHuntId?: string;
   isInCity?: boolean;
   isPartyLeader?: boolean;
+  initialTab?: ActiveTab;
   onClose(): void;
   onSelect(huntId: string): void;
   onSelectWithTeam?(huntId: string, huntName: string): void;
@@ -21,6 +22,7 @@ interface Props {
   onStartTraining?: (skill: string) => void;
 }
 
+export type { ActiveTab };
 type ActiveTab = 'CAÇADAS' | 'TREINO' | 'QUESTS' | 'ARENA' | 'BOSSES';
 
 export function HuntSelector({
@@ -31,13 +33,14 @@ export function HuntSelector({
   currentHuntId,
   isInCity = false,
   isPartyLeader = false,
+  initialTab,
   onClose,
   onSelect,
   onSelectWithTeam,
   onOpenPartyModal,
   onStartTraining,
 }: Props) {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('CAÇADAS');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(() => initialTab ?? 'CAÇADAS');
   const [selectedHuntId, setSelectedHuntId] = useState<string>(() => hunts[0]?.id ?? 'rat-cellars');
   const [selectedTrainingSkill, setSelectedTrainingSkill] = useState<string>('Sword Fighting');
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -66,12 +69,17 @@ export function HuntSelector({
 
   // Sync selected hunt with currentHuntId only when opened fresh
   useEffect(() => {
-    if (open && !prevOpenRef.current && currentHuntId) {
-      setSelectedHuntId(currentHuntId);
-      setCountdown(null);
+    if (open) {
+      if (!prevOpenRef.current && initialTab) {
+        setActiveTab(initialTab);
+      }
+      if (!prevOpenRef.current && currentHuntId) {
+        setSelectedHuntId(currentHuntId);
+        setCountdown(null);
+      }
     }
     prevOpenRef.current = open;
-  }, [open, currentHuntId]);
+  }, [open, currentHuntId, initialTab]);
 
   // Handle 5-second countdown on hunt switch using interval resilient to parent re-renders
   const isCountingDown = countdown !== null;

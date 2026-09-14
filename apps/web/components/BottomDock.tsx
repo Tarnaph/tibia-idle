@@ -24,6 +24,7 @@ interface BottomDockProps {
   onToggleBackpack?: () => void;
   onOpenDepot?: () => void;
   onOpenQuickSell?: () => void;
+  onOpenTraining?: () => void;
   onSelectHunt?: () => void;
   onChangeStance?: (stance: CombatStance) => void;
   onChangeTargetDistance?: (distance: number) => void;
@@ -46,6 +47,7 @@ export function BottomDock({
   onToggleBackpack,
   onOpenDepot,
   onOpenQuickSell,
+  onOpenTraining,
   onSelectHunt,
   onChangeStance,
   onChangeTargetDistance,
@@ -228,6 +230,19 @@ export function BottomDock({
               title="Blessings"
             >
               BLESSINGS
+            </button>
+            <button
+              type="button"
+              className="quick-action-btn btn-training"
+              onClick={onOpenTraining}
+              disabled={isHunting}
+              title={isHunting ? 'Treino disponível apenas na cidade de Thais' : 'Abrir menu de Treino nos Dummies de Thais'}
+              style={{
+                color: isHunting ? '#6b7280' : '#86efac',
+                borderColor: isHunting ? '#374151' : '#166534',
+              }}
+            >
+              TREINO
             </button>
             <button
               type="button"

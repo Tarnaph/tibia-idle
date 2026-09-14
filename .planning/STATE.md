@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-14T00:22:00.000Z"
-last_activity: "2026-09-14 — Concluída Phase 163: Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams."
+last_updated: "2026-09-14T00:50:00.000Z"
+last_activity: "2026-09-14 — Concluída Phase 164: Sistema de Treino nos Dummies de Thais, Alocação Dinâmica de Vagas (Melee/Ranged), HUD com Tempo Restante e Velocidade Urbana de 500 Speed."
 progress:
-  total_phases: 163
-  completed_phases: 163
-  total_plans: 169
-  completed_plans: 169
+  total_phases: 164
+  completed_phases: 164
+  total_plans: 170
+  completed_plans: 170
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Todas as fases da milestone concluídas.
+**Current focus:** Fase 164 Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 163 of 163 (Concluída)  
+Phase: 164 of 164 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-14 — Concluída implementação de persistência permanente de bestiário, desobstrução de bodyblock e waves direcionais inteligentes.
+Last activity: 2026-09-14 — Implementação e verificação 100% aprovadas de treino nos dummies de Thais, alocação de vagas e velocidade urbana 500.
 
 Progress: [██████████] 100%
 
@@ -88,6 +88,7 @@ Progress: [██████████] 100%
 | 161. Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos | 1 | - | - | Complete |
 | 162. Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano) | 1 | - | - | Complete |
 | 163. Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams | 1 | - | - | Complete |
+| 164. Sistema de Treino nos Dummies de Thais, Alocação Dinâmica de Vagas e Velocidade Urbana (500 Speed) | 1 | - | - | Complete |
 
 
 

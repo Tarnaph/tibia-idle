@@ -102353,13 +102353,11 @@
       "groundClientId": 870,
       "serverItemIds": [
         724,
-        1053,
-        1810
+        1053
       ],
       "clientItemIds": [
         870,
-        1298,
-        2597
+        1298
       ]
     },
     {
@@ -102666,13 +102664,13 @@
       "serverItemIds": [
         724,
         5771,
-        1050,
+        1051,
         9477
       ],
       "clientItemIds": [
         870,
         5771,
-        1295,
+        1296,
         8561
       ]
     },
@@ -102680,30 +102678,26 @@
       "x": 32348,
       "y": 32218,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
-        424,
-        1624
+        424
       ],
       "clientItemIds": [
-        429,
-        2324
+        429
       ]
     },
     {
       "x": 32348,
       "y": 32219,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
-        424,
-        1622
+        424
       ],
       "clientItemIds": [
-        429,
-        2322
+        429
       ]
     },
     {
@@ -102753,13 +102747,15 @@
       "x": 32349,
       "y": 32219,
       "z": 7,
-      "walkable": true,
+      "walkable": false,
       "groundClientId": 429,
       "serverItemIds": [
-        424
+        424,
+        5787
       ],
       "clientItemIds": [
-        429
+        429,
+        5787
       ]
     },
     {
@@ -102796,17 +102792,15 @@
       "x": 32350,
       "y": 32218,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
         424,
-        5371,
-        2101
+        5371
       ],
       "clientItemIds": [
         429,
-        5370,
-        2982
+        5370
       ]
     },
     {
@@ -102864,12 +102858,12 @@
       "groundClientId": 429,
       "serverItemIds": [
         424,
-        4668,
+        4672,
         1056
       ],
       "clientItemIds": [
         429,
-        4657,
+        4661,
         1301
       ]
     },
@@ -102881,12 +102875,12 @@
       "groundClientId": 429,
       "serverItemIds": [
         424,
-        4672,
+        4667,
         1049
       ],
       "clientItemIds": [
         429,
-        4661,
+        4656,
         1294
       ]
     },
@@ -103220,15 +103214,13 @@
       "x": 32342,
       "y": 32220,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
-        424,
-        1387
+        424
       ],
       "clientItemIds": [
-        429,
-        1949
+        429
       ]
     },
     {
@@ -103534,30 +103526,26 @@
       "x": 32348,
       "y": 32220,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
-        424,
-        1632
+        424
       ],
       "clientItemIds": [
-        429,
-        2332
+        429
       ]
     },
     {
       "x": 32348,
       "y": 32221,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
-        424,
-        1628
+        424
       ],
       "clientItemIds": [
-        429,
-        2328
+        429
       ]
     },
     {
@@ -103607,11 +103595,11 @@
       "groundClientId": 429,
       "serverItemIds": [
         424,
-        1623
+        5787
       ],
       "clientItemIds": [
         429,
-        2323
+        5787
       ]
     },
     {
@@ -103631,13 +103619,15 @@
       "x": 32349,
       "y": 32223,
       "z": 7,
-      "walkable": true,
+      "walkable": false,
       "groundClientId": 429,
       "serverItemIds": [
-        424
+        424,
+        5787
       ],
       "clientItemIds": [
-        429
+        429,
+        5787
       ]
     },
     {
@@ -103657,30 +103647,26 @@
       "x": 32350,
       "y": 32221,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
-        424,
-        1627
+        424
       ],
       "clientItemIds": [
-        429,
-        2327
+        429
       ]
     },
     {
       "x": 32350,
       "y": 32222,
       "z": 7,
-      "walkable": false,
+      "walkable": true,
       "groundClientId": 429,
       "serverItemIds": [
-        424,
-        2593
+        424
       ],
       "clientItemIds": [
-        429,
-        3501
+        429
       ]
     },
     {
@@ -103704,10 +103690,12 @@
       "groundClientId": 429,
       "serverItemIds": [
         424,
+        11787,
         1049
       ],
       "clientItemIds": [
         429,
+        10831,
         1294
       ]
     },
@@ -103719,11 +103707,13 @@
       "groundClientId": 429,
       "serverItemIds": [
         424,
+        11778,
         1049,
         1883
       ],
       "clientItemIds": [
         429,
+        10822,
         1294,
         2670
       ]
@@ -103736,10 +103726,12 @@
       "groundClientId": 429,
       "serverItemIds": [
         424,
+        11786,
         1049
       ],
       "clientItemIds": [
         429,
+        10830,
         1294
       ]
     },

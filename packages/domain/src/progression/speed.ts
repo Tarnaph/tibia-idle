@@ -2,6 +2,7 @@ export const TIBIA_BASE_SPEED = 220;
 export const TIBIA_SPEED_A = 857.36;
 export const TIBIA_SPEED_B = 261.29;
 export const TIBIA_SPEED_C = -4795.01;
+export const THAIS_CITY_FIXED_SPEED = 500;
 
 /**
  * Calculates authentic creature/player speed based on level and base vocation speed.
