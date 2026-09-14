@@ -59,6 +59,7 @@ export class ThaisCityRoom extends Room<WorldState> {
   private autoSaveTimer: any = null;
   private activeSavePromise: Promise<void> | null = null;
   private isDisposed: boolean = false;
+  private playerExpSync = new Map<string, { lastSyncTime: number; lastExperience: number }>();
 
   private setupRoomAutoSave(intervalMs: number) {
     if (this.autoSaveTimer) {
@@ -457,12 +458,36 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.onMessage('player:syncProgress', (client, data: { level?: number; experience?: number; hp?: number; mp?: number }) => {
       const player = this.state.players.get(client.sessionId);
       if (player) {
-        if (typeof data.experience === 'number' && data.experience >= player.experience) {
-          player.experience = data.experience;
-          player.level = Math.max(data.level || 1, levelForExperience(data.experience));
+        if (typeof data.experience === 'number') {
+          if (data.experience > player.experience) {
+            let tracker = this.playerExpSync.get(client.sessionId);
+            const now = Date.now();
+            if (!tracker) {
+              tracker = { lastSyncTime: now - 1000, lastExperience: player.experience };
+              this.playerExpSync.set(client.sessionId, tracker);
+            }
+            const deltaExp = data.experience - player.experience;
+            const elapsedSeconds = Math.max(0.5, (now - tracker.lastSyncTime) / 1000);
+            const maxAllowedDelta = Math.max(50_000, elapsedSeconds * 25_000);
+
+            if (deltaExp > maxAllowedDelta) {
+              console.warn(
+                `[Security] Suspicious XP gain via WebSocket for player ${player.name} (${player.characterId}): +${deltaExp} XP in ${elapsedSeconds.toFixed(1)}s exceeds safety cap. Rejected.`
+              );
+            } else {
+              player.experience = data.experience;
+              player.level = Math.max(1, levelForExperience(data.experience));
+              tracker.lastSyncTime = now;
+              tracker.lastExperience = player.experience;
+            }
+          }
         }
-        if (typeof data.hp === 'number') player.hp = data.hp;
-        if (typeof data.mp === 'number') player.mp = data.mp;
+        if (typeof data.hp === 'number') {
+          player.hp = Math.max(0, Math.min(data.hp, player.maxHp));
+        }
+        if (typeof data.mp === 'number') {
+          player.mp = Math.max(0, Math.min(data.mp, player.maxMp));
+        }
       }
     });
 
@@ -759,11 +784,13 @@ export class ThaisCityRoom extends Room<WorldState> {
         }
         this.handlePlayerLeaveParty(existingSessionId);
         void persistenceManager.saveCharacter(existingPlayer);
+        this.playerExpSync.delete(existingSessionId);
         this.state.players.delete(existingSessionId);
       }
     }
 
     this.state.players.set(client.sessionId, player);
+    this.playerExpSync.set(client.sessionId, { lastSyncTime: Date.now(), lastExperience: player.experience });
     if (typeof client.send === 'function') {
       client.send('server:config', serverConfigManager.getConfig());
       client.send('bestiary:sync', {
@@ -798,6 +825,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       this.clients.splice(idx, 1);
     }
     this.handlePlayerLeaveParty(client.sessionId);
+    this.playerExpSync.delete(client.sessionId);
     this.state.players.delete(client.sessionId);
   }
 

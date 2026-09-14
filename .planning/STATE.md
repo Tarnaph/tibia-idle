@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-14T11:21:00.000Z"
-last_activity: "2026-09-14 — Conclusão da Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite (100% testes aprovados e 0 erros de tipo)."
+last_updated: "2026-09-14T12:15:00.000Z"
+last_activity: "2026-09-14 — Concluída Phase 167.1: Bloco 1.1 - Concorrência Transacional Otimista (OCC), Blindagem WebSocket, Reconciliação 409, Catálogo de Inventário e Sandbox de Testes."
 progress:
-  total_phases: 167
-  completed_phases: 167
-  total_plans: 173
-  completed_plans: 173
+  total_phases: 168
+  completed_phases: 168
+  total_plans: 174
+  completed_plans: 174
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 167 concluída com sucesso (Bloco 1 - Segurança, Multi-Sala e Backup WAL).
+**Current focus:** Concluído Bloco 1.1 (Phase 167.1) - Pronto para revisão da entrega antes do próximo bloco.
 
 ## Current Position
 
-Phase: 167 of 167 (Concluída)  
+Phase: 167.1 of 168 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-14 — Concluída a implementação de segurança com derivação autoritativa de nível/stats por XP, versionamento anti-replay (saveVersion), mutex atômico CharacterSaveLockManager, isolamento de autosave por sala com graceful onDispose, proteção HTTP Basic Auth no Colyseus Monitor e script de backup a quente SQLite VACUUM INTO.
+Last activity: 2026-09-14 — Execução do Bloco 1.1 atendendo integralmente às exigências de concorrência transacional no banco (OCC), ciclo 409 client-side, validação de inventário contra catálogo e testes em banco/diretório temporários isolados.
 
 Progress: [██████████] 100%
 

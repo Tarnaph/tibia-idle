@@ -245,6 +245,7 @@ function GamePrototypeContent() {
     currentIndex?: number;
   } | null>(null);
   const [isTrainingAtDummy, setIsTrainingAtDummy] = useState(false);
+  const [trainingDummyPos, setTrainingDummyPos] = useState<{ x: number; y: number; z: number } | null>(null);
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
   const auth = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(() => {
@@ -275,6 +276,7 @@ function GamePrototypeContent() {
   const saveProgressRef = useRef<(isDeathPenalty?: boolean, force?: boolean) => Promise<void>>(async () => {});
   const isSavingRef = useRef<boolean>(false);
   const lastSaveTimeRef = useRef<number>(0);
+  const currentSaveVersionRef = useRef<number>(1);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   // Security (Phase 116): Derives admin privileges strictly from the validated in-game account.
   // Never let an outdated viewer or leftover session promote a PLAYER account to admin.
@@ -608,6 +610,7 @@ function GamePrototypeContent() {
   const [isPartyCreated, setIsPartyCreated] = useState<boolean>(false);
   const [partyMemberIds, setPartyMemberIds] = useState<string[]>([]);
   const [savedPool, setSavedPool] = useState<CharacterState[]>([]);
+  const [squadFollowCity, setSquadFollowCity] = useState<boolean>(true);
 
   useEffect(() => {
     if (game.session.characters.length > 0) {
@@ -635,10 +638,29 @@ function GamePrototypeContent() {
       const mainChar = game.session.characters[0];
       const mainLevel = mainChar?.level || 1;
 
+      // Regra estrita: 1 vocação de cada no Squad
+      const targetVoc = targetChar.vocation || targetChar.baseVocation;
+      const isVocTaken = game.session.characters.some(
+        (c) => (c.vocation || c.baseVocation) === targetVoc
+      );
+      if (isVocTaken) {
+        setSaleMessage(`O Squad já possui um integrante com a vocação ${targetVoc}! Cada membro deve ter uma vocação diferente.`);
+        return;
+      }
+
       if (!isAdminOrGm) {
-        if (currentCount === 1 && mainLevel < 50) return;
-        if (currentCount === 2 && mainLevel < 100) return;
-        if (currentCount === 3 && mainLevel < 150) return;
+        if (currentCount === 1 && mainLevel < 70) {
+          setSaleMessage('Nível 70 necessário para desbloquear o 2º slot do squad.');
+          return;
+        }
+        if (currentCount === 2 && mainLevel < 150) {
+          setSaleMessage('Nível 150 necessário para desbloquear o 3º slot do squad.');
+          return;
+        }
+        if (currentCount === 3 && mainLevel < 200) {
+          setSaleMessage('Nível 200 necessário para desbloquear o 4º slot do squad.');
+          return;
+        }
       }
 
       setGame((cur) => {
@@ -1283,6 +1305,7 @@ function GamePrototypeContent() {
     userChar.addons = (charItem as any).outfitAddons ?? (charItem as any).addons ?? 0;
     userChar.mount = (charItem as any).mount ?? 'none';
     userChar.mountActive = Boolean((charItem as any).mountActive);
+    currentSaveVersionRef.current = typeof (charItem as any).saveVersion === 'number' ? (charItem as any).saveVersion : 1;
 
     userChar.outfit =
       (charItem as any).outfit ||
@@ -1510,7 +1533,7 @@ function GamePrototypeContent() {
         });
       });
 
-      await fetch(`/api/characters/${curActive.id}/save`, {
+      const res = await fetch(`/api/characters/${curActive.id}/save`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1553,8 +1576,48 @@ function GamePrototypeContent() {
           vocationName: curActive.vocation,
           promotion: curActive.promotion,
           isDeathPenalty,
+          saveVersion: currentSaveVersionRef.current,
         }),
       });
+
+      if (res.status === 409) {
+        // Optimistic Concurrency Conflict: reconcile state from server, avoid blind re-send
+        try {
+          const conflictData = (await res.json()) as any;
+          if (typeof conflictData?.currentVersion === 'number') {
+            currentSaveVersionRef.current = conflictData.currentVersion;
+          }
+          if (conflictData?.character) {
+            const srv = conflictData.character;
+            setGame((cur) => ({
+              ...cur,
+              session: {
+                ...cur.session,
+                characters: cur.session.characters.map((c) => {
+                  if (c.id !== curActive.id) return c;
+                  return {
+                    ...c,
+                    level: typeof srv.level === 'number' ? srv.level : c.level,
+                    experience: srv.experience !== undefined ? Number(srv.experience) : c.experience,
+                    currentHp: typeof srv.health === 'number' ? srv.health : c.currentHp,
+                    maxHp: typeof srv.maxHealth === 'number' ? srv.maxHealth : c.maxHp,
+                    currentMana: typeof srv.mana === 'number' ? srv.mana : c.currentMana,
+                    maxMana: typeof srv.maxMana === 'number' ? srv.maxMana : c.maxMana,
+                  };
+                }),
+              },
+            }));
+          }
+        } catch {}
+        return;
+      }
+
+      if (res.ok) {
+        const json = (await res.json()) as any;
+        if (typeof json?.data?.saveVersion === 'number') {
+          currentSaveVersionRef.current = json.data.saveVersion;
+        }
+      }
     } catch (err) {
       // Auto-save silent error handling
     } finally {
@@ -2119,8 +2182,20 @@ function GamePrototypeContent() {
       activeTrainingSkill === 'Distance Fighting' ? 'distance' :
       activeTrainingSkill === 'Shielding' ? 'shielding' :
       activeTrainingSkill === 'Magic Level' ? 'magicLevel' : 'sword';
-    setGame((current) => advanceTraining(current, content, 500, skillKey));
-  }, [mode, isTrainingAtDummy, activeTrainingSkill, content]);
+    setGame((current) => {
+      const nextGame = advanceTraining(current, content, 500, skillKey);
+      const actionVis = nextGame.encounter.visualEvents?.find((v: any) => v.type === 'training-action');
+      if (actionVis) {
+        gameNetwork.sendTrainingAction({
+          dummyPos: trainingDummyPos || undefined,
+          style: (actionVis as any).style,
+          effectId: (actionVis as any).effectId,
+          projectileId: (actionVis as any).projectileId,
+        });
+      }
+      return nextGame;
+    });
+  }, [mode, isTrainingAtDummy, activeTrainingSkill, content, trainingDummyPos]);
 
   useGameTicker(tickTraining, 500, mode === 'training' && isTrainingAtDummy);
 
@@ -2409,81 +2484,66 @@ function GamePrototypeContent() {
 
     const activeTileMap = cityPos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
 
-    const proceedToDummyAllocation = () => {
-      // 1. Sorteia um dos 3 dummies aleatoriamente
-      const chosenDummy = THAIS_TRAINING_DUMMIES[Math.floor(Math.random() * THAIS_TRAINING_DUMMIES.length)];
+    // 1. Sorteia um dos 3 dummies aleatoriamente
+    const chosenDummy = THAIS_TRAINING_DUMMIES[Math.floor(Math.random() * THAIS_TRAINING_DUMMIES.length)];
 
-      // 2. Coleta posições ocupadas por outros jogadores
-      const occupiedKeys = new Set<string>();
-      for (const rp of remotePlayers.values()) {
-        occupiedKeys.add(`${rp.x},${rp.y},${rp.z}`);
-      }
+    // 2. Coleta posições ocupadas por outros jogadores
+    const occupiedKeys = new Set<string>();
+    for (const rp of remotePlayers.values()) {
+      occupiedKeys.add(`${rp.x},${rp.y},${rp.z}`);
+    }
 
-      const isWalkableFn = (pos: { x: number; y: number; z: number }) => {
-        const tMap = pos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
-        const tile = tMap.get(`${pos.x},${pos.y}`);
-        return Boolean(tile && tile.walkable);
-      };
-
-      const charVoc = activeCharacter.vocation || activeCharacter.baseVocation || 'Knight';
-      const bestTile = findBestTrainingTile(chosenDummy.position, charVoc, occupiedKeys, isWalkableFn) || {
-        x: chosenDummy.position.x - 1,
-        y: chosenDummy.position.y,
-        z: chosenDummy.position.z,
-      };
-
-      // Se o personagem já estiver no tile ideal
-      if (cityPos.x === bestTile.x && cityPos.y === bestTile.y && cityPos.z === bestTile.z) {
-        const dx = chosenDummy.position.x - bestTile.x;
-        const dy = chosenDummy.position.y - bestTile.y;
-        const dir = dy < 0 ? 'north' : dy > 0 ? 'south' : dx < 0 ? 'west' : 'east';
-        gameNetwork.sendTurn(dir);
-        setIsTrainingAtDummy(true);
-        setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
-        return;
-      }
-
-      // Rota do ponto atual até o tile do dummy
-      const pathToDummy = findCityPath(activeTileMap, cityPos, bestTile);
-      if (pathToDummy.length > 0) {
-        setWalkingPath({
-          waypoints: pathToDummy,
-          destinationName: `Boneco de Treino #${chosenDummy.id}`,
-          currentIndex: 0,
-          onArrive: () => {
-            const dx = chosenDummy.position.x - bestTile.x;
-            const dy = chosenDummy.position.y - bestTile.y;
-            const dir = dy < 0 ? 'north' : dy > 0 ? 'south' : dx < 0 ? 'west' : 'east';
-            gameNetwork.sendTurn(dir);
-            setIsTrainingAtDummy(true);
-            setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
-          },
-        });
-      } else {
-        setIsTrainingAtDummy(true);
-        setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
-      }
+    const isWalkableFn = (pos: { x: number; y: number; z: number }) => {
+      const tMap = pos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
+      const tile = tMap.get(`${pos.x},${pos.y}`);
+      return Boolean(tile && tile.walkable);
     };
 
-    // Se já estiver no ponto de aproximação ou a até 2 tiles de distância dele no andar Z=7
-    const distToApproach = Math.hypot(cityPos.x - THAIS_TRAINING_APPROACH_POINT.x, cityPos.y - THAIS_TRAINING_APPROACH_POINT.y);
-    if (distToApproach <= 2 && cityPos.z === THAIS_TRAINING_APPROACH_POINT.z) {
-      proceedToDummyAllocation();
+    const charVoc = activeCharacter.vocation || activeCharacter.baseVocation || 'Knight';
+    const bestTile = findBestTrainingTile(chosenDummy.position, charVoc, occupiedKeys, isWalkableFn) || {
+      x: chosenDummy.position.x - 1,
+      y: chosenDummy.position.y,
+      z: chosenDummy.position.z,
+    };
+
+    const startDirectTraining = () => {
+      const dx = chosenDummy.position.x - bestTile.x;
+      const dy = chosenDummy.position.y - bestTile.y;
+      const dir = dy < 0 ? 'north' : dy > 0 ? 'south' : dx < 0 ? 'west' : 'east';
+      gameNetwork.sendTurn(dir);
+      setTrainingDummyPos(chosenDummy.position);
+      setIsTrainingAtDummy(true);
+      setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
+    };
+
+    // Se já estiver no tile ideal
+    if (cityPos.x === bestTile.x && cityPos.y === bestTile.y && cityPos.z === bestTile.z) {
+      startDirectTraining();
       return;
     }
 
-    // Calcula rota até a coordenada de aproximação (32345, 32220, 7)
-    const pathToApproach = findCityPath(activeTileMap, cityPos, THAIS_TRAINING_APPROACH_POINT);
-    if (pathToApproach.length > 0) {
+    // Calcula rota direta contínua até o tile do dummy
+    let pathToDummy = findCityPath(activeTileMap, cityPos, bestTile);
+
+    // Se a rota direta falhar por complexidade do mapa do DP, une via ponto de aproximação num único percurso
+    if (pathToDummy.length === 0) {
+      const pathToApproach = findCityPath(activeTileMap, cityPos, THAIS_TRAINING_APPROACH_POINT);
+      const pathToDummyFromApproach = findCityPath(activeTileMap, THAIS_TRAINING_APPROACH_POINT, bestTile);
+      if (pathToApproach.length > 0 && pathToDummyFromApproach.length > 0) {
+        pathToDummy = [...pathToApproach, ...pathToDummyFromApproach];
+      }
+    }
+
+    if (pathToDummy.length > 0) {
       setWalkingPath({
-        waypoints: pathToApproach,
-        destinationName: 'Pátio de Treino de Thais',
+        waypoints: pathToDummy,
+        destinationName: `Boneco de Treino #${chosenDummy.id}`,
         currentIndex: 0,
-        onArrive: proceedToDummyAllocation,
+        onArrive: startDirectTraining,
       });
-      setSaleMessage(`Indo até o pátio de treino de Thais para treinar ${skillName}...`);
+      setSaleMessage(`Indo até o Boneco de Treino #${chosenDummy.id} para treinar ${skillName}...`);
     } else {
-      proceedToDummyAllocation();
+      startDirectTraining();
     }
   };
   const beginOrRestart = () => {
@@ -2506,15 +2566,23 @@ function GamePrototypeContent() {
     const mainChar = game.session.characters[0];
     const mainLevel = mainChar?.level || 1;
 
+    // Regra estrita: 1 vocação de cada no Squad
+    const isVocTaken = game.session.characters.some(
+      (c) => (c.vocation || c.baseVocation) === vocation
+    );
+    if (isVocTaken) {
+      return `O squad já possui um integrante com a vocação ${vocation}. Cada integrante do squad deve ter uma profissão diferente.`;
+    }
+
     if (!isAdminOrGm) {
-      if (currentMemberCount === 1 && mainLevel < 50) {
-        return 'Nível 50 necessário para desbloquear o 2º slot do squad.';
+      if (currentMemberCount === 1 && mainLevel < 70) {
+        return 'Nível 70 necessário para desbloquear o 2º slot do squad.';
       }
-      if (currentMemberCount === 2 && mainLevel < 100) {
-        return 'Nível 100 necessário para desbloquear o 3º slot do squad.';
+      if (currentMemberCount === 2 && mainLevel < 150) {
+        return 'Nível 150 necessário para desbloquear o 3º slot do squad.';
       }
-      if (currentMemberCount === 3 && mainLevel < 150) {
-        return 'Nível 150 necessário para desbloquear o 4º slot do squad.';
+      if (currentMemberCount === 3 && mainLevel < 200) {
+        return 'Nível 200 necessário para desbloquear o 4º slot do squad.';
       }
       if (currentMemberCount >= 4) {
         return 'O squad já atingiu o limite máximo de 4 membros.';
@@ -2936,6 +3004,9 @@ function GamePrototypeContent() {
     }
     gameNetwork.disconnect();
     assetPreloader.reset();
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('cavebound_manual_logout', 'true');
+    }
     setOnlineCharacter(null);
     setShowAuthModal(true);
     setSaleMessage('Retornando à seleção de personagens...');
@@ -2958,6 +3029,7 @@ function GamePrototypeContent() {
     gameNetwork.disconnect();
     assetPreloader.reset();
     if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('cavebound_manual_logout');
       localStorage.removeItem('colyseus_token');
       localStorage.removeItem('tibia_auth_token');
       localStorage.removeItem('cavebound_cached_characters');
@@ -2996,6 +3068,7 @@ function GamePrototypeContent() {
             cityPos={cityPos}
             isWalking={walkingPath !== null || heldDirectionRef.current !== null}
             isTraining={isTrainingAtDummy}
+            trainingDummyPos={trainingDummyPos}
             stepDurationMs={cityStepDurationMs}
             onTileClick={handleTileClick}
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
@@ -3006,6 +3079,7 @@ function GamePrototypeContent() {
             overheadMessages={overheadMessages}
             active={mode !== 'hunt' && !showAuthModal}
             isCharacterVisible={isCharacterVisible}
+            squadFollowEnabled={squadFollowCity}
           />
         </div>
         {mode !== 'hunt' && !showAuthModal && (
@@ -3139,6 +3213,8 @@ function GamePrototypeContent() {
           userRole={onlineAccount?.role}
           partyMemberIds={partyMemberIds}
           isPartyCreated={isPartyCreated || multiplayerParty !== null}
+          squadFollowCity={squadFollowCity}
+          onToggleSquadFollowCity={() => setSquadFollowCity((prev) => !prev)}
           onCreateParty={handleCreateParty}
           onDisbandParty={handleDisbandParty}
           onSelectActiveCharacter={(id) => selectPartyCharacter(id)}

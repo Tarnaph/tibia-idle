@@ -122,15 +122,15 @@ describe('Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQL
 
       const service = new CharacterService(mockPrisma);
 
-      // Pacote com saveVersion 4 (antigo/atrasado por jitter de rede)
-      const result = await service.saveCharacterProgress('char-stale-1', {
-        level: 10,
-        experience: BigInt(15000),
-        saveVersion: 4,
-      });
+      // Pacote com saveVersion 4 (antigo/atrasado por jitter de rede) deve lançar VersionConflictError
+      await expect(
+        service.saveCharacterProgress('char-stale-1', {
+          level: 10,
+          experience: BigInt(15000),
+          saveVersion: 4,
+        })
+      ).rejects.toThrow();
 
-      expect((result as any).skipped).toBe(true);
-      expect((result as any).reason).toContain('Stale saveVersion 4 < current 8');
       // O banco não deve ter sido alterado
       expect(mockPrisma.character.update).not.toHaveBeenCalled();
     });
@@ -253,34 +253,11 @@ describe('Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQL
   });
 
   describe('5. Proteção do Endpoint /colyseus (HTTP Basic Auth & 404 Guard)', () => {
-    it('retorna 401 Unauthorized sem cabeçalho Authorization', () => {
-      const mockReq: any = { headers: {} };
-      let sentStatus = 0;
-      let sentBody = '';
-      const mockRes: any = {
-        status: (s: number) => {
-          sentStatus = s;
-          return mockRes;
-        },
-        send: (b: string) => {
-          sentBody = b;
-          return mockRes;
-        },
-        set: vi.fn(),
-      };
-      const nextFn = vi.fn();
-
-      colyseusMonitorAuthMiddleware(mockReq, mockRes, nextFn);
-
-      expect(sentStatus).toBe(401);
-      expect(sentBody).toContain('Authentication required');
-      expect(mockRes.set).toHaveBeenCalledWith('WWW-Authenticate', 'Basic realm="Colyseus Monitor"');
-      expect(nextFn).not.toHaveBeenCalled();
-    });
-
-    it('retorna 404 Not Found quando ENABLE_COLYSEUS_MONITOR=false', () => {
-      const origEnv = process.env.ENABLE_COLYSEUS_MONITOR;
-      process.env.ENABLE_COLYSEUS_MONITOR = 'false';
+    it('retorna 404 Not Found por padrão quando COLYSEUS_MONITOR_USER/PASS não estão configurados (Secure by Default)', () => {
+      const origUser = process.env.COLYSEUS_MONITOR_USER;
+      const origPass = process.env.COLYSEUS_MONITOR_PASS;
+      delete process.env.COLYSEUS_MONITOR_USER;
+      delete process.env.COLYSEUS_MONITOR_PASS;
 
       try {
         const mockReq: any = { headers: {} };
@@ -300,38 +277,98 @@ describe('Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQL
         expect(sentStatus).toBe(404);
         expect(nextFn).not.toHaveBeenCalled();
       } finally {
-        process.env.ENABLE_COLYSEUS_MONITOR = origEnv;
+        if (origUser) process.env.COLYSEUS_MONITOR_USER = origUser;
+        if (origPass) process.env.COLYSEUS_MONITOR_PASS = origPass;
       }
     });
 
-    it('permite acesso (chama next()) com credenciais HTTP Basic válidas', () => {
-      const validAuth = Buffer.from('admin:admin').toString('base64');
-      const mockReq: any = {
-        headers: {
-          authorization: `Basic ${validAuth}`,
-        },
-      };
+    it('retorna 401 Unauthorized sem cabeçalho Authorization quando credenciais estão configuradas', () => {
+      const origUser = process.env.COLYSEUS_MONITOR_USER;
+      const origPass = process.env.COLYSEUS_MONITOR_PASS;
+      process.env.COLYSEUS_MONITOR_USER = 'admin';
+      process.env.COLYSEUS_MONITOR_PASS = 'secret123';
 
-      const mockRes: any = {
-        status: vi.fn().mockReturnThis(),
-        send: vi.fn(),
-        set: vi.fn(),
-      };
-      const nextFn = vi.fn();
+      try {
+        const mockReq: any = { headers: {} };
+        let sentStatus = 0;
+        let sentBody = '';
+        const mockRes: any = {
+          status: (s: number) => {
+            sentStatus = s;
+            return mockRes;
+          },
+          send: (b: string) => {
+            sentBody = b;
+            return mockRes;
+          },
+          set: vi.fn(),
+        };
+        const nextFn = vi.fn();
 
-      colyseusMonitorAuthMiddleware(mockReq, mockRes, nextFn);
+        colyseusMonitorAuthMiddleware(mockReq, mockRes, nextFn);
 
-      expect(nextFn).toHaveBeenCalled();
+        expect(sentStatus).toBe(401);
+        expect(sentBody).toContain('Authentication required');
+        expect(mockRes.set).toHaveBeenCalledWith('WWW-Authenticate', 'Basic realm="Colyseus Monitor"');
+        expect(nextFn).not.toHaveBeenCalled();
+      } finally {
+        if (origUser) process.env.COLYSEUS_MONITOR_USER = origUser;
+        else delete process.env.COLYSEUS_MONITOR_USER;
+        if (origPass) process.env.COLYSEUS_MONITOR_PASS = origPass;
+        else delete process.env.COLYSEUS_MONITOR_PASS;
+      }
+    });
+
+    it('permite acesso (chama next()) com credenciais HTTP Basic válidas quando configuradas', () => {
+      const origUser = process.env.COLYSEUS_MONITOR_USER;
+      const origPass = process.env.COLYSEUS_MONITOR_PASS;
+      process.env.COLYSEUS_MONITOR_USER = 'admin';
+      process.env.COLYSEUS_MONITOR_PASS = 'secret123';
+
+      try {
+        const validAuth = Buffer.from('admin:secret123').toString('base64');
+        const mockReq: any = {
+          headers: {
+            authorization: `Basic ${validAuth}`,
+          },
+        };
+
+        const mockRes: any = {
+          status: vi.fn().mockReturnThis(),
+          send: vi.fn(),
+          set: vi.fn(),
+        };
+        const nextFn = vi.fn();
+
+        colyseusMonitorAuthMiddleware(mockReq, mockRes, nextFn);
+
+        expect(nextFn).toHaveBeenCalled();
+      } finally {
+        if (origUser) process.env.COLYSEUS_MONITOR_USER = origUser;
+        else delete process.env.COLYSEUS_MONITOR_USER;
+        if (origPass) process.env.COLYSEUS_MONITOR_PASS = origPass;
+        else delete process.env.COLYSEUS_MONITOR_PASS;
+      }
     });
   });
 
   describe('6. Script Determinístico de Backup SQLite (WAL Safe)', () => {
-    it('executa backup atômico via VACUUM INTO e passa no integrity_check', async () => {
-      const backupResult = await runBackup();
-      expect(backupResult).toBeDefined();
-      expect(backupResult.success).toBe(true);
-      expect(backupResult.file).toMatch(/^backup-.*\.db$/);
-      expect(backupResult.sizeBytes).toBeGreaterThan(0);
+    it('executa backup atômico via VACUUM INTO em diretório temporário isolado', async () => {
+      const fs = await import('node:fs');
+      const path = await import('node:path');
+      const tempDir = path.resolve(__dirname, '../temp-test-backup-isolated');
+
+      try {
+        const backupResult = await runBackup({ backupsDir: tempDir });
+        expect(backupResult).toBeDefined();
+        expect(backupResult.success).toBe(true);
+        expect(backupResult.file).toMatch(/^backup-.*\.db$/);
+        expect(backupResult.sizeBytes).toBeGreaterThan(0);
+      } finally {
+        if (fs.existsSync(tempDir)) {
+          fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+      }
     });
   });
 });

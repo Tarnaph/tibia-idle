@@ -9,20 +9,21 @@ export class CharacterSaveLockManager {
   static async withLock<T>(characterId: string, fn: () => Promise<T>): Promise<T> {
     if (!characterId) return fn();
 
-    const currentLock = this.locks.get(characterId) || Promise.resolve();
+    const previousLock = this.locks.get(characterId) || Promise.resolve();
     let releaseLock!: () => void;
-    const nextLock = new Promise<void>((resolve) => {
+    const currentLock = new Promise<void>((resolve) => {
       releaseLock = resolve;
     });
 
-    this.locks.set(characterId, currentLock.then(() => nextLock));
+    const chainPromise = previousLock.then(() => currentLock);
+    this.locks.set(characterId, chainPromise);
 
     try {
-      await currentLock;
+      await previousLock;
       return await fn();
     } finally {
       releaseLock();
-      if (this.locks.get(characterId) === nextLock) {
+      if (this.locks.get(characterId) === chainPromise) {
         this.locks.delete(characterId);
       }
     }

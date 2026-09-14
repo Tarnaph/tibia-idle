@@ -56,6 +56,19 @@ export class PrismaPersistenceManager {
           }
         }
 
+        // Sanity check delta XP on persistence
+        const deltaExp = effectiveExp - existingExp;
+        if (deltaExp > 0 && existing) {
+          const now = Date.now();
+          const lastSavedMs = existing.lastSavedAt ? new Date(existing.lastSavedAt).getTime() : (now - 5000);
+          const elapsedSeconds = Math.max(1, (now - lastSavedMs) / 1000);
+          const maxAllowedDelta = Math.max(50_000, elapsedSeconds * 25_000);
+          if (deltaExp > maxAllowedDelta) {
+            console.warn(`[PrismaPersistenceManager] Suspicious XP delta for ${player.characterId}: +${deltaExp} XP in ${elapsedSeconds.toFixed(1)}s exceeds safety cap. Capping to max allowed.`);
+            effectiveExp = existingExp + maxAllowedDelta;
+          }
+        }
+
         // Authoritative level and stats derived strictly on the server from experience
         const derivedLevel = Math.max(1, levelForExperience(effectiveExp));
         const targetVoc = (player as any).vocationName || existing?.vocationName || 'Knight';
@@ -92,53 +105,112 @@ export class PrismaPersistenceManager {
         const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
         const currentVersion = (existing as any)?.saveVersion ?? 1;
 
-        await this.db.character.update({
-          where: { id: player.characterId },
-          data: {
-            level: derivedLevel,
-            experience: BigInt(Math.floor(effectiveExp)),
-            health: Math.max(0, Math.min(player.hp, derivedStats.maxHp)),
-            maxHealth: derivedStats.maxHp,
-            mana: Math.max(0, Math.min(player.mp, derivedStats.maxMana)),
-            maxMana: derivedStats.maxMana,
-            posX: isHuntMode ? 32369 : player.posX,
-            posY: isHuntMode ? 32241 : player.posY,
-            posZ: isHuntMode ? 7 : player.posZ,
-            direction: player.direction,
-            outfitLookType: player.outfitLookType,
-            outfit: player.outfit,
-            outfitHead: player.outfitHead,
-            outfitBody: player.outfitBody,
-            outfitLegs: player.outfitLegs,
-            outfitFeet: player.outfitFeet,
-            outfitAddons: player.outfitAddons,
-            mount: player.mount,
-            mountActive: player.mountActive,
-            avatarId: typeof player.avatarId === 'number' ? player.avatarId : undefined,
-            capacity: derivedStats.maxCap,
-            staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
-            isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,
-            lastHuntId: typeof player.lastHuntId === 'string' && player.lastHuntId ? player.lastHuntId : undefined,
-            hotbarJson: (player as any).hotbarConfigs !== undefined
-              ? JSON.stringify({
-                  hotbar: Array.isArray((player as any).hotbar) ? (player as any).hotbar : [],
-                  hotbarConfigs: (player as any).hotbarConfigs,
-                })
-              : Array.isArray((player as any).hotbar)
-              ? JSON.stringify((player as any).hotbar)
-              : undefined,
-            bestiaryKillsJson: finalBestiaryKillsJson,
-            trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
-              ? (player as any).trackedBestiaryId
-              : existing?.trackedBestiaryId ?? undefined,
-            bossPoints: Math.max(Number(existing?.bossPoints || 0), Number((player as any).bossPoints || 0)),
-            vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
-            promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
-            saveVersion: currentVersion + 1,
-            lastSavedAt: new Date(),
-            updatedAt: new Date(),
-          } as any,
-        });
+        let updateResult: any;
+        if (typeof this.db?.character?.updateMany === 'function') {
+          updateResult = await this.db.character.updateMany({
+            where: {
+              id: player.characterId,
+              saveVersion: currentVersion,
+            },
+            data: {
+              level: derivedLevel,
+              experience: BigInt(Math.floor(effectiveExp)),
+              health: Math.max(0, Math.min(player.hp, derivedStats.maxHp)),
+              maxHealth: derivedStats.maxHp,
+              mana: Math.max(0, Math.min(player.mp, derivedStats.maxMana)),
+              maxMana: derivedStats.maxMana,
+              posX: isHuntMode ? 32369 : player.posX,
+              posY: isHuntMode ? 32241 : player.posY,
+              posZ: isHuntMode ? 7 : player.posZ,
+              direction: player.direction,
+              outfitLookType: player.outfitLookType,
+              outfit: player.outfit,
+              outfitHead: player.outfitHead,
+              outfitBody: player.outfitBody,
+              outfitLegs: player.outfitLegs,
+              outfitFeet: player.outfitFeet,
+              outfitAddons: player.outfitAddons,
+              mount: player.mount,
+              mountActive: player.mountActive,
+              avatarId: typeof player.avatarId === 'number' ? player.avatarId : undefined,
+              capacity: derivedStats.maxCap,
+              staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
+              isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,
+              lastHuntId: typeof player.lastHuntId === 'string' && player.lastHuntId ? player.lastHuntId : undefined,
+              hotbarJson: (player as any).hotbarConfigs !== undefined
+                ? JSON.stringify({
+                    hotbar: Array.isArray((player as any).hotbar) ? (player as any).hotbar : [],
+                    hotbarConfigs: (player as any).hotbarConfigs,
+                  })
+                : Array.isArray((player as any).hotbar)
+                ? JSON.stringify((player as any).hotbar)
+                : undefined,
+              bestiaryKillsJson: finalBestiaryKillsJson,
+              trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
+                ? (player as any).trackedBestiaryId
+                : existing?.trackedBestiaryId ?? undefined,
+              bossPoints: Math.max(Number(existing?.bossPoints || 0), Number((player as any).bossPoints || 0)),
+              vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
+              promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
+              saveVersion: currentVersion + 1,
+              lastSavedAt: new Date(),
+              updatedAt: new Date(),
+            } as any,
+          });
+
+          if (updateResult.count === 0) {
+            console.warn(`[PrismaPersistenceManager] OCC Conflict for character ${player.characterId}. Version ${currentVersion} outdated. Aborting save.`);
+            return;
+          }
+        } else if (typeof this.db?.character?.update === 'function') {
+          await this.db.character.update({
+            where: { id: player.characterId },
+            data: {
+              level: derivedLevel,
+              experience: BigInt(Math.floor(effectiveExp)),
+              health: Math.max(0, Math.min(player.hp, derivedStats.maxHp)),
+              maxHealth: derivedStats.maxHp,
+              mana: Math.max(0, Math.min(player.mp, derivedStats.maxMana)),
+              maxMana: derivedStats.maxMana,
+              posX: isHuntMode ? 32369 : player.posX,
+              posY: isHuntMode ? 32241 : player.posY,
+              posZ: isHuntMode ? 7 : player.posZ,
+              direction: player.direction,
+              outfitLookType: player.outfitLookType,
+              outfit: player.outfit,
+              outfitHead: player.outfitHead,
+              outfitBody: player.outfitBody,
+              outfitLegs: player.outfitLegs,
+              outfitFeet: player.outfitFeet,
+              outfitAddons: player.outfitAddons,
+              mount: player.mount,
+              mountActive: player.mountActive,
+              avatarId: typeof player.avatarId === 'number' ? player.avatarId : undefined,
+              capacity: derivedStats.maxCap,
+              staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
+              isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,
+              lastHuntId: typeof player.lastHuntId === 'string' && player.lastHuntId ? player.lastHuntId : undefined,
+              hotbarJson: (player as any).hotbarConfigs !== undefined
+                ? JSON.stringify({
+                    hotbar: Array.isArray((player as any).hotbar) ? (player as any).hotbar : [],
+                    hotbarConfigs: (player as any).hotbarConfigs,
+                  })
+                : Array.isArray((player as any).hotbar)
+                ? JSON.stringify((player as any).hotbar)
+                : undefined,
+              bestiaryKillsJson: finalBestiaryKillsJson,
+              trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
+                ? (player as any).trackedBestiaryId
+                : existing?.trackedBestiaryId ?? undefined,
+              bossPoints: Math.max(Number(existing?.bossPoints || 0), Number((player as any).bossPoints || 0)),
+              vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
+              promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
+              saveVersion: currentVersion + 1,
+              lastSavedAt: new Date(),
+              updatedAt: new Date(),
+            } as any,
+          });
+        }
 
         if (typeof (player as any).magicLevel === 'number') {
           await this.db.characterSkill.upsert({

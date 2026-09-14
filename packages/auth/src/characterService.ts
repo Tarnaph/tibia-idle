@@ -3,6 +3,53 @@ import { experienceForLevel, levelForExperience } from '../../domain/src/experie
 import { calculateStatsForLevel } from '../../domain/src/party';
 import { CharacterSaveLockManager } from './characterSaveLock';
 
+export class VersionConflictError extends Error {
+  public readonly code = 'VERSION_CONFLICT';
+  public readonly currentVersion: number;
+  public readonly character: any;
+
+  constructor(message: string, currentVersion: number, character?: any) {
+    super(message);
+    this.name = 'VersionConflictError';
+    this.currentVersion = currentVersion;
+    this.character = character;
+  }
+}
+
+export interface ItemCatalogMeta {
+  id: number;
+  slot: string;
+  weaponType?: string;
+}
+
+let cachedCatalogMeta: Map<number, ItemCatalogMeta> | null = null;
+
+export function getItemCatalog(): Map<number, ItemCatalogMeta> {
+  if (!cachedCatalogMeta) {
+    try {
+      // Dynamic require so browser/edge environments don't bundle huge JSON unless needed
+      const equip = require('../../../content/generated/equipment.json');
+      cachedCatalogMeta = new Map<number, ItemCatalogMeta>();
+      for (const it of (equip?.items || [])) {
+        if (typeof it.id === 'number') {
+          cachedCatalogMeta.set(it.id, {
+            id: it.id,
+            slot: it.slot || 'other',
+            weaponType: it.weaponType,
+          });
+        }
+      }
+    } catch {
+      cachedCatalogMeta = new Map<number, ItemCatalogMeta>();
+    }
+  }
+  return cachedCatalogMeta;
+}
+
+export function getValidItemCatalogIds(): Set<number> {
+  return new Set(getItemCatalog().keys());
+}
+
 export interface CreateCharacterInput {
   accountId: string;
   name: string;
@@ -390,14 +437,14 @@ export class CharacterService {
         },
       });
 
-      // Anti-Replay: Reject or skip stale packets if incoming saveVersion is older than database
+      // Optimistic Concurrency Control (OCC): Verify saveVersion
       const currentVersion = (existing as any)?.saveVersion ?? 1;
-      if (typeof data.saveVersion === 'number' && data.saveVersion < currentVersion) {
-        return {
-          ...(existing as any),
-          skipped: true,
-          reason: `Stale saveVersion ${data.saveVersion} < current ${currentVersion}`,
-        };
+      if (typeof data.saveVersion === 'number' && data.saveVersion !== currentVersion) {
+        throw new VersionConflictError(
+          `Conflito de versão ao salvar personagem ${characterId}. Versão recebida: ${data.saveVersion}, versão atual: ${currentVersion}.`,
+          currentVersion,
+          existing
+        );
       }
 
       const updateData: any = {};
@@ -542,13 +589,70 @@ export class CharacterService {
         }
       }
 
-      const executeMutations = async (tx: any) => {
-        if (skillList.length > 0) {
-          for (const sk of skillList) {
-            const safeTries = sk.tries !== undefined
-              ? (typeof sk.tries === 'bigint' ? sk.tries : BigInt(Math.floor(Number(sk.tries))))
-              : undefined;
+      // Strict inventory validation against official catalog, slots and quantity limits
+      if (Array.isArray(data.inventory)) {
+        const catalog = getItemCatalog();
+        const VALID_SLOTS = new Set(['head', 'armor', 'legs', 'boots', 'feet', 'lefthand', 'righthand', 'left', 'right', 'backpack', 'necklace', 'ring', 'ammo']);
+        const NON_WEAPON_BODY_SLOTS = new Set(['head', 'armor', 'legs', 'boots', 'feet', 'necklace', 'ring']);
 
+        for (const eq of data.inventory) {
+          if (typeof eq.serverId !== 'number' || eq.serverId <= 0 || (catalog.size > 0 && !catalog.has(eq.serverId))) {
+            throw new Error(`Item inválido no inventário: serverId ${eq.serverId} não existe no catálogo.`);
+          }
+          const normalizedSlot = typeof eq.slot === 'string' ? eq.slot.toLowerCase() : '';
+          if (!VALID_SLOTS.has(normalizedSlot)) {
+            throw new Error(`Slot de equipamento inválido: ${eq.slot}.`);
+          }
+          const count = Number(eq.count ?? 1);
+          if (count > 100 || count < 1) {
+            throw new Error(`Quantidade ${count} do item ${eq.name || eq.serverId} fora dos limites permitidos (1-100).`);
+          }
+
+          const meta = catalog.get(eq.serverId);
+          const isAmmo = meta?.weaponType === 'ammo' || meta?.slot === 'ammo';
+
+          // Slots de armadura pura nunca empilham
+          if (NON_WEAPON_BODY_SLOTS.has(normalizedSlot) && count > 1) {
+            throw new Error(`Item de equipamento no slot ${eq.slot} não pode ter quantidade maior que 1 (recebido: ${count}).`);
+          }
+
+          // Nas mãos, itens que não sejam munição/ammo nunca podem ter quantidade > 1
+          if (['lefthand', 'righthand', 'left', 'right'].includes(normalizedSlot) && !isAmmo && count > 1) {
+            throw new Error(`Equipamento na mão ${eq.slot} não pode ter quantidade maior que 1 (recebido: ${count}).`);
+          }
+        }
+      }
+
+      const executeMutations = async (tx: any) => {
+        // Enforce OCC conditional write on character. If another process saved first, count === 0 and transaction aborts
+        let updateResult: any;
+        if (typeof tx.character.updateMany === 'function') {
+          updateResult = await tx.character.updateMany({
+            where: {
+              id: characterId,
+              saveVersion: currentVersion,
+            },
+            data: updateData,
+          });
+
+          if (updateResult && typeof updateResult.count === 'number' && updateResult.count === 0) {
+            throw new VersionConflictError(
+              `Conflito de concorrência: o personagem ${characterId} foi modificado por outro processo.`,
+              currentVersion,
+              existing
+            );
+          }
+        } else if (typeof tx.character.update === 'function') {
+          updateResult = await tx.character.update({
+            where: { id: characterId },
+            data: updateData,
+          });
+        }
+
+        // Update skills if provided
+        for (const sk of skillList) {
+          const safeTries = typeof sk.tries === 'number' || typeof sk.tries === 'bigint' ? BigInt(sk.tries) : undefined;
+          if (typeof sk.value === 'number') {
             await tx.characterSkill.upsert({
               where: {
                 characterId_skillId: {
@@ -571,21 +675,29 @@ export class CharacterService {
           }
         }
 
-        // Update inventory items if provided with validation
-        if (data.inventory !== undefined) {
+        // Update inventory items if provided with validated catalog items
+        if (Array.isArray(data.inventory)) {
           await tx.inventoryItem.deleteMany({
             where: { characterId },
           });
-          const sanitizedItems = data.inventory
-            .filter((eq) => typeof eq.serverId === 'number' && eq.serverId > 0)
-            .map((eq) => ({
+
+          const catalog = getItemCatalog();
+          const sanitizedItems = data.inventory.map((eq) => {
+            const slot = typeof eq.slot === 'string' ? eq.slot.toLowerCase() : 'backpack';
+            const meta = catalog.get(eq.serverId);
+            const isAmmo = meta?.weaponType === 'ammo' || meta?.slot === 'ammo';
+            const isNonAmmoEquip = ['head', 'armor', 'legs', 'boots', 'feet', 'necklace', 'ring', 'left', 'right', 'lefthand', 'righthand'].includes(slot) && !isAmmo;
+            const maxCount = isNonAmmoEquip ? 1 : 100;
+            return {
               characterId,
               slot: eq.slot || 'backpack',
               serverId: eq.serverId,
               name: eq.name || 'Item',
-              count: Math.max(1, Math.min(10000, Number(eq.count || 1))),
+              count: Math.max(1, Math.min(maxCount, Number(eq.count || 1))),
               tier: 0,
-            }));
+            };
+          });
+
           if (sanitizedItems.length > 0) {
             await tx.inventoryItem.createMany({
               data: sanitizedItems,
@@ -593,9 +705,8 @@ export class CharacterService {
           }
         }
 
-        return tx.character.update({
+        return tx.character.findUnique({
           where: { id: characterId },
-          data: updateData,
           include: {
             skills: true,
             inventory: true,

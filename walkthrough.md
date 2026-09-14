@@ -1,63 +1,55 @@
-# Walkthrough - Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite
+# Walkthrough - Phase 167 & 167.1: Segurança, Persistência, Concorrência Otimista (OCC) e Blindagem WebSocket
 
-## 🎯 Resumo da Entrega
+## 🎯 Resumo da Entrega - Bloco 1.1 (Phase 167.1)
 
-A **Phase 167 (Bloco 1)** foi concluída com êxito total, implementando com rigor as proteções, o determinismo de persistência e a resiliência de banco alinhados entre a equipe e o revisor sênior:
+A **Phase 167.1 (Bloco 1.1)** foi concluída com sucesso total, respondendo pontualmente a todas as observações técnicas levantadas pelo revisor sênior externo e garantindo integridade transacional rigorosa:
 
-1. **Derivação Autoritativa de Nível e Atributos no Servidor:**
-   - O servidor não aceita mais `level` arbitrário enviado pelo cliente no payload HTTP `/save` nem no estado da sala.
-   - O nível é derivado exclusivamente da experiência acumulada via `levelForExperience(exp)`.
-   - Stats derivados (`maxHealth`, `maxMana`, `capacity`) são calculados com base na vocação e no nível legítimo via `calculateStatsForLevel(vocation, level)`, impedindo atributos inflados.
+1. **Controle de Concorrência Otimista (OCC) e Rollback Atômico:**
+   - O salvamento condicionado a `saveVersion: currentVersion` via `tx.character.updateMany` no Prisma reverte toda a transação se outro processo salvou antes (`count === 0`).
+   - Habilidades e inventário estão protegidos dentro da mesma transação, garantindo que nenhum item ou ponto de skill seja sobrescrito se a versão do personagem estiver em conflito.
+   - O backend HTTP responde **HTTP 409 Conflict** em caso de colisão, enviando o estado autoritativo e a versão atual.
 
-2. **Versionamento Monotônico e Anti-Replay (`saveVersion` & `lastSavedAt`):**
-   - Adicionados `saveVersion Int @default(1)` e `lastSavedAt DateTime @default(now())` no modelo `Character` do Prisma (`prisma/schema.prisma`).
-   - Sincronizado o schema no SQLite (`prisma/dev.db`) sem alterar contas ou histórico de jogadores.
-   - Pacotes desatualizados que chegam fora de ordem por jitter de rede são descartados com segurança (`skipped: true`), prevenindo regressões de estado e replay attacks.
-   - Todo salvamento bem-sucedido incrementa monotonicamente `saveVersion = currentVersion + 1`.
+2. **Reconciliação no Cliente sem Reenvio Automático de Dados Velhos:**
+   - Em `apps/web/components/GamePrototype.tsx`, o cliente gerencia `currentSaveVersionRef`.
+   - Ao receber status 409 do servidor, o cliente atualiza seu `currentSaveVersionRef` para a versão autoritativa do servidor e reconcilia seu estado local (`level`, `experience`, `hp`, `mana`), sem reenviar o pacote defasado com uma versão incrementada artificialmente.
 
-3. **Mutex Atômico por Personagem (`CharacterSaveLockManager`):**
-   - Criado gerenciador de locks em memória em `packages/auth/src/characterSaveLock.ts` exportado em `packages/auth/src/index.ts`.
-   - Serializa atomicamente gravações para o mesmo `characterId`, eliminando dirty writes e concorrência descontrolada entre chamadas HTTP (`/api/characters/[id]/save`) e o autosave periódico da sala Colyseus.
-   - Operações em personagens distintos continuam paralelas e independentes.
+3. **Fechamento da Brecha de XP e Atributos via WebSocket (`player:syncProgress`):**
+   - Em `packages/server/src/rooms/ThaisCityRoom.ts`, o handler WebSocket de progresso agora aplica rate limit rigoroso baseado no tempo decorrido (`elapsedSeconds`) e no limite de segurança `Math.max(50_000, elapsedSeconds * 25_000)`.
+   - Nível é derivado autoritativamente no servidor via `levelForExperience(data.experience)`, ignorando valores como `level: 500`.
+   - `hp` e `mp` são validados contra `player.maxHp` e `player.maxMp`.
+   - Em `packages/server/src/persistence/PrismaPersistenceManager.ts`, aplicou-se também checagem de taxa de XP e OCC no banco (`updateMany` condicional à versão).
 
-4. **Isolamento de Autosave Multi-Sala no Colyseus e Graceful Teardown:**
-   - Eliminado o timer estático global de `PrismaPersistenceManager.ts`.
-   - Cada instância de `ThaisCityRoom` gerencia seu próprio timer de autosave usando o clock da sala (`this.clock.setInterval`).
-   - Adicionada flag anti-encavalamento (`activeSavePromise`) para evitar que ciclos de salvamento se sobreponham.
-   - Implementado teardown gracioso no `onDispose` da sala, aguardando gravações ativas em voo antes de executar o salvamento final.
+4. **Validação Rigorosa de Catálogo e Quantidade de Itens:**
+   - Em `packages/auth/src/characterService.ts`, todos os itens do inventário são verificados contra o catálogo oficial `equipment.json` antes de qualquer alteração no banco.
+   - Itens inexistentes no catálogo, slots de equipamento inválidos ou quantidades excedentes (armaduras/armas com count > 1) disparam erro imediato. Munições (`ammo`) são permitidas até 100 unidades.
 
-5. **Proteção e Autenticação HTTP Basic no Monitor Colyseus (`/colyseus`):**
-   - Implementado middleware `colyseusMonitorAuthMiddleware` em `packages/server/src/server.ts`.
-   - Retorna `401 Unauthorized` com cabeçalho `WWW-Authenticate: Basic realm="Colyseus Monitor"` quando acessado sem credenciais válidas.
-   - Se `ENABLE_COLYSEUS_MONITOR=false` ou em produção sem senha configurada (`COLYSEUS_MONITOR_PASS`), responde `404 Not Found`.
+5. **Eliminação do Memory Leak no Map de Locks (`CharacterSaveLockManager`):**
+   - Corrigida a referência da Promise em `packages/auth/src/characterSaveLock.ts`, assegurando que `this.locks.delete(characterId)` limpe a entrada ao final da cadeia. O método `getActiveLockCount()` agora zera confiavelmente após as operações.
 
-6. **Script Determinístico de Backup SQLite WAL-Safe (`scripts/backup-sqlite.mjs`):**
-   - Implementado snapshot atômico a quente usando o comando nativo `VACUUM INTO 'backups/backup-<timestamp>.db'`, seguro mesmo com o banco em modo WAL e com jogadores conectados.
-   - Validação imediata com `PRAGMA integrity_check` garantindo que o arquivo gerado está íntegro (`ok`).
-   - Rotação automática mantendo os últimos 10 snapshots.
-   - Atalho adicionado em `package.json`: `npm run db:backup`.
+6. **Monitor Colyseus Seguro por Padrão (Secure by Default):**
+   - Em `packages/server/src/server.ts`, o endpoint `/colyseus` responde `404 Not Found` por padrão, a menos que `COLYSEUS_MONITOR_USER` e `COLYSEUS_MONITOR_PASS` estejam explicitamente preenchidos no `.env`.
+
+7. **Isolamento Total em Sandbox para Testes e Backups:**
+   - `scripts/backup-sqlite.mjs` aceita `dbPath` e `backupsDir`.
+   - Todas as suítes de teste de concorrência e backup operam em arquivos e diretórios temporários (`temp-sandbox-block1-1/`), sem tocar no banco principal `prisma/dev.db` e sem poluir a pasta `backups/`.
 
 ---
 
-## 🛠️ Arquivos Modificados e Criados
+## 🛠️ Arquivos Modificados e Criados (Bloco 1.1)
 
 | Arquivo | Componente / Responsabilidade | Modificação |
 |---|---|---|
-| `prisma/schema.prisma` | Banco de Dados / Prisma | Adicionados `saveVersion` e `lastSavedAt` no modelo `Character`. |
-| `packages/auth/src/characterSaveLock.ts` | Auth / Concorrência | Mutex in-memory por `characterId` via `CharacterSaveLockManager`. |
-| `packages/auth/src/characterService.ts` | Auth / Lógica de Personagem | Anti-replay, derivação autoritativa por XP e lock atômico. |
-| `packages/auth/src/index.ts` | Auth / Exportações | Exportado `CharacterSaveLockManager`. |
-| `app/api/characters/[id]/save/route.ts` | API HTTP Next.js | Repassa `saveVersion` e trata pacotes com status `skipped`. |
-| `packages/server/src/persistence/PrismaPersistenceManager.ts` | Server / Persistência | Derivação autoritativa de stats/nível, mutex e suporte a batch por sala. |
-| `packages/server/src/rooms/ThaisCityRoom.ts` | Server / Colyseus Room | Autosave local isolado via room clock, `activeSavePromise` e `onDispose` gracioso. |
-| `packages/server/src/server.ts` | Server / HTTP & Colyseus | Middleware de Basic Auth e 404 guard em `/colyseus`. |
-| `scripts/backup-sqlite.mjs` | Scripts / Backup WAL | Script atômico com `VACUUM INTO` e validação com `PRAGMA integrity_check`. |
-| `package.json` | Configuração do Projeto | Adicionado script `npm run db:backup`. |
-| `tests/block1-security-and-multi-room-persistence.test.ts` | Testes Automatizados | 11 testes cobrindo derivação de nível, versionamento, mutex, salas e backup. |
-
----
-
-## 🧪 Validação dos Testes
+| `packages/auth/src/characterSaveLock.ts` | Auth / Lock Manager | Correção de memory leak no Map de locks com remoção precisa e `getActiveLockCount`. |
+| `packages/auth/src/characterService.ts` | Auth / Serviço de Personagem | OCC com `VersionConflictError`, validação contra `equipment.json`, limites de quantidade e slots. |
+| `packages/auth/src/index.ts` | Auth / Exportações | Exportação de `VersionConflictError` e `getItemCatalog`. |
+| `app/api/characters/[id]/save/route.ts` | API HTTP Next.js | Tratamento de `VersionConflictError` retornando HTTP 409 Conflict. |
+| `apps/web/components/GamePrototype.tsx` | Web / Frontend | Controle de `currentSaveVersionRef`, envio de `saveVersion` e reconciliação client-side em 409. |
+| `packages/server/src/rooms/ThaisCityRoom.ts` | Server / Colyseus Room | Rate limiting de XP no WebSocket, derivação de nível e limites de HP/MP. |
+| `packages/server/src/persistence/PrismaPersistenceManager.ts` | Server / Persistência | OCC via `updateMany` condicional a `saveVersion` e truncamento seguro de ganho excessivo de XP. |
+| `packages/server/src/server.ts` | Server / HTTP & Colyseus | Colyseus monitor retorna 404 por padrão se credenciais não forem passadas no `.env`. |
+| `scripts/backup-sqlite.mjs` | Scripts / Backup SQLite | Parametrização para suportar `{ dbPath, backupsDir }` em sandbox. |
+| `tests/block1-1-concurrency-and-security.test.ts` | Testes Automatizados | 10 testes dedicados para OCC, rollback de transação, catálogo, websocket XP e sandbox. |
+| `tests/block1-security-and-multi-room-persistence.test.ts` | Testes Automatizados | Atualizados testes para 404 secure by default e sandbox temporário. |
 
 - **Suíte Dedicada do Bloco 1 (`tests/block1-security-and-multi-room-persistence.test.ts`):** 11/11 aprovados (100%).
 - **Regressão de Persistência e Auth:**

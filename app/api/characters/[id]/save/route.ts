@@ -96,6 +96,24 @@ export async function POST(
   } catch (error: any) {
     console.error('[CharacterSave API error]:', error?.message || error);
     try { await request.body?.cancel?.(); } catch {}
+
+    if (error?.code === 'VERSION_CONFLICT' || error?.name === 'VersionConflictError') {
+      const sanitizedChar = error.character
+        ? JSON.parse(JSON.stringify(error.character, (_k, v) => (typeof v === 'bigint' ? Number(v) : v)))
+        : undefined;
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'VERSION_CONFLICT',
+          message: error.message,
+          currentVersion: error.currentVersion,
+          character: sanitizedChar,
+        },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { success: false, error: error.message || 'Erro ao salvar progresso do personagem.' },
       { status: 400 }

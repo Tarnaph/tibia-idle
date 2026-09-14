@@ -3194,6 +3194,25 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-167-security-multi-room-persistence-and-sqlite-backup/167-SUMMARY.md`
 
+### Phase 167.1: Bloco 1.1 - Concorrência Transacional Otimista, Blindagem de XP WebSocket, Reconciliação 409 e Sandbox de Testes
+
+**Goal**: Implementar controle de concorrência otimista (OCC) no Prisma com proteção transacional atômica para inventário e skills, fechar a brecha de injeção de XP no WebSocket (`player:syncProgress`), corrigir a limpeza do Map de locks, integrar o ciclo completo de versionamento e reconciliação com status 409 no frontend, validar inventário contra o catálogo e quantidades legítimas, proteger o monitor Colyseus por padrão e isolar os testes em banco e diretório temporários.  
+**Depends on**: Phase 167  
+**Requirements**:
+1. Concorrência Otimista Transacional: update condicionado a `saveVersion: expectedVersion` com rollback atômico de skills e inventário se houver conflito de versão.
+2. Tratamento e Reconciliação 409: backend responde 409 Conflict em descompasso de versão e cliente reconcilia com os dados canônicos sem reenviar dados obsoletos.
+3. Blindagem de XP no WebSocket: validação de taxa e tempo decorrido no `player:syncProgress` de `ThaisCityRoom.ts` e no `PrismaPersistenceManager.ts`.
+4. Correção do Lock Manager: limpar a referência correta do Map em `CharacterSaveLockManager.ts` garantindo liberação total de memória.
+5. Validação Estrita de Inventário: checagem contra catálogo oficial (`equipment.json`), limite de quantidade 1 para equipamentos e 100 para stackables.
+6. Sandbox de Testes Isolado: todos os testes de backup e concorrência operam em banco temporário (`test.db`) e diretório temporário (`test-backups/`) sem tocar nos dados reais.
+7. Monitor Colyseus seguro por padrão (404 sem credenciais explícitas no `.env`).
+
+**Plans:**
+- [x] 167.1-01-PLAN: OCC Transacional, Blindagem WebSocket, Reconciliação 409, Catálogo de Inventário e Sandbox de Testes.
+
+- Resumo de entrega: `.planning/phases/phase-167-security-multi-room-persistence-and-sqlite-backup/167.1-SUMMARY.md`
+
+
 
 
 

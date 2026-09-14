@@ -14,11 +14,10 @@ export interface CreateGameServerOptions {
 
 export function colyseusMonitorAuthMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
   const isExplicitlyDisabled = process.env.ENABLE_COLYSEUS_MONITOR === 'false';
-  const isProduction = process.env.NODE_ENV === 'production';
-  const configuredUser = process.env.COLYSEUS_MONITOR_USER || 'admin';
-  const configuredPass = process.env.COLYSEUS_MONITOR_PASS || (isProduction ? '' : 'admin');
+  const configuredUser = process.env.COLYSEUS_MONITOR_USER;
+  const configuredPass = process.env.COLYSEUS_MONITOR_PASS;
 
-  if (isExplicitlyDisabled || (isProduction && !process.env.COLYSEUS_MONITOR_PASS)) {
+  if (isExplicitlyDisabled || !configuredUser || !configuredPass) {
     return res.status(404).send('Not Found');
   }
 

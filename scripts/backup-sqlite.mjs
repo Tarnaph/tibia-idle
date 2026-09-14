@@ -6,14 +6,19 @@ import { PrismaClient } from '@prisma/client';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function runBackup() {
+async function runBackup(options = {}) {
   const rootDir = path.resolve(__dirname, '..');
-  const backupsDir = path.resolve(rootDir, 'backups');
+  const backupsDir = options.backupsDir ? path.resolve(options.backupsDir) : path.resolve(rootDir, 'backups');
   if (!fs.existsSync(backupsDir)) {
     fs.mkdirSync(backupsDir, { recursive: true });
   }
 
-  const rawDbUrl = process.env.DATABASE_URL || `file:${path.resolve(rootDir, 'prisma/dev.db').replace(/\\/g, '/')}`;
+  const rawDbUrl = options.dbUrl
+    ? options.dbUrl
+    : options.dbPath
+    ? `file:${path.resolve(options.dbPath).replace(/\\/g, '/')}`
+    : process.env.DATABASE_URL || `file:${path.resolve(rootDir, 'prisma/dev.db').replace(/\\/g, '/')}`;
+
   const prisma = new PrismaClient({
     datasources: {
       db: { url: rawDbUrl },
