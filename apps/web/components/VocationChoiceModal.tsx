@@ -10,6 +10,7 @@ const assets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 interface VocationChoiceModalProps {
   open: boolean;
   characterName: string;
+  characterGender?: 'male' | 'female';
   takenVocations?: Set<BaseVocationName> | BaseVocationName[];
   onSelectVocation: (vocation: BaseVocationName) => void;
 }
@@ -61,9 +62,23 @@ const VOCATIONS: VocationOption[] = [
 export function VocationChoiceModal({
   open,
   characterName,
+  characterGender = 'male',
   takenVocations,
   onSelectVocation,
 }: VocationChoiceModalProps) {
+  const gender = characterGender === 'female' ? 'female' : 'male';
+  const getVocationThumb = (vocId: BaseVocationName): string => {
+    switch (vocId) {
+      case 'Knight':
+        return `/generated/outfits/knight-${gender}-south-f0-base.png`;
+      case 'Paladin':
+        return `/generated/outfits/hunter-${gender}-south-f0-base.png`;
+      case 'Sorcerer':
+      case 'Druid':
+      default:
+        return `/generated/outfits/mage-${gender}-south-f0-base.png`;
+    }
+  };
   const takenSet = new Set<BaseVocationName>(
     Array.isArray(takenVocations)
       ? takenVocations
@@ -171,14 +186,19 @@ export function VocationChoiceModal({
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={voc.thumbUrl}
+                    src={getVocationThumb(voc.id)}
                     alt={voc.name}
                     style={{ width: '36px', height: '36px', objectFit: 'contain', imageRendering: 'pixelated' }}
                     onError={(e) => {
-                      // Fallback to combat assets frame if thumbnail fails
-                      const fallbackUrl = assets.outfits[voc.id]?.frames.find((f) => f.direction === 'south')?.publicUrl;
-                      if (fallbackUrl) {
-                        e.currentTarget.src = fallbackUrl;
+                      const fallback = voc.thumbUrl;
+                      if (e.currentTarget.src !== fallback && !e.currentTarget.src.endsWith(fallback)) {
+                        e.currentTarget.src = fallback;
+                      } else {
+                        // Fallback to combat assets frame if thumbnail fails
+                        const fallbackUrl = assets.outfits[voc.id]?.frames.find((f) => f.direction === 'south')?.publicUrl;
+                        if (fallbackUrl) {
+                          e.currentTarget.src = fallbackUrl;
+                        }
                       }
                     }}
                   />

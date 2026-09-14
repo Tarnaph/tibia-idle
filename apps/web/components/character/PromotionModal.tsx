@@ -24,28 +24,33 @@ export function PromotionModal({
   const baseVocation = character.baseVocation || character.vocation || 'Knight';
   const promotedTitle = promotedVocationFor(baseVocation);
   const canAfford = gold >= PROMOTION_COST;
+  const gender = character.gender === 'female' ? 'female' : 'male';
 
   const getOutfitVisual = (voc: string) => {
     switch (voc) {
       case 'Knight':
         return {
-          thumbUrl: '/generated/outfit-thumbs/knight.png',
+          thumbUrl: `/generated/outfits/knight-${gender}-south-f0-base.png`,
+          fallbackThumbUrl: '/generated/outfit-thumbs/knight.png',
           addonDesc: 'Com armadura de placas completas e espada nas costas',
         };
       case 'Paladin':
         return {
-          thumbUrl: '/generated/outfit-thumbs/hunter.png',
+          thumbUrl: `/generated/outfits/hunter-${gender}-south-f0-base.png`,
+          fallbackThumbUrl: '/generated/outfit-thumbs/hunter.png',
           addonDesc: 'Com aljava dourada e arco de elite em punho',
         };
       case 'Sorcerer':
         return {
-          thumbUrl: '/generated/outfit-thumbs/mage.png',
+          thumbUrl: `/generated/outfits/mage-${gender}-south-f0-base.png`,
+          fallbackThumbUrl: '/generated/outfit-thumbs/mage.png',
           addonDesc: 'Com chapéu de arquimago e varinha arcana lendária',
         };
       case 'Druid':
       default:
         return {
-          thumbUrl: '/generated/outfit-thumbs/mage.png',
+          thumbUrl: `/generated/outfits/mage-${gender}-south-f0-base.png`,
+          fallbackThumbUrl: '/generated/outfit-thumbs/mage.png',
           addonDesc: 'Com manto cerimonial da natureza e cajado místico',
         };
     }
@@ -166,6 +171,11 @@ export function PromotionModal({
                 src={visual.thumbUrl}
                 alt={promotedTitle}
                 style={{ width: '48px', height: '48px', objectFit: 'contain', imageRendering: 'pixelated' }}
+                onError={(e) => {
+                  if (e.currentTarget.src !== visual.fallbackThumbUrl && !e.currentTarget.src.endsWith(visual.fallbackThumbUrl)) {
+                    e.currentTarget.src = visual.fallbackThumbUrl;
+                  }
+                }}
               />
             </div>
             <div>

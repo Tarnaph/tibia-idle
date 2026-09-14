@@ -1,5 +1,18 @@
 # CORREÇÕES E ATUALIZAÇÕES RECENTES
 
+## 👗 Phase 159: Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados
+1. **Resolução de Miniaturas por Gênero Feminino e Masculino:**
+   - O `OutfitModal` agora resolve as miniaturas dos cards dinamicamente com base no `charGender` do personagem ativo (`/generated/outfits/${idLower}-${charGender}-south-f0-base.png`).
+   - Para personagens femininos, os cards na lista de outfits agora exibem fielmente a versão feminina dos trajes com fallback gracioso em `onError`.
+   - Propagado também para o `VocationChoiceModal` e `PromotionModal`, exibindo as versões femininas caso o personagem seja do sexo feminino.
+2. **Reset Automático de Addons ao Trocar de Traje:**
+   - Ao trocar de outfit (`handleSelectOutfit`), os addons 1 e 2 são resetados para `false`, permitindo que o novo traje comece sem addons e o usuário decida marcá-los caso queira.
+3. **Eliminação dos Outfits Falsos/Duplicados "Sorcerer" e "Paladin":**
+   - Removidas as entradas duplicadas `{ id: 'Sorcerer' }` e `{ id: 'Paladin' }` de `CLASSIC_OUTFITS`.
+   - A lista de trajes clássicos agora segue rigorosamente o padrão canônico do Tibia oficial com 14 trajes únicos sem duplicações de Mage ou Hunter.
+
+---
+
 ## ⚔️ Phase 158: Vocação 'None' (Rookgaard), Criação de Personagem com Gênero e Trajes Canônicos
 1. **Crash `Missing vocation None.` Eliminado:**
    - Implementado `NONE_VOCATION_DEFINITION` em `packages/domain/src/party.ts`.

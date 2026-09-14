@@ -43,8 +43,6 @@ export const CLASSIC_OUTFITS: OutfitOption[] = [
   { id: 'Barbarian', name: 'Barbarian', description: 'Traje rústico de guerreiro bárbaro do norte.', isPremium: true },
   { id: 'Sire', name: 'Sire', description: 'Cultista arcano com manto sombrio e máscara esquelética.', isCustom: true },
   { id: 'Druid', name: 'Druid', description: 'Manto elemental abençoado pelas forças da natureza.', vocationHint: 'Druid', isPremium: true },
-  { id: 'Sorcerer', name: 'Sorcerer', description: 'Roupagem mística de feiticeiro com símbolos arcanos.', vocationHint: 'Sorcerer', isPremium: true },
-  { id: 'Paladin', name: 'Paladin', description: 'Vestimenta de caçador ágil com aljava e botas leves.', vocationHint: 'Paladin', isPremium: true },
   { id: 'Oriental', name: 'Oriental', description: 'Vestimentas exóticas do distante continente oriental.', isPremium: true },
   { id: 'Pirate', name: 'Pirate', description: 'Traje clássico de bucaneiro dos sete mares.', isPremium: true },
   { id: 'Assassin', name: 'Assassin', description: 'Vestimenta de mestre assassino das sombras.', isPremium: true },
@@ -191,14 +189,22 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const currentDir = DIRECTIONS[directionIdx];
 
   const handleSelectOutfit = (outfitId: string) => {
+    const isDifferentOutfit = outfitId !== selectedOutfit;
     setSelectedOutfit(outfitId);
-    const caps = getOutfitCapabilities(outfitId);
-    if (!caps.hasAddon1 && addon1) {
+    if (isDifferentOutfit) {
+      // Ao trocar de outfit, inicia sem addons para que o usuário escolha marcá-los
       setAddon1(false);
-    }
-    if (!caps.hasAddon2 && addon2) {
       setAddon2(false);
+    } else {
+      const caps = getOutfitCapabilities(outfitId);
+      if (!caps.hasAddon1 && addon1) {
+        setAddon1(false);
+      }
+      if (!caps.hasAddon2 && addon2) {
+        setAddon2(false);
+      }
     }
+    const caps = getOutfitCapabilities(outfitId);
     if (!caps.hasMountRider) {
       setMountActive(false);
     } else if (selectedMount && selectedMount !== 'none') {
@@ -264,10 +270,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     setDirectionIdx((prev) => (prev + 1) % 4);
   };
 
-  // Resolve thumbnail for outfit cards
-  const getOutfitThumbUrl = (outfitId: string): string => {
+  // Resolve thumbnail for outfit cards based on active character gender
+  const getOutfitThumbUrl = (outfitId: string, gender: 'male' | 'female' = charGender): string => {
     const idLower = normalizeOutfitId(outfitId);
-    return `/generated/outfit-thumbs/${idLower}.png`;
+    return `/generated/outfits/${idLower}-${gender}-south-f0-base.png`;
   };
 
   // Resolve thumbnail for mount cards
@@ -561,10 +567,18 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                     >
                       <div className="tibia-card-sprite-wrap">
                         <img
-                          src={getOutfitThumbUrl(outfit.id)}
+                          src={getOutfitThumbUrl(outfit.id, charGender)}
                           alt={outfit.name}
                           className="tibia-card-sprite"
                           style={{ imageRendering: 'pixelated' }}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            const idLower = normalizeOutfitId(outfit.id);
+                            const fallback = `/generated/outfit-thumbs/${idLower}.png`;
+                            if (target.src !== fallback && !target.src.endsWith(fallback)) {
+                              target.src = fallback;
+                            }
+                          }}
                         />
                       </div>
                       <span className="tibia-card-name">{outfit.name}</span>

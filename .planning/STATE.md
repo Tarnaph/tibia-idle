@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-13T20:00:00.000Z"
-last_activity: "2026-09-13 — Concluída Phase 158: Suporte à Vocação 'None' no Domínio, Entrada sem Crash e Seleção de Gênero (Masculino / Feminino) na Criação."
+last_updated: "2026-09-13T22:30:00.000Z"
+last_activity: "2026-09-13 — Concluída Phase 159: Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados."
 progress:
-  total_phases: 158
-  completed_phases: 158
-  total_plans: 164
-  completed_plans: 164
+  total_phases: 159
+  completed_phases: 159
+  total_plans: 165
+  completed_plans: 165
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 158 concluída com sucesso.
+**Current focus:** Fase 159 concluída com sucesso.
 
 ## Current Position
 
-Phase: 158 of 158 (Concluída)  
-Plan: 2 of 2 in current phase  
+Phase: 159 of 159 (Concluída)  
+Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 158 com 0 erros de tipo e 100% de testes aprovados.
+Last activity: 2026-09-13 — Conclusão da Phase 159 com 0 erros de tipo e 100% de testes aprovados.
 
 Progress: [██████████] 100%
 

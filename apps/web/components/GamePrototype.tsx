@@ -3148,6 +3148,7 @@ function GamePrototypeContent() {
       <VocationChoiceModal
         open={!activeCharacter.vocation || activeCharacter.vocation === 'None'}
         characterName={activeCharacter.name}
+        characterGender={activeCharacter.gender || ((onlineCharacter as any)?.gender) || 'male'}
         takenVocations={getTakenAccountVocations(game.session.characters, activeCharacter.id)}
         onSelectVocation={(vocName) => {
           const res = chooseCharacterVocation(game, activeCharacter.id, vocName, content);

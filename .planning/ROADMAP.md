@@ -3030,6 +3030,27 @@ Plans:
 - [x] 158-01-PLAN: Definição de Vocação 'None' no Domínio, Fallbacks Seguros e Escolha no Nível 8+.
 - [x] 158-02-PLAN: Modelagem de Sexo no Prisma, Rota de Criação e Seletor Visual na Interface.
 
+- Resumo de entrega: `.planning/phases/phase-158-none-vocation-and-character-gender/158-SUMMARY.md`
+
+---
+
+### Phase 159: Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados
+
+**Goal**: Exibir as miniaturas dos cards no `OutfitModal` de acordo com o gênero do personagem (feminino ou masculino), resetar addons para desmarcado ao trocar de traje para que o usuário decida colocá-los, e remover os outfits redundantes 'Sorcerer' e 'Paladin' mantendo apenas os 14 trajes clássicos autênticos do Tibia.  
+**Depends on**: Phase 158  
+**Requirements**:
+1. Resolução dinâmica de miniaturas por gênero feminino/masculino em `OutfitModal.tsx` com fallback seguro em `onError`.
+2. Reset automático de Addon 1 e Addon 2 ao trocar de traje no `handleSelectOutfit`.
+3. Remoção de `{ id: 'Sorcerer' }` e `{ id: 'Paladin' }` de `CLASSIC_OUTFITS`.
+4. Propagação de gênero para miniaturas no `VocationChoiceModal` e `PromotionModal`.
+5. 0 erros no TypeScript (`npm run typecheck`) e 100% de testes aprovados no Vitest (`tests/phase159-outfit-gender-addons-reset-and-canon-names.test.ts`).
+
+**Plans:**
+- [x] 159-01-PLAN: Resolução de Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados.
+
+- Resumo de entrega: `.planning/phases/phase-159-outfit-modal-gender-and-addons-cleanup/159-SUMMARY.md`
+
+
 
 
 
