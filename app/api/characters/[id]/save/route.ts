@@ -71,7 +71,17 @@ export async function POST(
       bossPoints: typeof body.bossPoints === 'number' ? body.bossPoints : undefined,
       vocationName: body.vocationName,
       promotion: body.promotion,
+      saveVersion: typeof body.saveVersion === 'number' ? body.saveVersion : undefined,
     });
+
+    if ((updated as any)?.skipped) {
+      return NextResponse.json({
+        success: true,
+        skipped: true,
+        reason: (updated as any).reason,
+        saveVersion: (updated as any).saveVersion,
+      }, { status: 200 });
+    }
 
     const sanitizedData = JSON.parse(
       JSON.stringify(updated, (_key, value) =>

@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma as defaultPrisma } from '../../../database/src';
-import { experienceForLevel, levelForExperience } from '../../../domain/src';
+import { experienceForLevel, levelForExperience, calculateStatsForLevel } from '../../../domain/src';
+import { CharacterSaveLockManager } from '../../../auth/src';
 import type { PlayerState } from '../schemas/PlayerState';
 
 export class PrismaPersistenceManager {
   private db: PrismaClient;
-  private intervalTimer: NodeJS.Timeout | null = null;
 
   constructor(customPrisma?: PrismaClient) {
     this.db = customPrisma || defaultPrisma;
@@ -13,6 +13,7 @@ export class PrismaPersistenceManager {
 
   /**
    * Persists a single player's current runtime state to PostgreSQL via Prisma.
+   * Uses CharacterSaveLockManager to serialize writes and prevents dirty/concurrent saves.
    */
   async saveCharacter(player: PlayerState): Promise<void> {
     if (!player.characterId || player.characterId.startsWith('char-guest')) {
@@ -20,158 +21,175 @@ export class PrismaPersistenceManager {
       return;
     }
 
-    try {
-      const existing = typeof this.db?.character?.findUnique === 'function'
-        ? await this.db.character.findUnique({
-            where: { id: player.characterId },
-            select: {
-              level: true,
-              experience: true,
-              bestiaryKillsJson: true,
-              trackedBestiaryId: true,
-              bossPoints: true,
-            },
-          })
-        : null;
-
-      const existingLevel = existing?.level ?? 1;
-      const existingExp = Number(existing?.experience ?? 0);
-      const playerExp = typeof player.experience === 'number' && player.experience >= 0 ? player.experience : 0;
-      const playerLevel = player.level || 1;
-
-      // Monotonic non-decreasing progress reconciliation
-      let effectiveExp = Math.max(playerExp, existingExp);
-      if (effectiveExp === 0) {
-        effectiveExp = Math.max(experienceForLevel(playerLevel), experienceForLevel(existingLevel));
-      }
-      const effectiveLevel = Math.max(playerLevel, existingLevel);
-      const finalExp = effectiveExp;
-
-      // Monotonic non-decreasing Bestiary Kills reconciliation
-      let existingBestiary: Record<string, number> = {};
-      if (existing?.bestiaryKillsJson) {
-        try {
-          existingBestiary = typeof existing.bestiaryKillsJson === 'string'
-            ? JSON.parse(existing.bestiaryKillsJson)
-            : existing.bestiaryKillsJson;
-        } catch {}
-      }
-      let playerBestiary: Record<string, number> = {};
-      const rawPlayerBestiary = (player as any).bestiaryKills;
-      if (rawPlayerBestiary) {
-        try {
-          playerBestiary = typeof rawPlayerBestiary === 'string'
-            ? JSON.parse(rawPlayerBestiary)
-            : rawPlayerBestiary;
-        } catch {}
-      }
-      const mergedBestiary: Record<string, number> = { ...existingBestiary };
-      for (const [k, v] of Object.entries(playerBestiary)) {
-        if (typeof v === 'number') {
-          mergedBestiary[k] = Math.max(Number(existingBestiary[k] || 0), v);
-        }
-      }
-      const finalBestiaryKillsJson = Object.keys(mergedBestiary).length > 0
-        ? JSON.stringify(mergedBestiary)
-        : existing?.bestiaryKillsJson ?? undefined;
-
-      const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
-
-      await this.db.character.update({
-        where: { id: player.characterId },
-        data: {
-          level: effectiveLevel,
-          experience: BigInt(Math.floor(finalExp)),
-          health: player.hp,
-          maxHealth: player.maxHp,
-          mana: player.mp,
-          maxMana: player.maxMp,
-          posX: isHuntMode ? 32369 : player.posX,
-          posY: isHuntMode ? 32241 : player.posY,
-          posZ: isHuntMode ? 7 : player.posZ,
-          direction: player.direction,
-          outfitLookType: player.outfitLookType,
-          outfit: player.outfit,
-          outfitHead: player.outfitHead,
-          outfitBody: player.outfitBody,
-          outfitLegs: player.outfitLegs,
-          outfitFeet: player.outfitFeet,
-          outfitAddons: player.outfitAddons,
-          mount: player.mount,
-          mountActive: player.mountActive,
-          avatarId: typeof player.avatarId === 'number' ? player.avatarId : undefined,
-          capacity: player.capacity,
-          staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
-          isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,
-          lastHuntId: typeof player.lastHuntId === 'string' && player.lastHuntId ? player.lastHuntId : undefined,
-          hotbarJson: (player as any).hotbarConfigs !== undefined
-            ? JSON.stringify({
-                hotbar: Array.isArray((player as any).hotbar) ? (player as any).hotbar : [],
-                hotbarConfigs: (player as any).hotbarConfigs,
-              })
-            : Array.isArray((player as any).hotbar)
-            ? JSON.stringify((player as any).hotbar)
-            : undefined,
-          bestiaryKillsJson: finalBestiaryKillsJson,
-          trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
-            ? (player as any).trackedBestiaryId
-            : existing?.trackedBestiaryId ?? undefined,
-          bossPoints: Math.max(Number(existing?.bossPoints || 0), Number((player as any).bossPoints || 0)),
-          vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
-          promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
-          updatedAt: new Date(),
-        } as any,
-      });
-
-      if (typeof (player as any).magicLevel === 'number') {
-        await this.db.characterSkill.upsert({
-          where: {
-            characterId_skillId: {
-              characterId: player.characterId,
-              skillId: 7,
-            },
-          },
-          update: { value: (player as any).magicLevel },
-          create: {
-            characterId: player.characterId,
-            skillId: 7,
-            skillName: 'Magic Level',
-            value: (player as any).magicLevel,
-            tries: BigInt(0),
-          },
-        });
-      }
-
-      const skillsData = (player as any).skills;
-      if (Array.isArray(skillsData) && skillsData.length > 0) {
-        for (const sk of skillsData) {
-          if (typeof sk.skillId === 'number' && typeof sk.value === 'number') {
-            await this.db.characterSkill.upsert({
-              where: {
-                characterId_skillId: {
-                  characterId: player.characterId,
-                  skillId: sk.skillId,
-                },
+    return CharacterSaveLockManager.withLock(player.characterId, async () => {
+      try {
+        const existing = typeof this.db?.character?.findUnique === 'function'
+          ? await this.db.character.findUnique({
+              where: { id: player.characterId },
+              select: {
+                id: true,
+                level: true,
+                experience: true,
+                vocationName: true,
+                bestiaryKillsJson: true,
+                trackedBestiaryId: true,
+                bossPoints: true,
+                saveVersion: true,
+                lastSavedAt: true,
               },
-              update: {
-                value: sk.value,
-                tries: sk.tries !== undefined ? BigInt(sk.tries) : undefined,
-              },
-              create: {
-                characterId: player.characterId,
-                skillId: sk.skillId,
-                skillName: sk.skillName || 'Skill',
-                value: sk.value,
-                tries: sk.tries !== undefined ? BigInt(sk.tries) : BigInt(0),
-              },
-            });
+            })
+          : null;
+
+        const existingLevel = existing?.level ?? 1;
+        const existingExp = Number(existing?.experience ?? 0);
+        const playerExp = typeof player.experience === 'number' && player.experience >= 0 ? player.experience : 0;
+        const playerLevel = player.level || 1;
+
+        // Monotonic non-decreasing progress reconciliation
+        let effectiveExp = Math.max(playerExp, existingExp);
+        if (effectiveExp === 0) {
+          if (existingLevel > 1) {
+            effectiveExp = experienceForLevel(existingLevel);
+          } else if (!existing && playerLevel > 1) {
+            // Fallback only when character does not exist in DB (e.g. partial test mocks)
+            effectiveExp = experienceForLevel(playerLevel);
           }
         }
-      }
 
-    } catch (err: any) {
-      console.warn(`[PrismaPersistenceManager] Failed to save character ${player.characterId}:`, err.message);
-    }
+        // Authoritative level and stats derived strictly on the server from experience
+        const derivedLevel = Math.max(1, levelForExperience(effectiveExp));
+        const targetVoc = (player as any).vocationName || existing?.vocationName || 'Knight';
+        const derivedStats = calculateStatsForLevel(targetVoc, derivedLevel);
+
+        // Monotonic non-decreasing Bestiary Kills reconciliation
+        let existingBestiary: Record<string, number> = {};
+        if (existing?.bestiaryKillsJson) {
+          try {
+            existingBestiary = typeof existing.bestiaryKillsJson === 'string'
+              ? JSON.parse(existing.bestiaryKillsJson)
+              : existing.bestiaryKillsJson;
+          } catch {}
+        }
+        let playerBestiary: Record<string, number> = {};
+        const rawPlayerBestiary = (player as any).bestiaryKills;
+        if (rawPlayerBestiary) {
+          try {
+            playerBestiary = typeof rawPlayerBestiary === 'string'
+              ? JSON.parse(rawPlayerBestiary)
+              : rawPlayerBestiary;
+          } catch {}
+        }
+        const mergedBestiary: Record<string, number> = { ...existingBestiary };
+        for (const [k, v] of Object.entries(playerBestiary)) {
+          if (typeof v === 'number') {
+            mergedBestiary[k] = Math.max(Number(existingBestiary[k] || 0), v);
+          }
+        }
+        const finalBestiaryKillsJson = Object.keys(mergedBestiary).length > 0
+          ? JSON.stringify(mergedBestiary)
+          : existing?.bestiaryKillsJson ?? undefined;
+
+        const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
+        const currentVersion = (existing as any)?.saveVersion ?? 1;
+
+        await this.db.character.update({
+          where: { id: player.characterId },
+          data: {
+            level: derivedLevel,
+            experience: BigInt(Math.floor(effectiveExp)),
+            health: Math.max(0, Math.min(player.hp, derivedStats.maxHp)),
+            maxHealth: derivedStats.maxHp,
+            mana: Math.max(0, Math.min(player.mp, derivedStats.maxMana)),
+            maxMana: derivedStats.maxMana,
+            posX: isHuntMode ? 32369 : player.posX,
+            posY: isHuntMode ? 32241 : player.posY,
+            posZ: isHuntMode ? 7 : player.posZ,
+            direction: player.direction,
+            outfitLookType: player.outfitLookType,
+            outfit: player.outfit,
+            outfitHead: player.outfitHead,
+            outfitBody: player.outfitBody,
+            outfitLegs: player.outfitLegs,
+            outfitFeet: player.outfitFeet,
+            outfitAddons: player.outfitAddons,
+            mount: player.mount,
+            mountActive: player.mountActive,
+            avatarId: typeof player.avatarId === 'number' ? player.avatarId : undefined,
+            capacity: derivedStats.maxCap,
+            staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
+            isAutoIdle: typeof player.isAutoIdle === 'boolean' ? player.isAutoIdle : undefined,
+            lastHuntId: typeof player.lastHuntId === 'string' && player.lastHuntId ? player.lastHuntId : undefined,
+            hotbarJson: (player as any).hotbarConfigs !== undefined
+              ? JSON.stringify({
+                  hotbar: Array.isArray((player as any).hotbar) ? (player as any).hotbar : [],
+                  hotbarConfigs: (player as any).hotbarConfigs,
+                })
+              : Array.isArray((player as any).hotbar)
+              ? JSON.stringify((player as any).hotbar)
+              : undefined,
+            bestiaryKillsJson: finalBestiaryKillsJson,
+            trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
+              ? (player as any).trackedBestiaryId
+              : existing?.trackedBestiaryId ?? undefined,
+            bossPoints: Math.max(Number(existing?.bossPoints || 0), Number((player as any).bossPoints || 0)),
+            vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
+            promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
+            saveVersion: currentVersion + 1,
+            lastSavedAt: new Date(),
+            updatedAt: new Date(),
+          } as any,
+        });
+
+        if (typeof (player as any).magicLevel === 'number') {
+          await this.db.characterSkill.upsert({
+            where: {
+              characterId_skillId: {
+                characterId: player.characterId,
+                skillId: 7,
+              },
+            },
+            update: { value: (player as any).magicLevel },
+            create: {
+              characterId: player.characterId,
+              skillId: 7,
+              skillName: 'Magic Level',
+              value: (player as any).magicLevel,
+              tries: BigInt(0),
+            },
+          });
+        }
+
+        const skillsData = (player as any).skills;
+        if (Array.isArray(skillsData) && skillsData.length > 0) {
+          for (const sk of skillsData) {
+            if (typeof sk.skillId === 'number' && typeof sk.value === 'number') {
+              await this.db.characterSkill.upsert({
+                where: {
+                  characterId_skillId: {
+                    characterId: player.characterId,
+                    skillId: sk.skillId,
+                  },
+                },
+                update: {
+                  value: sk.value,
+                  tries: sk.tries !== undefined ? BigInt(sk.tries) : undefined,
+                },
+                create: {
+                  characterId: player.characterId,
+                  skillId: sk.skillId,
+                  skillName: sk.skillName || 'Skill',
+                  value: sk.value,
+                  tries: sk.tries !== undefined ? BigInt(sk.tries) : BigInt(0),
+                },
+              });
+            }
+          }
+        }
+
+      } catch (err: any) {
+        console.warn(`[PrismaPersistenceManager] Failed to save character ${player.characterId}:`, err.message);
+      }
+    });
   }
 
   /**
@@ -251,23 +269,26 @@ export class PrismaPersistenceManager {
     await Promise.allSettled(activePlayers.map((player) => this.saveCharacter(player)));
   }
 
+  private instanceTimer: NodeJS.Timeout | null = null;
+
   /**
-   * Starts a background periodic auto-save loop (defaults to 30,000 ms).
+   * Starts an instance-level periodic save loop (mainly used in testing / standalone mode).
+   * In production, ThaisCityRoom manages its own auto-save lifecycle via Colyseus room clock.
    */
   startPeriodicSave(playersProvider: () => Iterable<PlayerState>, intervalMs: number = 30000): void {
     this.stopPeriodicSave();
-    this.intervalTimer = setInterval(() => {
+    this.instanceTimer = setInterval(() => {
       void this.saveBatch(playersProvider());
     }, intervalMs);
   }
 
   /**
-   * Stops the periodic auto-save timer.
+   * Stops the instance-level periodic save timer.
    */
   stopPeriodicSave(): void {
-    if (this.intervalTimer) {
-      clearInterval(this.intervalTimer);
-      this.intervalTimer = null;
+    if (this.instanceTimer) {
+      clearInterval(this.instanceTimer);
+      this.instanceTimer = null;
     }
   }
 }

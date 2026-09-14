@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import { experienceForLevel, levelForExperience } from '../../domain/src/experience';
+import { calculateStatsForLevel } from '../../domain/src/party';
+import { CharacterSaveLockManager } from './characterSaveLock';
 
 export interface CreateCharacterInput {
   accountId: string;
@@ -358,7 +360,7 @@ export class CharacterService {
       outfitAddons?: number;
       mount?: string;
       mountActive?: boolean;
-      skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }>;
+      skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }> | Record<string, any>;
       inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
       hotbar?: any;
       hotbarConfigs?: any;
@@ -368,194 +370,248 @@ export class CharacterService {
       vocationName?: string;
       promotion?: string;
       avatarId?: number;
+      saveVersion?: number;
     }
   ) {
-    const updateData: any = {};
-    if (data.avatarId !== undefined) updateData.avatarId = data.avatarId;
-    if (data.outfit !== undefined) updateData.outfit = data.outfit;
-    if (data.outfitHead !== undefined) updateData.outfitHead = data.outfitHead;
-    if (data.outfitBody !== undefined) updateData.outfitBody = data.outfitBody;
-    if (data.outfitLegs !== undefined) updateData.outfitLegs = data.outfitLegs;
-    if (data.outfitFeet !== undefined) updateData.outfitFeet = data.outfitFeet;
-    if (data.outfitAddons !== undefined) updateData.outfitAddons = data.outfitAddons;
-    if (data.mount !== undefined) updateData.mount = data.mount;
-    if (data.mountActive !== undefined) updateData.mountActive = data.mountActive;
-    const existing = await this.prisma.character.findUnique({
-      where: { id: characterId },
-      select: { level: true, experience: true, bestiaryKillsJson: true, bossPoints: true },
-    });
+    return CharacterSaveLockManager.withLock(characterId, async () => {
+      const existing = await this.prisma.character.findUnique({
+        where: { id: characterId },
+        select: {
+          id: true,
+          level: true,
+          experience: true,
+          vocationName: true,
+          health: true,
+          mana: true,
+          bestiaryKillsJson: true,
+          bossPoints: true,
+          saveVersion: true,
+          lastSavedAt: true,
+        },
+      });
 
-    if (data.bestiaryKills !== undefined) {
-      let existingBestiary: Record<string, number> = {};
-      if (existing?.bestiaryKillsJson) {
-        try {
-          existingBestiary = typeof existing.bestiaryKillsJson === 'string'
-            ? JSON.parse(existing.bestiaryKillsJson)
-            : existing.bestiaryKillsJson;
-        } catch {}
+      // Anti-Replay: Reject or skip stale packets if incoming saveVersion is older than database
+      const currentVersion = (existing as any)?.saveVersion ?? 1;
+      if (typeof data.saveVersion === 'number' && data.saveVersion < currentVersion) {
+        return {
+          ...(existing as any),
+          skipped: true,
+          reason: `Stale saveVersion ${data.saveVersion} < current ${currentVersion}`,
+        };
       }
-      let incomingBestiary: Record<string, number> = {};
-      try {
-        incomingBestiary = typeof data.bestiaryKills === 'string'
-          ? JSON.parse(data.bestiaryKills)
-          : (data.bestiaryKills || {});
-      } catch {}
-      const mergedBestiary: Record<string, number> = { ...existingBestiary };
-      for (const [k, v] of Object.entries(incomingBestiary)) {
-        if (typeof v === 'number') {
-          mergedBestiary[k] = Math.max(Number(existingBestiary[k] || 0), v);
+
+      const updateData: any = {};
+      if (data.avatarId !== undefined) updateData.avatarId = data.avatarId;
+      if (data.outfit !== undefined) updateData.outfit = data.outfit;
+      if (data.outfitHead !== undefined) updateData.outfitHead = data.outfitHead;
+      if (data.outfitBody !== undefined) updateData.outfitBody = data.outfitBody;
+      if (data.outfitLegs !== undefined) updateData.outfitLegs = data.outfitLegs;
+      if (data.outfitFeet !== undefined) updateData.outfitFeet = data.outfitFeet;
+      if (data.outfitAddons !== undefined) updateData.outfitAddons = data.outfitAddons;
+      if (data.mount !== undefined) updateData.mount = data.mount;
+      if (data.mountActive !== undefined) updateData.mountActive = data.mountActive;
+
+      if (data.bestiaryKills !== undefined) {
+        let existingBestiary: Record<string, number> = {};
+        if (existing?.bestiaryKillsJson) {
+          try {
+            existingBestiary = typeof existing.bestiaryKillsJson === 'string'
+              ? JSON.parse(existing.bestiaryKillsJson)
+              : existing.bestiaryKillsJson;
+          } catch {}
         }
+        let incomingBestiary: Record<string, number> = {};
+        try {
+          incomingBestiary = typeof data.bestiaryKills === 'string'
+            ? JSON.parse(data.bestiaryKills)
+            : (data.bestiaryKills || {});
+        } catch {}
+        const mergedBestiary: Record<string, number> = { ...existingBestiary };
+        for (const [k, v] of Object.entries(incomingBestiary)) {
+          if (typeof v === 'number') {
+            mergedBestiary[k] = Math.max(Number(existingBestiary[k] || 0), v);
+          }
+        }
+        updateData.bestiaryKillsJson = JSON.stringify(mergedBestiary);
       }
-      updateData.bestiaryKillsJson = JSON.stringify(mergedBestiary);
-    }
-    if (data.trackedBestiaryId !== undefined) {
-      updateData.trackedBestiaryId = data.trackedBestiaryId;
-    }
-    if (data.bossPoints !== undefined) {
-      updateData.bossPoints = Math.max(Number(existing?.bossPoints || 0), Number(data.bossPoints || 0));
-    }
-    if (data.level !== undefined || data.experience !== undefined) {
+      if (data.trackedBestiaryId !== undefined) {
+        updateData.trackedBestiaryId = data.trackedBestiaryId;
+      }
+      if (data.bossPoints !== undefined) {
+        updateData.bossPoints = Math.max(Number(existing?.bossPoints || 0), Number(data.bossPoints || 0));
+      }
+
+      // Authoritative Level and Experience reconciliation
       const existingLevel = existing?.level ?? 1;
       const existingExp = Number(existing?.experience ?? 0);
       const incomingExp = data.experience !== undefined ? Number(data.experience) : existingExp;
-      const incomingLevel = data.level !== undefined ? data.level : existingLevel;
 
       const isDeath = (data as any).isDeathPenalty === true;
       let targetExp = incomingExp;
-      let targetLevel = incomingLevel;
 
       if (!isDeath) {
         targetExp = Math.max(incomingExp, existingExp);
-        if (targetExp === 0) {
-          targetExp = Math.max(experienceForLevel(incomingLevel), experienceForLevel(existingLevel));
+        if (targetExp === 0 && existingLevel > 1) {
+          targetExp = experienceForLevel(existingLevel);
         }
-        targetLevel = Math.max(incomingLevel, existingLevel);
-      } else {
-        targetLevel = Math.max(1, incomingLevel);
+
+        // Sanity Check: Delta XP vs Time elapsed
+        const deltaExp = targetExp - existingExp;
+        if (deltaExp > 0 && !(data as any).isManualAdminGrant) {
+          const now = Date.now();
+          const lastSavedMs = (existing as any)?.lastSavedAt ? new Date((existing as any).lastSavedAt).getTime() : (now - 5000);
+          const elapsedSeconds = Math.max(1, (now - lastSavedMs) / 1000);
+          const maxAllowedDelta = Math.max(50_000, elapsedSeconds * 25_000);
+          if (deltaExp > maxAllowedDelta) {
+            throw new Error(`Suspicious XP gain: +${deltaExp} XP in ${elapsedSeconds.toFixed(1)}s exceeds safety cap.`);
+          }
+        }
       }
+
+      // Authoritatively derive level from calculated XP
+      const derivedLevel = levelForExperience(targetExp);
+      const targetLevel = isDeath ? Math.max(1, derivedLevel) : Math.max(existingLevel, derivedLevel);
 
       updateData.level = targetLevel;
       updateData.experience = BigInt(Math.floor(targetExp));
-    }
-    if (data.health !== undefined) updateData.health = data.health;
-    if (data.maxHealth !== undefined) updateData.maxHealth = data.maxHealth;
-    if (data.mana !== undefined) updateData.mana = data.mana;
-    if (data.maxMana !== undefined) updateData.maxMana = data.maxMana;
-    if (data.capacity !== undefined) updateData.capacity = data.capacity;
-    if (data.posX !== undefined) updateData.posX = data.posX;
-    if (data.posY !== undefined) updateData.posY = data.posY;
-    if (data.posZ !== undefined) updateData.posZ = data.posZ;
-    if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
-    if (data.hotbar !== undefined || data.hotbarConfigs !== undefined) {
-      if (data.hotbarConfigs !== undefined) {
-        updateData.hotbarJson = JSON.stringify({
-          hotbar: Array.isArray(data.hotbar) ? data.hotbar : [],
-          hotbarConfigs: data.hotbarConfigs,
-        });
-      } else {
-        updateData.hotbarJson = typeof data.hotbar === 'string' ? data.hotbar : JSON.stringify(data.hotbar);
-      }
-    }
-    if (data.vocationName !== undefined) {
-      updateData.vocationName = data.vocationName;
-      const VOC_ID_MAP: Record<string, number> = { sorcerer: 1, 'master sorcerer': 1, druid: 2, 'elder druid': 2, paladin: 3, 'royal paladin': 3, knight: 4, 'elite knight': 4 };
-      const vocId = VOC_ID_MAP[data.vocationName.toLowerCase()];
-      if (vocId) updateData.vocationId = vocId;
-    }
-    if (data.promotion !== undefined) updateData.promotion = data.promotion;
 
-    // Update skills if provided
-    let skillList: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }> = [];
-    if (Array.isArray(data.skills)) {
-      skillList = data.skills;
-    } else if (data.skills && typeof data.skills === 'object') {
-      const SKILL_MAP: Record<string, { skillId: number; skillName: string }> = {
-        fist: { skillId: 0, skillName: 'Fist Fighting' },
-        club: { skillId: 1, skillName: 'Club Fighting' },
-        sword: { skillId: 2, skillName: 'Sword Fighting' },
-        axe: { skillId: 3, skillName: 'Axe Fighting' },
-        distance: { skillId: 4, skillName: 'Distance Fighting' },
-        shielding: { skillId: 5, skillName: 'Shielding' },
-        fishing: { skillId: 6, skillName: 'Fishing' },
-        magiclevel: { skillId: 7, skillName: 'Magic Level' },
-        magic: { skillId: 7, skillName: 'Magic Level' },
-      };
-      for (const [key, rawVal] of Object.entries(data.skills)) {
-        const meta = SKILL_MAP[key.toLowerCase()];
-        if (meta) {
-          const val = typeof rawVal === 'number' ? rawVal : typeof (rawVal as any)?.value === 'number' ? (rawVal as any).value : 10;
-          const tries = typeof (rawVal as any)?.tries === 'number' || typeof (rawVal as any)?.tries === 'bigint' ? BigInt((rawVal as any).tries) : undefined;
-          skillList.push({ skillId: meta.skillId, skillName: meta.skillName, value: val, tries });
+      // Authoritatively recalculate derived attributes
+      const targetVoc = data.vocationName || existing?.vocationName || 'Knight';
+      const derivedStats = calculateStatsForLevel(targetVoc, targetLevel);
+
+      updateData.maxHealth = derivedStats.maxHp;
+      updateData.maxMana = derivedStats.maxMana;
+      updateData.capacity = derivedStats.maxCap;
+
+      if (data.health !== undefined) {
+        updateData.health = Math.max(0, Math.min(data.health, derivedStats.maxHp));
+      }
+      if (data.mana !== undefined) {
+        updateData.mana = Math.max(0, Math.min(data.mana, derivedStats.maxMana));
+      }
+
+      if (data.posX !== undefined) updateData.posX = data.posX;
+      if (data.posY !== undefined) updateData.posY = data.posY;
+      if (data.posZ !== undefined) updateData.posZ = data.posZ;
+      if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
+      if (data.hotbar !== undefined || data.hotbarConfigs !== undefined) {
+        if (data.hotbarConfigs !== undefined) {
+          updateData.hotbarJson = JSON.stringify({
+            hotbar: Array.isArray(data.hotbar) ? data.hotbar : [],
+            hotbarConfigs: data.hotbarConfigs,
+          });
+        } else {
+          updateData.hotbarJson = typeof data.hotbar === 'string' ? data.hotbar : JSON.stringify(data.hotbar);
         }
       }
-    }
+      if (data.vocationName !== undefined) {
+        updateData.vocationName = data.vocationName;
+        const VOC_ID_MAP: Record<string, number> = { sorcerer: 1, 'master sorcerer': 1, druid: 2, 'elder druid': 2, paladin: 3, 'royal paladin': 3, knight: 4, 'elite knight': 4 };
+        const vocId = VOC_ID_MAP[data.vocationName.toLowerCase()];
+        if (vocId) updateData.vocationId = vocId;
+      }
+      if (data.promotion !== undefined) updateData.promotion = data.promotion;
 
-    const executeMutations = async (tx: any) => {
-      if (skillList.length > 0) {
-        for (const sk of skillList) {
-          const safeTries = sk.tries !== undefined
-            ? (typeof sk.tries === 'bigint' ? sk.tries : BigInt(Math.floor(Number(sk.tries))))
-            : undefined;
+      // Monotonic Versioning and Server Timestamp
+      (updateData as any).saveVersion = currentVersion + 1;
+      (updateData as any).lastSavedAt = new Date();
 
-          await tx.characterSkill.upsert({
-            where: {
-              characterId_skillId: {
+      // Update skills if provided
+      let skillList: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }> = [];
+      if (Array.isArray(data.skills)) {
+        skillList = data.skills;
+      } else if (data.skills && typeof data.skills === 'object') {
+        const SKILL_MAP: Record<string, { skillId: number; skillName: string }> = {
+          fist: { skillId: 0, skillName: 'Fist Fighting' },
+          club: { skillId: 1, skillName: 'Club Fighting' },
+          sword: { skillId: 2, skillName: 'Sword Fighting' },
+          axe: { skillId: 3, skillName: 'Axe Fighting' },
+          distance: { skillId: 4, skillName: 'Distance Fighting' },
+          shielding: { skillId: 5, skillName: 'Shielding' },
+          fishing: { skillId: 6, skillName: 'Fishing' },
+          magiclevel: { skillId: 7, skillName: 'Magic Level' },
+          magic: { skillId: 7, skillName: 'Magic Level' },
+        };
+        for (const [key, rawVal] of Object.entries(data.skills)) {
+          const meta = SKILL_MAP[key.toLowerCase()];
+          if (meta) {
+            const val = typeof rawVal === 'number' ? rawVal : typeof (rawVal as any)?.value === 'number' ? (rawVal as any).value : 10;
+            const tries = typeof (rawVal as any)?.tries === 'number' || typeof (rawVal as any)?.tries === 'bigint' ? BigInt((rawVal as any).tries) : undefined;
+            skillList.push({ skillId: meta.skillId, skillName: meta.skillName, value: val, tries });
+          }
+        }
+      }
+
+      const executeMutations = async (tx: any) => {
+        if (skillList.length > 0) {
+          for (const sk of skillList) {
+            const safeTries = sk.tries !== undefined
+              ? (typeof sk.tries === 'bigint' ? sk.tries : BigInt(Math.floor(Number(sk.tries))))
+              : undefined;
+
+            await tx.characterSkill.upsert({
+              where: {
+                characterId_skillId: {
+                  characterId,
+                  skillId: sk.skillId,
+                },
+              },
+              update: {
+                value: sk.value,
+                tries: safeTries !== undefined ? safeTries : undefined,
+              },
+              create: {
                 characterId,
                 skillId: sk.skillId,
+                skillName: sk.skillName,
+                value: sk.value,
+                tries: safeTries !== undefined ? safeTries : BigInt(0),
               },
-            },
-            update: {
-              value: sk.value,
-              tries: safeTries !== undefined ? safeTries : undefined,
-            },
-            create: {
-              characterId,
-              skillId: sk.skillId,
-              skillName: sk.skillName,
-              value: sk.value,
-              tries: safeTries !== undefined ? safeTries : BigInt(0),
-            },
-          });
+            });
+          }
         }
-      }
 
-      // Update inventory items if provided
-      if (data.inventory !== undefined) {
-        await tx.inventoryItem.deleteMany({
-          where: { characterId },
-        });
-        if (data.inventory.length > 0) {
-          await tx.inventoryItem.createMany({
-            data: data.inventory.map((eq) => ({
+        // Update inventory items if provided with validation
+        if (data.inventory !== undefined) {
+          await tx.inventoryItem.deleteMany({
+            where: { characterId },
+          });
+          const sanitizedItems = data.inventory
+            .filter((eq) => typeof eq.serverId === 'number' && eq.serverId > 0)
+            .map((eq) => ({
               characterId,
-              slot: eq.slot,
+              slot: eq.slot || 'backpack',
               serverId: eq.serverId,
-              name: eq.name,
-              count: eq.count,
+              name: eq.name || 'Item',
+              count: Math.max(1, Math.min(10000, Number(eq.count || 1))),
               tier: 0,
-            })),
-          });
+            }));
+          if (sanitizedItems.length > 0) {
+            await tx.inventoryItem.createMany({
+              data: sanitizedItems,
+            });
+          }
         }
+
+        return tx.character.update({
+          where: { id: characterId },
+          data: updateData,
+          include: {
+            skills: true,
+            inventory: true,
+            spells: true,
+          },
+        });
+      };
+
+      if (typeof (this.prisma as any).$transaction === 'function') {
+        return (this.prisma as any).$transaction(executeMutations, {
+          maxWait: 10000,
+          timeout: 20000,
+        });
       }
-
-      return tx.character.update({
-        where: { id: characterId },
-        data: updateData,
-        include: {
-          skills: true,
-          inventory: true,
-          spells: true,
-        },
-      });
-    };
-
-    if (typeof (this.prisma as any).$transaction === 'function') {
-      return (this.prisma as any).$transaction(executeMutations, {
-        maxWait: 10000,
-        timeout: 20000,
-      });
-    }
-    return executeMutations(this.prisma);
+      return executeMutations(this.prisma);
+    });
   }
 
   async calculateOfflineProgress(characterId: string): Promise<{ offlineSeconds: number; triesGained: number } | null> {

@@ -61,6 +61,8 @@ model Character {
   townId         Int              @default(1) // Thais
   isOnline       Boolean          @default(false)
   lastLogin      DateTime?
+  saveVersion    Int              @default(1)
+  lastSavedAt    DateTime         @default(now())
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 

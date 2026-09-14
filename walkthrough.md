@@ -1,65 +1,70 @@
-# Walkthrough - Phase 158: Suporte à Vocação 'None' e Seleção de Gênero (Masculino / Feminino) na Criação
+# Walkthrough - Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite
 
 ## 🎯 Resumo da Entrega
 
-Nesta fase, resolvemos a causa raiz do erro de entrada no jogo (`Missing vocation None.`) e implementamos a seleção completa e persistente de sexo/gênero (**♂ Masculino / ♀ Feminino**) na criação de personagens.
+A **Phase 167 (Bloco 1)** foi concluída com êxito total, implementando com rigor as proteções, o determinismo de persistência e a resiliência de banco alinhados entre a equipe e o revisor sênior:
+
+1. **Derivação Autoritativa de Nível e Atributos no Servidor:**
+   - O servidor não aceita mais `level` arbitrário enviado pelo cliente no payload HTTP `/save` nem no estado da sala.
+   - O nível é derivado exclusivamente da experiência acumulada via `levelForExperience(exp)`.
+   - Stats derivados (`maxHealth`, `maxMana`, `capacity`) são calculados com base na vocação e no nível legítimo via `calculateStatsForLevel(vocation, level)`, impedindo atributos inflados.
+
+2. **Versionamento Monotônico e Anti-Replay (`saveVersion` & `lastSavedAt`):**
+   - Adicionados `saveVersion Int @default(1)` e `lastSavedAt DateTime @default(now())` no modelo `Character` do Prisma (`prisma/schema.prisma`).
+   - Sincronizado o schema no SQLite (`prisma/dev.db`) sem alterar contas ou histórico de jogadores.
+   - Pacotes desatualizados que chegam fora de ordem por jitter de rede são descartados com segurança (`skipped: true`), prevenindo regressões de estado e replay attacks.
+   - Todo salvamento bem-sucedido incrementa monotonicamente `saveVersion = currentVersion + 1`.
+
+3. **Mutex Atômico por Personagem (`CharacterSaveLockManager`):**
+   - Criado gerenciador de locks em memória em `packages/auth/src/characterSaveLock.ts` exportado em `packages/auth/src/index.ts`.
+   - Serializa atomicamente gravações para o mesmo `characterId`, eliminando dirty writes e concorrência descontrolada entre chamadas HTTP (`/api/characters/[id]/save`) e o autosave periódico da sala Colyseus.
+   - Operações em personagens distintos continuam paralelas e independentes.
+
+4. **Isolamento de Autosave Multi-Sala no Colyseus e Graceful Teardown:**
+   - Eliminado o timer estático global de `PrismaPersistenceManager.ts`.
+   - Cada instância de `ThaisCityRoom` gerencia seu próprio timer de autosave usando o clock da sala (`this.clock.setInterval`).
+   - Adicionada flag anti-encavalamento (`activeSavePromise`) para evitar que ciclos de salvamento se sobreponham.
+   - Implementado teardown gracioso no `onDispose` da sala, aguardando gravações ativas em voo antes de executar o salvamento final.
+
+5. **Proteção e Autenticação HTTP Basic no Monitor Colyseus (`/colyseus`):**
+   - Implementado middleware `colyseusMonitorAuthMiddleware` em `packages/server/src/server.ts`.
+   - Retorna `401 Unauthorized` com cabeçalho `WWW-Authenticate: Basic realm="Colyseus Monitor"` quando acessado sem credenciais válidas.
+   - Se `ENABLE_COLYSEUS_MONITOR=false` ou em produção sem senha configurada (`COLYSEUS_MONITOR_PASS`), responde `404 Not Found`.
+
+6. **Script Determinístico de Backup SQLite WAL-Safe (`scripts/backup-sqlite.mjs`):**
+   - Implementado snapshot atômico a quente usando o comando nativo `VACUUM INTO 'backups/backup-<timestamp>.db'`, seguro mesmo com o banco em modo WAL e com jogadores conectados.
+   - Validação imediata com `PRAGMA integrity_check` garantindo que o arquivo gerado está íntegro (`ok`).
+   - Rotação automática mantendo os últimos 10 snapshots.
+   - Atalho adicionado em `package.json`: `npm run db:backup`.
 
 ---
 
-## 🛠️ Modificações Realizadas
+## 🛠️ Arquivos Modificados e Criados
 
-### 1. Suporte Seguro à Vocação 'None' no Domínio
-- **`packages/domain/src/party.ts`**:
-  - Definida e exportada a constante `NONE_VOCATION_DEFINITION: VocationDefinition` com id 0, multiplicadores e ganhos neutros.
-  - Atualizado `vocationFor(content, name)` para retornar `NONE_VOCATION_DEFINITION` de forma segura sempre que `name === 'None' || !name`, prevenindo exceções durante `deriveStats`.
-  - Adicionado fallback seguro em `starterFor` para quando `content.starterLoadouts` estiver vazio.
-  - Atualizada `calculateStatsForLevel` para calcular stats autênticos de personagens sem vocação.
-
-### 2. Persistência Permanente de Sexo/Gênero no Prisma (MMORPG State Rule 5)
-- **`prisma/schema.prisma`**:
-  - Adicionada a coluna `gender String @default("male")` à tabela `Character`.
-  - Sincronizado o schema com o banco SQLite (`prisma db push`) e gerado o Prisma Client (`prisma generate`).
-
-### 3. Backend e Starter Outfits por Gênero
-- **`packages/auth/src/characterService.ts`**:
-  - Adicionado `gender?: 'male' | 'female'` em `CreateCharacterInput`.
-  - Criada função `getStarterLookType(vocationId, gender)` para atribuir o visual canônico correspondente:
-    - **None (0):** Citizen Male = 128 | Citizen Female = 136
-    - **Sorcerer / Druid (1, 2):** Mage Male = 130 | Mage Female = 138
-    - **Paladin (3):** Hunter Male = 129 | Hunter Female = 137
-    - **Knight (4):** Knight Male = 131 | Knight Female = 139
-  - Persistido `gender` e `outfitLookType` na criação no banco.
-- **`app/api/characters/route.ts`**:
-  - Rota `POST /api/characters`: recebe `gender` do cliente e repassa ao serviço.
-  - Rota `GET /api/characters`: retorna `gender` de cada personagem.
-
-### 4. Interface com Seletor de Sexo/Gênero e Badges na Lista
-- **`apps/web/components/auth/TibiaAuthCharacterModal.tsx`**:
-  - Adicionado estado `charGender: 'male' | 'female'` com toggle estilizado na criação:
-    - **♂ Masculino** (destaque azul)
-    - **♀ Feminino** (destaque rosa)
-  - Cards de personagens na lista exibem badges coloridas indicando o gênero (`♂ Masculino` ou `♀ Feminino`).
-  - Enviado `gender: charGender` na requisição `POST /api/characters`.
-
-### 5. Suporte no Game Prototype
-- **`apps/web/components/GamePrototype.tsx`**:
-  - Mapeado `0: 'None'` em `VOCATION_MAP`.
-  - Ao carregar o personagem, passa o `gender` recuperado para `createCharacter`.
-  - Mapeados lookTypes femininos (136, 137, 138, 139) em `LOOKTYPE_NAME_MAP`.
-  - No modal de escolha de vocação (Nível 8+), define o lookType e outfit corretos de acordo com o sexo do personagem.
+| Arquivo | Componente / Responsabilidade | Modificação |
+|---|---|---|
+| `prisma/schema.prisma` | Banco de Dados / Prisma | Adicionados `saveVersion` e `lastSavedAt` no modelo `Character`. |
+| `packages/auth/src/characterSaveLock.ts` | Auth / Concorrência | Mutex in-memory por `characterId` via `CharacterSaveLockManager`. |
+| `packages/auth/src/characterService.ts` | Auth / Lógica de Personagem | Anti-replay, derivação autoritativa por XP e lock atômico. |
+| `packages/auth/src/index.ts` | Auth / Exportações | Exportado `CharacterSaveLockManager`. |
+| `app/api/characters/[id]/save/route.ts` | API HTTP Next.js | Repassa `saveVersion` e trata pacotes com status `skipped`. |
+| `packages/server/src/persistence/PrismaPersistenceManager.ts` | Server / Persistência | Derivação autoritativa de stats/nível, mutex e suporte a batch por sala. |
+| `packages/server/src/rooms/ThaisCityRoom.ts` | Server / Colyseus Room | Autosave local isolado via room clock, `activeSavePromise` e `onDispose` gracioso. |
+| `packages/server/src/server.ts` | Server / HTTP & Colyseus | Middleware de Basic Auth e 404 guard em `/colyseus`. |
+| `scripts/backup-sqlite.mjs` | Scripts / Backup WAL | Script atômico com `VACUUM INTO` e validação com `PRAGMA integrity_check`. |
+| `package.json` | Configuração do Projeto | Adicionado script `npm run db:backup`. |
+| `tests/block1-security-and-multi-room-persistence.test.ts` | Testes Automatizados | 11 testes cobrindo derivação de nível, versionamento, mutex, salas e backup. |
 
 ---
 
 ## 🧪 Validação dos Testes
 
-1. **Vitest Test Suite:**
-   - Suíte `tests/phase158-vocation-none-and-character-gender.test.ts` criada e aprovada (8/8 testes).
-   - Testes de regressão executados:
-     - `phase158-vocation-none-and-character-gender.test.ts`: 8/8 aprovados
-     - `phase76-vocation-choice-level8.test.ts`: 5/5 aprovados
-     - `phase154-outfit-preview-save-and-walking-animation.test.ts`: 7/7 aprovados
-     - `phase135-outfit-mount-persistence-and-city-sync.test.ts`: 5/5 aprovados
-     - `phase157-session-duplicate-and-logout.test.ts`: 13/13 aprovados
-     - **Resultado:** 38/38 testes aprovados (100%).
-2. **TypeScript Typecheck:**
-   - `tsc --noEmit --incremental false`: **0 erros de tipagem**.
+- **Suíte Dedicada do Bloco 1 (`tests/block1-security-and-multi-room-persistence.test.ts`):** 11/11 aprovados (100%).
+- **Regressão de Persistência e Auth:**
+  - `tests/phase46-postgresql-persistence-reconnection-e2e.test.ts`: 3/3 aprovados.
+  - `tests/auth-foundation.test.ts`: 10/10 aprovados.
+  - `tests/phase128-autosave-mutex-and-sprite-resilience.test.ts`: 7/7 aprovados.
+  - `tests/phase116-auth-security-and-idle-pose.test.ts`: 8/8 aprovados.
+  - `tests/phase68-death-penalty-and-modal.test.ts`: 6/6 aprovados.
+- **Checagem de Tipos TypeScript (`npm run typecheck`):** 0 erros no monorepo completo.
+- **Servidor Dev:** Ativo e saudável na porta 3000 (`GET /api/config 200 in 5ms`).

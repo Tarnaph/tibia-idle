@@ -10,3 +10,4 @@ export * from './password';
 export * from './jwt';
 export * from './accountService';
 export * from './characterService';
+export * from './characterSaveLock';

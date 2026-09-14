@@ -3134,8 +3134,65 @@ Plans:
 **Plans:**
 - [x] 164-01-PLAN: Sistema de Treino nos Dummies de Thais, Alocação Dinâmica de Vagas (Melee/Ranged), HUD com Tempo Restante e Velocidade Urbana de 500 Speed.
 
+- Resumo de entrega: `.planning/phases/phase-164-thais-dummies-training-and-city-speed/164-SUMMARY.md`
 
+### Phase 165: Sistema Autêntico de Animações de Treino (Exercise Weapons & Dummies), Projéteis Vocacionais, Efeitos de Impacto e Suporte Extensível a Dummies Residenciais
 
+**Goal**: Implementar a camada visual autêntica e dinâmica de combate nos training dummies de Thais (e futuros dummies residenciais compráveis): orientação corporal automática voltada para o dummy, pulso de animação de golpe/ataque a cada tick, disparo de projéteis específicos por vocação (flechas para paladins, esferas elementais para sorcerers e druids, corte físico para knights), efeitos sonoros/visuais de impacto (`CONST_ME_HITAREA`, `CONST_ME_FIREATTACK`, etc.) com carregamento confiável de texturas no PixiJS, sincronização multiplayer na sala Colyseus e modelo de dados extensível para dummies de casas (`31827-31833` do realmap11).  
+**Depends on**: Phase 164  
+**Requirements**:
+1. Orientação corporal automática: personagem vira o corpo (`directionBetween`) em direção ao dummy alocado assim que atinge a posição de treino.
+2. Pulso de animação de ataque: a cada tick de treino (~2s), o personagem executa uma pose de golpe/disparo (alternância de frame de ação) em vez de permanecer estático.
+3. Projéteis e efeitos vocacionais autênticos do `realmap11` (`exercise_training.lua`):
+   - Knights: impacto físico `CONST_ME_HITAREA` (Efeito ID 10) diretamente no dummy.
+   - Paladins: projétil de flecha `CONST_ANI_ARROW` (Missile ID 3) ou `CONST_ANI_SIMPLEARROW` (54) voando do jogador ao dummy, seguido de `CONST_ME_HITAREA` (10) no dummy.
+   - Sorcerers: projétil de fogo/energia `CONST_ANI_FIRE` (4) ou `CONST_ANI_ENERGY` (5) com impacto `CONST_ME_HITBYFIRE` (16) ou `CONST_ME_ENERGYHIT` (12) no dummy.
+   - Druids: projétil de gelo/energia `CONST_ANI_ICE` (29) ou `CONST_ANI_ENERGY` (5) com impacto `CONST_ME_ICEATTACK` (44) ou `CONST_ME_ENERGYHIT` (12) no dummy.
+4. Carregamento dinâmico e confiável das texturas dos projéteis e efeitos em `ThaisCityArena.tsx` sem depender do atlas restrito de magias.
+5. Arquitetura extensível para Dummies Residenciais (House Dummies): suporte aos itens `31827` (exercise dummy), `31828/31829` (ferumbras), `31830/31831` (demon), `31832/31833` (monk) e `5787` (Thais dummy) através de registro centralizado reutilizável.
+6. Sincronização multiplayer dos eventos de treino em `ThaisCityRoom.ts`, permitindo que outros jogadores na cidade vejam os projéteis e impactos.
+7. Testes unitários com Vitest e 0 erros de TypeScript (`npm run typecheck`).
+
+**Plans:**
+- [x] 165-01-PLAN: Animações de Ataque, Projéteis Vocacionais, Efeitos de Impacto nos Dummies e Arquitetura para Dummies de Casas.
+
+- Resumo de entrega: `.planning/phases/phase-165-exercise-training-visuals-and-house-dummies/165-SUMMARY.md`
+
+### Phase 166: Reestruturação do Squad (Formação Fila Indiana na Cidade, Níveis 70/150/200, 1 Vocação por Slot, Auto-Login Direto e Treino Contínuo no Dummy)
+
+**Goal**: Implementar a reestruturação do Squad e do fluxo de entrada: avanço direto para o jogo ao logar (pulando a tela de seleção, acessível via logout); limite estrito de 1 vocação de cada no Squad de 4 membros; novos níveis de desbloqueio de slots (Slot 2 no Lvl 70, Slot 3 no Lvl 150, Slot 4 no Lvl 200); formação em fila indiana organizada na cidade de Thais (Slot 2 segue Slot 1, Slot 3 segue Slot 2, Slot 4 segue Slot 3) com opção de ligar/desligar acompanhamento; e correção do fluxo de treino para ir direto ao dummy e começar a treinar sem parada intermediária nem clique duplo.  
+**Depends on**: Phase 165  
+**Requirements**:
+1. Login direto e bypass da tela de seleção: ao logar ou abrir o jogo autenticado, entrar diretamente no personagem principal. A tela de seleção com lista fica restrita ao botão de Logout/Trocar Personagem.
+2. Na tela externa inicial, permitir criar apenas o 1º personagem da conta caso não exista nenhum. Criação do 2º ao 6º personagem é administrada in-game pela janela de Squad.
+3. Squad com regra estrita de 1 vocação por slot (máximo 4 membros, sem vocações repetidas).
+4. Novos níveis de desbloqueio de slots do Squad: Slot 2 (Nível 70), Slot 3 (Nível 150), Slot 4 (Nível 200).
+5. Acompanhamento do Squad na cidade de Thais em fila indiana (Slot 2 segue 1, Slot 3 segue 2, Slot 4 segue 3) com botão de ativar/desativar na janela de Squad.
+6. Treino contínuo no dummy: rota calculada diretamente do ponto atual até o tile ideal do dummy com início imediato do treino no mesmo clique.
+7. Testes unitários com Vitest e 0 erros de TypeScript (`npm run typecheck`).
+
+**Plans:**
+- [x] 166-01-PLAN: Auto-Login Direto, Regras do Squad (1 Vocação por Slot, Níveis 70/150/200), Fila Indiana em Thais e Treino Direto no Dummy.
+
+- Resumo de entrega: `.planning/phases/phase-166-squad-formation-progression-and-city-training/166-SUMMARY.md`
+
+### Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite
+
+**Goal**: Implementar blindagem contra adulteração de progresso (derivação de nível por XP, validação de transições de inventário, rate-limiting de XP e mutex/versionamento atômico por personagem), isolar o ciclo de vida de autosave por sala com graceful shutdown no Colyseus, proteger o endpoint /colyseus com HTTP Basic Auth / 404, e implementar script determinístico de backup a quente do SQLite em modo WAL via VACUUM INTO com integridade verificada.  
+**Depends on**: Phase 166  
+**Requirements**:
+1. Derivação autoritativa no servidor: o nível gravado no banco é calculado exclusivamente a partir da experiência acumulada (`calculateLevelFromExperience`), sem aceitar level arbitrário vindo do cliente.
+2. Versionamento e proteção de concorrência por personagem: adicionar `saveVersion` incremental e lock em memória por `characterId` prevenindo dirty writes e replay attacks.
+3. Validação de sanidade para homologação fechada: validar ganho de XP contra teto teórico plausível e checar consistência de transições de itens no inventário.
+4. Persistência multi-sala isolada: eliminar timer estático único do `PrismaPersistenceManager`, implementar temporizador individual no `ThaisCityRoom` (`this.clock.setInterval`) e gerenciar graceful shutdown no `onDispose` aguardando gravações ativas.
+5. Proteção do monitor Colyseus: retornar 404 quando desativado e 401 Unauthorized sem credenciais válidas.
+6. Backup a quente do SQLite: script determinístico `scripts/backup-sqlite.mjs` com `VACUUM INTO` seguro para WAL e teste de integridade.
+7. Testes em banco isolado (`test.db`) e 0 erros de TypeScript (`npm run typecheck`).
+
+**Plans:**
+- [x] 167-01-PLAN: Schema Prisma (saveVersion/lastSavedAt), Validação Autoritativa de Save, Multi-Room Autosave Isolado, Proteção Colyseus e Backup SQLite.
+
+- Resumo de entrega: `.planning/phases/phase-167-security-multi-room-persistence-and-sqlite-backup/167-SUMMARY.md`
 
 
 

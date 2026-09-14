@@ -56,6 +56,46 @@ export interface JoinOptions {
 
 export class ThaisCityRoom extends Room<WorldState> {
   maxClients = 100;
+  private autoSaveTimer: any = null;
+  private activeSavePromise: Promise<void> | null = null;
+  private isDisposed: boolean = false;
+
+  private setupRoomAutoSave(intervalMs: number) {
+    if (this.autoSaveTimer) {
+      if (typeof this.autoSaveTimer.clear === 'function') {
+        this.autoSaveTimer.clear();
+      } else {
+        clearInterval(this.autoSaveTimer);
+      }
+      this.autoSaveTimer = null;
+    }
+
+    if (this.clock && typeof this.clock.setInterval === 'function') {
+      this.autoSaveTimer = this.clock.setInterval(() => {
+        void this.performRoomAutoSave();
+      }, intervalMs);
+    } else {
+      this.autoSaveTimer = setInterval(() => {
+        void this.performRoomAutoSave();
+      }, intervalMs);
+    }
+  }
+
+  private async performRoomAutoSave(): Promise<void> {
+    if (this.isDisposed) return;
+    if (this.activeSavePromise) {
+      return;
+    }
+
+    try {
+      this.activeSavePromise = persistenceManager.saveBatch(this.state.players.values());
+      await this.activeSavePromise;
+    } catch (err: any) {
+      console.warn(`[ThaisCityRoom] Auto-save cycle warning:`, err?.message || err);
+    } finally {
+      this.activeSavePromise = null;
+    }
+  }
 
   onCreate(options: any) {
     this.setState(new WorldState());
@@ -67,11 +107,11 @@ export class ThaisCityRoom extends Room<WorldState> {
     // Apply dynamic server config rates and listen for changes in real-time (default 20000ms auto-save)
     const defaultSaveIntervalMs = 20000;
     this.maxClients = serverConfigManager.getConfig().maxClientsPerRoom;
-    persistenceManager.startPeriodicSave(() => this.state.players.values(), serverConfigManager.getConfig().periodicSaveIntervalMs || defaultSaveIntervalMs);
+    this.setupRoomAutoSave(serverConfigManager.getConfig().periodicSaveIntervalMs || defaultSaveIntervalMs);
 
     void serverConfigManager.loadFromDatabase().then((loadedConfig) => {
       this.maxClients = loadedConfig.maxClientsPerRoom;
-      persistenceManager.startPeriodicSave(() => this.state.players.values(), loadedConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
+      this.setupRoomAutoSave(loadedConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
       try {
         if (this.clients && this.clients.length > 0) {
           this.broadcast('server:config', loadedConfig);
@@ -81,7 +121,7 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     serverConfigManager.onChange((newConfig) => {
       this.maxClients = newConfig.maxClientsPerRoom;
-      persistenceManager.startPeriodicSave(() => this.state.players.values(), newConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
+      this.setupRoomAutoSave(newConfig.periodicSaveIntervalMs || defaultSaveIntervalMs);
       try {
         if (this.clients && this.clients.length > 0) {
           this.broadcast('server:config', newConfig);
@@ -476,6 +516,26 @@ export class ThaisCityRoom extends Room<WorldState> {
         void persistenceManager.saveCharacter(player);
       }
     });
+
+    this.onMessage('training:action', (client, data: { style?: string; effectId?: number; projectileId?: number | null; dummyPos?: { x: number; y: number; z: number } }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player || player.inHunt) return;
+      const targetPos = data.dummyPos || { x: 32349, y: 32221, z: 7 };
+      this.pushCombatEvent(
+        'training',
+        player.id,
+        'dummy',
+        0,
+        targetPos.x,
+        targetPos.y,
+        '',
+        '#ffffff',
+        data.projectileId || null,
+        data.effectId || 10,
+        player.posX,
+        player.posY
+      );
+    });
   }
 
   public parties: Map<string, { leaderSessionId: string; leaderName: string; memberSessionIds: string[] }> = new Map();
@@ -742,7 +802,22 @@ export class ThaisCityRoom extends Room<WorldState> {
   }
 
   async onDispose() {
-    persistenceManager.stopPeriodicSave();
+    this.isDisposed = true;
+    if (this.autoSaveTimer) {
+      if (typeof this.autoSaveTimer.clear === 'function') {
+        this.autoSaveTimer.clear();
+      } else {
+        clearInterval(this.autoSaveTimer);
+      }
+      this.autoSaveTimer = null;
+    }
+
+    if (this.activeSavePromise) {
+      try {
+        await this.activeSavePromise;
+      } catch {}
+    }
+
     await persistenceManager.saveBatch(this.state.players.values());
   }
 

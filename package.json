@@ -12,7 +12,7 @@
     "build": "vinext build",
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "typecheck": "node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc --noEmit --incremental false",
+    "typecheck": "node --max-old-space-size=12288 ./node_modules/typescript/bin/tsc --noEmit --incremental false",
     "test": "vitest run",
     "prepare:game": "npm run import:content && npm run extract:tibia1098 && node scripts/extract-tibia11-icons.cjs",
     "import:content": "node --experimental-strip-types packages/realmap11-importer/src/cli.ts",
@@ -20,6 +20,7 @@
     "extract:tibia11:icons": "node scripts/extract-tibia11-icons.cjs",
     "import:rotworm": "npm run import:content",
     "build:atlases": "node scripts/build-combat-assets.mjs && node scripts/build-collision-map.mjs && node scripts/build-thais-atlas.mjs && node scripts/build-creatures-atlas.mjs",
+    "db:backup": "node scripts/backup-sqlite.mjs",
     "setup:assets": "node scripts/ensure-asset-junctions.cjs",
     "postinstall": "node scripts/patch-http-pipeline.cjs && node scripts/ensure-asset-junctions.cjs"
   },

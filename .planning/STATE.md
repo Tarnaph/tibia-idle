@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-14T00:50:00.000Z"
-last_activity: "2026-09-14 — Concluída Phase 164: Sistema de Treino nos Dummies de Thais, Alocação Dinâmica de Vagas (Melee/Ranged), HUD com Tempo Restante e Velocidade Urbana de 500 Speed."
+last_updated: "2026-09-14T11:21:00.000Z"
+last_activity: "2026-09-14 — Conclusão da Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite (100% testes aprovados e 0 erros de tipo)."
 progress:
-  total_phases: 164
-  completed_phases: 164
-  total_plans: 170
-  completed_plans: 170
+  total_phases: 167
+  completed_phases: 167
+  total_plans: 173
+  completed_plans: 173
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 164 Concluída com Sucesso.
+**Current focus:** Phase 167 concluída com sucesso (Bloco 1 - Segurança, Multi-Sala e Backup WAL).
 
 ## Current Position
 
-Phase: 164 of 164 (Concluída)  
+Phase: 167 of 167 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-14 — Implementação e verificação 100% aprovadas de treino nos dummies de Thais, alocação de vagas e velocidade urbana 500.
+Last activity: 2026-09-14 — Concluída a implementação de segurança com derivação autoritativa de nível/stats por XP, versionamento anti-replay (saveVersion), mutex atômico CharacterSaveLockManager, isolamento de autosave por sala com graceful onDispose, proteção HTTP Basic Auth no Colyseus Monitor e script de backup a quente SQLite VACUUM INTO.
 
 Progress: [██████████] 100%
 
@@ -88,7 +88,9 @@ Progress: [██████████] 100%
 | 161. Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos | 1 | - | - | Complete |
 | 162. Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano) | 1 | - | - | Complete |
 | 163. Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams | 1 | - | - | Complete |
-| 164. Sistema de Treino nos Dummies de Thais, Alocação Dinâmica de Vagas e Velocidade Urbana (500 Speed) | 1 | - | - | Complete |
+| 165. Animações de Treino em Dummies, Projéteis Vocacionais e Dummies Residenciais | 1 | - | - | Complete |
+| 166. Reestruturação do Squad (Formação Fila Indiana na Cidade, Níveis 70/150/200, 1 Vocação por Slot, Auto-Login Direto e Treino Contínuo no Dummy) | 1 | - | - | Complete |
+| 167. Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite | 1 | - | - | Complete |
 
 
 
@@ -97,6 +99,7 @@ Progress: [██████████] 100%
 
 ### Decisions
 
+- [Phase 165]: Efeitos visuais de treino nos dummies em Thais e casas desacoplados em `resolveTrainingVisualAction` com suporte canônico de vocação (Knight: melee hit; Paladin: flecha + hit; Sorcerer: fogo/energia; Druid: gelo/energia), pulso de ataque corporal (`charWalkFrame = 1` + micro-avanço de 3px) e propagação em tempo real pela sala Colyseus.
 - [Phase 74]: Personagens novos iniciam estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 de capacidade) com spawn canônico em Thais (32369, 32241, 7) e tags auditadas (inHunt: false, posZ: 7, nameplate e outfit da vocação) para visibilidade imediata por outros jogadores.
 - [Phase 73]: Abas privadas dedicadas no ChatWindow (1-para-1) com isolamento estrito fora de Local e World, envio direto sem necessidade de digitar prefixo, e botão de fechar (✕) que restaura para o Local Chat.
 - [Phase 1]: Combate baseado em ticks de 120ms com desacoplamento de interface e curva cumulativa de XP oficial do TFS.

@@ -12,12 +12,48 @@ export interface CreateGameServerOptions {
   expressApp?: express.Application;
 }
 
+export function colyseusMonitorAuthMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const isExplicitlyDisabled = process.env.ENABLE_COLYSEUS_MONITOR === 'false';
+  const isProduction = process.env.NODE_ENV === 'production';
+  const configuredUser = process.env.COLYSEUS_MONITOR_USER || 'admin';
+  const configuredPass = process.env.COLYSEUS_MONITOR_PASS || (isProduction ? '' : 'admin');
+
+  if (isExplicitlyDisabled || (isProduction && !process.env.COLYSEUS_MONITOR_PASS)) {
+    return res.status(404).send('Not Found');
+  }
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
+    res.set('WWW-Authenticate', 'Basic realm="Colyseus Monitor"');
+    return res.status(401).send('Authentication required to access Colyseus Monitor.');
+  }
+
+  try {
+    const base64Credentials = authHeader.split(' ')[1];
+    const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+    const colonIdx = decoded.indexOf(':');
+    if (colonIdx === -1) {
+      res.set('WWW-Authenticate', 'Basic realm="Colyseus Monitor"');
+      return res.status(401).send('Invalid authorization format.');
+    }
+    const username = decoded.slice(0, colonIdx);
+    const password = decoded.slice(colonIdx + 1);
+
+    if (username === configuredUser && password === configuredPass) {
+      return next();
+    }
+  } catch {}
+
+  res.set('WWW-Authenticate', 'Basic realm="Colyseus Monitor"');
+  return res.status(401).send('Unauthorized');
+}
+
 export function createGameServer(options: CreateGameServerOptions = {}) {
   const app = options.expressApp || express();
   app.use(cors());
   app.use(express.json());
 
-  app.use('/colyseus', monitor());
+  app.use('/colyseus', colyseusMonitorAuthMiddleware, monitor());
 
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
