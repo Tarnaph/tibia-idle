@@ -772,6 +772,13 @@ export function CyclopediaModal({
                               imageRendering: 'pixelated',
                               marginBottom: '6px',
                             }}
+                            onError={(e) => {
+                              const clean = (monster.id || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                              const fallback = `/generated/tibia1098/monster-${clean}-thumb.png`;
+                              if (e.currentTarget.src !== fallback && !e.currentTarget.src.endsWith(fallback)) {
+                                e.currentTarget.src = fallback;
+                              }
+                            }}
                           />
                           <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#ffffff', marginBottom: '2px' }}>
                             {monster.name}
@@ -907,6 +914,13 @@ export function CyclopediaModal({
                             maxWidth: '72px',
                             maxHeight: '72px',
                             imageRendering: 'pixelated',
+                          }}
+                          onError={(e) => {
+                            const clean = (selectedMonster.id || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                            const fallback = `/generated/tibia1098/monster-${clean}-thumb.png`;
+                            if (e.currentTarget.src !== fallback && !e.currentTarget.src.endsWith(fallback)) {
+                              e.currentTarget.src = fallback;
+                            }
                           }}
                         />
                       </div>

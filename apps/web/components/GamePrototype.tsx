@@ -42,7 +42,7 @@ import { VocationChoiceModal } from './VocationChoiceModal';
 import { OutfitModal } from './OutfitModal';
 import { CyclopediaModal } from './CyclopediaModal';
 import { BestiaryTrackerHUD } from './BestiaryTrackerHUD';
-import { CANONICAL_BESTIARY_MONSTERS, getCyclopediaItems, getBestiaryMonsters } from '../lib/cyclopediaData';
+import { CANONICAL_BESTIARY_MONSTERS, getCyclopediaItems, getBestiaryMonsters, type BestiaryMonster } from '../lib/cyclopediaData';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
@@ -292,6 +292,7 @@ function GamePrototypeContent() {
   const hasShownPromotionPopupRef = useRef<boolean>(false);
   const [cyclopediaModalOpen, setCyclopediaModalOpen] = useState(false);
   const [trackedBestiaryMonsterId, setTrackedBestiaryMonsterId] = useState<string>('');
+  const [isBestiaryTrackerVisible, setIsBestiaryTrackerVisible] = useState<boolean>(true);
   const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
   const [bossPoints, setBossPoints] = useState<number>(0);
   const [firstKillToast, setFirstKillToast] = useState<string | null>(null);
@@ -1930,17 +1931,45 @@ function GamePrototypeContent() {
   const handleTrackMonster = useCallback((monsterId: string) => {
     const nextId = trackedBestiaryMonsterId === monsterId ? '' : monsterId;
     setTrackedBestiaryMonsterId(nextId);
+    if (nextId) setIsBestiaryTrackerVisible(true);
     gameNetwork.sendBestiaryTrack(nextId);
   }, [trackedBestiaryMonsterId]);
 
-  const currentlyTrackedMonster = useMemo(() => {
-    if (!trackedBestiaryMonsterId) return null;
-    return (
-      CANONICAL_BESTIARY_MONSTERS.find(
-        (m) => m.id.toLowerCase() === trackedBestiaryMonsterId.toLowerCase()
-      ) || null
-    );
-  }, [trackedBestiaryMonsterId]);
+  // Phase 160: Lista de monstros rastreados no Bestiário (inclui todos os bichos da hunt ativa + monstro fixado)
+  const trackedMonstersList = useMemo(() => {
+    const list: BestiaryMonster[] = [];
+    const idsToInclude = new Set<string>();
+
+    // 1. Se estiver caçando, inclui todas as espécies daquela hunt ativa
+    if (mode === 'hunt' && encounter.hunt?.monsters && Array.isArray(encounter.hunt.monsters)) {
+      for (const mId of encounter.hunt.monsters) {
+        if (mId) idsToInclude.add(mId.toLowerCase());
+      }
+    }
+
+    // 2. Inclui qualquer criatura fixada manualmente pelo jogador
+    if (trackedBestiaryMonsterId) {
+      idsToInclude.add(trackedBestiaryMonsterId.toLowerCase());
+    }
+
+    // 3. Resolve os monstros do catálogo canônico
+    for (const mId of idsToInclude) {
+      const found = CANONICAL_BESTIARY_MONSTERS.find(
+        (m) => m.id.toLowerCase() === mId || m.name.toLowerCase() === mId
+      );
+      if (found) {
+        list.push(found);
+      }
+    }
+
+    return list;
+  }, [mode, encounter.hunt, trackedBestiaryMonsterId]);
+
+  useEffect(() => {
+    if (mode === 'hunt') {
+      setIsBestiaryTrackerVisible(true);
+    }
+  }, [mode]);
 
   useEffect(() => {
     if (!levelUpMessage) return;
@@ -3260,13 +3289,18 @@ function GamePrototypeContent() {
         onCreate={createMember}
       />
 
-      {currentlyTrackedMonster && (
+      {trackedMonstersList.length > 0 && isBestiaryTrackerVisible && (
         <BestiaryTrackerHUD
-          monster={currentlyTrackedMonster}
-          kills={bestiaryKills[currentlyTrackedMonster.id.toLowerCase()] || 0}
+          monsters={trackedMonstersList}
+          killsById={bestiaryKills}
           firstKillAlert={firstKillToast}
-          onClose={() => handleTrackMonster(currentlyTrackedMonster.id)}
-          onOpenCyclopedia={() => gameModal.openCyclopedia()}
+          onClose={() => setIsBestiaryTrackerVisible(false)}
+          onRemoveMonster={(mId) => {
+            if (trackedBestiaryMonsterId && trackedBestiaryMonsterId.toLowerCase() === mId.toLowerCase()) {
+              handleTrackMonster(mId);
+            }
+          }}
+          onOpenCyclopedia={() => gameModal.openCyclopedia('bestiary')}
         />
       )}
 

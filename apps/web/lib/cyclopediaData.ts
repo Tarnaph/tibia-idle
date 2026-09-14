@@ -641,6 +641,60 @@ export const CANONICAL_CYCLOPEDIA_ITEMS: ItemEntry[] = Array.from(canonicalItemM
 // Canonical Bestiary monsters matching Screenshot 2 & 3
 const INITIAL_CANONICAL_MONSTERS: BestiaryMonster[] = [
   {
+    id: 'rat',
+    name: 'Rat',
+    stars: 1,
+    difficulty: 'Fácil',
+    killsNeeded: 250,
+    hp: 20,
+    exp: 5,
+    speed: 135,
+    armor: 5,
+    spriteUrl: '/generated/bestiary/rat.png',
+    resistances: {
+      physical: 0,
+      energy: 0,
+      earth: 25,
+      fire: 0,
+      ice: -10,
+      holy: 20,
+      death: -10,
+    },
+    drops: [
+      { id: 2148, name: 'Gold coin', count: 4, rare: false },
+      { id: 2696, name: 'Cheese', count: 1, rare: false },
+    ],
+    locations: ['Thais Sewers', 'Rookgaard', 'Carlin Sewers', 'Venore'],
+  },
+  {
+    id: 'cave-rat',
+    name: 'Cave Rat',
+    stars: 1,
+    difficulty: 'Fácil',
+    killsNeeded: 250,
+    hp: 30,
+    exp: 10,
+    speed: 150,
+    armor: 5,
+    spriteUrl: '/generated/bestiary/cave-rat.png',
+    resistances: {
+      physical: 0,
+      energy: 0,
+      earth: 0,
+      fire: -10,
+      ice: 0,
+      holy: 0,
+      death: 0,
+    },
+    drops: [
+      { id: 2148, name: 'Gold coin', count: 6, rare: false },
+      { id: 2696, name: 'Cheese', count: 1, rare: false },
+      { id: 2687, name: 'Cookie', count: 1, rare: true },
+      { id: 3976, name: 'Worm', count: 1, rare: false },
+    ],
+    locations: ['Thais Sewers', 'Rookgaard', 'Kazordoon', 'Venore Swamp'],
+  },
+  {
     id: 'spider',
     name: 'Spider',
     stars: 1,
@@ -1127,7 +1181,13 @@ if (Array.isArray(rawMonsters)) {
   for (const m of (rawMonsters as BestiaryMonster[])) {
     const k = m.id.toLowerCase();
     if (!canonicalMonsterMap.has(k)) {
-      canonicalMonsterMap.set(k, m);
+      // Saneamento: se a criatura NÃO for Demon e estiver com fallback indevido de demon.png, usa o sprite canônico do monstro
+      let spriteUrl = m.spriteUrl;
+      const cleanId = k.replace(/[^a-z0-9]+/g, '-');
+      if (k !== 'demon' && (!spriteUrl || spriteUrl.endsWith('/demon.png') || spriteUrl === 'demon.png')) {
+        spriteUrl = `/generated/bestiary/${cleanId}.png`;
+      }
+      canonicalMonsterMap.set(k, { ...m, spriteUrl });
     }
   }
 }

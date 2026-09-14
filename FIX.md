@@ -44,3 +44,17 @@
 1. **Preview do Outfit:** Fast-path síncrono no `renderRecoloredOutfit` e catálogo `OUTFITS_WITH_MOUNTS` para blindar trajes sem montaria. Ao clicar no outfit, ele atualiza instantaneamente no preview.
 2. **Salvamento de Outfits e Montarias:** Sincronização em tempo real de `latestSaveStateRef.current` eliminando race condition com o auto-save. O outfit e a montaria persistem com 100% de confiabilidade entre sessões.
 3. **Animação de Caminhada sem Deslizamento:** `preloadOutfitAllFrames` prioriza a direção ativa (`priorityDir`) carregando frames em < 30ms, e o `ThaisCityArena.tsx` atualiza a textura do PixiJS dinamicamente na alternância de frame de caminhada com `(tex.source as any).update?.()`. O personagem mexe as pernas com fluidez em todas as direções.
+
+---
+
+## 🐺 Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites
+1. **Saneamento Total de Sprites da Cyclopedia:**
+   - Sincronização de 614 miniaturas `monster-*-thumb.png` do Tibia 10.98 para `public/generated/bestiary/` e `public/assets/monsters/`.
+   - Eliminação do fallback indevido de `demon.png` para criaturas da Cyclopedia, garantindo que `Rat`, `Cave Rat` e todas as demais criaturas exibam suas sprites autênticas.
+2. **Multi-Monstros por Caçada no Bestiary Tracker:**
+   - Suporte dinâmico a rastrear simultaneamente múltiplas espécies em hunts heterogêneas (ex: `Rat` e `Cave Rat` em Rat Cellars).
+   - Cada espécie conta com seu ícone, barra de progresso e estatísticas de kills individuais.
+3. **Janela Flutuante Arrastável e Canto Superior Direito:**
+   - Posição inicial no canto superior direito (`top: 58px`, `right: 20px`), livre de sobreposição com controles essenciais.
+   - Drag & drop fluido via Pointer Events com persistência de coordenadas em `localStorage`.
+   - Suporte a minimizar (`_`) e fechar (`✕`) com reabertura automática ao iniciar caçadas.

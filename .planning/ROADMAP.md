@@ -116,6 +116,8 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 156: Curadoria de Magias, Escolha de Vocação, Promoção e Correções de Outfits & Caminhada** - Filtragem estrita de magias com ícones CipSoft, escolha de vocação ao nascer no Nível 1 com outfits autênticos, promoção no Nível 20 no Character Hover Card e correção de salvamento e caminhada sem deslizamento.
 - [x] **Phase 157: Eliminação de Falsos Positivos de Sessão Ativa, Logout Sincronizado e Prevenção de Desconexão Involuntária** - Heartbeat em tempo real via BroadcastChannel/WebSocket, limpeza imediata no logout, eliminação de falsos avisos de "conta já conectada" e botão de forçar desconexão de abas antigas.
 - [x] **Phase 158: Suporte à Vocação 'None' no Domínio, Entrada sem Crash e Seleção de Sexo (Masculino / Feminino) na Criação de Personagens** - Eliminação de runtime error `Missing vocation None.`, definição de NONE_VOCATION_DEFINITION, seleção de sexo/gênero (♂ Masculino / ♀ Feminino) com persistência no Prisma e lookTypes canônicos por gênero.
+- [x] **Phase 159: Resolução de Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados** - Miniaturas dinâmicas conforme gênero do personagem, reset de addons ao trocar de traje e remoção de "Sorcerer" e "Paladin" duplicados.
+- [x] **Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites** - Janela flutuante arrastável (drag & drop) no canto superior direito, rastreamento simultâneo de múltiplos monstros da hunt e saneamento de sprites canônicos da Cyclopedia (sem demon no rat).
 
 ---
 
@@ -3049,6 +3051,23 @@ Plans:
 - [x] 159-01-PLAN: Resolução de Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados.
 
 - Resumo de entrega: `.planning/phases/phase-159-outfit-modal-gender-and-addons-cleanup/159-SUMMARY.md`
+
+### Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites
+
+**Goal**: Transformar o rastreador de Bestiário em janela flutuante arrastável no canto superior direito, rastrear simultaneamente todas as espécies de uma caçada com mais de 1 bicho, e sanear o acervo de sprites da Cyclopedia eliminando o fallback incorreto de `demon.png` para criaturas como o Rat e Cave Rat.  
+**Depends on**: Phase 159  
+**Requirements**:
+1. Sincronização e resolução canônica de miniaturas autênticas para todas as criaturas da Cyclopedia (`public/generated/bestiary/` e `public/assets/monsters/`), sem exibição de `demon.png` para monstros normais.
+2. Inclusão de `Rat` e `Cave Rat` em `INITIAL_CANONICAL_MONSTERS` com dados de loot e resistências.
+3. Rastreamento simultâneo de múltiplos monstros no `BestiaryTrackerHUD` para caçadas heterogêneas (ex: Rat Cellars com `Rat` e `Cave Rat`).
+4. Janela flutuante arrastável (Drag & Drop nativo via Pointer Events) com posicionamento padrão no canto superior direito (`top: 58px`, `right: 20px`), persistência em `localStorage`, minimização e fechamento.
+5. 0 erros de tipo no TypeScript (`npm run typecheck`) e 100% de testes aprovados no Vitest (`tests/phase160-bestiary-multi-monster-hud-and-sprite-integrity.test.ts`).
+
+**Plans:**
+- [x] 160-01-PLAN: Saneamento de Sprites de Monstros da Cyclopedia, Rastreamento Multi-Monstros por Caçada e HUD Flutuante Arrastável no Canto Superior Direito.
+
+- Resumo de entrega: `.planning/phases/phase-160-bestiary-floating-hud-and-sprite-sync/160-SUMMARY.md`
+
 
 
 

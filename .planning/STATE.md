@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-13T22:30:00.000Z"
-last_activity: "2026-09-13 — Concluída Phase 159: Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados."
+last_updated: "2026-09-13T22:50:00.000Z"
+last_activity: "2026-09-13 — Concluída Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites."
 progress:
-  total_phases: 159
-  completed_phases: 159
-  total_plans: 165
-  completed_plans: 165
+  total_phases: 160
+  completed_phases: 160
+  total_plans: 166
+  completed_plans: 166
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 159 concluída com sucesso.
+**Current focus:** Fase 160 concluída com sucesso.
 
 ## Current Position
 
-Phase: 159 of 159 (Concluída)  
+Phase: 160 of 160 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Conclusão da Phase 159 com 0 erros de tipo e 100% de testes aprovados.
+Last activity: 2026-09-13 — Conclusão da Phase 160 com 0 erros de tipo e 100% de testes aprovados.
 
 Progress: [██████████] 100%
 
