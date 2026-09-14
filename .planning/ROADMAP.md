@@ -3102,6 +3102,22 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-162-authentic-target-lock/162-SUMMARY.md`
 
+### Phase 163: Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams
+
+**Goal**: Garantir a persistência permanente e não-regressiva do Bestiário entre relogs e sessões via sincronização ativa cliente-Colyseus e merge monotônico no Prisma DB; implementar desobstrução autônoma de caminho (bodyblock clearance) no modo idle para abater monstros bloqueadores imediatos; e prover mira inteligente para magias direcionais e frontais (waves e beams) virando o corpo do personagem na direção ideal para atingir o alvo e maximizar o dano em área.  
+**Depends on**: Phase 162  
+**Requirements**:
+1. Sincronização em tempo real das contagens de mortes de monstros do cliente para o servidor Colyseus via `gameNetwork.sendBestiarySetKills()`.
+2. Proteção não-regressiva no `PrismaPersistenceManager.ts` e no Colyseus (`Math.max(dbKills, newKills)`), impedindo que deslogues ou conexões simultâneas com contagem vazia zerem o progresso do jogador.
+3. Priorização de monstros adjacentes (1 tile) no auto-target padrão de caçadas idle e detecção de bodyblock em corredores/portas para abater o obstáculo imediato e liberar o caminho.
+4. Identificação de magias frontais/direcionais (*Energy Wave*, *Terra Wave*, *Strong Ice Wave*, *Fire Wave*, *Ice Wave*, *Great Fire Wave*, *Energy Beam*, *Great Energy Beam*), virando o corpo (`actor.direction`) automaticamente na direção ideal antes do cast.
+5. Cobertura de testes unitários com Vitest (`tests/phase163-bestiary-bodyblock-and-directional-spells.test.ts`) e 0 erros de tipagem no TypeScript (`npm run typecheck`).
+
+**Plans:**
+- [x] 163-01-PLAN: Persistência Permanente do Bestiário, Desobstrução de Caminho (Bodyblock) e Inteligência de Waves/Beams.
+
+- Resumo de entrega: `.planning/phases/phase-163-bestiary-bodyblock-and-directional-spells/163-SUMMARY.md`
+
 
 
 

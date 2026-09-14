@@ -5,7 +5,7 @@ import { huntById } from './hunt';
 import { createContinuousHuntRoute } from './huntRoute';
 import { calculateStatsForLevel, createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
 import { createSeededRng, rollInteger } from './rng';
-import { getSpellAreaTiles, spellFormulaRange } from './spells';
+import { calculateBestSpellDirection, getSpellAreaTiles, isDirectionalSpell, spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
@@ -1033,23 +1033,39 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               continue;
             }
             targetActor = actor;
-          } else if (spell.area === 'wave-4') {
+          } else if (isDirectionalSpell(spell)) {
             const rawEnemies = ((encounter.isMultiplayerParty && !isLeader && leaderTarget) || (isParty && !isFocusLead && focusTarget))
               ? [focusTarget ?? leaderTarget!]
               : encounter.enemies.filter((enemy) => enemy.alive);
             const eligibleEnemies = rawEnemies.filter((e) => !isIgnored(e.name));
-            const nearby = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= 5);
+            const maxReach = Math.max(5, spell.range || 1);
+            const nearby = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= maxReach);
             if (nearby.length === 0) continue;
-            const primary = (actor.targetId ? nearby.find((e) => e.id === actor.targetId) : null) ?? nearby[0];
-            if (primary) {
-              const dx = primary.position.x - actor.position.x;
-              const dy = primary.position.y - actor.position.y;
-              if (Math.abs(dx) >= Math.abs(dy)) {
-                actor.direction = dx >= 0 ? 'east' : 'west';
-              } else {
-                actor.direction = dy >= 0 ? 'south' : 'north';
-              }
+
+            const lockedTarget = actor.targetId ? nearby.find((e) => e.id === actor.targetId) : undefined;
+            const preferredId = lockedTarget?.id ?? (focusTarget?.id || leaderTarget?.id || null);
+
+            const { direction: bestDir, hitCount } = calculateBestSpellDirection(
+              actor.position,
+              nearby,
+              spell,
+              preferredId,
+              actor.direction
+            );
+
+            if (hitCount === 0) continue;
+
+            if (actor.direction !== bestDir) {
+              actor.direction = bestDir;
+              encounter.events.push({
+                type: 'movement',
+                actorId: actor.characterId,
+                from: clonePosition(actor.position),
+                to: clonePosition(actor.position),
+                durationMs: 0,
+              });
             }
+
             waveTiles = getSpellAreaTiles(spell, actor.position, actor.direction);
             const waveTileMap = new Set(waveTiles.map((t) => `${t.x},${t.y}`));
             targets = nearby.filter((enemy) => waveTileMap.has(`${enemy.position.x},${enemy.position.y}`));
@@ -1166,7 +1182,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                   projectileId: null,
                 });
               }
-            } else if (spell.area === 'wave-4') {
+            } else if (isDirectionalSpell(spell)) {
               for (const tile of waveTiles) {
                 encounter.events.push({
                   type: 'spell-visual',
@@ -1183,7 +1199,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               const damage = resistedDamage(amount, target, spell.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
               encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech, element: spell.combatType });
-              if (spell.area !== 'square-1x1' && spell.area !== 'wave-4') {
+              if (spell.area !== 'square-1x1' && !isDirectionalSpell(spell)) {
                 encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
               }
               addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
@@ -1538,16 +1554,27 @@ export function triggerManualHotbarAction(
   let targets: EnemyState[] = [];
   let waveTiles: Array<{ x: number; y: number; z: number }> = [];
 
-  if (spell.area === 'wave-4') {
-    const nearby = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= 5);
-    const primary = (actor.targetId ? nearby.find((e) => e.id === actor.targetId) : null) ?? nearby[0];
-    if (primary) {
-      const dx = primary.position.x - actor.position.x;
-      const dy = primary.position.y - actor.position.y;
-      if (Math.abs(dx) >= Math.abs(dy)) {
-        actor.direction = dx >= 0 ? 'east' : 'west';
-      } else {
-        actor.direction = dy >= 0 ? 'south' : 'north';
+  if (isDirectionalSpell(spell)) {
+    const maxReach = Math.max(5, spell.range || 1);
+    const nearby = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= maxReach);
+    const lockedTarget = actor.targetId ? nearby.find((e) => e.id === actor.targetId) : undefined;
+    const { direction: bestDir, hitCount } = calculateBestSpellDirection(
+      actor.position,
+      nearby,
+      spell,
+      lockedTarget?.id || null,
+      actor.direction
+    );
+    if (hitCount > 0 || lockedTarget) {
+      if (actor.direction !== bestDir) {
+        actor.direction = bestDir;
+        encounter.events.push({
+          type: 'movement',
+          actorId: actor.characterId,
+          from: clonePosition(actor.position),
+          to: clonePosition(actor.position),
+          durationMs: 0,
+        });
       }
     }
     waveTiles = getSpellAreaTiles(spell, actor.position, actor.direction);
@@ -1585,7 +1612,7 @@ export function triggerManualHotbarAction(
         projectileId: null,
       });
     }
-  } else if (spell.area === 'wave-4') {
+  } else if (isDirectionalSpell(spell)) {
     for (const tile of waveTiles) {
       encounter.events.push({
         type: 'spell-visual',
@@ -1602,7 +1629,7 @@ export function triggerManualHotbarAction(
     const damage = resistedDamage(amount, target, spell.combatType, content);
     target.hp = Math.max(0, target.hp - damage);
     encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech, element: spell.combatType });
-    if (spell.area !== 'square-1x1' && spell.area !== 'wave-4') {
+    if (spell.area !== 'square-1x1' && !isDirectionalSpell(spell)) {
       encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     }
     addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-last_updated: "2026-09-13T23:37:00.000Z"
-last_activity: "2026-09-13 — Phase 162: Target Lock Autêntico do Tibia Concluída com Sucesso (100% de Testes e 0 Erros de Tipagem)."
+status: complete
+last_updated: "2026-09-14T00:22:00.000Z"
+last_activity: "2026-09-14 — Concluída Phase 163: Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams."
 progress:
-  total_phases: 162
-  completed_phases: 162
-  total_plans: 168
-  completed_plans: 168
+  total_phases: 163
+  completed_phases: 163
+  total_plans: 169
+  completed_plans: 169
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 162: Target Lock Autêntico do Tibia.
+**Current focus:** Todas as fases da milestone concluídas.
 
 ## Current Position
 
-Phase: 162 of 162 (Concluída)  
+Phase: 163 of 163 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-13 — Target Lock Autêntico do Tibia implementado com sucesso no motor de movimentação, ataques físicos, magias e runas.
+Last activity: 2026-09-14 — Concluída implementação de persistência permanente de bestiário, desobstrução de bodyblock e waves direcionais inteligentes.
 
 Progress: [██████████] 100%
 
@@ -87,6 +87,7 @@ Progress: [██████████] 100%
 | 160. Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites | 1 | - | - | Complete |
 | 161. Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos | 1 | - | - | Complete |
 | 162. Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano) | 1 | - | - | Complete |
+| 163. Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams | 1 | - | - | Complete |
 
 
 

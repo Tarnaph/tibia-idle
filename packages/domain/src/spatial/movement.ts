@@ -151,6 +151,11 @@ function nearestEnemy(
 
     // Default 'closest'
     if (a.alreadyInRange !== b.alreadyInRange) return a.alreadyInRange ? -1 : 1;
+    // Autodefesa no Idle: Prioriza monstros adjacentes (1 tile de distância física) para desobstruir o caminho imediatamente
+    const aAdjacent = a.directDist <= 1;
+    const bAdjacent = b.directDist <= 1;
+    if (aAdjacent !== bAdjacent) return aAdjacent ? -1 : 1;
+
     const pathA = a.alreadyInRange ? 0 : a.path.length;
     const pathB = b.alreadyInRange ? 0 : b.path.length;
     if (pathA !== pathB) return pathA - pathB;
@@ -233,7 +238,7 @@ export function movePartyTowardTargets(
         selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
         actor.targetId = selected?.enemy.id ?? mainTargetEnemy.id;
       } else {
-        // 3. Sem alvo travado: Seleciona o alvo mais próximo elegível (auto-retargeting clássico de caçada)
+        // 3. Sem alvo travado: Seleciona o alvo mais próximo elegível (auto-retargeting clássico de caçada com prioridade a monstros adjacentes)
         if (allowedEnemyIds) {
           selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange);
         }
@@ -251,7 +256,10 @@ export function movePartyTowardTargets(
     actor.path = selected?.path.map(clonePosition) ?? [];
     if (!selected || selected.alreadyInRange) continue;
     const next = selected.path[0];
-    if (!next || !destinationAvailable(encounter, next, occupied, reserved)) { actor.path = []; continue; }
+    if (!next || !destinationAvailable(encounter, next, occupied, reserved)) {
+      actor.path = [];
+      continue;
+    }
     const from = clonePosition(actor.position);
     if (!commitMovement(encounter, actor.characterId, from, next, occupied, reserved)) { actor.path = []; continue; }
     actor.direction = directionBetween(actor.position, next);

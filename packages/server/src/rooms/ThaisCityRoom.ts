@@ -457,7 +457,14 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.onMessage('bestiary:setKills', (client, data: { kills: Record<string, number> }) => {
       const player = this.state.players.get(client.sessionId);
       if (player && data?.kills && typeof data.kills === 'object') {
-        (player as any).bestiaryKills = { ...((player as any).bestiaryKills || {}), ...data.kills };
+        const current = (player as any).bestiaryKills || {};
+        const updated = { ...current };
+        for (const [k, v] of Object.entries(data.kills)) {
+          if (typeof v === 'number') {
+            updated[k] = Math.max(Number(current[k] || 0), v);
+          }
+        }
+        (player as any).bestiaryKills = updated;
         void persistenceManager.saveCharacter(player);
       }
     });

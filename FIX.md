@@ -93,3 +93,17 @@
    - Bloqueio de redirecionamento involuntário para criaturas vizinhas caso o alvo travado esteja temporariamente fora de alcance.
 4. **Auto-Retargeting Limpo pós-Morte:**
    - Ao morrer o monstro travado, o target lock é limpo com segurança, restaurando a seleção automática do próximo monstro mais próximo para continuidade fluida da caçada.
+
+---
+
+## 🛡️ Phase 163: Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams
+1. **Persistência Permanente e Proteção Monotônica do Bestiário:**
+   - Sincronização em tempo real das contagens de mortes de monstros do cliente para o servidor Colyseus via `gameNetwork.sendBestiarySetKills()`.
+   - Proteção não-regressiva no `PrismaPersistenceManager.ts` e no Colyseus (`Math.max(dbKills, newKills)`), impedindo que desconexões ou sessões com contagem vazia/stale zerem o progresso do jogador.
+2. **Desobstrução de Caminho no Idle (Bodyblock Clearance):**
+   - No modo Idle automático, priorizar monstros adjacentes no corpo-a-corpo (1 tile) antes de correr atrás de monstros distantes.
+   - Detecção inteligente de bodyblock: quando um monstro bloqueia o único caminho para o objetivo ou alvo em corredores estreitos, o personagem foca e abate o obstáculo imediato para livrar a passagem.
+3. **Inteligência Direcional de Magias Frontais (Waves & Beams - Virar o Corpo):**
+   - Identificação canônica de todas as magias direcionais e frontais (*Energy Wave*, *Terra Wave*, *Strong Ice Wave*, *Fire Wave*, *Ice Wave*, *Great Fire Wave*, *Energy Beam*, *Great Energy Beam*).
+   - Virar o corpo (`actor.direction`) automaticamente em direção ao monstro alvejado antes da invocação.
+   - Cálculo de área máxima (cone e linha reta) para girar na direção que atinge o maior número de inimigos vivos, com sincronização imediata no PixiJS.

@@ -24,7 +24,13 @@ export class PrismaPersistenceManager {
       const existing = typeof this.db?.character?.findUnique === 'function'
         ? await this.db.character.findUnique({
             where: { id: player.characterId },
-            select: { level: true, experience: true },
+            select: {
+              level: true,
+              experience: true,
+              bestiaryKillsJson: true,
+              trackedBestiaryId: true,
+              bossPoints: true,
+            },
           })
         : null;
 
@@ -40,6 +46,34 @@ export class PrismaPersistenceManager {
       }
       const effectiveLevel = Math.max(playerLevel, existingLevel);
       const finalExp = effectiveExp;
+
+      // Monotonic non-decreasing Bestiary Kills reconciliation
+      let existingBestiary: Record<string, number> = {};
+      if (existing?.bestiaryKillsJson) {
+        try {
+          existingBestiary = typeof existing.bestiaryKillsJson === 'string'
+            ? JSON.parse(existing.bestiaryKillsJson)
+            : existing.bestiaryKillsJson;
+        } catch {}
+      }
+      let playerBestiary: Record<string, number> = {};
+      const rawPlayerBestiary = (player as any).bestiaryKills;
+      if (rawPlayerBestiary) {
+        try {
+          playerBestiary = typeof rawPlayerBestiary === 'string'
+            ? JSON.parse(rawPlayerBestiary)
+            : rawPlayerBestiary;
+        } catch {}
+      }
+      const mergedBestiary: Record<string, number> = { ...existingBestiary };
+      for (const [k, v] of Object.entries(playerBestiary)) {
+        if (typeof v === 'number') {
+          mergedBestiary[k] = Math.max(Number(existingBestiary[k] || 0), v);
+        }
+      }
+      const finalBestiaryKillsJson = Object.keys(mergedBestiary).length > 0
+        ? JSON.stringify(mergedBestiary)
+        : existing?.bestiaryKillsJson ?? undefined;
 
       const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
 
@@ -78,11 +112,11 @@ export class PrismaPersistenceManager {
             : Array.isArray((player as any).hotbar)
             ? JSON.stringify((player as any).hotbar)
             : undefined,
-          bestiaryKillsJson: (player as any).bestiaryKills !== undefined
-            ? (typeof (player as any).bestiaryKills === 'string' ? (player as any).bestiaryKills : JSON.stringify((player as any).bestiaryKills))
-            : undefined,
-          trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' ? (player as any).trackedBestiaryId : undefined,
-          bossPoints: typeof (player as any).bossPoints === 'number' ? (player as any).bossPoints : undefined,
+          bestiaryKillsJson: finalBestiaryKillsJson,
+          trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
+            ? (player as any).trackedBestiaryId
+            : existing?.trackedBestiaryId ?? undefined,
+          bossPoints: Math.max(Number(existing?.bossPoints || 0), Number((player as any).bossPoints || 0)),
           vocationName: typeof (player as any).vocationName === 'string' && (player as any).vocationName ? (player as any).vocationName : undefined,
           promotion: typeof (player as any).promotion === 'string' && (player as any).promotion ? (player as any).promotion : undefined,
           updatedAt: new Date(),

@@ -380,20 +380,41 @@ export class CharacterService {
     if (data.outfitAddons !== undefined) updateData.outfitAddons = data.outfitAddons;
     if (data.mount !== undefined) updateData.mount = data.mount;
     if (data.mountActive !== undefined) updateData.mountActive = data.mountActive;
+    const existing = await this.prisma.character.findUnique({
+      where: { id: characterId },
+      select: { level: true, experience: true, bestiaryKillsJson: true, bossPoints: true },
+    });
+
     if (data.bestiaryKills !== undefined) {
-      updateData.bestiaryKillsJson = typeof data.bestiaryKills === 'string' ? data.bestiaryKills : JSON.stringify(data.bestiaryKills);
+      let existingBestiary: Record<string, number> = {};
+      if (existing?.bestiaryKillsJson) {
+        try {
+          existingBestiary = typeof existing.bestiaryKillsJson === 'string'
+            ? JSON.parse(existing.bestiaryKillsJson)
+            : existing.bestiaryKillsJson;
+        } catch {}
+      }
+      let incomingBestiary: Record<string, number> = {};
+      try {
+        incomingBestiary = typeof data.bestiaryKills === 'string'
+          ? JSON.parse(data.bestiaryKills)
+          : (data.bestiaryKills || {});
+      } catch {}
+      const mergedBestiary: Record<string, number> = { ...existingBestiary };
+      for (const [k, v] of Object.entries(incomingBestiary)) {
+        if (typeof v === 'number') {
+          mergedBestiary[k] = Math.max(Number(existingBestiary[k] || 0), v);
+        }
+      }
+      updateData.bestiaryKillsJson = JSON.stringify(mergedBestiary);
     }
     if (data.trackedBestiaryId !== undefined) {
       updateData.trackedBestiaryId = data.trackedBestiaryId;
     }
     if (data.bossPoints !== undefined) {
-      updateData.bossPoints = data.bossPoints;
+      updateData.bossPoints = Math.max(Number(existing?.bossPoints || 0), Number(data.bossPoints || 0));
     }
     if (data.level !== undefined || data.experience !== undefined) {
-      const existing = await this.prisma.character.findUnique({
-        where: { id: characterId },
-        select: { level: true, experience: true },
-      });
       const existingLevel = existing?.level ?? 1;
       const existingExp = Number(existing?.experience ?? 0);
       const incomingExp = data.experience !== undefined ? Number(data.experience) : existingExp;

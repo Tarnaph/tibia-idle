@@ -154,10 +154,90 @@ export function getSpellAreaTiles(
   casterPos: { x: number; y: number; z?: number },
   direction: FacingDirection
 ): Array<{ x: number; y: number; z: number }> {
-  if (spell.area === 'wave-4') {
+  if (spell.area === 'wave-4' || isDirectionalSpell(spell)) {
+    const lower = spell.name.toLowerCase();
+    if (lower.includes('lux') || lower.includes('beam') || lower.includes('gran vis')) {
+      return getDirectionalSpellTiles(casterPos, direction, spell.name, spell.range);
+    }
     return getWave4Tiles(casterPos, direction);
   }
   return getDirectionalSpellTiles(casterPos, direction, spell.name, spell.range);
+}
+
+export function isDirectionalSpell(spell: { name?: string; words?: string; area?: string }): boolean {
+  if (spell.area === 'wave-4') return true;
+  const lowerName = (spell.name || '').toLowerCase();
+  const lowerWords = (spell.words || '').toLowerCase();
+  return (
+    lowerName.includes('wave') ||
+    lowerName.includes('beam') ||
+    lowerWords.includes('hur') ||
+    lowerWords.includes('vis lux') ||
+    lowerWords.includes('gran vis lux')
+  );
+}
+
+export function calculateBestSpellDirection(
+  casterPos: { x: number; y: number; z?: number },
+  enemies: Array<{ id: string; position: { x: number; y: number; z?: number }; alive: boolean }>,
+  spell: SpellDefinition,
+  preferredTargetId?: string | null,
+  currentDirection: FacingDirection = 'south'
+): { direction: FacingDirection; hitCount: number; hitTarget: boolean } {
+  const directions: FacingDirection[] = ['north', 'east', 'south', 'west'];
+  const livingEnemies = enemies.filter((e) => e.alive);
+
+  let bestDirection: FacingDirection = currentDirection;
+  let maxHits = -1;
+  let targetHitBest = false;
+
+  const preferredEnemy = preferredTargetId ? livingEnemies.find((e) => e.id === preferredTargetId) : undefined;
+  if (preferredEnemy) {
+    const dx = preferredEnemy.position.x - casterPos.x;
+    const dy = preferredEnemy.position.y - casterPos.y;
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      bestDirection = dx >= 0 ? 'east' : 'west';
+    } else {
+      bestDirection = dy >= 0 ? 'south' : 'north';
+    }
+  }
+
+  for (const dir of directions) {
+    const tiles = getSpellAreaTiles(spell, casterPos, dir);
+    const tileKeySet = new Set(tiles.map((t) => `${t.x},${t.y}`));
+
+    let hits = 0;
+    let hitPreferred = false;
+
+    for (const enemy of livingEnemies) {
+      if (tileKeySet.has(`${enemy.position.x},${enemy.position.y}`)) {
+        hits++;
+        if (preferredEnemy && enemy.id === preferredEnemy.id) {
+          hitPreferred = true;
+        }
+      }
+    }
+
+    if (preferredEnemy) {
+      if (hitPreferred && !targetHitBest) {
+        bestDirection = dir;
+        maxHits = hits;
+        targetHitBest = true;
+      } else if (hitPreferred === targetHitBest) {
+        if (hits > maxHits) {
+          bestDirection = dir;
+          maxHits = hits;
+        }
+      }
+    } else {
+      if (hits > maxHits) {
+        bestDirection = dir;
+        maxHits = hits;
+      }
+    }
+  }
+
+  return { direction: bestDirection, hitCount: Math.max(0, maxHits), hitTarget: targetHitBest };
 }
 
 

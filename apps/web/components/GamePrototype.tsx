@@ -1923,10 +1923,24 @@ function GamePrototypeContent() {
             changed = true;
           }
         }
+        if (changed) {
+          gameNetwork.sendBestiarySetKills(merged);
+        }
         return changed ? merged : prev;
       });
     }
   }, [encounter.events, trackedBestiaryMonsterId, activeCharacter]);
+
+  // Phase 163: Proactively push bestiary kills to Colyseus server whenever bestiaryKills state advances
+  const prevSyncedBestiaryKillsRef = useRef<string>('');
+  useEffect(() => {
+    if (!bestiaryKills || Object.keys(bestiaryKills).length === 0) return;
+    const serialized = JSON.stringify(bestiaryKills);
+    if (prevSyncedBestiaryKillsRef.current !== serialized) {
+      prevSyncedBestiaryKillsRef.current = serialized;
+      gameNetwork.sendBestiarySetKills(bestiaryKills);
+    }
+  }, [bestiaryKills]);
 
   const handleTrackMonster = useCallback((monsterId: string) => {
     const nextId = trackedBestiaryMonsterId === monsterId ? '' : monsterId;
