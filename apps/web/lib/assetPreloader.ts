@@ -197,7 +197,7 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
 /**
  * Carrega e decodifica uma imagem individual no browser com timeout estrito de segurança
  */
-async function preloadSingleImage(url: string, timeoutMs: number = 2500): Promise<boolean> {
+async function preloadSingleImage(url: string, timeoutMs: number = 1000): Promise<boolean> {
   if (typeof window === 'undefined') return true;
 
   return new Promise((resolve) => {
@@ -341,12 +341,12 @@ class AssetPreloaderService {
     if (this.safetyTimer) {
       clearTimeout(this.safetyTimer);
     }
-    // Timeout emergencial amplo de 10s caso ocorra queda total de conexão
+    // Timeout emergencial ágil de 3.5s para garantir entrada imediata mesmo em oscilação de rede
     this.safetyTimer = setTimeout(() => {
       if (!this.isFinished) {
         this.markComplete();
       }
-    }, 10000);
+    }, 3500);
 
     const categorized = compileActivePlayerAssetUrls(ctx);
     const allCategories: Array<{
@@ -380,7 +380,7 @@ class AssetPreloaderService {
 
       await preloadBatchWithConcurrency(
         cat.urls,
-        cat.key === 'audio' ? 2 : 6,
+        cat.key === 'audio' ? 2 : 12,
         () => {
           if (this.isFinished) return;
           catLoaded++;

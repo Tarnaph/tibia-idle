@@ -7,6 +7,7 @@ import {
   HOTBAR_POTIONS,
   HOTBAR_RUNES,
   findHotbarAction,
+  getActionSupplyCost,
   type CharacterState,
   type GameContent,
   type HotbarCondition,
@@ -270,13 +271,7 @@ export function HotbarConfigModal({
                 const isSelected = selectedId === rune.id;
                 const reqLevel = rune.requiredLevel ?? 0;
                 const isLocked = character.level < reqLevel;
-                const goldBadge =
-                  rune.id === 2273 ? '160'
-                  : rune.id === 2311 ? '15'
-                  : rune.id === 2302 ? '30'
-                  : rune.id === 2271 ? '30'
-                  : rune.id === 2288 ? '40'
-                  : '45';
+                const goldBadge = `${getActionSupplyCost(rune.id)}gp`;
                 return (
                   <div
                     key={rune.id}
@@ -316,6 +311,7 @@ export function HotbarConfigModal({
                   >
                     <div className="hotbar-icon-container">
                       <Tibia11ActionIcon id={potion.id} kind="potion" name={potion.name} size={32} />
+                      <span className="hotbar-rune-badge" style={{ background: '#2c3e50', color: '#f1c40f' }}>{getActionSupplyCost(potion.id)}gp</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                       <span className="hotbar-card-name">{potion.name}</span>
@@ -418,12 +414,24 @@ export function HotbarConfigModal({
                         `${selectedAction.spell.mana} de mana · ${(selectedAction.spell.cooldownMs / 1000).toFixed(0)}s de cooldown`
                       )}
                       {selectedAction.kind === 'rune' && (
-                        `Custa ${selectedAction.rune.id === 2273 ? 160 : 40} gold por uso.`
+                        `Tempo de recarga: ${(selectedAction.rune.cooldownMs / 1000).toFixed(1)}s`
                       )}
                       {selectedAction.kind === 'potion' && (
-                        selectedAction.potion.id === 8704 ? 'Uso gratuito — não custa gold.' : `Recupera vida/mana com recarga de 1.0s.`
+                        `Tempo de recarga: ${(selectedAction.potion.cooldownMs / 1000).toFixed(1)}s`
                       )}
                     </div>
+
+                    {/* Accurate Supply Cost Banner */}
+                    {selectedAction.kind === 'rune' && (
+                      <div style={{ marginTop: '8px', padding: '6px 10px', background: 'rgba(212, 168, 67, 0.12)', border: '1px solid #7d5c2e', borderRadius: '4px', fontSize: '11px', color: '#f3e5ab' }}>
+                        📦 Consome 1 unidade do inventário. Sem estoque: <strong>{getActionSupplyCost(selectedAction.rune.id)} gold</strong> da Caixa da Party por uso.
+                      </div>
+                    )}
+                    {selectedAction.kind === 'potion' && (
+                      <div style={{ marginTop: '8px', padding: '6px 10px', background: 'rgba(212, 168, 67, 0.12)', border: '1px solid #7d5c2e', borderRadius: '4px', fontSize: '11px', color: '#f3e5ab' }}>
+                        📦 Consome 1 unidade do inventário. Sem estoque: <strong>{getActionSupplyCost(selectedAction.potion.id)} gold</strong> da Caixa da Party por uso.
+                      </div>
+                    )}
 
                     {/* Damage / Heal Range */}
                     <div className="hotbar-formula-line">

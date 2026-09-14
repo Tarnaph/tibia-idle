@@ -8,7 +8,7 @@ import { createSeededRng, rollInteger } from './rng';
 import { calculateBestSpellDirection, getSpellAreaTiles, isDirectionalSpell, spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
-import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
+import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getActionSupplyCost, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { findWandDefinition, canUseWand } from './wands';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { findPath, isMeleeRange, meleeDistance } from './spatial/pathfinding';
@@ -313,8 +313,8 @@ function rollLoot(state: GameState, monsterId: string, content: GameContent, mul
 
         if (loot.itemId === 2148) {
           state.session.gold += amount;
-          const goldShare = Math.max(1, Math.floor(amount / partyMembers.length));
-          addLog(state, `Loot (Gold): ${amount} gold divididos na party (${goldShare} para cada).`);
+          state.encounter.events.push({ type: 'loot', itemName: 'Gold Coin', amount });
+          addLog(state, `Loot (Gold): +${amount} gold adicionados à Caixa da Party.`);
         } else {
           if (loot.itemId === undefined || (state.session.itemLootPreferences[String(loot.itemId)]?.autoLoot ?? true)) {
             addLoot(state.session.loot, { itemId: loot.itemId, name: loot.name, amount });
@@ -326,18 +326,23 @@ function rollLoot(state: GameState, monsterId: string, content: GameContent, mul
         // Solo mode
         if (loot.itemId === 2148) {
           state.session.gold += amount;
+          state.encounter.events.push({ type: 'loot', itemName: 'Gold Coin', amount });
+          addLog(state, `Loot (Gold): +${amount} gold adicionados à Caixa da Party.`);
         } else if (loot.itemId === undefined || (state.session.itemLootPreferences[String(loot.itemId)]?.autoLoot ?? true)) {
           addLoot(state.session.loot, { itemId: loot.itemId, name: loot.name, amount });
+          state.encounter.events.push({ type: 'loot', itemName: loot.name, amount });
+          addLog(state, `Loot: ${amount}x ${loot.name}.`);
+        } else {
+          state.encounter.events.push({ type: 'loot', itemName: loot.name, amount });
+          addLog(state, `Loot: ${amount}x ${loot.name}.`);
         }
-        state.encounter.events.push({ type: 'loot', itemName: loot.name, amount });
-        addLog(state, `Loot: ${amount}x ${loot.name}.`);
       }
     }
   }
   state.encounter.rngState = rng.state;
 }
 
-function defeatEnemy(state: GameState, target: EnemyState, content: GameContent): void {
+export function defeatEnemy(state: GameState, target: EnemyState, content: GameContent): void {
   if (!target.alive) return;
   const encounter = state.encounter;
   target.alive = false; target.path = []; target.targetId = null;
@@ -552,7 +557,12 @@ function formatSpellWords(words: string): string {
     .join(' ');
 }
 
-export function consumePotionFromInventory(state: GameState, potionId: number): boolean {
+export function consumePotionFromInventory(
+  state: GameState,
+  potionId: number,
+  characterName?: string,
+  outDetails?: { fromGold?: boolean; cost?: number }
+): boolean {
   const potionDef = HOTBAR_POTIONS.find((p) => p.id === potionId);
   if (!potionDef) return false;
 
@@ -572,18 +582,30 @@ export function consumePotionFromInventory(state: GameState, potionId: number): 
         const idx = container.indexOf(stack);
         if (idx !== -1) container.splice(idx, 1);
       }
+      if (outDetails) {
+        outDetails.fromGold = false;
+        outDetails.cost = 0;
+      }
       return true;
     }
   }
 
-  // 2. Auto-suprimento via gold se disponível
-  const cost = 50;
+  // 2. Auto-suprimento via gold se disponível (usa tabela canônica de custo de suprimento da Caixa da Party)
+  const cost = getActionSupplyCost(potionId);
   if (state.session.gold >= cost) {
     state.session.gold -= cost;
+    if (outDetails) {
+      outDetails.fromGold = true;
+      outDetails.cost = cost;
+    }
     return true;
   }
 
   // 3. Em caçadas e testes, se não houver a poção no inventário nem gold, permitir o consumo contínuo automático
+  if (outDetails) {
+    outDetails.fromGold = false;
+    outDetails.cost = 0;
+  }
   return true;
 }
 
@@ -623,8 +645,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
     let usedSpellThisTick = false;
     let usedOffensiveActionThisTick = false;
 
-    ensureHealthPotionInHotbar(character, content);
-
     for (let slotIndex = 0; slotIndex < character.hotbar.length; slotIndex++) {
       const actionId = character.hotbar[slotIndex];
       if (typeof actionId !== 'number' || actionId === 0) continue;
@@ -658,7 +678,8 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
           }
 
           if (conditionMet) {
-            const consumed = consumePotionFromInventory(state, potion.id);
+            const potionDetails = { fromGold: false, cost: 0 };
+            const consumed = consumePotionFromInventory(state, potion.id, character.name, potionDetails);
             if (!consumed) continue;
             const rng = createSeededRng(encounter.rngState);
             let healed = 0;
@@ -682,6 +703,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             actor.groupCooldowns['attack'] = Math.max(actor.groupCooldowns['attack'] ?? 0, encounter.elapsedMs + 1000);
             actor.groupCooldowns['support'] = Math.max(actor.groupCooldowns['support'] ?? 0, encounter.elapsedMs + 1000);
 
+            const speechText = potionDetails.fromGold ? `Aaaah... (-${potionDetails.cost}gp)` : 'Aaaah...';
             encounter.events.push({
               type: 'spell-cast',
               sourceId: actor.characterId,
@@ -689,7 +711,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               spellId: potion.id,
               amount: healed || restoredMana,
               healing: healed > 0,
-              speech: 'Aaaah...',
+              speech: speechText,
             });
             encounter.events.push({
               type: 'spell-visual',
@@ -705,7 +727,8 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               restoredMana > 0 ? `recuperou ${restoredMana} MP` : '',
             ].filter(Boolean).join(' e ');
 
-            addLog(state, `${character.name} usou ${potion.name} e ${details}.`);
+            const goldLog = potionDetails.fromGold ? ` (-${potionDetails.cost} gold da Caixa da Party)` : '';
+            addLog(state, `${character.name} usou ${potion.name} (${details}${goldLog}).`);
             syncCharacterResources(state, actor);
             usedPotionThisTick = true;
             usedSpellThisTick = true;
@@ -918,6 +941,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                 });
               }
 
+              let isFirstRuneTarget = true;
               for (const target of targets) {
                 const damage = resistedDamage(rawDamage, target, rune.combatType, content);
                 target.hp = Math.max(0, target.hp - damage);
@@ -928,10 +952,11 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                   spellId: rune.id,
                   amount: damage,
                   healing: false,
-                  speech: rune.name,
+                  speech: isFirstRuneTarget ? rune.name : undefined,
                   delayMs: impactDelay,
                   element: rune.combatType,
                 });
+                isFirstRuneTarget = false;
                 addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
                 if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
               }
@@ -1195,10 +1220,21 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               }
             }
 
+            let isFirstSpellTarget = true;
             for (const target of targets) {
               const damage = resistedDamage(amount, target, spell.combatType, content);
               target.hp = Math.max(0, target.hp - damage);
-              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech, element: spell.combatType });
+              encounter.events.push({
+                type: 'spell-cast',
+                sourceId: actor.characterId,
+                targetId: target.id,
+                spellId: spell.spellId,
+                amount: damage,
+                healing: false,
+                speech: isFirstSpellTarget ? spellSpeech : undefined,
+                element: spell.combatType,
+              });
+              isFirstSpellTarget = false;
               if (spell.area !== 'square-1x1' && !isDirectionalSpell(spell)) {
                 encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
               }
@@ -1245,7 +1281,8 @@ export function triggerManualHotbarAction(
       if ((character.combatState.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
       if ((character.combatState.groupCooldowns['healing'] ?? 0) > encounter.elapsedMs) return false;
 
-      const consumed = consumePotionFromInventory(state, potion.id);
+      const potionDetails = { fromGold: false, cost: 0 };
+      const consumed = consumePotionFromInventory(state, potion.id, character.name, potionDetails);
       if (!consumed) return false;
       const rng = createSeededRng(encounter.rngState);
       if (typeof potion.healMin === 'number' && typeof potion.healMax === 'number') {
@@ -1262,7 +1299,8 @@ export function triggerManualHotbarAction(
       character.combatState.groupCooldowns['healing'] = Math.max(character.combatState.groupCooldowns['healing'] ?? 0, encounter.elapsedMs + 1000);
       character.combatState.groupCooldowns['attack'] = Math.max(character.combatState.groupCooldowns['attack'] ?? 0, encounter.elapsedMs + 1000);
       character.combatState.groupCooldowns['support'] = Math.max(character.combatState.groupCooldowns['support'] ?? 0, encounter.elapsedMs + 1000);
-      addLog(state, `${character.name} usou ${potion.name}.`);
+      const goldLog = potionDetails.fromGold ? ` (-${potionDetails.cost} gold da Caixa da Party)` : '';
+      addLog(state, `${character.name} usou ${potion.name}${goldLog}.`);
       return true;
     }
     if (action.kind === 'spell') {
@@ -1319,7 +1357,8 @@ export function triggerManualHotbarAction(
     if ((actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
     if ((actor.groupCooldowns['healing'] ?? 0) > encounter.elapsedMs) return false;
 
-    const consumed = consumePotionFromInventory(state, potion.id);
+    const potionDetails = { fromGold: false, cost: 0 };
+    const consumed = consumePotionFromInventory(state, potion.id, character.name, potionDetails);
     if (!consumed) {
       addLog(state, `${character.name} não possui ${potion.name} no inventário.`);
       return false;
@@ -1346,6 +1385,7 @@ export function triggerManualHotbarAction(
     actor.groupCooldowns['attack'] = Math.max(actor.groupCooldowns['attack'] ?? 0, encounter.elapsedMs + 1000);
     actor.groupCooldowns['support'] = Math.max(actor.groupCooldowns['support'] ?? 0, encounter.elapsedMs + 1000);
 
+    const speechText = potionDetails.fromGold ? `Aaaah... (-${potionDetails.cost}gp)` : 'Aaaah...';
     encounter.events.push({
       type: 'spell-cast',
       sourceId: actor.characterId,
@@ -1353,7 +1393,7 @@ export function triggerManualHotbarAction(
       spellId: potion.id,
       amount: healed || restoredMana,
       healing: healed > 0,
-      speech: 'Aaaah...',
+      speech: speechText,
     });
     encounter.events.push({
       type: 'spell-visual',
@@ -1369,7 +1409,8 @@ export function triggerManualHotbarAction(
       restoredMana > 0 ? `recuperou ${restoredMana} MP` : '',
     ].filter(Boolean).join(' e ');
 
-    addLog(state, `${character.name} usou ${potion.name} e ${details}.`);
+    const goldLog = potionDetails.fromGold ? ` (-${potionDetails.cost} gold da Caixa da Party)` : '';
+    addLog(state, `${character.name} usou ${potion.name}${details ? ` (${details}${goldLog})` : goldLog}.`);
     syncCharacterResources(state, actor);
     return true;
   }
@@ -1469,6 +1510,7 @@ export function triggerManualHotbarAction(
       });
     }
 
+    let isFirstManualRuneTarget = true;
     for (const target of targets) {
       const damage = resistedDamage(rawDamage, target, rune.combatType, content);
       target.hp = Math.max(0, target.hp - damage);
@@ -1479,10 +1521,11 @@ export function triggerManualHotbarAction(
         spellId: rune.id,
         amount: damage,
         healing: false,
-        speech: rune.name,
+        speech: isFirstManualRuneTarget ? rune.name : undefined,
         delayMs: impactDelay,
         element: rune.combatType,
       });
+      isFirstManualRuneTarget = false;
       addLog(state, `${character.name} usou ${rune.name} em ${target.name} por ${damage}.`);
       if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
     }
@@ -1625,10 +1668,21 @@ export function triggerManualHotbarAction(
     }
   }
 
+  let isFirstManualSpellTarget = true;
   for (const target of targets) {
     const damage = resistedDamage(amount, target, spell.combatType, content);
     target.hp = Math.max(0, target.hp - damage);
-    encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, amount: damage, healing: false, speech: spellSpeech, element: spell.combatType });
+    encounter.events.push({
+      type: 'spell-cast',
+      sourceId: actor.characterId,
+      targetId: target.id,
+      spellId: spell.spellId,
+      amount: damage,
+      healing: false,
+      speech: isFirstManualSpellTarget ? spellSpeech : undefined,
+      element: spell.combatType,
+    });
+    isFirstManualSpellTarget = false;
     if (spell.area !== 'square-1x1' && !isDirectionalSpell(spell)) {
       encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     }
@@ -1747,16 +1801,15 @@ function playerAttacks(state: GameState, content: GameContent): void {
     const range = attackRange(character.id, state, content);
 
     let target: EnemyState | undefined;
-    if (isParty && !isFocusLead && leadTarget) {
-      target = meleeDistance(actor.position, leadTarget.position) <= range ? leadTarget : undefined;
+    if (isParty && !isFocusLead && leadTarget && meleeDistance(actor.position, leadTarget.position) <= range) {
+      target = leadTarget;
     } else {
       const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : undefined;
-      if (lockedTarget) {
-        // Target Lock Prioritário Estrito: ataca SOMENTE o alvo travado se estiver no alcance.
-        // Se estiver fora de alcance (ex: se aproximando), NÃO golpeia outros monstros vizinhos!
-        target = meleeDistance(actor.position, lockedTarget.position) <= range ? lockedTarget : undefined;
+      if (lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range) {
+        target = lockedTarget;
       } else {
-        // Sem alvo travado: auto-targeting no monstro vivo mais próximo dentro do alcance
+        // Se o alvo travado ou o alvo do líder não está no alcance (ex: está longe ou atrás de quina),
+        // ataca o monstro vivo mais próximo dentro do alcance (corpo a corpo) e atualiza o targetId
         const inRangeEnemies = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
         if (inRangeEnemies.length > 0) {
           inRangeEnemies.sort((a, b) => meleeDistance(actor.position, a.position) - meleeDistance(actor.position, b.position) || a.id.localeCompare(b.id));
@@ -1824,17 +1877,14 @@ export function triggerEmergencyAutoPotion(
   const isLethalOrCritical = (target.hp - incomingDamage <= 0) || (target.hp / character.maxHp <= 0.50);
   if (!isLethalOrCritical) return;
 
-  const potionId = ensureHealthPotionInHotbar(character, content);
-  if (!potionId) return;
+  const potion = getBestHealthPotionForCharacter(character);
+  if (!potion) return;
 
-  const action = findHotbarAction(potionId, content);
-  if (!action || action.kind !== 'potion' || !isHotbarActionUnlocked(character, action)) return;
-
-  const potion = action.potion;
   const canDrink = (target.groupCooldowns['potion'] ?? 0) <= encounter.elapsedMs || target.hp - incomingDamage <= 0;
   if (!canDrink) return;
 
-  const consumed = consumePotionFromInventory(state, potion.id);
+  const potionDetails = { fromGold: false, cost: 0 };
+  const consumed = consumePotionFromInventory(state, potion.id, character.name, potionDetails);
   if (!consumed) return;
 
   const rng = createSeededRng(encounter.rngState);
@@ -1859,6 +1909,7 @@ export function triggerEmergencyAutoPotion(
   target.groupCooldowns['attack'] = Math.max(target.groupCooldowns['attack'] ?? 0, encounter.elapsedMs + 1000);
   target.groupCooldowns['support'] = Math.max(target.groupCooldowns['support'] ?? 0, encounter.elapsedMs + 1000);
 
+  const speechText = potionDetails.fromGold ? `Aaaah... (-${potionDetails.cost}gp)` : 'Aaaah...';
   encounter.events.push({
     type: 'spell-cast',
     sourceId: target.characterId,
@@ -1866,7 +1917,7 @@ export function triggerEmergencyAutoPotion(
     spellId: potion.id,
     amount: healed || restoredMana,
     healing: healed > 0,
-    speech: 'Aaaah...',
+    speech: speechText,
   });
   encounter.events.push({
     type: 'spell-visual',
@@ -1877,7 +1928,8 @@ export function triggerEmergencyAutoPotion(
     projectileId: null,
   });
 
-  addLog(state, `${character.name} tomou poção de emergência (${potion.name}) antes do golpe fatal e recuperou ${healed} HP!`);
+  const goldLog = potionDetails.fromGold ? ` (-${potionDetails.cost} gold da Caixa da Party)` : '';
+  addLog(state, `${character.name} tomou poção de emergência (${potion.name}) antes do golpe fatal e recuperou ${healed} HP${goldLog}!`);
   syncCharacterResources(state, target);
 }
 
@@ -2139,7 +2191,7 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
     return;
   }
 
-  const visibleEnemies = encounter.enemies.filter((enemy) => enemy.alive && encounter.partyActors.some((actor) => actor.alive && (actor.targetId === enemy.id || meleeDistance(actor.position, enemy.position) <= 7)));
+  const visibleEnemies = encounter.enemies.filter((enemy) => enemy.alive && encounter.partyActors.some((actor) => actor.alive && (meleeDistance(actor.position, enemy.position) <= 7 || (actor.targetId === enemy.id && meleeDistance(actor.position, enemy.position) <= 8))));
   if (visibleEnemies.length > 0) {
     const partyKnight = findPartyKnightActor(state);
     const mainLeadId = partyKnight?.characterId ?? state.session.selectedCharacterId;

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-14T12:15:00.000Z"
-last_activity: "2026-09-14 — Concluída Phase 167.1: Bloco 1.1 - Concorrência Transacional Otimista (OCC), Blindagem WebSocket, Reconciliação 409, Catálogo de Inventário e Sandbox de Testes."
+last_updated: "2026-09-14T23:37:00.000Z"
+last_activity: "2026-09-14 — Concluída Phase 175: Resolução Completa do FIX.md (Persistência Diferencial de Alts, Otimização de Entrada, Ciclo de Áudio do Bardo e Hotbar Canônica)."
 progress:
-  total_phases: 168
-  completed_phases: 168
-  total_plans: 174
-  completed_plans: 174
+  total_phases: 175
+  completed_phases: 175
+  total_plans: 181
+  completed_plans: 181
   percent: 100
 ---
 
@@ -20,16 +20,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Concluído Bloco 1.1 (Phase 167.1) - Pronto para revisão da entrega antes do próximo bloco.
+**Current focus:** Concluída Phase 175 - Resolução Completa do FIX.md (Persistência Diferencial de Alts, Otimização de Entrada, Ciclo de Áudio do Bardo e Hotbar Canônica).
 
 ## Current Position
 
-Phase: 167.1 of 168 (Concluída)  
+Phase: 175 of 175 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-14 — Execução do Bloco 1.1 atendendo integralmente às exigências de concorrência transacional no banco (OCC), ciclo 409 client-side, validação de inventário contra catálogo e testes em banco/diretório temporários isolados.
+Last activity: 2026-09-14 — Persistência diferencial de acompanhantes preservando mochilas e consumíveis, reconciliação 409 atômica, eliminação de cópia/soma de ouro no login, conexão de saldo de coins da conta, otimização de bootstrap e parada definitiva de áudio do bardo, hotbar de poções sem reposição forçada e custos canônicos de suprimentos.
 
 Progress: [██████████] 100%
+
+
 
 
 ## Performance Metrics
@@ -91,13 +93,16 @@ Progress: [██████████] 100%
 | 165. Animações de Treino em Dummies, Projéteis Vocacionais e Dummies Residenciais | 1 | - | - | Complete |
 | 166. Reestruturação do Squad (Formação Fila Indiana na Cidade, Níveis 70/150/200, 1 Vocação por Slot, Auto-Login Direto e Treino Contínuo no Dummy) | 1 | - | - | Complete |
 | 167. Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite | 1 | - | - | Complete |
-
-
-
+| 171. Sincronização da Party, Retenção no Templo e Priorização de Alvos | 1 | - | - | Complete |
+| 172. Formação de Treino da Party ao Redor do Dummy & HUD Superior Multi-Personagem | 1 | - | - | Complete |
+| 173. Resolução Completa do FIX.md (Deduplicação de Magias, Persistência de Alts, Auto-Leveling e Floating Party HUD) | 1 | - | - | Complete |
 
 ## Accumulated Context
 
 ### Decisions
+
+- [Phase 174]: Definição canônica de que o ouro do jogo pertence à Caixa da Party (`session.gold`). Alinhamento dos logs de loot (`Loot (Gold): +X gold adicionados à Caixa da Party.`), titular exclusivo da Caixa da Party no banco de dados (`onlineCharacter` / líder da sessão) prevenindo duplicação em alts, desbloqueio de salvamento periódico com acompanhante selecionado no `GamePrototype.tsx`, herança de saldo ao logar com alt, e fala flutuante `Aaaah... (-50gp)` com log explicativo no uso de auto-poções.
+- [Phase 173]: Emissão de `speech` limitada estritamente ao primeiro alvo em magias e runas de área no domínio (`combat.ts`), deduplicação de visual events em `ThaisCityArena.tsx`, persistência periódica individual de alts da party com `saveVersion` próprio e deserialização de skills relacionais do Prisma (`resolveSkillKey`), pose estática (`charWalkFrame = 0`) no golpe do dummy com auto-leveling contínuo (`< 1s`), e criação do `FloatingPartyHUD` flutuante com ativação por duplo clique.
 
 - [Phase 165]: Efeitos visuais de treino nos dummies em Thais e casas desacoplados em `resolveTrainingVisualAction` com suporte canônico de vocação (Knight: melee hit; Paladin: flecha + hit; Sorcerer: fogo/energia; Druid: gelo/energia), pulso de ataque corporal (`charWalkFrame = 1` + micro-avanço de 3px) e propagação em tempo real pela sala Colyseus.
 - [Phase 74]: Personagens novos iniciam estritamente no Nível 1 (0 XP, 150 HP, 35 MP, 400 de capacidade) com spawn canônico em Thais (32369, 32241, 7) e tags auditadas (inHunt: false, posZ: 7, nameplate e outfit da vocação) para visibilidade imediata por outros jogadores.

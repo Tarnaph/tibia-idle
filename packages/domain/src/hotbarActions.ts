@@ -880,6 +880,62 @@ export function getBestHealthPotionForCharacter(character: CharacterState): Hotb
   return eligible[0];
 }
 
+export const ACTION_SUPPLY_COSTS: Record<number, number> = {
+  // Healing & Mana Potions
+  8704: 20,   // Lesser Health Potion
+  7618: 50,   // Health Potion
+  7588: 100,  // Strong Health Potion
+  7591: 190,  // Great Health Potion
+  8473: 310,  // Ultimate Health Potion
+  26029: 500, // Supreme Health Potion
+  7620: 50,   // Mana Potion
+  7589: 80,   // Strong Mana Potion
+  7590: 120,  // Great Mana Potion
+  26030: 350, // Ultimate Mana Potion
+  8472: 190,  // Great Spirit Potion
+  26031: 350, // Ultimate Spirit Potion
+  // Runes
+  2268: 135,  // Sudden Death
+  2311: 12,   // Heavy Magic Missile
+  2304: 45,   // Great Fireball
+  2273: 175,  // Ultimate Healing Rune
+  2261: 15,   // Destroy Field
+  2269: 160,  // Wild Growth
+  2285: 28,   // Fire Field
+  2286: 21,   // Poison Field
+  2287: 38,   // Energy Field
+  2288: 61,   // Fire Wall
+  2289: 52,   // Poison Wall
+  2290: 85,   // Energy Wall
+  2291: 117,  // Fire Bomb
+  2292: 85,   // Poison Bomb
+  2293: 162,  // Energy Bomb
+  2295: 16,   // Holy Missile
+  2296: 37,   // Stone Shower
+  2297: 37,   // Thunderstorm
+  2301: 30,   // Fireball
+  2302: 4,    // Light Magic Missile
+  2305: 31,   // Explosion
+  2306: 180,  // Mass Healing
+  2308: 46,   // Soulfire
+  2310: 26,   // Desintegrate
+  2313: 45,   // Avalanche
+  2315: 210,  // Chameleon
+  2316: 80,   // Convince Creature
+  2274: 95,   // Intense Healing
+  2265: 30,   // Dispel Electrification
+  2266: 30,   // Cure Poison
+  2270: 30,   // Envenom
+  2271: 116,  // Magic Wall
+  2277: 375,  // Animate Dead
+  2278: 700,  // Paralyze
+  2279: 30,   // Icicle
+};
+
+export function getActionSupplyCost(actionId: number): number {
+  return ACTION_SUPPLY_COSTS[actionId] ?? 50;
+}
+
 export function ensureHealthPotionInHotbar(character: CharacterState, content: GameContent): number | undefined {
   if (!character.hotbar) character.hotbar = [];
 
@@ -890,6 +946,13 @@ export function ensureHealthPotionInHotbar(character: CharacterState, content: G
   });
 
   if (existingPotionId) return existingPotionId;
+
+  // FIX.md Item 4: Se o jogador já configurou a hotbar (ou a hotbar já existe e possui itens/espaços),
+  // respeitar a vontade do jogador e NÃO recolocar a poção caso ele a tenha limpado intencionalmente!
+  // Apenas sugerir poção se a hotbar estiver completamente vazia (personagem recém-criado, length === 0)
+  if (character.hotbar.length > 0) {
+    return undefined;
+  }
 
   const bestPotion = getBestHealthPotionForCharacter(character);
   if (!bestPotion) return undefined;
@@ -903,7 +966,6 @@ export function ensureHealthPotionInHotbar(character: CharacterState, content: G
     assignedIndex = character.hotbar.length;
     character.hotbar.push(bestPotion.id);
   } else {
-    // If player has customized all 20 hotbar slots, do not destructively overwrite slot 0
     return undefined;
   }
 

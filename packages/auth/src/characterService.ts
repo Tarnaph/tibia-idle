@@ -3,6 +3,7 @@ import { experienceForLevel, levelForExperience } from '../../domain/src/experie
 import { calculateStatsForLevel } from '../../domain/src/party';
 import { CharacterSaveLockManager } from './characterSaveLock';
 import { XpRateLimiter } from './xpRateLimiter';
+import { ServerCharacterContextRegistry } from './characterContextRegistry';
 
 export class VersionConflictError extends Error {
   public readonly code = 'VERSION_CONFLICT';
@@ -410,6 +411,7 @@ export class CharacterService {
       mountActive?: boolean;
       skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }> | Record<string, any>;
       inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
+      replaceFullInventory?: boolean;
       hotbar?: any;
       hotbarConfigs?: any;
       bestiaryKills?: any;
@@ -421,7 +423,7 @@ export class CharacterService {
       direction?: string;
       saveVersion?: number;
     },
-    options?: { isInternal?: boolean }
+    options?: { isInternal?: boolean; isHunting?: boolean }
   ) {
     return CharacterSaveLockManager.withLock(characterId, async () => {
       // Strictly require integer saveVersion >= 1 in public API
@@ -507,6 +509,7 @@ export class CharacterService {
 
       const isDeath = (data as any).isDeathPenalty === true;
       let targetExp = incomingExp;
+      let consumedDelta = 0;
 
       if (!isDeath) {
         targetExp = Math.max(incomingExp, existingExp);
@@ -515,14 +518,23 @@ export class CharacterService {
         }
 
         // Sanity Check: Continuous XP budget (Token Bucket) without static minimum floor
-        const deltaExp = targetExp - existingExp;
+        // Deduplicação e contexto autoritativo de caçada registrado no servidor
+        const authorizedExp = XpRateLimiter.getAuthorizedExp(characterId);
+        const unvalidatedBaseline = Math.max(existingExp, authorizedExp);
+        const deltaExp = targetExp - unvalidatedBaseline;
+
         if (deltaExp > 0 && !options?.isInternal && !(data as any).isManualAdminGrant) {
+          const isHunting = options?.isHunting !== undefined
+            ? Boolean(options.isHunting)
+            : ServerCharacterContextRegistry.isHunting(characterId);
+
           const check = XpRateLimiter.consume(characterId, deltaExp, Date.now(), {
-            isHunting: Boolean((data as any).inHunt || (data as any).mode === 'hunt'),
+            isHunting,
           });
           if (!check.allowed) {
             throw new Error(`Suspicious XP gain: +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}).`);
           }
+          consumedDelta = deltaExp;
         }
       }
 
@@ -716,9 +728,27 @@ export class CharacterService {
 
         // Update inventory items if provided with validated catalog items
         if (Array.isArray(data.inventory)) {
-          await tx.inventoryItem.deleteMany({
-            where: { characterId },
-          });
+          if (data.replaceFullInventory !== false) {
+            // Full replacement (used for session leader / titular): replaces all items
+            await tx.inventoryItem.deleteMany({
+              where: { characterId },
+            });
+          } else {
+            // Selective / differential update (used for companions / alts):
+            // Only replaces the specific slots supplied in data.inventory (e.g. equipment slots),
+            // preserving all other items (personal backpacks, saved items, consumables, previous gold)
+            const incomingSlots = data.inventory
+              .map((eq) => (typeof eq.slot === 'string' ? eq.slot.toLowerCase() : ''))
+              .filter(Boolean);
+            if (incomingSlots.length > 0) {
+              await tx.inventoryItem.deleteMany({
+                where: {
+                  characterId,
+                  slot: { in: incomingSlots },
+                },
+              });
+            }
+          }
 
           const catalog = getItemCatalog();
           const sanitizedItems = data.inventory.map((eq) => {
@@ -757,11 +787,16 @@ export class CharacterService {
 
       if (typeof (this.prisma as any).$transaction === 'function') {
         try {
-          return await (this.prisma as any).$transaction(executeMutations, {
+          const result = await (this.prisma as any).$transaction(executeMutations, {
             maxWait: 10000,
             timeout: 20000,
           });
+          XpRateLimiter.recordAuthorizedExp(characterId, Math.floor(targetExp));
+          return result;
         } catch (err: any) {
+          if (consumedDelta > 0) {
+            XpRateLimiter.refund(characterId, consumedDelta);
+          }
           if (err instanceof VersionConflictError) {
             // Após rollback da transação com colisão, buscar o estado mais recente do banco!
             const fresh = await this.prisma.character.findUnique({
@@ -779,8 +814,13 @@ export class CharacterService {
       }
 
       try {
-        return await executeMutations(this.prisma);
+        const result = await executeMutations(this.prisma);
+        XpRateLimiter.recordAuthorizedExp(characterId, Math.floor(targetExp));
+        return result;
       } catch (err: any) {
+        if (consumedDelta > 0) {
+          XpRateLimiter.refund(characterId, consumedDelta);
+        }
         if (err instanceof VersionConflictError && !err.character) {
           const fresh = await this.prisma.character.findUnique({
             where: { id: characterId },

@@ -23,6 +23,7 @@ import {
 
 interface WindowDockBarProps {
   gold: number;
+  coins?: number;
   accountUsername?: string;
   characterName?: string;
   character?: CharacterState;
@@ -44,6 +45,7 @@ interface WindowDockBarProps {
   onOpenShop?: () => void;
   onOpenOutfit?: () => void;
   onOpenCyclopedia?: () => void;
+  onOpenParty?: () => void;
   isMounted?: boolean;
   onToggleMount?: () => void;
   onExitGame?: () => void;
@@ -52,6 +54,7 @@ interface WindowDockBarProps {
 
 export function WindowDockBar({
   gold,
+  coins = 0,
   accountUsername = 'ADMIN',
   characterName = 'Hero',
   character,
@@ -73,6 +76,7 @@ export function WindowDockBar({
   onOpenShop,
   onOpenOutfit,
   onOpenCyclopedia,
+  onOpenParty,
   isMounted = false,
   onToggleMount,
   onExitGame,
@@ -616,7 +620,7 @@ export function WindowDockBar({
             className="huntera-coin-img"
             style={{ width: '22px', height: '22px', imageRendering: 'pixelated', objectFit: 'contain' }}
           />
-          <span className="badge-value">0</span>
+          <span className="badge-value">{coins.toLocaleString('pt-BR')}</span>
           <button type="button" className="badge-plus-btn" title="Comprar Coins">+</button>
         </div>
 
@@ -687,9 +691,15 @@ export function WindowDockBar({
 
         <button
           type="button"
-          className={`huntera-square-btn ${windows.party?.isOpen ? 'active' : ''}`}
-          onClick={() => toggleWindow('party')}
-          title="Seu Squad / Party"
+          className="huntera-square-btn"
+          onClick={() => {
+            if (onOpenParty) {
+              onOpenParty();
+            } else {
+              toggleWindow('party');
+            }
+          }}
+          title="Gerenciador de Party (Grupo)"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />

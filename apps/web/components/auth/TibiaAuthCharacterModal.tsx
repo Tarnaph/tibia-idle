@@ -286,10 +286,20 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       }
 
       if (charData.success) {
-        setCharacters(charData.data);
+        const charList: CharacterItem[] = charData.data || [];
+        setCharacters(charList);
         try {
-          localStorage.setItem('cavebound_cached_characters', JSON.stringify(charData.data));
+          localStorage.setItem('cavebound_cached_characters', JSON.stringify(charList));
         } catch {}
+
+        const isManualLogout = typeof window !== 'undefined' && sessionStorage.getItem('cavebound_manual_logout') === 'true';
+
+        if (charList.length === 0) {
+          setIsCreatingChar(true);
+        } else if (!isManualLogout) {
+          const primaryChar = charList[0];
+          void startFadeOutAndEnterRef.current(primaryChar, true);
+        }
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Falha ao comunicar com o servidor.');
@@ -315,6 +325,9 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       const authToken = data.data.token;
       localStorage.setItem('colyseus_token', authToken);
       document.cookie = `colyseus_token=${authToken}; path=/; max-age=604800; SameSite=Lax`;
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('cavebound_manual_logout');
+      }
       setToken(authToken);
       setAccount(data.data.account);
       await fetchAccountAndCharacters(authToken);
@@ -342,6 +355,9 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       const authToken = data.data.token;
       localStorage.setItem('colyseus_token', authToken);
       document.cookie = `colyseus_token=${authToken}; path=/; max-age=604800; SameSite=Lax`;
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('cavebound_manual_logout');
+      }
       setToken(authToken);
       setAccount(data.data.account);
       setIsRegistering(false);
@@ -375,7 +391,14 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       setCharName('');
       setCharGender('male');
       setSelectedVocation(4);
-      await fetchAccountAndCharacters(token);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('cavebound_manual_logout');
+      }
+      if (data.data) {
+        void startFadeOutAndEnterRef.current(data.data, true);
+      } else {
+        await fetchAccountAndCharacters(token);
+      }
     } catch (err: any) {
       setErrorMsg(err.message);
     } finally {
@@ -408,6 +431,15 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
   };
 
   const handleLogout = () => {
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+        videoRef.current.muted = true;
+        videoRef.current.removeAttribute('src');
+        videoRef.current.load();
+      } catch {}
+    }
     if (sessionChannelRef.current) {
       try {
         sessionChannelRef.current.postMessage({ type: 'SESSION_CLOSED' });
@@ -445,6 +477,9 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
         }
       }
       setIsEnteringGame(true);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('cavebound_manual_logout');
+      }
 
       const currentToken = token || localStorage.getItem('colyseus_token') || '';
       const currentAccount = account || {
@@ -458,6 +493,10 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       if (video) {
         try {
           video.pause();
+          video.currentTime = 0;
+          video.muted = true;
+          video.removeAttribute('src');
+          video.load();
         } catch {}
       }
 
@@ -469,6 +508,21 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
   useEffect(() => {
     startFadeOutAndEnterRef.current = startFadeOutAndEnter;
   }, [startFadeOutAndEnter]);
+
+  // Guaranteed audio/video stop on modal unmount
+  useEffect(() => {
+    return () => {
+      if (videoRef.current) {
+        try {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+          videoRef.current.muted = true;
+          videoRef.current.removeAttribute('src');
+          videoRef.current.load();
+        } catch {}
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -572,6 +626,15 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
           href="/"
           onClick={(e) => {
             e.preventDefault();
+            if (videoRef.current) {
+              try {
+                videoRef.current.pause();
+                videoRef.current.currentTime = 0;
+                videoRef.current.muted = true;
+                videoRef.current.removeAttribute('src');
+                videoRef.current.load();
+              } catch {}
+            }
             if (onGoHome) {
               onGoHome();
             } else {
@@ -1070,30 +1133,36 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Seus Personagens</h2>
-                    <button
-                      onClick={() => setIsCreatingChar(true)}
-                      style={{
-                        width: '180px',
-                        height: '38px',
-                        backgroundImage: "url('/create-char-btn.png')",
-                        backgroundSize: '100% 100%',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'center',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        color: '#f3e5ab',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        textShadow: '1px 1px 3px #000',
-                        filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
-                      }}
-                    >
-                      + Criar Personagem
-                    </button>
+                    {characters.length === 0 ? (
+                      <button
+                        onClick={() => setIsCreatingChar(true)}
+                        style={{
+                          width: '180px',
+                          height: '38px',
+                          backgroundImage: "url('/create-char-btn.png')",
+                          backgroundSize: '100% 100%',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'center',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          color: '#f3e5ab',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textShadow: '1px 1px 3px #000',
+                          filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
+                        }}
+                      >
+                        + Criar Personagem
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: '11px', color: '#a09886', fontStyle: 'italic' }}>
+                        Heróis adicionais são criados no Squad in-game
+                      </span>
+                    )}
                   </div>
 
                   {characters.length === 0 ? (
@@ -1417,6 +1486,7 @@ function BardChromaVideo({
     if (!video || !canvas) return;
 
     let animId: number;
+    let removeInteractionListeners = () => {};
 
     const setInitialTime = () => {
       if (video.currentTime < 14) {
@@ -1455,15 +1525,18 @@ function BardChromaVideo({
 
         // Unmute on user interaction
         const unmuteAndPlay = () => {
-          if (video) {
+          if (video && video.isConnected && !video.paused) {
             video.muted = false;
             video.volume = 0.8;
-            video.play().then(() => {
-              setIsMuted(false);
-              setIsPlaying?.(true);
-            }).catch(() => {});
+            video
+              .play()
+              .then(() => {
+                setIsMuted(false);
+                setIsPlaying?.(true);
+              })
+              .catch(() => {});
           }
-          removeListeners();
+          removeInteractionListeners();
         };
 
         const removeListeners = () => {
@@ -1474,6 +1547,7 @@ function BardChromaVideo({
           window.removeEventListener('keydown', unmuteAndPlay);
           window.removeEventListener('touchstart', unmuteAndPlay);
         };
+        removeInteractionListeners = removeListeners;
 
         window.addEventListener('mousemove', unmuteAndPlay, { once: true });
         window.addEventListener('pointermove', unmuteAndPlay, { once: true });
@@ -1532,6 +1606,12 @@ function BardChromaVideo({
 
     return () => {
       cancelAnimationFrame(animId);
+      removeInteractionListeners();
+      try {
+        video.pause();
+        video.currentTime = 0;
+        video.muted = true;
+      } catch {}
       video.removeEventListener('loadedmetadata', setInitialTime);
       video.removeEventListener('timeupdate', setInitialTime);
       video.removeEventListener('play', handlePlay);
@@ -1547,7 +1627,7 @@ function BardChromaVideo({
         autoPlay
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         crossOrigin="anonymous"
         onLoadedMetadata={(e) => {
           if (e.currentTarget.currentTime < 14) {

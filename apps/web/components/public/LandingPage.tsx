@@ -84,8 +84,15 @@ export function LandingPage({
   const [selectedUpdate, setSelectedUpdate] = useState<GameUpdateRow | null>(null);
   const [activeVocationTab, setActiveVocationTab] = useState<string>('knight');
 
-  // Performance (Phase 126 & 141): Prefetch /game and preload loading artworks for instant incognito entry
+  // Performance (Phase 126, 141 & 175): Prefetch /game, sync cookie and preload loading artworks for instant entry
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedToken = localStorage.getItem('colyseus_token');
+      if (savedToken && !document.cookie.includes('colyseus_token=')) {
+        document.cookie = `colyseus_token=${savedToken}; path=/; max-age=604800; SameSite=Lax`;
+      }
+    }
+
     try {
       const p: any = router.prefetch('/game');
       if (p && typeof p.catch === 'function') {
@@ -128,7 +135,17 @@ export function LandingPage({
   };
 
   const play = () => {
-    if (auth.status === 'authenticated') {
+    const hasLocalToken =
+      typeof window !== 'undefined' &&
+      Boolean(localStorage.getItem('colyseus_token') || document.cookie.includes('colyseus_token='));
+
+    if (auth.status === 'authenticated' || hasLocalToken) {
+      if (hasLocalToken && typeof window !== 'undefined') {
+        const token = localStorage.getItem('colyseus_token');
+        if (token && !document.cookie.includes('colyseus_token=')) {
+          document.cookie = `colyseus_token=${token}; path=/; max-age=604800; SameSite=Lax`;
+        }
+      }
       try {
         const p: any = router.push('/game');
         if (p && typeof p.catch === 'function') {

@@ -120,6 +120,12 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites** - Janela flutuante arrastável (drag & drop) no canto superior direito, rastreamento simultâneo de múltiplos monstros da hunt e saneamento de sprites canônicos da Cyclopedia (sem demon no rat).
 - [x] **Phase 161: Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos** - Adotar cores autênticas da CipSoft para danos de Physical, Fire, Energy, Earth, Ice, Holy, Death, Healing e Mana no PixiJS com propagação de elementos nos eventos de combate.
 - [x] **Phase 162: Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano)** - Alvo marcado (retângulo vermelho) com perseguição estrita em movement.ts, ataques básicos sem bater em criaturas vizinhas fora do alvo, runas/magias focadas no alvo travado e auto-retargeting limpo pós-morte.
+- [x] **Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite** - Autenticação JWT estrita, persistência transacional com rollback e backup SQLite WAL atômico.
+- [x] **Phase 167.1: Bloco 1.1 - Concorrência Transacional Otimista (OCC), Blindagem WebSocket, Reconciliação 409, Catálogo de Inventário e Sandbox de Testes** - OCC transacional com rollback atômico, mitigação 409, Token Bucket contínuo e validação de catálogo.
+- [x] **Phase 167.2: Bloco 1.1b - Correções Críticas de Migração SQLite, Reconciliação Integral 409, Contexto Server-Side de Caçada e Deduplicação de Orçamento de XP** - Padrão RedefineTables em SQLite, reconciliação 409 de gold/bag/loot e skills por skillId, contexto autoritativo de caçada no servidor e contabilidade única de XP sem dupla cobrança.
+- [x] **Phase 171: Sincronização Integral da Party (Mapa de Thais e Caçadas) & Priorização de Alvo Próximo** - Hidratação imediata de `savedPool` no mount do `GamePrototype.tsx`, sincronização bidirecional de alts em `session.characters` e `partyMemberIds`, retenção de 100% dos integrantes do squad no respawn pós-morte no Templo de Thais, desbloqueio de slots por `accountMaxLevel`, priorização de inimigos mais próximos (`closest`) no movimento e fallback nos ataques físicos para monstros adjacentes.
+- [x] **Phase 172: Formação de Treino da Party ao Redor do Dummy & HUD Superior Multi-Personagem** - Desacoplamento da fila indiana ao treinar no dummy em Thais, posicionamento automático de todos os membros do squad em volta do training dummy virados para o boneco, treino simultâneo de cada membro em sua respectiva skill vocacional (Knight melee, Paladin distance, Sorcerer/Druid magic level), disparos e animações individuais de cada membro contra o dummy, expansão do `TrainingProgressHUD` para exibir os 4 personagens simultaneamente com progresso e tempo estimado, e retorno automático à formação de seguimento ao cancelar o treino.
+- [x] **Phase 173: Resolução do FIX.md (Deduplicação de Magias, Persistência de Alts, Auto-Leveling no Dummy e Floating Party HUD)** - Deduplicação de speech em magias e runas de área e deduplicação de visual events em ThaisCityArena, persistência periódica individual de alts da party com controle de saveVersion e deserialização correta de skills relacionais do Prisma, postura em repouso no dummy com avanço imediato de nível ao completar tentativas (< 1s), e FloatingPartyHUD flutuante e arrastável para gerenciamento da party com troca ativa por duplo clique.
 
 ---
 
@@ -3211,6 +3217,88 @@ Plans:
 - [x] 167.1-01-PLAN: OCC Transacional, Blindagem WebSocket, Reconciliação 409, Catálogo de Inventário e Sandbox de Testes.
 
 - Resumo de entrega: `.planning/phases/phase-167-security-multi-room-persistence-and-sqlite-backup/167.1-SUMMARY.md`
+
+### Phase 167.2: Bloco 1.1b - Correções Críticas de Migração SQLite, Reconciliação Integral 409, Contexto Server-Side de Caçada e Deduplicação de Orçamento de XP
+
+**Goal**: Corrigir os 4 pontos identificados na revisão do Bloco 1.1 garantindo migração funcional em bancos SQLite existentes preenchidos, reconciliação 409 client-side abrangendo ouro, bolsa, loot e skills por skillId, contexto autoritativo de caçada consultado no servidor sem dependência de flags do cliente, contabilidade única do orçamento de XP sem cobrança duplicada ao persistir e reversão em caso de conflito.  
+**Depends on**: Phase 167.1  
+**Requirements**:
+1. Migração SQLite Resiliente: Padrão RedefineTables permitindo aplicar `saveVersion` e `lastSavedAt` sem erro `Cannot add a column with non-constant default` em bancos já povoados, e documentação para bancos com `db push` (`prisma migrate resolve`).
+2. Reconciliação 409 Integral: Reconstruir ouro (`gold`), bolsa (`bag`), loot (`loot`), equipamentos e mapeamento canônico de skills (por `skillId` e nomes flexíveis como `Sword Fighting`) no `GamePrototype.tsx`, garantindo que nenhum item vendido ou valor antigo reapareça no autosave subsequente.
+3. Contexto de Caçada Autoritativo no Servidor: `characterService.ts` e validações de API consultam contexto de caçada registrado pelo servidor (`ServerCharacterContextRegistry`), sem aceitar cegamente sinalizador do cliente.
+4. Deduplicação do Orçamento de XP e Reversão Atômica: Cada ganho de experiência é debitado exatamente uma única vez; a persistência de XP autorizada pelo WebSocket não sofre dupla cobrança; e conflitos de versão ou erros de gravação revertem (`refund`) o orçamento debitado.
+5. Suíte de Testes de Integração Real: Testes automatizados cobrindo os 4 cenários além de disputa concorrente real entre `CharacterService` e `PrismaPersistenceManager` em SQLite.
+6. Limitação de Homologação: Rastreamento de origem de itens mantido documentado como limitação até a fase de economia/trade.
+
+### Phase 168: Bloco 1.2 - Sistema Unificado de Party & Interface Medieval Estilo Seletor de Caçadas
+
+**Goal**: Unificar definitivamente os conceitos de Squad (alts da conta) e Party (jogadores reais) em um único Sistema de Party com 4 vagas por vocação (Knight, Paladin, Sorcerer, Druid), substituindo a interface legada por um modal medieval idêntico ao design do Seletor de Caçadas (moldura Exura, placa octogonal com rubis, 4 cards vocacionais atmosféricos, badges de prontidão/aceite e botão de ação ruby).  
+**Depends on**: Phase 167.2  
+**Requirements**:
+1. Design de UI Medieval Idêntico ao Seletor de Caçadas: Moldura `hunt-exura-frame`, placa octogonal com joias de rubi (`hunt-header-plaque`), abas medievais, medalhões de nível e botão central de ação `hunt-btn-ruby-primary`.
+2. 4 Cards de Vocações Estruturados: Cards verticais para Knight (Tank), Paladin (Ranged DPS), Sorcerer (Magic DPS) e Druid (Healer), com artes de fundo temáticas, sprites do outfit dos personagens e silhuetas estilizadas para vagas livres.
+3. Unificação Squad + Party Híbrida: Cada vaga pode ser ocupada pelo líder, por alts da conta do líder ou por outros jogadores reais conectados via Colyseus WebSocket.
+4. Fluxo de Aceite e Prontidão Transparente: Alts da conta são marcados como "Pronto" imediatamente; jogadores convidados mostram status "Aguardando Aprovação" até confirmarem a proposta de caçada.
+5. Botões de Ação Dinâmicos: "Preencher com Alt" para slots vazios da mesma vocação, "Convidar Jogador", "Remover/Substituir" e botão central "Escolher Caçada do Grupo" que engatilha o `HuntSelector` em modo cooperativo.
+6. Suíte de Testes Automatizada: Garantir 0 erros de tipagem TypeScript e testes cobrindo a renderização dos 4 slots, troca de alts, convite de players e sincronização de estado.
+
+**Plans:**
+- [x] 168-01-PLAN: Design e Implementação da Interface Unificada de Party no Estilo Medieval do Seletor de Caçadas.
+
+- Resumo de entrega: `.planning/phases/phase-168-unified-party-ui-hunt-selector-style/168-SUMMARY.md`
+
+### Phase 173: Resolução Completa do FIX.md (Deduplicação de Magias, Persistência de Alts, Auto-Leveling no Dummy e Floating Party HUD)
+
+**Goal**: Implementar as 4 correções e melhorias estruturais consolidadas no FIX.md: deduplicação de falas de feitiços de área e controle de visual events na cidade; persistência individual de alts da party no autosave com deserialização relacional correta de skills; correção da postura corporal estática durante o treino nos dummies com auto-leveling contínuo sem travar em "Pronto para upar!"; e inclusão de HUD flutuante arrastável para gerenciar a vida, mana, estamina, XP e seleção ativa por duplo clique em qualquer membro da party.  
+**Depends on**: Phase 172  
+**Requirements**:
+1. Deduplicação de Fala de Magias em Área: Emissão de speech estritamente no primeiro alvo atingido em magias e runas de área no domínio (`combat.ts`).
+2. Deduplicação de Visual Events na Cidade: Chave estável de eventos e controle por Set em `ThaisCityArena.tsx` para impedir re-disparos em re-renders do React.
+3. Persistência de Alts da Party: Autosave individual para cada alt pertencente à conta em `GamePrototype.tsx`, mantendo `saveVersion` isolado e integridade relacional.
+4. Deserialização Canônica de Skills: Conversão de linhas de skills do Prisma para o formato de domínio (`CharacterSkills` e `CharacterSkillTries`) via `resolveSkillKey`.
+5. Animação no Dummy: Frame estático de repouso (`charWalkFrame = 0`) durante ataque aos dummies no `ThaisCityArena.tsx`.
+6. Auto-Leveling Contínuo no Dummy: `calculateTrainingTimeEstimate` realiza `addTrainingTries(character, skill, 0, vocation)` quando as tentativas são atingidas, exibindo `< 1s` em vez de congelar.
+7. Floating Party HUD: Componente `FloatingPartyHUD.tsx` arrastável e persistido em localStorage, exibido quando party > 1 membro com HP, MP, Stamina, XP e ativação por duplo clique.
+
+**Plans:**
+- [x] 173-01-PLAN: Implementação e Validação Integral dos 4 Itens do FIX.md.
+
+- Resumo de entrega: `.planning/phases/phase-173-fix-md-spell-duplication-party-persistence-hud/173-SUMMARY.md`
+
+### Phase 174: Caixa da Party (Party Vault), Persistência de Ouro, Autosave com Acompanhante e Transparência de Poções
+
+**Goal**: Definir formalmente a propriedade do ouro como Caixa da Party (Party Vault), eliminar duplicação de ouro entre alts garantindo titular único no banco de dados, desbloquear o autosave quando um acompanhante está selecionado e identificar claramente na interface e log os custos de auto-poções.  
+**Depends on**: Phase 173  
+**Requirements**:
+1. Propriedade do Ouro & Caixa da Party: O ouro dropado de monstros é propriedade da Caixa da Party (`session.gold`) com anúncio claro no log (`Loot (Gold): +X gold adicionados à Caixa da Party.`), sem falsas mensagens de divisão.
+2. Titular Único no Banco de Dados: O titular conectado (`onlineCharacter`) é o depositário exclusivo do saldo da Caixa da Party. Acompanhantes salvam apenas seus equipamentos próprios e nunca gravam `{ slot: 'gold' }`, prevenindo duplicação ou inflação artificial.
+3. Desbloqueio do Autosave com Acompanhante Ativo: Remoção da restrição `curActive.id !== curOnline.id` no `saveProgress` de `GamePrototype.tsx`. O autosave agora opera perfeitamente ao inspecionar ou controlar qualquer alt da party.
+4. Preservação de Saldo no Login com Alt: Ao fazer login com um herói cujo inventário pessoal não possui ouro, a sessão herda o saldo da Caixa da Party existente na conta (`totalAccountGold`), garantindo que o saldo nunca zere.
+5. Transparência de Auto-Poções: Gastos de 50 gold por auto-poções exibem speech flutuante amarelo `Aaaah... (-50gp)` sobre o personagem e registram no log de combate/servidor o desconto detalhado da Caixa da Party.
+
+**Plans:**
+- [x] 174-01-PLAN: Implementação e Validação Integral dos Requisitos do FIX.md para a Caixa da Party e Autosave.
+
+- Resumo de entrega: `.planning/phases/phase-174-party-gold-vault-and-autosave/174-SUMMARY.md`
+
+### Phase 175: Resolução Completa do FIX.md (Persistência Diferencial de Alts, Otimização de Entrada, Ciclo de Áudio do Bardo e Hotbar Canônica)
+
+**Goal**: Implementar integralmente as correções dos 5 tópicos consolidados no FIX.md: proteção de itens/mochilas de alts via salvamento diferencial, reconciliação atômica no 409, conexão do saldo de coins da conta, eliminação da duplicação/soma indevida de ouro no login, otimização de bootstrap e pré-carregamento para entrada ágil, isolamento e parada total do áudio/vídeo da tela de seleção evitando sobreposição com o tema do jogo, preservação de slots vazios de poções limpos intencionalmente pelo jogador, e exibição transparente de custos por uso unitário na janela de configuração de ações.  
+**Depends on**: Phase 174  
+**Requirements**:
+1. Persistência de Solo e Party: Salvamento diferencial com `replaceFullInventory: false` para alts (não apaga mochilas/consumíveis prévios), reconciliação atômica no 409, eliminação da cópia de ouro entre personagens, conexão da dock bar com `coins` da conta e alerta visual de erro de salvamento.
+2. Otimização de Entrada e Bootstrap: `songtibia.webm` otimizado para `preload="metadata"` liberando conexões de rede, sincronização instantânea de cookies na Landing Page via botão "JOGAR AGORA" e aceleração do `assetPreloader`.
+3. Isolamento de Áudio do Bardo: Limpeza completa de listeners de interação e parada atômica do elemento de vídeo (`pause`, `currentTime = 0`, remoção de `src` e `load`) no unmount, logout, home e entrada no jogo, garantindo que o tema de Thais toque de forma limpa.
+4. Preservação de Slots de Poções: `ensureHealthPotionInHotbar` respeita slots limpos pelo jogador e rotinas de emergência não mutam a hotbar configurada.
+5. Custos Canônicos de Ações: Tabela `ACTION_SUPPLY_COSTS` com valores unitários de poções e runas, exibição em badges e banner informativo na modal "Configurar ação".
+
+**Plans:**
+- [x] 175-01-PLAN: Resolução Completa dos 5 Tópicos do FIX.md e Validação de Persistência e Áudio.
+
+- Resumo de entrega: `.planning/phases/phase-175-fix-md-deep-persistence-audio-and-performance/175-SUMMARY.md`
+
+
+
 
 
 

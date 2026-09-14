@@ -10,7 +10,7 @@ import spellsJson from '@/content/generated/spells.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
 import type { BaseVocationName, EquipmentCatalog, EquipmentDefinition, HuntRegionCatalog, ItemEconomyCatalog, MonsterCatalog, SpellCatalog, StarterLoadoutCatalog, VocationCatalog } from '@/packages/content-schema/src';
 import {
-  addPartyMember, advanceCombat, advanceCityAutoSpells, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter,
+  addPartyMember, advanceCombat, advanceCityAutoSpells, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter, calculateStatsForLevel,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, levelForExperience, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
   transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem, useTestConsumable,
   setCharacterStance, setCharacterTargetDistance, setCharacterTargetStrategy,
@@ -34,7 +34,7 @@ import { ShopWindow } from './ShopWindow';
 import { HotbarConfigModal } from './HotbarConfigModal';
 import { HuntHeader } from './HuntHeader';
 import { HuntSelector, type ActiveTab } from './HuntSelector';
-import { TrainingProgressHUD } from './TrainingProgressHUD';
+import { TrainingProgressHUD, type TrainingMemberEstimate } from './TrainingProgressHUD';
 import { IdleHeader } from './IdleHeader';
 import { ItemSprite } from './ItemSprite';
 import { ItemTooltip } from './ItemTooltip';
@@ -44,6 +44,7 @@ import { VocationChoiceModal } from './VocationChoiceModal';
 import { OutfitModal } from './OutfitModal';
 import { CyclopediaModal } from './CyclopediaModal';
 import { BestiaryTrackerHUD } from './BestiaryTrackerHUD';
+import { FloatingPartyHUD } from './party/FloatingPartyHUD';
 import { CANONICAL_BESTIARY_MONSTERS, getCyclopediaItems, getBestiaryMonsters, type BestiaryMonster } from '../lib/cyclopediaData';
 import { DeathModal } from './DeathModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
@@ -73,11 +74,13 @@ import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { PartyInvitationModal } from './party/PartyInvitationModal';
 import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
+import { UnifiedPartyModal } from './party/UnifiedPartyModal';
 import { LogoutConfirmModal } from './character/LogoutConfirmModal';
 import { PromotionModal } from './character/PromotionModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
+import { resolveSkillKey, parseInventoryData } from '../lib/characterHydration';
 import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
 import { playDragonLairBgm, stopDragonLairBgm, stopAllAudio, DRAGONS_PRIDE_TRACK } from '../lib/audioManager';
@@ -216,6 +219,7 @@ function GamePrototypeContent() {
   const [huntSelectorOpen, setHuntSelectorOpen] = useState(false);
   const [huntSelectorTab, setHuntSelectorTab] = useState<ActiveTab>('CAÇADAS');
   const [partyModalOpen, setPartyModalOpen] = useState(false);
+  const [createMemberModalOpen, setCreateMemberModalOpen] = useState(false);
   const [debugGrid, setDebugGrid] = useState(false);
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [depotOpen, setDepotOpen] = useState(false);
@@ -277,6 +281,7 @@ function GamePrototypeContent() {
   const isSavingRef = useRef<boolean>(false);
   const lastSaveTimeRef = useRef<number>(0);
   const currentSaveVersionRef = useRef<number>(1);
+  const characterSaveVersionsRef = useRef<Map<string, number>>(new Map());
   const isSaveSuspendedRef = useRef<boolean>(false);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   // Security (Phase 116): Derives admin privileges strictly from the validated in-game account.
@@ -354,6 +359,7 @@ function GamePrototypeContent() {
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
   const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [saveErrorAlert, setSaveErrorAlert] = useState<string | null>(null);
 
   // Cross-tab BroadcastChannel session duplicate detector & responder
   useEffect(() => {
@@ -608,9 +614,12 @@ function GamePrototypeContent() {
   }, []);
 
   // Active Party Member IDs (subset of squad characters that are in the active party)
+  // Active Party Member IDs (subset of squad characters that are in the active party)
   const [isPartyCreated, setIsPartyCreated] = useState<boolean>(false);
   const [partyMemberIds, setPartyMemberIds] = useState<string[]>([]);
   const [savedPool, setSavedPool] = useState<CharacterState[]>([]);
+  const savedPoolRef = useRef<CharacterState[]>([]);
+  savedPoolRef.current = savedPool;
   const [squadFollowCity, setSquadFollowCity] = useState<boolean>(true);
 
   useEffect(() => {
@@ -624,8 +633,90 @@ function GamePrototypeContent() {
     }
   }, [game.session.characters]);
 
+  // Canonical hydration helper to restore full character data including skills and skillTries
+  const hydrateDbCharacter = useCallback((c: any): CharacterState => {
+    const vocName =
+      (c.vocationName as BaseVocationName) ||
+      (c.vocation as BaseVocationName) ||
+      VOCATION_MAP[c.vocationId] ||
+      'Knight';
+    const ch = createCharacter(c.id, c.name, vocName, content, c.gender || 'male');
+    const stats = calculateStatsForLevel(vocName, c.level || 1);
+    ch.level = Math.max(c.level || 1, 1);
+    ch.experience = Number(c.experience || 0);
+    ch.maxHp = c.maxHealth || stats.maxHp;
+    ch.currentHp = c.health ?? ch.maxHp;
+    ch.maxMana = c.maxMana || stats.maxMana;
+    ch.currentMana = c.mana ?? ch.maxMana;
+    ch.outfit = c.outfit || vocName;
+    ch.outfitColors = c.outfitColors || {
+      head: c.outfitHead ?? 0,
+      primary: c.outfitBody ?? 86,
+      secondary: c.outfitLegs ?? 114,
+      detail: c.outfitFeet ?? 76,
+    };
+    ch.addons = c.outfitAddons ?? c.addons ?? 0;
+    ch.mount = c.mount ?? 'none';
+    ch.mountActive = Boolean(c.mountActive);
+    ch.promotion = c.promotion ?? '';
+
+    if (Array.isArray(c.skills)) {
+      c.skills.forEach((sk: any) => {
+        const key = resolveSkillKey(sk);
+        if (key && ch.skills[key] !== undefined) {
+          ch.skills[key] = sk.value;
+          if (key !== 'fishing' && ch.skillTries && ch.skillTries[key] !== undefined) {
+            ch.skillTries[key] = Number(sk.tries ?? sk.count ?? 0);
+          }
+        }
+      });
+    }
+    return ch;
+  }, [content]);
+
+  // Hydrate all account characters on mount/auth so alts and account highest level are immediately known
+  useEffect(() => {
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')
+        : null;
+    if (!token) return;
+
+    fetch('/api/characters', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data: any) => {
+        if (data && data.success && Array.isArray(data.data)) {
+          data.data.forEach((c: any) => {
+            if (typeof c.saveVersion === 'number') {
+              characterSaveVersionsRef.current.set(c.id, c.saveVersion);
+            }
+          });
+          const poolChars = data.data.map(hydrateDbCharacter);
+          setSavedPool((prev) => {
+            const map = new Map<string, CharacterState>();
+            prev.forEach((ch) => map.set(ch.id, ch));
+            poolChars.forEach((ch: CharacterState) => map.set(ch.id, ch));
+            return Array.from(map.values());
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn('Erro ao carregar lista de personagens da conta:', err);
+      });
+  }, [content, hydrateDbCharacter]);
+
+  // Maior nível entre todos os personagens da conta (para desbloqueio permanente de slots no squad/party)
+  const accountMaxLevel = useMemo(() => {
+    const pool = savedPool.length > 0 ? savedPool : game.session.characters;
+    const levels = pool.map((c) => c.level || 1);
+    const selectedChar = selectedCharacterOf(game);
+    return Math.max(1, ...levels, selectedChar?.level || 1);
+  }, [savedPool, game.session.characters, game.session.selectedCharacterId]);
+
   const handleToggleSavedCharacter = useCallback((id: string) => {
-    const targetChar = savedPool.find((c) => c.id === id);
+    const targetChar = savedPoolRef.current.find((c) => c.id === id) || savedPool.find((c) => c.id === id);
     if (!targetChar) return;
 
     const isInSquad = game.session.characters.some((c) => c.id === id);
@@ -636,8 +727,6 @@ function GamePrototypeContent() {
       const currentCount = game.session.characters.length;
       const roleUpper = onlineAccount?.role?.toUpperCase() || '';
       const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
-      const mainChar = game.session.characters[0];
-      const mainLevel = mainChar?.level || 1;
 
       // Regra estrita: 1 vocação de cada no Squad
       const targetVoc = targetChar.vocation || targetChar.baseVocation;
@@ -650,19 +739,38 @@ function GamePrototypeContent() {
       }
 
       if (!isAdminOrGm) {
-        if (currentCount === 1 && mainLevel < 70) {
-          setSaleMessage('Nível 70 necessário para desbloquear o 2º slot do squad.');
+        if (currentCount === 1 && accountMaxLevel < 70) {
+          setSaleMessage('Nível 70 necessário na conta para desbloquear o 2º slot do squad.');
           return;
         }
-        if (currentCount === 2 && mainLevel < 150) {
-          setSaleMessage('Nível 150 necessário para desbloquear o 3º slot do squad.');
+        if (currentCount === 2 && accountMaxLevel < 150) {
+          setSaleMessage('Nível 150 necessário na conta para desbloquear o 3º slot do squad.');
           return;
         }
-        if (currentCount === 3 && mainLevel < 200) {
-          setSaleMessage('Nível 200 necessário para desbloquear o 4º slot do squad.');
+        if (currentCount === 3 && accountMaxLevel < 200) {
+          setSaleMessage('Nível 200 necessário na conta para desbloquear o 4º slot do squad.');
           return;
         }
       }
+
+      const activeId = game.session.selectedCharacterId || game.session.characters[0]?.id;
+      setPartyMemberIds((prev) => {
+        const next = new Set(prev);
+        if (activeId) next.add(activeId);
+        next.add(id);
+        return Array.from(next).slice(0, 4);
+      });
+      setIsPartyCreated(true);
+
+      const stats = calculateStatsForLevel(targetChar.vocation || 'Knight', targetChar.level || 1);
+      const readyChar: CharacterState = {
+        ...targetChar,
+        maxHp: targetChar.maxHp || stats.maxHp,
+        currentHp: targetChar.currentHp || targetChar.maxHp || stats.maxHp,
+        maxMana: targetChar.maxMana || stats.maxMana,
+        currentMana: targetChar.currentMana || targetChar.maxMana || stats.maxMana,
+        combatState: targetChar.combatState || { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+      };
 
       setGame((cur) => {
         if (cur.session.characters.some((c) => c.id === id)) return cur;
@@ -670,122 +778,233 @@ function GamePrototypeContent() {
           ...cur,
           session: {
             ...cur.session,
-            characters: [...cur.session.characters, targetChar],
+            characters: [...cur.session.characters, readyChar].slice(0, 4),
           },
         };
       });
     }
-  }, [savedPool, game.session.characters, onlineAccount]);
+  }, [savedPool, game.session.characters, game.session.selectedCharacterId, onlineAccount, accountMaxLevel]);
 
   const handleCreateParty = useCallback((selectedIds: string[]) => {
-    setPartyMemberIds(selectedIds);
+    const activeId = game.session.selectedCharacterId || game.session.characters[0]?.id;
+    const fullSelected = Array.from(new Set([activeId, ...selectedIds])).filter(Boolean).slice(0, 4) as string[];
+    setPartyMemberIds(fullSelected);
     setIsPartyCreated(true);
-  }, []);
+    setGame((cur) => {
+      const actId = cur.session.selectedCharacterId || cur.session.characters[0]?.id;
+      const charMap = new Map<string, CharacterState>();
+      cur.session.characters.forEach((c) => charMap.set(c.id, c));
+      savedPoolRef.current.forEach((c) => {
+        if (!charMap.has(c.id)) charMap.set(c.id, c);
+      });
+      savedPool.forEach((c) => {
+        if (!charMap.has(c.id)) charMap.set(c.id, c);
+      });
+
+      const updatedSquad: CharacterState[] = [];
+      if (actId && charMap.has(actId)) {
+        updatedSquad.push(charMap.get(actId)!);
+      }
+      for (const sId of fullSelected) {
+        if (sId !== actId && charMap.has(sId) && updatedSquad.length < 4) {
+          updatedSquad.push(charMap.get(sId)!);
+        }
+      }
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          characters: updatedSquad.length > 0 ? updatedSquad : cur.session.characters,
+        },
+      };
+    });
+  }, [savedPool, game.session.selectedCharacterId, game.session.characters]);
 
   const handleDisbandParty = useCallback(() => {
     setPartyMemberIds([]);
     setIsPartyCreated(false);
+    setGame((cur) => {
+      const activeId = cur.session.selectedCharacterId || cur.session.characters[0]?.id;
+      const solo = cur.session.characters.filter((c) => c.id === activeId);
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          characters: solo.length > 0 ? solo : [cur.session.characters[0]],
+        },
+      };
+    });
   }, []);
 
   const handleAddToParty = useCallback((id: string) => {
+    const activeId = game.session.selectedCharacterId || game.session.characters[0]?.id;
     setPartyMemberIds((prev) => {
-      if (prev.includes(id) || prev.length >= 4) return prev;
-      return [...prev, id];
+      const next = new Set(prev);
+      if (activeId) next.add(activeId);
+      next.add(id);
+      return Array.from(next).slice(0, 4);
     });
     setIsPartyCreated(true);
-  }, []);
+    setGame((cur) => {
+      if (cur.session.characters.some((c) => c.id === id)) return cur;
+      if (cur.session.characters.length >= 4) return cur;
+      const targetChar = savedPoolRef.current.find((c) => c.id === id) || savedPool.find((c) => c.id === id);
+      if (!targetChar) return cur;
+      const stats = calculateStatsForLevel(targetChar.vocation || 'Knight', targetChar.level || 1);
+      const readyChar: CharacterState = {
+        ...targetChar,
+        maxHp: targetChar.maxHp || stats.maxHp,
+        currentHp: targetChar.currentHp || targetChar.maxHp || stats.maxHp,
+        maxMana: targetChar.maxMana || stats.maxMana,
+        currentMana: targetChar.currentMana || targetChar.maxMana || stats.maxMana,
+        combatState: targetChar.combatState || { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+      };
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          characters: [...cur.session.characters, readyChar].slice(0, 4),
+        },
+      };
+    });
+  }, [savedPool, game.session.selectedCharacterId, game.session.characters]);
 
   const handleRemoveFromParty = useCallback((id: string) => {
+    const activeId = game.session.selectedCharacterId || game.session.characters[0]?.id;
+    if (id === activeId) return;
     setPartyMemberIds((prev) => {
       const next = prev.filter((itemId) => itemId !== id);
-      if (next.length === 0) setIsPartyCreated(false);
+      if (next.length <= 1) setIsPartyCreated(false);
       return next;
     });
-  }, []);
+    setGame((cur) => {
+      return removePartyMember(cur, id);
+    });
+  }, [game.session.selectedCharacterId, game.session.characters]);
 
   // Trade removido
 
   const prepareHuntCharacters = useCallback((cur: any) => {
-    if (!multiplayerParty || multiplayerParty.members.length === 0) return cur;
-    const localSessionId = gameNetwork.LocalPlayerId;
-    const leaderMember = multiplayerParty.members.find((m) => m.isLeader || m.sessionId === multiplayerParty.leaderSessionId) || multiplayerParty.members[0];
-    const otherMembers = multiplayerParty.members.filter((m) => m.sessionId !== leaderMember.sessionId);
-    const orderedPartyMembers = [leaderMember, ...otherMembers];
+    if (multiplayerParty && multiplayerParty.members.length > 0) {
+      const localSessionId = gameNetwork.LocalPlayerId;
+      const leaderMember = multiplayerParty.members.find((m) => m.isLeader || m.sessionId === multiplayerParty.leaderSessionId) || multiplayerParty.members[0];
+      const otherMembers = multiplayerParty.members.filter((m) => m.sessionId !== leaderMember.sessionId);
+      const orderedPartyMembers = [leaderMember, ...otherMembers];
 
-    const localChar = cur.session.characters.find((c: CharacterState) => c.id === cur.session.selectedCharacterId) || cur.session.characters[0] || selectedCharacterOf(cur);
+      const localChar = cur.session.characters.find((c: CharacterState) => c.id === cur.session.selectedCharacterId) || cur.session.characters[0] || selectedCharacterOf(cur);
 
-    const updatedChars: CharacterState[] = [];
-    const seenIds = new Set<string>();
-    const seenNames = new Set<string>();
+      const updatedChars: CharacterState[] = [];
+      const seenIds = new Set<string>();
+      const seenNames = new Set<string>();
 
-    for (const m of orderedPartyMembers) {
-      const charId = m.characterId || m.sessionId;
-      const nameKey = (m.name || '').trim().toLowerCase();
-      if (seenIds.has(charId) || (nameKey && seenNames.has(nameKey))) continue;
-      seenIds.add(charId);
-      if (nameKey) seenNames.add(nameKey);
+      for (const m of orderedPartyMembers) {
+        const charId = m.characterId || m.sessionId;
+        const nameKey = (m.name || '').trim().toLowerCase();
+        if (seenIds.has(charId) || (nameKey && seenNames.has(nameKey))) continue;
+        seenIds.add(charId);
+        if (nameKey) seenNames.add(nameKey);
 
-      if (m.sessionId === localSessionId) {
-        // Local character instance
-        const charObj: CharacterState = {
-          ...localChar,
-          id: charId,
-          name: m.name || localChar.name,
-          level: Math.max(m.level || localChar.level, 1),
-          currentHp: m.hp ?? localChar.currentHp,
-          maxHp: m.maxHp ?? localChar.maxHp,
-          currentMana: m.mp ?? localChar.currentMana,
-          maxMana: m.maxMp ?? localChar.maxMana,
-          outfit: m.outfit || localChar.outfit,
-          outfitColors: m.outfitColors || localChar.outfitColors,
-          mount: m.mount || localChar.mount,
-          mountActive: m.mountActive !== undefined ? Boolean(m.mountActive) : localChar.mountActive,
-        };
-        updatedChars.push(charObj);
-      } else {
-        // Remote party member
-        const existingChar = cur.session.characters.find((c: CharacterState) => c.id === charId || c.name.toLowerCase() === nameKey);
-        const vocName = ((m.vocationName as BaseVocationName) || VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
-        const newChar = createCharacter(charId, m.name, vocName, content);
-        newChar.level = Math.max(m.level, 1);
-        newChar.currentHp = m.hp || newChar.maxHp;
-        newChar.maxHp = m.maxHp || newChar.maxHp;
-        newChar.currentMana = m.mp || newChar.maxMana;
-        newChar.maxMana = m.maxMp || newChar.maxMana;
-        newChar.outfit = m.outfit || vocName;
-        newChar.outfitColors = m.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-        newChar.mount = m.mount || 'none';
-        newChar.mountActive = Boolean(m.mountActive);
+        if (m.sessionId === localSessionId) {
+          // Local character instance
+          const charObj: CharacterState = {
+            ...localChar,
+            id: charId,
+            name: m.name || localChar.name,
+            level: Math.max(m.level || localChar.level, 1),
+            currentHp: m.hp ?? localChar.currentHp,
+            maxHp: m.maxHp ?? localChar.maxHp,
+            currentMana: m.mp ?? localChar.currentMana,
+            maxMana: m.maxMp ?? localChar.maxMana,
+            outfit: m.outfit || localChar.outfit,
+            outfitColors: m.outfitColors || localChar.outfitColors,
+            mount: m.mount || localChar.mount,
+            mountActive: m.mountActive !== undefined ? Boolean(m.mountActive) : localChar.mountActive,
+          };
+          updatedChars.push(charObj);
+        } else {
+          // Remote party member
+          const existingChar = cur.session.characters.find((c: CharacterState) => c.id === charId || c.name.toLowerCase() === nameKey);
+          const vocName = ((m.vocationName as BaseVocationName) || VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
+          const newChar = createCharacter(charId, m.name, vocName, content);
+          newChar.level = Math.max(m.level, 1);
+          newChar.currentHp = m.hp || newChar.maxHp;
+          newChar.maxHp = m.maxHp || newChar.maxHp;
+          newChar.currentMana = m.mp || newChar.maxMana;
+          newChar.maxMana = m.maxMp || newChar.maxMana;
+          newChar.outfit = m.outfit || vocName;
+          newChar.outfitColors = m.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+          newChar.mount = m.mount || 'none';
+          newChar.mountActive = Boolean(m.mountActive);
 
-        // Scale skills according to level
-        const mainSkill: TrainableSkill = vocName === 'Knight' ? 'sword' : vocName === 'Paladin' ? 'distance' : 'magicLevel';
-        newChar.skills[mainSkill] = Math.max(newChar.skills[mainSkill], 10 + Math.floor(newChar.level * 1.2));
-        newChar.skills.shielding = Math.max(newChar.skills.shielding, 10 + Math.floor(newChar.level * 0.8));
+          // Scale skills according to level
+          const mainSkill: TrainableSkill = vocName === 'Knight' ? 'sword' : vocName === 'Paladin' ? 'distance' : 'magicLevel';
+          newChar.skills[mainSkill] = Math.max(newChar.skills[mainSkill], 10 + Math.floor(newChar.level * 1.2));
+          newChar.skills.shielding = Math.max(newChar.skills.shielding, 10 + Math.floor(newChar.level * 0.8));
 
-        // Characters only use spells configured in their hotbars; never force auto spells
-        newChar.hotbar = existingChar ? [...existingChar.hotbar] : [];
-        newChar.hotbarConfigs = existingChar?.hotbarConfigs ? { ...existingChar.hotbarConfigs } : {};
-        newChar.targetDistance = vocName === 'Knight' ? 1 : 3;
+          // Characters only use spells configured in their hotbars; never force auto spells
+          newChar.hotbar = existingChar ? [...existingChar.hotbar] : [];
+          newChar.hotbarConfigs = existingChar?.hotbarConfigs ? { ...existingChar.hotbarConfigs } : {};
+          newChar.targetDistance = vocName === 'Knight' ? 1 : 3;
 
-        updatedChars.push(newChar);
+          updatedChars.push(newChar);
+        }
+      }
+
+      const leaderId = leaderMember.characterId || leaderMember.sessionId;
+      const selectedCharId = localChar.id;
+
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          characters: updatedChars,
+          leaderId,
+          selectedCharacterId: selectedCharId,
+          cameraTargetCharacterId: selectedCharId,
+          isMultiplayerParty: true,
+        },
+      };
+    }
+
+    // Local party / squad synchronization for hunts:
+    // Garante que todos os personagens da party (partyMemberIds e session.characters) estejam presentes
+    const activeId = cur.session.selectedCharacterId || cur.session.characters[0]?.id;
+    const charMap = new Map<string, CharacterState>();
+    cur.session.characters.forEach((c: CharacterState) => charMap.set(c.id, c));
+    savedPoolRef.current.forEach((c) => {
+      if (!charMap.has(c.id)) charMap.set(c.id, c);
+    });
+    savedPool.forEach((c) => {
+      if (!charMap.has(c.id)) charMap.set(c.id, c);
+    });
+
+    const desiredIds = new Set<string>();
+    if (activeId) desiredIds.add(activeId);
+    for (const id of partyMemberIds) desiredIds.add(id);
+    for (const c of cur.session.characters) desiredIds.add(c.id);
+
+    const huntSquad: CharacterState[] = [];
+    if (activeId && charMap.has(activeId)) {
+      huntSquad.push(charMap.get(activeId)!);
+    }
+    for (const id of desiredIds) {
+      if (id !== activeId && charMap.has(id) && huntSquad.length < 4) {
+        huntSquad.push(charMap.get(id)!);
       }
     }
 
-    const leaderId = leaderMember.characterId || leaderMember.sessionId;
-    const selectedCharId = localChar.id;
+    if (huntSquad.length > 0) {
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          characters: huntSquad,
+        },
+      };
+    }
 
-    return {
-      ...cur,
-      session: {
-        ...cur.session,
-        characters: updatedChars,
-        leaderId,
-        selectedCharacterId: selectedCharId,
-        cameraTargetCharacterId: selectedCharId,
-        isMultiplayerParty: true,
-      },
-    };
-  }, [multiplayerParty, content]);
+    return cur;
+  }, [multiplayerParty, partyMemberIds, savedPool, content]);
   prepareHuntCharactersRef.current = prepareHuntCharacters;
 
   useEffect(() => {
@@ -809,10 +1028,12 @@ function GamePrototypeContent() {
     });
 
     const unsubCombat = gameNetwork.onCombatEvent((evt) => {
-      if ((evt.type === 'spell' || evt.type === 'spell-cast') && (evt.sourceId === gameNetwork.LocalPlayerId || evt.sourceId === activeCharacter.id)) {
+      const activeId = onlineCharacterRef.current?.id;
+      if ((evt.type === 'spell' || evt.type === 'spell-cast') && (evt.sourceId === gameNetwork.LocalPlayerId || (activeId && evt.sourceId === activeId))) {
         const txt = (evt.text || '').toLowerCase();
         setGame((cur) => {
-          const char = cur.session.characters.find((c) => c.id === activeCharacter.id) || cur.session.characters[0];
+          const actId = activeId || cur.session.selectedCharacterId || cur.session.characters[0]?.id;
+          const char = cur.session.characters.find((c) => c.id === actId) || cur.session.characters[0];
           if (!char) return cur;
           if (!char.combatState) {
             char.combatState = { targetId: null, spellCooldowns: {}, groupCooldowns: {}, hasteUntil: 0, magicShieldUntil: 0, bloodRageUntil: 0 };
@@ -859,7 +1080,8 @@ function GamePrototypeContent() {
       });
 
       // If incoming whisper from another player, auto-open chat window so user never misses it
-      if (isWhisper && netMsg.senderName !== activeCharacter.name && netMsg.senderName !== 'Servidor') {
+      const myName = onlineCharacterRef.current?.name;
+      if (isWhisper && netMsg.senderName !== myName && netMsg.senderName !== 'Servidor') {
         setIsChatMinimized(false);
         openWindow('chat');
         bringToFront('chat');
@@ -1192,20 +1414,8 @@ function GamePrototypeContent() {
     const dbInventory = (charItem as any).inventory;
 
     if (Array.isArray((charItem as any).skills)) {
-      const skillNameMap: Record<string, keyof typeof userChar.skills> = {
-        fist: 'fist',
-        club: 'club',
-        sword: 'sword',
-        axe: 'axe',
-        distance: 'distance',
-        shielding: 'shielding',
-        fishing: 'fishing',
-        magiclevel: 'magicLevel',
-        'magic level': 'magicLevel',
-        magic: 'magicLevel',
-      };
       ((charItem as any).skills as Array<{ skillId: number; skillName: string; value: number; tries?: number }>).forEach((sk) => {
-        const key = skillNameMap[sk.skillName?.toLowerCase()] || (sk.skillId === 7 ? 'magicLevel' : undefined);
+        const key = resolveSkillKey(sk);
         if (key && userChar.skills[key] !== undefined) {
           userChar.skills[key] = sk.value;
           if (key !== 'fishing' && sk.tries !== undefined && userChar.skillTries && userChar.skillTries[key] !== undefined) {
@@ -1216,61 +1426,12 @@ function GamePrototypeContent() {
     }
 
     if (Array.isArray(dbInventory)) {
-      userChar.equipment = {
-        head: null,
-        armor: null,
-        legs: null,
-        boots: null,
-        leftHand: null,
-        rightHand: null,
-      };
-      userChar.inventory.equipmentIds = [];
-
-      if (dbInventory.length > 0) {
-        dbInventory.forEach((item: { slot: string; serverId: number; name: string; count: number }) => {
-          if (item.slot === 'gold' || item.serverId === 2148 || item.name === 'Gold Coin') {
-            loadedGold += item.count;
-          } else if (item.serverId === 2152 || item.name === 'Platinum Coin') {
-            loadedGold += item.count * 100;
-          } else if (['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'].includes(item.slot)) {
-            const slotKey = item.slot as CharacterEquipmentSlot;
-            userChar.equipment[slotKey] = item.serverId;
-            if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
-              userChar.inventory.equipmentIds.push(item.serverId);
-            }
-          } else if (item.slot.startsWith('bag_') || item.slot.startsWith('backpack_bag_')) {
-            loadedBag.push({
-              itemId: item.serverId,
-              name: item.name,
-              amount: item.count,
-            });
-            if (findEquipment(content.equipment, item.serverId) && !userChar.inventory.equipmentIds.includes(item.serverId)) {
-              userChar.inventory.equipmentIds.push(item.serverId);
-            }
-          } else if (item.slot.startsWith('backpack_loot_') || item.slot.startsWith('loot_')) {
-            loadedLoot.push({
-              itemId: item.serverId,
-              name: item.name,
-              amount: item.count,
-            });
-            if (findEquipment(content.equipment, item.serverId) && !userChar.inventory.equipmentIds.includes(item.serverId)) {
-              userChar.inventory.equipmentIds.push(item.serverId);
-            }
-          } else if (item.serverId) {
-            if (findEquipment(content.equipment, item.serverId)) {
-              if (!userChar.inventory.equipmentIds.includes(item.serverId)) {
-                userChar.inventory.equipmentIds.push(item.serverId);
-              }
-            } else {
-              loadedLoot.push({
-                itemId: item.serverId,
-                name: item.name,
-                amount: item.count,
-              });
-            }
-          }
-        });
-      }
+      const parsedInv = parseInventoryData(dbInventory, content.equipment);
+      userChar.equipment = parsedInv.equipment;
+      userChar.inventory.equipmentIds = parsedInv.equipmentIds;
+      loadedGold = parsedInv.gold;
+      loadedBag.push(...parsedInv.bag);
+      loadedLoot.push(...parsedInv.loot);
     }
 
     const hasDbColors =
@@ -1306,7 +1467,9 @@ function GamePrototypeContent() {
     userChar.addons = (charItem as any).outfitAddons ?? (charItem as any).addons ?? 0;
     userChar.mount = (charItem as any).mount ?? 'none';
     userChar.mountActive = Boolean((charItem as any).mountActive);
-    currentSaveVersionRef.current = typeof (charItem as any).saveVersion === 'number' ? (charItem as any).saveVersion : 1;
+    const charSaveVer = typeof (charItem as any).saveVersion === 'number' ? (charItem as any).saveVersion : 1;
+    currentSaveVersionRef.current = charSaveVer;
+    characterSaveVersionsRef.current.set(charItem.id, charSaveVer);
     isSaveSuspendedRef.current = false;
 
     userChar.outfit =
@@ -1340,6 +1503,36 @@ function GamePrototypeContent() {
         },
       };
     });
+
+    // Hydrate all account characters into savedPool so alts and account highest level are immediately known
+    fetch('/api/characters', {
+      headers: { Authorization: `Bearer ${authToken}` },
+    })
+      .then((res) => res.json())
+      .then((data: any) => {
+        if (data && data.success && Array.isArray(data.data)) {
+          let totalAccountGold = 0;
+          data.data.forEach((c: any) => {
+            if (typeof c.saveVersion === 'number') {
+              characterSaveVersionsRef.current.set(c.id, c.saveVersion);
+            }
+            if (Array.isArray(c.inventory)) {
+              const inv = parseInventoryData(c.inventory, content.equipment);
+              totalAccountGold += inv.gold;
+            }
+          });
+          const poolChars = data.data.map(hydrateDbCharacter);
+          setSavedPool((prev) => {
+            const map = new Map<string, CharacterState>();
+            prev.forEach((ch) => map.set(ch.id, ch));
+            poolChars.forEach((ch: CharacterState) => map.set(ch.id, ch));
+            return Array.from(map.values());
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn('Erro ao carregar lista de personagens da conta:', err);
+      });
 
     // Connect to live Colyseus Server room with full outfit info
     gameNetwork
@@ -1392,6 +1585,9 @@ function GamePrototypeContent() {
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
   const encounter = game.encounter;
+  const combinedCityVisualEvents = useMemo(() => {
+    return [...(encounter.events || []), ...(encounter.visualEvents || [])] as any;
+  }, [encounter.events, encounter.visualEvents]);
   const activeStats = deriveStats(activeCharacter, content.equipment, vocationFor(content, activeCharacter.vocation));
   const statsById = useMemo(() => new Map(game.session.characters.map((character) => [
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
@@ -1401,6 +1597,7 @@ function GamePrototypeContent() {
   const latestSaveStateRef = useRef<{
     activeCharacter: typeof activeCharacter;
     onlineCharacter: typeof onlineCharacter;
+    characters: typeof game.session.characters;
     cityPos: typeof cityPos;
     gold: number;
     loot: typeof game.session.loot;
@@ -1412,6 +1609,7 @@ function GamePrototypeContent() {
   }>({
     activeCharacter,
     onlineCharacter,
+    characters: game.session.characters,
     cityPos,
     gold: game.session.gold,
     loot: game.session.loot,
@@ -1424,6 +1622,7 @@ function GamePrototypeContent() {
   latestSaveStateRef.current = {
     activeCharacter,
     onlineCharacter,
+    characters: game.session.characters,
     cityPos,
     gold: game.session.gold,
     loot: game.session.loot,
@@ -1445,6 +1644,7 @@ function GamePrototypeContent() {
     const {
       activeCharacter: curActive,
       onlineCharacter: curOnline,
+      characters: curCharacters = [],
       cityPos: curPos,
       gold: curGold,
       loot: curLoot,
@@ -1455,7 +1655,11 @@ function GamePrototypeContent() {
       bossPoints: curBossPoints,
     } = state;
 
-    if (!token || !curActive || !curOnline || curActive.id !== curOnline.id) return;
+    if (!token || !curOnline) return;
+
+    // The titular owner of the Caixa da Party in DB is always curOnline (the logged-in session leader)
+    const primaryChar = curCharacters.find((c) => c.id === curOnline.id) || (curActive?.id === curOnline.id ? curActive : null);
+    if (!primaryChar) return;
 
     // Suspended saves guard: if a concurrency conflict couldn't be cleanly reconciled, halt saves until clean reload
     if (isSaveSuspendedRef.current) return;
@@ -1474,10 +1678,10 @@ function GamePrototypeContent() {
       const inventoryPayload: Array<{ slot: string; serverId: number; name: string; count: number }> = [];
       const savedServerIds = new Set<number>();
 
-      // 1. Equipped Items
+      // 1. Equipped Items of primaryChar (the Caixa da Party custodian)
       const slots: CharacterEquipmentSlot[] = ['head', 'armor', 'legs', 'boots', 'leftHand', 'rightHand'];
       slots.forEach((slot) => {
-        const itemId = curActive.equipment[slot];
+        const itemId = primaryChar.equipment[slot];
         if (itemId) {
           const eqDef = findEquipment(curEquipment, itemId);
           inventoryPayload.push({
@@ -1490,7 +1694,7 @@ function GamePrototypeContent() {
         }
       });
 
-      // 2. Gold Coins
+      // 2. Gold Coins (Caixa da Party) - Exclusivo do titular curOnline, sem duplicar nos acompanhantes
       if (curGold > 0) {
         inventoryPayload.push({
           slot: 'gold',
@@ -1526,8 +1730,8 @@ function GamePrototypeContent() {
         });
       }
 
-      // 5. Additional Owned Equipment (if any equipment ID in equipmentIds not yet saved)
-      const unequippedIds = curActive.inventory.equipmentIds.filter((id) => !savedServerIds.has(id));
+      // 5. Additional Owned Equipment for primaryChar
+      const unequippedIds = (primaryChar.inventory?.equipmentIds || []).filter((id) => !savedServerIds.has(id));
       unequippedIds.forEach((itemId, idx) => {
         const eqDef = findEquipment(curEquipment, itemId);
         inventoryPayload.push({
@@ -1538,50 +1742,57 @@ function GamePrototypeContent() {
         });
       });
 
-      const res = await fetch(`/api/characters/${curActive.id}/save`, {
+      const primaryVersion = characterSaveVersionsRef.current.get(primaryChar.id) || currentSaveVersionRef.current;
+      const isPrimaryActive = curActive?.id === primaryChar.id;
+      const primaryPosX = isPrimaryActive ? curPos.x : ((primaryChar as any).posX ?? 32369);
+      const primaryPosY = isPrimaryActive ? curPos.y : ((primaryChar as any).posY ?? 32241);
+      const primaryPosZ = isPrimaryActive ? curPos.z : ((primaryChar as any).posZ ?? 7);
+
+      const res = await fetch(`/api/characters/${primaryChar.id}/save`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          level: curActive.level,
-          experience: Number(curActive.experience),
-          health: curActive.currentHp,
-          maxHealth: curActive.maxHp,
-          mana: curActive.currentMana,
-          maxMana: curActive.maxMana,
-          posX: curPos.x,
-          posY: curPos.y,
-          posZ: curPos.z,
+          level: primaryChar.level,
+          experience: Number(primaryChar.experience),
+          health: primaryChar.currentHp,
+          maxHealth: primaryChar.maxHp,
+          mana: primaryChar.currentMana,
+          maxMana: primaryChar.maxMana,
+          posX: primaryPosX,
+          posY: primaryPosY,
+          posZ: primaryPosZ,
           skills: [
-            { skillId: 0, skillName: 'Fist Fighting', value: curActive.skills.fist, tries: curActive.skillTries?.fist ? Math.floor(curActive.skillTries.fist) : 0 },
-            { skillId: 1, skillName: 'Club Fighting', value: curActive.skills.club, tries: curActive.skillTries?.club ? Math.floor(curActive.skillTries.club) : 0 },
-            { skillId: 2, skillName: 'Sword Fighting', value: curActive.skills.sword, tries: curActive.skillTries?.sword ? Math.floor(curActive.skillTries.sword) : 0 },
-            { skillId: 3, skillName: 'Axe Fighting', value: curActive.skills.axe, tries: curActive.skillTries?.axe ? Math.floor(curActive.skillTries.axe) : 0 },
-            { skillId: 4, skillName: 'Distance Fighting', value: curActive.skills.distance, tries: curActive.skillTries?.distance ? Math.floor(curActive.skillTries.distance) : 0 },
-            { skillId: 5, skillName: 'Shielding', value: curActive.skills.shielding, tries: curActive.skillTries?.shielding ? Math.floor(curActive.skillTries.shielding) : 0 },
-            { skillId: 7, skillName: 'Magic Level', value: curActive.skills.magicLevel, tries: curActive.skillTries?.magicLevel ? Math.floor(curActive.skillTries.magicLevel) : 0 },
+            { skillId: 0, skillName: 'Fist Fighting', value: primaryChar.skills.fist, tries: primaryChar.skillTries?.fist ? Math.floor(primaryChar.skillTries.fist) : 0 },
+            { skillId: 1, skillName: 'Club Fighting', value: primaryChar.skills.club, tries: primaryChar.skillTries?.club ? Math.floor(primaryChar.skillTries.club) : 0 },
+            { skillId: 2, skillName: 'Sword Fighting', value: primaryChar.skills.sword, tries: primaryChar.skillTries?.sword ? Math.floor(primaryChar.skillTries.sword) : 0 },
+            { skillId: 3, skillName: 'Axe Fighting', value: primaryChar.skills.axe, tries: primaryChar.skillTries?.axe ? Math.floor(primaryChar.skillTries.axe) : 0 },
+            { skillId: 4, skillName: 'Distance Fighting', value: primaryChar.skills.distance, tries: primaryChar.skillTries?.distance ? Math.floor(primaryChar.skillTries.distance) : 0 },
+            { skillId: 5, skillName: 'Shielding', value: primaryChar.skills.shielding, tries: primaryChar.skillTries?.shielding ? Math.floor(primaryChar.skillTries.shielding) : 0 },
+            { skillId: 7, skillName: 'Magic Level', value: primaryChar.skills.magicLevel, tries: primaryChar.skillTries?.magicLevel ? Math.floor(primaryChar.skillTries.magicLevel) : 0 },
           ],
           inventory: inventoryPayload,
-          hotbar: curActive.hotbar,
-          hotbarConfigs: curActive.hotbarConfigs,
-          avatarId: (curActive as any).avatarId ?? 1,
-          outfit: curActive.outfit,
-          outfitHead: curActive.outfitColors?.head,
-          outfitBody: curActive.outfitColors?.primary,
-          outfitLegs: curActive.outfitColors?.secondary,
-          outfitFeet: curActive.outfitColors?.detail,
-          outfitAddons: (curActive as any).addons ?? (curActive as any).outfitAddons ?? 0,
-          mount: curActive.mount,
-          mountActive: curActive.mountActive,
+          hotbar: primaryChar.hotbar,
+          hotbarConfigs: primaryChar.hotbarConfigs,
+          avatarId: (primaryChar as any).avatarId ?? 1,
+          outfit: primaryChar.outfit,
+          outfitHead: primaryChar.outfitColors?.head,
+          outfitBody: primaryChar.outfitColors?.primary,
+          outfitLegs: primaryChar.outfitColors?.secondary,
+          outfitFeet: primaryChar.outfitColors?.detail,
+          outfitAddons: (primaryChar as any).addons ?? (primaryChar as any).outfitAddons ?? 0,
+          mount: primaryChar.mount,
+          mountActive: primaryChar.mountActive,
           bestiaryKills: curBestiaryKills,
           trackedBestiaryId: curTrackedBestiaryId,
           bossPoints: curBossPoints,
-          vocationName: curActive.vocation,
-          promotion: curActive.promotion,
+          vocationName: primaryChar.vocation,
+          promotion: primaryChar.promotion,
           isDeathPenalty,
-          saveVersion: currentSaveVersionRef.current,
+          saveVersion: primaryVersion,
+          replaceFullInventory: true,
         }),
       });
 
@@ -1591,15 +1802,22 @@ function GamePrototypeContent() {
           const conflictData = (await res.json()) as any;
           if (typeof conflictData?.currentVersion === 'number') {
             currentSaveVersionRef.current = conflictData.currentVersion;
+            characterSaveVersionsRef.current.set(primaryChar.id, conflictData.currentVersion);
           }
           if (conflictData?.character) {
             const srv = conflictData.character;
+            const invResult = parseInventoryData(srv.inventory, curEquipment);
+            let updatedReconciledChar: typeof primaryChar | null = null;
+
             setGame((cur) => ({
               ...cur,
               session: {
                 ...cur.session,
+                gold: Array.isArray(srv.inventory) ? invResult.gold : cur.session.gold,
+                bag: Array.isArray(srv.inventory) ? invResult.bag : cur.session.bag,
+                loot: Array.isArray(srv.inventory) ? invResult.loot : cur.session.loot,
                 characters: cur.session.characters.map((c) => {
-                  if (c.id !== curActive.id) return c;
+                  if (c.id !== primaryChar.id) return c;
 
                   const reconciled: typeof c = {
                     ...c,
@@ -1611,24 +1829,12 @@ function GamePrototypeContent() {
                     maxMana: typeof srv.maxMana === 'number' ? srv.maxMana : c.maxMana,
                   };
 
-                  // Reconcile skills from server
+                  // Reconcile skills from server (mapped by skillId and flexible names)
                   if (Array.isArray(srv.skills)) {
-                    const skillNameMap: Record<string, keyof typeof c.skills> = {
-                      fist: 'fist',
-                      club: 'club',
-                      sword: 'sword',
-                      axe: 'axe',
-                      distance: 'distance',
-                      shielding: 'shielding',
-                      fishing: 'fishing',
-                      magiclevel: 'magicLevel',
-                      'magic level': 'magicLevel',
-                      magic: 'magicLevel',
-                    };
                     const nextSkills = { ...c.skills };
                     const nextTries = c.skillTries ? { ...c.skillTries } : undefined;
                     srv.skills.forEach((sk: any) => {
-                      const key = skillNameMap[sk.skillName?.toLowerCase()] || (sk.skillId === 7 ? 'magicLevel' : undefined);
+                      const key = resolveSkillKey(sk);
                       if (key && nextSkills[key] !== undefined) {
                         nextSkills[key] = sk.value;
                         if (key !== 'fishing' && sk.tries !== undefined && nextTries && nextTries[key] !== undefined) {
@@ -1642,49 +1848,28 @@ function GamePrototypeContent() {
 
                   // Reconcile equipment & inventory: purge items that no longer exist on server
                   if (Array.isArray(srv.inventory)) {
-                    const newEquipment: Record<CharacterEquipmentSlot, number | null> = {
-                      head: null,
-                      armor: null,
-                      legs: null,
-                      boots: null,
-                      leftHand: null,
-                      rightHand: null,
-                    };
-                    const newEquipIds: number[] = [];
-                    const equipSlotsMap: Record<string, CharacterEquipmentSlot> = {
-                      head: 'head',
-                      armor: 'armor',
-                      legs: 'legs',
-                      boots: 'boots',
-                      feet: 'boots',
-                      lefthand: 'leftHand',
-                      righthand: 'rightHand',
-                      left: 'leftHand',
-                      right: 'rightHand',
-                    };
-
-                    srv.inventory.forEach((item: any) => {
-                      const normSlot = typeof item.slot === 'string' ? item.slot.toLowerCase() : '';
-                      const targetSlot = equipSlotsMap[normSlot];
-                      if (targetSlot) {
-                        newEquipment[targetSlot] = item.serverId;
-                        if (!newEquipIds.includes(item.serverId)) newEquipIds.push(item.serverId);
-                      } else if (item.serverId) {
-                        if (!newEquipIds.includes(item.serverId)) newEquipIds.push(item.serverId);
-                      }
-                    });
-
-                    reconciled.equipment = newEquipment;
+                    reconciled.equipment = invResult.equipment;
                     reconciled.inventory = {
                       ...c.inventory,
-                      equipmentIds: newEquipIds,
+                      equipmentIds: invResult.equipmentIds,
                     };
                   }
 
+                  updatedReconciledChar = reconciled;
                   return reconciled;
                 }),
               },
             }));
+
+            if (updatedReconciledChar) {
+              latestSaveStateRef.current = {
+                ...latestSaveStateRef.current,
+                activeCharacter: curActive?.id === primaryChar.id ? updatedReconciledChar : curActive,
+                gold: Array.isArray(srv.inventory) ? invResult.gold : latestSaveStateRef.current.gold,
+                bag: Array.isArray(srv.inventory) ? invResult.bag : latestSaveStateRef.current.bag,
+                loot: Array.isArray(srv.inventory) ? invResult.loot : latestSaveStateRef.current.loot,
+              };
+            }
             isSaveSuspendedRef.current = false;
           } else {
             // Se o servidor não retornou o estado do personagem no 409, suspender salvamentos locais
@@ -1697,9 +1882,143 @@ function GamePrototypeContent() {
       }
 
       if (res.ok) {
+        setSaveErrorAlert(null);
         const json = (await res.json()) as any;
         if (typeof json?.data?.saveVersion === 'number') {
           currentSaveVersionRef.current = json.data.saveVersion;
+          characterSaveVersionsRef.current.set(primaryChar.id, json.data.saveVersion);
+        }
+      } else if (res.status !== 409) {
+        setSaveErrorAlert('Falha ao salvar progresso no servidor.');
+      }
+
+      // Persist all owned party alts individually (level, exp, hp, mana, skills, equipment)
+      // IMPORTANT: Alts NEVER receive slot: 'gold' (Caixa da Party is exclusively on primaryChar)
+      const ownedAlts = curCharacters.filter(
+        (char: CharacterState) => char.id !== primaryChar.id && savedPoolRef.current.some((p) => p.id === char.id)
+      );
+
+      for (const alt of ownedAlts) {
+        try {
+          const altVersion = characterSaveVersionsRef.current.get(alt.id) || 1;
+          const isAltActive = curActive?.id === alt.id;
+          const altPosX = isAltActive ? curPos.x : ((alt as any).posX ?? 32369);
+          const altPosY = isAltActive ? curPos.y : ((alt as any).posY ?? 32241);
+          const altPosZ = isAltActive ? curPos.z : ((alt as any).posZ ?? 7);
+
+          // Alt personal inventory: equipment only, ZERO gold, ZERO shared bags
+          const altInventoryPayload: Array<{ slot: string; serverId: number; name: string; count: number }> = [];
+          const altSavedIds = new Set<number>();
+          slots.forEach((slot) => {
+            const itemId = alt.equipment[slot];
+            if (itemId) {
+              const eqDef = findEquipment(curEquipment, itemId);
+              altInventoryPayload.push({
+                slot,
+                serverId: itemId,
+                name: eqDef?.name || 'Equipment',
+                count: 1,
+              });
+              altSavedIds.add(itemId);
+            }
+          });
+
+          if (alt.inventory?.equipmentIds) {
+            const altUnequipped = alt.inventory.equipmentIds.filter((id) => !altSavedIds.has(id));
+            altUnequipped.forEach((itemId, idx) => {
+              const eqDef = findEquipment(curEquipment, itemId);
+              altInventoryPayload.push({
+                slot: `backpack_${idx}`,
+                serverId: itemId,
+                name: eqDef?.name || 'Item',
+                count: 1,
+              });
+            });
+          }
+
+          const altRes = await fetch(`/api/characters/${alt.id}/save`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              level: alt.level,
+              experience: Number(alt.experience),
+              health: alt.currentHp,
+              maxHealth: alt.maxHp,
+              mana: alt.currentMana,
+              maxMana: alt.maxMana,
+              posX: altPosX,
+              posY: altPosY,
+              posZ: altPosZ,
+              skills: [
+                { skillId: 0, skillName: 'Fist Fighting', value: alt.skills.fist, tries: alt.skillTries?.fist ? Math.floor(alt.skillTries.fist) : 0 },
+                { skillId: 1, skillName: 'Club Fighting', value: alt.skills.club, tries: alt.skillTries?.club ? Math.floor(alt.skillTries.club) : 0 },
+                { skillId: 2, skillName: 'Sword Fighting', value: alt.skills.sword, tries: alt.skillTries?.sword ? Math.floor(alt.skillTries.sword) : 0 },
+                { skillId: 3, skillName: 'Axe Fighting', value: alt.skills.axe, tries: alt.skillTries?.axe ? Math.floor(alt.skillTries.axe) : 0 },
+                { skillId: 4, skillName: 'Distance Fighting', value: alt.skills.distance, tries: alt.skillTries?.distance ? Math.floor(alt.skillTries.distance) : 0 },
+                { skillId: 5, skillName: 'Shielding', value: alt.skills.shielding, tries: alt.skillTries?.shielding ? Math.floor(alt.skillTries.shielding) : 0 },
+                { skillId: 7, skillName: 'Magic Level', value: alt.skills.magicLevel, tries: alt.skillTries?.magicLevel ? Math.floor(alt.skillTries.magicLevel) : 0 },
+              ],
+              inventory: altInventoryPayload,
+              replaceFullInventory: false,
+              vocationName: alt.vocation,
+              promotion: alt.promotion,
+              outfit: alt.outfit,
+              saveVersion: altVersion,
+            }),
+          });
+
+          if (altRes.status === 409) {
+            const conflictJson = (await altRes.json()) as any;
+            if (typeof conflictJson?.currentVersion === 'number') {
+              characterSaveVersionsRef.current.set(alt.id, conflictJson.currentVersion);
+            }
+            if (conflictJson?.character) {
+              const srv = conflictJson.character;
+              setGame((cur) => ({
+                ...cur,
+                session: {
+                  ...cur.session,
+                  characters: cur.session.characters.map((c) => {
+                    if (c.id !== alt.id) return c;
+                    const nextSkills = { ...c.skills };
+                    const nextTries = c.skillTries ? { ...c.skillTries } : undefined;
+                    if (Array.isArray(srv.skills)) {
+                      srv.skills.forEach((sk: any) => {
+                        const key = resolveSkillKey(sk);
+                        if (key && nextSkills[key] !== undefined) {
+                          nextSkills[key] = sk.value;
+                          if (key !== 'fishing' && sk.tries !== undefined && nextTries && nextTries[key] !== undefined) {
+                            nextTries[key] = Number(sk.tries);
+                          }
+                        }
+                      });
+                    }
+                    return {
+                      ...c,
+                      level: typeof srv.level === 'number' ? srv.level : c.level,
+                      experience: srv.experience !== undefined ? Number(srv.experience) : c.experience,
+                      currentHp: typeof srv.health === 'number' ? srv.health : c.currentHp,
+                      maxHp: typeof srv.maxHealth === 'number' ? srv.maxHealth : c.maxHp,
+                      currentMana: typeof srv.mana === 'number' ? srv.mana : c.currentMana,
+                      maxMana: typeof srv.maxMana === 'number' ? srv.maxMana : c.maxMana,
+                      skills: nextSkills,
+                      skillTries: nextTries ?? c.skillTries,
+                    };
+                  }),
+                },
+              }));
+            }
+          } else if (altRes.ok) {
+            const altJson = (await altRes.json()) as any;
+            if (typeof altJson?.data?.saveVersion === 'number') {
+              characterSaveVersionsRef.current.set(alt.id, altJson.data.saveVersion);
+            }
+          }
+        } catch {
+          // Alt save error handled
         }
       }
     } catch (err) {
@@ -2212,13 +2531,17 @@ function GamePrototypeContent() {
         },
         content
       );
-      const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
-      const localOnly = mainId ? respawned.session.characters.filter((c: CharacterState) => c.id === mainId) : [respawned.session.characters[0]];
+      const allRespawned = respawned.session.characters.map((c: CharacterState) => ({
+        ...c,
+        currentHp: c.maxHp,
+        currentMana: c.maxMana,
+        combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+      }));
       return {
         ...respawned,
         session: {
           ...respawned.session,
-          characters: localOnly,
+          characters: allRespawned,
         },
       };
     });
@@ -2268,8 +2591,23 @@ function GamePrototypeContent() {
       activeTrainingSkill === 'Magic Level' ? 'magicLevel' : 'sword';
     setGame((current) => {
       const nextGame = advanceTraining(current, content, 500, skillKey);
-      const actionVis = nextGame.encounter.visualEvents?.find((v: any) => v.type === 'training-action');
-      if (actionVis) {
+
+      // Keep savedPoolRef in sync with updated skills for all squad members
+      if (savedPoolRef.current && savedPoolRef.current.length > 0) {
+        for (const char of nextGame.session.characters) {
+          const idx = savedPoolRef.current.findIndex((c) => c.id === char.id);
+          if (idx >= 0) {
+            savedPoolRef.current[idx] = {
+              ...savedPoolRef.current[idx],
+              skills: { ...char.skills },
+              skillTries: { ...char.skillTries },
+            };
+          }
+        }
+      }
+
+      const actionVisList = nextGame.encounter.visualEvents?.filter((v: any) => v.type === 'training-action') || [];
+      for (const actionVis of actionVisList) {
         gameNetwork.sendTrainingAction({
           dummyPos: trainingDummyPos || undefined,
           style: (actionVis as any).style,
@@ -2480,11 +2818,9 @@ function GamePrototypeContent() {
     setGame((current) => {
       // Phase 99: Use leaveHunt instead of respawnInTemple to eliminate death penalty (0% XP loss, 0% skill loss)
       const left = leaveHunt(current);
-      const mainId = current.session.selectedCharacterId || current.session.characters[0]?.id;
-      const localOnly = mainId ? left.session.characters.filter((c: CharacterState) => c.id === mainId) : [left.session.characters[0]];
 
       // Restore full health & mana and reset combat states for peaceful Thais city return
-      for (const char of localOnly) {
+      for (const char of left.session.characters) {
         if (char) {
           char.currentHp = char.maxHp;
           char.currentMana = char.maxMana;
@@ -2498,7 +2834,6 @@ function GamePrototypeContent() {
         ...left,
         session: {
           ...left.session,
-          characters: localOnly,
           isMultiplayerParty: false,
         },
       };
@@ -2547,6 +2882,38 @@ function GamePrototypeContent() {
       serverConfigManager.getConfig().skillRate
     );
   }, [activeCharacter, activeTrainingSkillKey, content, isTrainingAtDummy]);
+
+  const partyTrainingEstimates = useMemo<TrainingMemberEstimate[]>(() => {
+    if (!game.session.characters || game.session.characters.length === 0) return [];
+    const skillRate = serverConfigManager.getConfig().skillRate;
+    const activeId = activeCharacter?.id || game.session.characters[0]?.id;
+
+    const skillLabelMap: Record<TrainableSkill, string> = {
+      sword: 'Sword Fighting',
+      axe: 'Axe Fighting',
+      club: 'Club Fighting',
+      distance: 'Distance Fighting',
+      shielding: 'Shielding',
+      magicLevel: 'Magic Level',
+      fist: 'Fist Fighting',
+    };
+
+    return game.session.characters.map((char) => {
+      const isLeader = char.id === activeId;
+      const skill: TrainableSkill = isLeader ? activeTrainingSkillKey : trainingSkillFor(char, content);
+      const skillLabel = isLeader ? activeTrainingSkill : (skillLabelMap[skill] || 'Combat Skill');
+      const estimate = calculateTrainingTimeEstimate(char, skill, content, skillRate);
+      return {
+        characterId: char.id,
+        characterName: char.name,
+        vocation: char.vocation || char.baseVocation || 'Knight',
+        isLeader,
+        skill,
+        skillLabel,
+        estimate,
+      };
+    });
+  }, [game.session.characters, activeCharacter?.id, activeTrainingSkillKey, activeTrainingSkill, content, isTrainingAtDummy]);
 
   const handleOpenTrainingMenu = useCallback(() => {
     if (mode === 'hunt') {
@@ -2647,38 +3014,68 @@ function GamePrototypeContent() {
     const currentMemberCount = game.session.characters.length;
     const roleUpper = onlineAccount?.role?.toUpperCase() || '';
     const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
-    const mainChar = game.session.characters[0];
-    const mainLevel = mainChar?.level || 1;
+    const mainLevel = Math.max(activeCharacter?.level || 1, ...game.session.characters.map((c) => c.level || 1));
 
-    // Regra estrita: 1 vocação de cada no Squad
+    // Regra estrita: 1 vocação de cada na Party
     const isVocTaken = game.session.characters.some(
       (c) => (c.vocation || c.baseVocation) === vocation
     );
     if (isVocTaken) {
-      return `O squad já possui um integrante com a vocação ${vocation}. Cada integrante do squad deve ter uma profissão diferente.`;
+      return `A Party já possui um integrante com a vocação ${vocation}. Cada integrante deve ter uma vocação diferente.`;
     }
 
     if (!isAdminOrGm) {
-      if (currentMemberCount === 1 && mainLevel < 70) {
-        return 'Nível 70 necessário para desbloquear o 2º slot do squad.';
+      if (currentMemberCount === 1 && accountMaxLevel < 70) {
+        return 'Nível 70 necessário na conta para desbloquear o 2º slot da Party.';
       }
-      if (currentMemberCount === 2 && mainLevel < 150) {
-        return 'Nível 150 necessário para desbloquear o 3º slot do squad.';
+      if (currentMemberCount === 2 && accountMaxLevel < 150) {
+        return 'Nível 150 necessário na conta para desbloquear o 3º slot da Party.';
       }
-      if (currentMemberCount === 3 && mainLevel < 200) {
-        return 'Nível 200 necessário para desbloquear o 4º slot do squad.';
+      if (currentMemberCount === 3 && accountMaxLevel < 200) {
+        return 'Nível 200 necessário na conta para desbloquear o 4º slot da Party.';
       }
       if (currentMemberCount >= 4) {
-        return 'O squad já atingiu o limite máximo de 4 membros.';
+        return 'A Party já atingiu o limite máximo de 4 membros.';
       }
+    }
+
+    const cleanName = name.trim();
+    const isNameTaken =
+      savedPool.some((c) => c.name.trim().toLowerCase() === cleanName.toLowerCase()) ||
+      game.session.characters.some((c) => c.name.trim().toLowerCase() === cleanName.toLowerCase());
+    if (isNameTaken) {
+      return `Já existe um personagem com o nome "${cleanName}" na sua conta ou grupo.`;
     }
 
     const charGender = gender === 'Feminino' ? 'female' : 'male';
     try {
-      const nextState = synchronizePartyWithEncounter(addPartyMember(game, name, vocation, content, charGender), content);
+      let nextState = addPartyMember(game, cleanName, vocation, content, charGender);
+      if (mode === 'hunt') {
+        try {
+          nextState = synchronizePartyWithEncounter(nextState, content);
+        } catch (syncError) {
+          console.warn('[createMember] Sincronização espacial de caçada adiada para o próximo teletransporte:', syncError);
+        }
+      }
       setGame(nextState);
 
-      // Persist newly created character to PostgreSQL Database under account
+      // Inclui o novo personagem automaticamente na Party e no pool de personagens salvos
+      const createdChar = nextState.session.characters.find(
+        (c: CharacterState) => c.name.toLowerCase() === cleanName.toLowerCase()
+      );
+      if (createdChar) {
+        setSavedPool((prev) => {
+          if (prev.some((c) => c.id === createdChar.id)) return prev;
+          return [...prev, createdChar];
+        });
+        setPartyMemberIds((prev) => {
+          if (prev.includes(createdChar.id) || prev.length >= 4) return prev;
+          return [...prev, createdChar.id];
+        });
+        setIsPartyCreated(true);
+      }
+
+      // Persist newly created character to PostgreSQL/SQLite Database under account
       const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
       if (token) {
         const vocIdMap: Record<string, number> = { Sorcerer: 1, Druid: 2, Paladin: 3, Knight: 4, Monk: 4 };
@@ -2688,7 +3085,7 @@ function GamePrototypeContent() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ name: name.trim(), vocationId: vocIdMap[vocation] || 4 }),
+          body: JSON.stringify({ name: name.trim(), vocationId: vocIdMap[vocation] || 4, gender: charGender }),
         }).catch((err) => {
           console.warn('Erro ao salvar personagem no banco:', err);
         });
@@ -2722,7 +3119,36 @@ function GamePrototypeContent() {
     }
   };
   const selectPartyCharacter = (characterId: string) => {
-    setGame((current) => selectCharacter(current, characterId));
+    setGame((current) => {
+      let nextState = current;
+      if (!current.session.characters.some((c) => c.id === characterId)) {
+        const targetChar = savedPoolRef.current.find((c) => c.id === characterId) || savedPool.find((c) => c.id === characterId);
+        if (targetChar) {
+          const stats = calculateStatsForLevel(targetChar.vocation || 'Knight', targetChar.level || 1);
+          const readyChar: CharacterState = {
+            ...targetChar,
+            maxHp: targetChar.maxHp || stats.maxHp,
+            currentHp: targetChar.currentHp || targetChar.maxHp || stats.maxHp,
+            maxMana: targetChar.maxMana || stats.maxMana,
+            currentMana: targetChar.currentMana || targetChar.maxMana || stats.maxMana,
+            combatState: targetChar.combatState || { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+          };
+          nextState = {
+            ...current,
+            session: {
+              ...current.session,
+              characters: [...current.session.characters, readyChar].slice(0, 4),
+            },
+          };
+        }
+      }
+      return selectCharacter(nextState, characterId);
+    });
+    setPartyMemberIds((prev) => {
+      const next = new Set(prev);
+      next.add(characterId);
+      return Array.from(next);
+    });
     setStatsDelta(null);
     setPromotionMessage('');
   };
@@ -3156,7 +3582,7 @@ function GamePrototypeContent() {
             stepDurationMs={cityStepDurationMs}
             onTileClick={handleTileClick}
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
-            visualEvents={[...(encounter.events || []), ...(encounter.visualEvents || [])] as any}
+            visualEvents={combinedCityVisualEvents}
             debug={debugGrid}
             remotePlayers={remotePlayers}
             localPlayerId={gameNetwork.LocalPlayerId}
@@ -3195,12 +3621,13 @@ function GamePrototypeContent() {
         )}
         {isTrainingAtDummy && mode !== 'hunt' && !showAuthModal && (
           <TrainingProgressHUD
+            members={partyTrainingEstimates}
             skill={activeTrainingSkillKey}
             skillLabel={activeTrainingSkill}
             estimate={trainingEstimate}
             onStopTraining={() => {
               setIsTrainingAtDummy(false);
-              setSaleMessage('Treino no boneco finalizado. Você agora pode se movimentar livremente.');
+              setSaleMessage('Treino no boneco finalizado. A party retornou à formação e você pode se movimentar livremente.');
             }}
           />
         )}
@@ -3240,6 +3667,7 @@ function GamePrototypeContent() {
       {!showAuthModal && (
         <WindowDockBar
           gold={game.session.gold}
+          coins={(onlineAccount as any)?.coins ?? (auth.viewer as any)?.coins ?? 0}
           accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
           characterName={activeCharacter.name}
           character={activeCharacter}
@@ -3266,6 +3694,7 @@ function GamePrototypeContent() {
           }}
           onToggleDebug={() => setDebugGrid((value) => !value)}
           onSelectHunt={() => setHuntSelectorOpen(true)}
+          onOpenParty={() => setPartyModalOpen(true)}
           onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
           onOpenShop={() => setShopOpen((prev) => !prev)}
           onOpenOutfit={() => gameModal.openOutfit(activeCharacter.id)}
@@ -3293,7 +3722,7 @@ function GamePrototypeContent() {
           squadMembers={game.session.characters}
           savedCharacters={savedPool}
           activeCharacterId={activeCharacter.id}
-          userLevel={activeCharacter.level}
+          userLevel={accountMaxLevel}
           userRole={onlineAccount?.role}
           partyMemberIds={partyMemberIds}
           isPartyCreated={isPartyCreated || multiplayerParty !== null}
@@ -3308,7 +3737,8 @@ function GamePrototypeContent() {
             handleRemoveFromParty(id);
             setGame((cur) => removePartyMember(cur, id));
           }}
-          onAddSquadMember={() => setPartyModalOpen(true)}
+          onAddSquadMember={() => setCreateMemberModalOpen(true)}
+          onOpenUnifiedModal={() => setPartyModalOpen(true)}
           onToggleSavedCharacter={handleToggleSavedCharacter}
           onInvitePlayer={(name) => handleInviteParty(name)}
           onLeaveParty={() => {
@@ -3588,10 +4018,61 @@ function GamePrototypeContent() {
         />
       )}
       <PartyMemberModal
-        open={partyModalOpen}
+        open={createMemberModalOpen}
         used={game.session.characters.map((character) => character.baseVocation)}
-        onClose={() => setPartyModalOpen(false)}
+        onClose={() => setCreateMemberModalOpen(false)}
         onCreate={createMember}
+      />
+      <UnifiedPartyModal
+        open={partyModalOpen}
+        onClose={() => setPartyModalOpen(false)}
+        activeCharacter={activeCharacter}
+        accountCharacters={savedPool}
+        partyMemberIds={partyMemberIds}
+        remoteMembers={
+          multiplayerParty
+            ? multiplayerParty.members
+                .filter((m) => m.sessionId !== gameNetwork.LocalPlayerId)
+                .map((m) => ({
+                  id: m.sessionId,
+                  name: m.name + (m.isLeader ? ' ⭐' : ''),
+                  vocation: VOCATION_MAP[m.vocationId] || 'Knight',
+                  level: m.level,
+                  hp: m.hp,
+                  maxHp: m.maxHp,
+                  isLeader: m.isLeader,
+                  isReady: Boolean((m as any).huntProposalAccepted),
+                  outfit: (m as any).outfit,
+                }))
+            : []
+        }
+        isPartyLeader={
+          !multiplayerParty || multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId
+        }
+        currentHuntName={game.encounter?.hunt?.name}
+        onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
+        onAddAltToParty={(charId) => handleAddToParty(charId)}
+        onRemoveAltFromParty={(charId) => handleRemoveFromParty(charId)}
+        onInviteRemotePlayer={(name) => handleInviteParty(name)}
+        onOpenHuntSelector={() => {
+          setHuntSelectorTab('CAÇADAS');
+          setHuntSelectorOpen(true);
+        }}
+        onProposeHuntToTeam={() => {
+          if (game.encounter?.hunt) {
+            const nextSeed = seed.trim() || defaultSeed;
+            gameNetwork.sendPartyHuntPropose(game.encounter.hunt.id, game.encounter.hunt.name, nextSeed);
+            setSaleMessage(`Proposta de caçada em grupo enviada para o time: ${game.encounter.hunt.name}!`);
+          }
+        }}
+        onDisbandParty={handleDisbandParty}
+        onLeaveParty={() => {
+          gameNetwork.sendPartyLeave();
+          setMultiplayerParty(null);
+          setPartyMemberIds([activeCharacter.id]);
+          setSaleMessage('Você saiu da party multiplayer.');
+        }}
+        onCreateCharacter={createMember}
       />
 
       {trackedMonstersList.length > 0 && isBestiaryTrackerVisible && (
@@ -3606,6 +4087,16 @@ function GamePrototypeContent() {
             }
           }}
           onOpenCyclopedia={() => gameModal.openCyclopedia('bestiary')}
+        />
+      )}
+
+      {/* Floating Party HUD showing all members when party > 1 */}
+      {game.session.characters.length > 1 && (
+        <FloatingPartyHUD
+          characters={game.session.characters}
+          activeCharacterId={activeCharacter.id}
+          onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
+          onOpenPartyModal={() => setPartyModalOpen(true)}
         />
       )}
 
@@ -3739,6 +4230,46 @@ function GamePrototypeContent() {
 
       {/* Global Item Tooltip & Player Inspection (Highest z-index, always on top) */}
       <GlobalItemTooltip />
+
+      {saveErrorAlert && (
+        <div
+          role="alert"
+          style={{
+            position: 'fixed',
+            top: '55px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 999999,
+            backgroundColor: 'rgba(180, 40, 40, 0.95)',
+            color: '#fff',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            border: '1px solid #ff6b6b',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.6)',
+            fontSize: '13px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <span>⚠️ {saveErrorAlert}</span>
+          <button
+            type="button"
+            onClick={() => setSaveErrorAlert(null)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#fff',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '14px',
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Phase 104/105: Now Playing Music Track Notification Toast (Slides in from right strictly after loading) */}
       <MusicTrackToast isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />

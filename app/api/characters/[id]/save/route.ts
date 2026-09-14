@@ -76,6 +76,7 @@ export async function POST(
       avatarId: body.avatarId,
       skills: body.skills,
       inventory: body.inventory,
+      replaceFullInventory: typeof body.replaceFullInventory === 'boolean' ? body.replaceFullInventory : undefined,
       hotbar: body.hotbar,
       hotbarConfigs: body.hotbarConfigs,
       bestiaryKills: body.bestiaryKills,
