@@ -6,7 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "vinext dev",
+    "dev": "node --max-old-space-size=8192 ./node_modules/vinext/dist/cli.js dev",
     "server": "npx tsx packages/server/src/cli.ts",
     "prebuild": "npm run prepare:game",
     "build": "vinext build",
