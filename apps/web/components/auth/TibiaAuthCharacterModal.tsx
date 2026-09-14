@@ -365,7 +365,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: charName, vocationId: 0, gender: charGender }),
+        body: JSON.stringify({ name: charName, vocationId: selectedVocation, gender: charGender }),
       });
       const data = (await res.json()) as any;
       if (!data.success) {
@@ -374,6 +374,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       setIsCreatingChar(false);
       setCharName('');
       setCharGender('male');
+      setSelectedVocation(4);
       await fetchAccountAndCharacters(token);
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -962,18 +963,72 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                   </div>
 
                   <div>
-                    <div
-                      style={{
-                        fontSize: '11px',
-                        color: '#a09886',
-                        backgroundColor: '#11161d',
-                        padding: '10px 12px',
-                        borderRadius: '4px',
-                        border: '1px solid #2b3442',
-                        lineHeight: '1.5',
-                      }}
-                    >
-                      ℹ️ O personagem começará no <strong>Nível 1</strong> sem vocação. Você poderá escolher a sua vocação (Knight, Paladin, Sorcerer ou Druid) ao atingir o Nível 8+.
+                    <label style={{ display: 'block', fontSize: '12px', color: '#a09886', marginBottom: '6px' }}>
+                      Vocação Inicial
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                      {[
+                        { id: 4, name: 'Knight', icon: '⚔️', desc: 'Espada, Machado & Escudo' },
+                        { id: 3, name: 'Paladin', icon: '🏹', desc: 'Arco, Lança & Precisão' },
+                        { id: 1, name: 'Sorcerer', icon: '🔮', desc: 'Magia Ofensiva & Varinha' },
+                        { id: 2, name: 'Druid', icon: '🌿', desc: 'Cura, Gelo & Varinha' },
+                      ].map((voc) => {
+                        const isSelected = selectedVocation === voc.id;
+                        return (
+                          <button
+                            key={voc.id}
+                            type="button"
+                            onClick={() => setSelectedVocation(voc.id)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              padding: '8px 10px',
+                              backgroundColor: isSelected ? '#252115' : '#11161d',
+                              border: isSelected ? '2px solid #d4a843' : '1px solid #2b3442',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              color: isSelected ? '#f3e5ab' : '#888',
+                              boxShadow: isSelected ? '0 0 10px rgba(212, 168, 67, 0.35)' : 'none',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <span style={{ fontSize: '18px' }}>{voc.icon}</span>
+                            <div>
+                              <div style={{ fontWeight: 'bold', fontSize: '12px', color: isSelected ? '#ffd700' : '#ddd' }}>
+                                {voc.name}
+                              </div>
+                              <div style={{ fontSize: '10px', color: '#777' }}>
+                                {voc.desc}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div style={{ marginTop: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedVocation(0)}
+                        style={{
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          padding: '6px 10px',
+                          backgroundColor: selectedVocation === 0 ? '#1f2530' : 'transparent',
+                          border: selectedVocation === 0 ? '1px solid #4a90e2' : '1px dashed #2b3442',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          color: selectedVocation === 0 ? '#64b5f6' : '#777',
+                          fontSize: '11px',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <span>🛡️</span> {selectedVocation === 0 ? '✓ Sem Vocação (Escolher no Templo de Thais)' : 'Sem Vocação (Escolher no Templo de Thais)'}
+                      </button>
                     </div>
                   </div>
 

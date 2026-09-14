@@ -89,6 +89,39 @@ describe('Phase 158: None Vocation & Character Gender', () => {
       expect(stats.armor).toBeGreaterThanOrEqual(0);
     });
 
+    it('allows a level 1 character with "None" to choose any main vocation', () => {
+      const char = createCharacter('test-char-1', 'Aventureira', 'None', mockContent, 'female');
+      char.level = 1;
+      const state: GameState = {
+        session: {
+          id: 'test-session',
+          leaderId: char.id,
+          selectedCharacterId: char.id,
+          characters: [char],
+          gold: 0,
+          inventory: [],
+          loot: [],
+          bag: [],
+          unlockedRegions: ['thais'],
+          activeRegionId: 'thais',
+          targetDungeonId: null,
+          isAutoHunting: false,
+          offlineProgress: null,
+          party: { members: [char.id], sharedXp: false },
+          hunts: [],
+          staminaMinutes: 15,
+        },
+        encounter: null,
+        world: { lastTickTime: Date.now() },
+      } as any;
+
+      const result = changeCharacterVocation(state, char.id, 'Knight', mockContent);
+      expect(result.ok).toBe(true);
+      expect(result.state.session.characters[0].vocation).toBe('Knight');
+      expect(result.state.session.characters[0].gender).toBe('female');
+      expect(result.state.session.characters[0].maxHp).toBe(150);
+    });
+
     it('allows a level 8 character with "None" to choose any main vocation', () => {
       const char = createCharacter('test-char-2', 'Aventureira', 'None', mockContent, 'female');
       char.level = 8;
@@ -120,6 +153,37 @@ describe('Phase 158: None Vocation & Character Gender', () => {
       expect(result.state.session.characters[0].vocation).toBe('Knight');
       expect(result.state.session.characters[0].gender).toBe('female');
       expect(result.state.session.characters[0].maxHp).toBe(255);
+    });
+
+    it('prevents a level 7 character with an existing vocation from changing vocation', () => {
+      const char = createCharacter('test-char-3', 'Mago', 'Sorcerer', mockContent, 'male');
+      char.level = 7;
+      const state: GameState = {
+        session: {
+          id: 'test-session',
+          leaderId: char.id,
+          selectedCharacterId: char.id,
+          characters: [char],
+          gold: 0,
+          inventory: [],
+          loot: [],
+          bag: [],
+          unlockedRegions: ['thais'],
+          activeRegionId: 'thais',
+          targetDungeonId: null,
+          isAutoHunting: false,
+          offlineProgress: null,
+          party: { members: [char.id], sharedXp: false },
+          hunts: [],
+          staminaMinutes: 15,
+        },
+        encounter: null,
+        world: { lastTickTime: Date.now() },
+      } as any;
+
+      const result = changeCharacterVocation(state, char.id, 'Knight', mockContent);
+      expect(result.ok).toBe(false);
+      expect(result.error).toBe('É necessário atingir o Nível 8 para trocar de vocação.');
     });
   });
 

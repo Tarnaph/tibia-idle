@@ -3146,7 +3146,7 @@ function GamePrototypeContent() {
       />
 
       <VocationChoiceModal
-        open={activeCharacter.level >= 8 && (!activeCharacter.vocation || activeCharacter.vocation === 'None')}
+        open={!activeCharacter.vocation || activeCharacter.vocation === 'None'}
         characterName={activeCharacter.name}
         takenVocations={getTakenAccountVocations(game.session.characters, activeCharacter.id)}
         onSelectVocation={(vocName) => {

@@ -230,8 +230,8 @@ export function changeCharacterVocation(
   }
 
   const char = state.session.characters[charIndex];
-  if (char.level < 8) {
-    return { ok: false, state, error: 'É necessário atingir o Nível 8 para escolher uma vocação.' };
+  if (char.level < 8 && char.vocation !== 'None') {
+    return { ok: false, state, error: 'É necessário atingir o Nível 8 para trocar de vocação.' };
   }
 
   const takenVocations = getTakenAccountVocations(state.session.characters, characterId);
