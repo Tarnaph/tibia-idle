@@ -41,6 +41,18 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'Personagem não encontrado ou sem permissão.' }, { status: 403 });
     }
 
+    // Strictly require integer saveVersion >= 1 in public API
+    if (typeof body.saveVersion !== 'number' || !Number.isInteger(body.saveVersion) || body.saveVersion < 1) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'SAVE_VERSION_REQUIRED',
+          message: 'saveVersion é obrigatório e deve ser um número inteiro >= 1.',
+        },
+        { status: 400 }
+      );
+    }
+
     const updated = await service.saveCharacterProgress(id, {
       level: body.level,
       experience: safeBigInt(body.experience),

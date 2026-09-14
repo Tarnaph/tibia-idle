@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 import { experienceForLevel, levelForExperience } from '../../domain/src/experience';
 import { calculateStatsForLevel } from '../../domain/src/party';
 import { CharacterSaveLockManager } from './characterSaveLock';
+import { XpRateLimiter } from './xpRateLimiter';
 
 export class VersionConflictError extends Error {
   public readonly code = 'VERSION_CONFLICT';
@@ -417,29 +418,40 @@ export class CharacterService {
       vocationName?: string;
       promotion?: string;
       avatarId?: number;
+      direction?: string;
       saveVersion?: number;
-    }
+    },
+    options?: { isInternal?: boolean }
   ) {
     return CharacterSaveLockManager.withLock(characterId, async () => {
+      // Strictly require integer saveVersion >= 1 in public API
+      if (!options?.isInternal && (typeof data.saveVersion !== 'number' || !Number.isInteger(data.saveVersion) || data.saveVersion < 1)) {
+        throw new Error('saveVersion é obrigatório e deve ser um número inteiro >= 1.');
+      }
+
       const existing = await this.prisma.character.findUnique({
         where: { id: characterId },
-        select: {
-          id: true,
-          level: true,
-          experience: true,
-          vocationName: true,
-          health: true,
-          mana: true,
-          bestiaryKillsJson: true,
-          bossPoints: true,
-          saveVersion: true,
-          lastSavedAt: true,
+        include: {
+          skills: true,
+          inventory: true,
+          spells: true,
         },
       });
 
+      if (!existing) {
+        throw new Error(`Personagem ${characterId} não encontrado.`);
+      }
+
       // Optimistic Concurrency Control (OCC): Verify saveVersion
       const currentVersion = (existing as any)?.saveVersion ?? 1;
-      if (typeof data.saveVersion === 'number' && data.saveVersion !== currentVersion) {
+      if (!options?.isInternal && data.saveVersion !== currentVersion) {
+        throw new VersionConflictError(
+          `Conflito de versão ao salvar personagem ${characterId}. Versão recebida: ${data.saveVersion}, versão atual: ${currentVersion}.`,
+          currentVersion,
+          existing
+        );
+      }
+      if (options?.isInternal && typeof data.saveVersion === 'number' && data.saveVersion !== currentVersion) {
         throw new VersionConflictError(
           `Conflito de versão ao salvar personagem ${characterId}. Versão recebida: ${data.saveVersion}, versão atual: ${currentVersion}.`,
           currentVersion,
@@ -502,15 +514,14 @@ export class CharacterService {
           targetExp = experienceForLevel(existingLevel);
         }
 
-        // Sanity Check: Delta XP vs Time elapsed
+        // Sanity Check: Continuous XP budget (Token Bucket) without static minimum floor
         const deltaExp = targetExp - existingExp;
-        if (deltaExp > 0 && !(data as any).isManualAdminGrant) {
-          const now = Date.now();
-          const lastSavedMs = (existing as any)?.lastSavedAt ? new Date((existing as any).lastSavedAt).getTime() : (now - 5000);
-          const elapsedSeconds = Math.max(1, (now - lastSavedMs) / 1000);
-          const maxAllowedDelta = Math.max(50_000, elapsedSeconds * 25_000);
-          if (deltaExp > maxAllowedDelta) {
-            throw new Error(`Suspicious XP gain: +${deltaExp} XP in ${elapsedSeconds.toFixed(1)}s exceeds safety cap.`);
+        if (deltaExp > 0 && !options?.isInternal && !(data as any).isManualAdminGrant) {
+          const check = XpRateLimiter.consume(characterId, deltaExp, Date.now(), {
+            isHunting: Boolean((data as any).inHunt || (data as any).mode === 'hunt'),
+          });
+          if (!check.allowed) {
+            throw new Error(`Suspicious XP gain: +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}).`);
           }
         }
       }
@@ -541,6 +552,7 @@ export class CharacterService {
       if (data.posY !== undefined) updateData.posY = data.posY;
       if (data.posZ !== undefined) updateData.posZ = data.posZ;
       if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
+      if (data.direction !== undefined) updateData.direction = data.direction;
       if (data.hotbar !== undefined || data.hotbarConfigs !== undefined) {
         if (data.hotbarConfigs !== undefined) {
           updateData.hotbarJson = JSON.stringify({
@@ -552,12 +564,24 @@ export class CharacterService {
         }
       }
       if (data.vocationName !== undefined) {
+        if (existing?.vocationName && existing.vocationName.toLowerCase() !== 'none' && existing.vocationName.toLowerCase() !== 'no vocation') {
+          const normExisting = existing.vocationName.toLowerCase().replace('elite ', '').replace('master ', '').replace('elder ', '').replace('royal ', '');
+          const normIncoming = data.vocationName.toLowerCase().replace('elite ', '').replace('master ', '').replace('elder ', '').replace('royal ', '');
+          if (normExisting !== normIncoming && !options?.isInternal && !(data as any).isManualAdminGrant) {
+            throw new Error(`Transição de vocação não permitida: não é possível alterar de ${existing.vocationName} para ${data.vocationName}.`);
+          }
+        }
         updateData.vocationName = data.vocationName;
         const VOC_ID_MAP: Record<string, number> = { sorcerer: 1, 'master sorcerer': 1, druid: 2, 'elder druid': 2, paladin: 3, 'royal paladin': 3, knight: 4, 'elite knight': 4 };
         const vocId = VOC_ID_MAP[data.vocationName.toLowerCase()];
         if (vocId) updateData.vocationId = vocId;
       }
-      if (data.promotion !== undefined) updateData.promotion = data.promotion;
+      if (data.promotion !== undefined) {
+        if (data.promotion && targetLevel < 20 && !options?.isInternal && !(data as any).isManualAdminGrant) {
+          throw new Error('Promoção de vocação exige nível 20 ou superior.');
+        }
+        updateData.promotion = data.promotion;
+      }
 
       // Monotonic Versioning and Server Timestamp
       (updateData as any).saveVersion = currentVersion + 1;
@@ -589,10 +613,20 @@ export class CharacterService {
         }
       }
 
-      // Strict inventory validation against official catalog, slots and quantity limits
+      // Sanity Check: Anti-skill leap protection (+2 max per single save without admin grant)
+      if (existing?.skills && Array.isArray(existing.skills) && !options?.isInternal && !(data as any).isManualAdminGrant) {
+        for (const incomingSkill of skillList) {
+          const prev = existing.skills.find((s: any) => s.skillId === incomingSkill.skillId);
+          if (prev && incomingSkill.value > prev.value + 2) {
+            throw new Error(
+              `Salto anômalo de habilidade não permitido: skill ${incomingSkill.skillName || incomingSkill.skillId} subiu de ${prev.value} para ${incomingSkill.value} em um único salvamento.`
+            );
+          }
+        }
+      }
       if (Array.isArray(data.inventory)) {
         const catalog = getItemCatalog();
-        const VALID_SLOTS = new Set(['head', 'armor', 'legs', 'boots', 'feet', 'lefthand', 'righthand', 'left', 'right', 'backpack', 'necklace', 'ring', 'ammo']);
+        const VALID_SLOTS = new Set(['head', 'armor', 'legs', 'boots', 'feet', 'lefthand', 'righthand', 'left', 'right', 'backpack', 'necklace', 'ring', 'ammo', 'gold']);
         const NON_WEAPON_BODY_SLOTS = new Set(['head', 'armor', 'legs', 'boots', 'feet', 'necklace', 'ring']);
 
         for (const eq of data.inventory) {
@@ -600,12 +634,17 @@ export class CharacterService {
             throw new Error(`Item inválido no inventário: serverId ${eq.serverId} não existe no catálogo.`);
           }
           const normalizedSlot = typeof eq.slot === 'string' ? eq.slot.toLowerCase() : '';
-          if (!VALID_SLOTS.has(normalizedSlot)) {
+          const isContainerSlot = normalizedSlot.startsWith('backpack') || normalizedSlot.startsWith('bag') || normalizedSlot.startsWith('loot');
+          const isGoldSlot = normalizedSlot === 'gold' || eq.serverId === 2148 || eq.serverId === 2152 || eq.serverId === 2160;
+
+          if (!VALID_SLOTS.has(normalizedSlot) && !isContainerSlot && !isGoldSlot) {
             throw new Error(`Slot de equipamento inválido: ${eq.slot}.`);
           }
+
           const count = Number(eq.count ?? 1);
-          if (count > 100 || count < 1) {
-            throw new Error(`Quantidade ${count} do item ${eq.name || eq.serverId} fora dos limites permitidos (1-100).`);
+          const maxCount = isGoldSlot ? 1_000_000_000 : 100;
+          if (!options?.isInternal && (count > maxCount || count < 1)) {
+            throw new Error(`Quantidade ${count} do item ${eq.name || eq.serverId} fora dos limites permitidos (1-${maxCount}).`);
           }
 
           const meta = catalog.get(eq.serverId);
@@ -639,7 +678,7 @@ export class CharacterService {
             throw new VersionConflictError(
               `Conflito de concorrência: o personagem ${characterId} foi modificado por outro processo.`,
               currentVersion,
-              existing
+              null
             );
           }
         } else if (typeof tx.character.update === 'function') {
@@ -686,8 +725,9 @@ export class CharacterService {
             const slot = typeof eq.slot === 'string' ? eq.slot.toLowerCase() : 'backpack';
             const meta = catalog.get(eq.serverId);
             const isAmmo = meta?.weaponType === 'ammo' || meta?.slot === 'ammo';
+            const isCurrency = slot === 'gold' || eq.serverId === 2148 || eq.serverId === 2152 || eq.serverId === 2160;
             const isNonAmmoEquip = ['head', 'armor', 'legs', 'boots', 'feet', 'necklace', 'ring', 'left', 'right', 'lefthand', 'righthand'].includes(slot) && !isAmmo;
-            const maxCount = isNonAmmoEquip ? 1 : 100;
+            const maxCount = isNonAmmoEquip ? 1 : isCurrency || options?.isInternal ? 1_000_000_000 : 100;
             return {
               characterId,
               slot: eq.slot || 'backpack',
@@ -716,12 +756,44 @@ export class CharacterService {
       };
 
       if (typeof (this.prisma as any).$transaction === 'function') {
-        return (this.prisma as any).$transaction(executeMutations, {
-          maxWait: 10000,
-          timeout: 20000,
-        });
+        try {
+          return await (this.prisma as any).$transaction(executeMutations, {
+            maxWait: 10000,
+            timeout: 20000,
+          });
+        } catch (err: any) {
+          if (err instanceof VersionConflictError) {
+            // Após rollback da transação com colisão, buscar o estado mais recente do banco!
+            const fresh = await this.prisma.character.findUnique({
+              where: { id: characterId },
+              include: { skills: true, inventory: true, spells: true },
+            });
+            throw new VersionConflictError(
+              err.message,
+              (fresh as any)?.saveVersion ?? err.currentVersion,
+              fresh || err.character
+            );
+          }
+          throw err;
+        }
       }
-      return executeMutations(this.prisma);
+
+      try {
+        return await executeMutations(this.prisma);
+      } catch (err: any) {
+        if (err instanceof VersionConflictError && !err.character) {
+          const fresh = await this.prisma.character.findUnique({
+            where: { id: characterId },
+            include: { skills: true, inventory: true, spells: true },
+          });
+          throw new VersionConflictError(
+            err.message,
+            (fresh as any)?.saveVersion ?? err.currentVersion,
+            fresh || existing
+          );
+        }
+        throw err;
+      }
     });
   }
 

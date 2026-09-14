@@ -232,6 +232,7 @@ describe('Phase 123: Correção de Addons Invisíveis, Normalização Canônica 
             id: 'char-123',
             level: 50,
             experience: BigInt(100000),
+            saveVersion: 1,
           }),
           update: vi.fn().mockImplementation(({ where, data }: any) => {
             savedUpdateData = data;
@@ -257,6 +258,7 @@ describe('Phase 123: Correção de Addons Invisíveis, Normalização Canônica 
         outfitAddons: 3,
         mount: 'donkey',
         mountActive: true,
+        saveVersion: 1,
       });
 
       expect(savedUpdateData).not.toBeNull();

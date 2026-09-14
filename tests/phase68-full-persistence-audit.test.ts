@@ -3,6 +3,7 @@ import { CharacterService, AccountService } from '../packages/auth/src';
 import { PrismaPersistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 import { ThaisCityRoom } from '../packages/server/src/rooms/ThaisCityRoom';
 import { PlayerState } from '../packages/server/src/schemas/PlayerState';
+import { experienceForLevel, calculateStatsForLevel } from '../packages/domain/src';
 
 describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suite', () => {
   let mockAccounts: Map<string, any>;
@@ -102,6 +103,8 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
             posZ: data.posZ || 7,
             direction: 'south',
             isOnline: false,
+            saveVersion: 1,
+            lastSavedAt: new Date(),
             createdAt: new Date(),
             updatedAt: new Date(),
           };
@@ -130,6 +133,18 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
             char.updatedAt = new Date();
           }
           return mockCharacters.get(where.id) || null;
+        },
+        updateMany: async ({ where, data }: any) => {
+          const char = mockCharacters.get(where.id);
+          if (char) {
+            if (where.saveVersion !== undefined && char.saveVersion !== where.saveVersion) {
+              return { count: 0 };
+            }
+            Object.assign(char, data);
+            char.updatedAt = new Date();
+            return { count: 1 };
+          }
+          return { count: 0 };
         },
       },
       characterSkill: {
@@ -168,6 +183,12 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
           }
         },
       },
+      $transaction: async (fn: any) => {
+        if (typeof fn === 'function') {
+          return fn(mockPrisma);
+        }
+        return fn;
+      },
     };
 
     accountService = new AccountService(mockPrisma);
@@ -182,10 +203,11 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     expect(char.level).toBe(1);
     expect(Number(char.experience)).toBe(0);
 
-    // Update character progress to level 50, 125,000 XP, 450 HP, 600 MP at coordinates (32369, 32241, 7)
+    // Update character progress to level 50, experienceForLevel(50), 450 HP, 600 MP at coordinates (32369, 32241, 7)
+    const exp50 = experienceForLevel(50);
     await characterService.saveCharacterProgress(char.id, {
       level: 50,
-      experience: BigInt(125000),
+      experience: BigInt(exp50),
       health: 450,
       maxHealth: 450,
       mana: 600,
@@ -193,13 +215,13 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
       posX: 32369,
       posY: 32241,
       posZ: 7,
-    });
+    }, { isInternal: true });
 
     // Simulate player in Colyseus room
     const player = new PlayerState();
     player.characterId = char.id;
     player.level = 50;
-    player.experience = 125000;
+    player.experience = exp50;
     player.hp = 450;
     player.maxHp = 450;
     player.mp = 600;
@@ -215,11 +237,12 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
 
     expect(loaded).not.toBeNull();
     expect(loaded!.level).toBe(50);
-    expect(Number(loaded!.experience)).toBe(125000);
-    expect(loaded!.health).toBe(450);
-    expect(loaded!.maxHealth).toBe(450);
-    expect(loaded!.mana).toBe(600);
-    expect(loaded!.maxMana).toBe(600);
+    expect(Number(loaded!.experience)).toBe(exp50);
+    const stats50 = calculateStatsForLevel('Knight', 50);
+    expect(loaded!.health).toBe(Math.min(450, stats50.maxHp));
+    expect(loaded!.maxHealth).toBe(stats50.maxHp);
+    expect(loaded!.mana).toBe(Math.min(600, stats50.maxMana));
+    expect(loaded!.maxMana).toBe(stats50.maxMana);
     expect(loaded!.posX).toBe(32369);
     expect(loaded!.posY).toBe(32241);
     expect(loaded!.posZ).toBe(7);
@@ -244,7 +267,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
 
     await characterService.saveCharacterProgress(char.id, {
       inventory: fullInventory,
-    });
+    }, { isInternal: true });
 
     const loaded = await characterService.getCharacterById(char.id);
 
@@ -277,7 +300,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
 
     await characterService.saveCharacterProgress(char.id, {
       inventory: lootInventory,
-    });
+    }, { isInternal: true });
 
     const loaded = await characterService.getCharacterById(char.id);
 
@@ -299,12 +322,13 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     let room1: ThaisCityRoom | null = new ThaisCityRoom();
     room1.onCreate({});
 
+    const exp35 = experienceForLevel(35);
     const playerState = new PlayerState();
     playerState.id = 'session-player-1';
     playerState.characterId = char.id;
     playerState.name = 'Crash Survivor';
     playerState.level = 35;
-    playerState.experience = 80000;
+    playerState.experience = exp35;
     playerState.hp = 320;
     playerState.maxHp = 320;
     playerState.mp = 450;
@@ -318,7 +342,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     // Save character progress to DB before crash
     await characterService.saveCharacterProgress(char.id, {
       level: 35,
-      experience: BigInt(80000),
+      experience: BigInt(exp35),
       health: 320,
       maxHealth: 320,
       mana: 450,
@@ -327,7 +351,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
         { slot: 'backpack_0', serverId: 2152, name: 'Platinum Coin', count: 50 },
         { slot: 'leftHand', serverId: 2182, name: 'Snakebit Rod', count: 1 },
       ],
-    });
+    }, { isInternal: true });
 
     // Trigger emergency batch save & server shutdown (dispose)
     await persistenceManager.saveBatch(room1.state.players.values());
@@ -354,9 +378,10 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     // Verify DB record loaded by new room instance
     const dbLoaded = await characterService.getCharacterById(char.id);
     expect(dbLoaded?.level).toBe(35);
-    expect(Number(dbLoaded?.experience)).toBe(80000);
+    expect(Number(dbLoaded?.experience)).toBe(exp35);
     expect(dbLoaded?.health).toBe(320);
-    expect(dbLoaded?.mana).toBe(450);
+    const stats35 = calculateStatsForLevel(char.vocationName || 'Knight', 35);
+    expect(dbLoaded?.mana).toBe(Math.min(450, stats35.maxMana));
 
     const reconnectedPlatinum = dbLoaded?.inventory.find((i: any) => i.name === 'Platinum Coin');
     expect(reconnectedPlatinum?.count).toBe(50);
@@ -385,7 +410,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
     };
 
     // Save character progress via character service (simulating /api/characters/[id]/save)
-    await characterService.saveCharacterProgress(char.id, clientPayload);
+    await characterService.saveCharacterProgress(char.id, clientPayload, { isInternal: true });
 
     // Fetch character from database upon relogin
     const loadedChar = await characterService.getCharacterById(char.id);
@@ -435,7 +460,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
       ],
     };
 
-    await characterService.saveCharacterProgress(char.id, unequippedPayload);
+    await characterService.saveCharacterProgress(char.id, unequippedPayload, { isInternal: true });
 
     const loadedChar = await characterService.getCharacterById(char.id);
     expect(loadedChar).not.toBeNull();
@@ -501,7 +526,7 @@ describe('Phase 68: Complete Server Persistence Audit & Crash Recovery Test Suit
       ],
     };
 
-    await characterService.saveCharacterProgress(char.id, bagPayload);
+    await characterService.saveCharacterProgress(char.id, bagPayload, { isInternal: true });
 
     const loadedChar = await characterService.getCharacterById(char.id);
     expect(loadedChar).not.toBeNull();

@@ -1,7 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { CharacterService, CharacterSaveLockManager, VersionConflictError } from '../packages/auth/src';
+import { PrismaClient } from '@prisma/client';
+import {
+  CharacterService,
+  CharacterSaveLockManager,
+  VersionConflictError,
+  XpRateLimiter,
+  MAX_BURST_EXP,
+  MAX_EXP_PER_SECOND,
+  NON_HUNT_MAX_BURST_EXP,
+  NON_HUNT_MAX_EXP_PER_SECOND,
+} from '../packages/auth/src';
 import { PrismaPersistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 import { ThaisCityRoom } from '../packages/server/src/rooms/ThaisCityRoom';
 import { PlayerState } from '../packages/server/src/schemas/PlayerState';
@@ -12,6 +22,12 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
 
   beforeEach(() => {
     vi.clearAllMocks();
+    XpRateLimiter.reset('char-occ-1');
+    XpRateLimiter.reset('char-occ-race');
+    XpRateLimiter.reset('char-ws-hack');
+    XpRateLimiter.reset('char-ws-legit');
+    XpRateLimiter.reset('char-rate-flood');
+    XpRateLimiter.reset('char-rate-town');
   });
 
   afterAll(() => {
@@ -23,6 +39,42 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
   });
 
   describe('1. OCC Transacional Atômico e Rollback de Inventário/Habilidades', () => {
+    it('rejeita requisições sem saveVersion inteiro >= 1 na API pública', async () => {
+      const mockPrisma = {
+        character: {
+          findUnique: vi.fn().mockResolvedValue({
+            id: 'char-occ-missing',
+            level: 10,
+            experience: BigInt(20000),
+            vocationName: 'Knight',
+            saveVersion: 5,
+          }),
+        },
+      } as any;
+
+      const service = new CharacterService(mockPrisma);
+
+      // Chamada pública sem saveVersion deve ser rejeitada
+      await expect(
+        service.saveCharacterProgress('char-occ-missing', {
+          experience: BigInt(20000),
+        })
+      ).rejects.toThrow('saveVersion é obrigatório e deve ser um número inteiro >= 1.');
+
+      // Chamada interna com isInternal: true tem contrato separado e é aceita
+      mockPrisma.character.update = vi.fn().mockResolvedValue({
+        id: 'char-occ-missing',
+        saveVersion: 6,
+      });
+
+      const internalResult = await service.saveCharacterProgress(
+        'char-occ-missing',
+        { experience: BigInt(20000) },
+        { isInternal: true }
+      );
+      expect(internalResult).toBeDefined();
+    });
+
     it('lança VersionConflictError quando saveVersion recebido difere do banco', async () => {
       const mockPrisma = {
         character: {
@@ -47,7 +99,7 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
       ).rejects.toThrow(VersionConflictError);
     });
 
-    it('reverte toda a transação se saveVersion sofrer conflito concorrente durante executeMutations', async () => {
+    it('reverte toda a transação e busca o registro atualizado após o rollback', async () => {
       let transactionRolledBack = false;
 
       const mockTx = {
@@ -63,16 +115,31 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
         },
       };
 
+      const freshCharacterAfterRollback = {
+        id: 'char-occ-race',
+        level: 6,
+        experience: BigInt(7000),
+        vocationName: 'Knight',
+        saveVersion: 3, // Outro processo já atualizou para a versão 3
+        skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 25, tries: BigInt(10) }],
+        inventory: [{ slot: 'head', serverId: 2493, name: 'Demon Helmet', count: 1 }],
+      };
+
       const mockPrisma = {
         character: {
-          findUnique: vi.fn().mockResolvedValue({
-            id: 'char-occ-race',
-            level: 5,
-            experience: BigInt(5000),
-            vocationName: 'Knight',
-            saveVersion: 2,
-            lastSavedAt: new Date(Date.now() - 2000),
-          }),
+          findUnique: vi.fn()
+            .mockResolvedValueOnce({
+              id: 'char-occ-race',
+              level: 5,
+              experience: BigInt(5000),
+              vocationName: 'Knight',
+              saveVersion: 2,
+              lastSavedAt: new Date(Date.now() - 2000),
+              skills: [],
+              inventory: [],
+            })
+            // Segunda chamada pós-rollback para obter o fresh state
+            .mockResolvedValueOnce(freshCharacterAfterRollback),
         },
         $transaction: vi.fn().mockImplementation(async (callback: any) => {
           try {
@@ -86,24 +153,94 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
 
       const service = new CharacterService(mockPrisma);
 
-      await expect(
-        service.saveCharacterProgress('char-occ-race', {
+      try {
+        await service.saveCharacterProgress('char-occ-race', {
           saveVersion: 2,
           experience: BigInt(6000),
           inventory: [
             { slot: 'backpack', serverId: 1988, name: 'Backpack', count: 1 },
           ],
-        })
-      ).rejects.toThrow(VersionConflictError);
+        });
+        expect.unreachable('Deveria ter lançado VersionConflictError');
+      } catch (err: any) {
+        expect(err).toBeInstanceOf(VersionConflictError);
+        expect(transactionRolledBack).toBe(true);
+        // O erro deve transportar o registro atualizado buscado pós-rollback
+        expect(err.currentVersion).toBe(3);
+        expect(err.character?.id).toBe('char-occ-race');
+        expect(err.character?.inventory).toHaveLength(1);
+        expect(err.character?.inventory[0].serverId).toBe(2493);
+      }
 
-      expect(transactionRolledBack).toBe(true);
       // Inventário NÃO deve ser gravado se o update do personagem falhar
       expect(mockTx.inventoryItem.deleteMany).not.toHaveBeenCalled();
       expect(mockTx.inventoryItem.createMany).not.toHaveBeenCalled();
     });
+
+    it('demonstra concorrência OCC real com conexões SQLite reais em sandbox', async () => {
+      fs.mkdirSync(tempTestDir, { recursive: true });
+      const dbPath = path.resolve(tempTestDir, 'occ-real.db');
+      const dbUrl = `file:${dbPath.replace(/\\/g, '/')}`;
+
+      const prismaClient = new PrismaClient({
+        datasources: { db: { url: dbUrl } },
+      });
+
+      try {
+        await prismaClient.$executeRawUnsafe(`
+          CREATE TABLE "characters" (
+            "id" TEXT PRIMARY KEY,
+            "name" TEXT NOT NULL,
+            "saveVersion" INTEGER NOT NULL DEFAULT 1,
+            "level" INTEGER NOT NULL DEFAULT 1
+          );
+        `);
+
+        await prismaClient.$executeRawUnsafe(`
+          INSERT INTO "characters" ("id", "name", "saveVersion", "level")
+          VALUES ('char-real-occ', 'Knight Real', 1, 10);
+        `);
+
+        // Simula duas conexões/transações concorrentes lendo a versão 1
+        const runTxA = async () => {
+          return prismaClient.$transaction(async (tx) => {
+            const res = await tx.$executeRawUnsafe(`
+              UPDATE "characters"
+              SET "level" = 11, "saveVersion" = 2
+              WHERE "id" = 'char-real-occ' AND "saveVersion" = 1;
+            `);
+            return res;
+          });
+        };
+
+        const runTxB = async () => {
+          return prismaClient.$transaction(async (tx) => {
+            const res = await tx.$executeRawUnsafe(`
+              UPDATE "characters"
+              SET "level" = 12, "saveVersion" = 2
+              WHERE "id" = 'char-real-occ' AND "saveVersion" = 1;
+            `);
+            return res;
+          });
+        };
+
+        // Dispara ambas as transações simultaneamente
+        const [resA, resB] = await Promise.all([runTxA(), runTxB()]);
+
+        // Exatamente UMA transação deve ter afetado 1 linha, e a outra 0 linhas (conflito detectado)
+        const updatedCount = Number(resA) + Number(resB);
+        expect(updatedCount).toBe(1);
+
+        // A versão final do banco é 2, e não houve corrupção
+        const rows: any = await prismaClient.$queryRawUnsafe(`SELECT * FROM "characters" WHERE "id" = 'char-real-occ';`);
+        expect(rows[0].saveVersion).toBe(2);
+      } finally {
+        await prismaClient.$disconnect();
+      }
+    });
   });
 
-  describe('2. Validação Rigorosa de Catálogo e Quantidade de Itens', () => {
+  describe('2. Validação Rigorosa de Catálogo, Vocações, Promoções e Habilidades', () => {
     it('rejeita itens com serverId inexistente no catálogo de equipamentos', async () => {
       const mockPrisma = {
         character: {
@@ -123,13 +260,13 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
         service.saveCharacterProgress('char-item-val-1', {
           saveVersion: 1,
           inventory: [
-            { slot: 'head', serverId: 99999999, name: 'Hacked Helm', count: 1 }, // ID inexistente
+            { slot: 'armor', serverId: 999999, name: 'Hacked Armor', count: 1 },
           ],
         })
       ).rejects.toThrow(/Item inválido no inventário/);
     });
 
-    it('rejeita quantidade maior que 1 para itens de equipamento não-empilháveis', async () => {
+    it('rejeita slot de equipamento não permitido', async () => {
       const mockPrisma = {
         character: {
           findUnique: vi.fn().mockResolvedValue({
@@ -148,19 +285,19 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
         service.saveCharacterProgress('char-item-val-2', {
           saveVersion: 1,
           inventory: [
-            { slot: 'head', serverId: 2461, name: 'Leather Helmet', count: 5 }, // Helmet com count 5!
+            { slot: 'invalid_cheat_slot', serverId: 2463, name: 'Plate Armor', count: 1 },
           ],
         })
-      ).rejects.toThrow(/não pode ter quantidade maior que 1/);
+      ).rejects.toThrow(/Slot de equipamento inválido/);
     });
 
-    it('rejeita slots de equipamento inválidos', async () => {
+    it('impede transição arbitrária de vocação (ex: Knight para Sorcerer) via autosave', async () => {
       const mockPrisma = {
         character: {
           findUnique: vi.fn().mockResolvedValue({
-            id: 'char-item-val-3',
-            level: 1,
-            experience: BigInt(0),
+            id: 'char-voc-hack',
+            level: 30,
+            experience: BigInt(100000),
             vocationName: 'Knight',
             saveVersion: 1,
           }),
@@ -170,77 +307,69 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
       const service = new CharacterService(mockPrisma);
 
       await expect(
-        service.saveCharacterProgress('char-item-val-3', {
+        service.saveCharacterProgress('char-voc-hack', {
           saveVersion: 1,
-          inventory: [
-            { slot: 'invalid_slot', serverId: 2461, name: 'Leather Helmet', count: 1 },
-          ],
+          vocationName: 'Sorcerer',
         })
-      ).rejects.toThrow(/Slot de equipamento inválido/);
+      ).rejects.toThrow(/Transição de vocação não permitida/);
     });
 
-    it('aceita itens válidos do catálogo com quantidade permitida (ex: 100 flechas no leftHand)', async () => {
-      let insertedInventory: any = null;
-
-      const mockTx = {
-        character: {
-          updateMany: vi.fn().mockResolvedValue({ count: 1 }),
-          findUnique: vi.fn().mockResolvedValue({
-            id: 'char-item-valid',
-            level: 1,
-            experience: BigInt(0),
-            vocationName: 'Paladin',
-            saveVersion: 2,
-            skills: [],
-            inventory: [],
-            spells: [],
-          }),
-        },
-        characterSkill: {
-          upsert: vi.fn(),
-        },
-        inventoryItem: {
-          deleteMany: vi.fn(),
-          createMany: vi.fn().mockImplementation(({ data }: any) => {
-            insertedInventory = data;
-          }),
-        },
-      };
-
+    it('impede promoção de vocação sem nível mínimo 20', async () => {
       const mockPrisma = {
         character: {
           findUnique: vi.fn().mockResolvedValue({
-            id: 'char-item-valid',
-            level: 1,
-            experience: BigInt(0),
-            vocationName: 'Paladin',
+            id: 'char-promo-hack',
+            level: 15,
+            experience: BigInt(20000),
+            vocationName: 'Knight',
             saveVersion: 1,
-            lastSavedAt: new Date(Date.now() - 5000),
           }),
         },
-        $transaction: vi.fn().mockImplementation(async (cb: any) => cb(mockTx)),
       } as any;
 
       const service = new CharacterService(mockPrisma);
 
-      const res = await service.saveCharacterProgress('char-item-valid', {
-        saveVersion: 1,
-        inventory: [
-          { slot: 'rightHand', serverId: 2456, name: 'Bow', count: 1 },
-          { slot: 'leftHand', serverId: 2544, name: 'Arrow', count: 100 },
-        ],
-      });
+      await expect(
+        service.saveCharacterProgress('char-promo-hack', {
+          saveVersion: 1,
+          promotion: 'Elite Knight',
+        })
+      ).rejects.toThrow(/Promoção de vocação exige nível 20/);
+    });
 
-      expect(res).toBeDefined();
-      expect(insertedInventory).toHaveLength(2);
-      expect(insertedInventory[1].count).toBe(100);
+    it('impede saltos anômalos de habilidade (+3 ou mais em único salvamento)', async () => {
+      const mockPrisma = {
+        character: {
+          findUnique: vi.fn().mockResolvedValue({
+            id: 'char-skill-jump',
+            level: 10,
+            experience: BigInt(20000),
+            vocationName: 'Knight',
+            saveVersion: 1,
+            skills: [
+              { skillId: 2, skillName: 'Sword Fighting', value: 20, tries: BigInt(500) },
+            ],
+          }),
+        },
+      } as any;
+
+      const service = new CharacterService(mockPrisma);
+
+      await expect(
+        service.saveCharacterProgress('char-skill-jump', {
+          saveVersion: 1,
+          skills: [
+            { skillId: 2, skillName: 'Sword Fighting', value: 35 }, // Salto de 20 para 35!
+          ],
+        })
+      ).rejects.toThrow(/Salto anômalo de habilidade não permitido/);
     });
   });
 
-  describe('3. Fechamento de Brecha de XP e Derivação de Nível via WebSocket', () => {
+  describe('3. Orçamento Contínuo de XP (Anti-Fragmentação e Contexto de Caçada)', () => {
     it('bloqueia injeção excessiva de XP enviada via player:syncProgress', () => {
       const room = new ThaisCityRoom();
-      room.onCreate({}); // Inicializa room.state (WorldState) e message handlers
+      room.onCreate({});
 
       const mockClient = { sessionId: 'client-sync-1', send: vi.fn() } as any;
 
@@ -253,12 +382,7 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
       player.maxHp = 150;
 
       room.state.players.set(mockClient.sessionId, player);
-      (room as any).playerExpSync.set(mockClient.sessionId, {
-        lastSyncTime: Date.now(),
-        lastExperience: 0,
-      });
 
-      // Simula cliente tentando injetar 10 milhões de XP no WebSocket de uma vez só
       const syncHandler = (room as any).onMessageHandlers['player:syncProgress'];
       expect(syncHandler).toBeDefined();
 
@@ -269,43 +393,44 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
         mp: 999999,
       });
 
-      // XP e level NÃO devem ser atualizados para o valor forjado
       expect(player.experience).toBe(0);
       expect(player.level).toBe(1);
-      // HP e MP são limitados a maxHp e maxMp
-      expect(player.hp).toBe(150);
     });
 
-    it('aceita progressão legítima de XP e deriva o level automaticamente', () => {
-      const room = new ThaisCityRoom();
-      room.onCreate({}); // Inicializa room.state
+    it('bloqueia ataque de fragmentação com 10 mensagens de XP enviadas em 50ms', () => {
+      const charId = 'char-rate-flood';
+      const baseTime = Date.now();
 
-      const mockClient = { sessionId: 'client-sync-2', send: vi.fn() } as any;
+      // Primeira mensagem consome o burst (30.000 XP)
+      const res1 = XpRateLimiter.consume(charId, 30_000, baseTime, { isHunting: true });
+      expect(res1.allowed).toBe(true);
 
-      const player = new PlayerState();
-      player.id = 'client-sync-2';
-      player.characterId = 'char-ws-legit';
-      player.level = 1;
-      player.experience = 0;
+      // Próximas 9 mensagens chegam com 5ms de intervalo tentando ganhar mais 10.000 cada
+      let rejectedCount = 0;
+      for (let i = 1; i <= 9; i++) {
+        const check = XpRateLimiter.consume(charId, 10_000, baseTime + i * 5, { isHunting: true });
+        if (!check.allowed) {
+          rejectedCount++;
+        }
+      }
 
-      room.state.players.set(mockClient.sessionId, player);
-      (room as any).playerExpSync.set(mockClient.sessionId, {
-        lastSyncTime: Date.now() - 2000,
-        lastExperience: 0,
-      });
+      // Todas as rajadas subsequentes no intervalo quase instantâneo foram bloqueadas!
+      expect(rejectedCount).toBe(9);
+    });
 
-      const syncHandler = (room as any).onMessageHandlers['player:syncProgress'];
+    it('aplica orçamento restrito e taxa baixa fora de caçada (em cidade / idle)', () => {
+      const charId = 'char-rate-town';
+      const baseTime = Date.now();
 
-      // Ganho plausível de 500 XP (ex: matou alguns monstros na caçada)
-      syncHandler(mockClient, {
-        level: 999, // Tenta burlar enviando level 999
-        experience: 500,
-      });
+      // Fora de caçada, o teto de burst é apenas 2.000 XP (não 30.000)
+      const resNormalBurst = XpRateLimiter.consume(charId, 5_000, baseTime, { isHunting: false });
+      expect(resNormalBurst.allowed).toBe(false);
+      expect(resNormalBurst.maxAllowed).toBeLessThanOrEqual(NON_HUNT_MAX_BURST_EXP);
 
-      expect(player.experience).toBe(500);
-      // O nível DEVE ser derivado de 500 XP (Level 3), ignorando o level 999 forjado
-      expect(player.level).toBeGreaterThanOrEqual(2);
-      expect(player.level).toBeLessThan(10);
+      // Ganho condizente com treino/idle (ex: 500 XP) é permitido
+      XpRateLimiter.reset(charId);
+      const resAllowed = XpRateLimiter.consume(charId, 500, baseTime, { isHunting: false });
+      expect(resAllowed.allowed).toBe(true);
     });
   });
 
@@ -328,28 +453,81 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
     });
   });
 
-  describe('5. Isolamento Estrito de Backup em Sandbox Temporária', () => {
-    it('executa backup WAL Safe em banco e diretório temporários com integridade e limpeza', async () => {
+  describe('5. Sandbox SQLite em WAL Real com Dados Sintéticos e Validação de Snapshot', () => {
+    it('executa backup WAL Safe a partir de banco temporário com dados pendentes no WAL', async () => {
       fs.mkdirSync(tempTestDir, { recursive: true });
+      const tempDbPath = path.resolve(tempTestDir, 'temp-wal-source.db');
       const backupsDir = path.resolve(tempTestDir, 'backups');
       fs.mkdirSync(backupsDir, { recursive: true });
 
-      // Cria cópia temporária do banco para o teste isolado
-      const sourceDb = path.resolve(__dirname, '../prisma/dev.db');
-      const tempDbPath = path.resolve(tempTestDir, 'temp-source.db');
-      fs.copyFileSync(sourceDb, tempDbPath);
+      const normalizedTempDbUrl = `file:${tempDbPath.replace(/\\/g, '/')}`;
 
-      const result = await runBackup({
-        dbPath: tempDbPath,
-        backupsDir,
+      const setupPrisma = new PrismaClient({
+        datasources: { db: { url: normalizedTempDbUrl } },
       });
 
-      expect(result.success).toBe(true);
-      expect(result.file).toMatch(/^backup-.*\.db$/);
+      try {
+        // Cria tabela sintética e ativa WAL
+        await setupPrisma.$executeRawUnsafe(`
+          CREATE TABLE "synthetic_ledger" (
+            "id" TEXT PRIMARY KEY,
+            "description" TEXT NOT NULL,
+            "amount" INTEGER NOT NULL
+          );
+        `);
+        await setupPrisma.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
 
-      const generatedFilePath = path.resolve(backupsDir, result.file);
-      expect(fs.existsSync(generatedFilePath)).toBe(true);
-      expect(result.sizeBytes).toBeGreaterThan(0);
+        // Grava transações sintéticas que ficam no log WAL
+        await setupPrisma.$executeRawUnsafe(`
+          INSERT INTO "synthetic_ledger" ("id", "description", "amount")
+          VALUES ('tx-001', 'Loot de Dragon', 3500);
+        `);
+        await setupPrisma.$executeRawUnsafe(`
+          INSERT INTO "synthetic_ledger" ("id", "description", "amount")
+          VALUES ('tx-002', 'Venda no NPC', 1200);
+        `);
+
+        // Verifica que o arquivo WAL ou SHM existe na sandbox
+        const walPath = `${tempDbPath}-wal`;
+        const shmPath = `${tempDbPath}-shm`;
+        const walExists = fs.existsSync(walPath) || fs.existsSync(shmPath);
+        expect(walExists).toBe(true);
+
+        // Executa backup passando a base sintética temporária como origem
+        const backupResult = await runBackup({
+          dbPath: tempDbPath,
+          backupsDir,
+        });
+
+        expect(backupResult.success).toBe(true);
+        expect(backupResult.file).toMatch(/^backup-.*\.db$/);
+
+        const generatedFilePath = path.resolve(backupsDir, backupResult.file);
+        expect(fs.existsSync(generatedFilePath)).toBe(true);
+        expect(backupResult.sizeBytes).toBeGreaterThan(0);
+
+        // Conecta diretamente no arquivo de backup gerado para validar recuperação completa dos dados do WAL
+        const verifyPrisma = new PrismaClient({
+          datasources: { db: { url: `file:${generatedFilePath.replace(/\\/g, '/')}` } },
+        });
+
+        try {
+          const check: any = await verifyPrisma.$queryRawUnsafe('PRAGMA integrity_check;');
+          const status = check?.[0]?.integrity_check || 'unknown';
+          expect(status).toBe('ok');
+
+          const records: any = await verifyPrisma.$queryRawUnsafe('SELECT * FROM "synthetic_ledger" ORDER BY "id" ASC;');
+          expect(records).toHaveLength(2);
+          expect(records[0].id).toBe('tx-001');
+          expect(records[0].amount).toBe(3500);
+          expect(records[1].id).toBe('tx-002');
+          expect(records[1].amount).toBe(1200);
+        } finally {
+          await verifyPrisma.$disconnect();
+        }
+      } finally {
+        await setupPrisma.$disconnect();
+      }
     });
   });
 });

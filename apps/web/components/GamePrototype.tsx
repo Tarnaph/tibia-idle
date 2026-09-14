@@ -277,6 +277,7 @@ function GamePrototypeContent() {
   const isSavingRef = useRef<boolean>(false);
   const lastSaveTimeRef = useRef<number>(0);
   const currentSaveVersionRef = useRef<number>(1);
+  const isSaveSuspendedRef = useRef<boolean>(false);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   // Security (Phase 116): Derives admin privileges strictly from the validated in-game account.
   // Never let an outdated viewer or leftover session promote a PLAYER account to admin.
@@ -1306,6 +1307,7 @@ function GamePrototypeContent() {
     userChar.mount = (charItem as any).mount ?? 'none';
     userChar.mountActive = Boolean((charItem as any).mountActive);
     currentSaveVersionRef.current = typeof (charItem as any).saveVersion === 'number' ? (charItem as any).saveVersion : 1;
+    isSaveSuspendedRef.current = false;
 
     userChar.outfit =
       (charItem as any).outfit ||
@@ -1455,6 +1457,9 @@ function GamePrototypeContent() {
 
     if (!token || !curActive || !curOnline || curActive.id !== curOnline.id) return;
 
+    // Suspended saves guard: if a concurrency conflict couldn't be cleanly reconciled, halt saves until clean reload
+    if (isSaveSuspendedRef.current) return;
+
     // Mutex lock: prevent concurrent /save HTTP requests
     if (isSavingRef.current) return;
 
@@ -1581,7 +1586,7 @@ function GamePrototypeContent() {
       });
 
       if (res.status === 409) {
-        // Optimistic Concurrency Conflict: reconcile state from server, avoid blind re-send
+        // Optimistic Concurrency Conflict: reconcile complete state from server, avoid blind re-send
         try {
           const conflictData = (await res.json()) as any;
           if (typeof conflictData?.currentVersion === 'number') {
@@ -1595,7 +1600,8 @@ function GamePrototypeContent() {
                 ...cur.session,
                 characters: cur.session.characters.map((c) => {
                   if (c.id !== curActive.id) return c;
-                  return {
+
+                  const reconciled: typeof c = {
                     ...c,
                     level: typeof srv.level === 'number' ? srv.level : c.level,
                     experience: srv.experience !== undefined ? Number(srv.experience) : c.experience,
@@ -1604,11 +1610,89 @@ function GamePrototypeContent() {
                     currentMana: typeof srv.mana === 'number' ? srv.mana : c.currentMana,
                     maxMana: typeof srv.maxMana === 'number' ? srv.maxMana : c.maxMana,
                   };
+
+                  // Reconcile skills from server
+                  if (Array.isArray(srv.skills)) {
+                    const skillNameMap: Record<string, keyof typeof c.skills> = {
+                      fist: 'fist',
+                      club: 'club',
+                      sword: 'sword',
+                      axe: 'axe',
+                      distance: 'distance',
+                      shielding: 'shielding',
+                      fishing: 'fishing',
+                      magiclevel: 'magicLevel',
+                      'magic level': 'magicLevel',
+                      magic: 'magicLevel',
+                    };
+                    const nextSkills = { ...c.skills };
+                    const nextTries = c.skillTries ? { ...c.skillTries } : undefined;
+                    srv.skills.forEach((sk: any) => {
+                      const key = skillNameMap[sk.skillName?.toLowerCase()] || (sk.skillId === 7 ? 'magicLevel' : undefined);
+                      if (key && nextSkills[key] !== undefined) {
+                        nextSkills[key] = sk.value;
+                        if (key !== 'fishing' && sk.tries !== undefined && nextTries && nextTries[key] !== undefined) {
+                          nextTries[key] = Number(sk.tries);
+                        }
+                      }
+                    });
+                    reconciled.skills = nextSkills;
+                    if (nextTries) reconciled.skillTries = nextTries;
+                  }
+
+                  // Reconcile equipment & inventory: purge items that no longer exist on server
+                  if (Array.isArray(srv.inventory)) {
+                    const newEquipment: Record<CharacterEquipmentSlot, number | null> = {
+                      head: null,
+                      armor: null,
+                      legs: null,
+                      boots: null,
+                      leftHand: null,
+                      rightHand: null,
+                    };
+                    const newEquipIds: number[] = [];
+                    const equipSlotsMap: Record<string, CharacterEquipmentSlot> = {
+                      head: 'head',
+                      armor: 'armor',
+                      legs: 'legs',
+                      boots: 'boots',
+                      feet: 'boots',
+                      lefthand: 'leftHand',
+                      righthand: 'rightHand',
+                      left: 'leftHand',
+                      right: 'rightHand',
+                    };
+
+                    srv.inventory.forEach((item: any) => {
+                      const normSlot = typeof item.slot === 'string' ? item.slot.toLowerCase() : '';
+                      const targetSlot = equipSlotsMap[normSlot];
+                      if (targetSlot) {
+                        newEquipment[targetSlot] = item.serverId;
+                        if (!newEquipIds.includes(item.serverId)) newEquipIds.push(item.serverId);
+                      } else if (item.serverId) {
+                        if (!newEquipIds.includes(item.serverId)) newEquipIds.push(item.serverId);
+                      }
+                    });
+
+                    reconciled.equipment = newEquipment;
+                    reconciled.inventory = {
+                      ...c.inventory,
+                      equipmentIds: newEquipIds,
+                    };
+                  }
+
+                  return reconciled;
                 }),
               },
             }));
+            isSaveSuspendedRef.current = false;
+          } else {
+            // Se o servidor não retornou o estado do personagem no 409, suspender salvamentos locais
+            isSaveSuspendedRef.current = true;
           }
-        } catch {}
+        } catch {
+          isSaveSuspendedRef.current = true;
+        }
         return;
       }
 

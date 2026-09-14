@@ -49,6 +49,7 @@ describe('Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQL
         mana: 999999,
         maxMana: 999999,
         capacity: 999999,
+        saveVersion: 1,
       });
 
       expect(savedData).not.toBeNull();
@@ -353,13 +354,32 @@ describe('Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQL
   });
 
   describe('6. Script Determinístico de Backup SQLite (WAL Safe)', () => {
-    it('executa backup atômico via VACUUM INTO em diretório temporário isolado', async () => {
+    it('executa backup atômico via VACUUM INTO em diretório e banco temporários 100% isolados', async () => {
       const fs = await import('node:fs');
       const path = await import('node:path');
+      const { PrismaClient } = await import('@prisma/client');
       const tempDir = path.resolve(__dirname, '../temp-test-backup-isolated');
+      fs.mkdirSync(tempDir, { recursive: true });
+      const tempDbPath = path.resolve(tempDir, 'synthetic-source.db');
+      const backupsDir = path.resolve(tempDir, 'backups');
+      fs.mkdirSync(backupsDir, { recursive: true });
+
+      const setupPrisma = new PrismaClient({
+        datasources: { db: { url: `file:${tempDbPath.replace(/\\/g, '/')}` } },
+      });
+      try {
+        await setupPrisma.$executeRawUnsafe('CREATE TABLE IF NOT EXISTS "test_records" ("id" TEXT PRIMARY KEY, "val" TEXT);');
+        await setupPrisma.$queryRawUnsafe('PRAGMA journal_mode=WAL;');
+        await setupPrisma.$executeRawUnsafe("INSERT OR REPLACE INTO test_records VALUES ('r1', 'isolated-data');");
+      } finally {
+        await setupPrisma.$disconnect();
+      }
 
       try {
-        const backupResult = await runBackup({ backupsDir: tempDir });
+        const backupResult = await runBackup({
+          dbPath: tempDbPath,
+          backupsDir,
+        });
         expect(backupResult).toBeDefined();
         expect(backupResult.success).toBe(true);
         expect(backupResult.file).toMatch(/^backup-.*\.db$/);

@@ -4,7 +4,7 @@ import { PlayerState } from '../schemas/PlayerState';
 import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
-import { verifyAuthToken, VOCATION_CONFIGS } from '../../../auth/src';
+import { verifyAuthToken, VOCATION_CONFIGS, XpRateLimiter } from '../../../auth/src';
 import { experienceForLevel, levelForExperience, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, getHuntWorldEntrance, type TrainableSkill, type GameContent } from '../../../domain/src';
 import vocationsJson from '../../../../content/generated/vocations.json';
 import equipmentJson from '../../../../content/generated/equipment.json';
@@ -460,25 +460,18 @@ export class ThaisCityRoom extends Room<WorldState> {
       if (player) {
         if (typeof data.experience === 'number') {
           if (data.experience > player.experience) {
-            let tracker = this.playerExpSync.get(client.sessionId);
-            const now = Date.now();
-            if (!tracker) {
-              tracker = { lastSyncTime: now - 1000, lastExperience: player.experience };
-              this.playerExpSync.set(client.sessionId, tracker);
-            }
             const deltaExp = data.experience - player.experience;
-            const elapsedSeconds = Math.max(0.5, (now - tracker.lastSyncTime) / 1000);
-            const maxAllowedDelta = Math.max(50_000, elapsedSeconds * 25_000);
+            const now = Date.now();
+            const charKey = player.characterId || client.sessionId;
+            const check = XpRateLimiter.consume(charKey, deltaExp, now, { isHunting: Boolean(player.inHunt) });
 
-            if (deltaExp > maxAllowedDelta) {
+            if (!check.allowed) {
               console.warn(
-                `[Security] Suspicious XP gain via WebSocket for player ${player.name} (${player.characterId}): +${deltaExp} XP in ${elapsedSeconds.toFixed(1)}s exceeds safety cap. Rejected.`
+                `[Security] Suspicious XP gain via WebSocket for player ${player.name} (${player.characterId}): +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}). Rejected.`
               );
             } else {
               player.experience = data.experience;
               player.level = Math.max(1, levelForExperience(data.experience));
-              tracker.lastSyncTime = now;
-              tracker.lastExperience = player.experience;
             }
           }
         }
