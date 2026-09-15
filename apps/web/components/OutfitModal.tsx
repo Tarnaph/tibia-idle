@@ -279,11 +279,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       ).then(() => {
         if (renderGenRef.current === thisGen) {
           const cvs = previewCanvasRef.current;
-          outfitDiagnostics.recordPreparation({
-            status: 'ready',
-            durationMs: Date.now() - renderStartTime,
-            success: true,
-          });
           outfitDiagnostics.recordPreview({
             hasCanvas: !!cvs,
             width: cvs?.width || 0,
@@ -293,12 +288,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
           });
         }
       }).catch((err) => {
-        outfitDiagnostics.recordPreparation({
-          status: 'failed',
-          durationMs: Date.now() - renderStartTime,
-          success: false,
-          missingAssets: [err?.message || 'render-error'],
-        });
         console.warn('Outfit preview render non-fatal exception caught:', err);
       });
     }
@@ -369,27 +358,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       addons: addonsVal,
       outfitColors: colors,
     });
-    // Preload both unmounted (foot) and mounted frames completely so transitions are instant
-    prepareAppearanceCanvas(
-      selectedOutfit,
-      activeChar.gender || 'male',
-      colors,
-      addonsVal,
-      effectiveMount,
-      false,
-      DIRECTIONS as any
-    ).catch(() => {});
-    if (effectiveMount && effectiveMount !== 'none' && currentCaps.hasMountRider) {
-      prepareAppearanceCanvas(
-        selectedOutfit,
-        activeChar.gender || 'male',
-        colors,
-        addonsVal,
-        effectiveMount,
-        true,
-        DIRECTIONS as any
-      ).catch(() => {});
-    }
     onClose();
   };
 

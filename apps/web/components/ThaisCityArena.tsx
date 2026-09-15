@@ -1455,7 +1455,17 @@ export function ThaisCityArena({
                 };
                 view.pendingAppearance = desiredAppearance;
 
+                outfitDiagnostics.recordPreparation({
+                  status: 'preparing',
+                  totalFramesRequested: desiredCheck.total || 36,
+                  cachedFramesCount: desiredCheck.cached || 0,
+                  missingAssets: [],
+                  missingFrames: desiredCheck.missing || [],
+                  attemptsCount: 1,
+                });
+
                 const thisSig = outfitSig;
+                const prepStart = Date.now();
                 prepareAppearanceCanvas(
                   outfitKey,
                   charGender,
@@ -1465,12 +1475,34 @@ export function ThaisCityArena({
                   isMounted
                 ).then((res) => {
                   if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
+                    const missingFrames = res.missingAssets.filter((a) => !a.startsWith('/') && !a.startsWith('http'));
+                    const missingUrls = res.missingAssets.filter((a) => a.startsWith('/') || a.startsWith('http'));
                     if (res.success) {
                       view.appearanceState.status = 'ready';
                       view.appearanceState.missingAssets = [];
+                      outfitDiagnostics.recordPreparation({
+                        status: 'ready',
+                        success: true,
+                        durationMs: Date.now() - prepStart,
+                        totalFramesRequested: res.totalFramesRequested,
+                        cachedFramesCount: res.cachedFramesCount,
+                        missingAssets: [],
+                        missingFrames: [],
+                        attemptsCount: 1,
+                      });
                     } else {
                       view.appearanceState.status = 'failed';
                       view.appearanceState.missingAssets = res.missingAssets;
+                      outfitDiagnostics.recordPreparation({
+                        status: 'failed',
+                        success: false,
+                        durationMs: Date.now() - prepStart,
+                        totalFramesRequested: res.totalFramesRequested,
+                        cachedFramesCount: res.cachedFramesCount,
+                        missingAssets: missingUrls,
+                        missingFrames: missingFrames,
+                        attemptsCount: 1,
+                      });
                       console.warn(
                         `[ThaisCityArena] Appearance preparation failed for ${thisSig}. Blocking assets: ${res.missingAssets.join(', ')}`
                       );
@@ -1480,6 +1512,14 @@ export function ThaisCityArena({
                   if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
                     view.appearanceState.status = 'failed';
                     view.appearanceState.missingAssets = [err?.message || 'unknown-error'];
+                    outfitDiagnostics.recordPreparation({
+                      status: 'failed',
+                      success: false,
+                      durationMs: Date.now() - prepStart,
+                      missingAssets: [err?.message || 'unknown-error'],
+                      missingFrames: [],
+                      attemptsCount: 1,
+                    });
                   }
                 });
               } else if (view.appearanceState.status === 'failed') {
@@ -1488,7 +1528,18 @@ export function ThaisCityArena({
                   view.appearanceState.attempts++;
                   view.appearanceState.lastAttemptTime = now;
                   view.appearanceState.status = 'preparing';
+                  const curAttempt = view.appearanceState.attempts;
                   const thisSig = outfitSig;
+                  const retryStart = Date.now();
+
+                  outfitDiagnostics.recordPreparation({
+                    status: 'preparing',
+                    attemptsCount: curAttempt,
+                    totalFramesRequested: desiredCheck.total || 36,
+                    cachedFramesCount: desiredCheck.cached || 0,
+                    missingFrames: desiredCheck.missing || [],
+                  });
+
                   prepareAppearanceCanvas(
                     outfitKey,
                     charGender,
@@ -1498,14 +1549,36 @@ export function ThaisCityArena({
                     isMounted
                   ).then((res) => {
                     if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
+                      const missingFrames = res.missingAssets.filter((a) => !a.startsWith('/') && !a.startsWith('http'));
+                      const missingUrls = res.missingAssets.filter((a) => a.startsWith('/') || a.startsWith('http'));
                       if (res.success) {
                         view.appearanceState.status = 'ready';
                         view.appearanceState.missingAssets = [];
+                        outfitDiagnostics.recordPreparation({
+                          status: 'ready',
+                          success: true,
+                          durationMs: Date.now() - retryStart,
+                          totalFramesRequested: res.totalFramesRequested,
+                          cachedFramesCount: res.cachedFramesCount,
+                          missingAssets: [],
+                          missingFrames: [],
+                          attemptsCount: curAttempt,
+                        });
                       } else {
                         view.appearanceState.status = 'failed';
                         view.appearanceState.missingAssets = res.missingAssets;
+                        outfitDiagnostics.recordPreparation({
+                          status: 'failed',
+                          success: false,
+                          durationMs: Date.now() - retryStart,
+                          totalFramesRequested: res.totalFramesRequested,
+                          cachedFramesCount: res.cachedFramesCount,
+                          missingAssets: missingUrls,
+                          missingFrames: missingFrames,
+                          attemptsCount: curAttempt,
+                        });
                         console.warn(
-                          `[ThaisCityArena] Appearance retry ${view.appearanceState.attempts}/4 failed for ${thisSig}. Missing: ${res.missingAssets.join(', ')}`
+                          `[ThaisCityArena] Appearance retry ${curAttempt}/4 failed for ${thisSig}. Missing: ${res.missingAssets.join(', ')}`
                         );
                       }
                     }
@@ -1514,9 +1587,19 @@ export function ThaisCityArena({
               }
 
               // ATOMIC APPEARANCE SWAP:
-              // Keep rendering the previous complete appearance until the new one is fully ready!
-              // When ready, swap body, mount, and addons together in this exact single frame!
-              const canSwap = isDesiredReady || view.appearanceState?.status === 'ready' || (view.appearanceState && view.appearanceState.attempts >= 4);
+              // Swap as soon as the active view (current direction idle frame) is cached,
+              // or when full preparation across all 36 frames is ready, or on max retries.
+              const isCurrentActiveFrameCached = isOutfitCanvasCached(
+                outfitKey,
+                charGender,
+                charDirection,
+                0,
+                colors,
+                addons,
+                localChar.mount,
+                isMounted
+              );
+              const canSwap = isDesiredReady || isCurrentActiveFrameCached || view.appearanceState?.status === 'ready' || (view.appearanceState && view.appearanceState.attempts >= 4);
               if (canSwap) {
                 console.log('[ThaisCityArena] APPEARANCE SWAPPED SUCCESSFULLY to:', outfitSig);
                 view.activeAppearance = desiredAppearance;

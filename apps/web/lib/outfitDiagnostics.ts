@@ -11,7 +11,10 @@
  * 8. Primeira divergência detectada
  */
 
-export const CURRENT_CLIENT_COMMIT = '15ca6ae03';
+export const CURRENT_CLIENT_COMMIT =
+  (typeof window !== 'undefined' && (window as any).__GIT_COMMIT__) ||
+  process.env.NEXT_PUBLIC_GIT_COMMIT ||
+  'ce72a9b46';
 
 export interface OutfitAttemptLog {
   attemptId: string;
@@ -41,8 +44,18 @@ export interface OutfitAttemptLog {
     durationMs: number;
     success?: boolean;
     missingAssets: string[];
+    missingFrames?: string[];
     cachedFramesCount: number;
     totalFramesRequested: number;
+    attemptsCount?: number;
+    attemptsHistory?: Array<{
+      attempt: number;
+      durationMs: number;
+      missingAssets: string[];
+      missingFrames: string[];
+      success: boolean;
+      timestamp: number;
+    }>;
   };
   preview: {
     hasCanvas: boolean;
@@ -145,7 +158,28 @@ class OutfitDiagnosticsManager {
 
   recordPreparation(prep: Partial<OutfitAttemptLog['preparation']>): void {
     if (!this.currentAttempt) return;
-    this.currentAttempt.preparation = { ...this.currentAttempt.preparation, ...prep };
+    const current = this.currentAttempt.preparation;
+    const attemptsCount = prep.attemptsCount ?? current.attemptsCount ?? 1;
+
+    let attemptsHistory = current.attemptsHistory ? [...current.attemptsHistory] : [];
+    if (prep.status === 'failed' || prep.status === 'ready' || prep.success !== undefined) {
+      attemptsHistory.push({
+        attempt: attemptsCount,
+        durationMs: prep.durationMs ?? current.durationMs ?? 0,
+        missingAssets: prep.missingAssets || current.missingAssets || [],
+        missingFrames: prep.missingFrames || current.missingFrames || [],
+        success: Boolean(prep.success),
+        timestamp: Date.now(),
+      });
+      if (attemptsHistory.length > 10) attemptsHistory.shift();
+    }
+
+    this.currentAttempt.preparation = {
+      ...current,
+      ...prep,
+      attemptsCount,
+      attemptsHistory,
+    };
     this.detectDivergence();
   }
 
@@ -179,6 +213,10 @@ class OutfitDiagnosticsManager {
 
   recordApiSave(status: number, ok: boolean, error?: string): void {
     if (!this.currentAttempt) return;
+    // Do not associate background autosaves if save was neither clicked nor fired in this attempt
+    if (!this.currentAttempt.save.buttonClicked && !this.currentAttempt.save.callbackFired) {
+      return;
+    }
     this.currentAttempt.save.apiDispatched = true;
     this.currentAttempt.save.apiResponseStatus = status;
     this.currentAttempt.save.apiResponseOk = ok;
@@ -202,9 +240,16 @@ class OutfitDiagnosticsManager {
     const a = this.currentAttempt;
     const div: string[] = [];
 
-    // 1. Checar se a seleção do usuário falhou em ser preparada
+    // 1. Checar se a preparação de recursos falhou
     if (a.preparation.status === 'failed') {
-      div.push(`PREPARAÇÃO_FALHOU: ${a.preparation.missingAssets.join(', ') || 'assets pendentes'}`);
+      const parts: string[] = [];
+      if (a.preparation.missingFrames && a.preparation.missingFrames.length > 0) {
+        parts.push(`frames: [${a.preparation.missingFrames.join(', ')}]`);
+      }
+      if (a.preparation.missingAssets && a.preparation.missingAssets.length > 0) {
+        parts.push(`assets: [${a.preparation.missingAssets.slice(0, 5).join(', ')}]`);
+      }
+      div.push(`PREPARAÇÃO_FALHOU: ${parts.join(' | ') || 'assets pendentes'} (tentativa ${a.preparation.attemptsCount || 1})`);
     }
 
     // 2. Checar se o preview desenhou algo divergente da seleção
@@ -221,12 +266,11 @@ class OutfitDiagnosticsManager {
       }
     }
 
-    // 3. Checar se o save foi clicado mas o callback não disparou
+    // 3. Checar fluxo de salvamento:
     if (a.save.buttonClicked && !a.save.callbackFired) {
       div.push('SAVE_CALLBACK_NAO_DISPAROU: botão clicado mas onSave não executou');
     }
 
-    // 3b. Checar se o callback de salvamento divergiu da seleção do usuário
     if (a.save.callbackFired && a.save.callbackPayload && a.selection.outfit) {
       if (a.save.callbackPayload.outfit && a.save.callbackPayload.outfit !== a.selection.outfit) {
         div.push(`SAVE_DIVERGENTE_OUTFIT: selecionado "${a.selection.outfit}", enviado no save "${a.save.callbackPayload.outfit}"`);
@@ -236,10 +280,8 @@ class OutfitDiagnosticsManager {
       }
     }
 
-    // 4. Checar se o arena não refletiu a seleção ou o outfit salvo
-    if (a.selection.outfit && a.arena.reactCharOutfit && a.arena.reactCharOutfit !== a.selection.outfit) {
-      div.push(`ARENA_REACT_DIVERGENTE_SELECAO: char.outfit="${a.arena.reactCharOutfit}", selecionado="${a.selection.outfit}"`);
-    }
+    // 4. Distinção estrita: antes de Salvar, seleção diferente do personagem NÃO é divergência (é navegação normal).
+    // Se o save foi disparado, o personagem DEVE refletir a seleção salva.
     if (a.save.callbackFired && a.save.callbackPayload) {
       const expected = a.save.callbackPayload;
       if (a.arena.reactCharOutfit && a.arena.reactCharOutfit !== expected.outfit) {
@@ -248,16 +290,25 @@ class OutfitDiagnosticsManager {
       if (a.arena.reactCharMount && a.arena.reactCharMount !== expected.mount) {
         div.push(`ARENA_REACT_MOUNT_DIVERGENTE: char.mount="${a.arena.reactCharMount}", esperado="${expected.mount}"`);
       }
-      if (a.arena.arenaActiveAppearanceSig && expected.outfit) {
-        if (!a.arena.arenaActiveAppearanceSig.toLowerCase().includes(expected.outfit.toLowerCase())) {
-          div.push(`ARENA_PIXI_DIVERGENTE: activeAppearance="${a.arena.arenaActiveAppearanceSig}", esperado outfit="${expected.outfit}"`);
-        }
+    }
+
+    // 5. Detectar se há aparência salva no personagem que o renderizador na arena não conseguiu assumir
+    const activeSavedOutfit = (a.save.callbackFired && a.save.callbackPayload?.outfit) || a.arena.reactCharOutfit;
+    if (activeSavedOutfit && a.arena.arenaActiveAppearanceSig) {
+      const activeSigLower = a.arena.arenaActiveAppearanceSig.toLowerCase();
+      const savedOutfitLower = activeSavedOutfit.toLowerCase();
+      if (!activeSigLower.includes(savedOutfitLower)) {
+        div.push(
+          `APARENCIA_SALVA_NAO_ASSUMIDA_PELO_RENDERIZADOR: Personagem possui traje salvo "${activeSavedOutfit}", mas arena continua exibindo "${a.arena.arenaActiveAppearanceSig}" (status: "${a.arena.arenaAppearanceStatus || a.preparation.status}", pendente: "${a.arena.arenaPendingAppearanceSig || 'nenhum'}")`
+        );
       }
     }
 
     a.divergences = div;
     if (a.arena.reactCharOutfit && a.selection.outfit) {
-      a.arena.isMatchWithSelection = div.length === 0;
+      a.arena.isMatchWithSelection = a.save.callbackFired
+        ? div.length === 0
+        : !div.some((d) => d.startsWith('PREVIEW_DIVERGENTE'));
     }
   }
 

@@ -284,6 +284,7 @@ function GamePrototypeContent() {
   const currentSaveVersionRef = useRef<number>(1);
   const characterSaveVersionsRef = useRef<Map<string, number>>(new Map());
   const isSaveSuspendedRef = useRef<boolean>(false);
+  const outfitSaveActiveRef = useRef<boolean>(false);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   // Security (Phase 116): Derives admin privileges strictly from the validated in-game account.
   // Never let an outdated viewer or leftover session promote a PLAYER account to admin.
@@ -1801,7 +1802,10 @@ function GamePrototypeContent() {
         }),
       });
 
-      outfitDiagnostics.recordApiSave(res.status, res.ok, res.ok ? undefined : `HTTP ${res.status}`);
+      if (outfitSaveActiveRef.current) {
+        outfitSaveActiveRef.current = false;
+        outfitDiagnostics.recordApiSave(res.status, res.ok, res.ok ? undefined : `HTTP ${res.status}`);
+      }
 
       if (res.status === 409) {
         // Optimistic Concurrency Conflict: reconcile complete state from server, avoid blind re-send
@@ -2234,6 +2238,7 @@ function GamePrototypeContent() {
       } as any;
     }
 
+    outfitSaveActiveRef.current = true;
     outfitDiagnostics.recordSaveCallback(customization);
     outfitDiagnostics.recordNetworkDispatch();
 
@@ -2313,6 +2318,7 @@ function GamePrototypeContent() {
       gameNetwork.sendChangeOutfit({ mount: effectiveMount });
       gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
 
+      outfitSaveActiveRef.current = true;
       if (saveProgressRef.current) {
         saveProgressRef.current(false, true).catch(() => {});
       }

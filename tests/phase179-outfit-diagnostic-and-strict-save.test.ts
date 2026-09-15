@@ -6,8 +6,8 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
     // Reset any state before each test
   });
 
-  it('correctly reports clientCommit matching reference 15ca6ae03', () => {
-    expect(CURRENT_CLIENT_COMMIT).toBe('15ca6ae03');
+  it('correctly reports clientCommit matching deployed commit ce72a9b46', () => {
+    expect(CURRENT_CLIENT_COMMIT).toBe('ce72a9b46');
   });
 
   it('reproduces complete outfit change attempt lifecycle without leaking tokens or passwords', () => {
@@ -34,12 +34,16 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
       direction: 'south',
     });
 
-    // 2. Preparation and preview render completion
+    // 2. Preparation records actual frames
     outfitDiagnostics.recordPreparation({
       status: 'ready',
       durationMs: 42,
       success: true,
+      totalFramesRequested: 36,
+      cachedFramesCount: 36,
       missingAssets: [],
+      missingFrames: [],
+      attemptsCount: 1,
     });
 
     outfitDiagnostics.recordPreview({
@@ -85,7 +89,7 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
     const finished = outfitDiagnostics.endAttempt();
     expect(finished).not.toBeNull();
     expect(finished?.attemptId).toBe(attemptId);
-    expect(finished?.clientCommit).toBe('15ca6ae03');
+    expect(finished?.clientCommit).toBe('ce72a9b46');
 
     // Asserts no tokens or passwords in payload
     expect(finished?.save.callbackPayload?.password).toBeUndefined();
@@ -94,6 +98,98 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
     // Asserts zero divergences detected on successful complete cycle
     expect(finished?.divergences).toEqual([]);
     expect(finished?.arena.isMatchWithSelection).toBe(true);
+    expect(finished?.preparation.totalFramesRequested).toBe(36);
+    expect(finished?.preparation.cachedFramesCount).toBe(36);
+    expect(finished?.preparation.attemptsHistory?.length).toBeGreaterThan(0);
+  });
+
+  it('does NOT consider uncommitted modal selection as an error before Save is clicked', () => {
+    // Scenario reported by user: Character has Glooth Engineer + Dromedary.
+    // In modal, user is selecting Hunter + Racing Bird, but hasn't clicked Salvar yet.
+    outfitDiagnostics.startAttempt({
+      characterId: 'char-user',
+      characterName: 'PlayerOne',
+      outfit: 'glooth-engineer',
+      mount: 'dromedary',
+      mountActive: true,
+    });
+
+    outfitDiagnostics.updateSelection({
+      outfit: 'Hunter',
+      mount: 'racing-bird',
+      mountActive: true,
+    });
+
+    outfitDiagnostics.recordPreview({
+      hasCanvas: true,
+      width: 64,
+      height: 64,
+      lastDrawnKey: 'hunter_racing-bird_south_a0',
+    });
+
+    outfitDiagnostics.recordArenaState({
+      reactCharOutfit: 'glooth-engineer',
+      reactCharMount: 'dromedary',
+      reactCharMountActive: true,
+      arenaActiveAppearanceSig: 'glooth-engineer_male_dromedary_0_0_86_114_76',
+    });
+
+    const report = outfitDiagnostics.getCurrentAttempt();
+    // Before save, selection differing from character outfit is NOT a divergence
+    expect(report?.save.buttonClicked).toBe(false);
+    expect(report?.divergences).toEqual([]);
+  });
+
+  it('detects APARENCIA_SALVA_NAO_ASSUMIDA_PELO_RENDERIZADOR when character state has saved appearance but arena renderer is stuck', () => {
+    // Scenario reported by user: Character state contains Glooth Engineer + Dromedary,
+    // but the arena map is still rendering Nightmare + Lady Bug, and preparation is pending/failed.
+    outfitDiagnostics.startAttempt({
+      characterId: 'char-user',
+      characterName: 'PlayerOne',
+      outfit: 'glooth-engineer',
+      mount: 'dromedary',
+      mountActive: true,
+    });
+
+    outfitDiagnostics.recordPreparation({
+      status: 'failed',
+      totalFramesRequested: 36,
+      cachedFramesCount: 20,
+      missingFrames: ['west-f7', 'west-f8'],
+      attemptsCount: 2,
+    });
+
+    outfitDiagnostics.recordArenaState({
+      reactCharOutfit: 'glooth-engineer',
+      reactCharMount: 'dromedary',
+      reactCharMountActive: true,
+      arenaActiveAppearanceSig: 'nightmare_male_lady-bug_0_0_86_114_76', // Stuck on old appearance!
+      arenaPendingAppearanceSig: 'glooth-engineer_male_dromedary_0_0_86_114_76',
+      arenaAppearanceStatus: 'failed',
+    });
+
+    const report = outfitDiagnostics.getCurrentAttempt();
+    expect(report?.divergences.some((d) => d.includes('APARENCIA_SALVA_NAO_ASSUMIDA_PELO_RENDERIZADOR'))).toBe(true);
+    expect(report?.divergences.some((d) => d.includes('PREPARAÇÃO_FALHOU'))).toBe(true);
+  });
+
+  it('ignores periodic background autosave HTTP 200 when user has not clicked Save in the attempt', () => {
+    outfitDiagnostics.startAttempt({
+      characterId: 'char-user',
+      characterName: 'PlayerOne',
+      outfit: 'Hunter',
+      mount: 'racing-bird',
+      mountActive: true,
+    });
+
+    // Simulate periodic autosave firing while user is only previewing in modal
+    outfitDiagnostics.recordApiSave(200, true);
+
+    const report = outfitDiagnostics.getCurrentAttempt();
+    // Must NOT be marked as apiDispatched because button was not clicked
+    expect(report?.save.buttonClicked).toBe(false);
+    expect(report?.save.apiDispatched).toBe(false);
+    expect(report?.save.apiResponseStatus).toBeUndefined();
   });
 
   it('detects divergence when character state in saveProgress does not match user selection', () => {
@@ -133,7 +229,6 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
   });
 
   it('synchronously updates latestSaveStateRef.current.characters on outfit save', () => {
-    // Replicates the exact bug in GamePrototype where latestSaveStateRef.characters was omitted
     const characters = [
       {
         id: 'char-main',
