@@ -5,7 +5,9 @@ export class PlayerState extends Schema {
   @type('string') characterId: string = '';
   @type('string') accountId: string = '';
   @type('string') role: string = 'PLAYER';
+  @type('string') adminTitle: string = ''; // 'GOD' | 'GM' | ''
   @type('string') name: string = '';
+  @type('string') gender: string = 'male'; // 'male' | 'female'
   @type('number') vocationId: number = 4;
   @type('string') vocationName: string = 'Knight';
   @type('number') level: number = 1;

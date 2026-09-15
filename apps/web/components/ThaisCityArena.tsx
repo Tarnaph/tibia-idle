@@ -6,7 +6,7 @@ import thaisCityJson from '@/content/generated/thais-city.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
 import thaisItemMetaJson from '@/content/generated/thais-item-metadata.json';
 import fxAssetsJson from '@/content/generated/tibia1098-fx.json';
-import { THAIS_TRAINING_DUMMIES, type CharacterState, type CombatVisualEvent } from '@/packages/domain/src';
+import { THAIS_TRAINING_DUMMIES, EXERCISE_DUMMY_ITEM_IDS, calculatePartyTrainingPositions, type CharacterState, type CombatVisualEvent, type TrainingDummyInfo } from '@/packages/domain/src';
 import type { HuntRegionCatalog } from '@/packages/content-schema/src';
 import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
 import type { ExtractedFrame, ItemVisualAssetMapping, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
@@ -37,9 +37,11 @@ interface Props {
   cityPos: { x: number; y: number; z: number };
   isWalking: boolean;
   isTraining: boolean;
+  trainingDummyPos?: { x: number; y: number; z: number } | null;
   stepDurationMs?: number;
   onTileClick?: (tile: { x: number; y: number; z: number }) => void;
   onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
+  onDummyContextMenu?: (dummy: TrainingDummyInfo, x: number, y: number) => void;
   visualEvents?: CombatVisualEvent[];
   debug?: boolean;
   remotePlayers?: Map<string, any>;
@@ -47,6 +49,7 @@ interface Props {
   overheadMessages?: CityOverheadMessage[];
   active?: boolean;
   isCharacterVisible?: boolean;
+  squadFollowEnabled?: boolean;
 }
 
 interface ThaisItemFrame {
@@ -85,6 +88,20 @@ function resolveTileFrameKey(meta: ThaisItemMetadata | undefined, tileX: number,
   const matched = typedFrames.find((f) => f.px === px && f.py === py && f.animFrame === 0) ?? typedFrames[0];
   return matched.key;
 }
+
+function getMissileDirection(dx: number, dy: number): string {
+  const angle = Math.atan2(dy, dx);
+  const deg = (angle * (180 / Math.PI) + 360) % 360;
+  if (deg >= 337.5 || deg < 22.5) return 'east';
+  if (deg >= 22.5 && deg < 67.5) return 'south-east';
+  if (deg >= 67.5 && deg < 112.5) return 'south';
+  if (deg >= 112.5 && deg < 157.5) return 'south-west';
+  if (deg >= 157.5 && deg < 202.5) return 'west';
+  if (deg >= 202.5 && deg < 247.5) return 'north-west';
+  if (deg >= 247.5 && deg < 292.5) return 'north';
+  return 'north-east';
+}
+
 const thaisData = thaisCityJson as {
   bounds: { minX: number; maxX: number; minY: number; maxY: number; z: number };
   temple: { x: number; y: number; z: number };
@@ -116,9 +133,11 @@ export function ThaisCityArena({
   cityPos,
   isWalking,
   isTraining,
+  trainingDummyPos,
   stepDurationMs = 500,
   onTileClick,
   onCharacterContextMenu,
+  onDummyContextMenu,
   visualEvents = [],
   debug = false,
   remotePlayers,
@@ -126,6 +145,7 @@ export function ThaisCityArena({
   overheadMessages,
   active = true,
   isCharacterVisible = true,
+  squadFollowEnabled = false,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
@@ -149,9 +169,11 @@ export function ThaisCityArena({
     cityPos,
     isWalking,
     isTraining,
+    trainingDummyPos,
     stepDurationMs,
     onTileClick,
     onCharacterContextMenu,
+    onDummyContextMenu,
     debug,
     remotePlayers,
     localPlayerId,
@@ -159,6 +181,7 @@ export function ThaisCityArena({
     visualEvents,
     active,
     isCharacterVisible,
+    squadFollowEnabled,
   });
   latestRef.current = {
     characters,
@@ -166,9 +189,11 @@ export function ThaisCityArena({
     cityPos,
     isWalking,
     isTraining,
+    trainingDummyPos,
     stepDurationMs,
     onTileClick,
     onCharacterContextMenu,
+    onDummyContextMenu,
     debug,
     remotePlayers,
     localPlayerId,
@@ -176,6 +201,7 @@ export function ThaisCityArena({
     visualEvents,
     active,
     isCharacterVisible,
+    squadFollowEnabled,
   };
 
   useEffect(() => {
@@ -304,20 +330,70 @@ export function ThaisCityArena({
         return;
       }
 
-      // Preload donkey rider mount fallback in idle time
+      // Preload donkey rider mount, all house training dummies, and combat effects/missiles in idle time
       setTimeout(async () => {
         if (disposed) return;
-        const u = '/generated/mounts/donkey_rider_south.png';
-        if (!loaded[u]) {
+        const donkeyUrl = '/generated/mounts/donkey_rider_south.png';
+        if (!loaded[donkeyUrl]) {
           try {
-            const tex = await Assets.load<PixiTexture>(u);
+            const tex = await Assets.load<PixiTexture>(donkeyUrl);
             if (tex) {
               tex.source.style.scaleMode = 'nearest';
-              loaded[u] = tex;
+              loaded[donkeyUrl] = tex;
             }
           } catch {}
         }
-      }, 300);
+
+        // Preload canonical and house training dummies (5787, 31827-31833)
+        for (const dummyId of EXERCISE_DUMMY_ITEM_IDS) {
+          if (!atlasTextures[`item-${dummyId}-direct`]) {
+            try {
+              const tex = await Assets.load<PixiTexture>(`/assets/items/item-${dummyId}.png`);
+              if (tex) {
+                if (tex.source?.style) tex.source.style.scaleMode = 'nearest';
+                atlasTextures[`item-${dummyId}-direct`] = tex;
+                atlasTextures[`item-${dummyId}-f0`] = tex;
+              }
+            } catch {}
+          }
+        }
+
+        // Preload essential training missiles and effects
+        const PRELOAD_EFFECT_IDS = ['10', '12', '16', '17', '18', '37', '38', '44'];
+        const PRELOAD_MISSILE_IDS = ['3', '4', '5', '11', '15', '28', '29', '54'];
+        for (const effId of PRELOAD_EFFECT_IDS) {
+          const mapping = fxAssets.effects[effId];
+          if (mapping?.frames) {
+            for (const f of mapping.frames) {
+              if (!loaded[f.publicUrl]) {
+                try {
+                  const tex = await Assets.load<PixiTexture>(f.publicUrl);
+                  if (tex) {
+                    if (tex.source?.style) tex.source.style.scaleMode = 'nearest';
+                    loaded[f.publicUrl] = tex;
+                  }
+                } catch {}
+              }
+            }
+          }
+        }
+        for (const mId of PRELOAD_MISSILE_IDS) {
+          const mapping = fxAssets.missiles[mId];
+          if (mapping?.frames) {
+            for (const f of mapping.frames) {
+              if (!loaded[f.publicUrl]) {
+                try {
+                  const tex = await Assets.load<PixiTexture>(f.publicUrl);
+                  if (tex) {
+                    if (tex.source?.style) tex.source.style.scaleMode = 'nearest';
+                    loaded[f.publicUrl] = tex;
+                  }
+                } catch {}
+              }
+            }
+          }
+        }
+      }, 100);
 
       const teleportMeta = thaisItemMeta['effect-11'];
       const teleportFrames = (teleportMeta?.frames as string[]) || [];
@@ -340,36 +416,121 @@ export function ThaisCityArena({
       }
       const timedCityVisuals: TimedCityVisual[] = [];
       let lastProcessedVisualEvents: CombatVisualEvent[] | undefined;
+      const processedCityEventIds = new Set<string>();
+      let globalCityEventSeq = 0;
+      function getStableEventId(ev: any): string {
+        if (ev.id && typeof ev.id === 'string') return ev.id;
+        if (!ev._stableId) {
+          globalCityEventSeq++;
+          ev._stableId = `city_ev_${Date.now()}_${globalCityEventSeq}_${ev.type || 'vis'}_${ev.sourceId || ''}_${ev.spellId || ''}`;
+        }
+        return ev._stableId;
+      }
+      let lastAttackPoseUntil = 0;
+      const remoteAttackPoseUntilMap = new Map<string, number>();
 
-      const unsubNetworkCombat = gameNetwork.onCombatEvent((ev) => {
-        if (ev.effectId) {
-          const fxMapping = fxAssets.effects[String(ev.effectId)];
-          if (fxMapping && fxMapping.frames.length > 0) {
-            const firstFrameUrl = fxMapping.frames[0].publicUrl;
-            const targetX = ev.posX ?? ev.x ?? 0;
-            const targetY = ev.posY ?? ev.y ?? 0;
-            const targetPx = { x: targetX * TILE_SIZE + 16, y: targetY * TILE_SIZE + 16 };
-            const sp = new Sprite(loaded[firstFrameUrl] || Texture.EMPTY);
+      function triggerTrainingVisual(
+        fromX: number,
+        fromY: number,
+        toX: number,
+        toY: number,
+        projectileId: number | null | undefined,
+        effectId: number | null | undefined,
+        now: number
+      ) {
+        const fromPx = { x: fromX * TILE_SIZE + 16, y: fromY * TILE_SIZE + 16 };
+        const toPx = { x: toX * TILE_SIZE + 16, y: toY * TILE_SIZE + 16 };
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const dir = getMissileDirection(dx, dy);
+
+        let flightDurationMs = 0;
+        if (projectileId && projectileId > 0) {
+          flightDurationMs = 280;
+          const mMapping = fxAssets.missiles[String(projectileId)];
+          if (mMapping && mMapping.frames && mMapping.frames.length > 0) {
+            const dirFrames = mMapping.frames.filter((f: any) => f.direction === dir);
+            const framesToUse = dirFrames.length > 0 ? dirFrames : mMapping.frames;
+            const firstUrl = framesToUse[0].publicUrl;
+            const initialTex = atlasTextures[firstUrl] || loaded[firstUrl] || Texture.EMPTY;
+            const sp = new Sprite(initialTex);
             sp.anchor.set(0.5);
-            sp.position.set(targetPx.x, targetPx.y);
+            sp.position.set(fromPx.x, fromPx.y);
+            sp.roundPixels = true;
             effectsLayer.addChild(sp);
-            timedCityVisuals.push({
-              root: sp,
-              startedAt: performance.now(),
-              durationMs: Math.max(300, fxMapping.frames.length * 70),
-              kind: 'effect',
-              frames: fxMapping.frames.map((f: { publicUrl: string }) => f.publicUrl),
-            });
-            if (!loaded[firstFrameUrl]) {
-              void Assets.load<PixiTexture>(firstFrameUrl).then((tex) => {
+
+            if (!loaded[firstUrl]) {
+              void Assets.load<PixiTexture>(firstUrl).then((tex) => {
                 if (tex) {
                   tex.source.style.scaleMode = 'nearest';
-                  loaded[firstFrameUrl] = tex;
+                  loaded[firstUrl] = tex;
                   if ('texture' in sp) (sp as any).texture = tex;
                 }
               });
             }
+
+            timedCityVisuals.push({
+              root: sp,
+              startedAt: now,
+              durationMs: flightDurationMs,
+              kind: 'missile',
+              from: fromPx,
+              to: toPx,
+              frames: framesToUse.map((f: { publicUrl: string }) => f.publicUrl),
+            });
           }
+        }
+
+        if (effectId && effectId > 0) {
+          const fxMapping = fxAssets.effects[String(effectId)];
+          if (fxMapping && fxMapping.frames && fxMapping.frames.length > 0) {
+            const firstUrl = fxMapping.frames[0].publicUrl;
+            const initialTex = atlasTextures[firstUrl] || loaded[firstUrl] || Texture.EMPTY;
+            const sp = new Sprite(initialTex);
+            sp.anchor.set(0.5);
+            sp.position.set(toPx.x, toPx.y);
+            sp.roundPixels = true;
+            sp.visible = flightDurationMs <= 0;
+            effectsLayer.addChild(sp);
+
+            if (!loaded[firstUrl]) {
+              void Assets.load<PixiTexture>(firstUrl).then((tex) => {
+                if (tex) {
+                  tex.source.style.scaleMode = 'nearest';
+                  loaded[firstUrl] = tex;
+                  if ('texture' in sp) (sp as any).texture = tex;
+                }
+              });
+            }
+
+            timedCityVisuals.push({
+              root: sp,
+              startedAt: now + flightDurationMs,
+              durationMs: Math.max(300, fxMapping.frames.length * 70),
+              kind: 'effect',
+              frames: fxMapping.frames.map((f: { publicUrl: string }) => f.publicUrl),
+            });
+          }
+        }
+      }
+
+      const unsubNetworkCombat = gameNetwork.onCombatEvent((ev) => {
+        const now = performance.now();
+        const targetX = ev.posX ?? ev.x ?? 0;
+        const targetY = ev.posY ?? ev.y ?? 0;
+        const fromX = ev.fromX ?? targetX;
+        const fromY = ev.fromY ?? targetY;
+
+        const myId = latestRef.current.localPlayerId;
+        const activeChar = latestRef.current.characters.find((c) => c.id === latestRef.current.activeCharacterId);
+        if (ev.sourceId && (ev.sourceId === myId || (activeChar && ev.sourceId === activeChar.id))) {
+          lastAttackPoseUntil = now + 250;
+        } else if (ev.sourceId) {
+          remoteAttackPoseUntilMap.set(ev.sourceId, now + 250);
+        }
+
+        if (ev.projectileId || ev.effectId) {
+          triggerTrainingVisual(fromX, fromY, targetX, targetY, ev.projectileId, ev.effectId, now);
         }
       });
 
@@ -523,6 +684,8 @@ export function ThaisCityArena({
         lastCommittedTile: { x: number; y: number; z: number };
         motionTrack: VisualMotionTrack;
         direction: 'north' | 'south' | 'east' | 'west';
+        currentPixelX?: number;
+        currentPixelY?: number;
       }
 
 
@@ -543,6 +706,7 @@ export function ThaisCityArena({
       let smoothCamY = 0;
       let camInitialized = false;
       let hoveredPlayerId: string | null = null;
+      let wasTrainingAtDummy = false;
 
       let zoomMult = getZoomMultiplier();
       const unsubZoom = onZoomChange((val) => {
@@ -598,13 +762,21 @@ export function ThaisCityArena({
           }
         }
 
-        // 2. Check party characters (including other players in party)
+        // 2. Check party characters (including squad members following in city)
         if (!matchedPlayer) {
           curChars.forEach((char, idx) => {
-            const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
-            const offsetY = idx === 0 ? 0 : idx === 3 ? 24 : 12;
-            const px = currentPixelX + offsetX;
-            const py = currentPixelY + offsetY;
+            let px = currentPixelX;
+            let py = currentPixelY;
+            const fState = followerVisualStates.get(char.id);
+            if (fState && typeof fState.currentPixelX === 'number' && typeof fState.currentPixelY === 'number') {
+              px = fState.currentPixelX;
+              py = fState.currentPixelY;
+            } else {
+              const offsetX = idx === 0 ? 0 : idx === 1 ? -24 : idx === 2 ? 24 : 0;
+              const offsetY = idx === 0 ? 0 : idx === 3 ? 24 : 12;
+              px = currentPixelX + offsetX;
+              py = currentPixelY + offsetY;
+            }
             const dx = worldX - px;
             const dy = worldY - py;
             if (dx >= -18 && dx <= 18 && dy >= -38 && dy <= 16) {
@@ -711,6 +883,19 @@ export function ThaisCityArena({
         const worldX = (clientX - world.position.x) / world.scale.x;
         const worldY = (clientY - world.position.y) / world.scale.y;
 
+        // Check if a training dummy was clicked
+        if (latestRef.current.cityPos?.z === 7) {
+          const clickedDummy = THAIS_TRAINING_DUMMIES.find((d) => {
+            const dx = worldX - (d.position.x * TILE_SIZE + 16);
+            const dy = worldY - (d.position.y * TILE_SIZE + 16);
+            return Math.abs(dx) <= 16 && Math.abs(dy) <= 16;
+          });
+          if (clickedDummy) {
+            latestRef.current.onDummyContextMenu?.(clickedDummy, e.clientX, e.clientY);
+            return;
+          }
+        }
+
         const curChars = latestRef.current.characters;
         let matchedCharId: string | undefined;
         for (let idx = 0; idx < curChars.length; idx++) {
@@ -760,6 +945,7 @@ export function ThaisCityArena({
         root: InstanceType<typeof Container>;
         sprite: InstanceType<typeof Sprite>;
         label: InstanceType<typeof Text>;
+        titleLabel?: InstanceType<typeof Text>;
         bar: InstanceType<typeof Graphics>;
         lastUrl: string;
         lastTextureKey?: string;
@@ -774,6 +960,44 @@ export function ThaisCityArena({
       const actorViews = new Map<string, CityActorView>();
       const processedSpeechIds = new Set<string>();
 
+      function updateNameplate(view: CityActorView, name: string, adminTitle?: string) {
+        view.label.text = name;
+        if (adminTitle && (adminTitle === 'GOD' || adminTitle === 'GM')) {
+          if (!view.titleLabel) {
+            view.titleLabel = new Text({
+              text: `[${adminTitle}] `,
+              resolution: 2,
+              style: {
+                fill: 0xffd700,
+                stroke: { color: 0x08120a, width: 2 },
+                fontSize: 8,
+                fontFamily: 'Arial',
+                fontWeight: '700',
+              },
+            });
+            view.titleLabel.roundPixels = true;
+            view.root.addChild(view.titleLabel);
+          } else {
+            view.titleLabel.text = `[${adminTitle}] `;
+            view.titleLabel.visible = true;
+          }
+          const titleW = view.titleLabel.width;
+          const nameW = view.label.width;
+          const totalW = titleW + nameW;
+          const startX = -totalW / 2;
+          view.titleLabel.anchor.set(0, 0.5);
+          view.titleLabel.position.set(startX, creatureVisualLayout.nameplateY);
+          view.label.anchor.set(0, 0.5);
+          view.label.position.set(startX + titleW, creatureVisualLayout.nameplateY);
+        } else {
+          if (view.titleLabel) {
+            view.titleLabel.visible = false;
+          }
+          view.label.anchor.set(0.5, 0.5);
+          view.label.position.set(0, creatureVisualLayout.nameplateY);
+        }
+      }
+
       function getOutfitFrameUrl(vocationOrOutfit: string, direction: string, frame: number): string {
         const lower = (vocationOrOutfit || '').toLowerCase();
         if (lower === 'dragon' || lower === '34') {
@@ -783,10 +1007,10 @@ export function ThaisCityArena({
         return `/generated/outfit-thumbs/${idLower}.png`;
       }
 
-      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number }; addons?: number; outfitAddons?: number; x?: number; y?: number }): CityActorView | null {
+      function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number }; addons?: number; outfitAddons?: number; adminTitle?: string; x?: number; y?: number }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) {
-          view.label.text = char.name;
+          updateNameplate(view, char.name, char.adminTitle || (char as any).adminTitle);
           return view;
         }
 
@@ -859,6 +1083,7 @@ export function ThaisCityArena({
         actorsLayer.addChild(root);
 
         view = { root, sprite, label, bar, lastUrl: initialUrl || 'canvas' };
+        updateNameplate(view, char.name, char.adminTitle || (char as any).adminTitle);
         actorViews.set(char.id, view);
         return view;
       }
@@ -909,6 +1134,13 @@ export function ThaisCityArena({
           }
         }
 
+        const activeCharId = latestRef.current.activeCharacterId;
+        const localChar = (activeCharId ? curChars.find((c) => c.id === activeCharId) : null) || curChars[0];
+        const squadFollowEnabled = Boolean(latestRef.current.squadFollowEnabled);
+        const followers = (squadFollowEnabled && localChar)
+          ? curChars.filter((c) => c.id !== localChar.id)
+          : [];
+
         // 2. High-fluidity linear movement interpolation via VisualMotionTrack (identical to hunt mode)
         const leaderPosChanged = (curPos.x !== lastCommittedPos.x || curPos.y !== lastCommittedPos.y || curPos.z !== lastCommittedPos.z);
         const prevLeaderTile = { ...lastCommittedPos };
@@ -919,11 +1151,63 @@ export function ThaisCityArena({
 
           if (isTeleportOrFloorChange) {
             motionTrack.reset({ x: curPos.x, y: curPos.y, z: curPos.z });
+            for (const f of followers) {
+              const fState = followerVisualStates.get(f.id);
+              if (fState) {
+                fState.motionTrack.reset(curPos);
+                fState.currentTile = { ...curPos };
+                fState.lastCommittedTile = { ...curPos };
+                fState.direction = playerDirection;
+              }
+            }
           } else {
             motionTrack.commit(lastCommittedPos, curPos, now, curStepDuration);
+            if (squadFollowEnabled && followers.length > 0) {
+              // Fila Indiana (Snake follow): Each follower i steps into tile of member (i - 1)
+              let nextTarget = { ...prevLeaderTile };
+              for (let i = 0; i < followers.length; i++) {
+                const fChar = followers[i];
+                let fState = followerVisualStates.get(fChar.id);
+                if (!fState) {
+                  fState = {
+                    currentTile: { ...nextTarget },
+                    lastCommittedTile: { ...nextTarget },
+                    motionTrack: new VisualMotionTrack(nextTarget, playerDirection),
+                    direction: playerDirection,
+                  };
+                  followerVisualStates.set(fChar.id, fState);
+                }
+                const prevFollowerTile = { ...fState.currentTile };
+                if (nextTarget.x !== prevFollowerTile.x || nextTarget.y !== prevFollowerTile.y || nextTarget.z !== prevFollowerTile.z) {
+                  fState.motionTrack.commit(prevFollowerTile, nextTarget, now, curStepDuration);
+                  fState.lastCommittedTile = prevFollowerTile;
+                  fState.currentTile = { ...nextTarget };
+                }
+                nextTarget = prevFollowerTile;
+              }
+            }
           }
 
           lastCommittedPos = { ...curPos };
+        }
+
+        // Initialize follower visual state if not yet created
+        if (squadFollowEnabled && followers.length > 0) {
+          for (let i = 0; i < followers.length; i++) {
+            const fChar = followers[i];
+            if (!followerVisualStates.has(fChar.id)) {
+              const offset = i + 1;
+              const backX = playerDirection === 'east' ? -offset : playerDirection === 'west' ? offset : 0;
+              const backY = playerDirection === 'south' ? -offset : playerDirection === 'north' ? offset : 0;
+              const initTile = { x: curPos.x + backX, y: curPos.y + backY, z: curPos.z };
+              followerVisualStates.set(fChar.id, {
+                currentTile: initTile,
+                lastCommittedTile: initTile,
+                motionTrack: new VisualMotionTrack(initTile, playerDirection),
+                direction: playerDirection,
+              });
+            }
+          }
         }
 
         const sample = motionTrack.sample(now);
@@ -933,6 +1217,82 @@ export function ThaisCityArena({
           playerDirection = sample.direction;
         }
         const isMoving = sample.moving;
+
+        // Orient player towards training dummy if training and not actively walking
+        const activeDummyPos = latestRef.current.trainingDummyPos ||
+          ((localChar as any)?.training?.dummyId
+            ? THAIS_TRAINING_DUMMIES.find((d) => d.id === (localChar as any)?.training?.dummyId)?.position
+            : null) ||
+          thaisData.trainingDummy ||
+          THAIS_TRAINING_DUMMIES[0].position;
+
+        if (curTrain && activeDummyPos && !isMoving && !curWalk) {
+          const dX = activeDummyPos.x - curPos.x;
+          const dY = activeDummyPos.y - curPos.y;
+          if (Math.abs(dX) >= Math.abs(dY)) {
+            playerDirection = dX >= 0 ? 'east' : 'west';
+          } else {
+            playerDirection = dY >= 0 ? 'south' : 'north';
+          }
+
+          // Posiciona todos os membros da party ao redor do training dummy virados para o boneco
+          if (squadFollowEnabled && followers.length > 0) {
+            const followerIds = followers.map((f) => f.id);
+            const activeTileMap = getTileMapForZ(activeDummyPos.z ?? 7);
+            const isWalkableTile = (pos: { x: number; y: number; z: number }) => {
+              const tile = activeTileMap.get(`${pos.x},${pos.y}`);
+              return Boolean(tile && tile.walkable);
+            };
+            const trainingSlots = calculatePartyTrainingPositions(
+              activeDummyPos,
+              curPos,
+              followerIds,
+              isWalkableTile
+            );
+            for (const fChar of followers) {
+              const slot = trainingSlots.get(fChar.id);
+              if (!slot) continue;
+              let fState = followerVisualStates.get(fChar.id);
+              if (!fState) {
+                fState = {
+                  currentTile: { ...slot.position },
+                  lastCommittedTile: { ...slot.position },
+                  motionTrack: new VisualMotionTrack(slot.position, slot.facingDirection),
+                  direction: slot.facingDirection,
+                };
+                followerVisualStates.set(fChar.id, fState);
+              } else {
+                if (fState.currentTile.x !== slot.position.x || fState.currentTile.y !== slot.position.y || fState.currentTile.z !== slot.position.z) {
+                  fState.motionTrack.commit(fState.currentTile, slot.position, now, Math.max(160, curStepDuration));
+                  fState.lastCommittedTile = { ...fState.currentTile };
+                  fState.currentTile = { ...slot.position };
+                }
+                fState.direction = slot.facingDirection;
+              }
+            }
+          }
+          wasTrainingAtDummy = true;
+        } else if (!curTrain && wasTrainingAtDummy) {
+          // Ao cancelar o treino, os seguidores retornam para a formação em fila indiana atrás do líder
+          if (squadFollowEnabled && followers.length > 0) {
+            for (let i = 0; i < followers.length; i++) {
+              const fChar = followers[i];
+              const fState = followerVisualStates.get(fChar.id);
+              if (!fState) continue;
+              const offset = i + 1;
+              const backX = playerDirection === 'east' ? -offset : playerDirection === 'west' ? offset : 0;
+              const backY = playerDirection === 'south' ? -offset : playerDirection === 'north' ? offset : 0;
+              const targetTile = { x: curPos.x + backX, y: curPos.y + backY, z: curPos.z };
+              if (fState.currentTile.x !== targetTile.x || fState.currentTile.y !== targetTile.y) {
+                fState.motionTrack.commit(fState.currentTile, targetTile, now, Math.max(160, curStepDuration));
+                fState.lastCommittedTile = { ...fState.currentTile };
+                fState.currentTile = { ...targetTile };
+              }
+              fState.direction = playerDirection;
+            }
+          }
+          wasTrainingAtDummy = false;
+        }
 
         if (!Number.isFinite(currentPixelX) || !Number.isFinite(currentPixelY)) {
           currentPixelX = curPos.x * TILE_SIZE + 16;
@@ -959,13 +1319,13 @@ export function ThaisCityArena({
         world.scale.set(cameraScale);
         world.position.set(Math.round(smoothCamX), Math.round(smoothCamY));
 
-        // Clean up removed actor views (local player, ambient, and remote players)
-        const activeCharId = latestRef.current.activeCharacterId;
-        const localChar = (activeCharId ? curChars.find((c) => c.id === activeCharId) : null) || curChars[0];
-
+        // Clean up removed actor views (local player, squad followers, ambient, and remote players)
         const validActorIds = new Set<string>();
         if (localChar) {
           validActorIds.add(localChar.id);
+        }
+        if (squadFollowEnabled) {
+          followers.forEach((f) => validActorIds.add(f.id));
         }
         AMBIENT_THAIS_PLAYERS.forEach((p) => validActorIds.add(p.id));
 
@@ -1018,6 +1378,7 @@ export function ThaisCityArena({
             const caps = getOutfitCapabilities(normOutfit);
             const walkCycleDuration = Math.max(160, curStepDuration * 2);
             const cyclePhase = (now % walkCycleDuration) / walkCycleDuration;
+            const isAttacking = now < lastAttackPoseUntil;
             const charWalkFrame = charIsMoving
               ? (caps.maxFrames <= 3 ? (1 + (Math.floor(cyclePhase * 2) % 2)) : (1 + (Math.floor(cyclePhase * 8) % 8)))
               : 0;
@@ -1121,7 +1482,7 @@ export function ThaisCityArena({
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
             view.root.visible = latestRef.current.isCharacterVisible !== false;
-            view.label.position.set(0, creatureVisualLayout.nameplateY);
+            updateNameplate(view, localChar.name, (localChar as any).adminTitle);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()
               .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
@@ -1129,25 +1490,165 @@ export function ThaisCityArena({
               .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
               .fill({ color: 0x4fc977 });
 
-            // Animate attack if training at dummy
-            if (curTrain && tickCount % 30 < 10) {
-              view.sprite.x = creatureVisualLayout.spriteOffsetX + 4;
+            // Animate attack if training at dummy or executing combat action
+            if (isAttacking) {
+              const nudge = charDirection === 'east' ? { x: 3, y: 0 }
+                : charDirection === 'west' ? { x: -3, y: 0 }
+                : charDirection === 'north' ? { x: 0, y: -3 }
+                : { x: 0, y: 3 };
+              view.sprite.x = creatureVisualLayout.spriteOffsetX + nudge.x;
+              view.sprite.y = creatureVisualLayout.spriteOffsetY + nudge.y;
             } else {
               view.sprite.x = creatureVisualLayout.spriteOffsetX;
+              view.sprite.y = creatureVisualLayout.spriteOffsetY;
             }
-            view.sprite.y = creatureVisualLayout.spriteOffsetY;
+          }
+        }
+
+        // 4c. Update Squad Follower characters in City (Fila Indiana)
+        if (squadFollowEnabled && followers.length > 0) {
+          for (const fChar of followers) {
+            const fState = followerVisualStates.get(fChar.id);
+            if (!fState) continue;
+
+            const fSample = fState.motionTrack.sample(now);
+            const fPixelX = fSample.renderPosition.x * TILE_SIZE + 16;
+            const fPixelY = fSample.renderPosition.y * TILE_SIZE + 16;
+            fState.currentPixelX = fPixelX;
+            fState.currentPixelY = fPixelY;
+            if (fSample.direction) {
+              fState.direction = fSample.direction;
+            }
+            const fDir = fSample.direction || fState.direction || 'south';
+            const fIsMoving = fSample.moving;
+
+            const view = ensureActorView(fChar);
+            if (!view) continue;
+
+            const normOutfit = normalizeOutfitId(fChar.outfit || fChar.vocation || 'Knight');
+            const caps = getOutfitCapabilities(normOutfit);
+            const walkCycleDuration = Math.max(160, curStepDuration * 2);
+            const cyclePhase = (now % walkCycleDuration) / walkCycleDuration;
+            const fWalkFrame = fIsMoving
+              ? (caps.maxFrames <= 3 ? (1 + (Math.floor(cyclePhase * 2) % 2)) : (1 + (Math.floor(cyclePhase * 8) % 8)))
+              : 0;
+
+            view.sprite.scale.x = 1;
+            const isMounted = Boolean(fChar.mountActive && fChar.mount && fChar.mount !== 'none');
+            const outfitKey = fChar.outfit || fChar.vocation || 'Knight';
+            const colors = fChar.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+            const charGender = fChar.gender === 'female' ? 'female' : 'male';
+            const addons = (fChar as any).addons || (fChar as any).outfitAddons || 0;
+
+            const outfitSig = `${outfitKey}_${charGender}_${isMounted ? (fChar.mount || 'none') : 'none'}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+            if (view.lastOutfitSignature !== outfitSig) {
+              view.lastOutfitSignature = outfitSig;
+              view.lastTextureKey = '';
+              view.lastCanvas = undefined;
+              preloadOutfitAllFrames(outfitKey, charGender, colors, addons, fChar.mount, isMounted, fDir as any).catch(() => {});
+            }
+
+            const safeFrame = caps.maxFrames <= 3
+              ? (fWalkFrame === 0 ? 0 : ((Math.abs(fWalkFrame) - 1) % 2) + 1)
+              : Math.max(0, Math.min(8, fWalkFrame));
+            const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+            const effectiveMounted = isMounted && caps.hasMountRider;
+
+            const textureKey = getCanvasCacheKey(
+              normOutfit,
+              charGender,
+              fDir as any,
+              safeFrame,
+              colors,
+              effectiveAddons,
+              fChar.mount,
+              effectiveMounted
+            );
+            const isCached = isOutfitCanvasCached(
+              outfitKey,
+              charGender,
+              fDir as any,
+              safeFrame,
+              colors,
+              addons,
+              fChar.mount,
+              isMounted
+            );
+            if (view.lastTextureKey !== textureKey || !isCached) {
+              const canvas = getRecoloredCanvasSync(
+                outfitKey,
+                charGender,
+                fDir as any,
+                safeFrame,
+                colors,
+                addons,
+                fChar.mount,
+                isMounted
+              );
+              if (canvas) {
+                if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
+                  view.lastCanvas = canvas;
+                  const tex = Texture.from(canvas);
+                  tex.source.style.scaleMode = 'nearest';
+                  (tex.source as any).update?.();
+                  view.sprite.texture = tex;
+                }
+                if (isCached) {
+                  view.lastTextureKey = textureKey;
+                }
+                view.lastUrl = 'canvas';
+              } else if (!isMounted) {
+                const nextUrl = getOutfitFrameUrl(outfitKey, fDir, safeFrame);
+                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                  view.sprite.texture = loaded[nextUrl];
+                  view.lastUrl = nextUrl;
+                  view.lastTextureKey = nextUrl;
+                }
+              }
+            }
+
+            view.root.position.set(fPixelX, fPixelY);
+            view.root.zIndex = fPixelY;
+            view.root.visible = curPos.z === fState.currentTile.z && latestRef.current.isCharacterVisible !== false;
+            updateNameplate(view, fChar.name, (fChar as any).adminTitle);
+            const hpRatio = fChar.maxHp > 0 ? Math.max(0, Math.min(1, fChar.currentHp / fChar.maxHp)) : 1;
+            view.bar.clear()
+              .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
+              .fill({ color: 0x251010 })
+              .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
+              .fill({ color: 0x4fc977 });
+            const fIsAttacking = (remoteAttackPoseUntilMap.get(fChar.id) ?? 0) > now;
+            if (fIsAttacking) {
+              const nudge = fDir === 'east' ? { x: 3, y: 0 }
+                : fDir === 'west' ? { x: -3, y: 0 }
+                : fDir === 'north' ? { x: 0, y: -3 }
+                : { x: 0, y: 3 };
+              view.sprite.x = creatureVisualLayout.spriteOffsetX + nudge.x;
+              view.sprite.y = creatureVisualLayout.spriteOffsetY + nudge.y;
+            } else {
+              view.sprite.x = creatureVisualLayout.spriteOffsetX;
+              view.sprite.y = creatureVisualLayout.spriteOffsetY;
+            }
           }
         }
 
         // 4b. Process Combat Visual Events in City (Dummy training wand missiles & hits, combat events)
         const incomingVisuals = latestRef.current.visualEvents;
-        if (incomingVisuals && incomingVisuals !== lastProcessedVisualEvents) {
+        if (incomingVisuals && incomingVisuals.length > 0) {
           lastProcessedVisualEvents = incomingVisuals;
           const activeChar = latestRef.current.characters.find((c) => c.id === latestRef.current.activeCharacterId);
-          const dummyPos = (activeChar as any)?.training?.dummyId
-            ? (THAIS_TRAINING_DUMMIES.find((d) => d.id === (activeChar as any)?.training?.dummyId)?.position ?? THAIS_TRAINING_DUMMIES[0].position)
-            : (thaisData.trainingDummy ?? THAIS_TRAINING_DUMMIES[0].position);
+          const dummyPos = latestRef.current.trainingDummyPos ||
+            ((activeChar as any)?.training?.dummyId
+              ? (THAIS_TRAINING_DUMMIES.find((d) => d.id === (activeChar as any)?.training?.dummyId)?.position ?? THAIS_TRAINING_DUMMIES[0].position)
+              : (thaisData.trainingDummy ?? THAIS_TRAINING_DUMMIES[0].position));
           for (const ev of incomingVisuals) {
+            const evId = getStableEventId(ev);
+            if (processedCityEventIds.has(evId)) continue;
+            processedCityEventIds.add(evId);
+            if (processedCityEventIds.size > 2000) {
+              const toDel = Array.from(processedCityEventIds).slice(0, 1000);
+              toDel.forEach((id) => processedCityEventIds.delete(id));
+            }
             if (ev.type === 'projectile-launched') {
               const mMapping = fxAssets.missiles[String(ev.projectileId)];
               if (mMapping && mMapping.frames.length > 0) {
@@ -1301,45 +1802,30 @@ export function ThaisCityArena({
               }
             } else if (ev.type === 'training-action') {
               // Direct training action event from domain training system
-              if (ev.projectileId) {
-                const mMapping = fxAssets.missiles[String(ev.projectileId)];
-                if (mMapping && mMapping.frames.length > 0) {
-                  const fUrl = mMapping.frames[0].publicUrl;
-                  if (loaded[fUrl]) {
-                    const sp = new Sprite(loaded[fUrl]);
-                    sp.anchor.set(0.5);
-                    effectsLayer.addChild(sp);
-                    timedCityVisuals.push({
-                      root: sp,
-                      startedAt: now,
-                      durationMs: 320,
-                      kind: 'missile',
-                      from: { x: currentPixelX, y: currentPixelY },
-                      to: { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 },
-                    });
-                  }
-                }
+              const sourceCharId = (ev as any).sourceId;
+              const fState = sourceCharId ? followerVisualStates.get(sourceCharId) : null;
+              const sourceTile = fState
+                ? { x: fState.currentTile.x, y: fState.currentTile.y }
+                : {
+                    x: Math.floor(currentPixelX / TILE_SIZE),
+                    y: Math.floor(currentPixelY / TILE_SIZE),
+                  };
+
+              if (sourceCharId && sourceCharId !== localChar?.id) {
+                remoteAttackPoseUntilMap.set(sourceCharId, now + 250);
+              } else {
+                lastAttackPoseUntil = now + 250;
               }
-              if (ev.effectId) {
-                const fxMapping = fxAssets.effects[String(ev.effectId)];
-                if (fxMapping && fxMapping.frames.length > 0) {
-                  const fUrl = fxMapping.frames[0].publicUrl;
-                  if (loaded[fUrl]) {
-                    const sp = new Sprite(loaded[fUrl]);
-                    sp.anchor.set(0.5);
-                    const targetPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
-                    sp.position.set(targetPx.x, targetPx.y);
-                    effectsLayer.addChild(sp);
-                    timedCityVisuals.push({
-                      root: sp,
-                      startedAt: now + (ev.projectileId ? 250 : 0),
-                      durationMs: Math.max(300, fxMapping.frames.length * 70),
-                      kind: 'effect',
-                      frames: fxMapping.frames.map((f: { publicUrl: string }) => f.publicUrl),
-                    });
-                  }
-                }
-              }
+
+              triggerTrainingVisual(
+                sourceTile.x,
+                sourceTile.y,
+                dummyPos.x,
+                dummyPos.y,
+                ev.projectileId,
+                ev.effectId,
+                now
+              );
             }
           }
         }
@@ -1363,6 +1849,17 @@ export function ThaisCityArena({
               vis.from.x + (vis.to.x - vis.from.x) * progress,
               vis.from.y + (vis.to.y - vis.from.y) * progress
             );
+            if (vis.frames && vis.frames.length > 0) {
+              const frameIdx = Math.min(
+                vis.frames.length - 1,
+                Math.floor(progress * vis.frames.length)
+              );
+              const frameUrl = vis.frames[frameIdx];
+              const tex = atlasTextures[frameUrl] || loaded[frameUrl];
+              if (tex && 'texture' in vis.root) {
+                (vis.root as InstanceType<typeof Sprite>).texture = tex;
+              }
+            }
           } else if (vis.kind === 'float') {
             const startY = vis.startY ?? vis.root.position.y;
             vis.root.position.y = startY - progress * 14;
@@ -1376,6 +1873,14 @@ export function ThaisCityArena({
             const tex = atlasTextures[frameUrl] || loaded[frameUrl];
             if (tex && 'texture' in vis.root) {
               (vis.root as InstanceType<typeof Sprite>).texture = tex;
+            } else if (!tex && frameUrl) {
+              void Assets.load<PixiTexture>(frameUrl).then((t) => {
+                if (t) {
+                  t.source.style.scaleMode = 'nearest';
+                  loaded[frameUrl] = t;
+                  if ('texture' in vis.root) (vis.root as any).texture = t;
+                }
+              });
             }
           }
         }
@@ -1450,45 +1955,42 @@ export function ThaisCityArena({
               (p.outfit?.lookType ? LOOKTYPE_MAP[p.outfit.lookType] : null) ||
               vocName;
 
-            const hasCustomColors =
-              p.outfit &&
-              ((p.outfit.lookBody ?? 0) > 0 || (p.outfit.lookLegs ?? 0) > 0 || (p.outfit.lookFeet ?? 0) > 0);
-
-            const colors = hasCustomColors
+            const colors = (p.outfit && typeof p.outfit.lookBody === 'number' && p.outfit.lookBody >= 0)
               ? {
                   head: p.outfit.lookHead ?? 0,
-                  primary: p.outfit.lookBody ?? 86,
-                  secondary: p.outfit.lookLegs ?? 114,
-                  detail: p.outfit.lookFeet ?? 76,
+                  primary: p.outfit.lookBody,
+                  secondary: p.outfit.lookLegs ?? 0,
+                  detail: p.outfit.lookFeet ?? 0,
                 }
               : { head: 0, primary: 86, secondary: 114, detail: 76 };
+
+            const rAddons = Number(p.outfit?.addons ?? (p as any).outfitAddons ?? (p as any).addons ?? 0);
+            const rGender: 'male' | 'female' = p.gender === 'female' ? 'female' : 'male';
+            const rMounted = Boolean(p.mountActive && p.mount && p.mount !== 'none');
+            const rDir = p.direction || 'south';
 
             const view = ensureActorView({
               id: p.id,
               name: p.name,
               vocation: outfitKey,
               outfit: outfitKey,
+              gender: rGender,
               outfitColors: colors,
               mount: p.mount,
               mountActive: p.mountActive,
-              addons: (p as any).outfitAddons ?? (p as any).addons ?? 0,
-              outfitAddons: (p as any).outfitAddons ?? (p as any).addons ?? 0,
+              addons: rAddons,
+              outfitAddons: rAddons,
+              adminTitle: p.adminTitle,
               x: p.x,
               y: p.y,
             });
             if (!view) return;
 
-            const rMounted = Boolean(p.mountActive && p.mount && p.mount !== 'none');
-            const rAddons = (p as any).outfitAddons ?? (p as any).addons ?? 0;
-            const rDir = p.direction || 'south';
-
-            const colorsKey = colors ? `${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}` : 'none';
-            if (view.lastOutfitKey !== outfitKey || view.lastColorsKey !== colorsKey) {
-              view.lastOutfitKey = outfitKey;
-              view.lastColorsKey = colorsKey;
-              if (colors) {
-                preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted, rDir as any).catch(() => {});
-              }
+            const appearanceSig = `${outfitKey}_${rGender}_${rMounted ? (p.mount || 'none') : 'none'}_${rAddons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+            if (view.lastOutfitSignature !== appearanceSig) {
+              view.lastOutfitSignature = appearanceSig;
+              view.lastTextureKey = undefined;
+              preloadOutfitAllFrames(outfitKey, rGender, colors, rAddons, p.mount, rMounted, rDir as any).catch(() => {});
             }
 
             const targetTile = { x: p.x ?? 32369, y: p.y ?? 32241, z: p.z ?? 7 };
@@ -1522,25 +2024,26 @@ export function ThaisCityArena({
             const rCaps = getOutfitCapabilities(rNormOutfit);
             const rWalkCycleDuration = 400;
             const rCyclePhase = (now % rWalkCycleDuration) / rWalkCycleDuration;
+            const rIsAttacking = (remoteAttackPoseUntilMap.get(p.id) ?? 0) > now;
             const rWalkFrame = isMoving
               ? (rCaps.maxFrames <= 3 ? (1 + (Math.floor(rCyclePhase * 2) % 2)) : (1 + (Math.floor(rCyclePhase * 8) % 8)))
-              : 0;
+              : (rIsAttacking ? 1 : 0);
             const rSafeFrame = rCaps.maxFrames <= 3
               ? (rWalkFrame === 0 ? 0 : ((Math.abs(rWalkFrame) - 1) % 2) + 1)
               : Math.max(0, Math.min(8, rWalkFrame));
 
             const textureKey = colors
-              ? getCanvasCacheKey(rNormOutfit, 'male', dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted)
-              : `${outfitKey}_male_${dir}_${rSafeFrame}`;
+              ? getCanvasCacheKey(rNormOutfit, rGender, dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted)
+              : `${outfitKey}_${rGender}_${dir}_${rSafeFrame}`;
 
             const isCached = colors
-              ? isOutfitCanvasCached(outfitKey, 'male', dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted)
+              ? isOutfitCanvasCached(outfitKey, rGender, dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted)
               : true;
 
             if (view.lastTextureKey !== textureKey || !isCached) {
               let updated = false;
               if (colors) {
-                const canvas = getRecoloredCanvasSync(outfitKey, 'male', dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted);
+                const canvas = getRecoloredCanvasSync(outfitKey, rGender, dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted);
                 if (canvas) {
                   if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
                     view.lastCanvas = canvas;
@@ -1555,7 +2058,7 @@ export function ThaisCityArena({
                   view.lastUrl = 'canvas';
                   updated = true;
                 } else {
-                  preloadOutfitAllFrames(outfitKey, 'male', colors, rAddons, p.mount, rMounted, dir as any).catch(() => {});
+                  preloadOutfitAllFrames(outfitKey, rGender, colors, rAddons, p.mount, rMounted, dir as any).catch(() => {});
                 }
               }
               if (!updated && !rMounted) {
@@ -1574,7 +2077,7 @@ export function ThaisCityArena({
               view.root.position.set(px, py);
               view.root.zIndex = py;
             }
-            view.label.position.set(0, creatureVisualLayout.nameplateY);
+            updateNameplate(view, p.name, p.adminTitle);
             const curHp = p.hp ?? 100;
             const maxHp = p.maxHp ?? 100;
             const hpRatio = maxHp > 0 ? Math.max(0, Math.min(1, curHp / maxHp)) : 1;
@@ -1583,6 +2086,18 @@ export function ThaisCityArena({
               .fill({ color: 0x251010 })
               .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3)
               .fill({ color: 0x4fc977 });
+
+            if (rIsAttacking) {
+              const rNudge = dir === 'east' ? { x: 3, y: 0 }
+                : dir === 'west' ? { x: -3, y: 0 }
+                : dir === 'north' ? { x: 0, y: -3 }
+                : { x: 0, y: 3 };
+              view.sprite.x = creatureVisualLayout.spriteOffsetX + rNudge.x;
+              view.sprite.y = creatureVisualLayout.spriteOffsetY + rNudge.y;
+            } else {
+              view.sprite.x = creatureVisualLayout.spriteOffsetX;
+              view.sprite.y = creatureVisualLayout.spriteOffsetY;
+            }
           });
         }
 

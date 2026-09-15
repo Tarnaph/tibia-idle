@@ -6,6 +6,7 @@ export interface ChatMessageItem {
   id: string;
   senderId?: string;
   senderName: string;
+  senderTitle?: string;
   recipientName?: string;
   channel: 'local' | 'world' | 'whisper';
   text: string;
@@ -447,6 +448,18 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                 <time suppressHydrationWarning style={{ color: '#606a74', fontSize: '9.5px', flexShrink: 0 }}>
                   {formatTime(msg.timestamp)}
                 </time>
+                {msg.senderTitle ? (
+                  <span
+                    style={{
+                      color: '#ffd700',
+                      fontWeight: 800,
+                      flexShrink: 0,
+                      textShadow: '0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(255, 215, 0, 0.4)',
+                    }}
+                  >
+                    [{msg.senderTitle}]{' '}
+                  </span>
+                ) : null}
                 <span
                   style={{
                     color: senderColor,

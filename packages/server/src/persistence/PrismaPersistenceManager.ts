@@ -22,6 +22,7 @@ export class PrismaPersistenceManager {
     }
 
     return CharacterSaveLockManager.withLock(player.characterId, async () => {
+      let consumedDelta = 0;
       try {
         const existing = typeof this.db?.character?.findUnique === 'function'
           ? await this.db.character.findUnique({
@@ -57,15 +58,23 @@ export class PrismaPersistenceManager {
         }
 
         // Sanity check delta XP on persistence via continuous rate limiter
-        const deltaExp = effectiveExp - existingExp;
-        if (deltaExp > 0 && existing) {
+        // Deduplicação: se o XP já foi autorizado na sessão ativa (ex: WebSocket), não debitar novamente
+        const authorizedExp = XpRateLimiter.getAuthorizedExp(player.characterId);
+        const unvalidatedBaseline = Math.max(existingExp, authorizedExp);
+        const unvalidatedDelta = effectiveExp - unvalidatedBaseline;
+
+        if (unvalidatedDelta > 0 && existing) {
           const now = Date.now();
-          const check = XpRateLimiter.consume(player.characterId, deltaExp, now, {
-            isHunting: Boolean(player.inHunt || (player as any).mode === 'hunt'),
+          const isHunting = Boolean(player.inHunt || (player as any).mode === 'hunt');
+          const check = XpRateLimiter.consume(player.characterId, unvalidatedDelta, now, {
+            isHunting,
           });
           if (!check.allowed) {
-            console.warn(`[PrismaPersistenceManager] Suspicious XP delta for ${player.characterId}: +${deltaExp} XP exceeds continuous budget (capping to +${check.maxAllowed}).`);
-            effectiveExp = existingExp + check.maxAllowed;
+            console.warn(`[PrismaPersistenceManager] Suspicious XP delta for ${player.characterId}: +${unvalidatedDelta} XP exceeds continuous budget (capping to +${check.maxAllowed}).`);
+            effectiveExp = unvalidatedBaseline + check.maxAllowed;
+            consumedDelta = check.maxAllowed;
+          } else {
+            consumedDelta = unvalidatedDelta;
           }
         }
 
@@ -103,7 +112,9 @@ export class PrismaPersistenceManager {
           : existing?.bestiaryKillsJson ?? undefined;
 
         const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
-        const currentVersion = (existing as any)?.saveVersion ?? 1;
+        const currentVersion = typeof (player as any).saveVersion === 'number'
+          ? (player as any).saveVersion
+          : ((existing as any)?.saveVersion ?? 1);
 
         const characterUpdateData: any = {
           level: derivedLevel,
@@ -125,6 +136,7 @@ export class PrismaPersistenceManager {
           outfitAddons: player.outfitAddons,
           mount: player.mount,
           mountActive: player.mountActive,
+          gender: typeof (player as any).gender === 'string' && ((player as any).gender === 'male' || (player as any).gender === 'female') ? (player as any).gender : undefined,
           avatarId: typeof player.avatarId === 'number' ? player.avatarId : undefined,
           capacity: derivedStats.maxCap,
           staminaMinutes: typeof player.staminaMinutes === 'number' ? Math.floor(player.staminaMinutes) : undefined,
@@ -225,7 +237,12 @@ export class PrismaPersistenceManager {
           await executePersistenceTx(this.db);
         }
 
+        XpRateLimiter.recordAuthorizedExp(player.characterId, Number(characterUpdateData.experience));
+        (player as any).saveVersion = currentVersion + 1;
       } catch (err: any) {
+        if (consumedDelta > 0) {
+          XpRateLimiter.refund(player.characterId, consumedDelta);
+        }
         console.warn(`[PrismaPersistenceManager] Failed to save character ${player.characterId}:`, err.message);
       }
     });
@@ -256,7 +273,12 @@ export class PrismaPersistenceManager {
     try {
       const char = await this.db.character.findUnique({
         where: { id: characterId },
-        include: { skills: true },
+        include: {
+          skills: true,
+          account: {
+            select: { role: true },
+          },
+        },
       });
       if (!char) return null;
       let hotbar: number[] = [];

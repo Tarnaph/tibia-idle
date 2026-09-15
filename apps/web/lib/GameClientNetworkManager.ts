@@ -6,6 +6,8 @@ export interface RemotePlayerSnapshot {
   id: string;
   characterId?: string;
   name: string;
+  adminTitle?: string;
+  gender?: 'male' | 'female';
   vocationId: number;
   level: number;
   hp: number;
@@ -55,6 +57,7 @@ export interface NetworkChatMessage {
   id: string;
   senderId: string;
   senderName: string;
+  senderTitle?: string;
   recipientName?: string;
   channel: string;
   text: string;
@@ -436,14 +439,18 @@ export class GameClientNetworkManager {
     const body = Number(player.outfitBody ?? player.lookBody ?? 0);
     const legs = Number(player.outfitLegs ?? player.lookLegs ?? 0);
     const feet = Number(player.outfitFeet ?? player.lookFeet ?? 0);
-    const addons = Number(player.outfitAddons ?? player.addons ?? 0);
+    const addons = Number(player.outfit?.addons ?? player.outfitAddons ?? player.addons ?? 0);
     const mount = player.mount || 'none';
     const mountActive = Boolean(player.mountActive);
+    const adminTitle = player.adminTitle || '';
+    const gender = player.gender === 'female' ? 'female' : 'male';
 
     this.playersMap.set(key, {
       id: key,
       characterId: player.characterId || player.id || key,
       name: player.name || 'Aventureiro',
+      adminTitle,
+      gender,
       vocationId: player.vocationId || 1,
       level: player.level || 1,
       hp: player.hp || 100,
@@ -690,6 +697,11 @@ export class GameClientNetworkManager {
   onBestiaryKillUpdate(listener: BestiaryKillEventListener): () => void {
     this.bestiaryKillUpdateListeners.add(listener);
     return () => this.bestiaryKillUpdateListeners.delete(listener);
+  }
+
+  sendTrainingAction(action: { style?: string; effectId?: number; projectileId?: number | null; dummyPos?: { x: number; y: number; z: number } }): void {
+    if (!this.room) return;
+    this.room.send('training:action', action);
   }
 
   get CurrentParty(): PartySnapshot | null {

@@ -20,7 +20,7 @@ import {
   triggerManualHotbarAction, findHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations, getHuntWorldEntrance,
   calculateDeathPenaltyReport, type DeathPenaltyReport,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
-  THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate,
+  THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate, type TrainingDummyInfo,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
 } from '@/packages/domain/src';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
@@ -33,6 +33,7 @@ import { QuickSellWindow } from './QuickSellWindow';
 import { ShopWindow } from './ShopWindow';
 import { HotbarConfigModal } from './HotbarConfigModal';
 import { HuntHeader } from './HuntHeader';
+import { TrainingDummyContextMenu } from './TrainingDummyContextMenu';
 import { HuntSelector, type ActiveTab } from './HuntSelector';
 import { TrainingProgressHUD, type TrainingMemberEstimate } from './TrainingProgressHUD';
 import { IdleHeader } from './IdleHeader';
@@ -308,6 +309,7 @@ function GamePrototypeContent() {
   const [bossPoints, setBossPoints] = useState<number>(0);
   const [firstKillToast, setFirstKillToast] = useState<string | null>(null);
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
+  const [dummyContextMenu, setDummyContextMenu] = useState<{ dummy: TrainingDummyInfo; x: number; y: number } | null>(null);
   const [receivedPartyInvitation, setReceivedPartyInvitation] = useState<PartyInvitation | null>(null);
   const [activeHuntProposal, setActiveHuntProposal] = useState<PartyHuntProposal | null>(null);
   const [multiplayerParty, setMultiplayerParty] = useState<PartySnapshot | null>(null);
@@ -659,6 +661,8 @@ function GamePrototypeContent() {
     ch.mount = c.mount ?? 'none';
     ch.mountActive = Boolean(c.mountActive);
     ch.promotion = c.promotion ?? '';
+    ch.adminTitle = c.adminTitle || '';
+    ch.gender = c.gender === 'female' ? 'female' : 'male';
 
     if (Array.isArray(c.skills)) {
       c.skills.forEach((sk: any) => {
@@ -1071,6 +1075,7 @@ function GamePrototypeContent() {
             id: netMsg.id || `net-${Date.now()}-${Math.random()}`,
             senderId: netMsg.senderId,
             senderName: netMsg.senderName,
+            senderTitle: netMsg.senderTitle,
             recipientName: netMsg.recipientName,
             channel: ch,
             text: netMsg.text,
@@ -2075,6 +2080,7 @@ function GamePrototypeContent() {
         const whisperMsg: ChatMessageItem = {
           id: msgId,
           senderName: activeCharacter.name,
+          senderTitle: (activeCharacter as any).adminTitle,
           recipientName: targetRecipient,
           channel: 'whisper',
           text: rawTrimmed,
@@ -2103,6 +2109,7 @@ function GamePrototypeContent() {
         const whisperMsg: ChatMessageItem = {
           id: msgId,
           senderName: activeCharacter.name,
+          senderTitle: (activeCharacter as any).adminTitle,
           recipientName: targetRecipient,
           channel: 'whisper',
           text: whisperContent,
@@ -2116,6 +2123,7 @@ function GamePrototypeContent() {
       const newMsg: ChatMessageItem = {
         id: msgId,
         senderName: activeCharacter.name,
+        senderTitle: (activeCharacter as any).adminTitle,
         channel,
         text: rawTrimmed,
         timestamp: Date.now(),
@@ -2924,19 +2932,36 @@ function GamePrototypeContent() {
     setHuntSelectorOpen(true);
   }, [mode]);
 
-  const handleStartTraining = (skillName: string) => {
+  const handleStartTraining = (skillName?: string, targetDummy?: TrainingDummyInfo) => {
     if (mode === 'hunt') {
       setSaleMessage('O treino nos dummies só pode ser realizado em Thais.');
       return;
     }
-    setActiveTrainingSkill(skillName);
+
+    // 1. Usa o dummy clicado ou sorteia aleatoriamente
+    const chosenDummy = targetDummy || THAIS_TRAINING_DUMMIES[Math.floor(Math.random() * THAIS_TRAINING_DUMMIES.length)];
+
+    // Se já estiver treinando nesse exato dummy, evita reiniciar sessão ou duplicar timers
+    if (isTrainingAtDummy && trainingDummyPos && chosenDummy.position.x === trainingDummyPos.x && chosenDummy.position.y === trainingDummyPos.y) {
+      setSaleMessage(`Você já está treinando no Boneco de Treino #${chosenDummy.id}.`);
+      return;
+    }
+
+    const effectiveSkillName = skillName || activeTrainingSkill || (() => {
+      const v = (activeCharacter.vocation || activeCharacter.baseVocation || 'Knight').toLowerCase();
+      if (v.includes('paladin')) return 'Distância';
+      if (v.includes('sorcerer') || v.includes('druid')) return 'Magic Level';
+      const sk = activeCharacter.skills;
+      if (sk.axe > sk.sword && sk.axe > sk.club) return 'Machado';
+      if (sk.club > sk.sword && sk.club > sk.axe) return 'Clube';
+      return 'Espada';
+    })();
+
+    setActiveTrainingSkill(effectiveSkillName);
     setMode('training');
     setIsTrainingAtDummy(false);
 
     const activeTileMap = cityPos.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
-
-    // 1. Sorteia um dos 3 dummies aleatoriamente
-    const chosenDummy = THAIS_TRAINING_DUMMIES[Math.floor(Math.random() * THAIS_TRAINING_DUMMIES.length)];
 
     // 2. Coleta posições ocupadas por outros jogadores
     const occupiedKeys = new Set<string>();
@@ -2951,11 +2976,11 @@ function GamePrototypeContent() {
     };
 
     const charVoc = activeCharacter.vocation || activeCharacter.baseVocation || 'Knight';
-    const bestTile = findBestTrainingTile(chosenDummy.position, charVoc, occupiedKeys, isWalkableFn) || {
-      x: chosenDummy.position.x - 1,
-      y: chosenDummy.position.y,
-      z: chosenDummy.position.z,
-    };
+    const bestTile = findBestTrainingTile(chosenDummy.position, charVoc, occupiedKeys, isWalkableFn);
+    if (!bestTile) {
+      setSaleMessage(`Todas as vagas ao redor do Boneco de Treino #${chosenDummy.id} estão ocupadas ou inacessíveis no momento.`);
+      return;
+    }
 
     const startDirectTraining = () => {
       const dx = chosenDummy.position.x - bestTile.x;
@@ -2964,7 +2989,7 @@ function GamePrototypeContent() {
       gameNetwork.sendTurn(dir);
       setTrainingDummyPos(chosenDummy.position);
       setIsTrainingAtDummy(true);
-      setSaleMessage(`Treinando ${skillName} no Boneco de Treino #${chosenDummy.id}!`);
+      setSaleMessage(`Treinando ${effectiveSkillName} no Boneco de Treino #${chosenDummy.id}!`);
     };
 
     // Se já estiver no tile ideal
@@ -2992,8 +3017,13 @@ function GamePrototypeContent() {
         currentIndex: 0,
         onArrive: startDirectTraining,
       });
-      setSaleMessage(`Indo até o Boneco de Treino #${chosenDummy.id} para treinar ${skillName}...`);
+      setSaleMessage(`Indo até o Boneco de Treino #${chosenDummy.id} para treinar ${effectiveSkillName}...`);
     } else {
+      const dist = Math.hypot(cityPos.x - chosenDummy.position.x, cityPos.y - chosenDummy.position.y);
+      if (dist > 3) {
+        setSaleMessage(`O Boneco de Treino #${chosenDummy.id} está inacessível a partir da sua posição atual.`);
+        return;
+      }
       startDirectTraining();
     }
   };
@@ -3581,7 +3611,14 @@ function GamePrototypeContent() {
             trainingDummyPos={trainingDummyPos}
             stepDurationMs={cityStepDurationMs}
             onTileClick={handleTileClick}
-            onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
+            onCharacterContextMenu={(charId, x, y) => {
+              setDummyContextMenu(null);
+              setCharContextMenu({ characterId: charId, x, y });
+            }}
+            onDummyContextMenu={(dummy, x, y) => {
+              setCharContextMenu(null);
+              setDummyContextMenu({ dummy, x, y });
+            }}
             visualEvents={combinedCityVisualEvents}
             debug={debugGrid}
             remotePlayers={remotePlayers}
@@ -4220,6 +4257,20 @@ function GamePrototypeContent() {
           />
         );
       })()}
+
+      {dummyContextMenu && (
+        <TrainingDummyContextMenu
+          x={dummyContextMenu.x}
+          y={dummyContextMenu.y}
+          dummy={dummyContextMenu.dummy}
+          onUse={() => {
+            const d = dummyContextMenu.dummy;
+            setDummyContextMenu(null);
+            handleStartTraining(undefined, d);
+          }}
+          onClose={() => setDummyContextMenu(null)}
+        />
+      )}
 
       {pointerDrag && (
         <div className="pointer-drag-ghost" style={{ left: pointerDrag.x, top: pointerDrag.y }} aria-hidden="true">

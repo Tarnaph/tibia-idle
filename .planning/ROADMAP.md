@@ -3297,6 +3297,20 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-175-fix-md-deep-persistence-audio-and-performance/175-SUMMARY.md`
 
+### Phase 176: Administrador e Título Visual do Wolfy, Uso de Dummy por Clique Direito e Sincronização de Aparência Remota
+
+**Goal**: Atender integralmente aos 3 tópicos especificados no FIX.md: promoção de Wolfy para ADMIN com adminTitle 'GOD' em dourado no nameplate e chat sem alterar seu nome no banco, uso direto de dummies de treino no Depot de Thais via clique com botão direito com posicionamento automático e prevenção de timers duplicados, e correção profunda da sincronização visual de remotos (preservação de cor 0,addons e propagação de gênero sem fallback fixo para male).  
+**Depends on**: Phase 175  
+**Requirements**:
+1. Wolfy Administrador & Título GOD: Conta promovida para `role: 'ADMIN'`, coluna `adminTitle` no Prisma Character, prefixo `[GOD]` em dourado brilhante `#ffd700`/`0xffd700` e nome `Wolfy` em verde no nameplate e chat, com restrição estrita impedindo títulos em contas não-admin.
+2. Training Dummy via Botão Direito: Menu de contexto autêntico no depot de Thais (Z:7) com opção "⚔️ Usar", calculando vaga adjacente (`findBestTrainingTile`), approach pathing, prevenção de duplicação caso já esteja treinando no dummy e alerta claro caso inacessível.
+3. Sincronização de Aparência Remota: Leitura de addons em `outfit.addons`, preservação de cores zero (`outfitBody >= 0`), propagação do gênero feminino do banco/schema até o PixiRenderer e invalidação reativa via `appearanceSig`.
+
+**Plans:**
+- [x] 176-01-PLAN: Administrador Wolfy GOD, Uso de Dummy por Clique Direito e Sincronização de Aparência Remota.
+
+- Resumo de entrega: `.planning/phases/phase-176-admin-wolfy-dummy-use-and-remote-appearance/176-SUMMARY.md`
+
 
 
 

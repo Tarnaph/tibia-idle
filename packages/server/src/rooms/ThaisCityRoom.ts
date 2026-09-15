@@ -4,7 +4,7 @@ import { PlayerState } from '../schemas/PlayerState';
 import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
-import { verifyAuthToken, VOCATION_CONFIGS, XpRateLimiter } from '../../../auth/src';
+import { verifyAuthToken, VOCATION_CONFIGS, XpRateLimiter, ServerCharacterContextRegistry } from '../../../auth/src';
 import { experienceForLevel, levelForExperience, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, getHuntWorldEntrance, type TrainableSkill, type GameContent } from '../../../domain/src';
 import vocationsJson from '../../../../content/generated/vocations.json';
 import equipmentJson from '../../../../content/generated/equipment.json';
@@ -98,6 +98,16 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
   }
 
+  public updatePlayerHuntContext(player: PlayerState, inHunt: boolean, huntId?: string): void {
+    player.inHunt = inHunt;
+    if (player.characterId) {
+      ServerCharacterContextRegistry.setActivity(player.characterId, {
+        isHunting: inHunt,
+        huntId: huntId || player.lastHuntId,
+      });
+    }
+  }
+
   onCreate(options: any) {
     this.setState(new WorldState());
     this.state.regionName = 'thais-city';
@@ -160,10 +170,12 @@ export class ThaisCityRoom extends Room<WorldState> {
       addons?: number;
       mount?: string;
       mountActive?: boolean;
+      gender?: 'male' | 'female';
     }) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
       if (data.outfit) player.outfit = data.outfit;
+      if (data.gender === 'male' || data.gender === 'female') player.gender = data.gender;
       if (data.lookType !== undefined) player.outfitLookType = data.lookType;
       if (data.outfitColors) {
         player.outfitHead = data.outfitColors.head;
@@ -263,7 +275,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       for (const memberId of party.memberSessionIds) {
         const memberPlayer = this.state.players.get(memberId);
         if (memberPlayer) {
-          memberPlayer.inHunt = true;
+          this.updatePlayerHuntContext(memberPlayer, true, data.huntId);
         }
         const memberClient = this.clients.find((c) => c.sessionId === memberId);
         if (memberClient) {
@@ -335,7 +347,7 @@ export class ThaisCityRoom extends Room<WorldState> {
         for (const memberId of party.memberSessionIds) {
           const memberPlayer = this.state.players.get(memberId);
           if (memberPlayer) {
-            memberPlayer.inHunt = true;
+            this.updatePlayerHuntContext(memberPlayer, true, proposal.huntId);
           }
           const memberClient = this.clients.find((c) => c.sessionId === memberId);
           if (memberClient) {
@@ -387,7 +399,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           memberPlayer.direction = 'south';
           memberPlayer.isWalking = false;
           memberPlayer.lastStepTime = 0;
-          memberPlayer.inHunt = false;
+          this.updatePlayerHuntContext(memberPlayer, false);
         }
         if (memberId !== client.sessionId) {
           const memberClient = this.clients.find((c) => c.sessionId === memberId);
@@ -410,13 +422,13 @@ export class ThaisCityRoom extends Room<WorldState> {
           player.lastHuntId = data.huntId;
         }
         if (wantsHunt && !canEnterHunt(player.staminaMinutes)) {
-          player.inHunt = false;
+          this.updatePlayerHuntContext(player, false);
           client.send('stamina:empty', {
             message: 'Sua estamina acabou! Treine na zona de treinamento ou descanse para recuperar.',
           });
           return;
         }
-        player.inHunt = wantsHunt;
+        this.updatePlayerHuntContext(player, wantsHunt, data.huntId);
         if (wantsHunt && data.huntId) {
           const entrance = getHuntWorldEntrance(data.huntId, gameContent);
           player.posX = entrance.worldPosition.x;
@@ -472,6 +484,9 @@ export class ThaisCityRoom extends Room<WorldState> {
             } else {
               player.experience = data.experience;
               player.level = Math.max(1, levelForExperience(data.experience));
+              if (player.characterId) {
+                XpRateLimiter.recordAuthorizedExp(player.characterId, data.experience);
+              }
             }
           }
         }
@@ -601,8 +616,14 @@ export class ThaisCityRoom extends Room<WorldState> {
     let outfitLegs = (options as any).outfitColors?.secondary ?? 114;
     let outfitFeet = (options as any).outfitColors?.detail ?? 76;
     let outfitAddons = 0;
+    const rawOptAddons = (options as any).outfit?.addons ?? (options as any).addons ?? (options as any).outfitAddons;
+    if (typeof rawOptAddons === 'number') {
+      outfitAddons = rawOptAddons;
+    }
     let mount = (options as any).mount || 'none';
     let mountActive = Boolean((options as any).mountActive);
+    let gender = (options as any).gender === 'female' ? 'female' : 'male';
+    let adminTitle = '';
     let loadedSkills: any[] = [];
     let loadedExperience = experienceForLevel(level);
 
@@ -624,6 +645,18 @@ export class ThaisCityRoom extends Room<WorldState> {
         posX = dbChar.posX;
         posY = dbChar.posY;
         posZ = dbChar.posZ;
+        if (dbChar.gender === 'female' || dbChar.gender === 'male') {
+          gender = dbChar.gender;
+        }
+        if ((dbChar as any).account?.role === 'ADMIN') {
+          accountRole = 'ADMIN';
+        }
+        if (accountRole === 'ADMIN' && (dbChar as any).adminTitle) {
+          const rawTitle = String((dbChar as any).adminTitle).trim().toUpperCase();
+          if (rawTitle === 'GOD' || rawTitle === 'GM') {
+            adminTitle = rawTitle;
+          }
+        }
         loadedExperience = dbChar.experience !== undefined && dbChar.experience !== null
           ? Number(dbChar.experience)
           : experienceForLevel(level);
@@ -659,11 +692,11 @@ export class ThaisCityRoom extends Room<WorldState> {
         if (typeof (dbChar as any).mountActive === 'boolean') {
           mountActive = (dbChar as any).mountActive;
         }
-        if (typeof dbChar.outfitBody === 'number' && (dbChar.outfitBody > 0 || dbChar.outfitLegs > 0)) {
-          outfitHead = dbChar.outfitHead;
+        if (typeof dbChar.outfitBody === 'number' && dbChar.outfitBody >= 0) {
+          outfitHead = dbChar.outfitHead ?? 0;
           outfitBody = dbChar.outfitBody;
-          outfitLegs = dbChar.outfitLegs;
-          outfitFeet = dbChar.outfitFeet;
+          outfitLegs = dbChar.outfitLegs ?? 0;
+          outfitFeet = dbChar.outfitFeet ?? 0;
         }
          if (Array.isArray((dbChar as any).skills)) {
           loadedSkills = (dbChar as any).skills.map((s: any) => ({
@@ -706,6 +739,8 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.characterId = charId;
     player.accountId = accountId;
     player.role = accountRole;
+    player.adminTitle = adminTitle;
+    player.gender = gender;
     player.name = charName || 'Hero';
     player.vocationId = safeVocationId;
     player.vocationName = vocation.name || 'Knight';
@@ -751,7 +786,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.isAutoIdle = loadedIsAutoIdle ?? false;
     player.lastHuntId = loadedLastHuntId || 'rat-cellars';
 
-    player.inHunt = false;
+    this.updatePlayerHuntContext(player, false);
     (player as any).bestiaryKills = loadedBestiaryKills;
     player.trackedBestiaryId = loadedTrackedBestiaryId;
     (player as any).bossPoints = loadedBossPoints;
@@ -811,6 +846,9 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     if (player) {
       await persistenceManager.saveCharacter(player);
+      if (player.characterId) {
+        ServerCharacterContextRegistry.clear(player.characterId);
+      }
     }
 
     const idx = this.clients.indexOf(client);
@@ -1252,6 +1290,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           id: msgId,
           senderId: client.sessionId,
           senderName: player.name,
+          senderTitle: player.adminTitle || '',
           recipientName: recipientPlayer.name,
           text: whisperContent,
           channel: 'whisper',
@@ -1265,6 +1304,7 @@ export class ThaisCityRoom extends Room<WorldState> {
             id: msgId,
             senderId: client.sessionId,
             senderName: player.name,
+            senderTitle: player.adminTitle || '',
             recipientName: recipientPlayer.name,
             text: whisperContent,
             channel: 'whisper',
@@ -1279,6 +1319,7 @@ export class ThaisCityRoom extends Room<WorldState> {
             id: `sys-${timestamp}-${Math.random().toString(36).slice(2, 6)}`,
             senderId: 'system',
             senderName: 'Servidor',
+            senderTitle: '',
             text: `Personagem "${targetName}" não está online no momento.`,
             channel: 'whisper',
             timestamp,
@@ -1300,6 +1341,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     msg.id = `msg-${timestamp}-${Math.random()}`;
     msg.senderId = client.sessionId;
     msg.senderName = player.name;
+    msg.senderTitle = player.adminTitle || '';
     msg.text = text;
     msg.channel = normalizedChannel;
     msg.timestamp = timestamp;
@@ -1340,6 +1382,7 @@ export class ThaisCityRoom extends Room<WorldState> {
             id: msg.id,
             senderId: client.sessionId,
             senderName: player.name,
+            senderTitle: player.adminTitle || '',
             text,
             channel: normalizedChannel,
             timestamp,
@@ -1569,7 +1612,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       player.staminaMinutes = staminaRes.staminaMinutes;
 
       if (staminaRes.evicted) {
-        player.inHunt = false;
+        this.updatePlayerHuntContext(player, false);
         player.posX = 32369;
         player.posY = 32241;
         player.posZ = 7;
@@ -1587,7 +1630,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       // Auto-Idle State Machine Loop
       if (player.isAutoIdle) {
         if (staminaRes.evicted || (player.inHunt && player.staminaMinutes <= 0)) {
-          player.inHunt = false;
+          this.updatePlayerHuntContext(player, false);
           player.isTraining = true;
           player.posX = 32369;
           player.posY = 32241;
@@ -1602,7 +1645,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           }
         } else if (!player.inHunt && player.staminaMinutes >= player.maxStaminaMinutes) {
           player.isTraining = false;
-          player.inHunt = true;
+          this.updatePlayerHuntContext(player, true, player.lastHuntId || 'rat-cellars');
 
           const client = this.clients.find((c) => c.sessionId === player.id);
           if (client) {
