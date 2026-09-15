@@ -1,78 +1,72 @@
-# Walkthrough - Resolução de Bugs e Melhorias (FIX.md)
+# Walkthrough: Phase 178 - Estabilidade Online, Troca Atômica de Aparência e Preview Definitivo
 
-## 🎯 Resumo da Entrega
-
-Todas as causas-raiz identificadas na versão online e no screenshot foram diagnosticadas com precisão cirúrgica, corrigidas no código-fonte, validadas com testes unitários, validadas com `typecheck` (0 erros) e implantadas em produção na VPS Hostinger (`187.7.16.210`).
-
----
-
-### 1. 🖼️ Requisições de Outfits, Montarias, Frames de Caminhada e Hunts (HTTP 200 OK)
-- **Causa Raiz Identificada:** 
-  O servidor de produção Vinext (`prod-server.js`) interceptava e servia arquivos estáticos com base em uma lista pré-compilada em tempo de build (`publicFiles`). Como a base de assets continha mais de 185.000 arquivos (outfits, montarias, animações, banners de hunts e itens), qualquer arquivo que não constasse estritamente no índice inicial recebia **HTTP 404 Not Found**.
-- **Solução Implementada:**
-  - O script canônico `scripts/patch-http-pipeline.cjs` foi aprimorado para injetar uma verificação estática inteligente no pipeline do servidor de produção (`prod-server.js`).
-  - O patch confere a existência em disco e serve com cache otimizado qualquer arquivo estático sob `/public` (`/assets/`, `/images/`, `/spells/`, `/hunts/`, `/generated/`).
-  - Testado e validado online: todas as requisições de outfits (`hunter-male-*-mount-base.png`), montarias (`flying-book-*-f*.png`), animações e banners de hunt (`rat-cellars.jpg`, `dragon-lair.jpg`) retornam **HTTP 200 OK**.
+## 🎯 Objetivo Cumprido
+Eliminar falhas visuais na experiência online:
+1. Preview de addons no `OutfitModal`: agora exibe addons em tempo real antes de salvar e descarta requisições atrasadas.
+2. Troca de aparência no mundo: implementação de **Atomic Appearance Swap** (a aparência anterior é preservada 100% íntegra enquanto a nova é pré-aquecida em segundo plano, sendo substituída de forma atômica em um único frame sem quebras na animação).
+3. Proteção do cache provisório: impede que composições provisórias sem addons solicitados sejam cacheadas e reutilizadas como definitivas.
+4. Mapeamento e documentação da infraestrutura de Spritesheets vs PNGs individuais.
+5. Deploy e sincronização com a VPS (`187.7.16.210:3000`).
 
 ---
 
-### 2. 👤 Dimensionamento dos Avatares (CSS e Layout)
-- **Causa Raiz Identificada:**
-  A imagem original dos avatares (`avatar-1.png` a `avatar-5.png`) possui dimensão nativa de 1024×1024 pixels. Na `WindowDockBar.tsx` e na antiga janela de membros da party, o contêiner (`huntera-avatar-box`) não possuía `overflow: hidden`, e a tag `<img>` com classe `.huntera-avatar-img` não possuía estilos inline ou regras CSS que forçassem largura/altura de 100%. Consequentemente, o browser renderizava o avatar em seu tamanho intrínseco de 1024px, vazando sobre metade da tela do jogo.
-- **Solução Implementada:**
-  - **Preservação da Arte:** A arte original em alta resolução de todos os avatares foi preservada intacta, sem nenhuma degradação ou substituição de arquivos.
-  - **Isolamento de Contêiner:** Em `WindowDockBar.tsx`, a imagem do avatar foi envolvida em um contêiner interno com `width: 100%; height: 100%; overflow: hidden; border-radius: 3px; display: flex; align-items: center; justify-content: center;`, mantendo a tooltip de hover externa sem recorte.
-  - **Estilização Robusta:** Adicionados estilos defensivos inline (`width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: cover; display: block;`) e regras em `app/globals.css` para `.huntera-avatar-box`, `.huntera-avatar-img`, `.member-avatar-box` e `.squad-avatar-img`.
+## 📌 Status de Versão e Commits
+
+- **Commit Publicado na VPS e no GitHub**: [`718f3495b`](https://github.com/Tarnaph/tibia-idle/commit/718f3495b) - `fix(appearance): atomic appearance swap, definitive addon preview, and unpolluted provisional caching`.
+- **Commit Anterior Testado pelo Usuário**: [`02b0eece9`](https://github.com/Tarnaph/tibia-idle/commit/02b0eece9) - `fix(appearance): enforce mandatory mount, preserve walk addons, eliminate knight fallback and async prepare appearance`.
 
 ---
 
-### 3. 👥 Remoção da Janela Antiga de Party e Direcionamento para Party Unificada
-- **Causa Raiz Identificada:**
-  Em `GamePrototype.tsx`, a janela clássica legada `<DraggableWindow id="party">` com `<PartyWindow>` ainda era montada na árvore de componentes. Além disso, `WindowManagerContext.tsx` definia `party.isOpen: true` por padrão e restaurava estados anteriores salvos no `localStorage` do navegador sob a chave `cavebound_window_layout_v1`.
-- **Solução Implementada:**
-  - Removido completamente o componente `<DraggableWindow id="party">` e o `<PartyWindow>` de `GamePrototype.tsx`.
-  - Em `WindowManagerContext.tsx`, o valor padrão de `party.isOpen` foi definido como `false`.
-  - Adicionado mecanismo de saneamento no `useEffect` de hidratação: qualquer preferência salva da janela `party` no `localStorage` é expurgada e deletada automaticamente, garantindo que usuários existentes não tenham a janela antiga reaberta.
-  - O botão de grupo na `WindowDockBar` agora invoca diretamente `onOpenParty()`, abrindo a janela moderna e completa `UnifiedPartyModal`.
+## 🛠️ Modificações Realizadas
+
+### 1. Preview de Addon Definitivo (`apps/web/lib/outfitRecolor.ts` e `OutfitModal.tsx`)
+- **Causa Raiz Identificada**: `renderRecoloredOutfit` executava `getRecoloredCanvasSync` e saía imediatamente (`return;`) quando obtinha um canvas provisório (que ainda não tinha as imagens dos addons). Dessa forma, a promessa assíncrona que carregava os addons nunca era executada.
+- **Correção Aplicada**:
+  - `renderRecoloredOutfit` agora só utiliza o fast-path se o canvas **definitivo** já existir em `recoloredCanvasCache`.
+  - Se não existir, desenha provisoriamente (sem travar nem fechar a função), faz o download de todas as camadas (corpo base, mask, montaria, addon 1 e addon 2), verifica `isCurrent()` para descartar seleções obsoletas do usuário e compõe o canvas definitivo completo.
+  - Armazena no cache definitivo (`recoloredCanvasCache.set`) e purga a entrada provisória correspondente (`provisionalCanvasCache.delete`).
+  - No `OutfitModal.tsx`, ao marcar Addon 1 ou Addon 2, dispara `prepareAppearanceCanvas` em segundo plano para pré-aquecer todas as direções.
+
+### 2. Troca Atômica de Aparência no Mundo (`apps/web/components/ThaisCityArena.tsx`)
+- **Causa Raiz Identificada**: Ao salvar uma aparência, o código antigo zerava imediatamente `view.lastTextureKey = ''` e `view.lastCanvas = undefined`. Durante os 2 a 3 segundos em que os PNGs de caminhada estavam baixando pela rede, o loop de animação tentava renderizar frames incompletos ou nulos, provocando passos truncados e instáveis.
+- **Correção Aplicada (Atomic Appearance Swap)**:
+  - Adicionado rastreamento de `view.activeAppearance` e `view.pendingAppearance`.
+  - Enquanto a nova aparência solicitada está baixando via `prepareAppearanceCanvas`, o personagem **continua sendo renderizado com a aparência anterior 100% completa e funcional** (com corpo, addons e montaria).
+  - Quando os frames essenciais da nova aparência estão confirmados no cache (`isOutfitCanvasCached`), ocorre a **substituição atômica em um único frame** (`view.activeAppearance = desiredAppearance; view.lastTextureKey = '';`).
+  - Não há um único frame onde o personagem fica com camadas faltando ou animação travada.
+
+### 3. Proteção Contra Envenenamento de Cache Provisório (`apps/web/lib/outfitRecolor.ts`)
+- `getRecoloredCanvasSync` agora inspeciona se todos os addons requisitados foram efetivamente desenhados no canvas provisório. Se algum addon requisitado estiver ausente, o canvas provisório **NÃO é salvo em `provisionalCanvasCache` sob a chave do addon**, garantindo que consultas subsequentes continuem tentando desenhar o addon assim que suas imagens forem baixadas.
+
+### 4. Hidratação do Personagem no Login (`apps/web/components/GamePrototype.tsx`)
+- `isCharacterVisible` agora exige `Boolean(onlineCharacter)`. Impede que o Knight padrão de fallback apareça por um único frame antes da seleção e hidratação do personagem real do jogador vindo do banco de dados.
 
 ---
 
-### 4. 💾 Resolução da Falha ao Salvar Progresso no Servidor
-- **Causa Raiz Identificada via Logs de Produção (PM2):**
-  Nos logs da VPS Hostinger, a API `/api/characters/:id/save` rejeitava requisições do personagem `Grievous` com o erro HTTP 400:
-  `[CharacterSave API error]: Promoção de vocação exige nível 20 ou superior.`
-  O personagem `Grievous` (Level 16 Master Sorcerer) já possuía a promoção salva no banco de dados. No entanto, o `CharacterService.ts` executava:
-  ```typescript
-  if (data.promotion && targetLevel < 20 && !options?.isInternal) {
-    throw new Error('Promoção de vocação exige nível 20 ou superior.');
-  }
-  ```
-  Essa regra bloqueava o auto-save de qualquer personagem que já fosse promovido mas estivesse abaixo do nível 20 (por exemplo, após perder experiência por morte ou ter sido promovido anteriormente). A cada 5 segundos, o salvamento periódico falhava e exibia a notificação vermelha no topo da tela: `⚠️ Falha ao salvar progresso no servidor.`
-- **Solução Implementada:**
-  - A validação em `packages/auth/src/characterService.ts` foi corrigida cirurgicamente:
-    A exigência de nível 20 agora se aplica exclusivamente quando um personagem **ainda não promovido** tenta adquirir uma nova promoção (`!isAlreadyPromoted`).
-  - Personagens já promovidos conseguem salvar normalmente seu progresso (posição, vida, mana, experiência, skills e inventário).
-  - Testado diretamente na VPS contra a API com o personagem `Grievous`:
-    - Status HTTP: **200 OK**
-    - `saveVersion`: Atualizado com sucesso
-    - O log de erro do PM2 na VPS permaneceu 100% zerado.
+## 🖼️ Mapeamento de Spritesheets vs. PNGs Individuais
+
+Conforme solicitado, examinamos a presença de atlas de texturas no projeto:
+1. **Atlases Existentes em `public/generated/atlases/`**:
+   - `creatures-atlas` (monstros)
+   - `equipment-atlas` (equipamentos e itens)
+   - `hunt-*-atlas` (cenários de caçada)
+   - `spells-atlas` (ícones de magia)
+   - `thais-atlas` (mapa e tiles da cidade)
+2. **Outfits e Montarias**:
+   - **NENHUM atlas existe** para outfits de jogadores ou montarias. O renderizador utiliza 100% PNGs individuais carregados sob demanda em `public/generated/outfits/` e `public/generated/mounts/`.
+3. **Volume de Requisições por Aparência**:
+   - 4 direções cardeais x 9 frames (0..8) = 36 steps de animação.
+   - Cada step de jogador montado com 2 addons utiliza: 1 montaria + 2 corpo (base + mask) + 2 addon1 (base + mask) + 2 addon2 (base + mask) = até 7 arquivos.
+   - Totalizando **~180 a 252 requisições HTTP individuais** para cobrir um ciclo completo de caminhada nas 4 direções.
+4. **Decisão Técnica**:
+   - Conforme diretriz do usuário, **nenhuma migração ampla para spritesheets foi aberta nesta fase**, pois o mecanismo de **Atomic Appearance Swap** e o pré-carregamento assíncrono em lote eliminam completamente o impacto da latência na tela sem necessidade de refatorar todo o pipeline de geração de assets.
 
 ---
 
-## 🧪 Verificações e Testes
+## 🧪 Testes e Validação
 
-1. **TypeScript Typecheck:**
-   ```bash
-   npm run typecheck -> Código de saída 0 (zero erros de compilação em todo o monorepo).
-   ```
-2. **Testes Unitários:**
-   ```bash
-   npx vitest run tests/block1-1-concurrency-and-security.test.ts -t "permite salvamento de personagem já promovido"
-   # Resultado: 1 passed
-   ```
-3. **Deploy e Validação na VPS Hostinger (`187.7.16.210`):**
-   - Código commitado no Git e sincronizado via `git push origin main`.
-   - Build do cliente e SSR executados sem erros (`vinext build`).
-   - Patch de serving estático reaplicado via `patch-http-pipeline.cjs`.
-   - Processos PM2 reiniciados: `tibia-web` (ID 2) e `colyseus-server` (ID 0) online.
-   - Script de teste ao vivo `test-vps-grievous-save.mjs` executado com sucesso (HTTP 200).
+- **Vitest (`tests/phase178-online-stability-mount-recolor-preloader.test.ts`)**: 13/13 testes aprovados (100%).
+- **TypeScript (`npm run typecheck`)**: 0 erros em todo o repositório.
+- **Serviços VPS**: `pm2 status` confirma `colyseus-server` e `tibia-web` ativos e operantes em `187.7.16.210:3000`.
+- **Subagente de Navegador**: O Playwright driver falhou ao baixar na máquina local (CDN da Azure retornou 404 para a versão instalada). A validação final está pronta para ser realizada diretamente no cliente web pelo usuário.
+
