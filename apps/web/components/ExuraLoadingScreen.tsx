@@ -165,18 +165,21 @@ export function ExuraLoadingScreen({
     let isHandled = false;
 
     const handleSkip = () => {
-      if (isHandled) return;
-      isHandled = true;
       void unlockAudio();
-      assetPreloader.markComplete();
-      setProgress(100);
-      setIsFadingOut(true);
-      cancelAnimationFrame(animationFrameId);
-      finishTimeoutId = setTimeout(() => {
-        setIsVisible(false);
-        setIsFadingOut(false);
-        onFinishRef.current?.();
-      }, 250);
+      assetPreloader.requestSkip();
+
+      if (!waitForAssets || assetPreloader.isEssentialComplete()) {
+        if (isHandled) return;
+        isHandled = true;
+        setProgress(100);
+        setIsFadingOut(true);
+        cancelAnimationFrame(animationFrameId);
+        finishTimeoutId = setTimeout(() => {
+          setIsVisible(false);
+          setIsFadingOut(false);
+          onFinishRef.current?.();
+        }, 250);
+      }
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -192,7 +195,7 @@ export function ExuraLoadingScreen({
       const effectiveDuration = durationMs;
       const timePct = Math.min(100, (elapsed / effectiveDuration) * 100);
 
-      // Phase 146 & 150: Sincronização autoritativa com o pré-carregamento do jogador ativo
+      // Phase 146 & 178: Sincronização autoritativa com o pré-carregamento do jogador ativo
       const isAssetsComplete = !waitForAssets || assetPreloader.isComplete();
       const assetProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
 
@@ -211,7 +214,7 @@ export function ExuraLoadingScreen({
       if (pct < 100 || (!isAssetsComplete && waitForAssets)) {
         animationFrameId = requestAnimationFrame(tick);
       } else {
-        // Bar reached 100% after durationMs (10s) and assets 100% preloaded
+        // Recursos essenciais prontos e barra 100%
         isHandled = true;
         setIsFadingOut(true);
         finishTimeoutId = setTimeout(() => {
@@ -243,14 +246,16 @@ export function ExuraLoadingScreen({
       className="exura-loading-overlay"
       onClick={() => {
         void unlockAudio();
-        assetPreloader.markComplete();
-        setProgress(100);
-        setIsFadingOut(true);
-        setTimeout(() => {
-          setIsVisible(false);
-          setIsFadingOut(false);
-          onFinishRef.current?.();
-        }, 200);
+        assetPreloader.requestSkip();
+        if (!waitForAssets || assetPreloader.isEssentialComplete()) {
+          setProgress(100);
+          setIsFadingOut(true);
+          setTimeout(() => {
+            setIsVisible(false);
+            setIsFadingOut(false);
+            onFinishRef.current?.();
+          }, 200);
+        }
       }}
       style={{
         position: 'fixed',

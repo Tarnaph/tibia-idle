@@ -310,11 +310,16 @@ export function canRetryImage(url: string): boolean {
   return Date.now() - entry.lastAttempt >= FAILED_IMAGE_RETRY_DELAY_MS;
 }
 
+export function invalidateProvisionalCache(url?: string): void {
+  provisionalCanvasCache.clear();
+}
+
 export function registerCachedImage(url: string, img: HTMLImageElement): void {
   imageElementCache.set(url, img);
   failedImageUrls.delete(url);
   failedImageUrlsWithTimestamp.delete(url);
   failedImageAttempts.delete(url);
+  invalidateProvisionalCache(url);
 }
 
 export function registerFailedImage(url: string): void {
@@ -336,6 +341,7 @@ export function clearImageElementCache(): void {
   failedImageUrls.clear();
   failedImageUrlsWithTimestamp.clear();
   failedImageAttempts.clear();
+  invalidateProvisionalCache();
 }
 
 export function loadImage(url: string): Promise<HTMLImageElement> {
@@ -385,6 +391,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
       failedImageUrlsWithTimestamp.delete(url);
       failedImageAttempts.delete(url);
       imageElementCache.set(url, img);
+      invalidateProvisionalCache(url);
       resolve(img);
     };
 
@@ -401,43 +408,10 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
       entry.lastAttempt = now;
       failedImageAttempts.set(url, entry);
 
+      // Only mark permanently failed after exceeding MAX attempts (with cooldown)
       if (entry.count >= MAX_FAILED_IMAGE_ATTEMPTS) {
         failedImageUrls.add(url);
         failedImageUrlsWithTimestamp.set(url, now);
-      }
-
-      // Fallback for missing directional mount frames to south base mount
-      if (url.includes('/generated/mounts/') && url.includes('-f')) {
-        const baseMountUrl = url.replace(/-[a-z]+-f\d+\.png$/, '.png');
-        if (baseMountUrl !== url) {
-          loadImage(baseMountUrl)
-            .then((baseImg) => {
-              imageElementCache.set(url, baseImg);
-              resolve(baseImg);
-            })
-            .catch(() => {
-              reject(new Error(`Failed to load mount fallback image at ${url}`));
-            });
-          return;
-        }
-      }
-
-      // If a mounted addon animation frame is missing, fallback to the static mounted frame (f0).
-      // NEVER fallback to unmounted addon (-addon), as unmounted sprites have an upright standing posture
-      // which causes severe misalignment relative to the mount saddle.
-      if (url.includes('-mount-addon') && /-f[1-9]\d*-mount-addon/.test(url)) {
-        const staticMountedAddonUrl = url.replace(/-f[1-9]\d*-mount-addon/, '-f0-mount-addon');
-        if (staticMountedAddonUrl !== url) {
-          loadImage(staticMountedAddonUrl)
-            .then((addonImg) => {
-              imageElementCache.set(url, addonImg);
-              resolve(addonImg);
-            })
-            .catch(() => {
-              reject(new Error(`Failed to load static mounted addon fallback image at ${url}`));
-            });
-          return;
-        }
       }
 
       reject(new Error(`Failed to load image at ${url}`));
@@ -640,14 +614,21 @@ export async function renderRecoloredOutfit(
     drawRecoloredLayer(offCtx, baseImg, maskImg, colors, w, h, offset.x, offset.y);
     hasDrawnContent = true;
   } catch {
-    // Robust fallback to south idle f0 frame
+    // Robust fallback to current direction idle f0 frame (or south if failed)
     try {
       const norm = normalizeOutfitId(outfitId);
-      const fbBase = `/generated/outfits/${norm}-${gender}-south-f0-base.png`;
-      const fbMask = `/generated/outfits/${norm}-${gender}-south-f0-mask.png`;
-      const [fb0Base, fb0Mask] = await Promise.all([loadImage(fbBase), loadImage(fbMask)]);
+      let fbBase = `/generated/outfits/${norm}-${gender}-${direction}-f0-base.png`;
+      let fbMask = `/generated/outfits/${norm}-${gender}-${direction}-f0-mask.png`;
+      let fbImgs: [HTMLImageElement, HTMLImageElement];
+      try {
+        fbImgs = await Promise.all([loadImage(fbBase), loadImage(fbMask)]);
+      } catch {
+        fbBase = `/generated/outfits/${norm}-${gender}-south-f0-base.png`;
+        fbMask = `/generated/outfits/${norm}-${gender}-south-f0-mask.png`;
+        fbImgs = await Promise.all([loadImage(fbBase), loadImage(fbMask)]);
+      }
       if (isCurrent && !isCurrent()) return;
-      drawRecoloredLayer(offCtx, fb0Base, fb0Mask, colors, w, h, 0, 0);
+      drawRecoloredLayer(offCtx, fbImgs[0], fbImgs[1], colors, w, h, offset.x, offset.y);
       hasDrawnContent = true;
     } catch {
       // ignore
@@ -692,10 +673,10 @@ export async function renderRecoloredOutfit(
 }
 
 // In-memory cache for definitive recolored canvas textures
-const recoloredCanvasCache = new Map<string, HTMLCanvasElement>();
+export const recoloredCanvasCache = new Map<string, HTMLCanvasElement>();
 
 // Transient cache for provisional fallback rendering during asset load
-const provisionalCanvasCache = new Map<string, HTMLCanvasElement>();
+export const provisionalCanvasCache = new Map<string, HTMLCanvasElement>();
 
 export function clearRecoloredCanvasCache(): void {
   recoloredCanvasCache.clear();
@@ -760,6 +741,35 @@ export async function preloadOutfitAllFrames(
   }
   if (remainingPromises.length > 0) {
     await Promise.allSettled(remainingPromises);
+  }
+}
+
+/**
+ * Phase 178: Pre-renderiza e aquece o cache síncrono (recoloredCanvasCache)
+ * para todos os frames essenciais nas 4 direções cardeais do jogador ativo.
+ * Garante que "pronto" signifique disponível para desenho imediato a 60 FPS.
+ */
+export async function prepareAppearanceCanvas(
+  outfitId: string,
+  gender: 'male' | 'female' = 'male',
+  colors: OutfitColors = { head: 0, primary: 86, secondary: 114, detail: 76 },
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false,
+  directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
+  frames: number[] = [0, 1]
+): Promise<void> {
+  if (typeof window === 'undefined') return;
+  const norm = normalizeOutfitId(outfitId);
+  const caps = getOutfitCapabilities(norm);
+  const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+  const effectiveMounted = isMounted && caps.hasMountRider;
+
+  for (const dir of directions) {
+    for (const f of frames) {
+      if (caps.maxFrames <= 3 && f > 2) continue;
+      getRecoloredCanvasSync(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
+    }
   }
 }
 
@@ -899,19 +909,47 @@ export function getRecoloredCanvasSync(
     // DO NOT cache under definitive key in recoloredCanvasCache!
     // Return provisional fallback so display doesn't flicker or become invisible
     if (effectiveMounted) {
-      // 1. Try mounted idle frame in current direction
+      // 1. Try mounted idle frame in CURRENT DIRECTION strictly
       const dirMountFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, effectiveAddons, mount, true);
       const dirMountFallback = recoloredCanvasCache.get(dirMountFallbackKey);
       if (dirMountFallback) return dirMountFallback;
 
-      // 2. Try mounted idle frame in south direction
-      const southMountFallbackKey = getCanvasCacheKey(norm, gender, 'south', 0, colors, effectiveAddons, mount, true);
-      const southMountFallback = recoloredCanvasCache.get(southMountFallbackKey);
-      if (southMountFallback) return southMountFallback;
-
-      // 3. Try any provisional canvas for this key
+      // 2. Try provisional canvas for this exact key (direction + frame)
       const provFallback = provisionalCanvasCache.get(key);
       if (provFallback) return provFallback;
+
+      // 3. Try provisional canvas for current direction idle
+      const provDirFallback = provisionalCanvasCache.get(dirMountFallbackKey);
+      if (provDirFallback) return provDirFallback;
+
+      // 4. Try constructing an immediate provisional composition using current direction f0 mount
+      const f0MountUrl = mount && mount !== 'none' ? `/generated/mounts/${normalizeMountId(mount)}-${direction}-f0.png` : undefined;
+      const f0MountImg = f0MountUrl ? imageElementCache.get(f0MountUrl) : undefined;
+      const isF0MountReady = !!(f0MountImg && f0MountImg.complete && f0MountImg.naturalWidth > 0);
+
+      const f0BaseUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-base.png`;
+      const f0MaskUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-mask.png`;
+      const f0BaseImg = imageElementCache.get(f0BaseUrl) || baseImg;
+      const f0MaskImg = imageElementCache.get(f0MaskUrl) || maskImg;
+      const isF0RiderReady = !!(f0BaseImg && f0BaseImg.complete && f0BaseImg.naturalWidth > 0 && f0MaskImg && f0MaskImg.complete && f0MaskImg.naturalWidth > 0);
+
+      if (isF0RiderReady && (!f0MountUrl || isF0MountReady)) {
+        const provW = 64;
+        const provH = 64;
+        const provCanvas = document.createElement('canvas');
+        provCanvas.width = provW;
+        provCanvas.height = provH;
+        const provCtx = provCanvas.getContext('2d');
+        if (provCtx) {
+          if (f0MountImg) {
+            provCtx.drawImage(f0MountImg, 0, 0);
+          }
+          const offset = getMountDisplacementOffset(norm, gender, mount);
+          drawRecoloredLayer(provCtx, f0BaseImg!, f0MaskImg!, colors, provW, provH, offset.x, offset.y);
+          provisionalCanvasCache.set(key, provCanvas);
+          return provCanvas;
+        }
+      }
     } else {
       // 4. Fallback for unmounted: current direction frame 0
       const dirFallbackKey = getCanvasCacheKey(norm, gender, direction, 0, colors, effectiveAddons, undefined, false);

@@ -2,7 +2,9 @@
 
 import rawMountsJson from '@/content/generated/mounts.json';
 import { ALL_SPELL_ICON_URLS } from '@/apps/web/components/Tibia11ActionIcon';
-import { imageElementCache, loadImage } from '@/apps/web/lib/outfitRecolor';
+import { imageElementCache, loadImage, prepareAppearanceCanvas } from '@/apps/web/lib/outfitRecolor';
+
+import { compileAppearanceManifest } from './appearanceManifest';
 
 export interface PreloadProgressState {
   progress: number; // 0 to 100
@@ -39,8 +41,9 @@ export interface ActivePlayerPreloadContext {
 }
 
 /**
- * Phase 150: Extrai os assets fundamentais e prioritários estritamente para o personagem ativo.
- * Garante que traje (idle + passos de caminhada f1..f4), montaria ativa e chão do spawn carregem 100% no Frame 1.
+ * Phase 178: Extrai os assets fundamentais e prioritários estritamente para o personagem ativo
+ * usando o manifesto canônico unificado (appearanceManifest).
+ * Garante que traje (idle + passos de caminhada f1..f4), montaria ativa (f0..f4) e chão do spawn carreguem 100% no Frame 1.
  */
 export function compileActivePlayerAssetUrls(ctx?: ActivePlayerPreloadContext): CategorizedAssetUrls {
   const mapUrls = new Set<string>();
@@ -51,43 +54,25 @@ export function compileActivePlayerAssetUrls(ctx?: ActivePlayerPreloadContext): 
   const itemUrls = new Set<string>();
   const audioUrls = new Set<string>();
 
-  const directions = ['south', 'east', 'north', 'west'] as const;
-
-  // 1. Outfit do jogador ativo: frames idle f0 e passos de caminhada f1..f4 nas 4 direções
-  const rawOutfit = (ctx?.outfit || 'knight').toLowerCase().trim();
-  const cleanOutfit = rawOutfit.replace(/[^a-z0-9]+/g, '-');
-  const outfit = cleanOutfit.includes('sorcerer') ? 'mage' : cleanOutfit.includes('paladin') ? 'hunter' : (cleanOutfit || 'knight');
-  const gender = ctx?.gender === 'female' ? 'female' : 'male';
-
-  outfitUrls.add(`/generated/outfit-thumbs/${outfit}.png`);
-  outfitUrls.add(`/generated/outfit-thumbs/citizen.png`);
-
-  directions.forEach((dir) => {
-    // Idle frame f0
-    outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-base.png`);
-    outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-mask.png`);
-    // Walk frames prioritários f1..f4 (garante passos fluidos sem deslizar)
-    for (let f = 1; f <= 4; f++) {
-      outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-base.png`);
-      outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-mask.png`);
-    }
+  // 1. Compilação integral da aparência ativa através do manifesto canônico
+  const manifest = compileAppearanceManifest({
+    outfit: ctx?.outfit,
+    gender: ctx?.gender,
+    addons: ctx?.addons,
+    mount: ctx?.mount,
+    isMounted: ctx?.isMounted,
   });
 
-  // 2. Montaria ativa do jogador (somente a montaria que ele estiver usando!)
-  if (ctx?.isMounted && ctx?.mount && ctx?.mount !== 'none') {
-    const mountId = ctx.mount.toLowerCase().trim();
-    directions.forEach((dir) => {
-      mountUrls.add(`/generated/mounts/${mountId}-${dir}-f0.png`);
-    });
-  }
+  manifest.outfitUrls.forEach((u) => outfitUrls.add(u));
+  manifest.mountUrls.forEach((u) => mountUrls.add(u));
 
-  // 3. Atlases de Textura do mundo de Thais, criaturas/UI, magias/runas e equipamentos
+  // 2. Atlases de Textura do mundo de Thais, criaturas/UI, magias/runas e equipamentos
   mapUrls.add('/generated/atlases/thais-atlas.png');
   mapUrls.add('/generated/atlases/creatures-atlas.png');
   mapUrls.add('/generated/atlases/spells-atlas.png');
   mapUrls.add('/generated/atlases/equipment-atlas.png');
 
-  // 4. Magias da hotbar do jogador
+  // 3. Magias da hotbar do jogador
   if (ctx?.hotbarUrls && ctx.hotbarUrls.length > 0) {
     ctx.hotbarUrls.forEach((url) => {
       if (url) spellUrls.add(url);
@@ -96,11 +81,11 @@ export function compileActivePlayerAssetUrls(ctx?: ActivePlayerPreloadContext): 
     ['/spells/exura.png', '/spells/exori.png', '/potions/health-potion.png', '/potions/mana-potion.png'].forEach((u) => spellUrls.add(u));
   }
 
-  // 5. Itens e moedas essenciais
+  // 4. Itens e moedas essenciais
   itemUrls.add('/assets/items/item-2160.png'); // Crystal Coin / Gold
   itemUrls.add('/assets/items/item-2148.png'); // Gold Coin
 
-  // 6. Áudio essencial de Thais
+  // 5. Áudio essencial de Thais
   audioUrls.add('/songs/sunset-in-the-village.mp3');
 
   return {
@@ -266,6 +251,9 @@ async function preloadBatchWithConcurrency(
 class AssetPreloaderService {
   private isPreloading = false;
   private isFinished = false;
+  private isAborted = false;
+  private isSkipRequested = false;
+  private isEssentialLoaded = false;
   private progress = 0;
   private message = 'Iniciando carregamento do mundo...';
   private currentCategory = '';
@@ -294,7 +282,11 @@ class AssetPreloaderService {
   }
 
   public isComplete(): boolean {
-    return this.isFinished;
+    return this.isFinished || this.isEssentialLoaded;
+  }
+
+  public isEssentialComplete(): boolean {
+    return this.isEssentialLoaded || this.isFinished;
   }
 
   public getProgress(): number {
@@ -316,6 +308,22 @@ class AssetPreloaderService {
     });
   }
 
+  /**
+   * Solicita o encerramento visual (ex: clique em Pular ou tecla Enter/Esc).
+   * Se os recursos essenciais (traje, montaria, mapa) já estiverem prontos, finaliza a tela.
+   * Se ainda não estiverem, agenda a finalização imediata assim que a camada essencial terminar,
+   * SEM abortar o download dos arquivos em segundo plano.
+   */
+  public requestSkip(): void {
+    this.isSkipRequested = true;
+    if (this.isEssentialLoaded || this.isFinished) {
+      this.markComplete();
+    } else {
+      this.message = 'Finalizando recursos essenciais da aparência...';
+      this.notify();
+    }
+  }
+
   public markComplete(): void {
     if (this.safetyTimer) {
       clearTimeout(this.safetyTimer);
@@ -323,30 +331,34 @@ class AssetPreloaderService {
     }
     this.progress = 100;
     this.isFinished = true;
+    this.isEssentialLoaded = true;
     this.isPreloading = false;
     this.message = 'Mundo 100% carregado! Entrando em Thais...';
     this.notify();
   }
 
   /**
-   * Phase 150: Pré-carrega prioritariamente os assets exclusivos do personagem ativo
-   * e libera a entrada no jogo sem cortes prematuros nem dependência de 1.900 arquivos.
+   * Phase 178: Pré-carrega de forma robusta e garantida os recursos da aparência ativa
+   * e do mundo, sem interrupções prematuras causadas por pular a tela.
    */
   public async startPreload(ctx?: ActivePlayerPreloadContext): Promise<void> {
     if (this.isPreloading || this.isFinished) return;
     this.isPreloading = true;
     this.isFinished = false;
+    this.isAborted = false;
+    this.isSkipRequested = false;
+    this.isEssentialLoaded = false;
     this.progress = 0;
 
     if (this.safetyTimer) {
       clearTimeout(this.safetyTimer);
     }
-    // Timeout emergencial ágil de 3.5s para garantir entrada imediata mesmo em oscilação de rede
+    // Timeout emergencial fail-safe de 8s caso a conexão falhe catastroficamente
     this.safetyTimer = setTimeout(() => {
       if (!this.isFinished) {
         this.markComplete();
       }
-    }, 3500);
+    }, 8000);
 
     const categorized = compileActivePlayerAssetUrls(ctx);
     const allCategories: Array<{
@@ -354,13 +366,14 @@ class AssetPreloaderService {
       label: string;
       weight: number; // Porcentagem do total
       urls: string[];
+      isEssential: boolean;
     }> = [
-      { key: 'outfits', label: 'traje e animações de caminhada', weight: 50, urls: categorized.outfits },
-      { key: 'mounts', label: 'montaria ativa', weight: 15, urls: categorized.mounts },
-      { key: 'map', label: 'mapa e templo de Thais', weight: 25, urls: categorized.map },
-      { key: 'spells', label: 'ações da hotbar', weight: 5, urls: categorized.spells },
-      { key: 'items', label: 'equipamentos iniciais', weight: 3, urls: categorized.items },
-      { key: 'audio', label: 'áudio ambiente', weight: 2, urls: categorized.audio },
+      { key: 'outfits', label: 'traje e passos de caminhada', weight: 45, urls: categorized.outfits, isEssential: true },
+      { key: 'mounts', label: 'montaria ativa e direções', weight: 25, urls: categorized.mounts, isEssential: true },
+      { key: 'map', label: 'mapa e templo de Thais', weight: 20, urls: categorized.map, isEssential: true },
+      { key: 'spells', label: 'ações da hotbar', weight: 5, urls: categorized.spells, isEssential: false },
+      { key: 'items', label: 'equipamentos iniciais', weight: 3, urls: categorized.items, isEssential: false },
+      { key: 'audio', label: 'áudio ambiente', weight: 2, urls: categorized.audio, isEssential: false },
     ];
     const categories = allCategories.filter((c) => c.urls.length > 0);
 
@@ -370,7 +383,7 @@ class AssetPreloaderService {
     let accumulatedWeight = 0;
 
     for (const cat of categories) {
-      if (this.isFinished) break;
+      if (this.isAborted) break;
       this.currentCategory = cat.key;
       this.message = `Carregando ${cat.label}...`;
       this.notify();
@@ -382,7 +395,7 @@ class AssetPreloaderService {
         cat.urls,
         cat.key === 'audio' ? 2 : 12,
         () => {
-          if (this.isFinished) return;
+          if (this.isAborted) return;
           catLoaded++;
           this.loadedCount++;
           const catProgress = (catLoaded / catTotal) * cat.weight;
@@ -393,13 +406,47 @@ class AssetPreloaderService {
       );
 
       accumulatedWeight += cat.weight;
-      if (!this.isFinished) {
+      if (!this.isAborted) {
         this.progress = Math.min(99, Math.round(accumulatedWeight));
         this.notify();
       }
+
+      // Se todas as categorias essenciais já foram processadas
+      const essentialDone = categories
+        .filter((c) => c.isEssential)
+        .every((c) => categories.indexOf(c) <= categories.indexOf(cat));
+
+      if (essentialDone && !this.isEssentialLoaded) {
+        if (ctx) {
+          const colors = ctx.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+          const manifest = compileAppearanceManifest({
+            outfit: ctx.outfit,
+            gender: ctx.gender,
+            addons: ctx.addons,
+            mount: ctx.mount,
+            isMounted: ctx.isMounted,
+          });
+          await prepareAppearanceCanvas(
+            manifest.outfitId,
+            manifest.gender,
+            colors,
+            manifest.addons,
+            manifest.mountId,
+            manifest.isMounted,
+            manifest.directions,
+            manifest.essentialFrames
+          );
+        }
+        this.isEssentialLoaded = true;
+        if (this.isSkipRequested && !this.isFinished) {
+          this.markComplete();
+        }
+      }
     }
 
-    this.markComplete();
+    if (!this.isFinished) {
+      this.markComplete();
+    }
 
     // Streaming silencioso em segundo plano para o restante do catálogo (sem bloquear a jogabilidade)
     void this.startDeferredBackgroundPreload();
@@ -433,8 +480,11 @@ class AssetPreloaderService {
       clearTimeout(this.safetyTimer);
       this.safetyTimer = null;
     }
+    this.isAborted = true;
     this.isPreloading = false;
     this.isFinished = false;
+    this.isSkipRequested = false;
+    this.isEssentialLoaded = false;
     this.progress = 0;
     this.loadedCount = 0;
     this.totalCount = 0;

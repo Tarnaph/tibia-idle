@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-15T00:30:00.000Z"
-last_activity: "2026-09-14 — Concluída Phase 177: Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados."
+last_updated: "2026-09-15T13:30:00.000Z"
+last_activity: "2026-09-15 — Concluída Phase 178: Estabilidade Online, Preparação Visual Unificada, Sincronização Estrita de Montarias e Deploy VPS."
 progress:
-  total_phases: 177
-  completed_phases: 177
-  total_plans: 183
-  completed_plans: 183
+  total_phases: 178
+  completed_phases: 178
+  total_plans: 184
+  completed_plans: 184
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Concluída Phase 177 - Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados.
+**Current focus:** Concluída Phase 178 - Estabilidade Online, Preparação Visual Unificada, Sincronização Estrita de Montarias e Deploy VPS.
 
 ## Current Position
 
-Phase: 177 of 177 (Concluída)  
+Phase: 178 of 178 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-14 — Visibilidade do título [GOD] do próprio admin na arena e HUD, eliminação de fallback a pé para addons montados, tabela canônica de stages de EXP (50x a 1.2x) e skills/magic level com transição precisa de excedente, bônus de stamina verde de +50% EXP (39h a 42h) individual na party e preparação para deploy VPS.
+Last activity: 2026-09-15 — Desacoplamento da tela de apresentação visual da prontidão do motor gráfico, manifesto unificado dinâmico consultando capabilities de frames de outfits/addons/montarias, invalidação limpa de composições provisórias em outfitRecolor, pré-renderização de canvases essenciais e sincronização total na VPS.
 
 Progress: [██████████] 100%
 

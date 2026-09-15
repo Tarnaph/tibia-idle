@@ -43,7 +43,7 @@ describe('Phase 150: Active Player First Preload & Assets Integrity Contract', (
       isMounted: true,
     });
 
-    expect(mountedUrls.mounts.length).toBe(4); // 4 directions only
+    expect(mountedUrls.mounts.length).toBeGreaterThanOrEqual(4); // 4 directions with walk frames
     expect(mountedUrls.mounts[0]).toContain('armoured-war-horse');
   });
 

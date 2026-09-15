@@ -3328,6 +3328,21 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-177-stages-god-title-and-mounted-addons/177-SUMMARY.md`
 
+### Phase 178: Estabilidade Online, Preparação Visual Unificada e Sincronização Estrita de Montarias
+
+**Goal**: Garantir a estabilidade e sincronização imediata da experiência online: eliminar animações atrasadas e rotação desalinhada de montarias/corpo, separar a prontidão real de renderização do encerramento visual, unificar a preparação de recursos via manifesto dinâmico sem solicitar frames inexistentes, implementar invalidação limpa de caches provisórios e validar o ambiente online na VPS com múltiplas contas.  
+**Depends on**: Phase 177  
+**Requirements**:
+1. Redefinição de Carregamento Concluído: Desacoplar apresentação visual da prontidão do motor gráfico; o estado "pronto" exige download, decodificação e pré-renderização dos canvases recoloridos em todas as direções antes de liberar o gameplay, com fail-safe sem mascarar pendências.
+2. Cache e Sincronia Estrita de Montarias: Eliminar envenenamento de cache; garantir que corpo e montaria compartilhem estritamente a mesma direção e fase de animação; invalidar caches provisórios imediatamente na chegada dos assets definitivos.
+3. Manifesto Dinâmico de Aparência: Compilar apenas os frames e direções suportados por cada outfit, addon e montaria (ex: outfits com 3 frames como sire não requisitam f3..f8), reduzindo requisições HTTP redundantes.
+4. Publicação na VPS e Validação Online: Sincronizar código com a VPS, reiniciar serviços PM2, medir latência e respostas HTTP, e validar em browser com cache vazio/duas contas.
+
+**Plans:**
+- [x] 178-01-PLAN: Estabilidade Online, Preparação Visual Unificada, Sincronização Estrita de Montaria e Deploy VPS.
+
+- Resumo de entrega: `.planning/phases/phase-178-online-stability-and-mount-sync/178-SUMMARY.md`
+
 
 
 
