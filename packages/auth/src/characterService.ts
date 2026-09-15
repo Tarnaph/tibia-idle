@@ -589,7 +589,16 @@ export class CharacterService {
         if (vocId) updateData.vocationId = vocId;
       }
       if (data.promotion !== undefined) {
-        if (data.promotion && targetLevel < 20 && !options?.isInternal && !(data as any).isManualAdminGrant) {
+        const isAlreadyPromoted = Boolean(
+          existing.promotion ||
+          (existing.vocationName && (
+            existing.vocationName.toLowerCase().startsWith('master ') ||
+            existing.vocationName.toLowerCase().startsWith('elder ') ||
+            existing.vocationName.toLowerCase().startsWith('royal ') ||
+            existing.vocationName.toLowerCase().startsWith('elite ')
+          ))
+        );
+        if (data.promotion && !isAlreadyPromoted && targetLevel < 20 && !options?.isInternal && !(data as any).isManualAdminGrant) {
           throw new Error('Promoção de vocação exige nível 20 ou superior.');
         }
         updateData.promotion = data.promotion;

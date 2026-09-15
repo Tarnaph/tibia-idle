@@ -70,7 +70,7 @@ function getDefaultWindows(viewportWidth = 1280, viewportHeight = 720): Record<W
       x: Math.max(320, w - 350),
       y: 54,
       width: 340,
-      isOpen: true,
+      isOpen: false,
       isMinimized: false,
       zIndex: 13,
     },
@@ -133,10 +133,20 @@ export function WindowManagerProvider({ children }: { children: React.ReactNode 
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as Record<WindowId, Partial<WindowState>>;
+        // Expurgar janela legada de Party de preferências antigas no localStorage
+        if (parsed.party) {
+          delete (parsed as any).party;
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+          } catch {
+            // Ignore write errors
+          }
+        }
+
         const defaults = getDefaultWindows(window.innerWidth, window.innerHeight);
         const merged: Record<WindowId, WindowState> = { ...defaults };
         for (const key of Object.keys(defaults) as WindowId[]) {
-          if (parsed[key]) {
+          if (parsed[key] && key !== 'party') {
             merged[key] = {
               ...defaults[key],
               ...parsed[key],
@@ -145,6 +155,7 @@ export function WindowManagerProvider({ children }: { children: React.ReactNode 
             };
           }
         }
+        merged.party.isOpen = false;
         setWindows(merged);
       } else {
         setWindows(getDefaultWindows(window.innerWidth, window.innerHeight));

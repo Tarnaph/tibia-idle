@@ -235,22 +235,45 @@ export function WindowDockBar({
               position: 'relative',
               width: '38px',
               height: '38px',
+              minWidth: '38px',
+              minHeight: '38px',
               background: '#0a0d14',
               cursor: 'pointer',
               border: isAvatarHovered ? '2px solid #38bdf8' : '2px solid #232c3d',
+              borderRadius: '4px',
               transition: 'all 0.15s ease-in-out',
               transform: isAvatarHovered ? 'scale(1.04)' : 'scale(1)',
               boxShadow: isAvatarHovered ? '0 0 12px rgba(56, 189, 248, 0.4)' : 'none',
             }}
           >
-            <img
-              src={`/assets/avatars/avatar-${avatarId}.png`}
-              alt={charName}
-              className="huntera-avatar-img"
-              onError={(e) => {
-                e.currentTarget.src = '/assets/avatars/avatar-1.png';
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                overflow: 'hidden',
+                borderRadius: '3px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
-            />
+            >
+              <img
+                src={`/assets/avatars/avatar-${avatarId}.png`}
+                alt={charName}
+                className="huntera-avatar-img"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/avatars/avatar-1.png';
+                }}
+              />
+            </div>
             {/* Quick floating "Personagem" tooltip on hover */}
             {isAvatarHovered && (
               <div
@@ -717,8 +740,6 @@ export function WindowDockBar({
           onClick={() => {
             if (onOpenParty) {
               onOpenParty();
-            } else {
-              toggleWindow('party');
             }
           }}
           title="Gerenciador de Party (Grupo)"

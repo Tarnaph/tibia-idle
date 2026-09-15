@@ -337,6 +337,39 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
       ).rejects.toThrow(/Promoção de vocação exige nível 20/);
     });
 
+    it('permite salvamento de personagem já promovido mesmo com nível inferior a 20', async () => {
+      const mockPrisma = {
+        character: {
+          findUnique: vi.fn().mockResolvedValue({
+            id: 'char-already-promoted',
+            level: 16,
+            experience: BigInt(25000),
+            vocationName: 'Master Sorcerer',
+            promotion: true,
+            saveVersion: 1,
+            skills: [],
+          }),
+          update: vi.fn().mockResolvedValue({
+            id: 'char-already-promoted',
+            level: 16,
+            vocationName: 'Master Sorcerer',
+            promotion: true,
+            saveVersion: 2,
+          }),
+        },
+        $transaction: vi.fn().mockImplementation(async (cb: any) => cb(mockPrisma)),
+      } as any;
+
+      const service = new CharacterService(mockPrisma);
+
+      const result = await service.saveCharacterProgress('char-already-promoted', {
+        saveVersion: 1,
+        promotion: true,
+        vocationName: 'Master Sorcerer',
+      });
+      expect(result).toBeDefined();
+    });
+
     it('impede saltos anômalos de habilidade (+3 ou mais em único salvamento)', async () => {
       const mockPrisma = {
         character: {

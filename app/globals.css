@@ -6634,15 +6634,27 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .huntera-avatar-box {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
   background: #0d0a09;
   border: 1px solid #e5c04b;
-  border-radius: 3px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.huntera-avatar-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
 }
 
 .avatar-sprite-placeholder {
@@ -7026,6 +7038,8 @@ h1, h2, h3, p { margin: 0; }
 .member-avatar-box {
   width: 28px;
   height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   background: #0d0a09;
   border: 1px solid #5a4325;
   border-radius: 3px;
@@ -7033,6 +7047,27 @@ h1, h2, h3, p { margin: 0; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.member-avatar-box .avatar-preview {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.member-avatar-box img,
+.squad-avatar-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
 }
 
 .avatar-placeholder {

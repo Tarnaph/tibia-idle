@@ -70,7 +70,6 @@ import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
 import { AdvancedMetricsWindow } from './AdvancedMetricsWindow';
-import { PartyWindow } from './window/PartyWindow';
 import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { PartyInvitationModal } from './party/PartyInvitationModal';
@@ -3752,55 +3751,6 @@ function GamePrototypeContent() {
         onClose={() => setSkillsModalOpen(false)}
         onPromote={(charId) => handlePromoteCharacter(charId)}
       />
-
-      {/* Window 3: Party & Squad */}
-      <DraggableWindow id="party" icon="👥" badge={<small className="window-badge">{isPartyCreated || multiplayerParty ? (multiplayerParty ? multiplayerParty.members.length : partyMemberIds.length) : 0}/4</small>}>
-        <PartyWindow
-          squadMembers={game.session.characters}
-          savedCharacters={savedPool}
-          activeCharacterId={activeCharacter.id}
-          userLevel={accountMaxLevel}
-          userRole={onlineAccount?.role}
-          partyMemberIds={partyMemberIds}
-          isPartyCreated={isPartyCreated || multiplayerParty !== null}
-          squadFollowCity={squadFollowCity}
-          onToggleSquadFollowCity={() => setSquadFollowCity((prev) => !prev)}
-          onCreateParty={handleCreateParty}
-          onDisbandParty={handleDisbandParty}
-          onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
-          onAddToParty={handleAddToParty}
-          onRemoveFromParty={handleRemoveFromParty}
-          onDeleteSquadMember={(id) => {
-            handleRemoveFromParty(id);
-            setGame((cur) => removePartyMember(cur, id));
-          }}
-          onAddSquadMember={() => setCreateMemberModalOpen(true)}
-          onOpenUnifiedModal={() => setPartyModalOpen(true)}
-          onToggleSavedCharacter={handleToggleSavedCharacter}
-          onInvitePlayer={(name) => handleInviteParty(name)}
-          onLeaveParty={() => {
-            gameNetwork.sendPartyLeave();
-            setMultiplayerParty(null);
-            setPartyMemberIds([activeCharacter.id]);
-            setSaleMessage('Você saiu da party multiplayer.');
-          }}
-          partyOnlineMembers={
-            multiplayerParty
-              ? multiplayerParty.members
-                  .filter((m) => m.sessionId !== gameNetwork.LocalPlayerId)
-                  .map((m) => ({
-                    id: m.sessionId,
-                    name: m.name + (m.isLeader ? ' ⭐' : ''),
-                    vocation: VOCATION_MAP[m.vocationId] || 'Knight',
-                    level: m.level,
-                    hp: m.hp,
-                    maxHp: m.maxHp,
-                    isRealPlayer: true,
-                  }))
-              : []
-          }
-        />
-      </DraggableWindow>
 
       {/* Window 5: Advanced Metrics & Analyzers */}
       <DraggableWindow id="metrics" icon="📊">
