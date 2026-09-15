@@ -12,3 +12,4 @@ export * from './accountService';
 export * from './characterService';
 export * from './characterSaveLock';
 export * from './xpRateLimiter';
+export * from './characterContextRegistry';

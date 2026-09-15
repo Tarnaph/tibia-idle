@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-14T23:58:00.000Z"
-last_activity: "2026-09-14 — Concluída Phase 176: Administrador e Título Visual do Wolfy, Uso de Dummy por Botão Direito e Sincronização de Aparência Remota."
+last_updated: "2026-09-15T00:30:00.000Z"
+last_activity: "2026-09-14 — Concluída Phase 177: Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados."
 progress:
-  total_phases: 176
-  completed_phases: 176
-  total_plans: 182
-  completed_plans: 182
+  total_phases: 177
+  completed_phases: 177
+  total_plans: 183
+  completed_plans: 183
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Concluída Phase 176 - Administrador e Título Visual do Wolfy, Uso de Dummy por Botão Direito e Sincronização de Aparência Remota.
+**Current focus:** Concluída Phase 177 - Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados.
 
 ## Current Position
 
-Phase: 176 of 176 (Concluída)  
+Phase: 177 of 177 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-14 — Promoção de Wolfy para ADMIN com adminTitle 'GOD' em dourado no nameplate e chat sem alterar nome no banco, menu de contexto com botão direito em dummies de Thais (⚔️ Usar) com posicionamento inteligente e prevenção de timers duplicados, e correção de aparência de remotos (preservação de cor 0, addons e propagação de gênero).
+Last activity: 2026-09-14 — Visibilidade do título [GOD] do próprio admin na arena e HUD, eliminação de fallback a pé para addons montados, tabela canônica de stages de EXP (50x a 1.2x) e skills/magic level com transição precisa de excedente, bônus de stamina verde de +50% EXP (39h a 42h) individual na party e preparação para deploy VPS.
 
 Progress: [██████████] 100%
 
@@ -99,11 +99,13 @@ Progress: [██████████] 100%
 | 174. Caixa da Party, Ouro Unificado e Blindagem de Autosave | 1 | - | - | Complete |
 | 175. Resolução Completa do FIX.md (Persistência Diferencial de Alts, Otimização de Entrada, Ciclo de Áudio do Bardo e Hotbar Canônica) | 1 | - | - | Complete |
 | 176. Administrador e Título Visual do Wolfy, Uso de Dummy por Botão Direito e Sincronização de Aparência Remota | 1 | - | - | Complete |
+| 177. Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados | 1 | - | - | Complete |
 
 ## Accumulated Context
 
 ### Decisions
 
+- [Phase 177]: Visibilidade do prefixo `[GOD]` dourado (`#ffd700`/`0xffd700`) para administradores em sua própria visão (arena `PixiArena`, dock bar `WindowDockBar`, top navigation `TopNavigation`) mantendo nome canônico no banco de dados; remoção definitiva do fallback incorreto para addon a pé em `apps/web/lib/outfitRecolor.ts` (substituindo por frame f0 montado e mantendo sela perfeita); tabela canônica de estágios de progressão de EXP (50x a 1.2x) e skills/magic level (10x a 2x) com transição fracionária de excedente e custos de mana reais preservados; bônus de +50% de EXP na stamina verde (39h a 42h) individual na party; ampliação segura do rate limiter para 120x sem falsos positivos.
 - [Phase 176]: Promoção de `Wolfy` a `ADMIN` com adição da coluna persistente `adminTitle String?` no Prisma, mantendo seu nome original `Wolfy` intacto e exibindo `[GOD] Wolfy` (dourado `#ffd700` + verde `#67de82`) no mundo e chat; menu de contexto de clique direito nos dummies de Thais (Z:7) acionando treino inteligente com prevenção de timers duplicados e busca de vaga livre; e correção definitiva na renderização de remotos (preservação de cores `0`, addons canônicos e propagação de gênero sem fallback fixo para `male`).
 - [Phase 175]: Salvamento diferencial `replaceFullInventory: false` para alts prevenindo exclusão de mochilas e consumíveis, reconciliação atômica no 409, dock bar ligada a coins da conta, aceleração de carregamento e parada atômica do bardo da tela inicial no unmount/login, preservação de slots de poções limpos e custos canônicos de ações.
 - [Phase 174]: Definição canônica de que o ouro do jogo pertence à Caixa da Party (`session.gold`). Alinhamento dos logs de loot (`Loot (Gold): +X gold adicionados à Caixa da Party.`), titular exclusivo da Caixa da Party no banco de dados (`onlineCharacter` / líder da sessão) prevenindo duplicação em alts, desbloqueio de salvamento periódico com acompanhante selecionado no `GamePrototype.tsx`, herança de saldo ao logar com alt, e fala flutuante `Aaaah... (-50gp)` com log explicativo no uso de auto-poções.

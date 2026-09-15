@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { formatStaminaTime, getStaminaPercentage, type StaminaMode } from '@/packages/domain/src';
+import { formatStaminaTime, getStaminaPercentage, isGreenStaminaActive, type StaminaMode } from '@/packages/domain/src';
 
 export interface StaminaBarProps {
   staminaMinutes: number;
@@ -12,8 +12,8 @@ export interface StaminaBarProps {
 }
 
 export const StaminaBar: React.FC<StaminaBarProps> = ({
-  staminaMinutes = 15,
-  maxStaminaMinutes = 15,
+  staminaMinutes = 2520,
+  maxStaminaMinutes = 2520,
   mode = 'resting',
   showDetails = true,
   className = '',
@@ -21,8 +21,9 @@ export const StaminaBar: React.FC<StaminaBarProps> = ({
   const percentage = getStaminaPercentage(staminaMinutes, maxStaminaMinutes);
   const formattedCurrent = formatStaminaTime(staminaMinutes);
   const formattedMax = formatStaminaTime(maxStaminaMinutes);
+  const isGreen = isGreenStaminaActive(staminaMinutes);
 
-  // Bar color based on remaining percentage
+  // Bar color based on remaining percentage & green stamina status
   let barColorClass = 'bg-emerald-500 shadow-emerald-900/50';
   let textColorClass = 'text-emerald-400';
   if (percentage <= 15) {
@@ -31,6 +32,9 @@ export const StaminaBar: React.FC<StaminaBarProps> = ({
   } else if (percentage <= 50) {
     barColorClass = 'bg-amber-500 shadow-amber-900/50';
     textColorClass = 'text-amber-400';
+  } else if (isGreen) {
+    barColorClass = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]';
+    textColorClass = 'text-emerald-300 font-bold';
   }
 
   // Mode badge text & color
@@ -47,7 +51,7 @@ export const StaminaBar: React.FC<StaminaBarProps> = ({
   return (
     <div
       className={`relative flex flex-col gap-1 p-2 rounded bg-slate-950/80 border border-slate-800 text-xs font-sans ${className}`}
-      title={`Estamina: ${formattedCurrent} / ${formattedMax} (${percentage.toFixed(1)}%).\nCapacidade máxima aumenta com o maior nível da conta.\nRecupera 3x mais rápido na Zona de Treinamento.`}
+      title={`Estamina: ${formattedCurrent} / ${formattedMax} (${percentage.toFixed(1)}%).\n${isGreen ? '🟢 Bônus de Stamina Verde ativo: +50% EXP adicional!\n' : ''}Capacidade oficial de 42 horas.\nRecupera 3x mais rápido na Zona de Treinamento.`}
     >
       <div className="flex items-center justify-between font-semibold tracking-wide">
         <span className="flex items-center gap-1.5 text-slate-300">
@@ -55,6 +59,11 @@ export const StaminaBar: React.FC<StaminaBarProps> = ({
           <span className={`text-[10px] px-1.5 py-0.5 rounded border ${modeBadgeClass}`}>
             {modeLabel}
           </span>
+          {isGreen && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded border bg-emerald-950/80 text-emerald-300 border-emerald-500/60 font-semibold shadow-[0_0_6px_rgba(16,185,129,0.3)]">
+              🟢 +50% EXP
+            </span>
+          )}
         </span>
         <span className={`font-mono text-[11px] ${textColorClass}`}>
           {formattedCurrent} <span className="text-slate-500">/ {formattedMax}</span>
@@ -70,7 +79,7 @@ export const StaminaBar: React.FC<StaminaBarProps> = ({
 
       {showDetails && (
         <div className="flex justify-between items-center text-[10px] text-slate-400 px-0.5">
-          <span>Capacidade: {formattedMax}</span>
+          <span>Capacidade: {formattedMax} {isGreen ? '(Stamina Verde Ativa)' : ''}</span>
           <span>{percentage.toFixed(0)}%</span>
         </div>
       )}

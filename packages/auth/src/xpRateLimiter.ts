@@ -13,18 +13,19 @@ export interface XpRateLimiterOptions {
   isHunting?: boolean;
 }
 
-// Taxa máxima durante caçadas ativas: 5.000 XP/segundo (~18 milhões de XP por hora)
-export const MAX_EXP_PER_SECOND = 5_000;
-// Capacidade do bucket para absorver morte simultânea de packs de monstros ou bosses
-export const MAX_BURST_EXP = 30_000;
+// Taxa máxima durante caçadas ativas com stages altos (até 80x * 1.5 stamina verde = 120x)
+export const MAX_EXP_PER_SECOND = 600_000;
+// Capacidade do bucket para absorver morte simultânea de packs de monstros ou bosses com stages
+export const MAX_BURST_EXP = 1_800_000;
 
 // Taxa máxima fora de caçada (em cidades, treino ou idle): 100 XP/segundo
-export const NON_HUNT_MAX_EXP_PER_SECOND = 100;
-// Burst reduzido fora de caçada
-export const NON_HUNT_MAX_BURST_EXP = 2_000;
+export const NON_HUNT_MAX_EXP_PER_SECOND = 500;
+// Burst fora de caçada
+export const NON_HUNT_MAX_BURST_EXP = 10_000;
 
 export class XpRateLimiter {
   private static trackers = new Map<string, XpBudgetEntry>();
+  private static authorizedExp = new Map<string, number>();
 
   public static getOrCreate(
     characterId: string,
@@ -40,6 +41,47 @@ export class XpRateLimiter {
       this.trackers.set(characterId, entry);
     }
     return entry;
+  }
+
+  /**
+   * Registra a experiência máxima que já foi autorizada e consumida na sessão ativa
+   * (por exemplo, via WebSocket player:syncProgress), evitando que a camada de persistência
+   * cobre uma segunda vez o mesmo ganho ao gravar no banco.
+   */
+  public static recordAuthorizedExp(characterId: string, exp: number): void {
+    if (!characterId) return;
+    const current = this.authorizedExp.get(characterId) || 0;
+    if (exp > current) {
+      this.authorizedExp.set(characterId, exp);
+    }
+  }
+
+  public static getAuthorizedExp(characterId: string): number {
+    if (!characterId) return 0;
+    return this.authorizedExp.get(characterId) || 0;
+  }
+
+  public static clearAuthorizedExp(characterId: string): void {
+    if (!characterId) return;
+    this.authorizedExp.delete(characterId);
+  }
+
+  /**
+   * Reverte (estorna) orçamento de XP debitado caso uma transação ou salvamento
+   * falhe (ex: colisão de versão HTTP 409 ou erro de banco de dados).
+   */
+  public static refund(
+    characterId: string,
+    amount: number,
+    now: number = Date.now(),
+    options?: XpRateLimiterOptions
+  ): void {
+    if (!characterId || amount <= 0) return;
+    const isHunting = options?.isHunting !== false;
+    const maxBurst = isHunting ? MAX_BURST_EXP : NON_HUNT_MAX_BURST_EXP;
+
+    const entry = this.getOrCreate(characterId, now, maxBurst);
+    entry.availableBudget = Math.min(maxBurst, entry.availableBudget + amount);
   }
 
   /**
@@ -80,6 +122,12 @@ export class XpRateLimiter {
 
   public static reset(characterId: string) {
     this.trackers.delete(characterId);
+    this.authorizedExp.delete(characterId);
+  }
+
+  public static resetAll(): void {
+    this.trackers.clear();
+    this.authorizedExp.clear();
   }
 
   public static getActiveTrackerCount(): number {

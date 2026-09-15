@@ -3311,6 +3311,23 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-176-admin-wolfy-dummy-use-and-remote-appearance/176-SUMMARY.md`
 
+### Phase 177: Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados
+
+**Goal**: Atender integralmente aos requisitos de progressão e correções visuais do FIX.md: exibir o título [GOD] do próprio admin localmente na arena e interface, corrigir o alinhamento de addons montados prevenindo fallback a pé, implementar as tabelas canônicas de estágios de EXP (1–8 a 1401+) e skills/magic level com transição precisa de excedente, aplicar bônus de +50% de EXP na stamina verde (39h–42h) individualmente por membro na party e preparar deploy na VPS Hostinger.  
+**Depends on**: Phase 176  
+**Requirements**:
+1. [GOD] Local & Remoto: O símbolo `[GOD]` dos administradores deve aparecer para eles próprios no cliente (em cima do avatar na arena e na dock/topo), não apenas para os outros players.
+2. Addons Desalinhados na Montaria: Eliminar fallback indevido para addon a pé em `outfitRecolor.ts`, garantindo que frames de animação montados usem fallback montado estático `f0` preservando a curvatura e alinhamento da sela.
+3. Stages de EXP por Nível: Tabela progressiva de 50× (nível 1–8) até 1.2× (1401+) centralizada em `packages/domain/src/progressionStages.ts`.
+4. Stages de Skills e Magic Level: Tabela de skills 10× até 2×; Magic level 10× até 2×. Tratamento de excedente com a taxa da nova faixa mantendo custos de mana reais.
+5. Bônus de Stamina Verde (+50% EXP): Capacidade oficial de 42h (2520 min), primeiras 3 horas (>= 2340 min) com +50% de EXP (ex: nível 300 de 15× para 22.5×).
+6. Party, Segurança e Deploy VPS: Divisão de EXP base na party com aplicação de stage e stamina individual por membro; rate limiter de até 120×; deploy com backup do SQLite e PM2 na Hostinger.
+
+**Plans:**
+- [x] 177-01-PLAN: Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados.
+
+- Resumo de entrega: `.planning/phases/phase-177-stages-god-title-and-mounted-addons/177-SUMMARY.md`
+
 
 
 

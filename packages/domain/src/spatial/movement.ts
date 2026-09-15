@@ -225,20 +225,65 @@ export function movePartyTowardTargets(
       }
     } else {
       const currentLockedEnemy = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : undefined;
-      if (currentLockedEnemy) {
-        // 1. Target Lock Ativo: O ator já possui um alvo travado e vivo. Persegue estritamente este alvo sem roubo por proximidade!
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([currentLockedEnemy.id]), activeStrategy, minRange);
-        actor.targetId = currentLockedEnemy.id;
-        if (isMain) {
-          mainTargetId = currentLockedEnemy.id;
-          mainTargetEnemy = currentLockedEnemy;
+      const lockedDist = currentLockedEnemy ? meleeDistance(actor.position, currentLockedEnemy.position) : Number.POSITIVE_INFINITY;
+
+      // 1. Alvo Travado Ativo: se o alvo estiver no alcance de ataque ou adjacente (corpo a corpo), persegue-o.
+      // Se a estratégia for 'closest', reavalia se houver um inimigo mais próximo para não ignorar monstros adjacentes
+      // e não ficar travado em quinas correndo atrás de alvos distantes.
+      if (currentLockedEnemy && (lockedDist <= Math.max(1, range) || (activeStrategy !== 'closest' && lockedDist <= 6))) {
+        const isStillNearest = activeStrategy !== 'closest' || !encounter.enemies.some(
+          (e) => e.alive && e.id !== currentLockedEnemy.id && meleeDistance(actor.position, e.position) < lockedDist
+        );
+        if (isStillNearest) {
+          selected = nearestEnemy(actor, encounter, range, reserved, new Set([currentLockedEnemy.id]), activeStrategy, minRange);
+          if (selected) {
+            actor.targetId = currentLockedEnemy.id;
+            if (isMain) {
+              mainTargetId = currentLockedEnemy.id;
+              mainTargetEnemy = currentLockedEnemy;
+            }
+          }
         }
-      } else if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
-        // 2. Membro secundário seguindo o alvo do líder
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
-        actor.targetId = selected?.enemy.id ?? mainTargetEnemy.id;
-      } else {
-        // 3. Sem alvo travado: Seleciona o alvo mais próximo elegível (auto-retargeting clássico de caçada com prioridade a monstros adjacentes)
+      }
+
+      if (!selected) {
+        // 2. Se a estratégia for 'closest', busca sempre o monstro mais próximo elegível
+        if (activeStrategy === 'closest' || !mainTargetEnemy || actor.characterId === mainActor?.characterId) {
+          if (allowedEnemyIds) {
+            selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange);
+          }
+          if (!selected) {
+            selected = nearestEnemy(actor, encounter, range, reserved, undefined, 'closest', minRange);
+          }
+          if (selected) {
+            actor.targetId = selected.enemy.id;
+            if (isMain) {
+              mainTargetId = selected.enemy.id;
+              mainTargetEnemy = selected.enemy;
+            }
+          }
+        } else if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
+          // Membro secundário seguindo o alvo do líder (quando não for estritamente 'closest')
+          const mainDist = meleeDistance(actor.position, mainTargetEnemy.position);
+          const closest = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange)
+            ?? nearestEnemy(actor, encounter, range, reserved, undefined, 'closest', minRange);
+          if (closest && meleeDistance(actor.position, closest.enemy.position) < mainDist) {
+            selected = closest;
+            actor.targetId = closest.enemy.id;
+          } else {
+            selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
+            if (selected) {
+              actor.targetId = selected.enemy.id;
+            } else if (closest) {
+              selected = closest;
+              actor.targetId = closest.enemy.id;
+            }
+          }
+        }
+      }
+
+      if (!selected) {
+        // 3. Fallback: seleciona o inimigo mais próximo geral
         if (allowedEnemyIds) {
           selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange);
         }

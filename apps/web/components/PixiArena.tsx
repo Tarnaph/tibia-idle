@@ -562,11 +562,15 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           liveIds.add(actor.characterId);
           const outfitKey = character.outfit || character.vocation;
           const mapping = visualAssets.outfits[outfitKey] || visualAssets.outfits[baseVocation(outfitKey)] || visualAssets.outfits['Knight'];
-          const view = views.get(actor.characterId) ?? createView(actor.characterId, mapping, actor.previousPosition, actor.direction, character.name);
+          const adminTitle = (character as any).adminTitle || ((character as any).accountRole === 'admin' ? 'GOD' : undefined);
+          const displayName = adminTitle ? `[${adminTitle}] ${character.name}` : character.name;
+          const view = views.get(actor.characterId) ?? createView(actor.characterId, mapping, actor.previousPosition, actor.direction, displayName);
           if (view.mapping !== mapping) {
             view.mapping = mapping;
           }
-          view.label.text = character.name; view.sprite.alpha = actor.alive ? 1 : 0.45;
+          view.label.text = displayName;
+          view.label.style.fill = adminTitle ? 0xffd700 : 0x67de82;
+          view.sprite.alpha = actor.alive ? 1 : 0.45;
           view.root.visible = latestRef.current.isCharacterVisible !== false && actor.alive;
         }
         for (const enemy of state.encounter.enemies) {

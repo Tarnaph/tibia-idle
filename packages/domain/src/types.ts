@@ -83,6 +83,7 @@ export interface CharacterState {
   targetDistance?: number;
   targetStrategy?: TargetSelectionStrategy;
   gender?: 'male' | 'female';
+  adminTitle?: string;
   outfit?: string;
   mount?: string;
   mountActive?: boolean;
@@ -227,24 +228,24 @@ export type CombatEvent =
   | { type: 'level-up'; characterId: string; level: number; previousLevel?: number; message?: string }
   | { type: 'experience-gained'; characterId: string; amount: number }
   | { type: 'skill-up'; characterId: string; skill: TrainableSkill; level: number }
-  | { type: 'wave-complete'; wave: number }
-  | { type: 'movement'; actorId: string; from: GridPosition; to: GridPosition; durationMs: number }
-  | { type: 'room-complete'; room: number }
-  | { type: 'room-transition'; room: number }
-  | { type: 'hunt-complete' }
-  | { type: 'player-death'; characterId: string }
-  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string; delayMs?: number; element?: string }
-  | { type: 'spell-visual'; sourceId: string; targetId?: string; targetPosition?: GridPosition; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null; delayMs?: number };
+  | { type: 'wave-complete'; wave: number; id?: string }
+  | { type: 'movement'; actorId: string; from: GridPosition; to: GridPosition; durationMs: number; id?: string }
+  | { type: 'room-complete'; room: number; id?: string }
+  | { type: 'room-transition'; room: number; id?: string }
+  | { type: 'hunt-complete'; id?: string }
+  | { type: 'player-death'; characterId: string; id?: string }
+  | { type: 'spell-cast'; sourceId: string; targetId: string; spellId: number; amount: number; healing: boolean; speech?: string; delayMs?: number; element?: string; id?: string }
+  | { type: 'spell-visual'; sourceId: string; targetId?: string; targetPosition?: GridPosition; spellId: number; effectId: number | null; projectileId: number | 'weapon-type' | null; delayMs?: number; id?: string };
 
 export type CombatVisualEvent =
-  | { type: 'basic-attack-started'; sourceId: string; targetId: string; ranged: boolean }
-  | { type: 'projectile-launched'; sourceId: string; targetId: string; projectileId: number }
-  | { type: 'projectile-hit'; sourceId: string; targetId: string; effectId: number }
-  | { type: 'melee-hit'; sourceId: string; targetId: string; effectId: number; blocked: boolean }
-  | { type: 'heal-applied'; sourceId: string; targetId: string; effectId: number }
-  | { type: 'spell-cast-visual'; sourceId: string; targetId: string; effectId: number | null; projectileId: number | null }
-  | { type: 'creature-died'; creatureId: string; corpseId: number }
-  | { type: 'training-action'; sourceId: string; style: 'melee' | 'distance' | 'magic'; effectId: number; projectileId: number | null };
+  | { type: 'basic-attack-started'; sourceId: string; targetId: string; ranged: boolean; id?: string }
+  | { type: 'projectile-launched'; sourceId: string; targetId: string; projectileId: number; id?: string }
+  | { type: 'projectile-hit'; sourceId: string; targetId: string; effectId: number; id?: string }
+  | { type: 'melee-hit'; sourceId: string; targetId: string; effectId: number; blocked: boolean; id?: string }
+  | { type: 'heal-applied'; sourceId: string; targetId: string; effectId: number; id?: string }
+  | { type: 'spell-cast-visual'; sourceId: string; targetId: string; effectId: number | null; projectileId: number | null; id?: string }
+  | { type: 'creature-died'; creatureId: string; corpseId: number; id?: string }
+  | { type: 'training-action'; sourceId: string; style: 'melee' | 'distance' | 'magic'; effectId: number; projectileId: number | null; id?: string };
 
 export interface CombatLogEntry { id: number; round: number; message: string }
 

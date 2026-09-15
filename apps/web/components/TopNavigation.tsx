@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 interface TopNavigationProps {
   characterName: string;
+  adminTitle?: string;
   gold: number;
   debug: boolean;
   onEquipment(): void;
@@ -19,6 +20,7 @@ const futureNavigation = ['Progress', 'Daily', 'Storage', 'Trade'];
 
 export function TopNavigation({
   characterName,
+  adminTitle,
   gold,
   debug,
   onEquipment,
@@ -46,7 +48,14 @@ export function TopNavigation({
     <header className="client-topbar">
       <div className="brand-cluster" style={{ alignItems: 'center' }}>
         <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '30px', width: 'auto', objectFit: 'contain' }} />
-        <span className="account-name">{characterName}</span>
+        <span className="account-name">
+          {adminTitle && (adminTitle === 'GOD' || adminTitle === 'GM') && (
+            <span style={{ color: '#ffd700', fontWeight: 800, textShadow: '0 0 6px rgba(255, 215, 0, 0.5)', marginRight: '4px' }}>
+              [{adminTitle}]
+            </span>
+          )}
+          {characterName}
+        </span>
         <span className="currency-chip"><i className="coin-dot" />{gold.toLocaleString('pt-BR')}</span>
       </div>
 

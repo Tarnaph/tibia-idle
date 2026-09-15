@@ -6,7 +6,7 @@ import { useGameModal } from '@/apps/web/contexts/GameModalContext';
 import { AutoIdleButton } from '../AutoIdleButton';
 import { getZoomMultiplier, setZoomMultiplier, resetZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 import type { CharacterState, DerivedStats } from '@/packages/domain/src';
-import { experienceProgress } from '@/packages/domain/src';
+import { experienceProgress, isGreenStaminaActive, getEffectiveExpMultiplier } from '@/packages/domain/src';
 import {
   getAudioVolume,
   setAudioVolume,
@@ -157,6 +157,9 @@ export function WindowDockBar({
   const vocationName = (character?.vocation || 'Elite Knight').toUpperCase();
   const level = character?.level ?? 1;
   const isPremium = character?.isPremium ?? false;
+  const adminTitle = (character as any)?.adminTitle || (isAdmin ? 'GOD' : undefined);
+  const isGreenStamina = isGreenStaminaActive(character?.staminaMinutes ?? staminaMinutes);
+  const effectiveExpMult = getEffectiveExpMultiplier(level, character?.staminaMinutes ?? staminaMinutes);
 
   const currentHp = character?.currentHp ?? 150;
   const maxHp = character?.maxHp ?? 150;
@@ -233,40 +236,40 @@ export function WindowDockBar({
               width: '38px',
               height: '38px',
               background: '#0a0d14',
-              border: '1.5px solid #2d3748',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'visible',
+              cursor: 'pointer',
+              border: isAvatarHovered ? '2px solid #38bdf8' : '2px solid #232c3d',
+              transition: 'all 0.15s ease-in-out',
+              transform: isAvatarHovered ? 'scale(1.04)' : 'scale(1)',
+              boxShadow: isAvatarHovered ? '0 0 12px rgba(56, 189, 248, 0.4)' : 'none',
             }}
           >
             <img
-              src={`/images/avatars/avatar-${avatarId || 1}.png`}
+              src={`/assets/avatars/avatar-${avatarId}.png`}
               alt={charName}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }}
+              className="huntera-avatar-img"
+              onError={(e) => {
+                e.currentTarget.src = '/assets/avatars/avatar-1.png';
+              }}
             />
-
-            {/* "Personagem" Tooltip Tag on Avatar Hover */}
+            {/* Quick floating "Personagem" tooltip on hover */}
             {isAvatarHovered && (
               <div
-                className="huntera-avatar-tooltip"
-                data-testid="huntera-avatar-tooltip"
                 style={{
                   position: 'absolute',
-                  top: 'calc(100% + 4px)',
+                  top: '-24px',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  background: '#0d111a',
-                  border: '1px solid #4a5568',
-                  borderRadius: '3px',
+                  background: 'rgba(15, 23, 42, 0.95)',
+                  border: '1px solid #38bdf8',
+                  color: '#38bdf8',
+                  fontSize: '9px',
+                  fontWeight: 800,
+                  letterSpacing: '0.04em',
                   padding: '2px 6px',
-                  color: '#e2e8f0',
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  whiteSpace: 'nowrap',
+                  borderRadius: '4px',
                   pointerEvents: 'none',
-                  zIndex: 10002,
+                  whiteSpace: 'nowrap',
+                  zIndex: 100,
                   boxShadow: '0 4px 12px rgba(0,0,0,0.85)',
                 }}
               >
@@ -280,7 +283,20 @@ export function WindowDockBar({
             className="huntera-profile-info"
             style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.15 }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {adminTitle && (adminTitle === 'GOD' || adminTitle === 'GM') && (
+                <span
+                  style={{
+                    color: '#ffd700',
+                    fontWeight: 800,
+                    fontSize: '11px',
+                    letterSpacing: '0.04em',
+                    textShadow: '0 0 6px rgba(255, 215, 0, 0.5)',
+                  }}
+                >
+                  [{adminTitle}]
+                </span>
+              )}
               <span
                 style={{
                   color: '#f3b749',
@@ -309,18 +325,19 @@ export function WindowDockBar({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '3px',
-                background: 'rgba(243, 183, 73, 0.12)',
-                border: '1px solid rgba(243, 183, 73, 0.35)',
+                background: isGreenStamina ? 'rgba(74, 222, 128, 0.15)' : 'rgba(243, 183, 73, 0.12)',
+                border: isGreenStamina ? '1px solid rgba(74, 222, 128, 0.45)' : '1px solid rgba(243, 183, 73, 0.35)',
                 borderRadius: '999px',
                 padding: '1px 6px',
                 fontSize: '9px',
                 fontWeight: 700,
-                color: '#f3b749',
+                color: isGreenStamina ? '#4ade80' : '#f3b749',
                 width: 'fit-content',
                 marginTop: '1px',
               }}
+              title={isGreenStamina ? 'Stamina Verde ativa: +50% EXP adicional!' : 'Multiplicador de EXP por estágio de nível'}
             >
-              XP +5%
+              {isGreenStamina ? `⚡ EXP ${effectiveExpMult}× (Verde)` : `EXP ${effectiveExpMult}×`}
             </div>
           </div>
 
@@ -338,23 +355,28 @@ export function WindowDockBar({
                 border: '1px solid #232c3d',
                 borderRadius: '8px',
                 boxShadow: '0 16px 36px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05)',
-                padding: '14px 16px',
-                zIndex: 10000,
-                cursor: 'default',
-                color: '#e2e8f0',
-                fontFamily: 'inherit',
+                padding: '16px',
+                zIndex: 9999,
+                animation: 'popoverFadeIn 0.15s ease-out forwards',
+                cursor: 'pointer',
               }}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onOpenSkills) onOpenSkills();
+              onClick={() => {
+                if (onOpenProfile) onOpenProfile();
+                else toggleWindow('character');
               }}
               title="Clique para abrir a Janela Completa de Habilidades"
             >
               {/* Title & Status */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.02em' }}>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {adminTitle && (adminTitle === 'GOD' || adminTitle === 'GM') && (
+                    <span style={{ color: '#ffd700', fontWeight: 800, fontSize: '14px', textShadow: '0 0 8px rgba(255, 215, 0, 0.6)' }}>
+                      [{adminTitle}]
+                    </span>
+                  )}
                   {charName}
                 </div>
+
                 <div style={{ fontSize: '11px', fontWeight: 700, color: '#6bb3f2', letterSpacing: '0.04em' }}>
                   {vocationName} <span style={{ color: '#4a85ba' }}>LV</span> {level}
                 </div>

@@ -8,6 +8,7 @@ import { createSeededRng, rollInteger } from './rng';
 import { calculateBestSpellDirection, getSpellAreaTiles, isDirectionalSpell, spellFormulaRange } from './spells';
 import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
+import { getEffectiveExpMultiplier, applySkillTrainingProgress } from './progressionStages';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getActionSupplyCost, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { findWandDefinition, canUseWand } from './wands';
 import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
@@ -284,16 +285,24 @@ function levelUpCharacter(state: GameState, characterId: string, content: GameCo
   }
 }
 
-function grantSharedExperience(state: GameState, rawExperience: number, content: GameContent): void {
-  const share = sharedExperiencePerCharacter(rawExperience, state.session.characters);
+export function grantSharedExperience(state: GameState, rawExperience: number, content: GameContent, serverExpRate: number = 1.0): void {
+  const baseShare = sharedExperiencePerCharacter(rawExperience, state.session.characters);
   for (const character of state.session.characters) {
-    character.experience += share;
+    const effectiveMultiplier = getEffectiveExpMultiplier(
+      character.level,
+      character.staminaMinutes,
+      serverExpRate
+    );
+    const memberExp = Math.max(1, Math.ceil(baseShare * effectiveMultiplier));
+    character.experience += memberExp;
     levelUpCharacter(state, character.id, content);
-    if (share > 0) {
-      state.encounter.events.push({ type: 'experience-gained', characterId: character.id, amount: share });
+    if (memberExp > 0) {
+      state.encounter.events.push({ type: 'experience-gained', characterId: character.id, amount: memberExp });
     }
   }
-  addLog(state, `XP compartilhada: ${share} para cada membro.`);
+  if (state.session.characters.length > 1) {
+    addLog(state, `XP base (${rawExperience}) compartilhada entre os membros da party.`);
+  }
 }
 
 function rollLoot(state: GameState, monsterId: string, content: GameContent, multiplier = 1): void {
@@ -356,7 +365,7 @@ export function defeatEnemy(state: GameState, target: EnemyState, content: GameC
   addLog(state, `${target.name} morreu.`);
   const expRate = serverConfigManager.getConfig().expRate ?? 1.0;
   const lootRate = serverConfigManager.getConfig().lootRate ?? 1.0;
-  grantSharedExperience(state, Math.ceil(monster.experience * (target.variant?.xpMultiplier ?? 1) * expRate), content);
+  grantSharedExperience(state, Math.ceil(monster.experience * (target.variant?.xpMultiplier ?? 1)), content, expRate);
   rollLoot(state, monster.id, content, (target.variant?.lootMultiplier ?? 1) * lootRate);
   if (encounter.expeditionProgress) encounter.expeditionProgress.kills += 1;
   if (encounter.continuousProgress) {
@@ -1150,8 +1159,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
           if (spell.mana > 0) {
             const vocation = vocationFor(content, character.vocation);
             const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
-            const magicTries = spell.mana * content.rateMagic * skillRate;
-            for (const advanced of addTrainingTries(character, 'magicLevel', magicTries, vocation)) {
+            for (const advanced of applySkillTrainingProgress(character, 'magicLevel', spell.mana, vocation, content.rateMagic, skillRate)) {
               encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
               addLog(state, `You advanced to Magic Level ${character.skills.magicLevel}.`);
             }

@@ -1,14 +1,26 @@
 export const BASE_MAX_STAMINA_MINUTES = 15; // 15 minutes base stamina
 export const STAMINA_BONUS_PER_LEVEL_MINUTES = 1; // +1 minute per level over level 1 of highest char
 
+export const OFFICIAL_MAX_STAMINA_MINUTES = 42 * 60; // 2520 minutos (42 horas oficiais do Tibia)
+export const GREEN_STAMINA_THRESHOLD_MINUTES = 39 * 60; // 2340 minutos (39 horas: as 3 primeiras horas são verdes)
+export const GREEN_STAMINA_BONUS_MULTIPLIER = 1.5; // +50% de EXP na stamina verde
+
 export type StaminaMode = 'hunting' | 'training' | 'resting';
 
 /**
  * Calculates the maximum stamina capacity in minutes based on the highest level character on the account.
  */
-export function calculateMaxStamina(highestLevelOnAccount: number): number {
+export function calculateMaxStamina(highestLevelOnAccount: number = 1): number {
   const safeLevel = Math.max(1, Math.floor(highestLevelOnAccount || 1));
   return BASE_MAX_STAMINA_MINUTES + (safeLevel - 1) * STAMINA_BONUS_PER_LEVEL_MINUTES;
+}
+
+/**
+ * Retorna se a stamina está na faixa verde (3 horas iniciais: >= 39h ou >= 2340 min).
+ */
+export function isGreenStamina(staminaMinutes?: number | null): boolean {
+  if (staminaMinutes === undefined || staminaMinutes === null) return false;
+  return staminaMinutes >= GREEN_STAMINA_THRESHOLD_MINUTES;
 }
 
 /**

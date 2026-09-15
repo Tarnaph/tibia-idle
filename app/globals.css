@@ -8179,6 +8179,811 @@ h1, h2, h3, p { margin: 0; }
   overflow: hidden;
 }
 
+/* ==========================================================================
+   Phase 168: Modal Unificado de Party no Estilo Medieval do Seletor de Caçadas
+   ========================================================================== */
+
+.party-selector-backdrop {
+  z-index: 9999;
+}
+
+.hunt-window-container.party-modal-container {
+  width: 960px;
+  max-width: 96vw;
+  height: 680px;
+  max-height: 95vh;
+}
+
+.party-synergy-badge {
+  background: #0f131a;
+  border: 1.5px solid #d4af37;
+  color: #fde047;
+}
+
+.party-stage-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  overflow: hidden;
+}
+
+.party-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  max-height: 520px;
+}
+
+/* Individual Vocation Card */
+.party-vocation-card {
+  background: linear-gradient(180deg, #181d26 0%, #0d1016 100%);
+  border: 2px solid #544122;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+}
+
+.party-vocation-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.95);
+}
+
+.party-vocation-card.empty {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.party-vocation-card.empty:hover {
+  opacity: 1;
+}
+
+.party-vocation-card.leader-card {
+  border-color: #eab308;
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.35), 0 8px 24px rgba(0, 0, 0, 0.9);
+}
+
+/* Top Vocation Banner */
+.party-card-vocation-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1.5px solid #3d2f19;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.party-vocation-banner-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.party-vocation-banner-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fce79a;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* Portrait / Art Area */
+.party-card-art-box {
+  height: 190px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #1f2733 0%, #0d1117 80%, #06080b 100%);
+  border-bottom: 1.5px solid #202735;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.party-card-art-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
+  pointer-events: none;
+}
+
+.party-card-medallion {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+}
+
+.party-card-origin-pill {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+}
+
+.party-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.party-badge.leader {
+  background: linear-gradient(180deg, #b45309 0%, #78350f 100%);
+  border-color: #facc15;
+  color: #fef08a;
+}
+
+.party-badge.account {
+  background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
+  border-color: #60a5fa;
+  color: #dbeafe;
+}
+
+.party-badge.remote {
+  background: linear-gradient(180deg, #065f46 0%, #022c22 100%);
+  border-color: #34d399;
+  color: #d1fae5;
+}
+
+.party-badge.empty {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: #475569;
+  color: #94a3b8;
+}
+
+.party-card-portrait-stage {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 4;
+}
+
+.party-card-outfit-canvas {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9));
+}
+
+.party-card-avatar-fallback {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #111620;
+  border: 1.5px solid #544122;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.party-card-avatar-icon {
+  font-size: 28px;
+}
+
+.party-card-empty-silhouette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.party-vocation-card:hover .party-card-empty-silhouette {
+  opacity: 0.9;
+}
+
+.party-empty-silhouette-icon {
+  font-size: 38px;
+  filter: grayscale(0.5);
+}
+
+.party-empty-silhouette-text {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #94a3b8;
+}
+
+/* Card Body */
+.party-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 10px;
+  text-align: center;
+  background: linear-gradient(180deg, #12161f 0%, #0a0c10 100%);
+}
+
+.party-card-char-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fce79a;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.party-card-role-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.party-card-hp-wrapper {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.party-card-hp-bar {
+  width: 100%;
+  height: 6px;
+  background: #231212;
+  border: 1px solid #4a1d1d;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.party-card-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
+  transition: width 0.3s ease;
+}
+
+.party-card-hp-text {
+  font-size: 9px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.party-card-readiness-row {
+  margin-top: auto;
+  margin-bottom: 4px;
+  width: 100%;
+}
+
+.party-readiness-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.party-readiness-pill.ready {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+}
+
+.party-readiness-pill.pending {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #f59e0b;
+  color: #fde68a;
+  animation: pulse 1.5s infinite alternate;
+}
+
+.readiness-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.readiness-dot.green {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.readiness-dot.yellow {
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+/* Empty Card Description */
+.party-card-empty-desc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.party-card-empty-title {
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: #cbd5e1;
+  margin: 0 0 2px 0;
+}
+
+.party-card-empty-role {
+  font-size: 9.5px;
+  color: #8b9bb4;
+  margin-bottom: 6px;
+}
+
+.party-card-tactical-tip {
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Card Actions / Footer */
+.party-card-footer-actions {
+  padding: 8px;
+  background: #090b0e;
+  border-top: 1px solid #1a2230;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.party-action-note.leader {
+  font-size: 9.5px;
+  color: #eab308;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px;
+}
+
+.party-card-action-group {
+  display: flex;
+  gap: 4px;
+}
+
+.party-btn-secondary {
+  flex: 1;
+  background: #141a24;
+  border: 1px solid #3d4a5d;
+  color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-btn-secondary:hover {
+  background: #1f2838;
+  border-color: #64748b;
+  color: #ffffff;
+}
+
+.party-btn-danger {
+  background: #231212;
+  border: 1px solid #7f1d1d;
+  color: #fca5a5;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-btn-danger:hover {
+  background: #381515;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.party-btn-alt-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #d4af37;
+  color: #fef08a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  transition: all 0.15s ease;
+}
+
+.party-btn-alt-fill:hover {
+  background: linear-gradient(180deg, #2d3d56 0%, #172238 100%);
+  border-color: #facc15;
+  color: #ffffff;
+}
+
+.party-btn-invite-slot {
+  width: 100%;
+  background: #131720;
+  border: 1px dashed #3d4a5d;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-btn-invite-slot:hover {
+  border-color: #60a5fa;
+  color: #93c5fd;
+  background: #18202d;
+}
+
+/* Alt Selector Dropdown */
+.party-alt-selector-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.party-alt-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #0d1117;
+  border: 1.5px solid #d4af37;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 30;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.party-alt-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #1f2735;
+  color: #e2e8f0;
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.party-alt-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.party-alt-dropdown-item:hover {
+  background: #1f293d;
+  color: #fde047;
+}
+
+.party-alt-item-name {
+  font-weight: 700;
+}
+
+.party-alt-item-level {
+  font-size: 9px;
+  color: #94a3b8;
+}
+
+/* Tactics Tab */
+.party-tactics-body {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.party-tactics-header-card {
+  background: #10141d;
+  border: 1.5px solid #d4af37;
+  border-radius: 5px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.party-tactics-title {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fce79a;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.8px;
+}
+
+.party-tactics-desc {
+  font-size: 11px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.party-tactics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.party-tactic-card {
+  background: #121722;
+  border: 1px solid #283548;
+  border-radius: 5px;
+  padding: 12px;
+}
+
+.party-tactic-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.party-tactic-icon {
+  font-size: 16px;
+}
+
+.party-tactic-name {
+  font-family: Georgia, serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.party-tactic-text {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Submodal de Convite */
+.party-invite-submodal-backdrop {
+  z-index: 10005;
+}
+
+.party-invite-submodal-card {
+  width: 360px;
+  background: radial-gradient(ellipse at center, #181c25 0%, #0b0d13 100%);
+  border: 2px solid #d4af37;
+  border-radius: 6px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.party-invite-title {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fce79a;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.party-invite-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
+  text-align: center;
+}
+
+.party-invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.party-invite-input {
+  background: #090c12;
+  border: 1.5px solid #3d4a5d;
+  color: #ffffff;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.party-invite-input:focus {
+  border-color: #eab308;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+}
+
+.party-invite-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.party-btn-primary {
+  background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
+  border: 1.5px solid #eab308;
+  color: #fef08a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-btn-primary:hover {
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+  border-color: #fde047;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
+}
+
+/* Botão Criar Herói no Card Vazio */
+.party-btn-create-char {
+  width: 100%;
+  background: linear-gradient(180deg, #b45309 0%, #78350f 100%);
+  border: 1px solid #facc15;
+  color: #fef08a;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.party-btn-create-char:hover {
+  background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
+  border-color: #fde047;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Sub-modal de Criação de Personagem */
+.party-create-submodal-card {
+  width: 420px;
+  max-width: 92vw;
+}
+
+.party-create-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.party-create-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #cbd5e1;
+  letter-spacing: 0.4px;
+}
+
+.party-create-vocation-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.party-create-vocation-pills {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.party-vocation-pill-btn {
+  background: #11151e;
+  border: 1.5px solid #3d4a5d;
+  color: #94a3b8;
+  padding: 6px 4px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+}
+
+.party-vocation-pill-btn:hover {
+  background: #1a2230;
+  color: #e2e8f0;
+}
+
+.party-vocation-pill-btn.active {
+  background: linear-gradient(180deg, #242936 0%, #151a24 100%);
+  color: #fef08a;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.25);
+}
+
+.party-create-gender-row {
+  display: flex;
+  gap: 8px;
+}
+
+.party-gender-btn {
+  flex: 1;
+  background: #10141d;
+  border: 1.5px solid #3d4a5d;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-gender-btn:hover {
+  background: #18202c;
+  color: #cbd5e1;
+}
+
+.party-gender-btn.active {
+  background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
+  border-color: #60a5fa;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.35);
+}
+
+.party-create-req-hint {
+  font-size: 9.5px;
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  border-radius: 3px;
+  padding: 5px 8px;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.party-create-error-banner {
+  background: rgba(185, 28, 28, 0.2);
+  border: 1.5px solid #ef4444;
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 4px;
+  text-align: center;
+  line-height: 1.35;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+
+
 
 
 

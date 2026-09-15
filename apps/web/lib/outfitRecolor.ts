@@ -422,17 +422,19 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
         }
       }
 
-      // If a mounted addon is missing, fallback to unmounted addon
-      if (url.includes('-mount-addon')) {
-        const unmountedAddonUrl = url.replace('-mount-addon', '-addon');
-        if (unmountedAddonUrl !== url) {
-          loadImage(unmountedAddonUrl)
+      // If a mounted addon animation frame is missing, fallback to the static mounted frame (f0).
+      // NEVER fallback to unmounted addon (-addon), as unmounted sprites have an upright standing posture
+      // which causes severe misalignment relative to the mount saddle.
+      if (url.includes('-mount-addon') && /-f[1-9]\d*-mount-addon/.test(url)) {
+        const staticMountedAddonUrl = url.replace(/-f[1-9]\d*-mount-addon/, '-f0-mount-addon');
+        if (staticMountedAddonUrl !== url) {
+          loadImage(staticMountedAddonUrl)
             .then((addonImg) => {
               imageElementCache.set(url, addonImg);
               resolve(addonImg);
             })
             .catch(() => {
-              reject(new Error(`Failed to load addon fallback image at ${url}`));
+              reject(new Error(`Failed to load static mounted addon fallback image at ${url}`));
             });
           return;
         }

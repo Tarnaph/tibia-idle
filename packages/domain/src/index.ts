@@ -22,3 +22,4 @@ export * from './progression/speed';
 export * from './stamina';
 export * from './wands';
 export * from './itemLook';
+export * from './progressionStages';

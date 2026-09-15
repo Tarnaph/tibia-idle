@@ -1,109 +1,92 @@
-# CORREÇÕES E ATUALIZAÇÕES RECENTES
+# CORREÇÕES
 
-## 👗 Phase 159: Miniaturas por Gênero no OutfitModal, Reset de Addons na Seleção e Remoção de Outfits Duplicados
-1. **Resolução de Miniaturas por Gênero Feminino e Masculino:**
-   - O `OutfitModal` agora resolve as miniaturas dos cards dinamicamente com base no `charGender` do personagem ativo (`/generated/outfits/${idLower}-${charGender}-south-f0-base.png`).
-   - Para personagens femininos, os cards na lista de outfits agora exibem fielmente a versão feminina dos trajes com fallback gracioso em `onError`.
-   - Propagado também para o `VocationChoiceModal` e `PromotionModal`, exibindo as versões femininas caso o personagem seja do sexo feminino.
-2. **Reset Automático de Addons ao Trocar de Traje:**
-   - Ao trocar de outfit (`handleSelectOutfit`), os addons 1 e 2 são resetados para `false`, permitindo que o novo traje comece sem addons e o usuário decida marcá-los caso queira.
-3. **Eliminação dos Outfits Falsos/Duplicados "Sorcerer" e "Paladin":**
-   - Removidas as entradas duplicadas `{ id: 'Sorcerer' }` e `{ id: 'Paladin' }` de `CLASSIC_OUTFITS`.
-   - A lista de trajes clássicos agora segue rigorosamente o padrão canônico do Tibia oficial com 14 trajes únicos sem duplicações de Mage ou Hunter.
+Antigravity, quero implementar alguns ajustes: o simbolo de [GOD] dos admins tem que aparecer para eles também, não só para os outros players, precisa configurar a progressão por stages conforme as tabelas abaixo. Preserve os dados existentes e mantenha o escopo nesses pontos.
+1. Addons desalinhados durante a caminhada montada
+O problema relatado acontece somente quando o personagem está em uma montaria: ao andar, os addons saem do lugar.
+Investigar o fallback em apps/web/lib/outfitRecolor.ts, que substitui arquivos -mount-addon por addons da versão a pé quando o carregamento falha. Essa é uma possível causa, ainda não uma conclusão para todos os outfits.
+- Conferir existência e alinhamento dos frames montados de corpo, máscaras, addon 1 e addon 2.
+- Garantir que as camadas usem a mesma direção, frame de animação e origem.
+- Verificar se os arquivos estão ausentes, se o caminho está incorreto ou se foram extraídos com deslocamento incompatível.
+- Não aplicar um deslocamento global para esconder um problema específico de extração ou pose.
+- Não sobrepor automaticamente addons a pé a um corpo montado quando as poses forem incompatíveis.
+- Preservar o funcionamento dos outfits sem montaria.
+- Garantir aparência consistente no personagem local e para outro jogador conectado.
+Aceitação: testar addon 1, addon 2 e ambos; personagem parado e andando nas quatro direções; montar/desmontar; primeira abertura sem cache e observação em outro navegador. Registrar quais combinações foram verificadas.
+2. Progressão de EXP por nível
+Aplicar estas faixas, com limites inclusivos:
+Nível	Multiplicador de EXP
+1–8	50×
+9–50	80×
+51–100	60×
+101–150	40×
+151–200	30×
+201–300	15×
+301–400	12×
+401–500	10×
+501–600	7×
+601–700	6×
+701–800	5×
+801–900	4×
+901–1000	3×
+1001–1200	2×
+1201–1400	1,5×
+1401+	1,2×
 
----
 
-## ⚔️ Phase 158: Vocação 'None' (Rookgaard), Criação de Personagem com Gênero e Trajes Canônicos
-1. **Crash `Missing vocation None.` Eliminado:**
-   - Implementado `NONE_VOCATION_DEFINITION` em `packages/domain/src/party.ts`.
-   - `vocationFor(content, 'None')` retorna a definição base segura sem lançar exceção, permitindo que personagens recém-criados no Nível 1 sem vocação entrem no mundo e calculem atributos sem erros de runtime.
-2. **Seleção de Sexo/Gênero (♂ Masculino / ♀ Feminino):**
-   - Adicionado seletor visual na interface de criação (`TibiaAuthCharacterModal.tsx`) com destaque em azul/rosa.
-   - Atribuição canônica de lookTypes do Tibia:
-     - **Citizen Masculino:** LookType `128` (outfit base 'Citizen').
-     - **Citizen Feminino:** LookType `136` (outfit base 'Citizen').
-   - Persistência permanente da coluna `gender` no SQLite via Prisma Client (`dev.db`).
-   - Badges estilizadas de gênero na listagem de personagens da conta.
-3. **Escolha de Vocação Flexível (Criação Direta ou Nível 1 no Templo):**
-   - **Na Criação de Personagem:** O jogador agora pode selecionar diretamente sua vocação inicial (⚔️ Knight, 🏹 Paladin, 🔮 Sorcerer, 🌿 Druid) com visual elegante e kits autênticos de equipamentos e magias, ou optar por "Sem Vocação".
-   - **No Nível 1 no Jogo:** Personagens que iniciarem como "None" (Rookgaardiano) têm o `VocationChoiceModal` aberto imediatamente no Nível 1 no Templo de Thais, podendo escolher a vocação na hora.
-   - **Persistência Imediata:** A vocação e os atributos (HP, Mana, Outfits) são sincronizados e gravados com 100% de persistência permanente no SQLite.
+A intenção de progressão é:
+Nível	Estágio
+1–200	Early game
+201–400	Transição para Mid game
+401–700	Mid game
+701–1000	Late game
+1001–1400	End game
+1401+	End game avançado
 
----
 
-## 🛡️ Phase 157: Resolução de Sessão Ativa / Falso Positivo de Multi-Abas no Logoff
-1. **Coordenação Multi-Aba via BroadcastChannel:**
-   - Heartbeat em tempo real entre abas no canal `cavebound_auth_sessions`.
-   - Quando o jogador desloga ou troca de personagem, o canal emite `SESSION_CLOSED`, liberando instantaneamente a conta sem falsos positivos de "conta já conectada".
-2. **Botões de Resolução no Alerta:**
-   - Inclusão do botão "Verificar Novamente" e "Desconectar Outra Aba e Liberar" caso haja abas zumbis retidas em cache.
+O jogador deve avançar rapidamente nos níveis baixos, chegar ao Mid game de forma acessível e levar mais tempo para alcançar o End game. Essas taxas são a configuração inicial; não alterá-las silenciosamente para balancear.
+3. Stages de skills e magic level
+Skill atual	Multiplicador
+1–80	10×
+81–100	7×
+101–120	4×
+121+	2×
 
----
 
-## 🎨 Phase 156: Curadoria de Magias, Outfits e Montarias
-1. **Preview do Outfit:** Fast-path síncrono no `renderRecoloredOutfit` e catálogo `OUTFITS_WITH_MOUNTS` para blindar trajes sem montaria. Ao clicar no outfit, ele atualiza instantaneamente no preview.
-2. **Salvamento de Outfits e Montarias:** Sincronização em tempo real de `latestSaveStateRef.current` eliminando race condition com o auto-save. O outfit e a montaria persistem com 100% de confiabilidade entre sessões.
-3. **Animação de Caminhada sem Deslizamento:** `preloadOutfitAllFrames` prioriza a direção ativa (`priorityDir`) carregando frames em < 30ms, e o `ThaisCityArena.tsx` atualiza a textura do PixiJS dinamicamente na alternância de frame de caminhada com `(tex.source as any).update?.()`. O personagem mexe as pernas com fluidez em todas as direções.
+Magic level atual	Multiplicador
+0–80	10×
+81–100	7×
+101–120	4×
+121–130	3×
+131+	2×
 
----
 
-## 🐺 Phase 160: Bestiary Floating HUD, Multi-Monstros por Hunt e Saneamento de Sprites
-1. **Saneamento Total de Sprites da Cyclopedia:**
-   - Sincronização de 614 miniaturas `monster-*-thumb.png` do Tibia 10.98 para `public/generated/bestiary/` e `public/assets/monsters/`.
-   - Eliminação do fallback indevido de `demon.png` para criaturas da Cyclopedia, garantindo que `Rat`, `Cave Rat` e todas as demais criaturas exibam suas sprites autênticas.
-2. **Multi-Monstros por Caçada no Bestiary Tracker:**
-   - Suporte dinâmico a rastrear simultaneamente múltiplas espécies em hunts heterogêneas (ex: `Rat` e `Cave Rat` em Rat Cellars).
-   - Cada espécie conta com seu ícone, barra de progresso e estatísticas de kills individuais.
-3. **Janela Flutuante Arrastável e Canto Superior Direito:**
-   - Posição inicial no canto superior direito (`top: 58px`, `right: 20px`), livre de sobreposição com controles essenciais.
-   - Drag & drop fluido via Pointer Events com persistência de coordenadas em `localStorage`.
-   - Suporte a minimizar (`_`) e fechar (`✕`) com reabertura automática ao iniciar caçadas.
-
----
-
-## 🌈 Phase 161: Cores Autênticas de Dano Elemental do Tibia & Propagação Visual de Elementos
-1. **Propagação de Elementos no Motor de Combate:**
-   - Extensão de `CombatEvent` (`types.ts`) para incluir `element?: string` em `player-attack`, `enemy-attack` e `spell-cast`.
-   - Propagação em `combat.ts` para ataques corpo a corpo e projéteis físicos (`physical`), wands e rods (`energy`, `fire`, `earth`, `ice`, `death`), magias e runas de ataque (`fire`, `energy`, `earth`, `ice`, `holy`, `death`), e cura (`healing`).
-2. **Renderização Visual no PixiJS com Paleta Canônica CipSoft:**
-   - Criação do helper `getCombatTextColor` em `PixiArena.tsx` definindo cores autênticas com bordas de alto contraste:
-     - 🩸 **Physical:** Vermelho sangue (`#ff4444`)
-     - 🔥 **Fire:** Laranja incandescente (`#ff8800`)
-     - ⚡ **Energy:** Ciano elétrico brilhante (`#00e6e6`)
-     - 🌿 **Earth / Poison:** Verde vibrante tóxico (`#2cd92c`)
-     - ❄️ **Ice:** Azul celeste gélido (`#66ccff`)
-     - ☀️ **Holy:** Amarelo solar dourado (`#ffea33`)
-     - 💀 **Death:** Roxo místico / Violeta profundo (`#b84dff`)
-     - 💚 **Healing:** Verde restaurador (`#62e58a`)
-     - 💧 **Mana:** Azul cobalto (`#3399ff`)
-   - Preservação da cor do elemento em projéteis e runas de área com impacto retardado (`pendingImpacts`).
-
----
-
-## 🎯 Phase 162: Target Lock Autêntico do Tibia (Foco Exclusivo de Alvo, Perseguição Estrita e Fim de Redirecionamento de Dano)
-1. **Target Lock Prioritário na Movimentação e Pathfinding (`movement.ts`):**
-   - Preservação estrita do alvo focado pelo jogador (`actor.targetId`): o algoritmo de perseguição de caçada foca exclusivamente a criatura alvejada.
-   - Eliminação do roubo de alvo por proximidade física de monstros não alvejados em `movePartyTowardTargets`.
-2. **Eliminação do Redirecionamento de Ataque em Alvos Vizinhos (`combat.ts`):**
-   - Em `playerAttacks`, se o personagem possui um alvo travado (`lockedTarget`), os golpes físicos, flechas e tiros de wand atacam exclusivamente esse alvo assim que ele entra no alcance.
-   - Se o alvo travado estiver fora do alcance (personagem ainda se aproximando), o personagem aguarda sem redirecionar golpes para monstros vizinhos.
-   - O ataque automático a qualquer monstro no alcance opera estritamente quando não há alvo fixado (`!actor.targetId`).
-3. **Prioridade Absoluta do Alvo Travado em Magias e Runas Ofensivas:**
-   - Magias de alvo único (`exori flam`, `exori vis`, `exori mort`, etc.) e runas ofensivas (SD, HMM, GFB) focam com prioridade máxima a criatura marcada com a mira vermelha.
-   - Bloqueio de redirecionamento involuntário para criaturas vizinhas caso o alvo travado esteja temporariamente fora de alcance.
-4. **Auto-Retargeting Limpo pós-Morte:**
-   - Ao morrer o monstro travado, o target lock é limpo com segurança, restaurando a seleção automática do próximo monstro mais próximo para continuidade fluida da caçada.
-
----
-
-## 🛡️ Phase 163: Persistência Definitiva do Bestiário, Desobstrução de Caminho (Bodyblock Clearance) e Inteligência Direcional de Waves & Beams
-1. **Persistência Permanente e Proteção Monotônica do Bestiário:**
-   - Sincronização em tempo real das contagens de mortes de monstros do cliente para o servidor Colyseus via `gameNetwork.sendBestiarySetKills()`.
-   - Proteção não-regressiva no `PrismaPersistenceManager.ts` e no Colyseus (`Math.max(dbKills, newKills)`), impedindo que desconexões ou sessões com contagem vazia/stale zerem o progresso do jogador.
-2. **Desobstrução de Caminho no Idle (Bodyblock Clearance):**
-   - No modo Idle automático, priorizar monstros adjacentes no corpo-a-corpo (1 tile) antes de correr atrás de monstros distantes.
-   - Detecção inteligente de bodyblock: quando um monstro bloqueia o único caminho para o objetivo ou alvo em corredores estreitos, o personagem foca e abate o obstáculo imediato para livrar a passagem.
-3. **Inteligência Direcional de Magias Frontais (Waves & Beams - Virar o Corpo):**
-   - Identificação canônica de todas as magias direcionais e frontais (*Energy Wave*, *Terra Wave*, *Strong Ice Wave*, *Fire Wave*, *Ice Wave*, *Great Fire Wave*, *Energy Beam*, *Great Energy Beam*).
-   - Virar o corpo (`actor.direction`) automaticamente em direção ao monstro alvejado antes da invocação.
-   - Cálculo de área máxima (cone e linha reta) para girar na direção que atinge o maior número de inimigos vivos, com sincronização imediata no PixiJS.
+- Aplicar os multiplicadores ao progresso de treinamento — tries ou equivalente — mantendo as fórmulas de avanço.
+- Para magic level, multiplicar o progresso equivalente à mana utilizada, sem aumentar o custo real de mana das magias.
+- Usar a mesma regra nos caminhos aplicáveis de combate e treinamento, evitando aplicar o multiplicador duas vezes.
+- Ao atravessar uma faixa dentro de um ganho de treino, tratar o excedente com a taxa da nova faixa.
+4. Bônus de stamina verde
+Aplicar +50% de EXP nas três horas de stamina verde.
+Exemplo: no nível 300, a taxa de 15× passa a 22,5× enquanto o bônus estiver ativo.
+- Stamina e bônus devem ser individuais por personagem.
+- O bônus é de EXP; não estendê-lo automaticamente a skills, magic level ou loot.
+- Verificar a capacidade e a recuperação atuais da stamina. Caso não comportem três horas verdes, apresentar a incompatibilidade antes de redefinir a duração total ou as regras de recuperação.
+- Exibir quando o bônus estiver ativo e a taxa efetiva de EXP.
+5. Integração com Solo, Party e segurança
+- Centralizar as tabelas e os cálculos em uma configuração compartilhada, com aplicação autoritativa no servidor.
+- Na Party, preservar a regra existente de divisão da experiência base. Depois, aplicar a cada integrante o stage do próprio nível e seu bônus individual de stamina.
+- Não usar o nível ou a stamina do líder para definir o multiplicador dos demais.
+- Evitar empilhar os novos stages com multiplicadores globais antigos de forma acidental. Documentar a fórmula final e a função de cada fator mantido.
+- Atualizar as validações de XP e treinamento para reconhecer ganhos legítimos com essas taxas. Não desativar as proteções nem apenas elevar limites arbitrariamente.
+- Preservar a deduplicação de ganhos entre combate, WebSocket e persistência.
+- Não recalcular retroativamente níveis, XP ou skills já adquiridos. As novas taxas devem afetar os ganhos futuros.
+- Não modificar preços, custos de consumíveis ou taxas de loot nesta etapa.
+6. Testes e entrega
+- Testar todas as fronteiras das tabelas, como 8/9, 200/201, 300/301, 1400/1401 e os limites de skills e magic level.
+- Confirmar o exemplo de nível 300: 15× normalmente e 22,5× com stamina verde.
+- Testar uma Party com integrantes de níveis e stamina diferentes.
+- Confirmar que dividir o mesmo ganho em vários eventos não duplica bônus nem permite ultrapassar indevidamente o orçamento de progresso.
+- Validar que ganhos legítimos são persistidos após logout e reinício.
+- Usar banco e dados sintéticos isolados; não resetar nem usar os personagens reais nos testes.
+- Executar typecheck e regressões pertinentes.
+- Entregar commit, arquivos alterados, fórmula final de progressão, combinações visuais testadas, resultados e limitações restantes.
+- Não declarar como validado o que não tiver sido efetivamente testado.
