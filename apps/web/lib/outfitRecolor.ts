@@ -631,6 +631,11 @@ export async function renderRecoloredOutfit(
   if (effectiveMounted && urls.mountUrl) {
     const mountImg = imageElementCache.get(urls.mountUrl);
     if (!mountImg || !mountImg.complete || mountImg.naturalWidth === 0) {
+      console.warn('[renderRecoloredOutfit] ABORT: Mount image not ready:', urls.mountUrl, {
+        hasCached: Boolean(mountImg),
+        complete: mountImg?.complete,
+        naturalWidth: mountImg?.naturalWidth
+      });
       // Mandatory mount: do NOT draw a floating rider without mount!
       return;
     }

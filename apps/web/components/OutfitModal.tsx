@@ -226,6 +226,16 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       if (addon1 && caps.hasAddon1) addonsVal |= 1;
       if (addon2 && caps.hasAddon2) addonsVal |= 2;
       const effectiveMounted = Boolean(mountActive && selectedMount !== 'none' && caps.hasMountRider);
+      console.log('[OutfitModal preview useEffect]', {
+        selectedOutfit,
+        charGender,
+        currentDir,
+        selectedMount,
+        mountActive,
+        effectiveMounted,
+        addonsVal,
+        thisGen,
+      });
       renderRecoloredOutfit(
         previewCanvasRef.current,
         selectedOutfit,
@@ -301,6 +311,16 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     if (addon2 && currentCaps.hasAddon2) addonsVal |= 2;
     const isMnt = Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider);
     const effectiveMount = isMnt ? selectedMount : (equippedMount || selectedMount || 'donkey');
+    console.log('[OutfitModal handleSave]', {
+      effectiveCharId,
+      selectedOutfit,
+      selectedMount,
+      equippedMount,
+      mountActive,
+      isMnt,
+      effectiveMount,
+      addonsVal,
+    });
     onSave(effectiveCharId, {
       outfit: selectedOutfit,
       mount: effectiveMount,

@@ -2159,6 +2159,7 @@ function GamePrototypeContent() {
     addons: number;
     outfitColors?: { head: number; primary: number; secondary: number; detail: number };
   }) => {
+    console.log('[GamePrototype handleSaveOutfit]', { characterId, customization });
     setGame((cur) => ({
       ...cur,
       session: {

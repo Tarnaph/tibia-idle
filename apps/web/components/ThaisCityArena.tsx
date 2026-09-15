@@ -1517,6 +1517,7 @@ export function ThaisCityArena({
               // When ready, swap body, mount, and addons together in this exact single frame!
               const canSwap = isDesiredReady || view.appearanceState?.status === 'ready' || (view.appearanceState && view.appearanceState.attempts >= 4);
               if (canSwap) {
+                console.log('[ThaisCityArena] APPEARANCE SWAPPED SUCCESSFULLY to:', outfitSig);
                 view.activeAppearance = desiredAppearance;
                 view.pendingAppearance = null;
                 view.appearanceState = undefined;
