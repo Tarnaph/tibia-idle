@@ -42,6 +42,7 @@ next-env.d.ts
 /public/assets/
 
 # Large binary archives and map/sprite blobs (> 100MB)
+content/generated/tibia1098-assets.json
 *.otbm
 *.spr
 *.zip
