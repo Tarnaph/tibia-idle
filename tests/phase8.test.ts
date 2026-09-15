@@ -112,7 +112,7 @@ describe('Phase 8 clocks and spells', () => {
   });
 
   it('has extracted DAT/SPR assets for every numeric effect and projectile in the selected catalog', () => {
-    const assets = visualAssetsJson as Tibia1098AssetManifest;
+    const assets = visualAssetsJson as unknown as Tibia1098AssetManifest;
     for (const spell of content.spells) {
       if (spell.visual.effectId !== null) expect(assets.effects[String(spell.visual.effectId)]?.frames.length).toBeGreaterThan(0);
       if (typeof spell.visual.projectileId === 'number') expect(assets.missiles[String(spell.visual.projectileId)]?.frames.length).toBeGreaterThan(0);

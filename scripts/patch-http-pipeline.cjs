@@ -276,4 +276,22 @@ patchFile(srvxNodePath, [
   }
 ]);
 
+// 4. Patch vinext prod-server.js to serve all static assets indexed by staticCache
+const prodServerPath = path.join(root, 'node_modules/vinext/dist/server/prod-server.js');
+patchFile(prodServerPath, [
+  {
+    name: 'serve all static assets indexed by staticCache',
+    search: `		let missingBuildAsset = false;
+		{
+			const assetLookupPath = resolveAppRouterAssetPath(pathname, appAssetPathPrefix, appRouterAssetPrefix);`,
+    replace: `		let missingBuildAsset = false;
+		if (staticCache.lookup(pathname)) {
+			if (await tryServeStatic(req, res, clientDir, pathname, compress, staticCache)) return;
+		}
+		{
+			const assetLookupPath = resolveAppRouterAssetPath(pathname, appAssetPathPrefix, appRouterAssetPrefix);`
+  }
+]);
+
 console.log('[patch-http-pipeline] Done.');
+

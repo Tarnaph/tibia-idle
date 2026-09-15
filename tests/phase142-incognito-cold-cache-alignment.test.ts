@@ -9,7 +9,7 @@ import monstersJson from '@/content/generated/monsters.json';
 import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 import type { MonsterDefinition } from '@/packages/content-schema/src';
 
-const assets = visualAssetsJson as Tibia1098AssetManifest;
+const assets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 const monsters = (monstersJson as { monsters: MonsterDefinition[] }).monsters;
 
 describe('Phase 142: Incognito, Cold Cache & Multi-Environment Alignment', () => {

@@ -6,7 +6,7 @@ import thaisData from '@/content/generated/thais-city.json';
 import visualAssetsJson from '@/content/generated/tibia1098-assets.json';
 import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 
-const visualAssets = visualAssetsJson as Tibia1098AssetManifest;
+const visualAssets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 
 describe('Phase 101: Exura Loading Screen (Vanilla CSS) & Thais City Authentic Map Restoration', () => {
   describe('Pillar 1: ExuraLoadingScreen Component & Asset Verification', () => {

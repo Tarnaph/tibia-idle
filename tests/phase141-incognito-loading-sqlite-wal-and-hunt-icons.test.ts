@@ -8,7 +8,7 @@ import { prisma } from '@/packages/database/src';
 import fs from 'fs';
 import path from 'path';
 
-const assets = visualAssetsJson as Tibia1098AssetManifest;
+const assets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 const monsters = (monstersJson as { monsters: MonsterDefinition[] }).monsters;
 
 describe('Phase 141: Incognito Loading, SQLite WAL Mode & Hunt Icons Fixes', () => {
