@@ -3343,6 +3343,35 @@ Plans:
 
 - Resumo de entrega: `.planning/phases/phase-178-online-stability-and-mount-sync/178-SUMMARY.md`
 
+### Phase 179: Diagnóstico Instrumental e Resolução Estrita de Troca de Outfits, Montarias e Persistência de Aparência
+
+**Goal:** Suspender correções por hipótese, implementar telemetria e diagnóstico por tentativa com correlation `attemptId` cobrindo aparência inicial, seleção, preparação, preview rasterizado, callback de salvamento, persistência na API e estado do ator na arena; localizar e corrigir a primeira divergência pontual entre a seleção e o sistema (inundação de sockets de preview e sobrescrita de aparência por ref desatualizada); e verificar via testes automatizados estritos que o resultado final corresponde rigorosamente à seleção do usuário.  
+**Depends on:** Phase 178  
+**Requirements:**
+1. **Instrumentação Diagnóstica com Correlation ID:**
+   - Módulo `outfitDiagnostics.ts` capturando `attemptId`, versão/commit do cliente (`15ca6ae03`), aparência inicial, seleção, preparação de recursos, aparência efetivamente rasterizada no canvas de preview, payload e resposta da API de salvamento, aparência ativa do ator na arena e erros de JS.
+   - Totalmente anônimo (zero senhas, tokens ou dados sensíveis).
+   - Botão visível `[📋 Copiar Diagnóstico]` no rodapé do `OutfitModal` para exportação direta em 1 clique para a área de transferência.
+2. **Correção da Divergência 1 (Preview Intermitente/Cancelado):**
+   - Eliminar a chamada de `prepareAppearanceCanvas(all 4 directions, 9 frames)` no `useEffect` de preview do `OutfitModal`, prevenindo o esgotamento dos 6 sockets HTTP/1.1 do navegador e permitindo que o frame do preview responda imediatamente (<16ms).
+3. **Correção da Divergência 2 (Salvamento que não Aplica no Personagem):**
+   - Sincronizar imediatamente `latestSaveStateRef.current.characters` em `handleSaveOutfit` e `handleToggleMount` em `GamePrototype.tsx`, impedindo que o `saveProgress` imediato ou periódico envie a aparência desatualizada para a API do banco de dados.
+4. **Testes Automatizados Rigorosos:**
+   - Teste automatizado em `tests/phase179-outfit-diagnostic-and-strict-save.test.ts` que simula a sequência exata de falha e valida que o estado final salvo na API e no ator corresponde rigorosamente à seleção.
+   - Zero erros no typecheck e 100% de aprovação nos testes existentes.
+
+**Success Criteria:**
+1. Troca de outfit e montaria no preview reflete instantaneamente sem travamentos ou cancelamento por fila de rede.
+2. Clicar em "Salvar" persiste a aparência selecionada sem reversão por salvamento em background.
+3. Botão `[📋 Copiar Diagnóstico]` disponível no modal para diagnóstico per-attempt.
+4. Testes Vitest passando e `npm run typecheck` com 0 erros.
+
+**Plans:**
+- [x] 179-01-PLAN: Diagnóstico Instrumental, Resolução da Inundação do Preview e Sincronização do Salvamento de Aparência.
+
+- Resumo de entrega: `.planning/phases/phase-179-outfit-diagnostics-and-save-fix/179-SUMMARY.md`
+
+
 
 
 
