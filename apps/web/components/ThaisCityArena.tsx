@@ -1053,11 +1053,11 @@ export function ThaisCityArena({
         }
 
         if (!tex) {
-          const fallback = atlasTextures['thumb-knight'] || atlasTextures['thumb-citizen'] || Texture.WHITE;
-          tex = fallback;
+          tex = Texture.EMPTY;
         }
 
         const root = new Container();
+        root.visible = false;
         const sprite = new Sprite(tex);
         sprite.anchor.set(creatureVisualLayout.spriteAnchorX, creatureVisualLayout.spriteAnchorY);
         sprite.position.set(creatureVisualLayout.spriteOffsetX, creatureVisualLayout.spriteOffsetY);
@@ -1481,7 +1481,7 @@ export function ThaisCityArena({
 
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
-            view.root.visible = latestRef.current.isCharacterVisible !== false;
+            view.root.visible = latestRef.current.isCharacterVisible !== false && Boolean(view.lastCanvas || (view.sprite.texture && view.sprite.texture !== Texture.EMPTY));
             updateNameplate(view, localChar.name, (localChar as any).adminTitle);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()
@@ -1609,7 +1609,7 @@ export function ThaisCityArena({
 
             view.root.position.set(fPixelX, fPixelY);
             view.root.zIndex = fPixelY;
-            view.root.visible = curPos.z === fState.currentTile.z && latestRef.current.isCharacterVisible !== false;
+            view.root.visible = curPos.z === fState.currentTile.z && latestRef.current.isCharacterVisible !== false && Boolean(view.lastCanvas || (view.sprite.texture && view.sprite.texture !== Texture.EMPTY));
             updateNameplate(view, fChar.name, (fChar as any).adminTitle);
             const hpRatio = fChar.maxHp > 0 ? Math.max(0, Math.min(1, fChar.currentHp / fChar.maxHp)) : 1;
             view.bar.clear()

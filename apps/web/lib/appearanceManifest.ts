@@ -60,9 +60,9 @@ export function compileAppearanceManifest(params?: AppearanceParams): Appearance
   // Frames disponíveis reais do outfit
   const maxAvailable = caps.maxFrames <= 3 ? 3 : 9;
   const availableFrames = Array.from({ length: maxAvailable }, (_, i) => i);
-  // Frames essenciais para início imediato (f0 idle + primeiros passos)
-  const essentialFrames = caps.maxFrames <= 3 ? [0, 1, 2] : [0, 1, 2, 3, 4];
-  const extendedFrames = caps.maxFrames <= 3 ? [] : [5, 6, 7, 8];
+  // Frames essenciais para início imediato (f0 idle + ciclo completo de passos f1..f8)
+  const essentialFrames = availableFrames;
+  const extendedFrames: number[] = [];
 
   // Se o jogador estiver montado ou tiver montaria equipada, compilamos
   // tanto o estado montado quanto o desmontado para transição imediata sem delay.

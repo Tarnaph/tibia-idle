@@ -182,7 +182,7 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
 /**
  * Carrega e decodifica uma imagem individual no browser com timeout estrito de segurança
  */
-async function preloadSingleImage(url: string, timeoutMs: number = 1000): Promise<boolean> {
+async function preloadSingleImage(url: string, timeoutMs: number = 5000): Promise<boolean> {
   if (typeof window === 'undefined') return true;
 
   return new Promise((resolve) => {

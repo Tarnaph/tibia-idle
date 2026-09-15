@@ -1,6 +1,6 @@
 ---
 description: "Regras canônicas e localização oficial de imagens, sprites e assets visuais do jogo (CAVEBOUND / TibiaWeb)"
-globs: ["*"]
+globs: "*"
 ---
 
 # Diretriz Oficial de Imagens e Assets Visuais (Asset Paths)

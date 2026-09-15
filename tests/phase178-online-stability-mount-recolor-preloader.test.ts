@@ -158,6 +158,52 @@ describe('Phase 178: Online Stability, Visual Preparation & Mount Synchronizatio
 
       expect(provisionalCanvasCache.has('test-key')).toBe(false);
     });
+
+    it('exige estritamente a montaria quando montado - nunca retorna rider flutuando no ar sem montaria', () => {
+      // Configura rider base e mask prontos, mas montaria ausente
+      const f0BaseUrl = '/generated/outfits/summoner-male-west-f0-mount-base.png';
+      const f0MaskUrl = '/generated/outfits/summoner-male-west-f0-mount-mask.png';
+      const fakeBase = { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement;
+      const fakeMask = { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement;
+      imageElementCache.set(f0BaseUrl, fakeBase);
+      imageElementCache.set(f0MaskUrl, fakeMask);
+
+      // Certifica-se de que a montaria NÃO está no cache
+      const mountUrl = '/generated/mounts/war-bear-west-f0.png';
+      imageElementCache.delete(mountUrl);
+
+      const result = getRecoloredCanvasSync('summoner', 'male', 'west', 0, { head: 0, primary: 86, secondary: 114, detail: 76 }, 3, 'war-bear', true);
+
+      // Como a montaria não está pronta, DEVE retornar null (não desenha rider flutuando sozinho)
+      expect(result).toBeNull();
+    });
+
+    it('preserva Addon 1 e Addon 2 na direção Oeste em todas as composições de caminhada', () => {
+      // Verifica URLs geradas para todos os passos de caminhada montada para o Oeste
+      for (let f = 0; f <= 8; f++) {
+        const layers = getOutfitLayerUrls('summoner', 'male', 'west', f, 3, 'war-bear', true);
+        expect(layers.base).toContain('summoner-male-west');
+        expect(layers.addon1Base).toContain(`summoner-male-west-f${f}-mount-addon1-base.png`);
+        expect(layers.addon1Mask).toContain(`summoner-male-west-f${f}-mount-addon1-mask.png`);
+        expect(layers.addon2Base).toContain(`summoner-male-west-f${f}-mount-addon2-base.png`);
+        expect(layers.addon2Mask).toContain(`summoner-male-west-f${f}-mount-addon2-mask.png`);
+        expect(layers.mountUrl).toBe(`/generated/mounts/war-bear-west-f${f}.png`);
+      }
+    });
+
+    it('compileAppearanceManifest inclui todos os frames disponíveis 0..8 em essentialFrames', () => {
+      const manifest = compileAppearanceManifest({
+        outfit: 'summoner',
+        gender: 'male',
+        addons: 3,
+        mount: 'war-bear',
+        isMounted: true,
+      });
+
+      expect(manifest.availableFrames).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(manifest.essentialFrames).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(manifest.directions).toEqual(['south', 'east', 'north', 'west']);
+    });
   });
 });
 

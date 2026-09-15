@@ -587,7 +587,9 @@ export async function renderRecoloredOutfit(
       if (isCurrent && !isCurrent()) return;
       offCtx.drawImage(mountImg, 0, 0);
     } catch {
-      // ignore missing mount
+      // Mandatory mount: do NOT draw a floating rider without mount!
+      console.warn(`[renderRecoloredOutfit] Mount image failed to load at ${urls.mountUrl}`);
+      return;
     }
   }
   if (isCurrent && !isCurrent()) return;
@@ -757,7 +759,7 @@ export async function prepareAppearanceCanvas(
   mount?: string,
   isMounted: boolean = false,
   directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
-  frames: number[] = [0, 1]
+  frames?: number[]
 ): Promise<void> {
   if (typeof window === 'undefined') return;
   const norm = normalizeOutfitId(outfitId);
@@ -765,10 +767,49 @@ export async function prepareAppearanceCanvas(
   const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
   const effectiveMounted = isMounted && caps.hasMountRider;
 
+  const maxFrames = caps.maxFrames <= 3 ? 3 : 9;
+  const targetFrames = frames && frames.length > 0
+    ? frames.filter((f) => f < maxFrames)
+    : Array.from({ length: maxFrames }, (_, i) => i);
+
+  // 1. Gather all required image URLs for all directions and target frames
+  const imageLoadPromises: Promise<any>[] = [];
   for (const dir of directions) {
-    for (const f of frames) {
-      if (caps.maxFrames <= 3 && f > 2) continue;
+    for (const f of targetFrames) {
+      const urls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
+      imageLoadPromises.push(loadImage(urls.base).catch(() => null));
+      imageLoadPromises.push(loadImage(urls.mask).catch(() => null));
+      if (urls.addon1Base) imageLoadPromises.push(loadImage(urls.addon1Base).catch(() => null));
+      if (urls.addon1Mask) imageLoadPromises.push(loadImage(urls.addon1Mask).catch(() => null));
+      if (urls.addon2Base) imageLoadPromises.push(loadImage(urls.addon2Base).catch(() => null));
+      if (urls.addon2Mask) imageLoadPromises.push(loadImage(urls.addon2Mask).catch(() => null));
+      if (urls.mountUrl) imageLoadPromises.push(loadImage(urls.mountUrl).catch(() => null));
+    }
+  }
+
+  // Also prepare unmounted idle and walk frames if currently mounted so dismounting doesn't pop
+  if (effectiveMounted) {
+    for (const dir of directions) {
+      const unmountedUrls = getOutfitLayerUrls(norm, gender, dir, 0, effectiveAddons, undefined, false);
+      imageLoadPromises.push(loadImage(unmountedUrls.base).catch(() => null));
+      imageLoadPromises.push(loadImage(unmountedUrls.mask).catch(() => null));
+      if (unmountedUrls.addon1Base) imageLoadPromises.push(loadImage(unmountedUrls.addon1Base).catch(() => null));
+      if (unmountedUrls.addon1Mask) imageLoadPromises.push(loadImage(unmountedUrls.addon1Mask).catch(() => null));
+      if (unmountedUrls.addon2Base) imageLoadPromises.push(loadImage(unmountedUrls.addon2Base).catch(() => null));
+      if (unmountedUrls.addon2Mask) imageLoadPromises.push(loadImage(unmountedUrls.addon2Mask).catch(() => null));
+    }
+  }
+
+  // 2. AWAIT ALL IMAGES TO BE DOWNLOADED AND CACHED
+  await Promise.allSettled(imageLoadPromises);
+
+  // 3. Now render and cache each recolored canvas synchronously into recoloredCanvasCache
+  for (const dir of directions) {
+    for (const f of targetFrames) {
       getRecoloredCanvasSync(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
+    }
+    if (effectiveMounted) {
+      getRecoloredCanvasSync(norm, gender, dir, 0, colors, effectiveAddons, undefined, false);
     }
   }
 }
@@ -839,18 +880,12 @@ export function getRecoloredCanvasSync(
   const isBaseReady = !!(baseImg && baseImg.complete && baseImg.naturalWidth > 0);
   const isMaskReady = !!(maskImg && maskImg.complete && maskImg.naturalWidth > 0);
 
-  // Check mount layer if mounted
+  // Check mount layer if mounted (mandatory for mounted appearance)
   let isMountReady = true;
   let mountImg: HTMLImageElement | undefined;
   if (effectiveMounted && urls.mountUrl) {
-    if (isImagePermanentlyFailed(urls.mountUrl)) {
-      // Inexistent mount: do not block composition
-      isMountReady = true;
-      mountImg = undefined;
-    } else {
-      mountImg = imageElementCache.get(urls.mountUrl);
-      isMountReady = !!(mountImg && mountImg.complete && mountImg.naturalWidth > 0);
-    }
+    mountImg = imageElementCache.get(urls.mountUrl);
+    isMountReady = !!(mountImg && mountImg.complete && mountImg.naturalWidth > 0);
   }
 
   // Check Addon 1 if active
@@ -927,13 +962,18 @@ export function getRecoloredCanvasSync(
       const f0MountImg = f0MountUrl ? imageElementCache.get(f0MountUrl) : undefined;
       const isF0MountReady = !!(f0MountImg && f0MountImg.complete && f0MountImg.naturalWidth > 0);
 
+      // MANDATORY MOUNT: If f0 mount image is not ready, do NOT return a floating rider!
+      if (!isF0MountReady || !f0MountImg) {
+        return null;
+      }
+
       const f0BaseUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-base.png`;
       const f0MaskUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-mask.png`;
       const f0BaseImg = imageElementCache.get(f0BaseUrl) || baseImg;
       const f0MaskImg = imageElementCache.get(f0MaskUrl) || maskImg;
       const isF0RiderReady = !!(f0BaseImg && f0BaseImg.complete && f0BaseImg.naturalWidth > 0 && f0MaskImg && f0MaskImg.complete && f0MaskImg.naturalWidth > 0);
 
-      if (isF0RiderReady && (!f0MountUrl || isF0MountReady)) {
+      if (isF0RiderReady) {
         const provW = 64;
         const provH = 64;
         const provCanvas = document.createElement('canvas');
@@ -941,11 +981,30 @@ export function getRecoloredCanvasSync(
         provCanvas.height = provH;
         const provCtx = provCanvas.getContext('2d');
         if (provCtx) {
-          if (f0MountImg) {
-            provCtx.drawImage(f0MountImg, 0, 0);
-          }
+          provCtx.drawImage(f0MountImg, 0, 0);
           const offset = getMountDisplacementOffset(norm, gender, mount);
           drawRecoloredLayer(provCtx, f0BaseImg!, f0MaskImg!, colors, provW, provH, offset.x, offset.y);
+
+          // Phase 178: DRAW ADDONS in provisional composition!
+          if (caps.hasAddon1 && (effectiveAddons & 1) !== 0) {
+            const f0A1BaseUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-addon1-base.png`;
+            const f0A1MaskUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-addon1-mask.png`;
+            const curA1Base = a1Base || imageElementCache.get(f0A1BaseUrl);
+            const curA1Mask = a1Mask || imageElementCache.get(f0A1MaskUrl);
+            if (curA1Base && curA1Mask) {
+              drawRecoloredLayer(provCtx, curA1Base, curA1Mask, colors, provW, provH, offset.x, offset.y);
+            }
+          }
+          if (caps.hasAddon2 && (effectiveAddons & 2) !== 0) {
+            const f0A2BaseUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-addon2-base.png`;
+            const f0A2MaskUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mount-addon2-mask.png`;
+            const curA2Base = a2Base || imageElementCache.get(f0A2BaseUrl);
+            const curA2Mask = a2Mask || imageElementCache.get(f0A2MaskUrl);
+            if (curA2Base && curA2Mask) {
+              drawRecoloredLayer(provCtx, curA2Base, curA2Mask, colors, provW, provH, offset.x, offset.y);
+            }
+          }
+
           provisionalCanvasCache.set(key, provCanvas);
           return provCanvas;
         }
@@ -981,6 +1040,27 @@ export function getRecoloredCanvasSync(
         const provCtx = provCanvas.getContext('2d');
         if (provCtx) {
           drawRecoloredLayer(provCtx, baseImg, maskImg, colors, provW, provH, 0, 0);
+
+          // Phase 178: DRAW ADDONS in unmounted provisional composition!
+          if (caps.hasAddon1 && (effectiveAddons & 1) !== 0) {
+            const f0A1BaseUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-addon1-base.png`;
+            const f0A1MaskUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-addon1-mask.png`;
+            const curA1Base = a1Base || imageElementCache.get(f0A1BaseUrl);
+            const curA1Mask = a1Mask || imageElementCache.get(f0A1MaskUrl);
+            if (curA1Base && curA1Mask) {
+              drawRecoloredLayer(provCtx, curA1Base, curA1Mask, colors, provW, provH, 0, 0);
+            }
+          }
+          if (caps.hasAddon2 && (effectiveAddons & 2) !== 0) {
+            const f0A2BaseUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-addon2-base.png`;
+            const f0A2MaskUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-addon2-mask.png`;
+            const curA2Base = a2Base || imageElementCache.get(f0A2BaseUrl);
+            const curA2Mask = a2Mask || imageElementCache.get(f0A2MaskUrl);
+            if (curA2Base && curA2Mask) {
+              drawRecoloredLayer(provCtx, curA2Base, curA2Mask, colors, provW, provH, 0, 0);
+            }
+          }
+
           provisionalCanvasCache.set(key, provCanvas);
           return provCanvas;
         }
@@ -998,6 +1078,11 @@ export function getRecoloredCanvasSync(
   targetCanvas.height = h;
   const targetCtx = targetCanvas.getContext('2d');
   if (!targetCtx) return null;
+
+  // MANDATORY MOUNT CHECK: A mounted character without mount is never drawn
+  if (effectiveMounted && (!mountImg || !urls.mountUrl)) {
+    return null;
+  }
 
   const offset = effectiveMounted ? getMountDisplacementOffset(norm, gender, mount) : { x: 0, y: 0 };
 
@@ -1019,10 +1104,8 @@ export function getRecoloredCanvasSync(
     drawRecoloredLayer(targetCtx, a2Base, a2Mask, colors, w, h, offset.x, offset.y);
   }
 
-  // If any requested layer failed (e.g. 404 or transient), do NOT poison recoloredCanvasCache!
-  // Cache in provisionalCanvasCache so it can be re-attempted or upgraded once available.
+  // If any requested addon layer failed, store in provisional rather than poisoning definitive cache
   const hasIncompleteLayer =
-    (effectiveMounted && urls.mountUrl && !mountImg) ||
     (urls.addon1Base && !a1Base) ||
     (urls.addon2Base && !a2Base);
 

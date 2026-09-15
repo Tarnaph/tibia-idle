@@ -1,6 +1,6 @@
 ---
 description: "Sempre utilizar a skill /gsd e o framework GSD para gerenciar e executar tarefas no projeto"
-globs: ["*"]
+globs: "*"
 ---
 
 # Always Use GSD (Git. Ship. Done.)
