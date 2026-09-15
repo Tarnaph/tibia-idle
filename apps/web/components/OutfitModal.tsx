@@ -13,6 +13,7 @@ import {
   clearFailedImageCache,
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
+import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
 
 export { TIBIA_133_COLORS } from '@/apps/web/lib/outfitRecolor';
 
@@ -160,6 +161,18 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       if (activeCharacterId && selectedCharId !== activeCharacterId) {
         setSelectedCharId(activeCharacterId);
       }
+      const initialChar = characters.find((c) => c.id === (activeCharacterId || selectedCharId)) || characters[0];
+      if (initialChar) {
+        outfitDiagnostics.startAttempt({
+          characterId: initialChar.id,
+          characterName: initialChar.name,
+          outfit: initialChar.outfit,
+          mount: initialChar.mount,
+          mountActive: initialChar.mountActive,
+          addons: initialChar.addons,
+          colors: initialChar.outfitColors,
+        });
+      }
     }
 
     const targetCharId = isNewlyOpened && activeCharacterId ? activeCharacterId : selectedCharId;
@@ -226,6 +239,22 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       if (addon1 && caps.hasAddon1) addonsVal |= 1;
       if (addon2 && caps.hasAddon2) addonsVal |= 2;
       const effectiveMounted = Boolean(mountActive && selectedMount !== 'none' && caps.hasMountRider);
+      const renderStartTime = Date.now();
+
+      outfitDiagnostics.updateSelection({
+        outfit: selectedOutfit,
+        mount: selectedMount,
+        mountActive: effectiveMounted,
+        addons: addonsVal,
+        colors,
+        direction: currentDir,
+      });
+
+      outfitDiagnostics.recordPreparation({
+        status: 'preparing',
+        durationMs: 0,
+      });
+
       console.log('[OutfitModal preview useEffect]', {
         selectedOutfit,
         charGender,
@@ -247,20 +276,31 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         selectedMount,
         effectiveMounted,
         () => renderGenRef.current === thisGen
-      ).catch((err) => {
+      ).then(() => {
+        if (renderGenRef.current === thisGen) {
+          const cvs = previewCanvasRef.current;
+          outfitDiagnostics.recordPreparation({
+            status: 'ready',
+            durationMs: Date.now() - renderStartTime,
+            success: true,
+          });
+          outfitDiagnostics.recordPreview({
+            hasCanvas: !!cvs,
+            width: cvs?.width || 0,
+            height: cvs?.height || 0,
+            lastDrawnKey: `${selectedOutfit}_${selectedMount}_${currentDir}_a${addonsVal}`,
+            isDefinitive: true,
+          });
+        }
+      }).catch((err) => {
+        outfitDiagnostics.recordPreparation({
+          status: 'failed',
+          durationMs: Date.now() - renderStartTime,
+          success: false,
+          missingAssets: [err?.message || 'render-error'],
+        });
         console.warn('Outfit preview render non-fatal exception caught:', err);
       });
-
-      // Warm cache across all directions in background for seamless rotation and instant walking
-      prepareAppearanceCanvas(
-        selectedOutfit,
-        charGender,
-        colors,
-        addonsVal,
-        selectedMount,
-        effectiveMounted,
-        DIRECTIONS as any
-      ).catch(() => {});
     }
   }, [
     open,
@@ -305,6 +345,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   };
 
   const handleSave = () => {
+    outfitDiagnostics.recordSaveClick();
     const effectiveCharId = selectedCharId || activeCharacterId || characters[0]?.id;
     let addonsVal = 0;
     if (addon1 && currentCaps.hasAddon1) addonsVal |= 1;
@@ -674,6 +715,37 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
 
         {/* Window Footer */}
         <div className="tibia-window-footer">
+          <button
+            type="button"
+            className="tibia-footer-btn-diag"
+            onClick={() => {
+              const ok = outfitDiagnostics.copyReportToClipboard();
+              if (ok) {
+                alert('Relatório de diagnóstico copiado! Cole aqui no chat.');
+              } else {
+                const rep = outfitDiagnostics.getLatestReport();
+                if (rep) {
+                  prompt('Copie o JSON de diagnóstico abaixo:', JSON.stringify(rep));
+                } else {
+                  alert('Nenhum diagnóstico registrado ainda.');
+                }
+              }
+            }}
+            title="Copiar relatório de diagnóstico de troca de outfit/montaria para a área de transferência"
+            style={{
+              marginRight: 'auto',
+              backgroundColor: '#1e293b',
+              color: '#38bdf8',
+              border: '1px solid #38bdf8',
+              borderRadius: '4px',
+              padding: '5px 12px',
+              fontSize: '11px',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            📋 Copiar Diagnóstico
+          </button>
           <button type="button" className="tibia-footer-btn-cancel" onClick={onClose}>
             Cancelar
           </button>

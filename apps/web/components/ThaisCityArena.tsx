@@ -13,6 +13,7 @@ import type { ExtractedFrame, ItemVisualAssetMapping, VisualAssetMapping } from 
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
 import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, isAppearanceFullyReady, normalizeOutfitId, preloadOutfitAllFrames, prepareAppearanceCanvas, getOutfitCapabilities, type OutfitColors } from '@/apps/web/lib/outfitRecolor';
+import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
 import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
@@ -1522,8 +1523,20 @@ export function ThaisCityArena({
                 view.pendingAppearance = null;
                 view.appearanceState = undefined;
                 view.lastOutfitSignature = outfitSig;
+                view.lastCanvas = undefined;
                 view.lastTextureKey = ''; // Force immediate texture rebind to new appearance
               }
+
+              outfitDiagnostics.recordArenaState({
+                reactCharOutfit: localChar.outfit,
+                reactCharMount: localChar.mount,
+                reactCharMountActive: localChar.mountActive,
+                reactCharAddons: (localChar as any).addons || (localChar as any).outfitAddons,
+                arenaActiveAppearanceSig: view.activeAppearance?.outfitSig,
+                arenaPendingAppearanceSig: view.pendingAppearance?.outfitSig,
+                arenaAppearanceStatus: view.appearanceState?.status || (view.activeAppearance?.outfitSig === outfitSig ? 'ready' : 'idle'),
+                pixiTextureKey: view.lastTextureKey,
+              });
             } else {
               view.pendingAppearance = null;
               view.appearanceState = undefined;
@@ -1580,7 +1593,9 @@ export function ThaisCityArena({
               if (canvas) {
                 if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
                   view.lastCanvas = canvas;
+                if (isCached) {
                   view.lastTextureKey = textureKey;
+                }
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
                   (tex.source as any).update?.();

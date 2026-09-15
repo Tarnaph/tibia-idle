@@ -53,6 +53,7 @@ import { preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { GameModalProvider, useGameModal } from '@/apps/web/contexts/GameModalContext';
 import { GameModalHost } from './modals/GameModalHost';
 import { isCharacterMounted, canOutfitHaveMount } from '@/apps/web/lib/appearanceService';
+import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
 import { PixiArena } from './PixiArena';
 import { assetPreloader } from '@/apps/web/lib/assetPreloader';
 import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
@@ -1800,6 +1801,8 @@ function GamePrototypeContent() {
         }),
       });
 
+      outfitDiagnostics.recordApiSave(res.status, res.ok, res.ok ? undefined : `HTTP ${res.status}`);
+
       if (res.status === 409) {
         // Optimistic Concurrency Conflict: reconcile complete state from server, avoid blind re-send
         try {
@@ -2193,6 +2196,21 @@ function GamePrototypeContent() {
     });
 
     // Synchronously update latestSaveStateRef so background auto-save or immediate save never stomps with stale state
+    if (latestSaveStateRef.current.characters) {
+      latestSaveStateRef.current.characters = latestSaveStateRef.current.characters.map((char) =>
+        char.id === characterId
+          ? {
+              ...char,
+              outfit: customization.outfit,
+              mount: customization.mount,
+              mountActive: customization.mountActive,
+              addons: customization.addons,
+              outfitAddons: customization.addons,
+              outfitColors: customization.outfitColors,
+            }
+          : char
+      );
+    }
     if (latestSaveStateRef.current.activeCharacter && latestSaveStateRef.current.activeCharacter.id === characterId) {
       latestSaveStateRef.current.activeCharacter = {
         ...latestSaveStateRef.current.activeCharacter,
@@ -2215,6 +2233,9 @@ function GamePrototypeContent() {
         outfitColors: customization.outfitColors,
       } as any;
     }
+
+    outfitDiagnostics.recordSaveCallback(customization);
+    outfitDiagnostics.recordNetworkDispatch();
 
     // Broadcast outfit change to live Colyseus server so all remote players update instantly
     gameNetwork.sendChangeOutfit(customization);
@@ -2242,6 +2263,17 @@ function GamePrototypeContent() {
       const targetAddons = (target as any).addons || (target as any).outfitAddons || 0;
 
       // Synchronously update latestSaveStateRef
+      if (latestSaveStateRef.current.characters) {
+        latestSaveStateRef.current.characters = latestSaveStateRef.current.characters.map((char) =>
+          char.id === target.id
+            ? {
+                ...char,
+                mount: effectiveMount,
+                mountActive: nextMountActive,
+              }
+            : char
+        );
+      }
       if (latestSaveStateRef.current.activeCharacter && latestSaveStateRef.current.activeCharacter.id === target.id) {
         latestSaveStateRef.current.activeCharacter = {
           ...latestSaveStateRef.current.activeCharacter,

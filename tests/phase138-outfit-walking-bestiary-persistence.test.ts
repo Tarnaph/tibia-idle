@@ -110,11 +110,10 @@ describe('Phase 138: Walking Animation, Outfits, Avatar Click and Bestiary Persi
       const content = fs.readFileSync('apps/web/components/window/WindowDockBar.tsx', 'utf-8');
 
       // Verifies that onClick prioritizes onOpenOutfit before onOpenSkills
-      expect(content).toContain('if (onOpenOutfit) onOpenOutfit();');
       const onClickIdx = content.indexOf('if (onOpenOutfit) onOpenOutfit();');
-      const onOpenSkillsIdx = content.indexOf('if (onOpenSkills) onOpenSkills();', onClickIdx);
+      const onNextActionIdx = content.indexOf('else if (onOpenProfile) onOpenProfile();', onClickIdx);
       expect(onClickIdx).toBeGreaterThan(0);
-      expect(onOpenSkillsIdx).toBeGreaterThan(onClickIdx);
+      expect(onNextActionIdx).toBeGreaterThan(onClickIdx);
     });
   });
 });

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-15T13:30:00.000Z"
-last_activity: "2026-09-15 — Concluída Phase 178: Estabilidade Online, Preparação Visual Unificada, Sincronização Estrita de Montarias e Deploy VPS."
+last_updated: "2026-09-15T20:30:00.000Z"
+last_activity: "2026-09-15 — Concluída Phase 179: Diagnóstico Instrumental e Resolução Estrita de Troca de Outfits, Montarias e Persistência de Aparência."
 progress:
-  total_phases: 178
-  completed_phases: 178
-  total_plans: 184
-  completed_plans: 184
+  total_phases: 179
+  completed_phases: 179
+  total_plans: 185
+  completed_plans: 185
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Concluída Phase 178 - Estabilidade Online, Preparação Visual Unificada, Sincronização Estrita de Montarias e Deploy VPS.
+**Current focus:** Concluída Phase 179 - Diagnóstico Instrumental e Resolução Estrita de Troca de Outfits, Montarias e Persistência de Aparência.
 
 ## Current Position
 
-Phase: 178 of 178 (Concluída)  
+Phase: 179 of 179 (Concluída)  
 Plan: 1 of 1 in current phase  
 Status: Complete  
-Last activity: 2026-09-15 — Desacoplamento da tela de apresentação visual da prontidão do motor gráfico, manifesto unificado dinâmico consultando capabilities de frames de outfits/addons/montarias, invalidação limpa de composições provisórias em outfitRecolor, pré-renderização de canvases essenciais e sincronização total na VPS.
+Last activity: 2026-09-15 — Implementação de telemetria diagnóstica completa com correlação attemptId, botão 1-clique Copiar Diagnóstico no OutfitModal, resolução da tempestade de rede durante o preview e sincronização síncrona de latestSaveStateRef.current.characters no salvamento de aparências.
 
 Progress: [██████████] 100%
 
