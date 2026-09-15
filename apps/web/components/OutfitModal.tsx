@@ -9,6 +9,7 @@ import {
   getOutfitCapabilities,
   renderRecoloredOutfit,
   preloadOutfitAllFrames,
+  prepareAppearanceCanvas,
   clearFailedImageCache,
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
@@ -239,6 +240,17 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       ).catch((err) => {
         console.warn('Outfit preview render non-fatal exception caught:', err);
       });
+
+      // Warm cache across all directions in background for seamless rotation and instant walking
+      prepareAppearanceCanvas(
+        selectedOutfit,
+        charGender,
+        colors,
+        addonsVal,
+        selectedMount,
+        effectiveMounted,
+        DIRECTIONS as any
+      ).catch(() => {});
     }
   }, [
     open,
@@ -296,25 +308,25 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       addons: addonsVal,
       outfitColors: colors,
     });
-    // Preload both unmounted (foot) and mounted frames so transitions are instant
-    preloadOutfitAllFrames(
+    // Preload both unmounted (foot) and mounted frames completely so transitions are instant
+    prepareAppearanceCanvas(
       selectedOutfit,
       activeChar.gender || 'male',
       colors,
       addonsVal,
       effectiveMount,
       false,
-      currentDir
+      DIRECTIONS as any
     ).catch(() => {});
     if (effectiveMount && effectiveMount !== 'none' && currentCaps.hasMountRider) {
-      preloadOutfitAllFrames(
+      prepareAppearanceCanvas(
         selectedOutfit,
         activeChar.gender || 'male',
         colors,
         addonsVal,
         effectiveMount,
         true,
-        currentDir
+        DIRECTIONS as any
       ).catch(() => {});
     }
     onClose();

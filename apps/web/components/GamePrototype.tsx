@@ -335,7 +335,7 @@ function GamePrototypeContent() {
     nextSeed: string;
     entrance: any;
   } | null>(null);
-  const isCharacterVisible = !initialLoadingActive && !transitionLoading?.active;
+  const isCharacterVisible = !initialLoadingActive && !transitionLoading?.active && Boolean(onlineCharacter);
 
   const { openWindow, closeWindow, bringToFront } = useWindowManager();
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([

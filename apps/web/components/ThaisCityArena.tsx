@@ -12,7 +12,7 @@ import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@
 import type { ExtractedFrame, ItemVisualAssetMapping, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
-import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames, getOutfitCapabilities } from '@/apps/web/lib/outfitRecolor';
+import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames, prepareAppearanceCanvas, getOutfitCapabilities, type OutfitColors } from '@/apps/web/lib/outfitRecolor';
 import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
@@ -941,6 +941,16 @@ export function ThaisCityArena({
       app.canvas.addEventListener('contextmenu', onContextMenu);
 
       // Character actor containers with crisp nameplate and health bar
+      interface CityActorAppearance {
+        outfitKey: string;
+        charGender: 'male' | 'female';
+        colors: OutfitColors;
+        addons: number;
+        mount?: string;
+        isMounted: boolean;
+        outfitSig: string;
+      }
+
       interface CityActorView {
         root: InstanceType<typeof Container>;
         sprite: InstanceType<typeof Sprite>;
@@ -953,6 +963,8 @@ export function ThaisCityArena({
         lastColorsKey?: string;
         lastOutfitSignature?: string;
         lastCanvas?: HTMLCanvasElement;
+        activeAppearance?: CityActorAppearance;
+        pendingAppearance?: CityActorAppearance | null;
         overheadSpeech?: InstanceType<typeof Container>;
         overheadSpeechText?: InstanceType<typeof Text>;
         speechExpiresAt?: number;
@@ -1374,7 +1386,91 @@ export function ThaisCityArena({
             const charDirection = playerDirection;
             const charIsMoving = isMoving || Boolean(curWalk);
 
-            const normOutfit = normalizeOutfitId(localChar.outfit || localChar.vocation || 'Knight');
+            view.sprite.scale.x = 1;
+            const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
+            const outfitKey = localChar.outfit || localChar.vocation || 'Knight';
+            const colors = localChar.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+            const charGender = localChar.gender === 'female' ? 'female' : 'male';
+            const addons = (localChar as any).addons || (localChar as any).outfitAddons || 0;
+
+            const outfitSig = `${outfitKey}_${charGender}_${isMounted ? (localChar.mount || 'none') : 'none'}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
+
+            const desiredAppearance: CityActorAppearance = {
+              outfitKey,
+              charGender,
+              colors,
+              addons,
+              mount: localChar.mount,
+              isMounted,
+              outfitSig,
+            };
+
+            // Check if desired appearance has essential frames ready in definitive recoloredCanvasCache
+            const isDesiredIdleReady = isOutfitCanvasCached(
+              outfitKey,
+              charGender,
+              charDirection as any,
+              0,
+              colors,
+              addons,
+              localChar.mount,
+              isMounted
+            );
+            const isDesiredWalkReady = !charIsMoving || isOutfitCanvasCached(
+              outfitKey,
+              charGender,
+              charDirection as any,
+              1,
+              colors,
+              addons,
+              localChar.mount,
+              isMounted
+            );
+            const isDesiredReady = isDesiredIdleReady && isDesiredWalkReady;
+
+            if (!view.activeAppearance) {
+              // Initial appearance setup on join/hydration
+              view.activeAppearance = desiredAppearance;
+              view.lastOutfitSignature = outfitSig;
+              prepareAppearanceCanvas(
+                outfitKey,
+                charGender,
+                colors,
+                addons,
+                localChar.mount,
+                isMounted
+              ).catch(() => {});
+            } else if (view.activeAppearance.outfitSig !== outfitSig) {
+              // User has switched outfit, mount, addons, or colors!
+              if (view.pendingAppearance?.outfitSig !== outfitSig) {
+                view.pendingAppearance = desiredAppearance;
+                // Preload all frames for new appearance across all 4 directions in background
+                prepareAppearanceCanvas(
+                  outfitKey,
+                  charGender,
+                  colors,
+                  addons,
+                  localChar.mount,
+                  isMounted
+                ).catch(() => {});
+              }
+
+              // ATOMIC APPEARANCE SWAP:
+              // Keep rendering the previous complete appearance until the new one is fully ready!
+              // When ready, swap body, mount, and addons together in this exact single frame!
+              if (isDesiredReady) {
+                view.activeAppearance = desiredAppearance;
+                view.pendingAppearance = null;
+                view.lastOutfitSignature = outfitSig;
+                view.lastTextureKey = ''; // Force immediate texture rebind to new appearance
+              }
+            } else {
+              view.pendingAppearance = null;
+            }
+
+            // Current rendered appearance (seamlessly preserves previous complete appearance while new one preloads)
+            const curApp = view.activeAppearance || desiredAppearance;
+            const normOutfit = normalizeOutfitId(curApp.outfitKey);
             const caps = getOutfitCapabilities(normOutfit);
             const walkCycleDuration = Math.max(160, curStepDuration * 2);
             const cyclePhase = (now % walkCycleDuration) / walkCycleDuration;
@@ -1383,79 +1479,42 @@ export function ThaisCityArena({
               ? (caps.maxFrames <= 3 ? (1 + (Math.floor(cyclePhase * 2) % 2)) : (1 + (Math.floor(cyclePhase * 8) % 8)))
               : 0;
 
-            view.sprite.scale.x = 1;
-            const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
-            const outfitKey = localChar.outfit || localChar.vocation || 'Knight';
-            const colors = localChar.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
-            const charGender = localChar.gender === 'female' ? 'female' : 'male';
-            const addons = (localChar as any).addons || (localChar as any).outfitAddons || 0;
-
-            // Trigger proactive preloading whenever player outfit, mount, addons, colors or direction change
-            const outfitSig = `${outfitKey}_${charGender}_${isMounted ? (localChar.mount || 'none') : 'none'}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`;
-            if (view.lastOutfitSignature !== outfitSig) {
-              view.lastOutfitSignature = outfitSig;
-              view.lastTextureKey = '';
-              view.lastCanvas = undefined;
-              preloadOutfitAllFrames(
-                outfitKey,
-                charGender,
-                colors,
-                addons,
-                localChar.mount,
-                isMounted,
-                charDirection as any
-              ).catch(() => {});
-            } else if ((view as any).lastDirection !== charDirection) {
-              (view as any).lastDirection = charDirection;
-              if (!isOutfitCanvasCached(outfitKey, charGender, charDirection as any, 1, colors, addons, localChar.mount, isMounted)) {
-                preloadOutfitAllFrames(
-                  outfitKey,
-                  charGender,
-                  colors,
-                  addons,
-                  localChar.mount,
-                  isMounted,
-                  charDirection as any
-                ).catch(() => {});
-              }
-            }
-
             const safeFrame = caps.maxFrames <= 3
               ? (charWalkFrame === 0 ? 0 : ((Math.abs(charWalkFrame) - 1) % 2) + 1)
               : Math.max(0, Math.min(8, charWalkFrame));
-            const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
-            const effectiveMounted = isMounted && caps.hasMountRider;
+            const effectiveAddons = (caps.hasAddon1 ? (curApp.addons & 1) : 0) | (caps.hasAddon2 ? (curApp.addons & 2) : 0);
+            const effectiveMounted = curApp.isMounted && caps.hasMountRider;
 
             const textureKey = getCanvasCacheKey(
               normOutfit,
-              charGender,
+              curApp.charGender,
               charDirection as any,
               safeFrame,
-              colors,
+              curApp.colors,
               effectiveAddons,
-              localChar.mount,
+              curApp.mount,
               effectiveMounted
             );
             const isCached = isOutfitCanvasCached(
-              outfitKey,
-              charGender,
+              curApp.outfitKey,
+              curApp.charGender,
               charDirection as any,
               safeFrame,
-              colors,
-              addons,
-              localChar.mount,
-              isMounted
+              curApp.colors,
+              curApp.addons,
+              curApp.mount,
+              curApp.isMounted
             );
             if (view.lastTextureKey !== textureKey || !isCached) {
               const canvas = getRecoloredCanvasSync(
-                outfitKey,
-                charGender,
+                curApp.outfitKey,
+                curApp.charGender,
                 charDirection as any,
                 safeFrame,
-                colors,
-                addons,
-                localChar.mount,
-                isMounted
+                curApp.colors,
+                curApp.addons,
+                curApp.mount,
+                curApp.isMounted
               );
               if (canvas) {
                 if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
@@ -1469,8 +1528,8 @@ export function ThaisCityArena({
                   view.lastTextureKey = textureKey;
                 }
                 view.lastUrl = 'canvas';
-              } else if (!isMounted) {
-                const nextUrl = getOutfitFrameUrl(outfitKey, charDirection, safeFrame);
+              } else if (!curApp.isMounted) {
+                const nextUrl = getOutfitFrameUrl(curApp.outfitKey, charDirection, safeFrame);
                 if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
                   view.sprite.texture = loaded[nextUrl];
                   view.lastUrl = nextUrl;

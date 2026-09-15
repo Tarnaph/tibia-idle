@@ -8,6 +8,7 @@ import {
   imageElementCache,
   recoloredCanvasCache,
   provisionalCanvasCache,
+  renderRecoloredOutfit,
 } from '@/apps/web/lib/outfitRecolor';
 
 describe('Phase 178: Online Stability, Visual Preparation & Mount Synchronization Contract', () => {
@@ -203,6 +204,83 @@ describe('Phase 178: Online Stability, Visual Preparation & Mount Synchronizatio
       expect(manifest.availableFrames).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
       expect(manifest.essentialFrames).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
       expect(manifest.directions).toEqual(['south', 'east', 'north', 'west']);
+    });
+
+    it('não envenena provisionalCanvasCache quando addons solicitados não puderem ser desenhados', () => {
+      // Limpa caches
+      provisionalCanvasCache.clear();
+      recoloredCanvasCache.clear();
+
+      const origDoc = (globalThis as any).document;
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      try {
+        // Configura rider f0 e mount f0 prontos, mas SEM as imagens do Addon 2
+        const f0BaseUrl = '/generated/outfits/summoner-male-south-f0-mount-base.png';
+        const f0MaskUrl = '/generated/outfits/summoner-male-south-f0-mount-mask.png';
+        const mountUrl = '/generated/mounts/war-bear-south-f0.png';
+        imageElementCache.set(f0BaseUrl, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(f0MaskUrl, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(mountUrl, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+
+        const f0A2BaseUrl = '/generated/outfits/summoner-male-south-f0-mount-addon2-base.png';
+        const f0A2MaskUrl = '/generated/outfits/summoner-male-south-f0-mount-addon2-mask.png';
+        imageElementCache.delete(f0A2BaseUrl);
+        imageElementCache.delete(f0A2MaskUrl);
+
+        const key = getCanvasCacheKey('summoner', 'male', 'south', 0, { head: 0, primary: 86, secondary: 114, detail: 76 }, 2, 'war-bear', true);
+
+        // Executa getRecoloredCanvasSync solicitando Addon 2
+        const prov = getRecoloredCanvasSync('summoner', 'male', 'south', 0, { head: 0, primary: 86, secondary: 114, detail: 76 }, 2, 'war-bear', true);
+
+        // Como o Addon 2 não estava carregado, o canvas provisório pode ser retornado para fallback imediato,
+        // MAS NÃO PODE SER ARMAZENADO no provisionalCanvasCache sob a chave do Addon 2!
+        expect(provisionalCanvasCache.has(key)).toBe(false);
+      } finally {
+        (globalThis as any).document = origDoc;
+      }
+    });
+
+    it('renderRecoloredOutfit descarta composições atrasadas se isCurrent retornar false', async () => {
+      const mockCanvas = {
+        width: 64,
+        height: 64,
+        getContext: () => ({
+          clearRect: () => {},
+          drawImage: () => {},
+        }),
+      } as unknown as HTMLCanvasElement;
+
+      // Chama render com isCurrent sempre false (representando seleção cancelada pelo usuário)
+      let isCurrent = false;
+      await renderRecoloredOutfit(
+        mockCanvas,
+        'summoner',
+        'male',
+        'south',
+        0,
+        { head: 0, primary: 86, secondary: 114, detail: 76 },
+        2,
+        'war-bear',
+        true,
+        () => isCurrent
+      );
+
+      const key = getCanvasCacheKey('summoner', 'male', 'south', 0, { head: 0, primary: 86, secondary: 114, detail: 76 }, 2, 'war-bear', true);
+      // Nenhuma textura definitiva foi colocada se a seleção foi cancelada antes da execução
+      expect(recoloredCanvasCache.has(key)).toBe(false);
     });
   });
 });
