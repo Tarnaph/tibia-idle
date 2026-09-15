@@ -380,7 +380,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
         settled = true;
         handleError();
       }
-    }, 3500);
+    }, 15000);
 
     const handleSuccess = () => {
       if (settled) return;
@@ -820,43 +820,18 @@ export async function prepareAppearanceCanvas(
     ? frames.filter((f) => f < maxFrames)
     : Array.from({ length: maxFrames }, (_, i) => i);
 
-  // 1. Gather all required image URLs and monitor individual loading states
-  const missingAssets: string[] = [];
-  const loadTasks: Array<{ url: string; promise: Promise<any> }> = [];
-
-  const queueLoad = (url: string) => {
-    if (!url) return;
-    const cached = imageElementCache.get(url);
-    if (cached && cached.complete && cached.naturalWidth > 0) {
-      loadTasks.push({ url, promise: Promise.resolve(cached) });
-      return;
-    }
-    if (isImagePermanentlyFailed(url)) {
-      missingAssets.push(url);
-      return;
-    }
-    const p = loadImage(url)
-      .then((img) => {
-        if (!img || !img.complete || img.naturalWidth === 0) {
-          missingAssets.push(url);
-        }
-      })
-      .catch(() => {
-        missingAssets.push(url);
-      });
-    loadTasks.push({ url, promise: p });
-  };
-
+  // 1. Gather all required image URLs
+  const rawUrls: string[] = [];
   for (const dir of directions) {
     for (const f of targetFrames) {
       const urls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
-      queueLoad(urls.base);
-      queueLoad(urls.mask);
-      if (urls.addon1Base) queueLoad(urls.addon1Base);
-      if (urls.addon1Mask) queueLoad(urls.addon1Mask);
-      if (urls.addon2Base) queueLoad(urls.addon2Base);
-      if (urls.addon2Mask) queueLoad(urls.addon2Mask);
-      if (urls.mountUrl) queueLoad(urls.mountUrl);
+      if (urls.base) rawUrls.push(urls.base);
+      if (urls.mask) rawUrls.push(urls.mask);
+      if (urls.addon1Base) rawUrls.push(urls.addon1Base);
+      if (urls.addon1Mask) rawUrls.push(urls.addon1Mask);
+      if (urls.addon2Base) rawUrls.push(urls.addon2Base);
+      if (urls.addon2Mask) rawUrls.push(urls.addon2Mask);
+      if (urls.mountUrl) rawUrls.push(urls.mountUrl);
     }
   }
 
@@ -864,17 +839,37 @@ export async function prepareAppearanceCanvas(
   if (effectiveMounted) {
     for (const dir of directions) {
       const unmountedUrls = getOutfitLayerUrls(norm, gender, dir, 0, effectiveAddons, undefined, false);
-      queueLoad(unmountedUrls.base);
-      queueLoad(unmountedUrls.mask);
-      if (unmountedUrls.addon1Base) queueLoad(unmountedUrls.addon1Base);
-      if (unmountedUrls.addon1Mask) queueLoad(unmountedUrls.addon1Mask);
-      if (unmountedUrls.addon2Base) queueLoad(unmountedUrls.addon2Base);
-      if (unmountedUrls.addon2Mask) queueLoad(unmountedUrls.addon2Mask);
+      if (unmountedUrls.base) rawUrls.push(unmountedUrls.base);
+      if (unmountedUrls.mask) rawUrls.push(unmountedUrls.mask);
+      if (unmountedUrls.addon1Base) rawUrls.push(unmountedUrls.addon1Base);
+      if (unmountedUrls.addon1Mask) rawUrls.push(unmountedUrls.addon1Mask);
+      if (unmountedUrls.addon2Base) rawUrls.push(unmountedUrls.addon2Base);
+      if (unmountedUrls.addon2Mask) rawUrls.push(unmountedUrls.addon2Mask);
     }
   }
 
-  // 2. AWAIT ALL IMAGES TO BE DOWNLOADED AND CACHED
-  await Promise.allSettled(loadTasks.map((t) => t.promise));
+  // 2. Throttled worker pool (max 6 concurrent) matching browser HTTP/1.1 socket limits
+  const uniqueUrls = Array.from(new Set(rawUrls));
+  const missingAssets: string[] = [];
+  const queue = [...uniqueUrls];
+  const concurrency = 6;
+  const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
+    while (queue.length > 0) {
+      const url = queue.shift();
+      if (!url) break;
+      const cached = imageElementCache.get(url);
+      if (cached && cached.complete && cached.naturalWidth > 0) continue;
+      try {
+        const img = await loadImage(url);
+        if (!img || !img.complete || img.naturalWidth === 0) {
+          missingAssets.push(url);
+        }
+      } catch {
+        missingAssets.push(url);
+      }
+    }
+  });
+  await Promise.allSettled(workers);
 
   // 3. Now render and cache each recolored canvas synchronously into recoloredCanvasCache
   for (const dir of directions) {

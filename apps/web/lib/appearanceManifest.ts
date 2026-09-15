@@ -76,10 +76,11 @@ export function compileAppearanceManifest(params?: AppearanceParams): Appearance
   }
 
   for (const mounted of mountStates) {
+    const isPrimaryMountState = mounted === isMounted;
     for (const dir of DIRECTIONS) {
       for (const f of availableFrames) {
         const layers = getOutfitLayerUrls(outfitId, gender, dir, f, effectiveAddons, mountId, mounted);
-        const isEss = essentialFrames.includes(f);
+        const isEss = isPrimaryMountState && essentialFrames.includes(f);
 
         const addLayer = (url?: string, isMount = false) => {
           if (!url) return;
@@ -112,7 +113,7 @@ export function compileAppearanceManifest(params?: AppearanceParams): Appearance
       for (const f of availableFrames) {
         const mUrl = `/generated/mounts/${mountId}-${dir}-f${f}.png`;
         mountUrls.add(mUrl);
-        if (essentialFrames.includes(f)) {
+        if (isMounted && essentialFrames.includes(f)) {
           essentialUrls.add(mUrl);
         } else {
           extendedUrls.add(mUrl);

@@ -1586,19 +1586,30 @@ export function ThaisCityArena({
                   view.sprite.texture = tex;
                 }
                 view.lastUrl = 'canvas';
-              } else if (!curApp.isMounted) {
+              } else if (view.lastCanvas) {
+                // PRESERVE PREVIOUS COMPLETE APPEARANCE: keep previous valid canvas texture
+                view.lastUrl = 'canvas';
+              } else {
+                // Emergency initial fallback: unmounted frame or base sprite
                 const nextUrl = getOutfitFrameUrl(curApp.outfitKey, charDirection, safeFrame);
-                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                if (nextUrl && loaded[nextUrl]) {
                   view.sprite.texture = loaded[nextUrl];
                   view.lastUrl = nextUrl;
                   view.lastTextureKey = nextUrl;
+                } else {
+                  const f0Url = getOutfitFrameUrl(curApp.outfitKey, 'south', 0);
+                  if (f0Url && loaded[f0Url]) {
+                    view.sprite.texture = loaded[f0Url];
+                    view.lastUrl = f0Url;
+                    view.lastTextureKey = f0Url;
+                  }
                 }
               }
             }
 
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
-            view.root.visible = latestRef.current.isCharacterVisible !== false && Boolean(view.lastCanvas || (view.sprite.texture && view.sprite.texture !== Texture.EMPTY));
+            view.root.visible = latestRef.current.isCharacterVisible !== false;
             updateNameplate(view, localChar.name, (localChar as any).adminTitle);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()
@@ -1712,19 +1723,30 @@ export function ThaisCityArena({
                   view.sprite.texture = tex;
                 }
                 view.lastUrl = 'canvas';
-              } else if (!isMounted) {
+              } else if (view.lastCanvas) {
+                // PRESERVE PREVIOUS COMPLETE APPEARANCE: keep previous valid canvas texture
+                view.lastUrl = 'canvas';
+              } else {
+                // Emergency initial fallback: unmounted frame or base sprite
                 const nextUrl = getOutfitFrameUrl(outfitKey, fDir, safeFrame);
-                if (nextUrl && nextUrl !== view.lastUrl && loaded[nextUrl]) {
+                if (nextUrl && loaded[nextUrl]) {
                   view.sprite.texture = loaded[nextUrl];
                   view.lastUrl = nextUrl;
                   view.lastTextureKey = nextUrl;
+                } else {
+                  const f0Url = getOutfitFrameUrl(outfitKey, 'south', 0);
+                  if (f0Url && loaded[f0Url]) {
+                    view.sprite.texture = loaded[f0Url];
+                    view.lastUrl = f0Url;
+                    view.lastTextureKey = f0Url;
+                  }
                 }
               }
             }
 
             view.root.position.set(fPixelX, fPixelY);
             view.root.zIndex = fPixelY;
-            view.root.visible = curPos.z === fState.currentTile.z && latestRef.current.isCharacterVisible !== false && Boolean(view.lastCanvas || (view.sprite.texture && view.sprite.texture !== Texture.EMPTY));
+            view.root.visible = curPos.z === fState.currentTile.z && latestRef.current.isCharacterVisible !== false;
             updateNameplate(view, fChar.name, (fChar as any).adminTitle);
             const hpRatio = fChar.maxHp > 0 ? Math.max(0, Math.min(1, fChar.currentHp / fChar.maxHp)) : 1;
             view.bar.clear()

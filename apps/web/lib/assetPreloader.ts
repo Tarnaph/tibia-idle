@@ -436,6 +436,18 @@ class AssetPreloaderService {
             manifest.directions,
             manifest.essentialFrames
           );
+          if (manifest.extendedFrames.length > 0) {
+            prepareAppearanceCanvas(
+              manifest.outfitId,
+              manifest.gender,
+              colors,
+              manifest.addons,
+              manifest.mountId,
+              manifest.isMounted,
+              manifest.directions,
+              manifest.extendedFrames
+            ).catch(() => {});
+          }
         }
         this.isEssentialLoaded = true;
         if (this.isSkipRequested && !this.isFinished) {
