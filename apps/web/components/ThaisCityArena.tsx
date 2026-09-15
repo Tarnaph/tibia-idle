@@ -12,7 +12,7 @@ import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@
 import type { ExtractedFrame, ItemVisualAssetMapping, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { showGlobalPlayerTooltip, hideGlobalPlayerTooltip } from './GlobalItemTooltip';
-import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames, prepareAppearanceCanvas, getOutfitCapabilities, type OutfitColors } from '@/apps/web/lib/outfitRecolor';
+import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, isAppearanceFullyReady, normalizeOutfitId, preloadOutfitAllFrames, prepareAppearanceCanvas, getOutfitCapabilities, type OutfitColors } from '@/apps/web/lib/outfitRecolor';
 import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
@@ -951,6 +951,17 @@ export function ThaisCityArena({
         outfitSig: string;
       }
 
+      type AppearancePreparationStatus = 'idle' | 'preparing' | 'ready' | 'failed';
+
+      interface AppearancePreparationState {
+        status: AppearancePreparationStatus;
+        outfitSig: string;
+        target: CityActorAppearance;
+        attempts: number;
+        lastAttemptTime: number;
+        missingAssets: string[];
+      }
+
       interface CityActorView {
         root: InstanceType<typeof Container>;
         sprite: InstanceType<typeof Sprite>;
@@ -965,6 +976,7 @@ export function ThaisCityArena({
         lastCanvas?: HTMLCanvasElement;
         activeAppearance?: CityActorAppearance;
         pendingAppearance?: CityActorAppearance | null;
+        appearanceState?: AppearancePreparationState;
         overheadSpeech?: InstanceType<typeof Container>;
         overheadSpeechText?: InstanceType<typeof Text>;
         speechExpiresAt?: number;
@@ -1405,28 +1417,16 @@ export function ThaisCityArena({
               outfitSig,
             };
 
-            // Check if desired appearance has essential frames ready in definitive recoloredCanvasCache
-            const isDesiredIdleReady = isOutfitCanvasCached(
+            // Check full readiness of desired appearance across all directions and frames (Codex point 4)
+            const desiredCheck = isAppearanceFullyReady(
               outfitKey,
               charGender,
-              charDirection as any,
-              0,
               colors,
               addons,
               localChar.mount,
               isMounted
             );
-            const isDesiredWalkReady = !charIsMoving || isOutfitCanvasCached(
-              outfitKey,
-              charGender,
-              charDirection as any,
-              1,
-              colors,
-              addons,
-              localChar.mount,
-              isMounted
-            );
-            const isDesiredReady = isDesiredIdleReady && isDesiredWalkReady;
+            const isDesiredReady = desiredCheck.ready;
 
             if (!view.activeAppearance) {
               // Initial appearance setup on join/hydration
@@ -1442,9 +1442,19 @@ export function ThaisCityArena({
               ).catch(() => {});
             } else if (view.activeAppearance.outfitSig !== outfitSig) {
               // User has switched outfit, mount, addons, or colors!
-              if (view.pendingAppearance?.outfitSig !== outfitSig) {
+              // Implement explicit preparation states: idle | preparing | ready | failed (Codex point 2)
+              if (!view.appearanceState || view.appearanceState.outfitSig !== outfitSig) {
+                view.appearanceState = {
+                  status: 'preparing',
+                  outfitSig,
+                  target: desiredAppearance,
+                  attempts: 1,
+                  lastAttemptTime: now,
+                  missingAssets: [],
+                };
                 view.pendingAppearance = desiredAppearance;
-                // Preload all frames for new appearance across all 4 directions in background
+
+                const thisSig = outfitSig;
                 prepareAppearanceCanvas(
                   outfitKey,
                   charGender,
@@ -1452,20 +1462,70 @@ export function ThaisCityArena({
                   addons,
                   localChar.mount,
                   isMounted
-                ).catch(() => {});
+                ).then((res) => {
+                  if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
+                    if (res.success) {
+                      view.appearanceState.status = 'ready';
+                      view.appearanceState.missingAssets = [];
+                    } else {
+                      view.appearanceState.status = 'failed';
+                      view.appearanceState.missingAssets = res.missingAssets;
+                      console.warn(
+                        `[ThaisCityArena] Appearance preparation failed for ${thisSig}. Blocking assets: ${res.missingAssets.join(', ')}`
+                      );
+                    }
+                  }
+                }).catch((err) => {
+                  if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
+                    view.appearanceState.status = 'failed';
+                    view.appearanceState.missingAssets = [err?.message || 'unknown-error'];
+                  }
+                });
+              } else if (view.appearanceState.status === 'failed') {
+                // Controlled retry: if failed, retry after 1500ms cooldown (up to 4 attempts)
+                if (now - view.appearanceState.lastAttemptTime > 1500 && view.appearanceState.attempts < 4) {
+                  view.appearanceState.attempts++;
+                  view.appearanceState.lastAttemptTime = now;
+                  view.appearanceState.status = 'preparing';
+                  const thisSig = outfitSig;
+                  prepareAppearanceCanvas(
+                    outfitKey,
+                    charGender,
+                    colors,
+                    addons,
+                    localChar.mount,
+                    isMounted
+                  ).then((res) => {
+                    if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
+                      if (res.success) {
+                        view.appearanceState.status = 'ready';
+                        view.appearanceState.missingAssets = [];
+                      } else {
+                        view.appearanceState.status = 'failed';
+                        view.appearanceState.missingAssets = res.missingAssets;
+                        console.warn(
+                          `[ThaisCityArena] Appearance retry ${view.appearanceState.attempts}/4 failed for ${thisSig}. Missing: ${res.missingAssets.join(', ')}`
+                        );
+                      }
+                    }
+                  }).catch(() => {});
+                }
               }
 
               // ATOMIC APPEARANCE SWAP:
               // Keep rendering the previous complete appearance until the new one is fully ready!
               // When ready, swap body, mount, and addons together in this exact single frame!
-              if (isDesiredReady) {
+              const canSwap = isDesiredReady || view.appearanceState?.status === 'ready' || (view.appearanceState && view.appearanceState.attempts >= 4);
+              if (canSwap) {
                 view.activeAppearance = desiredAppearance;
                 view.pendingAppearance = null;
+                view.appearanceState = undefined;
                 view.lastOutfitSignature = outfitSig;
                 view.lastTextureKey = ''; // Force immediate texture rebind to new appearance
               }
             } else {
               view.pendingAppearance = null;
+              view.appearanceState = undefined;
             }
 
             // Current rendered appearance (seamlessly preserves previous complete appearance while new one preloads)
@@ -1519,13 +1579,11 @@ export function ThaisCityArena({
               if (canvas) {
                 if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
                   view.lastCanvas = canvas;
+                  view.lastTextureKey = textureKey;
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
                   (tex.source as any).update?.();
                   view.sprite.texture = tex;
-                }
-                if (isCached) {
-                  view.lastTextureKey = textureKey;
                 }
                 view.lastUrl = 'canvas';
               } else if (!curApp.isMounted) {
@@ -1647,13 +1705,11 @@ export function ThaisCityArena({
               if (canvas) {
                 if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
                   view.lastCanvas = canvas;
+                  view.lastTextureKey = textureKey;
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
                   (tex.source as any).update?.();
                   view.sprite.texture = tex;
-                }
-                if (isCached) {
-                  view.lastTextureKey = textureKey;
                 }
                 view.lastUrl = 'canvas';
               } else if (!isMounted) {

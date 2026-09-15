@@ -364,7 +364,7 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
 
       const result = await service.saveCharacterProgress('char-already-promoted', {
         saveVersion: 1,
-        promotion: true,
+        promotion: 'Master Sorcerer',
         vocationName: 'Master Sorcerer',
       });
       expect(result).toBeDefined();

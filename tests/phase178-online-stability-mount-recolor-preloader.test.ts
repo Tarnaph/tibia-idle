@@ -9,6 +9,10 @@ import {
   recoloredCanvasCache,
   provisionalCanvasCache,
   renderRecoloredOutfit,
+  prepareAppearanceCanvas,
+  isAppearanceFullyReady,
+  isOutfitCanvasCached,
+  clearFailedImageCache,
 } from '@/apps/web/lib/outfitRecolor';
 
 describe('Phase 178: Online Stability, Visual Preparation & Mount Synchronization Contract', () => {
@@ -281,6 +285,337 @@ describe('Phase 178: Online Stability, Visual Preparation & Mount Synchronizatio
       const key = getCanvasCacheKey('summoner', 'male', 'south', 0, { head: 0, primary: 86, secondary: 114, detail: 76 }, 2, 'war-bear', true);
       // Nenhuma textura definitiva foi colocada se a seleção foi cancelada antes da execução
       expect(recoloredCanvasCache.has(key)).toBe(false);
+    });
+
+    it('renderRecoloredOutfit NÃO grava no recoloredCanvasCache se addons solicitados estiverem ausentes (Codex ponto 3)', async () => {
+      recoloredCanvasCache.clear();
+      provisionalCanvasCache.clear();
+
+      const origDoc = (globalThis as any).document;
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      try {
+        // Base e mount carregados, mas addon 1 ausente
+        const f0BaseUrl = '/generated/outfits/citizen-male-south-f0-base.png';
+        const f0MaskUrl = '/generated/outfits/citizen-male-south-f0-mask.png';
+        imageElementCache.set(f0BaseUrl, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(f0MaskUrl, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+
+        const a1BaseUrl = '/generated/outfits/citizen-male-south-f0-addon1-base.png';
+        const a1MaskUrl = '/generated/outfits/citizen-male-south-f0-addon1-mask.png';
+        imageElementCache.delete(a1BaseUrl);
+        imageElementCache.delete(a1MaskUrl);
+
+        const mockCanvas = {
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            clearRect: () => {},
+            drawImage: () => {},
+          }),
+        } as unknown as HTMLCanvasElement;
+
+        const colors = { head: 0, primary: 86, secondary: 114, detail: 76 };
+        // Chama renderRecoloredOutfit solicitando Addon 1 (addons = 1)
+        await renderRecoloredOutfit(
+          mockCanvas,
+          'citizen',
+          'male',
+          'south',
+          0,
+          colors,
+          1,
+          undefined,
+          false
+        );
+
+        const key = getCanvasCacheKey('citizen', 'male', 'south', 0, colors, 1, undefined, false);
+        // O cache definitivo NÃO pode ser poluído sem o addon 1!
+        expect(recoloredCanvasCache.has(key)).toBe(false);
+        // O cache provisório pode receber para não ficar em branco na tela
+        expect(provisionalCanvasCache.has(key)).toBe(true);
+      } finally {
+        (globalThis as any).document = origDoc;
+      }
+    });
+
+    it('prepareAppearanceCanvas NÃO retorna sucesso quando algum frame exigido falha (Codex ponto 1)', async () => {
+      recoloredCanvasCache.clear();
+      provisionalCanvasCache.clear();
+      imageElementCache.clear();
+
+      const origDoc = (globalThis as any).document;
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      try {
+        const colors = { head: 0, primary: 86, secondary: 114, detail: 76 };
+
+        // Chama prepareAppearanceCanvas em ambiente de teste onde imagens não resolvem automaticamente
+        const result = await prepareAppearanceCanvas(
+          'citizen',
+          'male',
+          colors,
+          0,
+          undefined,
+          false,
+          ['south'],
+          [0]
+        );
+
+        // Como nenhuma imagem foi pré-registrada no imageElementCache e não há servidor real no teste unitário,
+        // prepareAppearanceCanvas NÃO pode marcar sucesso automático!
+        expect(result.success).toBe(false);
+        expect(result.missingAssets.length).toBeGreaterThan(0);
+        expect(result.cachedFramesCount).toBeLessThan(result.totalFramesRequested);
+      } finally {
+        (globalThis as any).document = origDoc;
+      }
+    });
+
+    it('recurso atrasado: falha inicialmente, mas obtém sucesso após recursos serem disponibilizados', async () => {
+      recoloredCanvasCache.clear();
+      provisionalCanvasCache.clear();
+      imageElementCache.clear();
+      clearFailedImageCache();
+
+      const colors = { head: 0, primary: 86, secondary: 114, detail: 76 };
+      const origDoc = (globalThis as any).document;
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      try {
+        // Tentativa 1: sem recursos carregados
+        const res1 = await prepareAppearanceCanvas('citizen', 'male', colors, 0, undefined, false, ['south'], [0]);
+        expect(res1.success).toBe(false);
+        expect(isAppearanceFullyReady('citizen', 'male', colors, 0, undefined, false, ['south'], [0]).ready).toBe(false);
+
+        // Agora o recurso atrasado chega e é decodificado com sucesso
+        clearFailedImageCache();
+        const f0Base = '/generated/outfits/citizen-male-south-f0-base.png';
+        const f0Mask = '/generated/outfits/citizen-male-south-f0-mask.png';
+        imageElementCache.set(f0Base, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(f0Mask, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+
+        // Tentativa 2: com os recursos disponibilizados
+        const res2 = await prepareAppearanceCanvas('citizen', 'male', colors, 0, undefined, false, ['south'], [0]);
+        expect(res2.success).toBe(true);
+        expect(res2.cachedFramesCount).toBe(1);
+        expect(isAppearanceFullyReady('citizen', 'male', colors, 0, undefined, false, ['south'], [0]).ready).toBe(true);
+      } finally {
+        (globalThis as any).document = origDoc;
+      }
+    });
+
+    it('isAppearanceFullyReady valida todas as direções e rejeita aparências parciais (Codex ponto 4)', () => {
+      recoloredCanvasCache.clear();
+      const colors = { head: 0, primary: 86, secondary: 114, detail: 76 };
+
+      // Registra apenas o frame f0 da direção south
+      const southKey = getCanvasCacheKey('citizen', 'male', 'south', 0, colors, 0, undefined, false);
+      const mockCanvas = { width: 64, height: 64 } as HTMLCanvasElement;
+      recoloredCanvasCache.set(southKey, mockCanvas);
+
+      // isAppearanceFullyReady para todas as 4 direções deve retornar ready = false
+      const fullCheck = isAppearanceFullyReady('citizen', 'male', colors, 0, undefined, false, ['south', 'east', 'north', 'west']);
+      expect(fullCheck.ready).toBe(false);
+      expect(fullCheck.missing).toContain('east-f0');
+      expect(fullCheck.missing).toContain('north-f0');
+      expect(fullCheck.missing).toContain('west-f0');
+
+      // Adiciona as direções restantes e frames
+      ['east', 'north', 'west'].forEach((dir) => {
+        const key0 = getCanvasCacheKey('citizen', 'male', dir, 0, colors, 0, undefined, false);
+        const key1 = getCanvasCacheKey('citizen', 'male', dir, 1, colors, 0, undefined, false);
+        const key2 = getCanvasCacheKey('citizen', 'male', dir, 2, colors, 0, undefined, false);
+        recoloredCanvasCache.set(key0, mockCanvas);
+        recoloredCanvasCache.set(key1, mockCanvas);
+        recoloredCanvasCache.set(key2, mockCanvas);
+      });
+      const keySouth1 = getCanvasCacheKey('citizen', 'male', 'south', 1, colors, 0, undefined, false);
+      const keySouth2 = getCanvasCacheKey('citizen', 'male', 'south', 2, colors, 0, undefined, false);
+      recoloredCanvasCache.set(keySouth1, mockCanvas);
+      recoloredCanvasCache.set(keySouth2, mockCanvas);
+
+      const completeCheck = isAppearanceFullyReady('citizen', 'male', colors, 0, undefined, false, ['south', 'east', 'north', 'west'], [0, 1, 2]);
+      expect(completeCheck.ready).toBe(true);
+      expect(completeCheck.missing.length).toBe(0);
+    });
+
+    it('troca rápida de seleção: descarta renderizações atrasadas e impede que seleção antiga sobrescreva a mais recente', async () => {
+      recoloredCanvasCache.clear();
+      provisionalCanvasCache.clear();
+
+      let activeGeneration = 1;
+      const targetCanvas = {
+        width: 64,
+        height: 64,
+        getContext: () => ({
+          clearRect: () => {},
+          drawImage: () => {},
+        }),
+      } as unknown as HTMLCanvasElement;
+
+      // Seleção 1 (antiga): Usuário selecionou 'summoner'
+      const gen1 = activeGeneration;
+      const p1 = renderRecoloredOutfit(
+        targetCanvas,
+        'summoner',
+        'male',
+        'south',
+        0,
+        { head: 0, primary: 86, secondary: 114, detail: 76 },
+        0,
+        undefined,
+        false,
+        () => activeGeneration === gen1
+      );
+
+      // Usuário troca rapidamente para 'hunter' (geração 2)
+      activeGeneration = 2;
+      const gen2 = activeGeneration;
+      const p2 = renderRecoloredOutfit(
+        targetCanvas,
+        'hunter',
+        'male',
+        'south',
+        0,
+        { head: 0, primary: 86, secondary: 114, detail: 76 },
+        0,
+        undefined,
+        false,
+        () => activeGeneration === gen2
+      );
+
+      await Promise.all([p1, p2]);
+
+      const keySummoner = getCanvasCacheKey('summoner', 'male', 'south', 0, { head: 0, primary: 86, secondary: 114, detail: 76 }, 0, undefined, false);
+      // Como a geração 1 foi cancelada antes da conclusão, summoner não pode ter sido gravado pela chamada antiga
+      expect(recoloredCanvasCache.has(keySummoner)).toBe(false);
+    });
+
+    it('aparência pendente: preserva aparência anterior completa durante a preparação e aplica troca atômica quando pronta', async () => {
+      recoloredCanvasCache.clear();
+      provisionalCanvasCache.clear();
+      imageElementCache.clear();
+
+      const origDoc = (globalThis as any).document;
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      try {
+        const colors = { head: 0, primary: 86, secondary: 114, detail: 76 };
+
+        // 1. Prepara aparência inicial (Summoner desmontado)
+        const sBase = '/generated/outfits/summoner-male-south-f0-base.png';
+        const sMask = '/generated/outfits/summoner-male-south-f0-mask.png';
+        imageElementCache.set(sBase, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(sMask, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        await prepareAppearanceCanvas('summoner', 'male', colors, 0, undefined, false, ['south'], [0]);
+
+        const summonerKey = getCanvasCacheKey('summoner', 'male', 'south', 0, colors, 0, undefined, false);
+        expect(recoloredCanvasCache.has(summonerKey)).toBe(true);
+
+        // Estado do ator simulado
+        const actorView = {
+          activeAppearance: { outfitKey: 'summoner', charGender: 'male' as const, colors, addons: 0, mount: undefined, isMounted: false, outfitSig: 'summoner_male_none_0' },
+          pendingAppearance: null as any,
+          appearanceState: undefined as any,
+        };
+
+        // 2. Jogador solicita nova aparência (Hunter montado em war-bear)
+        const targetAppearance = { outfitKey: 'hunter', charGender: 'male' as const, colors, addons: 2, mount: 'war-bear', isMounted: true, outfitSig: 'hunter_male_war-bear_2' };
+        actorView.appearanceState = {
+          status: 'preparing',
+          outfitSig: targetAppearance.outfitSig,
+          target: targetAppearance,
+          attempts: 1,
+          lastAttemptTime: Date.now(),
+          missingAssets: [],
+        };
+        actorView.pendingAppearance = targetAppearance;
+
+        // Enquanto estiver preparando, a aparência ativa RENDERIZADA continua sendo Summoner!
+        const curAppWhilePreparing = actorView.activeAppearance;
+        expect(curAppWhilePreparing.outfitKey).toBe('summoner');
+        expect(curAppWhilePreparing.isMounted).toBe(false);
+
+        // 3. Os recursos da nova aparência chegam e são cacheados
+        const hBase = '/generated/outfits/hunter-male-south-f0-mount-base.png';
+        const hMask = '/generated/outfits/hunter-male-south-f0-mount-mask.png';
+        const hA2Base = '/generated/outfits/hunter-male-south-f0-mount-addon2-base.png';
+        const hA2Mask = '/generated/outfits/hunter-male-south-f0-mount-addon2-mask.png';
+        const mountImg = '/generated/mounts/war-bear-south-f0.png';
+        imageElementCache.set(hBase, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(hMask, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(hA2Base, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(hA2Mask, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+        imageElementCache.set(mountImg, { complete: true, naturalWidth: 64, naturalHeight: 64 } as HTMLImageElement);
+
+        const prepResult = await prepareAppearanceCanvas('hunter', 'male', colors, 2, 'war-bear', true, ['south'], [0]);
+        expect(prepResult.success).toBe(true);
+
+        // 4. Com prontidão completa garantida, troca atômica é executada
+        const readyCheck = isAppearanceFullyReady('hunter', 'male', colors, 2, 'war-bear', true, ['south'], [0]);
+        expect(readyCheck.ready).toBe(true);
+
+        // Executa troca atômica
+        actorView.activeAppearance = actorView.pendingAppearance;
+        actorView.pendingAppearance = null;
+        actorView.appearanceState = undefined;
+
+        // A aparência ativa agora é 100% o novo conjunto completo (corpo + addons + montaria juntos)
+        expect(actorView.activeAppearance.outfitKey).toBe('hunter');
+        expect(actorView.activeAppearance.isMounted).toBe(true);
+        expect(actorView.activeAppearance.addons).toBe(2);
+      } finally {
+        (globalThis as any).document = origDoc;
+      }
     });
   });
 });

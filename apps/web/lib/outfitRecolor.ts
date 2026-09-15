@@ -345,7 +345,7 @@ export function clearImageElementCache(): void {
 }
 
 export function loadImage(url: string): Promise<HTMLImageElement> {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' && typeof document === 'undefined') {
     return Promise.reject(new Error('Window undefined in SSR'));
   }
   // 1. Return immediately if fully loaded and valid
@@ -551,7 +551,7 @@ export async function renderRecoloredOutfit(
   isMounted: boolean = false,
   isCurrent?: () => boolean
 ): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' && typeof document === 'undefined') return;
   if (isCurrent && !isCurrent()) return;
 
   const w = 64;
@@ -627,6 +627,7 @@ export async function renderRecoloredOutfit(
   if (!offCtx) return;
 
   // 4a. Draw mount underneath if mounted
+  let isMountDrawn = false;
   if (effectiveMounted && urls.mountUrl) {
     const mountImg = imageElementCache.get(urls.mountUrl);
     if (!mountImg || !mountImg.complete || mountImg.naturalWidth === 0) {
@@ -634,15 +635,17 @@ export async function renderRecoloredOutfit(
       return;
     }
     offCtx.drawImage(mountImg, 0, 0);
+    isMountDrawn = true;
   }
 
   // 4b. Draw rider/body base and mask layer
-  let hasDrawnBase = false;
+  let hasDrawnExactBase = false;
+  let hasDrawnFallbackBase = false;
   const baseImg = imageElementCache.get(urls.base);
   const maskImg = imageElementCache.get(urls.mask);
   if (baseImg && maskImg && baseImg.complete && baseImg.naturalWidth > 0 && maskImg.complete && maskImg.naturalWidth > 0) {
     drawRecoloredLayer(offCtx, baseImg, maskImg, colors, w, h, offset.x, offset.y);
-    hasDrawnBase = true;
+    hasDrawnExactBase = true;
   } else {
     const fbBaseUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-base.png`;
     const fbMaskUrl = `/generated/outfits/${norm}-${gender}-${direction}-f0-mask.png`;
@@ -650,37 +653,54 @@ export async function renderRecoloredOutfit(
     const fbMaskImg = imageElementCache.get(fbMaskUrl);
     if (fbBaseImg && fbMaskImg && fbBaseImg.complete && fbBaseImg.naturalWidth > 0) {
       drawRecoloredLayer(offCtx, fbBaseImg, fbMaskImg, colors, w, h, offset.x, offset.y);
-      hasDrawnBase = true;
+      hasDrawnFallbackBase = true;
     }
   }
 
-  if (!hasDrawnBase && (!effectiveMounted || !urls.mountUrl)) {
+  if (!hasDrawnExactBase && !hasDrawnFallbackBase && (!effectiveMounted || !urls.mountUrl)) {
     return;
   }
 
   // 4c. Draw Addon 1 if active
+  let isAddon1Drawn = false;
   if (urls.addon1Base && urls.addon1Mask) {
     const a1Base = imageElementCache.get(urls.addon1Base);
     const a1Mask = imageElementCache.get(urls.addon1Mask);
     if (a1Base && a1Mask && a1Base.complete && a1Base.naturalWidth > 0 && a1Mask.complete && a1Mask.naturalWidth > 0) {
       drawRecoloredLayer(offCtx, a1Base, a1Mask, colors, w, h, offset.x, offset.y);
+      isAddon1Drawn = true;
     }
   }
 
   // 4d. Draw Addon 2 if active
+  let isAddon2Drawn = false;
   if (urls.addon2Base && urls.addon2Mask) {
     const a2Base = imageElementCache.get(urls.addon2Base);
     const a2Mask = imageElementCache.get(urls.addon2Mask);
     if (a2Base && a2Mask && a2Base.complete && a2Base.naturalWidth > 0 && a2Mask.complete && a2Mask.naturalWidth > 0) {
       drawRecoloredLayer(offCtx, a2Base, a2Mask, colors, w, h, offset.x, offset.y);
+      isAddon2Drawn = true;
     }
   }
 
   if (isCurrent && !isCurrent()) return;
 
-  // 5. Store definitive canvas in recoloredCanvasCache and invalidate any provisional cache entry
-  recoloredCanvasCache.set(definitiveKey, offCanvas);
-  provisionalCanvasCache.delete(definitiveKey);
+  // STRICT DEFINITIVE CACHE GUARD (Codex point 3):
+  // Only store in recoloredCanvasCache if ALL required layers were drawn accurately without missing addons, mount, or base!
+  const isFullyComplete =
+    hasDrawnExactBase &&
+    (!effectiveMounted || isMountDrawn) &&
+    (!urls.addon1Base || isAddon1Drawn) &&
+    (!urls.addon2Base || isAddon2Drawn);
+
+  if (isFullyComplete) {
+    recoloredCanvasCache.set(definitiveKey, offCanvas);
+    provisionalCanvasCache.delete(definitiveKey);
+  } else {
+    // Incomplete composition: save to provisional canvas cache so UI can show progress,
+    // but DO NOT poison definitive cache!
+    provisionalCanvasCache.set(definitiveKey, offCanvas);
+  }
 
   // 6. Draw to visible targetCanvas
   if (targetCanvas.width !== w) targetCanvas.width = w;
@@ -712,7 +732,7 @@ export async function preloadOutfitAllFrames(
   isMounted: boolean = false,
   priorityDir: 'south' | 'east' | 'north' | 'west' = 'south'
 ): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' && typeof document === 'undefined') return;
   const norm = normalizeOutfitId(outfitId);
   const caps = getOutfitCapabilities(norm);
   const directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'];
@@ -764,10 +784,18 @@ export async function preloadOutfitAllFrames(
   }
 }
 
+export interface AppearancePreparationResult {
+  success: boolean;
+  missingAssets: string[];
+  totalFramesRequested: number;
+  cachedFramesCount: number;
+}
+
 /**
  * Phase 178: Pre-renderiza e aquece o cache síncrono (recoloredCanvasCache)
  * para todos os frames essenciais nas 4 direções cardeais do jogador ativo.
- * Garante que "pronto" signifique disponível para desenho imediato a 60 FPS.
+ * Garante que "pronto" signifique disponível para desenho imediato a 60 FPS
+ * e NÃO absorve falhas silenciosamente: retorna diagnóstico do que faltar.
  */
 export async function prepareAppearanceCanvas(
   outfitId: string,
@@ -778,8 +806,10 @@ export async function prepareAppearanceCanvas(
   isMounted: boolean = false,
   directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
   frames?: number[]
-): Promise<void> {
-  if (typeof window === 'undefined') return;
+): Promise<AppearancePreparationResult> {
+  if (typeof window === 'undefined' && typeof document === 'undefined') {
+    return { success: false, missingAssets: ['window-undefined'], totalFramesRequested: 0, cachedFramesCount: 0 };
+  }
   const norm = normalizeOutfitId(outfitId);
   const caps = getOutfitCapabilities(norm);
   const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
@@ -790,18 +820,43 @@ export async function prepareAppearanceCanvas(
     ? frames.filter((f) => f < maxFrames)
     : Array.from({ length: maxFrames }, (_, i) => i);
 
-  // 1. Gather all required image URLs for all directions and target frames
-  const imageLoadPromises: Promise<any>[] = [];
+  // 1. Gather all required image URLs and monitor individual loading states
+  const missingAssets: string[] = [];
+  const loadTasks: Array<{ url: string; promise: Promise<any> }> = [];
+
+  const queueLoad = (url: string) => {
+    if (!url) return;
+    const cached = imageElementCache.get(url);
+    if (cached && cached.complete && cached.naturalWidth > 0) {
+      loadTasks.push({ url, promise: Promise.resolve(cached) });
+      return;
+    }
+    if (isImagePermanentlyFailed(url)) {
+      missingAssets.push(url);
+      return;
+    }
+    const p = loadImage(url)
+      .then((img) => {
+        if (!img || !img.complete || img.naturalWidth === 0) {
+          missingAssets.push(url);
+        }
+      })
+      .catch(() => {
+        missingAssets.push(url);
+      });
+    loadTasks.push({ url, promise: p });
+  };
+
   for (const dir of directions) {
     for (const f of targetFrames) {
       const urls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
-      imageLoadPromises.push(loadImage(urls.base).catch(() => null));
-      imageLoadPromises.push(loadImage(urls.mask).catch(() => null));
-      if (urls.addon1Base) imageLoadPromises.push(loadImage(urls.addon1Base).catch(() => null));
-      if (urls.addon1Mask) imageLoadPromises.push(loadImage(urls.addon1Mask).catch(() => null));
-      if (urls.addon2Base) imageLoadPromises.push(loadImage(urls.addon2Base).catch(() => null));
-      if (urls.addon2Mask) imageLoadPromises.push(loadImage(urls.addon2Mask).catch(() => null));
-      if (urls.mountUrl) imageLoadPromises.push(loadImage(urls.mountUrl).catch(() => null));
+      queueLoad(urls.base);
+      queueLoad(urls.mask);
+      if (urls.addon1Base) queueLoad(urls.addon1Base);
+      if (urls.addon1Mask) queueLoad(urls.addon1Mask);
+      if (urls.addon2Base) queueLoad(urls.addon2Base);
+      if (urls.addon2Mask) queueLoad(urls.addon2Mask);
+      if (urls.mountUrl) queueLoad(urls.mountUrl);
     }
   }
 
@@ -809,17 +864,17 @@ export async function prepareAppearanceCanvas(
   if (effectiveMounted) {
     for (const dir of directions) {
       const unmountedUrls = getOutfitLayerUrls(norm, gender, dir, 0, effectiveAddons, undefined, false);
-      imageLoadPromises.push(loadImage(unmountedUrls.base).catch(() => null));
-      imageLoadPromises.push(loadImage(unmountedUrls.mask).catch(() => null));
-      if (unmountedUrls.addon1Base) imageLoadPromises.push(loadImage(unmountedUrls.addon1Base).catch(() => null));
-      if (unmountedUrls.addon1Mask) imageLoadPromises.push(loadImage(unmountedUrls.addon1Mask).catch(() => null));
-      if (unmountedUrls.addon2Base) imageLoadPromises.push(loadImage(unmountedUrls.addon2Base).catch(() => null));
-      if (unmountedUrls.addon2Mask) imageLoadPromises.push(loadImage(unmountedUrls.addon2Mask).catch(() => null));
+      queueLoad(unmountedUrls.base);
+      queueLoad(unmountedUrls.mask);
+      if (unmountedUrls.addon1Base) queueLoad(unmountedUrls.addon1Base);
+      if (unmountedUrls.addon1Mask) queueLoad(unmountedUrls.addon1Mask);
+      if (unmountedUrls.addon2Base) queueLoad(unmountedUrls.addon2Base);
+      if (unmountedUrls.addon2Mask) queueLoad(unmountedUrls.addon2Mask);
     }
   }
 
   // 2. AWAIT ALL IMAGES TO BE DOWNLOADED AND CACHED
-  await Promise.allSettled(imageLoadPromises);
+  await Promise.allSettled(loadTasks.map((t) => t.promise));
 
   // 3. Now render and cache each recolored canvas synchronously into recoloredCanvasCache
   for (const dir of directions) {
@@ -830,6 +885,17 @@ export async function prepareAppearanceCanvas(
       getRecoloredCanvasSync(norm, gender, dir, 0, colors, effectiveAddons, undefined, false);
     }
   }
+
+  // 4. Verify full readiness across all directions and frames (Codex point 1 & 4)
+  const fullCheck = isAppearanceFullyReady(norm, gender, colors, effectiveAddons, mount, effectiveMounted, directions, targetFrames);
+
+  const uniqueMissing = Array.from(new Set([...missingAssets, ...fullCheck.missing]));
+  return {
+    success: fullCheck.ready,
+    missingAssets: uniqueMissing,
+    totalFramesRequested: fullCheck.total,
+    cachedFramesCount: fullCheck.cached,
+  };
 }
 
 export function getCanvasCacheKey(
@@ -864,6 +930,56 @@ export function isOutfitCanvasCached(
   const effectiveMounted = isMounted && caps.hasMountRider;
   const key = getCanvasCacheKey(norm, gender, direction, safeFrame, colors, effectiveAddons, mount, effectiveMounted);
   return recoloredCanvasCache.has(key);
+}
+
+/**
+ * Phase 178: Verifica prontidão completa de todas as direções e passos de caminhada
+ * no cache definitivo recoloredCanvasCache (Codex ponto 4).
+ */
+export function isAppearanceFullyReady(
+  outfitId: string,
+  gender: 'male' | 'female' = 'male',
+  colors: OutfitColors = { head: 0, primary: 86, secondary: 114, detail: 76 },
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false,
+  directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
+  frames?: number[]
+): { ready: boolean; missing: string[]; total: number; cached: number } {
+  const norm = normalizeOutfitId(outfitId);
+  const caps = getOutfitCapabilities(norm);
+  const maxFrames = caps.maxFrames <= 3 ? 3 : 9;
+  const targetFrames = frames && frames.length > 0
+    ? frames.filter((f) => f < maxFrames)
+    : Array.from({ length: maxFrames }, (_, i) => i);
+  const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+  const effectiveMounted = isMounted && caps.hasMountRider;
+
+  const missing: string[] = [];
+  let cached = 0;
+  let total = 0;
+
+  for (const dir of directions) {
+    for (const f of targetFrames) {
+      total++;
+      const safeFrame = caps.maxFrames <= 3
+        ? (f === 0 ? 0 : ((Math.abs(f) - 1) % 2) + 1)
+        : Math.max(0, Math.min(8, f));
+      const key = getCanvasCacheKey(norm, gender, dir, safeFrame, colors, effectiveAddons, mount, effectiveMounted);
+      if (recoloredCanvasCache.has(key)) {
+        cached++;
+      } else {
+        missing.push(`${dir}-f${f}`);
+      }
+    }
+  }
+
+  return {
+    ready: missing.length === 0,
+    missing,
+    total,
+    cached,
+  };
 }
 
 export function getRecoloredCanvasSync(
