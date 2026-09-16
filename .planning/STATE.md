@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-09-16T19:55:00.000Z"
-last_activity: "2026-09-16 — Phase 181 iniciada: Diagnóstico da fila residual de login (Brotherhood + Rapid Boar gerando 186 requisições individuais) e planejamento da expansão de Texture Atlases para 100% dos 44 trajes e 130 montarias."
+status: complete
+last_updated: "2026-09-16T23:55:00.000Z"
+last_activity: "2026-09-16 — Phase 181 concluída: Texture Atlases compilados para todos os 158 trajes e 129 montarias. Validação E2E no Edge confirmou 0 PNGs discretos, login com Brotherhood + Rapid Boar em 11.4s, swap para Citizen em 140ms, Assassin em 137ms, swaps aquecidos <275ms e visibilidade mútua sem camadas progressivas."
 progress:
   total_phases: 181
-  completed_phases: 180
+  completed_phases: 181
   total_plans: 187
-  completed_plans: 186
-  percent: 99
+  completed_plans: 187
+  percent: 100
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 181 - Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção).
+**Current focus:** Phase 181 - Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção) [Concluída].
 
 ## Current Position
 
 Phase: 181 of 181  
-Plan: 0 of 1 in current phase  
-Status: In Progress  
-Last activity: 2026-09-16 — Reprodução automatizada no Edge via CDP confirmou: Brotherhood + Rapid Boar no login dispara 124 PNGs individuais que afogam a fila de 6 sockets HTTP/1.1, gerando spawn invisível, caminhada com pop-in de frames e travamento no preview de outros trajes (Citizen). Iniciado pipeline de expansão para todos os 88 atlases de outfit e 130 montarias.
+Plan: 1 of 1 in current phase  
+Status: Complete  
+Last activity: 2026-09-16 — Texture Atlases compilados para 100% dos trajes e montarias, login frio e quente validados com 0 PNGs discretos, carregamento progressivo extirpado e telemetria de diagnóstico isolada entre preview e arena.
 
 Progress: [██████████] 100%
 
