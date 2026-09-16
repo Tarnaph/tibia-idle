@@ -273,6 +273,7 @@ export function getOutfitLayerUrls(
 
 export const imageElementCache = new Map<string, HTMLImageElement>();
 const inFlightImagePromises = new Map<string, Promise<HTMLImageElement>>();
+export const activePreparationTokens = new Map<string, string>();
 export const failedImageUrls = new Set<string>();
 const failedImageUrlsWithTimestamp = new Map<string, number>();
 const failedImageAttempts = new Map<string, { count: number; lastAttempt: number }>();
@@ -426,6 +427,11 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
     img.onload = handleSuccess;
     img.onerror = handleError;
     img.src = url;
+
+    // Fast synchronous resolution if already loaded and valid from browser cache
+    if (img.complete && img.naturalWidth > 0) {
+      handleSuccess();
+    }
   });
 
   inFlightImagePromises.set(url, promise);
@@ -783,15 +789,24 @@ export async function preloadOutfitAllFrames(
   const otherDirs = directions.filter((d) => d !== priorityDir);
   await Promise.allSettled(otherDirs.map((dir) => loadAndCacheFrame(dir, 0)));
 
-  // 3. Preload remaining walk frames for the other directions in background
-  const remainingPromises: Promise<void>[] = [];
+  // 3. Preload remaining walk frames for the other directions in background with controlled concurrency (2)
+  // so background preloading never floods the browser socket pool or starves active appearance preparation
+  const remainingTasks: Array<() => Promise<void>> = [];
   for (const dir of otherDirs) {
     for (let f = 1; f <= maxWalkFrame; f++) {
-      remainingPromises.push(loadAndCacheFrame(dir, f));
+      remainingTasks.push(() => loadAndCacheFrame(dir, f));
     }
   }
-  if (remainingPromises.length > 0) {
-    await Promise.allSettled(remainingPromises);
+  if (remainingTasks.length > 0) {
+    const queue = [...remainingTasks];
+    const workerCount = Math.min(2, queue.length);
+    const bgWorkers = Array.from({ length: workerCount }, async () => {
+      while (queue.length > 0) {
+        const task = queue.shift();
+        if (task) await task();
+      }
+    });
+    Promise.allSettled(bgWorkers).catch(() => {});
   }
 }
 
@@ -901,27 +916,43 @@ export async function prepareAppearanceCanvas(
   let failedCount = 0;
   const failedDetails: Array<{ url: string; error: string; elapsedMs: number }> = [];
 
+  const actualOnProgress = typeof onProgress === 'function' ? onProgress : undefined;
+  const actualAttemptId = typeof onProgress === 'string' ? onProgress : attemptId;
+
   const updateTelemetry = (status: 'preparing' | 'ready' | 'failed' | 'exception', errorMsg?: string) => {
-    const elapsed = Date.now() - startTime;
-    const resState: PreparationResourceState = {
-      enqueued: uniqueUrls.length,
-      started: startedCount,
-      completed: completedCount,
-      failed: failedCount,
-      inProgress: Array.from(inProgressUrls),
-      failedDetails: [...failedDetails],
-    };
-    outfitDiagnostics.recordPreparation({
-      status,
-      manifest,
-      resources: resState,
-      durationMs: elapsed,
-      error: errorMsg,
-    }, attemptId);
-    if (onProgress) {
-      onProgress(manifest, resState);
+    try {
+      const elapsed = Date.now() - startTime;
+      const resState: PreparationResourceState = {
+        enqueued: uniqueUrls.length,
+        started: startedCount,
+        completed: completedCount,
+        failed: failedCount,
+        inProgress: Array.from(inProgressUrls),
+        failedDetails: [...failedDetails],
+      };
+      outfitDiagnostics.recordPreparation({
+        status,
+        manifest,
+        resources: resState,
+        durationMs: elapsed,
+        error: errorMsg,
+      }, actualAttemptId);
+      if (typeof actualOnProgress === 'function') {
+        try {
+          actualOnProgress(manifest, resState);
+        } catch (e) {
+          console.warn('[outfitRecolor] Error in onProgress callback:', e);
+        }
+      }
+    } catch (e) {
+      console.warn('[outfitRecolor] Error in updateTelemetry:', e);
     }
   };
+
+  // Token to cancel/yield stale preparations when superseded by a newer outfit change
+  const prepToken = `${norm}_${gender}_${mount || 'none'}_${effectiveMounted}_${effectiveAddons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_${actualAttemptId || 'active'}`;
+  const prepScopeKey = actualAttemptId || 'active';
+  activePreparationTokens.set(prepScopeKey, prepToken);
 
   // Record function entry and initial manifest before downloads start:
   updateTelemetry('preparing');
@@ -933,16 +964,24 @@ export async function prepareAppearanceCanvas(
     const concurrency = 6;
     const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
       while (queue.length > 0) {
+        // If superseded by a newer appearance preparation for the same scope, yield immediately
+        if (activePreparationTokens.get(prepScopeKey) !== prepToken) {
+          break;
+        }
+
         const url = queue.shift();
         if (!url) break;
         const cached = imageElementCache.get(url);
         if (cached && cached.complete && cached.naturalWidth > 0) {
           completedCount++;
+          updateTelemetry('preparing');
           continue;
         }
 
         startedCount++;
         inProgressUrls.add(url);
+        updateTelemetry('preparing');
+
         const fetchT0 = Date.now();
         try {
           const img = await loadImage(url);
@@ -954,11 +993,13 @@ export async function prepareAppearanceCanvas(
           } else {
             completedCount++;
           }
+          updateTelemetry('preparing');
         } catch (err: any) {
           inProgressUrls.delete(url);
           failedCount++;
           missingAssets.push(url);
           failedDetails.push({ url, error: err?.message || 'load_failed', elapsedMs: Date.now() - fetchT0 });
+          updateTelemetry('preparing');
         }
       }
     });

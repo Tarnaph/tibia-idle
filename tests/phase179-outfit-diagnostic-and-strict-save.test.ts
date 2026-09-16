@@ -5,6 +5,9 @@ import {
   isAppearanceFullyReady,
   isOutfitCanvasCached,
   getCanvasCacheKey,
+  prepareAppearanceCanvas,
+  activePreparationTokens,
+  imageElementCache,
 } from '../apps/web/lib/outfitRecolor';
 
 describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
@@ -728,5 +731,213 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
       expect(lastSave?.attemptId).toBe(attempt1Id);
       expect(lastSave?.save.callbackPayload?.outfit).toBe('Assassin');
     });
+
+    it('reproduces stalled worker telemetry during in-flight asset downloads and verifies live incremental progress', async () => {
+      const origDoc = (globalThis as any).document;
+      const origImage = (globalThis as any).Image;
+
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      const pendingImages: Array<{ img: any; src: string; resolve: () => void }> = [];
+      class MockImage {
+        onload: any = null;
+        onerror: any = null;
+        complete: boolean = false;
+        naturalWidth: number = 0;
+        naturalHeight: number = 0;
+        _src: string = '';
+
+        set src(val: string) {
+          this._src = val;
+          pendingImages.push({
+            img: this,
+            src: val,
+            resolve: () => {
+              this.complete = true;
+              this.naturalWidth = 64;
+              this.naturalHeight = 64;
+              if (this.onload) this.onload();
+            },
+          });
+        }
+        get src() {
+          return this._src;
+        }
+      }
+      (globalThis as any).Image = MockImage;
+
+      try {
+        const attemptId = outfitDiagnostics.startAttempt({
+          characterId: 'char-worker-test',
+          characterName: 'AssassinTester',
+          outfit: 'Assassin',
+          mount: 'midnight-panther',
+          mountActive: true,
+        });
+
+        // Launch preparation in background
+        const prepPromise = prepareAppearanceCanvas(
+          'Assassin',
+          'male',
+          { head: 0, primary: 86, secondary: 114, detail: 76 },
+          0,
+          'midnight-panther',
+          true,
+          ['south'],
+          [0],
+          attemptId
+        );
+
+        // Allow microtasks so workers start dequeuing up to concurrency (6)
+        await new Promise((r) => setTimeout(r, 15));
+
+        // Live telemetry check: workers have dequeued, started is > 0, inProgress contains active requests
+        let currentLog = outfitDiagnostics.getCurrentAttempt();
+        expect(currentLog?.preparation.manifest?.totalUrls).toBeGreaterThan(0);
+        expect(currentLog?.preparation.resources?.started).toBeGreaterThan(0);
+        expect(currentLog?.preparation.resources?.inProgress.length).toBeGreaterThan(0);
+        expect(currentLog?.preparation.resources?.completed).toBe(0);
+
+        // Now resolve the first batch of images
+        const batch1 = pendingImages.splice(0, currentLog?.preparation.resources?.started || 0);
+        batch1.forEach((item) => item.resolve());
+
+        await new Promise((r) => setTimeout(r, 15));
+
+        // After resolving, completed count must increment live in telemetry
+        currentLog = outfitDiagnostics.getCurrentAttempt();
+        expect(currentLog?.preparation.resources?.completed).toBeGreaterThan(0);
+
+        // Resolve any remaining pending images until prepPromise finishes
+        while (pendingImages.length > 0) {
+          const item = pendingImages.shift();
+          item?.resolve();
+          await new Promise((r) => setTimeout(r, 5));
+        }
+
+        const res = await prepPromise;
+        expect(res.success).toBe(true);
+
+        // Final telemetry state
+        currentLog = outfitDiagnostics.getCurrentAttempt();
+        expect(currentLog?.preparation.status).toBe('ready');
+        expect(currentLog?.preparation.resources?.completed).toBe(currentLog?.preparation.resources?.enqueued);
+      } finally {
+        (globalThis as any).document = origDoc;
+        (globalThis as any).Image = origImage;
+      }
+    });
+
+    it('proves that activePreparationTokens supersedes and aborts stale worker loops when appearance changes', async () => {
+      const origDoc = (globalThis as any).document;
+      const origImage = (globalThis as any).Image;
+
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      const pendingImages: Array<{ img: any; src: string; resolve: () => void }> = [];
+      class MockImage {
+        onload: any = null;
+        onerror: any = null;
+        complete: boolean = false;
+        naturalWidth: number = 0;
+        naturalHeight: number = 0;
+        _src: string = '';
+
+        set src(val: string) {
+          this._src = val;
+          pendingImages.push({
+            img: this,
+            src: val,
+            resolve: () => {
+              this.complete = true;
+              this.naturalWidth = 64;
+              this.naturalHeight = 64;
+              if (this.onload) this.onload();
+            },
+          });
+        }
+        get src() {
+          return this._src;
+        }
+      }
+      (globalThis as any).Image = MockImage;
+
+      try {
+        const attemptId = 'att-supersede-scope';
+        // 1. First preparation: Citizen
+        const prep1Promise = prepareAppearanceCanvas(
+          'Citizen',
+          'male',
+          { head: 0, primary: 0, secondary: 0, detail: 0 },
+          0,
+          undefined,
+          false,
+          ['south', 'east', 'north', 'west'],
+          [0, 1, 2, 3],
+          attemptId
+        );
+
+        await new Promise((r) => setTimeout(r, 10));
+        const token1 = activePreparationTokens.get(attemptId);
+        expect(token1).toBeDefined();
+
+        // 2. Second preparation begins for the same scope (user switched to Assassin):
+        const prep2Promise = prepareAppearanceCanvas(
+          'Assassin',
+          'male',
+          { head: 10, primary: 20, secondary: 30, detail: 40 },
+          0,
+          'midnight-panther',
+          true,
+          ['south', 'east', 'north', 'west'],
+          [0, 1, 2, 3],
+          attemptId
+        );
+
+        await new Promise((r) => setTimeout(r, 10));
+        const token2 = activePreparationTokens.get(attemptId);
+        expect(token2).toBeDefined();
+        expect(token2).not.toBe(token1);
+
+        // 3. Resolve images for prep1 so its active workers finish their current item
+        while (pendingImages.length > 0) {
+          const item = pendingImages.shift();
+          item?.resolve();
+          await new Promise((r) => setTimeout(r, 2));
+        }
+
+        const [res1, res2] = await Promise.all([prep1Promise, prep2Promise]);
+        // prep1 was superseded mid-flight: workers broke out when token mismatched
+        expect(res1.success).toBe(false);
+      } finally {
+        (globalThis as any).document = origDoc;
+        (globalThis as any).Image = origImage;
+      }
+    });
   });
 });
+
