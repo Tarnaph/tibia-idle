@@ -167,6 +167,7 @@ class OutfitDiagnosticsManager {
       if (inHistory) {
         return inHistory;
       }
+      return null;
     }
     return this.currentAttempt;
   }

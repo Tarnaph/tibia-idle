@@ -938,6 +938,138 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
         (globalThis as any).Image = origImage;
       }
     });
+
+    it('proves that un-scoped initial hydration preparation yields to tracked player outfit save and never stomps telemetry', async () => {
+      const origDoc = (globalThis as any).document;
+      const origImage = (globalThis as any).Image;
+
+      const fakeCanvas = {
+        getContext: () => ({
+          drawImage: () => {},
+          getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+          putImageData: () => {},
+          createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+          clearRect: () => {},
+        }),
+        width: 64,
+        height: 64,
+      };
+
+      (globalThis as any).document = {
+        createElement: (tag: string) => {
+          if (tag === 'canvas') return fakeCanvas;
+          return {};
+        },
+      };
+
+      const pendingImages: Array<{ src: string; resolve: () => void }> = [];
+      class MockImage {
+        complete = false;
+        naturalWidth = 0;
+        naturalHeight = 0;
+        onload: any = null;
+        onerror: any = null;
+        private _src = '';
+
+        set src(val: string) {
+          this._src = val;
+          pendingImages.push({
+            src: val,
+            resolve: () => {
+              this.complete = true;
+              this.naturalWidth = 64;
+              this.naturalHeight = 64;
+              if (this.onload) this.onload();
+            },
+          });
+        }
+        get src() {
+          return this._src;
+        }
+      }
+      (globalThis as any).Image = MockImage;
+
+      try {
+        // 1. User opens modal and selects Assassin + Midnight Panther
+        const saveAttemptId = outfitDiagnostics.startAttempt({
+          characterId: 'char-hero-1',
+          characterName: 'HeroTest',
+          outfit: 'Knight',
+          mount: 'none',
+          mountActive: false,
+        });
+
+        outfitDiagnostics.updateSelection({
+          outfit: 'Assassin',
+          mount: 'midnight-panther',
+          mountActive: true,
+          addons: 0,
+        }, saveAttemptId);
+        outfitDiagnostics.recordSaveClick(saveAttemptId);
+
+        // 2. Un-scoped background hydration preparation begins for Knight (without attemptId):
+        const knightHydrationPromise = prepareAppearanceCanvas(
+          'Knight',
+          'male',
+          { head: 0, primary: 86, secondary: 114, detail: 76 },
+          0,
+          undefined,
+          false
+        );
+
+        await new Promise((r) => setTimeout(r, 10));
+
+        // Guarantee 1: Knight hydration MUST NOT have stomped saveAttempt's manifest
+        const attBeforeAssassin = outfitDiagnostics.getTargetAttempt(saveAttemptId);
+        expect(attBeforeAssassin?.preparation.manifest).toBeUndefined();
+
+        // 3. User save triggers tracked preparation for Assassin (with saveAttemptId):
+        const assassinSavePromise = prepareAppearanceCanvas(
+          'Assassin',
+          'male',
+          { head: 0, primary: 86, secondary: 114, detail: 76 },
+          0,
+          'midnight-panther',
+          true,
+          ['south', 'east', 'north', 'west'],
+          undefined,
+          undefined,
+          saveAttemptId
+        );
+
+        await new Promise((r) => setTimeout(r, 10));
+
+        // Guarantee 2: player_active_appearance token is updated to Assassin:
+        const activePlayerToken = activePreparationTokens.get('player_active_appearance');
+        expect(activePlayerToken).toContain('assassin');
+        expect(activePlayerToken).toContain('midnight-panther');
+
+        // 4. Resolve images so workers can process and check supersession token:
+        while (pendingImages.length > 0) {
+          const item = pendingImages.shift();
+          item?.resolve();
+          await new Promise((r) => setTimeout(r, 2));
+        }
+
+        const [knightRes, assassinRes] = await Promise.all([knightHydrationPromise, assassinSavePromise]);
+
+        // Guarantee 3: Knight workers yielded due to player_active_appearance supersession:
+        expect(knightRes.success).toBe(false);
+
+        // Guarantee 4: Assassin preparation completed successfully:
+        expect(assassinRes.success).toBe(true);
+        expect(assassinRes.manifest?.totalUrls).toBe(116);
+
+        // Guarantee 5: Diagnostics on saveAttemptId has 116 enqueued URLs, NOT Knight's 72:
+        const attFinal = outfitDiagnostics.getTargetAttempt(saveAttemptId);
+        expect(attFinal?.preparation.manifest?.totalUrls).toBe(116);
+        expect(attFinal?.preparation.resources?.enqueued).toBe(116);
+        expect(attFinal?.preparation.status).toBe('ready');
+      } finally {
+        (globalThis as any).document = origDoc;
+        (globalThis as any).Image = origImage;
+      }
+    });
   });
 });
 

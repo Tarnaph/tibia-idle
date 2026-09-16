@@ -942,13 +942,15 @@ export async function prepareAppearanceCanvas(
         inProgress: Array.from(inProgressUrls),
         failedDetails: [...failedDetails],
       };
-      outfitDiagnostics.recordPreparation({
-        status,
-        manifest,
-        resources: resState,
-        durationMs: elapsed,
-        error: errorMsg,
-      }, actualAttemptId);
+      if (actualAttemptId) {
+        outfitDiagnostics.recordPreparation({
+          status,
+          manifest,
+          resources: resState,
+          durationMs: elapsed,
+          error: errorMsg,
+        }, actualAttemptId);
+      }
       if (typeof actualOnProgress === 'function') {
         try {
           actualOnProgress(manifest, resState);
@@ -965,6 +967,7 @@ export async function prepareAppearanceCanvas(
   const prepToken = `${norm}_${gender}_${mount || 'none'}_${effectiveMounted}_${effectiveAddons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_${actualAttemptId || 'active'}`;
   const prepScopeKey = actualAttemptId || 'active';
   activePreparationTokens.set(prepScopeKey, prepToken);
+  activePreparationTokens.set('player_active_appearance', prepToken);
 
   // Record function entry and initial manifest before downloads start:
   updateTelemetry('preparing');
@@ -984,8 +987,11 @@ export async function prepareAppearanceCanvas(
     const concurrency = 6;
     const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
       while (queue.length > 0) {
-        // If superseded by a newer appearance preparation for the same scope, yield immediately
-        if (activePreparationTokens.get(prepScopeKey) !== prepToken) {
+        // If superseded by a newer appearance preparation for the player or scope, yield immediately
+        if (
+          activePreparationTokens.get(prepScopeKey) !== prepToken ||
+          activePreparationTokens.get('player_active_appearance') !== prepToken
+        ) {
           break;
         }
 
@@ -1109,18 +1115,20 @@ export async function prepareAppearanceCanvas(
       failedDetails: [...failedDetails],
     };
 
-    outfitDiagnostics.recordPreparation({
-      status: isSuccess ? 'ready' : 'failed',
-      success: isSuccess,
-      durationMs,
-      manifest,
-      resources: resState,
-      uncompositedFrames,
-      missingAssets: uniqueMissing,
-      missingFrames: fullCheck.missing,
-      totalFramesRequested: fullCheck.total,
-      cachedFramesCount: fullCheck.cached,
-    }, attemptId);
+    if (actualAttemptId) {
+      outfitDiagnostics.recordPreparation({
+        status: isSuccess ? 'ready' : 'failed',
+        success: isSuccess,
+        durationMs,
+        manifest,
+        resources: resState,
+        uncompositedFrames,
+        missingAssets: uniqueMissing,
+        missingFrames: fullCheck.missing,
+        totalFramesRequested: fullCheck.total,
+        cachedFramesCount: fullCheck.cached,
+      }, actualAttemptId);
+    }
 
     return {
       success: isSuccess,
@@ -1146,14 +1154,16 @@ export async function prepareAppearanceCanvas(
       failedDetails: [...failedDetails],
     };
 
-    outfitDiagnostics.recordPreparation({
-      status: 'exception',
-      success: false,
-      durationMs,
-      error: errorMsg,
-      manifest,
-      resources: resState,
-    }, attemptId);
+    if (actualAttemptId) {
+      outfitDiagnostics.recordPreparation({
+        status: 'exception',
+        success: false,
+        durationMs,
+        error: errorMsg,
+        manifest,
+        resources: resState,
+      }, actualAttemptId);
+    }
 
     throw err;
   }
