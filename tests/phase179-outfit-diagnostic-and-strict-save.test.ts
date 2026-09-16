@@ -1,13 +1,19 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { outfitDiagnostics, CURRENT_CLIENT_COMMIT } from '../apps/web/lib/outfitDiagnostics';
+import {
+  recoloredCanvasCache,
+  isAppearanceFullyReady,
+  isOutfitCanvasCached,
+  getCanvasCacheKey,
+} from '../apps/web/lib/outfitRecolor';
 
 describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
   beforeEach(() => {
     // Reset any state before each test
   });
 
-  it('correctly reports clientCommit matching deployed commit ce72a9b46', () => {
-    expect(CURRENT_CLIENT_COMMIT).toBe('ce72a9b46');
+  it('correctly reports clientCommit as "desconhecido" when commit hash is unavailable', () => {
+    expect(CURRENT_CLIENT_COMMIT).toBe('desconhecido');
   });
 
   it('reproduces complete outfit change attempt lifecycle without leaking tokens or passwords', () => {
@@ -89,7 +95,7 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
     const finished = outfitDiagnostics.endAttempt();
     expect(finished).not.toBeNull();
     expect(finished?.attemptId).toBe(attemptId);
-    expect(finished?.clientCommit).toBe('ce72a9b46');
+    expect(finished?.clientCommit).toBe('desconhecido');
 
     // Asserts no tokens or passwords in payload
     expect(finished?.save.callbackPayload?.password).toBeUndefined();
@@ -319,5 +325,172 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
     expect(primaryChar?.mountActive).toBe(true);
     expect(primaryChar?.addons).toBe(3);
     expect(primaryChar?.outfitColors).toEqual({ head: 12, primary: 34, secondary: 56, detail: 78 });
+  });
+
+  describe('Validation Scenario: Save and immediately walk/turn in all four directions with empty cache', () => {
+    const directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'];
+    const outfit = 'Warrior';
+    const mount = 'war-bear';
+    const addons = 3; // Addon 1 + Addon 2
+    const colors = { head: 10, primary: 20, secondary: 30, detail: 40 };
+
+    beforeEach(() => {
+      // Ensure empty cache (cold cache condition)
+      recoloredCanvasCache.clear();
+    });
+
+    it('proves that premature release on standing frame only (f0) leaves walking and turns broken with pending frames', () => {
+      const attemptId = outfitDiagnostics.startAttempt({
+        characterId: 'char-test-walk',
+        characterName: 'TestWalker',
+        outfit: 'Knight',
+        mount: 'none',
+        mountActive: false,
+        addons: 0,
+      });
+
+      outfitDiagnostics.updateSelection({
+        outfit,
+        mount,
+        mountActive: true,
+        addons,
+        colors,
+        direction: 'south',
+      });
+
+      outfitDiagnostics.recordSaveClick();
+
+      // Cold cache check: nothing is cached yet
+      const coldCheck = isAppearanceFullyReady(outfit, 'male', colors, addons, mount, true, directions);
+      expect(coldCheck.ready).toBe(false);
+      expect(coldCheck.cached).toBe(0);
+      expect(coldCheck.total).toBe(36); // 4 directions * 9 frames
+      expect(coldCheck.missing.length).toBe(36);
+
+      // Suppose renderer released prematurely on ONLY south-f0 (idle frame)
+      const southF0Key = getCanvasCacheKey('warrior', 'male', 'south', 0, colors, addons, mount, true);
+      const mockCanvas = {} as HTMLCanvasElement;
+      recoloredCanvasCache.set(southF0Key, mockCanvas);
+
+      // Standing frame south is cached:
+      expect(isOutfitCanvasCached(outfit, 'male', 'south', 0, colors, addons, mount, true)).toBe(true);
+
+      // BUT if player immediately turns to east, north, west, or walks (f1..f8):
+      expect(isOutfitCanvasCached(outfit, 'male', 'east', 0, colors, addons, mount, true)).toBe(false);
+      expect(isOutfitCanvasCached(outfit, 'male', 'north', 0, colors, addons, mount, true)).toBe(false);
+      expect(isOutfitCanvasCached(outfit, 'male', 'west', 0, colors, addons, mount, true)).toBe(false);
+      expect(isOutfitCanvasCached(outfit, 'male', 'south', 1, colors, addons, mount, true)).toBe(false);
+
+      const partialCheck = isAppearanceFullyReady(outfit, 'male', colors, addons, mount, true, directions);
+      expect(partialCheck.ready).toBe(false);
+      expect(partialCheck.cached).toBe(1);
+      expect(partialCheck.missing.length).toBe(35);
+
+      // Record this diagnostic state
+      outfitDiagnostics.recordPreparation({
+        status: 'preparing',
+        cachedFramesCount: partialCheck.cached,
+        totalFramesRequested: partialCheck.total,
+        missingFrames: partialCheck.missing,
+        attemptsCount: 1,
+      });
+
+      const currentLog = outfitDiagnostics.getCurrentAttempt();
+      expect(currentLog?.attemptId).toBe(attemptId);
+      expect(currentLog?.preparation.missingFrames).toContain('south-f1');
+      expect(currentLog?.preparation.missingFrames).toContain('east-f0');
+      expect(currentLog?.preparation.missingFrames).toContain('north-f0');
+      expect(currentLog?.preparation.missingFrames).toContain('west-f0');
+      expect(currentLog?.preparation.missingFrames?.length).toBe(35);
+    });
+
+    it('verifies that full appearance readiness guarantees non-frozen walking, addon presence, and mount synchronization in all 4 directions', () => {
+      const attemptId = outfitDiagnostics.startAttempt({
+        characterId: 'char-test-walk-full',
+        characterName: 'TestWalkerFull',
+        outfit: 'Knight',
+        mount: 'none',
+        mountActive: false,
+        addons: 0,
+      });
+
+      outfitDiagnostics.updateSelection({
+        outfit,
+        mount,
+        mountActive: true,
+        addons,
+        colors,
+        direction: 'south',
+      });
+
+      outfitDiagnostics.recordSaveClick();
+
+      // Populate complete 36-frame set (all 4 directions, f0..f8) with addons and mount
+      for (const dir of directions) {
+        for (let f = 0; f < 9; f++) {
+          const key = getCanvasCacheKey('warrior', 'male', dir, f, colors, addons, mount, true);
+          // Each frame has a unique dummy canvas representation
+          recoloredCanvasCache.set(key, { frameId: `${dir}-f${f}`, addons, mount } as any);
+        }
+      }
+
+      // Check full readiness:
+      const fullCheck = isAppearanceFullyReady(outfit, 'male', colors, addons, mount, true, directions);
+      expect(fullCheck.ready).toBe(true);
+      expect(fullCheck.cached).toBe(36);
+      expect(fullCheck.total).toBe(36);
+      expect(fullCheck.missing).toEqual([]);
+
+      // Verify that every direction and walking frame is cached and distinct:
+      directions.forEach((dir) => {
+        // Idle frame f0
+        expect(isOutfitCanvasCached(outfit, 'male', dir, 0, colors, addons, mount, true)).toBe(true);
+
+        // Walking frames f1..f8 (no animation freezing)
+        for (let f = 1; f < 9; f++) {
+          expect(isOutfitCanvasCached(outfit, 'male', dir, f, colors, addons, mount, true)).toBe(true);
+          const key = getCanvasCacheKey('warrior', 'male', dir, f, colors, addons, mount, true);
+          // Key confirms addon layers (a3) and mount (mwar-bear) are composited
+          expect(key).toContain('_a3_');
+          expect(key).toContain('_mwar-bear_v2');
+        }
+      });
+
+      // Record diagnostic telemetry
+      outfitDiagnostics.recordPreparation({
+        status: 'ready',
+        durationMs: 45,
+        success: true,
+        cachedFramesCount: fullCheck.cached,
+        totalFramesRequested: fullCheck.total,
+        missingFrames: [],
+        attemptsCount: 1,
+      });
+
+      outfitDiagnostics.recordSaveCallback({
+        characterId: 'char-test-walk-full',
+        outfit,
+        mount,
+        mountActive: true,
+        addons,
+      });
+
+      outfitDiagnostics.recordArenaState({
+        reactCharOutfit: outfit,
+        reactCharMount: mount,
+        reactCharMountActive: true,
+        reactCharAddons: addons,
+        arenaActiveAppearanceSig: `${outfit}_male_${mount}_${addons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}`,
+        arenaAppearanceStatus: 'ready',
+      });
+
+      const finished = outfitDiagnostics.endAttempt();
+      expect(finished?.attemptId).toBe(attemptId);
+      expect(finished?.preparation.status).toBe('ready');
+      expect(finished?.preparation.missingFrames).toEqual([]);
+      expect(finished?.preparation.cachedFramesCount).toBe(36);
+      expect(finished?.divergences).toEqual([]);
+      expect(finished?.clientCommit).toBe('desconhecido');
+    });
   });
 });

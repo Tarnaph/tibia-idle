@@ -825,10 +825,16 @@ export async function prepareAppearanceCanvas(
     ? frames.filter((f) => f < maxFrames)
     : Array.from({ length: maxFrames }, (_, i) => i);
 
-  // 1. Gather all required image URLs
+  // 1. Gather all required image URLs in balanced priority order:
+  // First gather frame 0 (idle) across all directions so turning is instantly ready,
+  // then gather walking frames (f1..f8) in lockstep across all directions.
   const rawUrls: string[] = [];
-  for (const dir of directions) {
-    for (const f of targetFrames) {
+  const idleFrames = targetFrames.filter((f) => f === 0);
+  const walkFrames = targetFrames.filter((f) => f !== 0);
+  const orderedFrames = [...idleFrames, ...walkFrames];
+
+  for (const f of orderedFrames) {
+    for (const dir of directions) {
       const urls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
       if (urls.base) rawUrls.push(urls.base);
       if (urls.mask) rawUrls.push(urls.mask);

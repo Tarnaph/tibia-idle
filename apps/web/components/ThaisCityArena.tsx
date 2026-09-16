@@ -1587,19 +1587,9 @@ export function ThaisCityArena({
               }
 
               // ATOMIC APPEARANCE SWAP:
-              // Swap as soon as the active view (current direction idle frame) is cached,
-              // or when full preparation across all 36 frames is ready, or on max retries.
-              const isCurrentActiveFrameCached = isOutfitCanvasCached(
-                outfitKey,
-                charGender,
-                charDirection,
-                0,
-                colors,
-                addons,
-                localChar.mount,
-                isMounted
-              );
-              const canSwap = isDesiredReady || isCurrentActiveFrameCached || view.appearanceState?.status === 'ready' || (view.appearanceState && view.appearanceState.attempts >= 4);
+              // Swap only when the complete appearance (all 4 directions and walk frames) is fully ready,
+              // or on max retry threshold, ensuring turning and walking immediately never freeze or drop addons.
+              const canSwap = isDesiredReady || view.appearanceState?.status === 'ready' || (view.appearanceState && view.appearanceState.attempts >= 4);
               if (canSwap) {
                 console.log('[ThaisCityArena] APPEARANCE SWAPPED SUCCESSFULLY to:', outfitSig);
                 view.activeAppearance = desiredAppearance;

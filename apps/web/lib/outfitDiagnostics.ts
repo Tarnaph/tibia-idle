@@ -14,7 +14,7 @@
 export const CURRENT_CLIENT_COMMIT =
   (typeof window !== 'undefined' && (window as any).__GIT_COMMIT__) ||
   process.env.NEXT_PUBLIC_GIT_COMMIT ||
-  'ce72a9b46';
+  'desconhecido';
 
 export interface OutfitAttemptLog {
   attemptId: string;
