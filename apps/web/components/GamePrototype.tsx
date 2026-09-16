@@ -285,6 +285,7 @@ function GamePrototypeContent() {
   const characterSaveVersionsRef = useRef<Map<string, number>>(new Map());
   const isSaveSuspendedRef = useRef<boolean>(false);
   const outfitSaveActiveRef = useRef<boolean>(false);
+  const outfitSaveAttemptIdRef = useRef<string | null>(null);
   const [onlineAccount, setOnlineAccount] = useState<AuthAccount | null>(null);
   // Security (Phase 116): Derives admin privileges strictly from the validated in-game account.
   // Never let an outdated viewer or leftover session promote a PLAYER account to admin.
@@ -1804,7 +1805,14 @@ function GamePrototypeContent() {
 
       if (outfitSaveActiveRef.current) {
         outfitSaveActiveRef.current = false;
-        outfitDiagnostics.recordApiSave(res.status, res.ok, res.ok ? undefined : `HTTP ${res.status}`);
+        const targetAttemptId = outfitSaveAttemptIdRef.current;
+        outfitSaveAttemptIdRef.current = null;
+        outfitDiagnostics.recordApiSave(
+          res.status,
+          res.ok,
+          res.ok ? undefined : `HTTP ${res.status}`,
+          targetAttemptId || undefined
+        );
       }
 
       if (res.status === 409) {
@@ -2239,8 +2247,10 @@ function GamePrototypeContent() {
     }
 
     outfitSaveActiveRef.current = true;
-    outfitDiagnostics.recordSaveCallback(customization);
-    outfitDiagnostics.recordNetworkDispatch();
+    const saveAttempt = outfitDiagnostics.getLastSaveAttempt() || outfitDiagnostics.getCurrentAttempt();
+    outfitSaveAttemptIdRef.current = saveAttempt?.attemptId || null;
+    outfitDiagnostics.recordSaveCallback(customization, outfitSaveAttemptIdRef.current || undefined);
+    outfitDiagnostics.recordNetworkDispatch(outfitSaveAttemptIdRef.current || undefined);
 
     // Broadcast outfit change to live Colyseus server so all remote players update instantly
     gameNetwork.sendChangeOutfit(customization);

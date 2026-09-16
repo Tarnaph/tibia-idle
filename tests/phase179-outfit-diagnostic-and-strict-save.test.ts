@@ -639,5 +639,94 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
       expect(report?.divergences.some((d) => d.includes('PREVIEW_DIVERGENTE'))).toBe(true);
       expect(report?.divergences.some((d) => d.includes('PREVIEW_NAO_DEFINITIVO'))).toBe(true);
     });
+
+    it('preserves in-progress status on modal reopen and routes async events to original attemptId', () => {
+      // 1. Initial attempt starts preparation:
+      const attempt1Id = outfitDiagnostics.startAttempt({
+        characterId: 'char-async-test',
+        characterName: 'Wolfy',
+        outfit: 'Knight',
+        mount: 'none',
+      });
+
+      outfitDiagnostics.updateSelection({
+        outfit: 'Assassin',
+        mount: 'midnight-panther',
+        mountActive: true,
+      });
+
+      outfitDiagnostics.recordPreparation({
+        status: 'preparing',
+        manifest: {
+          totalUrls: 116,
+          uniqueUrls: 116,
+          categories: { base: 40, mask: 40, mount: 36, addon1: 0, addon2: 0 },
+          directions: ['south', 'east', 'north', 'west'],
+          frames: [0, 1, 2],
+          unmountedBaseCount: 4,
+        },
+        resources: {
+          enqueued: 116,
+          started: 6,
+          completed: 0,
+          failed: 0,
+          inProgress: ['url1', 'url2'],
+          failedDetails: [],
+        },
+      });
+
+      // User clicks save while preparation is still downloading assets:
+      outfitDiagnostics.recordSaveClick();
+      outfitDiagnostics.recordSaveCallback({ outfit: 'Assassin', mount: 'midnight-panther' });
+
+      // 2. User closes/reopens the modal, triggering startAttempt for a new interaction:
+      const attempt2Id = outfitDiagnostics.startAttempt({
+        characterId: 'char-async-test',
+        characterName: 'Wolfy',
+        outfit: 'Knight',
+      }, true);
+
+      expect(attempt2Id).not.toBe(attempt1Id);
+
+      // Verify Attempt 1 was archived into history WITHOUT completedAt stamped prematurely:
+      const archivedAttempt1 = outfitDiagnostics.getTargetAttempt(attempt1Id);
+      expect(archivedAttempt1).toBeDefined();
+      expect(archivedAttempt1?.attemptId).toBe(attempt1Id);
+      expect(archivedAttempt1?.completedAt).toBeUndefined();
+      expect(archivedAttempt1?.preparation.status).toBe('preparing');
+
+      // 3. Asynchronous preparation of Attempt 1 finally completes in background:
+      outfitDiagnostics.recordPreparation({
+        status: 'ready',
+        success: true,
+        durationMs: 4800,
+        totalFramesRequested: 36,
+        cachedFramesCount: 36,
+        missingAssets: [],
+        missingFrames: [],
+      }, attempt1Id);
+
+      expect(archivedAttempt1?.preparation.status).toBe('ready');
+      expect(archivedAttempt1?.preparation.durationMs).toBe(4800);
+      // Still waiting for API save response:
+      expect(archivedAttempt1?.completedAt).toBeUndefined();
+
+      // 4. Asynchronous API save responds with HTTP 200:
+      outfitDiagnostics.recordApiSave(200, true, undefined, attempt1Id);
+
+      expect(archivedAttempt1?.save.apiDispatched).toBe(true);
+      expect(archivedAttempt1?.save.apiResponseStatus).toBe(200);
+      expect(archivedAttempt1?.completedAt).toBeDefined();
+
+      // Ensure attempt 2 remained untouched:
+      const currentAttempt = outfitDiagnostics.getCurrentAttempt();
+      expect(currentAttempt?.attemptId).toBe(attempt2Id);
+      expect(currentAttempt?.save.buttonClicked).toBe(false);
+
+      // Ensure getLastSaveAttempt finds attempt 1:
+      const lastSave = outfitDiagnostics.getLastSaveAttempt();
+      expect(lastSave?.attemptId).toBe(attempt1Id);
+      expect(lastSave?.save.callbackPayload?.outfit).toBe('Assassin');
+    });
   });
 });

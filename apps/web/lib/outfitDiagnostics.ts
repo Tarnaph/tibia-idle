@@ -158,14 +158,30 @@ class OutfitDiagnosticsManager {
     }
   }
 
+  public getTargetAttempt(attemptId?: string): OutfitAttemptLog | null {
+    if (attemptId) {
+      if (this.currentAttempt && this.currentAttempt.attemptId === attemptId) {
+        return this.currentAttempt;
+      }
+      const inHistory = this.history.find((a) => a.attemptId === attemptId);
+      if (inHistory) {
+        return inHistory;
+      }
+    }
+    return this.currentAttempt;
+  }
+
   startAttempt(initialData: OutfitAttemptLog['initial'], isReopen: boolean = false): string {
     // Preserve existing attempt in history so re-opening modal does not erase past attempt or save records
     if (this.currentAttempt) {
-      if (!this.currentAttempt.completedAt) {
+      const isPrepInProgress = this.currentAttempt.preparation.status === 'preparing';
+      const isSaveInProgress = this.currentAttempt.save.buttonClicked && !this.currentAttempt.save.apiDispatched;
+      // Guarantee: moving an attempt to history does NOT mark it as completed if preparation or save is still in progress
+      if (!isPrepInProgress && !isSaveInProgress && !this.currentAttempt.completedAt) {
         this.currentAttempt.completedAt = Date.now();
       }
-      this.detectDivergence();
-      this.history.push({ ...this.currentAttempt });
+      this.detectDivergence(this.currentAttempt);
+      this.history.push(this.currentAttempt);
       if (this.history.length > 25) this.history.shift();
     }
 
@@ -203,15 +219,17 @@ class OutfitDiagnosticsManager {
     return attemptId;
   }
 
-  updateSelection(selection: OutfitAttemptLog['selection']): void {
-    if (!this.currentAttempt) return;
-    this.currentAttempt.selection = { ...this.currentAttempt.selection, ...selection };
-    this.detectDivergence();
+  updateSelection(selection: OutfitAttemptLog['selection'], attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    target.selection = { ...target.selection, ...selection };
+    this.detectDivergence(target);
   }
 
-  recordPreparation(prep: Partial<OutfitAttemptLog['preparation']>): void {
-    if (!this.currentAttempt) return;
-    const current = this.currentAttempt.preparation;
+  recordPreparation(prep: Partial<OutfitAttemptLog['preparation']>, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    const current = target.preparation;
     const attemptsCount = prep.attemptsCount ?? current.attemptsCount ?? 1;
 
     let attemptsHistory = current.attemptsHistory ? [...current.attemptsHistory] : [];
@@ -228,7 +246,7 @@ class OutfitDiagnosticsManager {
       if (attemptsHistory.length > 10) attemptsHistory.shift();
     }
 
-    this.currentAttempt.preparation = {
+    target.preparation = {
       ...current,
       ...prep,
       manifest: prep.manifest || current.manifest,
@@ -237,64 +255,86 @@ class OutfitDiagnosticsManager {
       attemptsCount,
       attemptsHistory,
     };
-    this.detectDivergence();
+
+    // If preparation settled (ready/failed/exception) and save is not pending API response, settle completedAt if needed
+    if (target.preparation.status === 'ready' || target.preparation.status === 'failed' || target.preparation.status === 'exception') {
+      const isSaveInProgress = target.save.buttonClicked && !target.save.apiDispatched;
+      if (!isSaveInProgress && !target.completedAt) {
+        target.completedAt = Date.now();
+      }
+    }
+
+    this.detectDivergence(target);
   }
 
-  recordPreview(preview: Partial<OutfitAttemptLog['preview']>): void {
-    if (!this.currentAttempt) return;
-    this.currentAttempt.preview = { ...this.currentAttempt.preview, ...preview };
-    this.detectDivergence();
+  recordPreview(preview: Partial<OutfitAttemptLog['preview']>, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    target.preview = { ...target.preview, ...preview };
+    this.detectDivergence(target);
   }
 
-  recordSaveClick(): void {
-    if (!this.currentAttempt) return;
-    this.currentAttempt.save.buttonClicked = true;
-    this.currentAttempt.save.buttonClickedAt = Date.now();
+  recordSaveClick(attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    target.save.buttonClicked = true;
+    target.save.buttonClickedAt = Date.now();
   }
 
-  recordSaveCallback(payload: any): void {
-    if (!this.currentAttempt) return;
-    this.currentAttempt.save.callbackFired = true;
+  recordSaveCallback(payload: any, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    target.save.callbackFired = true;
     // Strip sensitive fields
     const safePayload = { ...payload };
     delete safePayload.password;
     delete safePayload.token;
     delete safePayload.email;
-    this.currentAttempt.save.callbackPayload = safePayload;
+    target.save.callbackPayload = safePayload;
   }
 
-  recordNetworkDispatch(): void {
-    if (!this.currentAttempt) return;
-    this.currentAttempt.save.networkDispatched = true;
+  recordNetworkDispatch(attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    target.save.networkDispatched = true;
   }
 
-  recordApiSave(status: number, ok: boolean, error?: string): void {
-    if (!this.currentAttempt) return;
+  recordApiSave(status: number, ok: boolean, error?: string, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId) || this.getLastSaveAttempt() || this.currentAttempt;
+    if (!target) return;
     // Do not associate background autosaves if save was neither clicked nor fired in this attempt
-    if (!this.currentAttempt.save.buttonClicked && !this.currentAttempt.save.callbackFired) {
+    if (!target.save.buttonClicked && !target.save.callbackFired) {
       return;
     }
-    this.currentAttempt.save.apiDispatched = true;
-    this.currentAttempt.save.apiResponseStatus = status;
-    this.currentAttempt.save.apiResponseOk = ok;
-    if (error) this.currentAttempt.save.apiResponseError = error;
-    this.detectDivergence();
+    target.save.apiDispatched = true;
+    target.save.apiResponseStatus = status;
+    target.save.apiResponseOk = ok;
+    if (error) target.save.apiResponseError = error;
+
+    // Check if attempt is settled (save finished and preparation not preparing)
+    if (target.preparation.status !== 'preparing' && !target.completedAt) {
+      target.completedAt = Date.now();
+    }
+
+    this.detectDivergence(target);
   }
 
-  recordArenaState(arena: Partial<OutfitAttemptLog['arena']>): void {
-    if (!this.currentAttempt) return;
-    this.currentAttempt.arena = { ...this.currentAttempt.arena, ...arena };
-    this.detectDivergence();
+  recordArenaState(arena: Partial<OutfitAttemptLog['arena']>, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId) || (this.currentAttempt?.save.buttonClicked ? this.currentAttempt : this.getLastSaveAttempt()) || this.currentAttempt;
+    if (!target) return;
+    target.arena = { ...target.arena, ...arena };
+    this.detectDivergence(target);
   }
 
-  recordJsError(err: string): void {
-    if (!this.currentAttempt) return;
-    this.currentAttempt.jsErrors.push(err);
+  recordJsError(err: string, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    target.jsErrors.push(err);
   }
 
-  private detectDivergence(): void {
-    if (!this.currentAttempt) return;
-    const a = this.currentAttempt;
+  private detectDivergence(target?: OutfitAttemptLog): void {
+    const a = target || this.currentAttempt;
+    if (!a) return;
     const div: string[] = [];
 
     // 1. Checar se a preparação de recursos falhou ou gerou exceção

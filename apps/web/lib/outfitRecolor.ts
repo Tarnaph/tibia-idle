@@ -821,7 +821,8 @@ export async function prepareAppearanceCanvas(
   isMounted: boolean = false,
   directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
   frames?: number[],
-  onProgress?: (manifest: PreparationManifest, resources: PreparationResourceState) => void
+  onProgress?: (manifest: PreparationManifest, resources: PreparationResourceState) => void,
+  attemptId?: string
 ): Promise<AppearancePreparationResult> {
   const startTime = Date.now();
   if (typeof window === 'undefined' && typeof document === 'undefined') {
@@ -916,7 +917,7 @@ export async function prepareAppearanceCanvas(
       resources: resState,
       durationMs: elapsed,
       error: errorMsg,
-    });
+    }, attemptId);
     if (onProgress) {
       onProgress(manifest, resState);
     }
@@ -1058,7 +1059,7 @@ export async function prepareAppearanceCanvas(
       missingFrames: fullCheck.missing,
       totalFramesRequested: fullCheck.total,
       cachedFramesCount: fullCheck.cached,
-    });
+    }, attemptId);
 
     return {
       success: isSuccess,
@@ -1091,7 +1092,7 @@ export async function prepareAppearanceCanvas(
       error: errorMsg,
       manifest,
       resources: resState,
-    });
+    }, attemptId);
 
     throw err;
   }
