@@ -8,6 +8,8 @@ import {
   prepareAppearanceCanvas,
   activePreparationTokens,
   imageElementCache,
+  loadImage,
+  type AppearanceProgressCallback,
 } from '../apps/web/lib/outfitRecolor';
 
 describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
@@ -795,9 +797,11 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
           0,
           'midnight-panther',
           true,
-          ['south'],
-          [0],
-          attemptId
+          {
+            directions: ['south'],
+            frames: [0],
+            attemptId,
+          }
         );
 
         // Allow microtasks so workers start dequeuing up to concurrency (6)
@@ -896,13 +900,15 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
           0,
           undefined,
           false,
-          ['south', 'east', 'north', 'west'],
-          [0, 1, 2, 3],
-          attemptId
+          {
+            directions: ['south', 'east', 'north', 'west'],
+            frames: [0, 1, 2, 3],
+            attemptId,
+          }
         );
 
         await new Promise((r) => setTimeout(r, 10));
-        const token1 = activePreparationTokens.get(attemptId);
+        const token1 = activePreparationTokens.get(`attempt_${attemptId}`);
         expect(token1).toBeDefined();
 
         // 2. Second preparation begins for the same scope (user switched to Assassin):
@@ -913,13 +919,15 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
           0,
           'midnight-panther',
           true,
-          ['south', 'east', 'north', 'west'],
-          [0, 1, 2, 3],
-          attemptId
+          {
+            directions: ['south', 'east', 'north', 'west'],
+            frames: [0, 1, 2, 3],
+            attemptId,
+          }
         );
 
         await new Promise((r) => setTimeout(r, 10));
-        const token2 = activePreparationTokens.get(attemptId);
+        const token2 = activePreparationTokens.get(`attempt_${attemptId}`);
         expect(token2).toBeDefined();
         expect(token2).not.toBe(token1);
 
@@ -1007,14 +1015,17 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
         }, saveAttemptId);
         outfitDiagnostics.recordSaveClick(saveAttemptId);
 
-        // 2. Un-scoped background hydration preparation begins for Knight (without attemptId):
+        // 2. Background hydration preparation begins for Knight:
         const knightHydrationPromise = prepareAppearanceCanvas(
           'Knight',
           'male',
           { head: 0, primary: 86, secondary: 114, detail: 76 },
           0,
           undefined,
-          false
+          false,
+          {
+            characterId: 'local-char',
+          }
         );
 
         await new Promise((r) => setTimeout(r, 10));
@@ -1031,18 +1042,19 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
           0,
           'midnight-panther',
           true,
-          ['south', 'east', 'north', 'west'],
-          undefined,
-          undefined,
-          saveAttemptId
+          {
+            directions: ['south', 'east', 'north', 'west'],
+            attemptId: saveAttemptId,
+            characterId: 'local-char',
+          }
         );
 
         await new Promise((r) => setTimeout(r, 10));
 
-        // Guarantee 2: player_active_appearance token is updated to Assassin:
-        const activePlayerToken = activePreparationTokens.get('player_active_appearance');
-        expect(activePlayerToken).toContain('assassin');
-        expect(activePlayerToken).toContain('midnight-panther');
+        // Guarantee 2: character token is updated to Assassin:
+        const activeCharToken = activePreparationTokens.get('char_local-char');
+        expect(activeCharToken).toContain('assassin');
+        expect(activeCharToken).toContain('midnight-panther');
 
         // 4. Resolve images so workers can process and check supersession token:
         while (pendingImages.length > 0) {
@@ -1053,7 +1065,7 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
 
         const [knightRes, assassinRes] = await Promise.all([knightHydrationPromise, assassinSavePromise]);
 
-        // Guarantee 3: Knight workers yielded due to player_active_appearance supersession:
+        // Guarantee 3: Knight workers yielded due to character token supersession:
         expect(knightRes.success).toBe(false);
 
         // Guarantee 4: Assassin preparation completed successfully:
@@ -1065,6 +1077,263 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
         expect(attFinal?.preparation.manifest?.totalUrls).toBe(116);
         expect(attFinal?.preparation.resources?.enqueued).toBe(116);
         expect(attFinal?.preparation.status).toBe('ready');
+      } finally {
+        (globalThis as any).document = origDoc;
+        (globalThis as any).Image = origImage;
+      }
+    });
+
+    it('proves that onProgress typed callback receives manifest and resources at origin without throwing', async () => {
+      const origDoc = (globalThis as any).document;
+      const origImage = (globalThis as any).Image;
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      const pendingImages: any[] = [];
+      class MockImage {
+        complete = false;
+        naturalWidth = 0;
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        private _src = '';
+        set src(v: string) {
+          this._src = v;
+          pendingImages.push({
+            resolve: () => {
+              this.complete = true;
+              this.naturalWidth = 64;
+              this.onload?.();
+            },
+          });
+        }
+        get src() {
+          return this._src;
+        }
+      }
+      (globalThis as any).Image = MockImage;
+
+      try {
+        let receivedManifest: any = null;
+        let progressCallCount = 0;
+        const progressCallback: AppearanceProgressCallback = (manifest, resources) => {
+          progressCallCount++;
+          receivedManifest = manifest;
+        };
+
+        const prepPromise = prepareAppearanceCanvas(
+          'Citizen',
+          'male',
+          { head: 0, primary: 0, secondary: 0, detail: 0 },
+          0,
+          undefined,
+          false,
+          {
+            directions: ['south'],
+            frames: [0],
+            onProgress: progressCallback,
+          }
+        );
+
+        await new Promise((r) => setTimeout(r, 10));
+        expect(progressCallCount).toBeGreaterThanOrEqual(1);
+        expect(receivedManifest).toBeDefined();
+        expect(receivedManifest.uniqueUrls).toBeGreaterThan(0);
+
+        while (pendingImages.length > 0) {
+          pendingImages.shift()?.resolve();
+          await new Promise((r) => setTimeout(r, 2));
+        }
+
+        const res = await prepPromise;
+        expect(res.success).toBe(true);
+      } finally {
+        (globalThis as any).document = origDoc;
+        (globalThis as any).Image = origImage;
+      }
+    });
+
+    it('proves that cancelling workers of one character NEVER cancels appearance preparation of another character', async () => {
+      const origDoc = (globalThis as any).document;
+      const origImage = (globalThis as any).Image;
+      (globalThis as any).document = {
+        createElement: () => ({
+          width: 64,
+          height: 64,
+          getContext: () => ({
+            drawImage: () => {},
+            getImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            putImageData: () => {},
+            createImageData: () => ({ data: new Uint8ClampedArray(64 * 64 * 4) }),
+            clearRect: () => {},
+          }),
+        }),
+      };
+
+      const pendingImages: any[] = [];
+      class MockImage {
+        complete = false;
+        naturalWidth = 0;
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        private _src = '';
+        set src(v: string) {
+          this._src = v;
+          pendingImages.push({
+            resolve: () => {
+              this.complete = true;
+              this.naturalWidth = 64;
+              this.onload?.();
+            },
+          });
+        }
+        get src() {
+          return this._src;
+        }
+      }
+      (globalThis as any).Image = MockImage;
+
+      try {
+        imageElementCache.clear();
+        recoloredCanvasCache.clear();
+
+        // Character A (Local player) starts Citizen preparation
+        const charAPromise1 = prepareAppearanceCanvas(
+          'Citizen',
+          'male',
+          { head: 0, primary: 0, secondary: 0, detail: 0 },
+          0,
+          undefined,
+          false,
+          {
+            directions: ['south', 'east', 'north', 'west'],
+            frames: [0, 1, 2, 3],
+            characterId: 'char-A',
+          }
+        );
+
+        // Character B (Remote player) starts Hunter preparation
+        const charBPromise = prepareAppearanceCanvas(
+          'Hunter',
+          'male',
+          { head: 10, primary: 20, secondary: 30, detail: 40 },
+          0,
+          undefined,
+          false,
+          {
+            directions: ['south', 'east', 'north', 'west'],
+            frames: [0, 1, 2, 3],
+            characterId: 'char-B',
+          }
+        );
+
+        await new Promise((r) => setTimeout(r, 10));
+
+        // Character A changes outfit to Assassin (superseding Citizen for Character A)
+        const charAPromise2 = prepareAppearanceCanvas(
+          'Assassin',
+          'male',
+          { head: 50, primary: 60, secondary: 70, detail: 80 },
+          0,
+          'midnight-panther',
+          true,
+          {
+            directions: ['south', 'east', 'north', 'west'],
+            frames: [0, 1, 2, 3],
+            characterId: 'char-A',
+          }
+        );
+
+        await new Promise((r) => setTimeout(r, 10));
+
+        // Resolve all pending image requests:
+        while (pendingImages.length > 0) {
+          pendingImages.shift()?.resolve();
+          await new Promise((r) => setTimeout(r, 2));
+        }
+
+        const [resA1, resB, resA2] = await Promise.all([charAPromise1, charBPromise, charAPromise2]);
+
+        // Character A's older preparation yielded due to supersession on char-A:
+        expect(resA1.success).toBe(false);
+
+        // CRITICAL GUARANTEE: Character B's preparation was NOT cancelled and finished with 100% success!
+        expect(resB.success).toBe(true);
+
+        // Character A's latest preparation also completed with 100% success:
+        expect(resA2.success).toBe(true);
+      } finally {
+        (globalThis as any).document = origDoc;
+        (globalThis as any).Image = origImage;
+      }
+    });
+
+    it('proves that in-flight image promises are shared concurrently and produce zero duplicate network requests', async () => {
+      const origDoc = (globalThis as any).document;
+      const origImage = (globalThis as any).Image;
+      (globalThis as any).document = {};
+
+      let imageInstanceCount = 0;
+      const pendingResolvers: Array<() => void> = [];
+
+      class MockImage {
+        complete = false;
+        naturalWidth = 0;
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        private _src = '';
+        constructor() {
+          imageInstanceCount++;
+        }
+        set src(v: string) {
+          this._src = v;
+          pendingResolvers.push(() => {
+            this.complete = true;
+            this.naturalWidth = 64;
+            this.onload?.();
+          });
+        }
+        get src() {
+          return this._src;
+        }
+      }
+      (globalThis as any).Image = MockImage;
+
+      try {
+        const testUrl = '/assets/test-shared-sprite.png';
+
+        // 5 concurrent calls requesting the exact same image URL:
+        const p1 = loadImage(testUrl);
+        const p2 = loadImage(testUrl);
+        const p3 = loadImage(testUrl);
+        const p4 = loadImage(testUrl);
+        const p5 = loadImage(testUrl);
+
+        // Exactly 1 Image instance must have been created:
+        expect(imageInstanceCount).toBe(1);
+
+        // Resolve the single in-flight image:
+        expect(pendingResolvers.length).toBe(1);
+        pendingResolvers[0]();
+
+        const [img1, img2, img3, img4, img5] = await Promise.all([p1, p2, p3, p4, p5]);
+
+        // All 5 callers received the exact same HTMLImageElement instance:
+        expect(img1).toBe(img2);
+        expect(img2).toBe(img3);
+        expect(img3).toBe(img4);
+        expect(img4).toBe(img5);
+        expect(imageInstanceCount).toBe(1);
       } finally {
         (globalThis as any).document = origDoc;
         (globalThis as any).Image = origImage;

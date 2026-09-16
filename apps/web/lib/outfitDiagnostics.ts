@@ -128,6 +128,8 @@ export interface OutfitAttemptLog {
     arenaAppearanceStatus?: string;
     pixiTextureKey?: string;
     isMatchWithSelection?: boolean;
+    appliedAt?: number;
+    timeToApplyMs?: number;
   };
   jsErrors: string[];
   divergences: string[];
@@ -323,7 +325,15 @@ class OutfitDiagnosticsManager {
   recordArenaState(arena: Partial<OutfitAttemptLog['arena']>, attemptId?: string): void {
     const target = this.getTargetAttempt(attemptId) || (this.currentAttempt?.save.buttonClicked ? this.currentAttempt : this.getLastSaveAttempt()) || this.currentAttempt;
     if (!target) return;
-    target.arena = { ...target.arena, ...arena };
+    const isReady = arena.arenaAppearanceStatus === 'ready' || (arena.arenaActiveAppearanceSig && arena.arenaActiveAppearanceSig === target.selection.outfit);
+    const appliedAt = arena.appliedAt ?? target.arena.appliedAt ?? (isReady && target.save.buttonClickedAt ? Date.now() : undefined);
+    const timeToApplyMs = appliedAt && target.save.buttonClickedAt ? (appliedAt - target.save.buttonClickedAt) : target.arena.timeToApplyMs;
+    target.arena = {
+      ...target.arena,
+      ...arena,
+      appliedAt,
+      timeToApplyMs,
+    };
     this.detectDivergence(target);
   }
 

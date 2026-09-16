@@ -369,14 +369,10 @@ export function loadImage(url: string, forceFresh: boolean = false): Promise<HTM
     return Promise.resolve(cached);
   }
 
-  // 2. Retorna promessa em voo recente (< 6s) para evitar transferências redundantes,
-  // mas descarta promessas antigas para não herdar timers de timeout prestes a estourar
+  // 2. Retorna promessa em voo ativa para evitar requisições HTTP duplicadas
   const inFlight = inFlightImagePromises.get(url);
   if (inFlight && !forceFresh) {
-    if (Date.now() - inFlight.startedAt < 6000) {
-      return inFlight.promise;
-    }
-    inFlightImagePromises.delete(url);
+    return inFlight.promise;
   }
 
   if (isImagePermanentlyFailed(url)) {
@@ -834,6 +830,19 @@ export interface AppearancePreparationResult {
   error?: string;
 }
 
+export type AppearanceProgressCallback = (
+  manifest: PreparationManifest,
+  resources: PreparationResourceState
+) => void;
+
+export interface PrepareAppearanceOptions {
+  directions?: Array<'south' | 'east' | 'north' | 'west'>;
+  frames?: number[];
+  onProgress?: AppearanceProgressCallback;
+  attemptId?: string;
+  characterId?: string;
+}
+
 /**
  * Phase 178/179: Pre-renderiza e aquece o cache síncrono (recoloredCanvasCache)
  * para todos os frames essenciais nas 4 direções cardeais do jogador ativo.
@@ -841,28 +850,72 @@ export interface AppearancePreparationResult {
  */
 export async function prepareAppearanceCanvas(
   outfitId: string,
+  gender?: 'male' | 'female',
+  colors?: OutfitColors,
+  addons?: number,
+  mount?: string,
+  isMounted?: boolean,
+  options?: PrepareAppearanceOptions
+): Promise<AppearancePreparationResult>;
+
+export async function prepareAppearanceCanvas(
+  outfitId: string,
+  gender?: 'male' | 'female',
+  colors?: OutfitColors,
+  addons?: number,
+  mount?: string,
+  isMounted?: boolean,
+  directions?: Array<'south' | 'east' | 'north' | 'west'>,
+  frames?: number[],
+  onProgress?: AppearanceProgressCallback,
+  attemptId?: string,
+  characterId?: string
+): Promise<AppearancePreparationResult>;
+
+export async function prepareAppearanceCanvas(
+  outfitId: string,
   gender: 'male' | 'female' = 'male',
   colors: OutfitColors = { head: 0, primary: 86, secondary: 114, detail: 76 },
   addons: number = 0,
   mount?: string,
   isMounted: boolean = false,
-  directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
+  directionsOrOptions?: Array<'south' | 'east' | 'north' | 'west'> | PrepareAppearanceOptions,
   frames?: number[],
-  onProgress?: ((manifest: PreparationManifest, resources: PreparationResourceState) => void) | string,
-  attemptId?: string
+  onProgress?: AppearanceProgressCallback,
+  attemptId?: string,
+  characterId?: string
 ): Promise<AppearancePreparationResult> {
   const startTime = Date.now();
   if (typeof window === 'undefined' && typeof document === 'undefined') {
     return { success: false, missingAssets: ['window-undefined'], totalFramesRequested: 0, cachedFramesCount: 0, durationMs: 0 };
   }
+  const isOptionsObj = Boolean(
+    directionsOrOptions &&
+    typeof directionsOrOptions === 'object' &&
+    !Array.isArray(directionsOrOptions)
+  );
+  const options = isOptionsObj ? (directionsOrOptions as PrepareAppearanceOptions) : null;
+
+  const directions: Array<'south' | 'east' | 'north' | 'west'> = options?.directions ||
+    (Array.isArray(directionsOrOptions) ? directionsOrOptions : ['south', 'east', 'north', 'west']);
+
+  const targetFramesParam = options?.frames !== undefined ? options.frames : frames;
+
+  const actualOnProgress = typeof options?.onProgress === 'function'
+    ? options.onProgress
+    : (typeof onProgress === 'function' ? onProgress : undefined);
+
+  const actualAttemptId = options?.attemptId || attemptId;
+  const actualCharacterId = options?.characterId || characterId;
+
   const norm = normalizeOutfitId(outfitId);
   const caps = getOutfitCapabilities(norm);
   const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
   const effectiveMounted = isMounted && caps.hasMountRider;
 
   const maxFrames = caps.maxFrames <= 3 ? 3 : 9;
-  const targetFrames = frames && frames.length > 0
-    ? frames.filter((f) => f < maxFrames)
+  const targetFrames = targetFramesParam && targetFramesParam.length > 0
+    ? targetFramesParam.filter((f) => f < maxFrames)
     : Array.from({ length: maxFrames }, (_, i) => i);
 
   // 1. Gather all required image URLs in balanced priority order and categorize them BEFORE download starts:
@@ -928,9 +981,6 @@ export async function prepareAppearanceCanvas(
   let failedCount = 0;
   const failedDetails: Array<{ url: string; error: string; elapsedMs: number }> = [];
 
-  const actualOnProgress = typeof onProgress === 'function' ? onProgress : undefined;
-  const actualAttemptId = typeof onProgress === 'string' ? onProgress : attemptId;
-
   const updateTelemetry = (status: 'preparing' | 'ready' | 'failed' | 'exception', errorMsg?: string) => {
     try {
       const elapsed = Date.now() - startTime;
@@ -952,46 +1002,33 @@ export async function prepareAppearanceCanvas(
         }, actualAttemptId);
       }
       if (typeof actualOnProgress === 'function') {
-        try {
-          actualOnProgress(manifest, resState);
-        } catch (e) {
-          console.warn('[outfitRecolor] Error in onProgress callback:', e);
-        }
+        actualOnProgress(manifest, resState);
       }
     } catch (e) {
       console.warn('[outfitRecolor] Error in updateTelemetry:', e);
     }
   };
 
-  // Token to cancel/yield stale preparations when superseded by a newer outfit change
-  const prepToken = `${norm}_${gender}_${mount || 'none'}_${effectiveMounted}_${effectiveAddons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_${actualAttemptId || 'active'}`;
-  const prepScopeKey = actualAttemptId || 'active';
+  // Token to cancel/yield stale preparations when superseded by a newer outfit change for THIS character/scope:
+  const prepToken = `${norm}_${gender}_${mount || 'none'}_${effectiveMounted}_${effectiveAddons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_${actualAttemptId || 'active'}_${Date.now()}`;
+  const prepScopeKey = actualCharacterId
+    ? `char_${actualCharacterId}`
+    : (actualAttemptId ? `attempt_${actualAttemptId}` : `outfit_${norm}_${gender}`);
   activePreparationTokens.set(prepScopeKey, prepToken);
-  activePreparationTokens.set('player_active_appearance', prepToken);
 
   // Record function entry and initial manifest before downloads start:
   updateTelemetry('preparing');
 
   try {
-    // Purge any stale in-flight promises (> 4s) so this critical preparation starts with fresh, unexpired lifecycles
-    for (const u of uniqueUrls) {
-      const existing = inFlightImagePromises.get(u);
-      if (existing && Date.now() - existing.startedAt > 4000) {
-        inFlightImagePromises.delete(u);
-      }
-    }
-
     // 2. Throttled worker pool matching browser HTTP socket limits
     const missingAssets: string[] = [];
     const queue = [...uniqueUrls];
     const concurrency = 6;
     const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
       while (queue.length > 0) {
-        // If superseded by a newer appearance preparation for the player or scope, yield immediately
-        if (
-          activePreparationTokens.get(prepScopeKey) !== prepToken ||
-          activePreparationTokens.get('player_active_appearance') !== prepToken
-        ) {
+        // If superseded by a newer appearance preparation for this specific character/scope, yield immediately
+        if (activePreparationTokens.get(prepScopeKey) !== prepToken) {
+          missingAssets.push('superseded_by_newer_appearance');
           break;
         }
 
@@ -1101,10 +1138,11 @@ export async function prepareAppearanceCanvas(
     }
 
     // 5. Verify full readiness across all directions and frames
+    const wasSuperseded = activePreparationTokens.get(prepScopeKey) !== prepToken;
     const fullCheck = isAppearanceFullyReady(norm, gender, colors, effectiveAddons, mount, effectiveMounted, directions, targetFrames);
     const uniqueMissing = Array.from(new Set([...missingAssets, ...fullCheck.missing]));
     const durationMs = Date.now() - startTime;
-    const isSuccess = fullCheck.ready && uncompositedFrames.length === 0;
+    const isSuccess = !wasSuperseded && fullCheck.ready && uncompositedFrames.length === 0;
 
     const resState: PreparationResourceState = {
       enqueued: uniqueUrls.length,

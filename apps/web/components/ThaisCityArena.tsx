@@ -1440,7 +1440,11 @@ export function ThaisCityArena({
                 colors,
                 addons,
                 localChar.mount,
-                isMounted
+                isMounted,
+                {
+                  directions: ['south', 'east', 'north', 'west'],
+                  characterId: localChar.id,
+                }
               ).catch(() => {});
             } else if (view.activeAppearance.outfitSig !== outfitSig) {
               // User has switched outfit, mount, addons, or colors!
@@ -1476,10 +1480,11 @@ export function ThaisCityArena({
                   addons,
                   localChar.mount,
                   isMounted,
-                  ['south', 'east', 'north', 'west'],
-                  undefined,
-                  undefined,
-                  targetAttemptId
+                  {
+                    directions: ['south', 'east', 'north', 'west'],
+                    attemptId: targetAttemptId,
+                    characterId: localChar.id,
+                  }
                 ).then((res) => {
                   if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
                     const missingFrames = res.missingAssets.filter((a) => !a.startsWith('/') && !a.startsWith('http'));
@@ -1561,10 +1566,11 @@ export function ThaisCityArena({
                     addons,
                     localChar.mount,
                     isMounted,
-                    ['south', 'east', 'north', 'west'],
-                    undefined,
-                    undefined,
-                    targetAttemptId
+                    {
+                      directions: ['south', 'east', 'north', 'west'],
+                      attemptId: targetAttemptId,
+                      characterId: localChar.id,
+                    }
                   ).then((res) => {
                     if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
                       const missingFrames = res.missingAssets.filter((a) => !a.startsWith('/') && !a.startsWith('http'));
@@ -1646,6 +1652,16 @@ export function ThaisCityArena({
             } else {
               view.pendingAppearance = null;
               view.appearanceState = undefined;
+              outfitDiagnostics.recordArenaState({
+                reactCharOutfit: localChar.outfit,
+                reactCharMount: localChar.mount,
+                reactCharMountActive: localChar.mountActive,
+                reactCharAddons: (localChar as any).addons || (localChar as any).outfitAddons,
+                arenaActiveAppearanceSig: view.activeAppearance?.outfitSig,
+                arenaPendingAppearanceSig: undefined,
+                arenaAppearanceStatus: 'ready',
+                pixiTextureKey: view.lastTextureKey,
+              }, outfitDiagnostics.getLastSaveAttempt()?.attemptId || outfitDiagnostics.getCurrentAttempt()?.attemptId);
             }
 
             // Current rendered appearance (seamlessly preserves previous complete appearance while new one preloads)
