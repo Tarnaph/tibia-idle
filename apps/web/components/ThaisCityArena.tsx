@@ -1582,7 +1582,22 @@ export function ThaisCityArena({
                         );
                       }
                     }
-                  }).catch(() => {});
+                  }).catch((err) => {
+                    if (view.appearanceState && view.appearanceState.outfitSig === thisSig) {
+                      view.appearanceState.status = 'failed';
+                      view.appearanceState.missingAssets = [err?.message || 'unknown-error'];
+                      outfitDiagnostics.recordPreparation({
+                        status: 'failed',
+                        success: false,
+                        durationMs: Date.now() - retryStart,
+                        missingAssets: [err?.message || 'unknown-error'],
+                        missingFrames: [],
+                        attemptsCount: curAttempt,
+                        error: err?.message || String(err),
+                      });
+                      console.error(`[ThaisCityArena] Appearance retry ${curAttempt}/4 exception for ${thisSig}:`, err);
+                    }
+                  });
                 }
               }
 

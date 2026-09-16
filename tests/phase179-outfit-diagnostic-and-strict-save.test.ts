@@ -493,4 +493,151 @@ describe('Phase 179 - Outfit Diagnostic Telemetry & Strict Persistence', () => {
       expect(finished?.clientCommit).toBe('desconhecido');
     });
   });
+
+  describe('Phase 179 - Instrumentation of Blocked Preparation, Modal Reopen & isDefinitive', () => {
+    it('preserves save attempt history when modal is reopened and prioritizes save report on copy', () => {
+      // 1. Initial attempt where user saves Assassin + Midnight Panther
+      const saveAttemptId = outfitDiagnostics.startAttempt({
+        characterId: 'char-user-1',
+        characterName: 'AssassinHero',
+        outfit: 'Summoner',
+        mount: 'dromedary',
+        mountActive: true,
+      });
+
+      outfitDiagnostics.updateSelection({
+        outfit: 'Assassin',
+        mount: 'midnight-panther',
+        mountActive: true,
+        addons: 0,
+      });
+
+      outfitDiagnostics.recordSaveClick();
+      outfitDiagnostics.recordSaveCallback({
+        characterId: 'char-user-1',
+        outfit: 'Assassin',
+        mount: 'midnight-panther',
+        mountActive: true,
+        addons: 0,
+      });
+
+      // 2. User re-opens modal to inspect report: startAttempt is called again with isReopen = true
+      const reopenAttemptId = outfitDiagnostics.startAttempt(
+        {
+          characterId: 'char-user-1',
+          characterName: 'AssassinHero',
+          outfit: 'Assassin',
+          mount: 'midnight-panther',
+          mountActive: true,
+        },
+        true
+      );
+
+      expect(reopenAttemptId).not.toBe(saveAttemptId);
+
+      // Verify history contains the save attempt
+      const allReports = outfitDiagnostics.getAllReports();
+      expect(allReports.length).toBeGreaterThanOrEqual(2);
+      const archivedSave = allReports.find((r) => r.attemptId === saveAttemptId);
+      expect(archivedSave).toBeDefined();
+      expect(archivedSave?.save.buttonClicked).toBe(true);
+      expect(archivedSave?.save.callbackFired).toBe(true);
+
+      // Verify getLastSaveAttempt returns the save attempt even after reopen
+      const lastSave = outfitDiagnostics.getLastSaveAttempt();
+      expect(lastSave).toBeDefined();
+      expect(lastSave?.attemptId).toBe(saveAttemptId);
+      expect(lastSave?.save.callbackPayload.outfit).toBe('Assassin');
+      expect(lastSave?.save.callbackPayload.mount).toBe('midnight-panther');
+    });
+
+    it('records manifest with pre-download counts, resource lifecycle, and uncomposited frame layer details', () => {
+      outfitDiagnostics.startAttempt({
+        characterId: 'char-prep-test',
+        outfit: 'Assassin',
+        mount: 'midnight-panther',
+      });
+
+      outfitDiagnostics.recordPreparation({
+        status: 'failed',
+        manifest: {
+          totalUrls: 116,
+          uniqueUrls: 116,
+          categories: {
+            base: 40,
+            mask: 40,
+            mount: 36,
+            addon1: 0,
+            addon2: 0,
+          },
+          directions: ['south', 'east', 'north', 'west'],
+          frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+          unmountedBaseCount: 8,
+        },
+        resources: {
+          enqueued: 116,
+          started: 116,
+          completed: 114,
+          failed: 2,
+          inProgress: [],
+          failedDetails: [
+            { url: '/generated/outfits/assassin-male-west-f7-mount-base.png', error: 'HTTP 500', elapsedMs: 120 },
+            { url: '/generated/outfits/assassin-male-west-f8-mount-base.png', error: 'timeout', elapsedMs: 15000 },
+          ],
+        },
+        uncompositedFrames: [
+          {
+            frameKey: 'west-f7',
+            direction: 'west',
+            frame: 7,
+            missingLayers: ['base(/generated/outfits/assassin-male-west-f7-mount-base.png)'],
+          },
+          {
+            frameKey: 'west-f8',
+            direction: 'west',
+            frame: 8,
+            missingLayers: ['base(/generated/outfits/assassin-male-west-f8-mount-base.png)'],
+          },
+        ],
+        missingFrames: ['west-f7', 'west-f8'],
+      });
+
+      const report = outfitDiagnostics.getCurrentAttempt();
+      expect(report?.preparation.manifest?.totalUrls).toBe(116);
+      expect(report?.preparation.resources?.failed).toBe(2);
+      expect(report?.preparation.uncompositedFrames?.length).toBe(2);
+      expect(report?.preparation.uncompositedFrames?.[0].missingLayers[0]).toContain('base');
+      expect(report?.divergences.some((d) => d.includes('PREPARAÇÃO_FALHOU'))).toBe(true);
+      expect(report?.divergences.some((d) => d.includes('frames_incompletos'))).toBe(true);
+    });
+
+    it('detects when preview is not definitive (provisional fallback or key mismatch)', () => {
+      outfitDiagnostics.startAttempt({
+        characterId: 'char-preview-test',
+        outfit: 'Knight',
+      });
+
+      outfitDiagnostics.updateSelection({
+        outfit: 'Assassin',
+        mount: 'midnight-panther',
+        mountActive: true,
+      });
+
+      // Preview drew fallback or stale key:
+      outfitDiagnostics.recordPreview({
+        hasCanvas: true,
+        width: 64,
+        height: 64,
+        lastDrawnKey: 'knight_none_south_0_0_86_114_76_a0_mnone_v2',
+        isDefinitive: false,
+        matchesSelection: false,
+      });
+
+      const report = outfitDiagnostics.getCurrentAttempt();
+      expect(report?.preview.isDefinitive).toBe(false);
+      expect(report?.preview.matchesSelection).toBe(false);
+      expect(report?.divergences.some((d) => d.includes('PREVIEW_DIVERGENTE'))).toBe(true);
+      expect(report?.divergences.some((d) => d.includes('PREVIEW_NAO_DEFINITIVO'))).toBe(true);
+    });
+  });
 });

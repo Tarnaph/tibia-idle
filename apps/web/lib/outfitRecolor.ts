@@ -1,5 +1,11 @@
 import rawOutfitsJson from '@/content/generated/outfits.json';
 import rawMountsJson from '@/content/generated/mounts.json';
+import {
+  outfitDiagnostics,
+  PreparationManifest,
+  PreparationResourceState,
+  UncompositedFrameDetail,
+} from './outfitDiagnostics';
 
 export interface OutfitColors {
   head: number;
@@ -794,13 +800,17 @@ export interface AppearancePreparationResult {
   missingAssets: string[];
   totalFramesRequested: number;
   cachedFramesCount: number;
+  durationMs: number;
+  manifest?: PreparationManifest;
+  resources?: PreparationResourceState;
+  uncompositedFrames?: UncompositedFrameDetail[];
+  error?: string;
 }
 
 /**
- * Phase 178: Pre-renderiza e aquece o cache síncrono (recoloredCanvasCache)
+ * Phase 178/179: Pre-renderiza e aquece o cache síncrono (recoloredCanvasCache)
  * para todos os frames essenciais nas 4 direções cardeais do jogador ativo.
- * Garante que "pronto" signifique disponível para desenho imediato a 60 FPS
- * e NÃO absorve falhas silenciosamente: retorna diagnóstico do que faltar.
+ * Instrumentado com manifesto prévio, contagem de recursos e auditoria de camadas faltantes.
  */
 export async function prepareAppearanceCanvas(
   outfitId: string,
@@ -810,10 +820,12 @@ export async function prepareAppearanceCanvas(
   mount?: string,
   isMounted: boolean = false,
   directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
-  frames?: number[]
+  frames?: number[],
+  onProgress?: (manifest: PreparationManifest, resources: PreparationResourceState) => void
 ): Promise<AppearancePreparationResult> {
+  const startTime = Date.now();
   if (typeof window === 'undefined' && typeof document === 'undefined') {
-    return { success: false, missingAssets: ['window-undefined'], totalFramesRequested: 0, cachedFramesCount: 0 };
+    return { success: false, missingAssets: ['window-undefined'], totalFramesRequested: 0, cachedFramesCount: 0, durationMs: 0 };
   }
   const norm = normalizeOutfitId(outfitId);
   const caps = getOutfitCapabilities(norm);
@@ -825,10 +837,15 @@ export async function prepareAppearanceCanvas(
     ? frames.filter((f) => f < maxFrames)
     : Array.from({ length: maxFrames }, (_, i) => i);
 
-  // 1. Gather all required image URLs in balanced priority order:
-  // First gather frame 0 (idle) across all directions so turning is instantly ready,
-  // then gather walking frames (f1..f8) in lockstep across all directions.
+  // 1. Gather all required image URLs in balanced priority order and categorize them BEFORE download starts:
   const rawUrls: string[] = [];
+  const baseUrls: string[] = [];
+  const maskUrls: string[] = [];
+  const mountUrls: string[] = [];
+  const addon1Urls: string[] = [];
+  const addon2Urls: string[] = [];
+  const unmountedUrls: string[] = [];
+
   const idleFrames = targetFrames.filter((f) => f === 0);
   const walkFrames = targetFrames.filter((f) => f !== 0);
   const orderedFrames = [...idleFrames, ...walkFrames];
@@ -836,72 +853,248 @@ export async function prepareAppearanceCanvas(
   for (const f of orderedFrames) {
     for (const dir of directions) {
       const urls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
-      if (urls.base) rawUrls.push(urls.base);
-      if (urls.mask) rawUrls.push(urls.mask);
-      if (urls.addon1Base) rawUrls.push(urls.addon1Base);
-      if (urls.addon1Mask) rawUrls.push(urls.addon1Mask);
-      if (urls.addon2Base) rawUrls.push(urls.addon2Base);
-      if (urls.addon2Mask) rawUrls.push(urls.addon2Mask);
-      if (urls.mountUrl) rawUrls.push(urls.mountUrl);
+      if (urls.base) { rawUrls.push(urls.base); baseUrls.push(urls.base); }
+      if (urls.mask) { rawUrls.push(urls.mask); maskUrls.push(urls.mask); }
+      if (urls.addon1Base) { rawUrls.push(urls.addon1Base); addon1Urls.push(urls.addon1Base); }
+      if (urls.addon1Mask) { rawUrls.push(urls.addon1Mask); addon1Urls.push(urls.addon1Mask); }
+      if (urls.addon2Base) { rawUrls.push(urls.addon2Base); addon2Urls.push(urls.addon2Base); }
+      if (urls.addon2Mask) { rawUrls.push(urls.addon2Mask); addon2Urls.push(urls.addon2Mask); }
+      if (urls.mountUrl) { rawUrls.push(urls.mountUrl); mountUrls.push(urls.mountUrl); }
     }
   }
 
-  // Also prepare unmounted idle and walk frames if currently mounted so dismounting doesn't pop
+  // Also prepare unmounted idle frames if currently mounted so dismounting doesn't pop
   if (effectiveMounted) {
     for (const dir of directions) {
-      const unmountedUrls = getOutfitLayerUrls(norm, gender, dir, 0, effectiveAddons, undefined, false);
-      if (unmountedUrls.base) rawUrls.push(unmountedUrls.base);
-      if (unmountedUrls.mask) rawUrls.push(unmountedUrls.mask);
-      if (unmountedUrls.addon1Base) rawUrls.push(unmountedUrls.addon1Base);
-      if (unmountedUrls.addon1Mask) rawUrls.push(unmountedUrls.addon1Mask);
-      if (unmountedUrls.addon2Base) rawUrls.push(unmountedUrls.addon2Base);
-      if (unmountedUrls.addon2Mask) rawUrls.push(unmountedUrls.addon2Mask);
+      const uUrls = getOutfitLayerUrls(norm, gender, dir, 0, effectiveAddons, undefined, false);
+      if (uUrls.base) { rawUrls.push(uUrls.base); unmountedUrls.push(uUrls.base); }
+      if (uUrls.mask) { rawUrls.push(uUrls.mask); unmountedUrls.push(uUrls.mask); }
+      if (uUrls.addon1Base) { rawUrls.push(uUrls.addon1Base); addon1Urls.push(uUrls.addon1Base); }
+      if (uUrls.addon1Mask) { rawUrls.push(uUrls.addon1Mask); addon1Urls.push(uUrls.addon1Mask); }
+      if (uUrls.addon2Base) { rawUrls.push(uUrls.addon2Base); addon2Urls.push(uUrls.addon2Base); }
+      if (uUrls.addon2Mask) { rawUrls.push(uUrls.addon2Mask); addon2Urls.push(uUrls.addon2Mask); }
     }
   }
 
-  // 2. Throttled worker pool (max 6 concurrent) matching browser HTTP/1.1 socket limits
   const uniqueUrls = Array.from(new Set(rawUrls));
-  const missingAssets: string[] = [];
-  const queue = [...uniqueUrls];
-  const concurrency = 6;
-  const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
-    while (queue.length > 0) {
-      const url = queue.shift();
-      if (!url) break;
-      const cached = imageElementCache.get(url);
-      if (cached && cached.complete && cached.naturalWidth > 0) continue;
-      try {
-        const img = await loadImage(url);
-        if (!img || !img.complete || img.naturalWidth === 0) {
-          missingAssets.push(url);
+
+  // Build manifest with counts filled BEFORE any downloads begin:
+  const manifest: PreparationManifest = {
+    totalUrls: rawUrls.length,
+    uniqueUrls: uniqueUrls.length,
+    categories: {
+      base: baseUrls.length,
+      mask: maskUrls.length,
+      mount: mountUrls.length,
+      addon1: addon1Urls.length,
+      addon2: addon2Urls.length,
+    },
+    directions: [...directions],
+    frames: [...targetFrames],
+    unmountedBaseCount: unmountedUrls.length,
+  };
+
+  const inProgressUrls = new Set<string>();
+  let startedCount = 0;
+  let completedCount = 0;
+  let failedCount = 0;
+  const failedDetails: Array<{ url: string; error: string; elapsedMs: number }> = [];
+
+  const updateTelemetry = (status: 'preparing' | 'ready' | 'failed' | 'exception', errorMsg?: string) => {
+    const elapsed = Date.now() - startTime;
+    const resState: PreparationResourceState = {
+      enqueued: uniqueUrls.length,
+      started: startedCount,
+      completed: completedCount,
+      failed: failedCount,
+      inProgress: Array.from(inProgressUrls),
+      failedDetails: [...failedDetails],
+    };
+    outfitDiagnostics.recordPreparation({
+      status,
+      manifest,
+      resources: resState,
+      durationMs: elapsed,
+      error: errorMsg,
+    });
+    if (onProgress) {
+      onProgress(manifest, resState);
+    }
+  };
+
+  // Record function entry and initial manifest before downloads start:
+  updateTelemetry('preparing');
+
+  try {
+    // 2. Throttled worker pool matching browser HTTP socket limits
+    const missingAssets: string[] = [];
+    const queue = [...uniqueUrls];
+    const concurrency = 6;
+    const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
+      while (queue.length > 0) {
+        const url = queue.shift();
+        if (!url) break;
+        const cached = imageElementCache.get(url);
+        if (cached && cached.complete && cached.naturalWidth > 0) {
+          completedCount++;
+          continue;
         }
-      } catch {
-        missingAssets.push(url);
+
+        startedCount++;
+        inProgressUrls.add(url);
+        const fetchT0 = Date.now();
+        try {
+          const img = await loadImage(url);
+          inProgressUrls.delete(url);
+          if (!img || !img.complete || img.naturalWidth === 0) {
+            failedCount++;
+            missingAssets.push(url);
+            failedDetails.push({ url, error: 'image_empty_or_incomplete', elapsedMs: Date.now() - fetchT0 });
+          } else {
+            completedCount++;
+          }
+        } catch (err: any) {
+          inProgressUrls.delete(url);
+          failedCount++;
+          missingAssets.push(url);
+          failedDetails.push({ url, error: err?.message || 'load_failed', elapsedMs: Date.now() - fetchT0 });
+        }
+      }
+    });
+
+    await Promise.allSettled(workers);
+
+    // 3. Now render and cache each recolored canvas synchronously into recoloredCanvasCache
+    for (const dir of directions) {
+      for (const f of targetFrames) {
+        getRecoloredCanvasSync(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
+      }
+      if (effectiveMounted) {
+        getRecoloredCanvasSync(norm, gender, dir, 0, colors, effectiveAddons, undefined, false);
       }
     }
-  });
-  await Promise.allSettled(workers);
 
-  // 3. Now render and cache each recolored canvas synchronously into recoloredCanvasCache
-  for (const dir of directions) {
-    for (const f of targetFrames) {
-      getRecoloredCanvasSync(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
+    // 4. Audit uncomposited frames and identify which specific layers are missing
+    const uncompositedFrames: UncompositedFrameDetail[] = [];
+    for (const dir of directions) {
+      for (const f of targetFrames) {
+        const key = getCanvasCacheKey(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
+        if (!recoloredCanvasCache.has(key)) {
+          const layerUrls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
+          const missingLayers: string[] = [];
+
+          const baseImg = imageElementCache.get(layerUrls.base);
+          if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
+            missingLayers.push(`base(${layerUrls.base})`);
+          }
+          const maskImg = imageElementCache.get(layerUrls.mask);
+          if (!maskImg || !maskImg.complete || maskImg.naturalWidth === 0) {
+            missingLayers.push(`mask(${layerUrls.mask})`);
+          }
+          if (effectiveMounted && layerUrls.mountUrl) {
+            const mImg = imageElementCache.get(layerUrls.mountUrl);
+            if (!mImg || !mImg.complete || mImg.naturalWidth === 0) {
+              missingLayers.push(`mount(${layerUrls.mountUrl})`);
+            }
+          }
+          if (layerUrls.addon1Base) {
+            const a1b = imageElementCache.get(layerUrls.addon1Base);
+            if (!a1b || !a1b.complete || a1b.naturalWidth === 0) {
+              missingLayers.push(`addon1Base(${layerUrls.addon1Base})`);
+            }
+          }
+          if (layerUrls.addon1Mask) {
+            const a1m = imageElementCache.get(layerUrls.addon1Mask);
+            if (!a1m || !a1m.complete || a1m.naturalWidth === 0) {
+              missingLayers.push(`addon1Mask(${layerUrls.addon1Mask})`);
+            }
+          }
+          if (layerUrls.addon2Base) {
+            const a2b = imageElementCache.get(layerUrls.addon2Base);
+            if (!a2b || !a2b.complete || a2b.naturalWidth === 0) {
+              missingLayers.push(`addon2Base(${layerUrls.addon2Base})`);
+            }
+          }
+          if (layerUrls.addon2Mask) {
+            const a2m = imageElementCache.get(layerUrls.addon2Mask);
+            if (!a2m || !a2m.complete || a2m.naturalWidth === 0) {
+              missingLayers.push(`addon2Mask(${layerUrls.addon2Mask})`);
+            }
+          }
+
+          uncompositedFrames.push({
+            frameKey: `${dir}-f${f}`,
+            direction: dir,
+            frame: f,
+            missingLayers,
+          });
+        }
+      }
     }
-    if (effectiveMounted) {
-      getRecoloredCanvasSync(norm, gender, dir, 0, colors, effectiveAddons, undefined, false);
-    }
+
+    // 5. Verify full readiness across all directions and frames
+    const fullCheck = isAppearanceFullyReady(norm, gender, colors, effectiveAddons, mount, effectiveMounted, directions, targetFrames);
+    const uniqueMissing = Array.from(new Set([...missingAssets, ...fullCheck.missing]));
+    const durationMs = Date.now() - startTime;
+    const isSuccess = fullCheck.ready && uncompositedFrames.length === 0;
+
+    const resState: PreparationResourceState = {
+      enqueued: uniqueUrls.length,
+      started: startedCount,
+      completed: completedCount,
+      failed: failedCount,
+      inProgress: Array.from(inProgressUrls),
+      failedDetails: [...failedDetails],
+    };
+
+    outfitDiagnostics.recordPreparation({
+      status: isSuccess ? 'ready' : 'failed',
+      success: isSuccess,
+      durationMs,
+      manifest,
+      resources: resState,
+      uncompositedFrames,
+      missingAssets: uniqueMissing,
+      missingFrames: fullCheck.missing,
+      totalFramesRequested: fullCheck.total,
+      cachedFramesCount: fullCheck.cached,
+    });
+
+    return {
+      success: isSuccess,
+      durationMs,
+      manifest,
+      resources: resState,
+      uncompositedFrames,
+      missingAssets: uniqueMissing,
+      totalFramesRequested: fullCheck.total,
+      cachedFramesCount: fullCheck.cached,
+    };
+  } catch (err: any) {
+    const durationMs = Date.now() - startTime;
+    const errorMsg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    console.error('[prepareAppearanceCanvas] Preparation threw unhandled exception:', errorMsg);
+
+    const resState: PreparationResourceState = {
+      enqueued: uniqueUrls.length,
+      started: startedCount,
+      completed: completedCount,
+      failed: failedCount,
+      inProgress: Array.from(inProgressUrls),
+      failedDetails: [...failedDetails],
+    };
+
+    outfitDiagnostics.recordPreparation({
+      status: 'exception',
+      success: false,
+      durationMs,
+      error: errorMsg,
+      manifest,
+      resources: resState,
+    });
+
+    throw err;
   }
-
-  // 4. Verify full readiness across all directions and frames (Codex point 1 & 4)
-  const fullCheck = isAppearanceFullyReady(norm, gender, colors, effectiveAddons, mount, effectiveMounted, directions, targetFrames);
-
-  const uniqueMissing = Array.from(new Set([...missingAssets, ...fullCheck.missing]));
-  return {
-    success: fullCheck.ready,
-    missingAssets: uniqueMissing,
-    totalFramesRequested: fullCheck.total,
-    cachedFramesCount: fullCheck.cached,
-  };
 }
 
 export function getCanvasCacheKey(

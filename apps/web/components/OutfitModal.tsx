@@ -11,6 +11,8 @@ import {
   preloadOutfitAllFrames,
   prepareAppearanceCanvas,
   clearFailedImageCache,
+  isOutfitCanvasCached,
+  getCanvasCacheKey,
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
 import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
@@ -122,18 +124,28 @@ interface Props {
 }
 
 export function OutfitModal({ open, characters, activeCharacterId, onClose, onOpenCharacterProfile, onSave }: Props) {
+  const initialChar = characters.find((c) => c.id === (activeCharacterId || characters[0]?.id)) || characters[0];
+  const initialOutfit = initialChar ? (initialChar.outfit || initialChar.baseVocation || 'Knight') : 'Knight';
+  const initialHasMount = Boolean(initialChar?.mount && initialChar.mount !== 'none');
+  const initialMountActive = Boolean(initialHasMount && (initialChar.mountActive !== undefined ? initialChar.mountActive : true));
+  const initialMount = initialMountActive ? initialChar!.mount! : 'none';
+  const initialEquippedMount = initialHasMount ? initialChar!.mount! : 'donkey';
+  const initialCaps = getOutfitCapabilities(initialOutfit);
+  const initialAddons = initialChar?.addons || 0;
+  const initialColors = initialChar?.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+
   const [selectedCharId, setSelectedCharId] = useState(activeCharacterId);
   const [topTab, setTopTab] = useState<'character' | 'outfit'>('outfit');
   const [selectedTab, setSelectedTab] = useState<'outfits' | 'mounts'>('outfits');
-  const [selectedOutfit, setSelectedOutfit] = useState('Knight');
-  const [selectedMount, setSelectedMount] = useState('none');
-  const [equippedMount, setEquippedMount] = useState('donkey');
-  const [mountActive, setMountActive] = useState(false);
-  const [addon1, setAddon1] = useState(false);
-  const [addon2, setAddon2] = useState(false);
+  const [selectedOutfit, setSelectedOutfit] = useState(() => initialOutfit);
+  const [selectedMount, setSelectedMount] = useState(() => initialMount);
+  const [equippedMount, setEquippedMount] = useState(() => initialEquippedMount);
+  const [mountActive, setMountActive] = useState(() => initialMountActive && initialCaps.hasMountRider);
+  const [addon1, setAddon1] = useState(() => Boolean(initialCaps.hasAddon1 && (initialAddons & 1) !== 0));
+  const [addon2, setAddon2] = useState(() => Boolean(initialCaps.hasAddon2 && (initialAddons & 2) !== 0));
   const [directionIdx, setDirectionIdx] = useState(0);
   const [colorPart, setColorPart] = useState<'head' | 'primary' | 'secondary' | 'detail'>('head');
-  const [colors, setColors] = useState<OutfitColors>({ head: 0, primary: 86, secondary: 114, detail: 76 });
+  const [colors, setColors] = useState<OutfitColors>(() => initialColors);
   const [filterAcquired, setFilterAcquired] = useState(false);
 
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -161,17 +173,21 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       if (activeCharacterId && selectedCharId !== activeCharacterId) {
         setSelectedCharId(activeCharacterId);
       }
-      const initialChar = characters.find((c) => c.id === (activeCharacterId || selectedCharId)) || characters[0];
-      if (initialChar) {
-        outfitDiagnostics.startAttempt({
-          characterId: initialChar.id,
-          characterName: initialChar.name,
-          outfit: initialChar.outfit,
-          mount: initialChar.mount,
-          mountActive: initialChar.mountActive,
-          addons: initialChar.addons,
-          colors: initialChar.outfitColors,
-        });
+      const targetChar = characters.find((c) => c.id === (activeCharacterId || selectedCharId)) || characters[0];
+      if (targetChar) {
+        const hasPriorAttempt = Boolean(outfitDiagnostics.getCurrentAttempt());
+        outfitDiagnostics.startAttempt(
+          {
+            characterId: targetChar.id,
+            characterName: targetChar.name,
+            outfit: targetChar.outfit,
+            mount: targetChar.mount,
+            mountActive: targetChar.mountActive,
+            addons: targetChar.addons,
+            colors: targetChar.outfitColors,
+          },
+          hasPriorAttempt
+        );
       }
     }
 
@@ -279,12 +295,43 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       ).then(() => {
         if (renderGenRef.current === thisGen) {
           const cvs = previewCanvasRef.current;
+          const normOutfit = normalizeOutfitId(selectedOutfit);
+          const drawnKey = getCanvasCacheKey(
+            normOutfit,
+            charGender,
+            currentDir,
+            0,
+            colors,
+            addonsVal,
+            selectedMount,
+            effectiveMounted
+          );
+          const isDefinitive = isOutfitCanvasCached(
+            selectedOutfit,
+            charGender,
+            currentDir,
+            0,
+            colors,
+            addonsVal,
+            selectedMount,
+            effectiveMounted
+          );
+          const curAttempt = outfitDiagnostics.getCurrentAttempt();
+          const matchesSelection =
+            isDefinitive &&
+            curAttempt?.selection.outfit?.toLowerCase() === selectedOutfit.toLowerCase() &&
+            (selectedMount === 'none' || !effectiveMounted || curAttempt?.selection.mount?.toLowerCase() === selectedMount.toLowerCase());
+
           outfitDiagnostics.recordPreview({
             hasCanvas: !!cvs,
             width: cvs?.width || 0,
             height: cvs?.height || 0,
-            lastDrawnKey: `${selectedOutfit}_${selectedMount}_${currentDir}_a${addonsVal}`,
-            isDefinitive: true,
+            dataUrlLen: cvs ? cvs.toDataURL().length : 0,
+            lastDrawnKey: drawnKey,
+            isDefinitive,
+            matchesSelection,
+            drawnOutfit: selectedOutfit,
+            drawnMount: selectedMount,
           });
         }
       }).catch((err) => {
@@ -701,7 +748,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
             }}
             title="Copiar relatório de diagnóstico de troca de outfit/montaria para a área de transferência"
             style={{
-              marginRight: 'auto',
+              marginRight: '8px',
               backgroundColor: '#1e293b',
               color: '#38bdf8',
               border: '1px solid #38bdf8',
@@ -713,6 +760,37 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
             }}
           >
             📋 Copiar Diagnóstico
+          </button>
+          <button
+            type="button"
+            className="tibia-footer-btn-diag-save"
+            onClick={() => {
+              const ok = outfitDiagnostics.copyLastSaveReportToClipboard();
+              if (ok) {
+                alert('Relatório do último salvamento copiado! Cole aqui no chat.');
+              } else {
+                const rep = outfitDiagnostics.getLastSaveAttempt() || outfitDiagnostics.getLatestReport();
+                if (rep) {
+                  prompt('Copie o JSON do último salvamento abaixo:', JSON.stringify(rep));
+                } else {
+                  alert('Nenhum salvamento registrado ainda.');
+                }
+              }
+            }}
+            title="Copiar especificamente o relatório do último salvamento"
+            style={{
+              marginRight: 'auto',
+              backgroundColor: '#1e293b',
+              color: '#34d399',
+              border: '1px solid #34d399',
+              borderRadius: '4px',
+              padding: '5px 10px',
+              fontSize: '11px',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            💾 Copiar Último Save
           </button>
           <button type="button" className="tibia-footer-btn-cancel" onClick={onClose}>
             Cancelar

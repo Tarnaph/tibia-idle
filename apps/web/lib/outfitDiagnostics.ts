@@ -16,11 +16,43 @@ export const CURRENT_CLIENT_COMMIT =
   process.env.NEXT_PUBLIC_GIT_COMMIT ||
   'desconhecido';
 
+export interface PreparationManifest {
+  totalUrls: number;
+  uniqueUrls: number;
+  categories: {
+    base: number;
+    mask: number;
+    mount: number;
+    addon1: number;
+    addon2: number;
+  };
+  directions: string[];
+  frames: number[];
+  unmountedBaseCount: number;
+}
+
+export interface PreparationResourceState {
+  enqueued: number;
+  started: number;
+  completed: number;
+  failed: number;
+  inProgress: string[];
+  failedDetails: Array<{ url: string; error: string; elapsedMs: number }>;
+}
+
+export interface UncompositedFrameDetail {
+  frameKey: string;
+  direction: string;
+  frame: number;
+  missingLayers: string[];
+}
+
 export interface OutfitAttemptLog {
   attemptId: string;
   clientCommit: string;
   startedAt: number;
   completedAt?: number;
+  modalReopened?: boolean;
   initial: {
     characterId?: string;
     characterName?: string;
@@ -40,13 +72,19 @@ export interface OutfitAttemptLog {
     direction?: string;
   };
   preparation: {
-    status: 'idle' | 'preparing' | 'ready' | 'failed';
+    status: 'idle' | 'preparing' | 'ready' | 'failed' | 'exception';
     durationMs: number;
     success?: boolean;
+    startedAt?: number;
+    completedAt?: number;
+    manifest?: PreparationManifest;
+    resources?: PreparationResourceState;
+    uncompositedFrames?: UncompositedFrameDetail[];
     missingAssets: string[];
     missingFrames?: string[];
     cachedFramesCount: number;
     totalFramesRequested: number;
+    error?: string;
     attemptsCount?: number;
     attemptsHistory?: Array<{
       attempt: number;
@@ -55,6 +93,7 @@ export interface OutfitAttemptLog {
       missingFrames: string[];
       success: boolean;
       timestamp: number;
+      error?: string;
     }>;
   };
   preview: {
@@ -64,6 +103,9 @@ export interface OutfitAttemptLog {
     dataUrlLen: number;
     lastDrawnKey?: string;
     isDefinitive?: boolean;
+    matchesSelection?: boolean;
+    drawnOutfit?: string;
+    drawnMount?: string;
   };
   save: {
     buttonClicked: boolean;
@@ -116,12 +158,23 @@ class OutfitDiagnosticsManager {
     }
   }
 
-  startAttempt(initialData: OutfitAttemptLog['initial']): string {
+  startAttempt(initialData: OutfitAttemptLog['initial'], isReopen: boolean = false): string {
+    // Preserve existing attempt in history so re-opening modal does not erase past attempt or save records
+    if (this.currentAttempt) {
+      if (!this.currentAttempt.completedAt) {
+        this.currentAttempt.completedAt = Date.now();
+      }
+      this.detectDivergence();
+      this.history.push({ ...this.currentAttempt });
+      if (this.history.length > 25) this.history.shift();
+    }
+
     const attemptId = `att-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     this.currentAttempt = {
       attemptId,
       clientCommit: CURRENT_CLIENT_COMMIT,
       startedAt: Date.now(),
+      modalReopened: isReopen,
       initial: { ...initialData },
       selection: {},
       preparation: {
@@ -162,7 +215,7 @@ class OutfitDiagnosticsManager {
     const attemptsCount = prep.attemptsCount ?? current.attemptsCount ?? 1;
 
     let attemptsHistory = current.attemptsHistory ? [...current.attemptsHistory] : [];
-    if (prep.status === 'failed' || prep.status === 'ready' || prep.success !== undefined) {
+    if (prep.status === 'failed' || prep.status === 'ready' || prep.status === 'exception' || prep.success !== undefined) {
       attemptsHistory.push({
         attempt: attemptsCount,
         durationMs: prep.durationMs ?? current.durationMs ?? 0,
@@ -170,6 +223,7 @@ class OutfitDiagnosticsManager {
         missingFrames: prep.missingFrames || current.missingFrames || [],
         success: Boolean(prep.success),
         timestamp: Date.now(),
+        error: prep.error,
       });
       if (attemptsHistory.length > 10) attemptsHistory.shift();
     }
@@ -177,6 +231,9 @@ class OutfitDiagnosticsManager {
     this.currentAttempt.preparation = {
       ...current,
       ...prep,
+      manifest: prep.manifest || current.manifest,
+      resources: prep.resources || current.resources,
+      uncompositedFrames: prep.uncompositedFrames || current.uncompositedFrames,
       attemptsCount,
       attemptsHistory,
     };
@@ -240,14 +297,21 @@ class OutfitDiagnosticsManager {
     const a = this.currentAttempt;
     const div: string[] = [];
 
-    // 1. Checar se a preparação de recursos falhou
-    if (a.preparation.status === 'failed') {
+    // 1. Checar se a preparação de recursos falhou ou gerou exceção
+    if (a.preparation.status === 'failed' || a.preparation.status === 'exception') {
       const parts: string[] = [];
+      if (a.preparation.error) {
+        parts.push(`erro: ${a.preparation.error}`);
+      }
       if (a.preparation.missingFrames && a.preparation.missingFrames.length > 0) {
         parts.push(`frames: [${a.preparation.missingFrames.join(', ')}]`);
       }
       if (a.preparation.missingAssets && a.preparation.missingAssets.length > 0) {
         parts.push(`assets: [${a.preparation.missingAssets.slice(0, 5).join(', ')}]`);
+      }
+      if (a.preparation.uncompositedFrames && a.preparation.uncompositedFrames.length > 0) {
+        const sample = a.preparation.uncompositedFrames.slice(0, 3).map((f) => `${f.frameKey} (faltam: ${f.missingLayers.join(', ')})`);
+        parts.push(`frames_incompletos: [${sample.join('; ')}]`);
       }
       div.push(`PREPARAÇÃO_FALHOU: ${parts.join(' | ') || 'assets pendentes'} (tentativa ${a.preparation.attemptsCount || 1})`);
     }
@@ -263,6 +327,9 @@ class OutfitDiagnosticsManager {
         if (!a.preview.lastDrawnKey.toLowerCase().includes(expectedMount)) {
           div.push(`PREVIEW_DIVERGENTE_MONTARIA: esperado montaria "${expectedMount}", chave "${a.preview.lastDrawnKey}"`);
         }
+      }
+      if (a.preview.isDefinitive === false && a.preview.hasCanvas) {
+        div.push(`PREVIEW_NAO_DEFINITIVO: preview exibido via fallback provisório, texturas definitivas incompletas no cache`);
       }
     }
 
@@ -318,12 +385,25 @@ class OutfitDiagnosticsManager {
     this.detectDivergence();
     const finished = { ...this.currentAttempt };
     this.history.push(finished);
-    if (this.history.length > 20) this.history.shift();
+    if (this.history.length > 25) this.history.shift();
     return finished;
   }
 
   getCurrentAttempt(): OutfitAttemptLog | null {
     return this.currentAttempt;
+  }
+
+  getLastSaveAttempt(): OutfitAttemptLog | null {
+    if (this.currentAttempt && (this.currentAttempt.save.buttonClicked || this.currentAttempt.save.callbackFired)) {
+      return this.currentAttempt;
+    }
+    for (let i = this.history.length - 1; i >= 0; i--) {
+      const a = this.history[i];
+      if (a.save.buttonClicked || a.save.callbackFired) {
+        return a;
+      }
+    }
+    return null;
   }
 
   getLatestReport(): OutfitAttemptLog | null {
@@ -336,7 +416,23 @@ class OutfitDiagnosticsManager {
 
   copyReportToClipboard(): boolean {
     if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-    const report = this.getLatestReport();
+    // Prioritize the actual save attempt if the current attempt has no save action
+    const report =
+      this.currentAttempt && (this.currentAttempt.save.buttonClicked || this.currentAttempt.save.callbackFired)
+        ? this.currentAttempt
+        : (this.getLastSaveAttempt() || this.getLatestReport());
+    if (!report) return false;
+    const json = JSON.stringify(report, null, 2);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(json).catch(() => {});
+      return true;
+    }
+    return false;
+  }
+
+  copyLastSaveReportToClipboard(): boolean {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+    const report = this.getLastSaveAttempt() || this.getLatestReport();
     if (!report) return false;
     const json = JSON.stringify(report, null, 2);
     if (navigator.clipboard?.writeText) {
@@ -354,4 +450,6 @@ if (typeof window !== 'undefined') {
   (window as any).__outfitDiag = outfitDiagnostics;
   (window as any).__getOutfitReport = () => outfitDiagnostics.getLatestReport();
   (window as any).__copyOutfitReport = () => outfitDiagnostics.copyReportToClipboard();
+  (window as any).__getLastSaveReport = () => outfitDiagnostics.getLastSaveAttempt();
+  (window as any).__copyLastSaveReport = () => outfitDiagnostics.copyLastSaveReportToClipboard();
 }
