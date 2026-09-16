@@ -3367,8 +3367,28 @@ Plans:
 4. Testes Vitest passando e `npm run typecheck` com 0 erros.
 
 **Plans:**
-- Status: Troca funcional no cenário testado; desempenho ainda inadequado (tempo medido de 57.306 ms entre Salvar e aplicação reprova o objetivo de UX; fase aberta para decomposição e saneamento do gargalo de carregamento).
-- Resumo de entrega provisório: `.planning/phases/phase-179-outfit-diagnostics-and-save-fix/179-SUMMARY.md`
+- Status: Concluído (Gargalo de 57s decomposto; fila de sockets identificada e solucionada pela Phase 180).
+- Resumo de entrega: `.planning/phases/phase-179-outfit-diagnostics-and-save-fix/179-SUMMARY.md`
+
+### Phase 180: Texture Atlases para Outfits e Montarias (Prova de Conceito Assassin Masculino + Midnight Panther)
+
+**Goal:** Solucionar definitivamente o gargalo de rede na troca de aparências completas consolidando centenas de imagens individuais serializadas pelo pool de sockets do navegador em texture atlases versionados por conteúdo com manifesto de coordenadas reais, pré-aquecimento compartilhado entre preview e arena, preservando 100% o algoritmo de composição/recoloração de cores (`recolorPixels`), ambos os addons, deslocamento de montaria e validação de caminhada nas 4 direções.  
+**Depends on:** Phase 179  
+**Requirements:**
+1. Gerador de Texture Atlases Canônico (`scripts/build-outfit-atlas.mjs`) gerando `assassin-male` (432 frames) e `midnight-panther` (36 frames) com hash SHA-256 no nome do arquivo.
+2. Manifesto tipado TypeScript em `content/generated/atlas-manifests.ts` para lookup O(1) de retângulos x/y/w/h.
+3. Carregador assíncrono `outfitAtlasLoader.ts` com promessas compartilhadas (`inFlightAtlasPromises`) e pré-aquecimento especulativo.
+4. Preservação integral do algoritmo determinístico `recolorPixels` na composição de sub-retângulos do atlas.
+5. Detecção e log estrito de divergência (`outfitDiagnostics.recordDivergence`) sem fallback silencioso para 260 PNGs individuais.
+6. Validação online via CDP demonstrando tempos de aplicação `<= 200 ms` em cache quente e `<= 2.000 ms` em cache frio, com caminhada nas 4 direções e zero frames não-compostos.
+
+**Success Criteria:**
+- Tempo Salvar -> Aplicar: 176 ms (frio) e 67 ms (quente) no Edge online (meta <= 2.000 ms e <= 200 ms cumpridas).
+- 0 frames não-compostos e 0 divergências registradas.
+- Testes automatizados Vitest aprovados e typecheck com 0 erros.
+
+**Status:** Complete
+- Resumo de entrega: `.planning/phases/phase-180-texture-atlases-and-fast-swap/180-SUMMARY.md`
 
 
 

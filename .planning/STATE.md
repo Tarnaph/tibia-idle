@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-16T09:45:00.000Z"
-last_activity: "2026-09-16 — Phase 179: Troca funcional no cenário testado; desempenho ainda inadequado (tempo medido de 57.306 ms entre Salvar e aplicação reprova UX; em decomposição de gargalos e planejamento de atlases)."
+last_updated: "2026-09-16T14:00:00.000Z"
+last_activity: "2026-09-16 — Phase 180: Prova de conceito completa de Texture Atlases implementada, testada e validada online com sucesso (Salvar -> Aplicar reduzido de 57s para 176ms em cache frio e 67ms em cache quente)."
 progress:
-  total_phases: 179
-  completed_phases: 178
-  total_plans: 185
-  completed_plans: 184
-  percent: 99
+  total_phases: 180
+  completed_phases: 180
+  total_plans: 186
+  completed_plans: 186
+  percent: 100
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 179 - Troca funcional no cenário testado; desempenho ainda inadequado (57.306 ms). Decomposição de gargalo e planejamento de atlases.
+**Current focus:** Phase 180 - Texture Atlases para Outfits e Montarias (Assassin + Midnight Panther) - Concluído com Sucesso.
 
 ## Current Position
 
-Phase: 179 of 179 (Troca funcional no cenário testado; desempenho ainda inadequado)  
+Phase: 180 of 180  
 Plan: 1 of 1 in current phase  
-Status: In Progress  
-Last activity: 2026-09-16 — Decomposição analítica dos 57.306 ms (espera na fila, download, retentativas, decodificação e composição) e planejamento da solução definitiva de performance de aparências.
+Status: Complete  
+Last activity: 2026-09-16 — Texture Atlases implementados de ponta a ponta: geração de atlases, loader assíncrono com in-flight promises, integração com recolorPixels, pre-warming no modal e validação online no Edge demonstrando 176 ms (frio) e 67 ms (quente).
 
-Progress: [█████████░] 99%
+Progress: [██████████] 100%
 
 
 
