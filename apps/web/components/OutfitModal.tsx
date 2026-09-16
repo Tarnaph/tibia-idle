@@ -105,6 +105,61 @@ export const TIBIA_PALETTE = TIBIA_133_COLORS.slice(0, 16).map((color, id) => ({
 const DIRECTIONS = ['south', 'east', 'north', 'west'] as const;
 type Direction = (typeof DIRECTIONS)[number];
 
+function LazyCardImage({
+  src,
+  alt,
+  className,
+  fallback,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  fallback?: string;
+}) {
+  const [inView, setInView] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: '120px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {inView ? (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className={className}
+          style={{ imageRendering: 'pixelated' }}
+          onError={(e) => {
+            if (fallback && e.currentTarget.src !== fallback && !e.currentTarget.src.endsWith(fallback)) {
+              e.currentTarget.src = fallback;
+            }
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 interface Props {
   open: boolean;
   characters: CharacterState[];
@@ -653,21 +708,11 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                       }}
                     >
                       <div className="tibia-card-sprite-wrap">
-                        <img
+                        <LazyCardImage
                           src={getOutfitThumbUrl(outfit.id, charGender)}
                           alt={outfit.name}
-                          loading="lazy"
-                          decoding="async"
                           className="tibia-card-sprite"
-                          style={{ imageRendering: 'pixelated' }}
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            const idLower = normalizeOutfitId(outfit.id);
-                            const fallback = `/generated/outfit-thumbs/${idLower}.png`;
-                            if (target.src !== fallback && !target.src.endsWith(fallback)) {
-                              target.src = fallback;
-                            }
-                          }}
+                          fallback={`/generated/outfit-thumbs/${normalizeOutfitId(outfit.id)}.png`}
                         />
                       </div>
                       <span className="tibia-card-name">{outfit.name}</span>
@@ -703,13 +748,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                     >
                       <div className="tibia-card-sprite-wrap">
                         {getMountThumbUrl(mount.id) ? (
-                          <img
+                          <LazyCardImage
                             src={getMountThumbUrl(mount.id)!}
                             alt={mount.name}
-                            loading="lazy"
-                            decoding="async"
                             className="tibia-card-sprite mount-sprite"
-                            style={{ imageRendering: 'pixelated' }}
                           />
                         ) : (
                           <div className="tibia-card-no-mount-placeholder" title="Sem Montaria">
