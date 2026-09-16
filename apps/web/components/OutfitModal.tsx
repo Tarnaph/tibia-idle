@@ -16,6 +16,7 @@ import {
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
 import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
+import { preloadAppearanceAtlas } from '@/apps/web/lib/outfitAtlasLoader';
 
 export { TIBIA_133_COLORS } from '@/apps/web/lib/outfitRecolor';
 
@@ -202,6 +203,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const [colorPart, setColorPart] = useState<'head' | 'primary' | 'secondary' | 'detail'>('head');
   const [colors, setColors] = useState<OutfitColors>(() => initialColors);
   const [filterAcquired, setFilterAcquired] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const lastSyncedCharRef = useRef<string | null>(null);
@@ -212,9 +214,16 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const charGender: 'male' | 'female' = activeChar?.gender === 'female' ? 'female' : 'male';
   const currentCaps = getOutfitCapabilities(selectedOutfit);
 
+  // Pre-warm atlas textures via speculative download as soon as appearance selection changes
+  useEffect(() => {
+    if (!open) return;
+    preloadAppearanceAtlas(selectedOutfit, charGender, selectedMount).catch(() => {});
+  }, [open, selectedOutfit, charGender, selectedMount]);
+
   // Sync state ONLY when modal newly opens or when user explicitly changes selected character
   useEffect(() => {
     if (!open) {
+      setIsSaving(false);
       lastSyncedCharRef.current = null;
       prevOpenRef.current = false;
       return;
@@ -435,6 +444,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   };
 
   const handleSave = () => {
+    if (isSaving) return;
+    setIsSaving(true);
     outfitDiagnostics.recordSaveClick();
     const effectiveCharId = selectedCharId || activeCharacterId || characters[0]?.id;
     let addonsVal = 0;
@@ -840,8 +851,14 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
           <button type="button" className="tibia-footer-btn-cancel" onClick={onClose}>
             Cancelar
           </button>
-          <button type="button" className="tibia-footer-btn-save" onClick={handleSave}>
-            Salvar
+          <button
+            type="button"
+            className="tibia-footer-btn-save"
+            onClick={handleSave}
+            disabled={isSaving}
+            style={isSaving ? { opacity: 0.7, cursor: 'not-allowed' } : undefined}
+          >
+            {isSaving ? 'Salvando...' : 'Salvar'}
           </button>
         </div>
       </div>

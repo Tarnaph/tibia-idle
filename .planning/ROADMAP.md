@@ -3367,9 +3367,8 @@ Plans:
 4. Testes Vitest passando e `npm run typecheck` com 0 erros.
 
 **Plans:**
-- [x] 179-01-PLAN: Diagnóstico Instrumental, Resolução da Inundação do Preview e Sincronização do Salvamento de Aparência.
-
-- Resumo de entrega: `.planning/phases/phase-179-outfit-diagnostics-and-save-fix/179-SUMMARY.md`
+- Status: Troca funcional no cenário testado; desempenho ainda inadequado (tempo medido de 57.306 ms entre Salvar e aplicação reprova o objetivo de UX; fase aberta para decomposição e saneamento do gargalo de carregamento).
+- Resumo de entrega provisório: `.planning/phases/phase-179-outfit-diagnostics-and-save-fix/179-SUMMARY.md`
 
 
 

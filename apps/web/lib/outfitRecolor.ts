@@ -6,6 +6,20 @@ import {
   PreparationResourceState,
   UncompositedFrameDetail,
 } from './outfitDiagnostics';
+import {
+  hasOutfitAtlas,
+  hasMountAtlas,
+  loadOutfitAtlas,
+  loadMountAtlas,
+  preloadAppearanceAtlas,
+  getOutfitAtlasLayerRect,
+  getMountAtlasFrameRect,
+  getLoadedOutfitAtlasImage,
+  getLoadedMountAtlasImage,
+  getOutfitAtlasManifest,
+  getMountAtlasManifest,
+  type AtlasFrameRect,
+} from './outfitAtlasLoader';
 
 export interface OutfitColors {
   head: number;
@@ -559,6 +573,156 @@ function drawRecoloredLayer(
   }
 }
 
+export function drawRecoloredLayerFromAtlas(
+  targetCtx: CanvasRenderingContext2D,
+  atlasImg: CanvasImageSource,
+  baseRect: AtlasFrameRect,
+  maskRect: AtlasFrameRect,
+  colors: OutfitColors,
+  width: number,
+  height: number,
+  destX: number = 0,
+  destY: number = 0
+): void {
+  try {
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = width;
+    offCanvas.height = height;
+    const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+
+    const maskCanvas = document.createElement('canvas');
+    maskCanvas.width = width;
+    maskCanvas.height = height;
+    const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+
+    const recoloredCanvas = document.createElement('canvas');
+    recoloredCanvas.width = width;
+    recoloredCanvas.height = height;
+    const recolorCtx = recoloredCanvas.getContext('2d');
+
+    if (!baseCtx || !maskCtx || !recolorCtx) return;
+
+    baseCtx.drawImage(atlasImg, baseRect.x, baseRect.y, baseRect.w, baseRect.h, 0, 0, width, height);
+    maskCtx.drawImage(atlasImg, maskRect.x, maskRect.y, maskRect.w, maskRect.h, 0, 0, width, height);
+    recolorPixels(baseCtx, maskCtx, recolorCtx, width, height, colors);
+
+    targetCtx.drawImage(recoloredCanvas, destX, destY);
+  } catch (err) {
+    console.warn('drawRecoloredLayerFromAtlas exception:', err);
+  }
+}
+
+export function composeAppearanceFromAtlasSync(
+  outfitId: string,
+  gender: 'male' | 'female' = 'male',
+  direction: 'south' | 'east' | 'north' | 'west' = 'south',
+  frame: number = 0,
+  colors: OutfitColors = { head: 0, primary: 86, secondary: 114, detail: 76 },
+  addons: number = 0,
+  mount?: string,
+  isMounted: boolean = false
+): HTMLCanvasElement | null {
+  const norm = normalizeOutfitId(outfitId);
+  const outfitKey = `${norm}-${gender}`;
+  const outfitAtlasImg = getLoadedOutfitAtlasImage(norm, gender);
+  const outfitManifest = getOutfitAtlasManifest(norm, gender);
+
+  if (!outfitAtlasImg || !outfitManifest) {
+    return null;
+  }
+
+  const caps = getOutfitCapabilities(norm);
+  const safeFrame = caps.maxFrames <= 3
+    ? (frame === 0 ? 0 : ((Math.abs(frame) - 1) % 2) + 1)
+    : Math.max(0, Math.min(8, frame));
+  const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
+  const effectiveMounted = isMounted && caps.hasMountRider;
+
+  const key = getCanvasCacheKey(norm, gender, direction, safeFrame, colors, effectiveAddons, mount, effectiveMounted);
+  const existing = recoloredCanvasCache.get(key);
+  if (existing) return existing;
+
+  let mountAtlasImg: HTMLImageElement | undefined;
+  let mountRect: AtlasFrameRect | undefined;
+  if (effectiveMounted && mount && mount !== 'none') {
+    const normMount = normalizeMountId(mount);
+    mountAtlasImg = getLoadedMountAtlasImage(normMount);
+    const mountManifest = getMountAtlasManifest(normMount);
+    if (!mountAtlasImg || !mountManifest) {
+      return null;
+    }
+    const mountFrameKey = `${normMount}-${direction}-f${safeFrame}`;
+    mountRect = mountManifest.frames[mountFrameKey];
+    if (!mountRect) {
+      console.warn(`[outfitAtlasLoader] Missing mount frame in atlas: ${mountFrameKey}`);
+      outfitDiagnostics.recordDivergence(`ATLAS_MOUNT_FRAME_MISSING: ${mountFrameKey}`);
+      return null;
+    }
+  }
+
+  const mountSuffix = effectiveMounted ? '-mount' : '';
+  const baseKey = `${outfitKey}-${direction}-f${safeFrame}${mountSuffix}-base`;
+  const maskKey = `${outfitKey}-${direction}-f${safeFrame}${mountSuffix}-mask`;
+  const a1BaseKey = `${outfitKey}-${direction}-f${safeFrame}${mountSuffix}-addon1-base`;
+  const a1MaskKey = `${outfitKey}-${direction}-f${safeFrame}${mountSuffix}-addon1-mask`;
+  const a2BaseKey = `${outfitKey}-${direction}-f${safeFrame}${mountSuffix}-addon2-base`;
+  const a2MaskKey = `${outfitKey}-${direction}-f${safeFrame}${mountSuffix}-addon2-mask`;
+
+  const baseRect = outfitManifest.frames[baseKey];
+  const maskRect = outfitManifest.frames[maskKey];
+  if (!baseRect || !maskRect) {
+    console.warn(`[outfitAtlasLoader] Missing base/mask layer in atlas: ${baseKey} / ${maskKey}`);
+    outfitDiagnostics.recordDivergence(`ATLAS_OUTFIT_LAYER_MISSING: ${baseKey} / ${maskKey}`);
+    return null;
+  }
+
+  const w = 64;
+  const h = 64;
+  const targetCanvas = document.createElement('canvas');
+  targetCanvas.width = w;
+  targetCanvas.height = h;
+  const targetCtx = targetCanvas.getContext('2d');
+  if (!targetCtx) return null;
+
+  const offset = effectiveMounted ? getMountDisplacementOffset(norm, gender, mount) : { x: 0, y: 0 };
+
+  // 1. Draw mount underneath if mounted:
+  if (effectiveMounted && mountAtlasImg && mountRect) {
+    targetCtx.drawImage(mountAtlasImg, mountRect.x, mountRect.y, mountRect.w, mountRect.h, 0, 0, w, h);
+  }
+
+  // 2. Draw rider / body with displacement:
+  drawRecoloredLayerFromAtlas(targetCtx, outfitAtlasImg, baseRect, maskRect, colors, w, h, offset.x, offset.y);
+
+  // 3. Draw Addon 1 if active:
+  if (caps.hasAddon1 && (effectiveAddons & 1) !== 0) {
+    const a1BaseRect = outfitManifest.frames[a1BaseKey];
+    const a1MaskRect = outfitManifest.frames[a1MaskKey];
+    if (a1BaseRect && a1MaskRect) {
+      drawRecoloredLayerFromAtlas(targetCtx, outfitAtlasImg, a1BaseRect, a1MaskRect, colors, w, h, offset.x, offset.y);
+    } else {
+      console.warn(`[outfitAtlasLoader] Missing Addon 1 in atlas: ${a1BaseKey}`);
+      outfitDiagnostics.recordDivergence(`ATLAS_ADDON1_MISSING: ${a1BaseKey}`);
+    }
+  }
+
+  // 4. Draw Addon 2 if active:
+  if (caps.hasAddon2 && (effectiveAddons & 2) !== 0) {
+    const a2BaseRect = outfitManifest.frames[a2BaseKey];
+    const a2MaskRect = outfitManifest.frames[a2MaskKey];
+    if (a2BaseRect && a2MaskRect) {
+      drawRecoloredLayerFromAtlas(targetCtx, outfitAtlasImg, a2BaseRect, a2MaskRect, colors, w, h, offset.x, offset.y);
+    } else {
+      console.warn(`[outfitAtlasLoader] Missing Addon 2 in atlas: ${a2BaseKey}`);
+      outfitDiagnostics.recordDivergence(`ATLAS_ADDON2_MISSING: ${a2BaseKey}`);
+    }
+  }
+
+  recoloredCanvasCache.set(key, targetCanvas);
+  provisionalCanvasCache.delete(key);
+  return targetCanvas;
+}
+
 export async function renderRecoloredOutfit(
   targetCanvas: HTMLCanvasElement,
   outfitId: string,
@@ -612,7 +776,72 @@ export async function renderRecoloredOutfit(
         targetCtx.drawImage(provCanvas, 0, 0);
       }
     }
-    // DO NOT return early here! We must proceed to download all required layers (including addons)
+  }
+
+  // ATLAS FAST PATH: Load atlas textures and compose definitively without downloading individual frame files
+  if (hasOutfitAtlas(norm, gender)) {
+    const mountNeeded = effectiveMounted && mount && mount !== 'none';
+    const mountHasAtlas = mountNeeded ? hasMountAtlas(mount) : true;
+
+    // A. Check if already composed or can be synchronously composed
+    let composed = composeAppearanceFromAtlasSync(
+      outfitId,
+      gender,
+      direction,
+      safeFrame,
+      colors,
+      effectiveAddons,
+      mount,
+      effectiveMounted
+    );
+
+    // B. If not in memory yet, download the consolidated atlas(es)
+    if (!composed) {
+      const atlasTasks: Promise<any>[] = [loadOutfitAtlas(norm, gender)];
+      if (mountNeeded && mountHasAtlas) {
+        atlasTasks.push(loadMountAtlas(mount));
+      }
+      await Promise.allSettled(atlasTasks);
+      if (isCurrent && !isCurrent()) return;
+
+      composed = composeAppearanceFromAtlasSync(
+        outfitId,
+        gender,
+        direction,
+        safeFrame,
+        colors,
+        effectiveAddons,
+        mount,
+        effectiveMounted
+      );
+    }
+
+    if (composed) {
+      if (isCurrent && !isCurrent()) return;
+      if (targetCanvas.width !== w) targetCanvas.width = w;
+      if (targetCanvas.height !== h) targetCanvas.height = h;
+      const targetCtx = targetCanvas.getContext('2d');
+      if (targetCtx) {
+        targetCtx.clearRect(0, 0, w, h);
+        targetCtx.drawImage(composed, 0, 0);
+      }
+      outfitDiagnostics.recordAtlasUsage({
+        used: true,
+        outfitAtlas: `${norm}-${gender}`,
+        mountAtlas: effectiveMounted ? mount : undefined,
+      });
+      return;
+    } else {
+      console.warn(`[outfitRecolor] Atlas registered for ${norm}-${gender} but composition failed!`);
+      outfitDiagnostics.recordAtlasUsage({
+        used: false,
+        outfitAtlas: `${norm}-${gender}`,
+        mountAtlas: effectiveMounted ? mount : undefined,
+        fallbackPngsInitiated: true,
+        error: 'ATLAS_COMPOSITION_RETURNED_NULL',
+      });
+      outfitDiagnostics.recordDivergence(`ATLAS_COMPOSITION_RETURNED_NULL: ${norm}-${gender}`);
+    }
   }
 
   // 3. Gather layer URLs and trigger load for all required layers
@@ -917,6 +1146,146 @@ export async function prepareAppearanceCanvas(
   const targetFrames = targetFramesParam && targetFramesParam.length > 0
     ? targetFramesParam.filter((f) => f < maxFrames)
     : Array.from({ length: maxFrames }, (_, i) => i);
+
+  // ATLAS FAST PATH: Use consolidated atlas textures (2 HTTP requests total) instead of 260 discrete files
+  if (hasOutfitAtlas(norm, gender)) {
+    const mountNeeded = effectiveMounted && mount && mount !== 'none';
+    const mountHasAtlas = mountNeeded ? hasMountAtlas(mount) : true;
+
+    const manifest: PreparationManifest = {
+      totalUrls: mountNeeded && mountHasAtlas ? 2 : 1,
+      uniqueUrls: mountNeeded && mountHasAtlas ? 2 : 1,
+      categories: {
+        base: 1,
+        mask: 0,
+        mount: mountNeeded && mountHasAtlas ? 1 : 0,
+        addon1: 0,
+        addon2: 0,
+      },
+      directions: [...directions],
+      frames: [...targetFrames],
+      unmountedBaseCount: effectiveMounted ? 1 : 0,
+    };
+
+    const prepToken = `${norm}_${gender}_${mount || 'none'}_${effectiveMounted}_${effectiveAddons}_${colors.head}_${colors.primary}_${colors.secondary}_${colors.detail}_${actualAttemptId || 'active'}_${Date.now()}`;
+    const prepScopeKey = actualCharacterId
+      ? `char_${actualCharacterId}`
+      : (actualAttemptId ? `attempt_${actualAttemptId}` : `outfit_${norm}_${gender}`);
+    activePreparationTokens.set(prepScopeKey, prepToken);
+
+    if (actualAttemptId) {
+      outfitDiagnostics.recordPreparation({
+        status: 'preparing',
+        manifest,
+        resources: {
+          enqueued: mountNeeded && mountHasAtlas ? 2 : 1,
+          started: 0,
+          completed: 0,
+          failed: 0,
+          inProgress: [],
+          failedDetails: [],
+        },
+        durationMs: 0,
+      }, actualAttemptId);
+    }
+
+    // 1. Download atlas files concurrently (shared across preview & arena)
+    const atlasTasks: Promise<any>[] = [loadOutfitAtlas(norm, gender)];
+    if (mountNeeded && mountHasAtlas) {
+      atlasTasks.push(loadMountAtlas(mount));
+    }
+    await Promise.allSettled(atlasTasks);
+
+    // 2. Compose and populate recoloredCanvasCache for all requested directions and frames
+    const uncompositedFrames: UncompositedFrameDetail[] = [];
+    for (const dir of directions) {
+      for (const f of targetFrames) {
+        const c = composeAppearanceFromAtlasSync(
+          outfitId,
+          gender,
+          dir,
+          f,
+          colors,
+          effectiveAddons,
+          mount,
+          effectiveMounted
+        );
+        if (!c) {
+          uncompositedFrames.push({
+            frameKey: `${dir}-f${f}`,
+            direction: dir,
+            frame: f,
+            missingLayers: ['atlas_frame_composition_failed'],
+          });
+        }
+      }
+      if (effectiveMounted) {
+        composeAppearanceFromAtlasSync(
+          outfitId,
+          gender,
+          dir,
+          0,
+          colors,
+          effectiveAddons,
+          undefined,
+          false
+        );
+      }
+    }
+
+    const wasSuperseded = activePreparationTokens.get(prepScopeKey) !== prepToken;
+    const fullCheck = isAppearanceFullyReady(norm, gender, colors, effectiveAddons, mount, effectiveMounted, directions, targetFrames);
+    const durationMs = Date.now() - startTime;
+    const isSuccess = !wasSuperseded && fullCheck.ready && uncompositedFrames.length === 0;
+
+    const resState: PreparationResourceState = {
+      enqueued: mountNeeded && mountHasAtlas ? 2 : 1,
+      started: mountNeeded && mountHasAtlas ? 2 : 1,
+      completed: isSuccess ? (mountNeeded && mountHasAtlas ? 2 : 1) : 0,
+      failed: isSuccess ? 0 : 1,
+      inProgress: [],
+      failedDetails: isSuccess ? [] : [{ url: 'atlas', error: 'atlas_composition_failed', elapsedMs: durationMs }],
+    };
+
+    if (actualAttemptId) {
+      outfitDiagnostics.recordPreparation({
+        status: isSuccess ? 'ready' : 'failed',
+        success: isSuccess,
+        durationMs,
+        manifest,
+        resources: resState,
+        uncompositedFrames,
+        missingAssets: isSuccess ? [] : ['atlas_composition_failed'],
+        missingFrames: fullCheck.missing,
+        totalFramesRequested: fullCheck.total,
+        cachedFramesCount: fullCheck.cached,
+        error: isSuccess ? undefined : 'Atlas composition incomplete',
+      }, actualAttemptId);
+      outfitDiagnostics.recordAtlasUsage({
+        used: isSuccess,
+        outfitAtlas: `${norm}-${gender}`,
+        mountAtlas: effectiveMounted ? mount : undefined,
+        fallbackPngsInitiated: !isSuccess,
+        error: isSuccess ? undefined : 'ATLAS_PREPARATION_FAILED',
+      }, actualAttemptId);
+    }
+
+    if (typeof actualOnProgress === 'function') {
+      actualOnProgress(manifest, resState);
+    }
+
+    return {
+      success: isSuccess,
+      durationMs,
+      manifest,
+      resources: resState,
+      uncompositedFrames,
+      missingAssets: isSuccess ? [] : ['atlas_composition_failed'],
+      totalFramesRequested: fullCheck.total,
+      cachedFramesCount: fullCheck.cached,
+      error: isSuccess ? undefined : 'Atlas composition incomplete',
+    };
+  }
 
   // 1. Gather all required image URLs in balanced priority order and categorize them BEFORE download starts:
   const rawUrls: string[] = [];
@@ -1312,6 +1681,31 @@ export function getRecoloredCanvasSync(
   const key = getCanvasCacheKey(norm, gender, direction, safeFrame, colors, effectiveAddons, mount, effectiveMounted);
   const existing = recoloredCanvasCache.get(key);
   if (existing) return existing;
+
+  // ATLAS FAST PATH: If outfit has a compiled atlas, use atlas composition and never queue individual PNGs
+  if (hasOutfitAtlas(norm, gender)) {
+    const mountNeeded = effectiveMounted && mount && mount !== 'none';
+    const mountHasAtlas = mountNeeded ? hasMountAtlas(mount) : true;
+    const atlasCanvas = composeAppearanceFromAtlasSync(
+      outfitId,
+      gender,
+      direction,
+      safeFrame,
+      colors,
+      effectiveAddons,
+      mount,
+      effectiveMounted
+    );
+    if (atlasCanvas) {
+      return atlasCanvas;
+    }
+    // If not ready in memory yet, trigger background loading of atlas images (1 or 2 HTTP requests total)
+    loadOutfitAtlas(norm, gender).catch(() => {});
+    if (mountNeeded && mountHasAtlas) {
+      loadMountAtlas(mount).catch(() => {});
+    }
+    return provisionalCanvasCache.get(key) || null;
+  }
 
   const urls = getOutfitLayerUrls(norm, gender, direction, safeFrame, effectiveAddons, mount, effectiveMounted);
 

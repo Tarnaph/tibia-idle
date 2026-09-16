@@ -125,36 +125,43 @@ export interface OutfitAttemptLog {
     reactCharAddons?: number;
     arenaActiveAppearanceSig?: string;
     arenaPendingAppearanceSig?: string;
-    arenaAppearanceStatus?: string;
+    arenaAppearanceStatus?: 'idle' | 'preparing' | 'ready' | 'failed';
     pixiTextureKey?: string;
-    isMatchWithSelection?: boolean;
     appliedAt?: number;
     timeToApplyMs?: number;
+    isMatchWithSelection?: boolean;
   };
-  jsErrors: string[];
+  atlas?: {
+    used: boolean;
+    outfitAtlas?: string;
+    mountAtlas?: string;
+    fallbackPngsInitiated?: boolean;
+    error?: string;
+  };
+  jsErrors: Array<{ message: string; stack?: string; timestamp: number }>;
   divergences: string[];
 }
 
 class OutfitDiagnosticsManager {
   private currentAttempt: OutfitAttemptLog | null = null;
   private history: OutfitAttemptLog[] = [];
-  private capturedErrors: string[] = [];
+  private capturedErrors: Array<{ message: string; stack?: string; timestamp: number }> = [];
 
   constructor() {
     if (typeof window !== 'undefined') {
       window.addEventListener('error', (ev) => {
-        const msg = `${ev.message} at ${ev.filename}:${ev.lineno}`;
-        this.capturedErrors.push(msg);
+        const item = { message: `${ev.message} at ${ev.filename}:${ev.lineno}`, timestamp: Date.now() };
+        this.capturedErrors.push(item);
         if (this.currentAttempt) {
-          this.currentAttempt.jsErrors.push(msg);
+          this.currentAttempt.jsErrors.push(item);
         }
       });
       window.addEventListener('unhandledrejection', (ev) => {
         const reason = ev.reason?.message || String(ev.reason);
-        const msg = `UnhandledRejection: ${reason}`;
-        this.capturedErrors.push(msg);
+        const item = { message: `UnhandledRejection: ${reason}`, timestamp: Date.now() };
+        this.capturedErrors.push(item);
         if (this.currentAttempt) {
-          this.currentAttempt.jsErrors.push(msg);
+          this.currentAttempt.jsErrors.push(item);
         }
       });
     }
@@ -337,10 +344,29 @@ class OutfitDiagnosticsManager {
     this.detectDivergence(target);
   }
 
-  recordJsError(err: string, attemptId?: string): void {
+  recordJsError(err: string | Error, attemptId?: string): void {
     const target = this.getTargetAttempt(attemptId);
     if (!target) return;
-    target.jsErrors.push(err);
+    const item = typeof err === 'string'
+      ? { message: err, timestamp: Date.now() }
+      : { message: err.message, stack: err.stack, timestamp: Date.now() };
+    target.jsErrors.push(item);
+  }
+
+  recordAtlasUsage(data: NonNullable<OutfitAttemptLog['atlas']>, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId) || this.currentAttempt;
+    if (!target) return;
+    target.atlas = { ...target.atlas, ...data };
+    this.detectDivergence(target);
+  }
+
+  recordDivergence(divergence: string, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId) || this.currentAttempt;
+    if (!target) return;
+    if (!target.divergences) target.divergences = [];
+    if (!target.divergences.includes(divergence)) {
+      target.divergences.push(divergence);
+    }
   }
 
   private detectDivergence(target?: OutfitAttemptLog): void {

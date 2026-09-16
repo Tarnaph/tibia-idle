@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-09-16T15:50:46.302Z",
+  "outfits": {
+    "assassin-male": {
+      "hash": "99b527c0",
+      "image": "/generated/atlases/outfits/assassin-male-atlas.99b527c0.png",
+      "canonicalImage": "/generated/atlases/outfits/assassin-male-atlas.png",
+      "json": "/generated/atlases/outfits/assassin-male-atlas.99b527c0.json",
+      "framesCount": 432
+    }
+  },
+  "mounts": {
+    "midnight-panther": {
+      "hash": "64262477",
+      "image": "/generated/atlases/mounts/midnight-panther-atlas.64262477.png",
+      "canonicalImage": "/generated/atlases/mounts/midnight-panther-atlas.png",
+      "json": "/generated/atlases/mounts/midnight-panther-atlas.64262477.json",
+      "framesCount": 36
+    }
+  }
+}
