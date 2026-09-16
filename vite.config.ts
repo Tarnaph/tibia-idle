@@ -44,9 +44,20 @@ export default defineConfig(async () => {
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
   const { cloudflare } = await import('@cloudflare/vite-plugin');
 
+  let clientGitCommit = process.env.NEXT_PUBLIC_GIT_COMMIT || '';
+  if (!clientGitCommit) {
+    try {
+      const { execSync } = await import('child_process');
+      clientGitCommit = execSync('git rev-parse --short HEAD').toString().trim();
+    } catch {
+      clientGitCommit = 'desconhecido';
+    }
+  }
+
   return {
     define: {
       __dirname: JSON.stringify(process.cwd()),
+      'process.env.NEXT_PUBLIC_GIT_COMMIT': JSON.stringify(clientGitCommit),
     },
     optimizeDeps: {
       include: ['next/dynamic'],
