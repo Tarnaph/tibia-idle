@@ -4,6 +4,7 @@ import {
   getOutfitCapabilities,
   getOutfitLayerUrls,
 } from './outfitRecolor';
+import { hasOutfitAtlas, hasMountAtlas } from './outfitAtlasLoader';
 
 export interface AppearanceParams {
   outfit?: string;
@@ -36,6 +37,7 @@ const DIRECTIONS = ['south', 'east', 'north', 'west'] as const;
  * Compila a lista exata e canônica de todas as camadas visuais exigidas
  * pela aparência ativa de um personagem (a pé e/ou montado), consultando
  * os frames e recursos realmente disponíveis de cada outfit, addon e montaria.
+ * Prioriza texturas consolidadas de Atlas (1-2 URLs) em vez de centenas de arquivos individuais.
  */
 export function compileAppearanceManifest(params?: AppearanceParams): AppearanceManifest {
   const outfitId = normalizeOutfitId(params?.outfit || 'knight');
@@ -64,59 +66,79 @@ export function compileAppearanceManifest(params?: AppearanceParams): Appearance
   const essentialFrames = availableFrames;
   const extendedFrames: number[] = [];
 
-  // Se o jogador estiver montado ou tiver montaria equipada, compilamos
-  // tanto o estado montado quanto o desmontado para transição imediata sem delay.
-  const mountStates: boolean[] = [];
-  if (isMounted) {
-    mountStates.push(true, false);
-  } else if (mountId) {
-    mountStates.push(false, true);
+  const outfitAtlasAvailable = hasOutfitAtlas(outfitId, gender);
+  const mountAtlasAvailable = mountId ? hasMountAtlas(mountId) : false;
+
+  // 1. OUTFIT ASSETS: Se coberto por Texture Atlas, enfileira UNICAMENTE o atlas consolidado
+  if (outfitAtlasAvailable) {
+    const atlasUrl = `/generated/atlases/outfits/${outfitId}-${gender}.png`;
+    outfitUrls.add(atlasUrl);
+    essentialUrls.add(atlasUrl);
   } else {
-    mountStates.push(false);
-  }
+    // Fallback para outfits legados sem atlas compilado
+    const mountStates: boolean[] = [];
+    if (isMounted) {
+      mountStates.push(true, false);
+    } else if (mountId) {
+      mountStates.push(false, true);
+    } else {
+      mountStates.push(false);
+    }
 
-  for (const mounted of mountStates) {
-    const isPrimaryMountState = mounted === isMounted;
-    for (const dir of DIRECTIONS) {
-      for (const f of availableFrames) {
-        const layers = getOutfitLayerUrls(outfitId, gender, dir, f, effectiveAddons, mountId, mounted);
-        const isEss = isPrimaryMountState && essentialFrames.includes(f);
+    for (const mounted of mountStates) {
+      const isPrimaryMountState = mounted === isMounted;
+      for (const dir of DIRECTIONS) {
+        for (const f of availableFrames) {
+          const layers = getOutfitLayerUrls(outfitId, gender, dir, f, effectiveAddons, mountId, mounted);
+          const isEss = isPrimaryMountState && essentialFrames.includes(f);
 
-        const addLayer = (url?: string, isMount = false) => {
-          if (!url) return;
-          if (isMount) {
-            mountUrls.add(url);
-          } else {
-            outfitUrls.add(url);
-          }
-          if (isEss) {
-            essentialUrls.add(url);
-          } else {
-            extendedUrls.add(url);
-          }
-        };
+          const addLayer = (url?: string, isMount = false) => {
+            if (!url) return;
+            if (isMount) {
+              if (!mountAtlasAvailable) mountUrls.add(url);
+            } else {
+              outfitUrls.add(url);
+            }
+            if (isEss) {
+              essentialUrls.add(url);
+            } else {
+              extendedUrls.add(url);
+            }
+          };
 
-        addLayer(layers.base);
-        addLayer(layers.mask);
-        if (layers.addon1Base) addLayer(layers.addon1Base);
-        if (layers.addon1Mask) addLayer(layers.addon1Mask);
-        if (layers.addon2Base) addLayer(layers.addon2Base);
-        if (layers.addon2Mask) addLayer(layers.addon2Mask);
-        if (layers.mountUrl) addLayer(layers.mountUrl, true);
+          addLayer(layers.base);
+          addLayer(layers.mask);
+          if (layers.addon1Base) addLayer(layers.addon1Base);
+          if (layers.addon1Mask) addLayer(layers.addon1Mask);
+          if (layers.addon2Base) addLayer(layers.addon2Base);
+          if (layers.addon2Mask) addLayer(layers.addon2Mask);
+          if (layers.mountUrl && !mountAtlasAvailable) addLayer(layers.mountUrl, true);
+        }
       }
     }
   }
 
-  // Se há montaria válida, compila os frames reais da montaria nas 4 direções
+  // 2. MOUNT ASSETS: Se coberto por Texture Atlas, enfileira UNICAMENTE o atlas da montaria
   if (mountId) {
-    for (const dir of DIRECTIONS) {
-      for (const f of availableFrames) {
-        const mUrl = `/generated/mounts/${mountId}-${dir}-f${f}.png`;
-        mountUrls.add(mUrl);
-        if (isMounted && essentialFrames.includes(f)) {
-          essentialUrls.add(mUrl);
-        } else {
-          extendedUrls.add(mUrl);
+    if (mountAtlasAvailable) {
+      const mountAtlasUrl = `/generated/atlases/mounts/${mountId}.png`;
+      mountUrls.add(mountAtlasUrl);
+      if (isMounted) {
+        essentialUrls.add(mountAtlasUrl);
+      } else {
+        extendedUrls.add(mountAtlasUrl);
+      }
+    } else {
+      // Fallback para montarias legadas sem atlas compilado
+      for (const dir of DIRECTIONS) {
+        for (const f of availableFrames) {
+          const mUrl = `/generated/mounts/${mountId}-${dir}-f${f}.png`;
+          mountUrls.add(mUrl);
+          if (isMounted && essentialFrames.includes(f)) {
+            essentialUrls.add(mUrl);
+          } else {
+            extendedUrls.add(mUrl);
+          }
         }
       }
     }

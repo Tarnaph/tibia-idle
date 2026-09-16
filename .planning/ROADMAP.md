@@ -126,6 +126,8 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 171: Sincronização Integral da Party (Mapa de Thais e Caçadas) & Priorização de Alvo Próximo** - Hidratação imediata de `savedPool` no mount do `GamePrototype.tsx`, sincronização bidirecional de alts em `session.characters` e `partyMemberIds`, retenção de 100% dos integrantes do squad no respawn pós-morte no Templo de Thais, desbloqueio de slots por `accountMaxLevel`, priorização de inimigos mais próximos (`closest`) no movimento e fallback nos ataques físicos para monstros adjacentes.
 - [x] **Phase 172: Formação de Treino da Party ao Redor do Dummy & HUD Superior Multi-Personagem** - Desacoplamento da fila indiana ao treinar no dummy em Thais, posicionamento automático de todos os membros do squad em volta do training dummy virados para o boneco, treino simultâneo de cada membro em sua respectiva skill vocacional (Knight melee, Paladin distance, Sorcerer/Druid magic level), disparos e animações individuais de cada membro contra o dummy, expansão do `TrainingProgressHUD` para exibir os 4 personagens simultaneamente com progresso e tempo estimado, e retorno automático à formação de seguimento ao cancelar o treino.
 - [x] **Phase 173: Resolução do FIX.md (Deduplicação de Magias, Persistência de Alts, Auto-Leveling no Dummy e Floating Party HUD)** - Deduplicação de speech em magias e runas de área e deduplicação de visual events em ThaisCityArena, persistência periódica individual de alts da party com controle de saveVersion e deserialização correta de skills relacionais do Prisma, postura em repouso no dummy com avanço imediato de nível ao completar tentativas (< 1s), e FloatingPartyHUD flutuante e arrastável para gerenciamento da party com troca ativa por duplo clique.
+- [x] **Phase 180: Texture Atlases para Outfits e Montarias (Prova de Conceito Assassin Masculino + Midnight Panther)** - Redução do volume de rede de ~260 requisições individuais para 2 arquivos de atlas consolidados, tempo de swap reduzido de 57s para 176ms em cache frio e 67ms em cache quente, preservando 100% recolorPixels e animação 4 direções / 9 frames.
+- [ ] **Phase 181: Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção)** - Empacotamento em lote de todos os 44 trajes (88 atlases male/female) e ~130 montarias, eliminação do spawn invisível no login e engasgo na caminhada, cancelamento de requisições de aparências anteriores e swap rápido universal.
 
 ---
 
@@ -3389,6 +3391,34 @@ Plans:
 
 **Status:** Complete
 - Resumo de entrega: `.planning/phases/phase-180-texture-atlases-and-fast-swap/180-SUMMARY.md`
+
+### Phase 181: Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção)
+
+**Goal:** Expandir a arquitetura comprovada de Texture Atlases da Prova de Conceito (Phase 180) para cobrir 100% dos 44 trajes em ambos os gêneros (88 atlases de outfit) e todas as montarias (~130 montarias), eliminando definitivamente o spawn invisível no login, os engasgos de carregamento progressivo na caminhada e a saturação da fila de conexões HTTP/1.1 que congelava a interface ao alternar seleções no modal.
+
+**Depends on:** Phase 180  
+**Requirements:**
+1. **Pipeline de Geração em Lote (`scripts/build-all-outfit-atlases.mjs`)**:
+   - Varrer recursivamente todos os 44 trajes (`assassin`, `brotherhood`, `citizen`, `hunter`, `knight`, `mage`, etc.) para `male` e `female`.
+   - Empacotar todas as poses e camadas existentes (base, mask, addon1-base, addon1-mask, addon2-base, addon2-mask, a pé e montado).
+   - Varrer e empacotar as ~130 montarias catalogadas (`rapid-boar`, `midnight-panther`, `donkey`, `widow`, etc.) com seus respectivos frames cardeais.
+   - Gerar manifestos tipados TypeScript consolidados e arquivos PNG com hashing SHA-256 e cabeçalhos imutáveis.
+2. **Carregamento Instantâneo de Spawn no Login (`ThaisCityArena.tsx`)**:
+   - No `onJoin`/hidratação inicial, utilizar o atlas correspondente da aparência do jogador diretamente no Frame 1.
+   - Eliminar o estado de invisibilidade inicial e a dependência de enfileiramento de centenas de PNGs individuais.
+3. **Isolamento e Cancelamento de Requisições de Aparência (`outfitRecolor.ts` & `OutfitModal.tsx`)**:
+   - Ao trocar de seleção no modal ou salvar nova aparência, abortar/descartar promessas de pré-carregamento anteriores para não saturar o pool de conexões do navegador.
+   - Garantir que a seleção de qualquer outfit (como Citizen) use seu atlas consolidado imediatamente sem travar o preview.
+4. **Validação Rigorosa de Regressão e Cobertura**:
+   - Testes unitários com Vitest cobrindo a integridade dos manifestos, verificação de todas as 4 direções e 9 frames.
+   - Validação automatizada no Edge via CDP simulando o login com Brotherhood + Rapid Boar e troca instantânea para qualquer outro traje.
+
+**Success Criteria:**
+- 100% dos outfits suportados e montarias catalogadas disponíveis em Texture Atlases versionados.
+- Zero spawn invisível no login para qualquer combinação de traje e montaria.
+- Preview do modal responsivo (< 100 ms) em qualquer traje selecionado, sem congelamento por fila residual de rede.
+- Zero frames não-compostos e zero regressões em `recolorPixels`.
+
 
 
 

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-16T14:00:00.000Z"
-last_activity: "2026-09-16 — Phase 180: Prova de conceito completa de Texture Atlases implementada, testada e validada online com sucesso (Salvar -> Aplicar reduzido de 57s para 176ms em cache frio e 67ms em cache quente)."
+last_updated: "2026-09-16T19:55:00.000Z"
+last_activity: "2026-09-16 — Phase 181 iniciada: Diagnóstico da fila residual de login (Brotherhood + Rapid Boar gerando 186 requisições individuais) e planejamento da expansão de Texture Atlases para 100% dos 44 trajes e 130 montarias."
 progress:
-  total_phases: 180
+  total_phases: 181
   completed_phases: 180
-  total_plans: 186
+  total_plans: 187
   completed_plans: 186
-  percent: 100
+  percent: 99
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 180 - Texture Atlases para Outfits e Montarias (Assassin + Midnight Panther) - Concluído com Sucesso.
+**Current focus:** Phase 181 - Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção).
 
 ## Current Position
 
-Phase: 180 of 180  
-Plan: 1 of 1 in current phase  
-Status: Complete  
-Last activity: 2026-09-16 — Texture Atlases implementados de ponta a ponta: geração de atlases, loader assíncrono com in-flight promises, integração com recolorPixels, pre-warming no modal e validação online no Edge demonstrando 176 ms (frio) e 67 ms (quente).
+Phase: 181 of 181  
+Plan: 0 of 1 in current phase  
+Status: In Progress  
+Last activity: 2026-09-16 — Reprodução automatizada no Edge via CDP confirmou: Brotherhood + Rapid Boar no login dispara 124 PNGs individuais que afogam a fila de 6 sockets HTTP/1.1, gerando spawn invisível, caminhada com pop-in de frames e travamento no preview de outros trajes (Citizen). Iniciado pipeline de expansão para todos os 88 atlases de outfit e 130 montarias.
 
 Progress: [██████████] 100%
 

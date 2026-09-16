@@ -47,6 +47,32 @@ export interface UncompositedFrameDetail {
   missingLayers: string[];
 }
 
+export interface PreparationLogState {
+  status: 'idle' | 'preparing' | 'ready' | 'failed' | 'exception';
+  durationMs: number;
+  success?: boolean;
+  startedAt?: number;
+  completedAt?: number;
+  manifest?: PreparationManifest;
+  resources?: PreparationResourceState;
+  uncompositedFrames?: UncompositedFrameDetail[];
+  missingAssets: string[];
+  missingFrames?: string[];
+  cachedFramesCount: number;
+  totalFramesRequested: number;
+  error?: string;
+  attemptsCount?: number;
+  attemptsHistory?: Array<{
+    attempt: number;
+    durationMs: number;
+    missingAssets: string[];
+    missingFrames: string[];
+    success: boolean;
+    timestamp: number;
+    error?: string;
+  }>;
+}
+
 export interface OutfitAttemptLog {
   attemptId: string;
   clientCommit: string;
@@ -71,31 +97,9 @@ export interface OutfitAttemptLog {
     colors?: { head: number; primary: number; secondary: number; detail: number };
     direction?: string;
   };
-  preparation: {
-    status: 'idle' | 'preparing' | 'ready' | 'failed' | 'exception';
-    durationMs: number;
-    success?: boolean;
-    startedAt?: number;
-    completedAt?: number;
-    manifest?: PreparationManifest;
-    resources?: PreparationResourceState;
-    uncompositedFrames?: UncompositedFrameDetail[];
-    missingAssets: string[];
-    missingFrames?: string[];
-    cachedFramesCount: number;
-    totalFramesRequested: number;
-    error?: string;
-    attemptsCount?: number;
-    attemptsHistory?: Array<{
-      attempt: number;
-      durationMs: number;
-      missingAssets: string[];
-      missingFrames: string[];
-      success: boolean;
-      timestamp: number;
-      error?: string;
-    }>;
-  };
+  preparation: PreparationLogState;
+  previewPreparation?: PreparationLogState;
+  arenaPreparation?: PreparationLogState;
   preview: {
     hasCanvas: boolean;
     width: number;
@@ -236,10 +240,31 @@ class OutfitDiagnosticsManager {
     this.detectDivergence(target);
   }
 
-  recordPreparation(prep: Partial<OutfitAttemptLog['preparation']>, attemptId?: string): void {
+  recordPreviewPreparation(prep: Partial<PreparationLogState>, attemptId?: string): void {
     const target = this.getTargetAttempt(attemptId);
     if (!target) return;
-    const current = target.preparation;
+    const current = target.previewPreparation || {
+      status: 'idle',
+      durationMs: 0,
+      missingAssets: [],
+      cachedFramesCount: 0,
+      totalFramesRequested: 0,
+    };
+    target.previewPreparation = {
+      ...current,
+      ...prep,
+      manifest: prep.manifest || current.manifest,
+      resources: prep.resources || current.resources,
+      uncompositedFrames: prep.uncompositedFrames || current.uncompositedFrames,
+    };
+    // Do NOT write to target.arenaPreparation or target.preparation from preview!
+    this.detectDivergence(target);
+  }
+
+  recordArenaPreparation(prep: Partial<PreparationLogState>, attemptId?: string): void {
+    const target = this.getTargetAttempt(attemptId);
+    if (!target) return;
+    const current = target.arenaPreparation || target.preparation;
     const attemptsCount = prep.attemptsCount ?? current.attemptsCount ?? 1;
 
     let attemptsHistory = current.attemptsHistory ? [...current.attemptsHistory] : [];
@@ -256,7 +281,7 @@ class OutfitDiagnosticsManager {
       if (attemptsHistory.length > 10) attemptsHistory.shift();
     }
 
-    target.preparation = {
+    const updated: PreparationLogState = {
       ...current,
       ...prep,
       manifest: prep.manifest || current.manifest,
@@ -266,8 +291,10 @@ class OutfitDiagnosticsManager {
       attemptsHistory,
     };
 
-    // If preparation settled (ready/failed/exception) and save is not pending API response, settle completedAt if needed
-    if (target.preparation.status === 'ready' || target.preparation.status === 'failed' || target.preparation.status === 'exception') {
+    target.arenaPreparation = updated;
+    target.preparation = updated; // Backwards compatibility for callers inspecting .preparation
+
+    if (updated.status === 'ready' || updated.status === 'failed' || updated.status === 'exception') {
       const isSaveInProgress = target.save.buttonClicked && !target.save.apiDispatched;
       if (!isSaveInProgress && !target.completedAt) {
         target.completedAt = Date.now();
@@ -275,6 +302,10 @@ class OutfitDiagnosticsManager {
     }
 
     this.detectDivergence(target);
+  }
+
+  recordPreparation(prep: Partial<PreparationLogState>, attemptId?: string): void {
+    this.recordArenaPreparation(prep, attemptId);
   }
 
   recordPreview(preview: Partial<OutfitAttemptLog['preview']>, attemptId?: string): void {
@@ -448,7 +479,10 @@ class OutfitDiagnosticsManager {
       }
     }
 
-    a.divergences = div;
+    const existingExplicit = (a.divergences || []).filter(
+      (d) => d.startsWith('DISCRETE_PNG_') || d.startsWith('ATLAS_') || !div.includes(d)
+    );
+    a.divergences = Array.from(new Set([...existingExplicit, ...div]));
     if (a.arena.reactCharOutfit && a.selection.outfit) {
       a.arena.isMatchWithSelection = a.save.callbackFired
         ? div.length === 0

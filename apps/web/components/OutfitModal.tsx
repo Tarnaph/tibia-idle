@@ -16,7 +16,7 @@ import {
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
 import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
-import { preloadAppearanceAtlas } from '@/apps/web/lib/outfitAtlasLoader';
+import { preloadAppearanceAtlas, cancelAtlasScope } from '@/apps/web/lib/outfitAtlasLoader';
 
 export { TIBIA_133_COLORS } from '@/apps/web/lib/outfitRecolor';
 
@@ -320,6 +320,9 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
       const effectiveMounted = Boolean(mountActive && selectedMount !== 'none' && caps.hasMountRider);
       const renderStartTime = Date.now();
 
+      // Cancel any previous in-flight requests that were only needed for modal preview
+      cancelAtlasScope('modal_preview');
+
       outfitDiagnostics.updateSelection({
         outfit: selectedOutfit,
         mount: selectedMount,
@@ -329,7 +332,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         direction: currentDir,
       });
 
-      outfitDiagnostics.recordPreparation({
+      outfitDiagnostics.recordPreviewPreparation({
         status: 'preparing',
         durationMs: 0,
       });
@@ -354,7 +357,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         addonsVal,
         selectedMount,
         effectiveMounted,
-        () => renderGenRef.current === thisGen
+        () => renderGenRef.current === thisGen,
+        'modal_preview'
       ).then(() => {
         if (renderGenRef.current === thisGen) {
           const cvs = previewCanvasRef.current;
@@ -385,6 +389,15 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
             curAttempt?.selection.outfit?.toLowerCase() === selectedOutfit.toLowerCase() &&
             (selectedMount === 'none' || !effectiveMounted || curAttempt?.selection.mount?.toLowerCase() === selectedMount.toLowerCase());
 
+          const durationMs = Date.now() - renderStartTime;
+          outfitDiagnostics.recordPreviewPreparation({
+            status: isDefinitive ? 'ready' : 'failed',
+            durationMs,
+            success: isDefinitive,
+            cachedFramesCount: isDefinitive ? 1 : 0,
+            totalFramesRequested: 1,
+          });
+
           outfitDiagnostics.recordPreview({
             hasCanvas: !!cvs,
             width: cvs?.width || 0,
@@ -401,6 +414,10 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         console.warn('Outfit preview render non-fatal exception caught:', err);
       });
     }
+
+    return () => {
+      cancelAtlasScope('modal_preview');
+    };
   }, [
     open,
     selectedOutfit,
@@ -418,13 +435,19 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const charIdx = characters.findIndex((c) => c.id === selectedCharId);
 
   const prevPartyMember = () => {
+    if (characters.length <= 1) return;
     const nextIdx = (charIdx - 1 + characters.length) % characters.length;
     setSelectedCharId(characters[nextIdx].id);
   };
 
   const nextPartyMember = () => {
+    if (characters.length <= 1) return;
     const nextIdx = (charIdx + 1) % characters.length;
     setSelectedCharId(characters[nextIdx].id);
+  };
+
+  const rotatePrev = () => {
+    setDirectionIdx((prev) => (prev - 1 + 4) % 4);
   };
 
   const rotateNext = () => {
@@ -434,7 +457,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   // Resolve thumbnail for outfit cards based on active character gender
   const getOutfitThumbUrl = (outfitId: string, gender: 'male' | 'female' = charGender): string => {
     const idLower = normalizeOutfitId(outfitId);
-    return `/generated/outfits/${idLower}-${gender}-south-f0-base.png`;
+    return `/generated/outfit-thumbs/${idLower}.png`;
   };
 
   // Resolve thumbnail for mount cards

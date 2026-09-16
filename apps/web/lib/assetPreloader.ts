@@ -120,33 +120,20 @@ export function compileEssentialAssetUrls(): CategorizedAssetUrls {
     mapUrls.add(`/assets/items/item-${i}.png`);
   }
 
-  // 2. Montarias Canônicas (todos os frames idle f0 válidos existentes para as 129 montarias)
-  const directions = ['south', 'east', 'north', 'west'];
+  // 2. Montarias Canônicas (Atlas de texturas consolidados)
   (rawMountsJson as Array<{ id: string }>).forEach((m) => {
     if (!m.id || m.id === 'none') return;
-    directions.forEach((dir) => {
-      // Carrega frames idle existentes f0 (sem URLs fantasmas de rider que causavam 404 e lentidão)
-      mountUrls.add(`/generated/mounts/${m.id}-${dir}-f0.png`);
-    });
+    mountUrls.add(`/generated/atlases/mounts/${m.id}.png`);
   });
 
-  // 3. Outfits Principais das 4 Vocações e Citizen (f0 idle e f1..f4 passos)
+  // 3. Outfits Principais das 4 Vocações e Citizen (Atlas de texturas consolidados)
   const coreOutfits = ['knight', 'paladin', 'sorcerer', 'druid', 'citizen'];
   const genders = ['male', 'female'];
 
   coreOutfits.forEach((outfit) => {
     outfitUrls.add(`/generated/outfit-thumbs/${outfit}.png`);
     genders.forEach((gender) => {
-      directions.forEach((dir) => {
-        // Idle frame f0
-        outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-base.png`);
-        outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f0-mask.png`);
-        // Walk frames prioritários f1..f4
-        for (let f = 1; f <= 4; f++) {
-          outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-base.png`);
-          outfitUrls.add(`/generated/outfits/${outfit}-${gender}-${dir}-f${f}-mask.png`);
-        }
-      });
+      outfitUrls.add(`/generated/atlases/outfits/${outfit}-${gender}.png`);
     });
   });
 
@@ -460,31 +447,14 @@ class AssetPreloaderService {
       this.markComplete();
     }
 
-    // Streaming silencioso em segundo plano para o restante do catálogo (sem bloquear a jogabilidade)
-    void this.startDeferredBackgroundPreload();
+    // Atlas de outfits e montarias são carregados sob demanda ou via pré-aquecimento prioritário.
   }
 
   /**
-   * Transmite o catálogo expandido em segundo plano com baixa concorrência
+   * Catálogo expandido é servido via atlases sob demanda, sem flood de PNGs individuais
    */
   private async startDeferredBackgroundPreload(): Promise<void> {
-    if (typeof window === 'undefined') return;
-    try {
-      await new Promise((r) => setTimeout(r, 1000));
-      const otherOutfits = ['paladin', 'sorcerer', 'druid', 'citizen'];
-      const bgOutfitUrls: string[] = [];
-      const directions = ['south', 'east', 'north', 'west'] as const;
-      otherOutfits.forEach((outfit) => {
-        bgOutfitUrls.push(`/generated/outfit-thumbs/${outfit}.png`);
-        directions.forEach((dir) => {
-          bgOutfitUrls.push(`/generated/outfits/${outfit}-male-${dir}-f0-base.png`);
-          bgOutfitUrls.push(`/generated/outfits/${outfit}-male-${dir}-f0-mask.png`);
-        });
-      });
-      await preloadBatchWithConcurrency(bgOutfitUrls, 2, () => {});
-    } catch {
-      // Background preload falha silenciosamente sem impactar jogo
-    }
+    // No-op: todos os 158 trajes e 129 montarias usam texture atlases carregados estritamente sob demanda
   }
 
   public reset(): void {

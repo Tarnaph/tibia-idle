@@ -377,6 +377,27 @@ export function loadImage(url: string, forceFresh: boolean = false): Promise<HTM
   if (typeof window === 'undefined' && typeof document === 'undefined') {
     return Promise.reject(new Error('Window undefined in SSR'));
   }
+
+  // Phase 181: Monitoramento estrito contra regressão de carregadores antigos
+  // Se uma URL de frame/camada individual for requisitada para uma aparência já coberta por Atlas, registra divergência
+  if (!url.includes('/atlases/')) {
+    const outfitMatch = url.match(/\/generated\/outfits\/([a-z0-9-]+)-(male|female)-/i);
+    if (outfitMatch) {
+      const outfit = outfitMatch[1];
+      const gender = outfitMatch[2].toLowerCase() as 'male' | 'female';
+      if (hasOutfitAtlas(outfit, gender)) {
+        outfitDiagnostics.recordDivergence(`DISCRETE_PNG_REQUESTED_FOR_ATLAS_COVERED_ASSET: ${url}`);
+      }
+    }
+    const mountMatch = url.match(/\/generated\/mounts\/([a-z0-9-]+)-(south|east|north|west)-f\d+\.png/i);
+    if (mountMatch) {
+      const mountId = mountMatch[1];
+      if (hasMountAtlas(mountId)) {
+        outfitDiagnostics.recordDivergence(`DISCRETE_PNG_REQUESTED_FOR_ATLAS_COVERED_ASSET: ${url}`);
+      }
+    }
+  }
+
   // 1. Verificação síncrona no cache de imagens decodificadas
   const cached = imageElementCache.get(url);
   if (cached && cached.complete && cached.naturalWidth > 0) {
@@ -733,7 +754,8 @@ export async function renderRecoloredOutfit(
   addons: number = 0,
   mount?: string,
   isMounted: boolean = false,
-  isCurrent?: () => boolean
+  isCurrent?: () => boolean,
+  scope: string = 'default'
 ): Promise<void> {
   if (typeof window === 'undefined' && typeof document === 'undefined') return;
   if (isCurrent && !isCurrent()) return;
@@ -795,11 +817,11 @@ export async function renderRecoloredOutfit(
       effectiveMounted
     );
 
-    // B. If not in memory yet, download the consolidated atlas(es)
+    // B. If not in memory yet, download the consolidated atlas(es) with ref-counted scope cancellation
     if (!composed) {
-      const atlasTasks: Promise<any>[] = [loadOutfitAtlas(norm, gender)];
+      const atlasTasks: Promise<any>[] = [loadOutfitAtlas(norm, gender, scope)];
       if (mountNeeded && mountHasAtlas) {
-        atlasTasks.push(loadMountAtlas(mount));
+        atlasTasks.push(loadMountAtlas(mount, scope));
       }
       await Promise.allSettled(atlasTasks);
       if (isCurrent && !isCurrent()) return;
@@ -993,6 +1015,26 @@ export async function preloadOutfitAllFrames(
 
   const effectiveAddons = (caps.hasAddon1 ? (addons & 1) : 0) | (caps.hasAddon2 ? (addons & 2) : 0);
   const effectiveMounted = isMounted && caps.hasMountRider;
+  const maxWalkFrame = Math.min(8, caps.maxFrames - 1);
+
+  // ATLAS FAST PATH: Se o traje possui Atlas compilado, carrega apenas o atlas e popula o cache de imediato
+  if (hasOutfitAtlas(norm, gender)) {
+    const mountNeeded = effectiveMounted && mount && mount !== 'none';
+    const mountHasAtlas = mountNeeded ? hasMountAtlas(mount) : true;
+    const tasks: Promise<any>[] = [loadOutfitAtlas(norm, gender)];
+    if (mountNeeded && mountHasAtlas) {
+      tasks.push(loadMountAtlas(mount));
+    }
+    await Promise.allSettled(tasks);
+    if (colors) {
+      for (const dir of directions) {
+        for (let f = 0; f <= maxWalkFrame; f++) {
+          composeAppearanceFromAtlasSync(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
+        }
+      }
+    }
+    return;
+  }
 
   const loadAndCacheFrame = async (dir: 'south' | 'east' | 'north' | 'west', f: number) => {
     const urls = getOutfitLayerUrls(norm, gender, dir, f, effectiveAddons, mount, effectiveMounted);
@@ -1011,8 +1053,6 @@ export async function preloadOutfitAllFrames(
       getRecoloredCanvasSync(norm, gender, dir, f, colors, effectiveAddons, mount, effectiveMounted);
     }
   };
-
-  const maxWalkFrame = Math.min(8, caps.maxFrames - 1);
 
   // 1. TOP PRIORITY: Idle (f0) and all walking frames for the priority facing direction FIRST!
   // This loads in < 30ms so character walking legs animate immediately without sliding
@@ -1070,6 +1110,8 @@ export interface PrepareAppearanceOptions {
   onProgress?: AppearanceProgressCallback;
   attemptId?: string;
   characterId?: string;
+  scope?: string;
+  targetType?: 'preview' | 'arena';
 }
 
 /**
@@ -1136,6 +1178,17 @@ export async function prepareAppearanceCanvas(
 
   const actualAttemptId = options?.attemptId || attemptId;
   const actualCharacterId = options?.characterId || characterId;
+  const isPreview = options?.targetType === 'preview' || options?.scope === 'modal_preview';
+  const scope = options?.scope || (isPreview ? 'modal_preview' : 'arena');
+
+  const recordPrep = (data: Partial<any>) => {
+    if (!actualAttemptId) return;
+    if (isPreview) {
+      outfitDiagnostics.recordPreviewPreparation(data, actualAttemptId);
+    } else {
+      outfitDiagnostics.recordArenaPreparation(data, actualAttemptId);
+    }
+  };
 
   const norm = normalizeOutfitId(outfitId);
   const caps = getOutfitCapabilities(norm);
@@ -1173,26 +1226,24 @@ export async function prepareAppearanceCanvas(
       : (actualAttemptId ? `attempt_${actualAttemptId}` : `outfit_${norm}_${gender}`);
     activePreparationTokens.set(prepScopeKey, prepToken);
 
-    if (actualAttemptId) {
-      outfitDiagnostics.recordPreparation({
-        status: 'preparing',
-        manifest,
-        resources: {
-          enqueued: mountNeeded && mountHasAtlas ? 2 : 1,
-          started: 0,
-          completed: 0,
-          failed: 0,
-          inProgress: [],
-          failedDetails: [],
-        },
-        durationMs: 0,
-      }, actualAttemptId);
-    }
+    recordPrep({
+      status: 'preparing',
+      manifest,
+      resources: {
+        enqueued: mountNeeded && mountHasAtlas ? 2 : 1,
+        started: 0,
+        completed: 0,
+        failed: 0,
+        inProgress: [],
+        failedDetails: [],
+      },
+      durationMs: 0,
+    });
 
-    // 1. Download atlas files concurrently (shared across preview & arena)
-    const atlasTasks: Promise<any>[] = [loadOutfitAtlas(norm, gender)];
+    // 1. Download atlas files concurrently with ref-counted scope cancellation
+    const atlasTasks: Promise<any>[] = [loadOutfitAtlas(norm, gender, scope)];
     if (mountNeeded && mountHasAtlas) {
-      atlasTasks.push(loadMountAtlas(mount));
+      atlasTasks.push(loadMountAtlas(mount, scope));
     }
     await Promise.allSettled(atlasTasks);
 
@@ -1247,20 +1298,20 @@ export async function prepareAppearanceCanvas(
       failedDetails: isSuccess ? [] : [{ url: 'atlas', error: 'atlas_composition_failed', elapsedMs: durationMs }],
     };
 
+    recordPrep({
+      status: isSuccess ? 'ready' : 'failed',
+      success: isSuccess,
+      durationMs,
+      manifest,
+      resources: resState,
+      uncompositedFrames,
+      missingAssets: isSuccess ? [] : ['atlas_composition_failed'],
+      missingFrames: fullCheck.missing,
+      totalFramesRequested: fullCheck.total,
+      cachedFramesCount: fullCheck.cached,
+      error: isSuccess ? undefined : 'Atlas composition incomplete',
+    });
     if (actualAttemptId) {
-      outfitDiagnostics.recordPreparation({
-        status: isSuccess ? 'ready' : 'failed',
-        success: isSuccess,
-        durationMs,
-        manifest,
-        resources: resState,
-        uncompositedFrames,
-        missingAssets: isSuccess ? [] : ['atlas_composition_failed'],
-        missingFrames: fullCheck.missing,
-        totalFramesRequested: fullCheck.total,
-        cachedFramesCount: fullCheck.cached,
-        error: isSuccess ? undefined : 'Atlas composition incomplete',
-      }, actualAttemptId);
       outfitDiagnostics.recordAtlasUsage({
         used: isSuccess,
         outfitAtlas: `${norm}-${gender}`,
@@ -1361,15 +1412,16 @@ export async function prepareAppearanceCanvas(
         inProgress: Array.from(inProgressUrls),
         failedDetails: [...failedDetails],
       };
-      if (actualAttemptId) {
-        outfitDiagnostics.recordPreparation({
-          status,
-          manifest,
-          resources: resState,
-          durationMs: elapsed,
-          error: errorMsg,
-        }, actualAttemptId);
-      }
+      recordPrep({
+        status,
+        manifest,
+        resources: resState,
+        durationMs: elapsed,
+        missingAssets: [...failedDetails.map((f) => f.url)],
+        cachedFramesCount: completedCount,
+        totalFramesRequested: uniqueUrls.length,
+        error: errorMsg,
+      });
       if (typeof actualOnProgress === 'function') {
         actualOnProgress(manifest, resState);
       }
@@ -1522,20 +1574,18 @@ export async function prepareAppearanceCanvas(
       failedDetails: [...failedDetails],
     };
 
-    if (actualAttemptId) {
-      outfitDiagnostics.recordPreparation({
-        status: isSuccess ? 'ready' : 'failed',
-        success: isSuccess,
-        durationMs,
-        manifest,
-        resources: resState,
-        uncompositedFrames,
-        missingAssets: uniqueMissing,
-        missingFrames: fullCheck.missing,
-        totalFramesRequested: fullCheck.total,
-        cachedFramesCount: fullCheck.cached,
-      }, actualAttemptId);
-    }
+    recordPrep({
+      status: isSuccess ? 'ready' : 'failed',
+      success: isSuccess,
+      durationMs,
+      manifest,
+      resources: resState,
+      uncompositedFrames,
+      missingAssets: uniqueMissing,
+      missingFrames: fullCheck.missing,
+      totalFramesRequested: fullCheck.total,
+      cachedFramesCount: fullCheck.cached,
+    });
 
     return {
       success: isSuccess,

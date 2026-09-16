@@ -1747,7 +1747,7 @@ export function ThaisCityArena({
 
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
-            view.root.visible = latestRef.current.isCharacterVisible !== false;
+            view.root.visible = (latestRef.current.isCharacterVisible !== false) && Boolean(view.lastCanvas);
             updateNameplate(view, localChar.name, (localChar as any).adminTitle);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()
