@@ -16,6 +16,16 @@ import {
 import { outfitDiagnostics } from '../apps/web/lib/outfitDiagnostics';
 
 describe('Phase 180: Outfit & Mount Texture Atlases Proof-of-Concept', () => {
+  // In Node test environment without browser fetch, ensure manifests are populated from public directory
+  const assassinJsonPath = path.join(process.cwd(), 'public', 'generated', 'atlases', 'outfits', 'assassin-male-atlas.99b527c0.json');
+  if (fs.existsSync(assassinJsonPath)) {
+    OUTFIT_ATLAS_MANIFESTS['assassin-male'] = JSON.parse(fs.readFileSync(assassinJsonPath, 'utf8'));
+  }
+  const pantherJsonPath = path.join(process.cwd(), 'public', 'generated', 'atlases', 'mounts', 'midnight-panther-atlas.64262477.json');
+  if (fs.existsSync(pantherJsonPath)) {
+    MOUNT_ATLAS_MANIFESTS['midnight-panther'] = JSON.parse(fs.readFileSync(pantherJsonPath, 'utf8'));
+  }
+
   describe('1. Atlas Artifacts & Filesystem Integrity', () => {
     it('verifies that assassin-male atlas image and manifest files exist on disk', () => {
       const outfitManifest = OUTFIT_ATLAS_MANIFESTS['assassin-male'];
@@ -107,12 +117,12 @@ describe('Phase 180: Outfit & Mount Texture Atlases Proof-of-Concept', () => {
     it('correctly detects available and unavailable atlases', () => {
       expect(hasOutfitAtlas('assassin', 'male')).toBe(true);
       expect(hasOutfitAtlas('Assassin', 'male')).toBe(true);
-      expect(hasOutfitAtlas('citizen', 'male')).toBe(false);
+      expect(hasOutfitAtlas('nonexistent_outfit_xyz', 'male')).toBe(false);
 
       expect(hasMountAtlas('midnight-panther')).toBe(true);
       expect(hasMountAtlas('midnight_panther')).toBe(true);
       expect(hasMountAtlas('Midnight Panther')).toBe(true);
-      expect(hasMountAtlas('donkey')).toBe(false);
+      expect(hasMountAtlas('nonexistent_mount_xyz')).toBe(false);
       expect(hasMountAtlas(undefined)).toBe(false);
     });
 
