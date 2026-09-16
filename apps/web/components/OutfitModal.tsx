@@ -240,7 +240,6 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
     } else if (selectedMount && selectedMount !== 'none') {
       setMountActive(true);
     }
-    preloadOutfitAllFrames(outfitId, charGender, colors, 0, selectedMount, mountActive && caps.hasMountRider, currentDir).catch(() => {});
   };
 
   // Live recolor preview on canvas whenever outfit, direction, colors, addons, or mount change
@@ -657,6 +656,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                         <img
                           src={getOutfitThumbUrl(outfit.id, charGender)}
                           alt={outfit.name}
+                          loading="lazy"
+                          decoding="async"
                           className="tibia-card-sprite"
                           style={{ imageRendering: 'pixelated' }}
                           onError={(e) => {
@@ -705,6 +706,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                           <img
                             src={getMountThumbUrl(mount.id)!}
                             alt={mount.name}
+                            loading="lazy"
+                            decoding="async"
                             className="tibia-card-sprite mount-sprite"
                             style={{ imageRendering: 'pixelated' }}
                           />

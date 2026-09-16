@@ -272,7 +272,11 @@ export function getOutfitLayerUrls(
 }
 
 export const imageElementCache = new Map<string, HTMLImageElement>();
-const inFlightImagePromises = new Map<string, Promise<HTMLImageElement>>();
+interface InFlightPromiseEntry {
+  promise: Promise<HTMLImageElement>;
+  startedAt: number;
+}
+const inFlightImagePromises = new Map<string, InFlightPromiseEntry>();
 export const activePreparationTokens = new Map<string, string>();
 export const failedImageUrls = new Set<string>();
 const failedImageUrlsWithTimestamp = new Map<string, number>();
@@ -351,27 +355,35 @@ export function clearImageElementCache(): void {
   invalidateProvisionalCache();
 }
 
-export function loadImage(url: string): Promise<HTMLImageElement> {
+/**
+ * Carrega imagem de forma assíncrona respeitando cache global e reuso de promessas em voo.
+ * Protegido contra reuso de promessas antigas/prestes a expirar (stale in-flight reuse).
+ */
+export function loadImage(url: string, forceFresh: boolean = false): Promise<HTMLImageElement> {
   if (typeof window === 'undefined' && typeof document === 'undefined') {
     return Promise.reject(new Error('Window undefined in SSR'));
   }
-  // 1. Return immediately if fully loaded and valid
+  // 1. Verificação síncrona no cache de imagens decodificadas
   const cached = imageElementCache.get(url);
   if (cached && cached.complete && cached.naturalWidth > 0) {
     return Promise.resolve(cached);
   }
 
-  // 2. Return existing in-flight promise so concurrent callers share the exact same resolution
+  // 2. Retorna promessa em voo recente (< 6s) para evitar transferências redundantes,
+  // mas descarta promessas antigas para não herdar timers de timeout prestes a estourar
   const inFlight = inFlightImagePromises.get(url);
-  if (inFlight) {
-    return inFlight;
+  if (inFlight && !forceFresh) {
+    if (Date.now() - inFlight.startedAt < 6000) {
+      return inFlight.promise;
+    }
+    inFlightImagePromises.delete(url);
   }
 
   if (isImagePermanentlyFailed(url)) {
     return Promise.reject(new Error(`Image marked permanently failed at ${url}`));
   }
 
-  // 3. Create managed promise for this URL with safety timeout
+  // 3. Cria nova promessa gerenciada para esta URL com timeout de segurança
   const promise = new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     const isCrossOrigin = typeof window !== 'undefined' &&
@@ -434,7 +446,7 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
     }
   });
 
-  inFlightImagePromises.set(url, promise);
+  inFlightImagePromises.set(url, { promise, startedAt: Date.now() });
   return promise;
 }
 
@@ -836,7 +848,7 @@ export async function prepareAppearanceCanvas(
   isMounted: boolean = false,
   directions: Array<'south' | 'east' | 'north' | 'west'> = ['south', 'east', 'north', 'west'],
   frames?: number[],
-  onProgress?: (manifest: PreparationManifest, resources: PreparationResourceState) => void,
+  onProgress?: ((manifest: PreparationManifest, resources: PreparationResourceState) => void) | string,
   attemptId?: string
 ): Promise<AppearancePreparationResult> {
   const startTime = Date.now();
@@ -958,6 +970,14 @@ export async function prepareAppearanceCanvas(
   updateTelemetry('preparing');
 
   try {
+    // Purge any stale in-flight promises (> 4s) so this critical preparation starts with fresh, unexpired lifecycles
+    for (const u of uniqueUrls) {
+      const existing = inFlightImagePromises.get(u);
+      if (existing && Date.now() - existing.startedAt > 4000) {
+        inFlightImagePromises.delete(u);
+      }
+    }
+
     // 2. Throttled worker pool matching browser HTTP socket limits
     const missingAssets: string[] = [];
     const queue = [...uniqueUrls];
