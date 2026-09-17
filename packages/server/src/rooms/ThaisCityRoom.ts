@@ -89,7 +89,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     try {
-      const cityPlayers = Array.from(this.state.players.values()).filter((p) => !p.inHunt);
+      const cityPlayers = Array.from(this.state.players.values()).filter(
+        (p) => !p.inHunt && !ServerCharacterContextRegistry.isHunting(p.characterId)
+      );
       this.activeSavePromise = persistenceManager.saveBatch(cityPlayers);
       await this.activeSavePromise;
     } catch (err: any) {
@@ -452,7 +454,9 @@ export class ThaisCityRoom extends Room<WorldState> {
         if (data?.huntId) {
           player.lastHuntId = data.huntId;
         }
-        void persistenceManager.saveCharacter(player);
+        if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
+          void persistenceManager.saveCharacter(player);
+        }
         client.send('autoIdle:toggled', {
           isAutoIdle: player.isAutoIdle,
           lastHuntId: player.lastHuntId,
@@ -464,7 +468,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       const player = this.state.players.get(client.sessionId);
       if (player && data?.huntId) {
         player.lastHuntId = data.huntId;
-        void persistenceManager.saveCharacter(player);
+        if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
+          void persistenceManager.saveCharacter(player);
+        }
       }
     });
 
@@ -504,7 +510,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       const player = this.state.players.get(client.sessionId);
       if (player && typeof data?.avatarId === 'number') {
         player.avatarId = Math.max(1, Math.min(5, Math.floor(data.avatarId)));
-        void persistenceManager.saveCharacter(player);
+        if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
+          void persistenceManager.saveCharacter(player);
+        }
       }
     });
 
@@ -532,7 +540,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       if (player) {
         player.trackedBestiaryId = data?.monsterId || '';
         (player as any).trackedBestiaryId = player.trackedBestiaryId;
-        void persistenceManager.saveCharacter(player);
+        if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
+          void persistenceManager.saveCharacter(player);
+        }
       }
     });
 
@@ -547,7 +557,9 @@ export class ThaisCityRoom extends Room<WorldState> {
           }
         }
         (player as any).bestiaryKills = updated;
-        void persistenceManager.saveCharacter(player);
+        if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
+          void persistenceManager.saveCharacter(player);
+        }
       }
     });
 
@@ -812,7 +824,9 @@ export class ThaisCityRoom extends Room<WorldState> {
           } catch {}
         }
         this.handlePlayerLeaveParty(existingSessionId);
-        void persistenceManager.saveCharacter(existingPlayer);
+        if (!existingPlayer.inHunt && !ServerCharacterContextRegistry.isHunting(existingPlayer.characterId)) {
+          void persistenceManager.saveCharacter(existingPlayer);
+        }
         this.playerExpSync.delete(existingSessionId);
         this.state.players.delete(existingSessionId);
       }
@@ -846,7 +860,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     if (player) {
-      await persistenceManager.saveCharacter(player);
+      if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
+        await persistenceManager.saveCharacter(player);
+      }
       if (player.characterId) {
         ServerCharacterContextRegistry.clear(player.characterId);
       }
@@ -878,7 +894,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       } catch {}
     }
 
-    const cityPlayers = Array.from(this.state.players.values()).filter((p) => !p.inHunt);
+    const cityPlayers = Array.from(this.state.players.values()).filter(
+      (p) => !p.inHunt && !ServerCharacterContextRegistry.isHunting(p.characterId)
+    );
     await persistenceManager.saveBatch(cityPlayers);
   }
 

@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma as defaultPrisma } from '../../../database/src';
 import { experienceForLevel, levelForExperience, calculateStatsForLevel } from '../../../domain/src';
-import { CharacterSaveLockManager, XpRateLimiter } from '../../../auth/src';
+import { CharacterSaveLockManager, XpRateLimiter, ServerCharacterContextRegistry } from '../../../auth/src';
 import type { PlayerState } from '../schemas/PlayerState';
 
 export class PrismaPersistenceManager {
@@ -18,6 +18,13 @@ export class PrismaPersistenceManager {
   async saveCharacter(player: PlayerState): Promise<void> {
     if (!player.characterId || player.characterId.startsWith('char-guest')) {
       // Skip mock / guest IDs not in database
+      return;
+    }
+
+    // Defensive Authority Guard: During an active hunt, the hunt session / client
+    // is the sole authority for character progression, inventory, skills, and state.
+    // Colyseus must NEVER write stale city stats or bump saveVersion during hunts.
+    if (Boolean(player.inHunt) || ServerCharacterContextRegistry.isHunting(player.characterId)) {
       return;
     }
 

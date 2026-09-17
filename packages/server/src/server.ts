@@ -6,6 +6,7 @@ import { Server } from '@colyseus/core';
 import { monitor } from '@colyseus/monitor';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { ThaisCityRoom } from './rooms/ThaisCityRoom.ts';
+import { ServerCharacterContextRegistry } from '../../auth/src';
 
 export interface CreateGameServerOptions {
   port?: number;
@@ -56,6 +57,15 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
 
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
+  });
+
+  app.get('/api/character-context/:id', (req, res) => {
+    const charId = req.params.id;
+    const ctx = ServerCharacterContextRegistry.getActivity(charId);
+    if (ctx) {
+      return res.json({ isHunting: ctx.isHunting, huntId: ctx.huntId });
+    }
+    return res.json({ isHunting: false });
   });
 
   const server = http.createServer(app);

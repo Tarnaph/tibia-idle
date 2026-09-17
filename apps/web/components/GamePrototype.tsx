@@ -81,7 +81,7 @@ import { PromotionModal } from './character/PromotionModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
-import { resolveSkillKey, parseInventoryData, mergeLootStacks } from '../lib/characterHydration';
+import { resolveSkillKey, parseInventoryData } from '../lib/characterHydration';
 import { progressionDiagnostics } from '../lib/progressionDiagnostics';
 import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
@@ -1829,127 +1829,33 @@ function GamePrototypeContent() {
       }
 
       if (res.status === 409) {
-        // Optimistic Concurrency Conflict: reconcile complete state from server without destructively downgrading progress
+        // Optimistic Concurrency Conflict: advance saveVersion to server version and retry saving authentic active state
         try {
           const conflictData = (await res.json()) as any;
-          if (typeof conflictData?.currentVersion === 'number') {
-            currentSaveVersionRef.current = conflictData.currentVersion;
-            characterSaveVersionsRef.current.set(primaryChar.id, conflictData.currentVersion);
-          }
-          if (conflictData?.character) {
-            const srv = conflictData.character;
-            const invResult = parseInventoryData(srv.inventory, curEquipment);
-            let updatedReconciledChar: typeof primaryChar | null = null;
+          const nextVersion = typeof conflictData?.currentVersion === 'number'
+            ? conflictData.currentVersion
+            : primaryVersion + 1;
 
-            // Monotonic non-decreasing gold and loot reconciliation
-            const srvGold = Array.isArray(srv.inventory) ? invResult.gold : 0;
-            const finalGold = Math.max(curGold || 0, srvGold);
-            const finalBag = (Array.isArray(srv.inventory) && invResult.bag.length > 0)
-              ? mergeLootStacks(curBag, invResult.bag)
-              : (curBag || []);
-            const finalLoot = (Array.isArray(srv.inventory) && invResult.loot.length > 0)
-              ? mergeLootStacks(curLoot, invResult.loot)
-              : (curLoot || []);
+          currentSaveVersionRef.current = nextVersion;
+          characterSaveVersionsRef.current.set(primaryChar.id, nextVersion);
 
-            const srvExp = srv.experience !== undefined ? Number(srv.experience) : 0;
-            const srvLvl = typeof srv.level === 'number' ? srv.level : 1;
+          progressionDiagnostics.recordSaveConflict(
+            attemptId,
+            primaryVersion,
+            nextVersion,
+            primaryChar.level,
+            Number(primaryChar.experience)
+          );
 
-            progressionDiagnostics.recordSaveConflict(
-              attemptId,
-              primaryVersion,
-              conflictData.currentVersion,
-              srvLvl,
-              srvExp
-            );
+          // We do NOT perform naive Math.max on gold, inventory, experience, or skills.
+          // The active session is authoritative: spent gold stays spent, consumed items stay consumed,
+          // death penalties remain intact, and rat loot/gold remains in the active session.
+          isSaveSuspendedRef.current = false;
 
-            setGame((cur) => ({
-              ...cur,
-              session: {
-                ...cur.session,
-                gold: finalGold,
-                bag: finalBag,
-                loot: finalLoot,
-                characters: cur.session.characters.map((c) => {
-                  if (c.id !== primaryChar.id) return c;
-
-                  // Monotonic progress reconciliation: NEVER decrease level or experience on 409
-                  const cExp = Number(c.experience || 0);
-                  const reconciledExp = Math.max(cExp, srvExp);
-                  const reconciledLevel = Math.max(c.level || 1, srvLvl, levelForExperience(reconciledExp));
-
-                  const reconciled: typeof c = {
-                    ...c,
-                    level: reconciledLevel,
-                    experience: reconciledExp,
-                    currentHp: typeof srv.health === 'number' ? srv.health : c.currentHp,
-                    maxHp: typeof srv.maxHealth === 'number' ? srv.maxHealth : c.maxHp,
-                    currentMana: typeof srv.mana === 'number' ? srv.mana : c.currentMana,
-                    maxMana: typeof srv.maxMana === 'number' ? srv.maxMana : c.maxMana,
-                  };
-
-                  progressionDiagnostics.recordReconciliation(
-                    primaryChar.id,
-                    primaryVersion,
-                    conflictData.currentVersion,
-                    c.level,
-                    reconciledLevel,
-                    cExp,
-                    reconciledExp,
-                    curGold || 0,
-                    finalGold
-                  );
-
-                  // Reconcile skills from server: preserve highest achieved skill value
-                  if (Array.isArray(srv.skills)) {
-                    const nextSkills = { ...c.skills };
-                    const nextTries = c.skillTries ? { ...c.skillTries } : undefined;
-                    srv.skills.forEach((sk: any) => {
-                      const key = resolveSkillKey(sk);
-                      if (key && nextSkills[key] !== undefined) {
-                        nextSkills[key] = Math.max(nextSkills[key], sk.value);
-                        if (key !== 'fishing' && sk.tries !== undefined && nextTries && nextTries[key] !== undefined) {
-                          nextTries[key] = Math.max(Number(nextTries[key] || 0), Number(sk.tries || 0));
-                        }
-                      }
-                    });
-                    reconciled.skills = nextSkills;
-                    if (nextTries) reconciled.skillTries = nextTries;
-                  }
-
-                  // Reconcile equipment & inventory
-                  if (Array.isArray(srv.inventory) && invResult.equipmentIds.length > 0) {
-                    reconciled.equipment = invResult.equipment;
-                    reconciled.inventory = {
-                      ...c.inventory,
-                      equipmentIds: invResult.equipmentIds,
-                    };
-                  }
-
-                  updatedReconciledChar = reconciled;
-                  return reconciled;
-                }),
-              },
-            }));
-
-            if (updatedReconciledChar) {
-              latestSaveStateRef.current = {
-                ...latestSaveStateRef.current,
-                activeCharacter: curActive?.id === primaryChar.id ? updatedReconciledChar : curActive,
-                gold: finalGold,
-                bag: finalBag,
-                loot: finalLoot,
-              };
-            }
-            isSaveSuspendedRef.current = false;
-
-            // Immediately schedule retry save with updated saveVersion to synchronize database
-            setTimeout(() => {
-              void saveProgressRef.current?.(false, true);
-            }, 100);
-          } else {
-            // Se o servidor não retornou o estado do personagem no 409, suspender salvamentos locais
-            isSaveSuspendedRef.current = true;
-          }
+          // Immediately schedule retry save with updated saveVersion to persist authentic active session state
+          setTimeout(() => {
+            void saveProgressRef.current?.(false, true);
+          }, 100);
         } catch {
           isSaveSuspendedRef.current = true;
         }
@@ -2051,47 +1957,6 @@ function GamePrototypeContent() {
             const conflictJson = (await altRes.json()) as any;
             if (typeof conflictJson?.currentVersion === 'number') {
               characterSaveVersionsRef.current.set(alt.id, conflictJson.currentVersion);
-            }
-            if (conflictJson?.character) {
-              const srv = conflictJson.character;
-              setGame((cur) => ({
-                ...cur,
-                session: {
-                  ...cur.session,
-                  characters: cur.session.characters.map((c) => {
-                    if (c.id !== alt.id) return c;
-                    const nextSkills = { ...c.skills };
-                    const nextTries = c.skillTries ? { ...c.skillTries } : undefined;
-                    if (Array.isArray(srv.skills)) {
-                      srv.skills.forEach((sk: any) => {
-                        const key = resolveSkillKey(sk);
-                        if (key && nextSkills[key] !== undefined) {
-                          nextSkills[key] = sk.value;
-                          if (key !== 'fishing' && sk.tries !== undefined && nextTries && nextTries[key] !== undefined) {
-                            nextTries[key] = Number(sk.tries);
-                          }
-                        }
-                      });
-                    }
-                    const srvExp = srv.experience !== undefined ? Number(srv.experience) : 0;
-                    const altReconciledExp = Math.max(Number(c.experience || 0), srvExp);
-                    const srvLvl = typeof srv.level === 'number' ? srv.level : 1;
-                    const altReconciledLevel = Math.max(c.level || 1, srvLvl, levelForExperience(altReconciledExp));
-
-                    return {
-                      ...c,
-                      level: altReconciledLevel,
-                      experience: altReconciledExp,
-                      currentHp: typeof srv.health === 'number' ? srv.health : c.currentHp,
-                      maxHp: typeof srv.maxHealth === 'number' ? srv.maxHealth : c.maxHp,
-                      currentMana: typeof srv.mana === 'number' ? srv.mana : c.currentMana,
-                      maxMana: typeof srv.maxMana === 'number' ? srv.maxMana : c.maxMana,
-                      skills: nextSkills,
-                      skillTries: nextTries ?? c.skillTries,
-                    };
-                  }),
-                },
-              }));
             }
           } else if (altRes.ok) {
             const altJson = (await altRes.json()) as any;

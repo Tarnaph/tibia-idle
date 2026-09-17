@@ -422,6 +422,7 @@ export class CharacterService {
       avatarId?: number;
       direction?: string;
       saveVersion?: number;
+      isDeathPenalty?: boolean;
     },
     options?: { isInternal?: boolean; isHunting?: boolean }
   ) {
@@ -524,9 +525,9 @@ export class CharacterService {
         const deltaExp = targetExp - unvalidatedBaseline;
 
         if (deltaExp > 0 && !options?.isInternal && !(data as any).isManualAdminGrant) {
-          const isHunting = options?.isHunting !== undefined
-            ? Boolean(options.isHunting)
-            : ServerCharacterContextRegistry.isHunting(characterId);
+          const isHunting = options?.isInternal
+            ? Boolean(options?.isHunting)
+            : await ServerCharacterContextRegistry.isHuntingAsync(characterId);
 
           const check = XpRateLimiter.consume(characterId, deltaExp, Date.now(), {
             isHunting,
