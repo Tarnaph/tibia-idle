@@ -1,92 +1,53 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
 import type { CharacterState } from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
 import { showGlobalItemTooltip, hideGlobalItemTooltip } from './GlobalItemTooltip';
-
-export type ShopCategory = 'all' | 'weapons' | 'shields' | 'armors' | 'consumables' | 'accessories' | 'testing';
-export type VocationFilter = 'all' | 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid';
-
-interface ShopItemDisplay {
-  id: number;
-  name: string;
-  category: ShopCategory;
-  price: number;
-  attack?: number;
-  defense?: number;
-  armor?: number;
-  weightOz?: number;
-  levelReq?: number;
-  vocations?: string[];
-  description?: string;
-}
+import {
+  SHOP_CATEGORIES,
+  SHOP_ITEMS_CATALOG,
+  type ShopCategoryId,
+  type ShopItemEntry,
+} from '@/apps/web/lib/shopCatalog';
 
 interface ShopWindowProps {
   open: boolean;
   character: CharacterState;
-  equipmentCatalog: EquipmentDefinition[];
+  equipmentCatalog?: EquipmentDefinition[];
   totalGold: number;
   onClose: () => void;
   onBuyItem: (itemId: number, itemName: string, price: number, quantity: number) => { ok: boolean; error?: string };
 }
 
-// Supplemental shop catalog items (potions, runes, food) to supplement equipment catalog
-const SHOP_CONSUMABLES: ShopItemDisplay[] = [
-  { id: 2148, name: 'Gold Coin', category: 'consumables', price: 1, vocations: ['all'], description: 'Moeda de ouro oficial.' },
-  { id: 2152, name: 'Platinum Coin', category: 'consumables', price: 100, vocations: ['all'], description: 'Equivale a 100 moedas de ouro.' },
-  { id: 2671, name: 'Dragon Ham', category: 'consumables', price: 25, vocations: ['all'], description: 'Alimento nutritivo de dragão.' },
-  { id: 7618, name: 'Health Potion', category: 'consumables', price: 50, levelReq: 1, vocations: ['all'], description: 'Restaura aproximadamente 150 HP.' },
-  { id: 7588, name: 'Strong Health Potion', category: 'consumables', price: 100, levelReq: 50, vocations: ['Knight', 'Paladin'], description: 'Restaura aproximadamente 300 HP.' },
-  { id: 7591, name: 'Great Health Potion', category: 'consumables', price: 190, levelReq: 80, vocations: ['Knight'], description: 'Restaura aproximadamente 500 HP.' },
-  { id: 7620, name: 'Mana Potion', category: 'consumables', price: 50, levelReq: 1, vocations: ['all'], description: 'Restaura aproximadamente 100 MP.' },
-  { id: 7589, name: 'Strong Mana Potion', category: 'consumables', price: 80, levelReq: 50, vocations: ['Sorcerer', 'Druid', 'Paladin'], description: 'Restaura aproximadamente 150 MP.' },
-  { id: 7590, name: 'Great Mana Potion', category: 'consumables', price: 120, levelReq: 80, vocations: ['Sorcerer', 'Druid'], description: 'Restaura aproximadamente 200 MP.' },
-  { id: 2268, name: 'Sudden Death Rune', category: 'consumables', price: 135, levelReq: 45, vocations: ['Sorcerer'], description: 'Runa de ataque de morte súbita.' },
-  { id: 2273, name: 'Ultimate Healing Rune', category: 'consumables', price: 175, levelReq: 24, vocations: ['Druid', 'Sorcerer'], description: 'Runa de cura intensa para si e companheiros.' },
-  { id: 9912, name: 'Pergaminho de Troca de Vocação', category: 'consumables', price: 5000, vocations: ['all'], description: 'Permite redefinir a vocação do seu personagem se ele já estiver no Nível 8+.' },
-  // Phase 75 & 76: Debug & Testing items for 0 gold
-  { id: 9900, name: 'Saco de Ouro (10.000 GP)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Adiciona 10.000 moedas de ouro imediatamente.' },
-  { id: 9901, name: 'Tomo do Conhecimento (+1 Nível)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança seu personagem em 1 nível e ajusta HP/Mana da vocação.' },
-  { id: 9910, name: 'Tomo do Conhecimento Supremo (+10 Níveis)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança seu personagem em 10 níveis de uma vez.' },
-  { id: 9911, name: 'Elixir Divino (+50 Níveis)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança seu personagem em 50 níveis de uma vez.' },
-  { id: 9912, name: 'Pergaminho de Troca de Vocação (Gratuito)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Permite redefinir a vocação do seu personagem imediatamente.' },
-  { id: 9902, name: 'Pergaminho de Espada (+1 Sword)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Espada (Sword) em +1.' },
-  { id: 9903, name: 'Pergaminho de Machado (+1 Axe)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Machado (Axe) em +1.' },
-  { id: 9904, name: 'Pergaminho de Clava (+1 Club)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Clava (Club) em +1.' },
-  { id: 9905, name: 'Pergaminho de Distância (+1 Distance)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Distância (Distance) em +1.' },
-  { id: 9906, name: 'Pergaminho de Escudo (+1 Shielding)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Defesa com Escudo (Shielding) em +1.' },
-  { id: 9907, name: 'Tomo Arcano (+1 Magic Level)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança o Nível Mágico (Magic Level) em +1.' },
-  { id: 9908, name: 'Faixa de Luta (+1 Fist)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Luta Desarmada (Fist) em +1.' },
-  { id: 9909, name: 'Isca Mágica (+1 Fishing)', category: 'testing', price: 0, vocations: ['all'], description: '⭐ TESTE: Avança a habilidade de Pesca (Fishing) em +1.' },
-];
-
 export function ShopWindow({
   open,
   character,
-  equipmentCatalog,
+  equipmentCatalog = [],
   totalGold,
   onClose,
   onBuyItem,
 }: ShopWindowProps) {
-  const [activeCategory, setActiveCategory] = useState<ShopCategory>('all');
-  const [vocationFilter, setVocationFilter] = useState<VocationFilter>('all');
+  const [activeCategory, setActiveCategory] = useState<ShopCategoryId>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [vocationFilter, setVocationFilter] = useState<'all' | 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid'>('all');
+  const [selectedItem, setSelectedItem] = useState<ShopItemEntry | null>(SHOP_ITEMS_CATALOG[0] || null);
+  const [quantity, setQuantity] = useState<number>(1);
   const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; isError: boolean } | null>(null);
-  const [quantities, setQuantities] = useState<Record<number, number>>({});
 
+  // Position and draggable window handling
   const [position, setPosition] = useState<{ x: number; y: number }>(() => {
     if (typeof window !== 'undefined') {
       return {
-        x: Math.max(20, Math.floor((window.innerWidth - 680) / 2)),
-        y: Math.max(40, Math.floor((window.innerHeight - 540) / 2)),
+        x: Math.max(20, Math.floor((window.innerWidth - 740) / 2)),
+        y: Math.max(30, Math.floor((window.innerHeight - 660) / 2)),
       };
     }
-    return { x: 300, y: 80 };
+    return { x: 260, y: 50 };
   });
 
-  const dragRef = React.useRef<{
+  const dragRef = useRef<{
     startX: number;
     startY: number;
     initialX: number;
@@ -131,149 +92,192 @@ export function ShopWindow({
     }
   };
 
-  // Convert equipment catalog to ShopItemDisplay format
-  const shopCatalog = useMemo(() => {
-    const items: ShopItemDisplay[] = [];
-
-    equipmentCatalog.forEach((eq) => {
-      let cat: ShopCategory = 'accessories';
-      if (eq.slot === 'hand') {
-        if (eq.weaponType !== 'none' && eq.weaponType !== 'shield') {
-          cat = 'weapons';
-        } else if (eq.weaponType === 'shield' || (eq.defense > 0 && !eq.attack)) {
-          cat = 'shields';
-        }
-      } else if (['head', 'armor', 'legs', 'boots'].includes(eq.slot)) {
-        cat = 'armors';
+  // Filtered items based on active category, vocation and search
+  const filteredItems = useMemo(() => {
+    return SHOP_ITEMS_CATALOG.filter((item) => {
+      // Category filter
+      if (activeCategory !== 'all' && item.category !== activeCategory) {
+        return false;
       }
 
-      // Calculate fair shop price based on stats if not defined
-      let price = eq.attack ? eq.attack * 120 : eq.defense ? eq.defense * 90 : eq.armor ? eq.armor * 100 : 150;
-      if (price < 50) price = 50;
-
-      items.push({
-        id: eq.id,
-        name: eq.name,
-        category: cat,
-        price,
-        attack: eq.attack,
-        defense: eq.defense,
-        armor: eq.armor,
-        weightOz: eq.weight?.ounces,
-        levelReq: eq.requirements?.level ?? 1,
-        vocations: eq.requirements?.vocations ?? ['all'],
-        description: `Equipamento de ${eq.slot} para uso em combate.`,
-      });
-    });
-
-    // Append consumables
-    SHOP_CONSUMABLES.forEach((con) => items.push(con));
-    return items;
-  }, [equipmentCatalog]);
-
-  // Filtered items based on active tab, vocation dropdown, and search query
-  const filteredItems = useMemo(() => {
-    return shopCatalog.filter((item) => {
-      // Category Filter
-      if (activeCategory !== 'all' && item.category !== activeCategory) return false;
-
-      // Vocation Filter
+      // Vocation filter
       if (vocationFilter !== 'all') {
         if (item.vocations && !item.vocations.includes('all') && !item.vocations.includes(vocationFilter)) {
           return false;
         }
       }
 
-      // Search Query Filter
+      // Search query
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        if (!item.name.toLowerCase().includes(query)) return false;
+        const q = searchQuery.toLowerCase().trim();
+        if (!item.name.toLowerCase().includes(q)) {
+          return false;
+        }
       }
 
       return true;
     });
-  }, [shopCatalog, activeCategory, vocationFilter, searchQuery]);
+  }, [activeCategory, vocationFilter, searchQuery]);
+
+  // Reset selected item if not in filtered list
+  useEffect(() => {
+    if (filteredItems.length > 0) {
+      if (!selectedItem || !filteredItems.some((it) => it.id === selectedItem.id)) {
+        setSelectedItem(filteredItems[0]);
+        setQuantity(1);
+      }
+    } else {
+      setSelectedItem(null);
+    }
+  }, [filteredItems, selectedItem]);
 
   if (!open) return null;
 
-  const handleBuy = (item: ShopItemDisplay) => {
-    const qty = quantities[item.id] || 1;
-    const totalPrice = item.price * qty;
+  const handleBuy = () => {
+    if (!selectedItem) return;
+    const totalPrice = selectedItem.price * quantity;
+    if (totalGold < totalPrice) {
+      setFeedbackMsg({
+        text: `❌ Gold insuficiente! Você precisa de ${totalPrice.toLocaleString('pt-BR')} gold.`,
+        isError: true,
+      });
+      return;
+    }
 
-    const res = onBuyItem(item.id, item.name, item.price, qty);
+    const res = onBuyItem(selectedItem.id, selectedItem.name, selectedItem.price, quantity);
     if (res.ok) {
-      setFeedbackMsg({ text: `✓ Comprou ${qty}x ${item.name} por ${totalPrice.toLocaleString('pt-BR')} gold!`, isError: false });
+      setFeedbackMsg({
+        text: `✓ Comprou ${quantity}x ${selectedItem.name} por ${totalPrice.toLocaleString('pt-BR')} gold!`,
+        isError: false,
+      });
+      setTimeout(() => setFeedbackMsg(null), 4500);
     } else {
-      setFeedbackMsg({ text: `❌ ${res.error || 'Erro ao comprar item.'}`, isError: true });
+      setFeedbackMsg({ text: `❌ ${res.error || 'Erro ao efetuar compra.'}`, isError: true });
     }
   };
 
-  const handleQuantityChange = (itemId: number, val: number) => {
-    const safeVal = Math.max(1, Math.min(100, val));
-    setQuantities((prev) => ({ ...prev, [itemId]: safeVal }));
-  };
-
-  const playerVocation = character.vocation || 'Knight';
+  const totalPrice = selectedItem ? selectedItem.price * quantity : 0;
+  const canAfford = totalGold >= totalPrice && totalPrice > 0;
 
   return (
     <div
       className="inventory-window-container floating-window shop-window"
-      style={{ left: `${position.x}px`, top: `${position.y}px`, width: '680px', zIndex: 1200 }}
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: '740px',
+        zIndex: 1250,
+        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.75)',
+        borderRadius: '8px',
+        border: '1px solid #2a3447',
+        backgroundColor: '#0d111a',
+      }}
     >
+      {/* Draggable Header */}
       <div
         className="inventory-window-header draggable-header"
         onPointerDown={handleHeaderPointerDown}
         onPointerMove={handleHeaderPointerMove}
         onPointerUp={handleHeaderPointerUp}
+        style={{
+          background: 'linear-gradient(180deg, #1f2738 0%, #151b27 100%)',
+          borderBottom: '1px solid #2b364a',
+          padding: '8px 14px',
+          borderTopLeftRadius: '7px',
+          borderTopRightRadius: '7px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'grab',
+          userSelect: 'none',
+        }}
       >
-        <div className="inventory-header-left">
-          <span className="inventory-header-icon">🛍️</span>
-          <span className="inventory-header-title">Loja da Cidade (NPC Store)</span>
-        </div>
-        <div className="inventory-header-right">
-          <span className="inventory-gold-badge" title="Seu Ouro Disponível">
-            💰 {totalGold.toLocaleString('pt-BR')} gold
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '16px' }}>🏪</span>
+          <span style={{ fontWeight: 700, fontSize: '13px', color: '#ffd700', letterSpacing: '0.5px' }}>
+            LOJA DA CIDADE · EQUIPAMENTOS & TREINO
           </span>
-          <button type="button" className="inventory-close-btn" onClick={onClose} aria-label="Fechar" title="Fechar Loja">
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#10141e',
+              padding: '4px 10px',
+              borderRadius: '16px',
+              border: '1px solid #2e3a52',
+            }}
+          >
+            <span style={{ fontSize: '13px' }}>💰</span>
+            <span style={{ fontWeight: 700, fontSize: '12.5px', color: '#f5c518' }}>
+              {totalGold.toLocaleString('pt-BR')} gold
+            </span>
+          </div>
+          <button
+            type="button"
+            className="inventory-close-btn"
+            onClick={onClose}
+            aria-label="Fechar"
+            title="Fechar Loja"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#8b9bb4',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: 'bold',
+              lineHeight: 1,
+            }}
+          >
             ✕
           </button>
         </div>
       </div>
 
-      <div className="shop-window-body" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {/* Controls & Search Filter Bar */}
-        <div className="shop-controls-bar" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <input
-            type="text"
-            className="shop-search-input"
-            placeholder="🔍 Buscar item..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              flex: 1,
-              minWidth: '160px',
-              padding: '6px 10px',
-              backgroundColor: '#111418',
-              border: '1px solid #3a3f47',
-              borderRadius: '4px',
-              color: '#f0f4f8',
-              fontSize: '13px',
-            }}
-          />
+      {/* Main Body */}
+      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {/* Top Controls: Search Bar & Vocation Filter */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <span style={{ position: 'absolute', left: '10px', top: '7px', color: '#6b7d99', fontSize: '12px' }}>
+              🔍
+            </span>
+            <input
+              type="text"
+              className="shop-search-input"
+              placeholder="Buscar itens na loja..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '6px 10px 6px 30px',
+                backgroundColor: '#121622',
+                border: '1px solid #283347',
+                borderRadius: '5px',
+                color: '#e2e8f0',
+                fontSize: '12px',
+                outline: 'none',
+              }}
+            />
+          </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '12px', color: '#9098a5' }}>Vocação:</span>
+            <span style={{ fontSize: '11px', color: '#8291a8', fontWeight: 600 }}>Vocação:</span>
             <select
               value={vocationFilter}
-              onChange={(e) => setVocationFilter(e.target.value as VocationFilter)}
+              onChange={(e) => setVocationFilter(e.target.value as any)}
               style={{
-                padding: '6px 10px',
-                backgroundColor: '#111418',
-                border: '1px solid #3a3f47',
-                borderRadius: '4px',
+                padding: '5px 10px',
+                backgroundColor: '#121622',
+                border: '1px solid #283347',
+                borderRadius: '5px',
                 color: '#ffd700',
-                fontSize: '12px',
-                fontWeight: 'bold',
+                fontSize: '11.5px',
+                fontWeight: 600,
+                outline: 'none',
+                cursor: 'pointer',
               }}
             >
               <option value="all">Todas as Vocações</option>
@@ -285,186 +289,296 @@ export function ShopWindow({
           </div>
         </div>
 
-        {/* Category Tabs */}
-        <div className="shop-category-tabs" style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #2a2e35', paddingBottom: '6px' }}>
-          {[
-            { id: 'all', label: 'Todas' },
-            { id: 'weapons', label: '⚔️ Armas' },
-            { id: 'shields', label: '🛡️ Escudos' },
-            { id: 'armors', label: '🛡️ Armaduras' },
-            { id: 'consumables', label: '🧪 Consumíveis' },
-            { id: 'accessories', label: '💍 Acessórios' },
-            { id: 'testing', label: '⭐ Testes (0 GP)' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              className={`shop-tab-btn ${activeCategory === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveCategory(tab.id as ShopCategory)}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '4px 4px 0 0',
-                border: 'none',
-                backgroundColor: activeCategory === tab.id ? '#2b3038' : '#16191d',
-                color: activeCategory === tab.id ? '#ffd700' : '#a0a8b5',
-                fontSize: '12px',
-                fontWeight: activeCategory === tab.id ? 'bold' : 'normal',
-                cursor: 'pointer',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* 1. SELETOR DE CATEGORIAS (ESTILO TREINO - PRINT 1) */}
+        <div className="shop-categories-grid">
+          {SHOP_CATEGORIES.map((cat) => {
+            const isSelected = activeCategory === cat.id;
+            return (
+              <div
+                key={cat.id}
+                className={`shop-category-card ${isSelected ? 'selected' : ''}`}
+                onClick={() => setActiveCategory(cat.id)}
+                title={cat.description}
+              >
+                <div className="shop-category-icon">
+                  <ItemSprite itemId={cat.iconItemId} size={32} />
+                </div>
+                <span className="shop-category-label">{cat.label}</span>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Feedback Banner Message */}
+        {/* Feedback Message Banner */}
         {feedbackMsg && (
           <div
             style={{
               padding: '6px 12px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              backgroundColor: feedbackMsg.isError ? 'rgba(220, 53, 69, 0.2)' : 'rgba(40, 167, 69, 0.2)',
-              border: `1px solid ${feedbackMsg.isError ? '#dc3545' : '#28a745'}`,
-              color: feedbackMsg.isError ? '#ff6b6b' : '#51cf66',
+              borderRadius: '5px',
+              fontSize: '11.5px',
+              fontWeight: 600,
+              backgroundColor: feedbackMsg.isError ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+              border: `1px solid ${feedbackMsg.isError ? '#ef4444' : '#22c55e'}`,
+              color: feedbackMsg.isError ? '#fca5a5' : '#86efac',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
-            {feedbackMsg.text}
+            <span>{feedbackMsg.text}</span>
+            <button
+              type="button"
+              onClick={() => setFeedbackMsg(null)}
+              style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer' }}
+            >
+              ✕
+            </button>
           </div>
         )}
 
-        {/* Shop Items List Grid */}
-        <div
-          className="shop-items-grid"
-          style={{
-            maxHeight: '340px',
-            overflowY: 'auto',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '8px',
-            paddingRight: '4px',
-          }}
-        >
+        {/* 2. GRADE DE SLOTS DE ITENS (ESTILO PRINT 2) */}
+        <div className="shop-items-matrix">
           {filteredItems.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '30px', textAlign: 'center', color: '#808895' }}>
-              Nenhum item encontrado nesta categoria ou filtro.
+            <div
+              style={{
+                gridColumn: '1 / -1',
+                padding: '36px 12px',
+                textAlign: 'center',
+                color: '#64748b',
+                fontSize: '12px',
+              }}
+            >
+              Nenhum item encontrado nesta categoria ou filtro de busca.
             </div>
           ) : (
             filteredItems.map((item) => {
-              const qty = quantities[item.id] || 1;
-              const totalPrice = item.price * qty;
-              const canAfford = totalGold >= totalPrice;
-              const isVocMatch = !item.vocations || item.vocations.includes('all') || item.vocations.includes(playerVocation);
-
+              const isSelected = selectedItem?.id === item.id;
               return (
                 <div
                   key={item.id}
-                  className="shop-item-card"
-                  style={{
-                    display: 'flex',
-                    gap: '10px',
-                    padding: '8px',
-                    backgroundColor: '#171a1e',
-                    borderRadius: '6px',
-                    border: `1px solid ${isVocMatch ? '#2e343d' : '#252930'}`,
-                    opacity: isVocMatch ? 1 : 0.8,
+                  className={`shop-slot-item ${isSelected ? 'selected' : ''} ${
+                    item.tier ? `tier-${item.tier}` : ''
+                  }`}
+                  onClick={() => {
+                    setSelectedItem(item);
+                    setQuantity(1);
                   }}
-                  onMouseEnter={(e) => showGlobalItemTooltip({ itemId: item.id, name: item.name }, e)}
-                  onMouseMove={(e) => showGlobalItemTooltip({ itemId: item.id, name: item.name }, e)}
+                  onMouseEnter={(e) => {
+                    showGlobalItemTooltip(
+                      {
+                        itemId: item.id,
+                        name: item.name,
+                        price: item.price,
+                      },
+                      e
+                    );
+                  }}
                   onMouseLeave={() => hideGlobalItemTooltip()}
+                  title={item.name}
                 >
-                  <div
-                    style={{
-                      width: '42px',
-                      height: '42px',
-                      backgroundColor: '#0c0e10',
-                      borderRadius: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid #333842',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <ItemSprite itemId={item.id} label={item.name} />
-                  </div>
-
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <strong style={{ fontSize: '13px', color: '#f0f4f8' }}>{item.name}</strong>
-                        {item.levelReq && item.levelReq > 1 && (
-                          <span style={{ fontSize: '10px', color: '#ffb74d', backgroundColor: 'rgba(255,183,77,0.1)', padding: '1px 4px', borderRadius: '3px' }}>
-                            Lv {item.levelReq}
-                          </span>
-                        )}
-                      </div>
-
-                      <div style={{ fontSize: '11px', color: '#8a94a2', marginTop: '2px', display: 'flex', gap: '8px' }}>
-                        {item.attack !== undefined && <span>⚔️ Atk {item.attack}</span>}
-                        {item.defense !== undefined && <span>🛡️ Def {item.defense}</span>}
-                        {item.armor !== undefined && <span>🛡️ Arm {item.armor}</span>}
-                        {item.weightOz !== undefined && <span>⚖️ {item.weightOz} oz</span>}
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                      {item.price === 0 ? (
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#51cf66', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          🎁 GRÁTIS (0 GP)
-                        </span>
-                      ) : (
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: canAfford ? '#ffd700' : '#ff6b6b' }}>
-                          💰 {totalPrice.toLocaleString('pt-BR')} gold
-                        </span>
-                      )}
-
-                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        {(item.category === 'consumables' || item.category === 'testing') && item.id !== 2148 && item.id !== 2152 && (
-                          <input
-                            type="number"
-                            min="1"
-                            max="100"
-                            value={qty}
-                            onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
-                            style={{
-                              width: '44px',
-                              padding: '2px 4px',
-                              backgroundColor: '#0d0f12',
-                              border: '1px solid #333842',
-                              color: '#fff',
-                              fontSize: '11px',
-                              borderRadius: '3px',
-                              textAlign: 'center',
-                            }}
-                          />
-                        )}
-
-                        <button
-                          type="button"
-                          disabled={!canAfford}
-                          onClick={() => handleBuy(item)}
-                          style={{
-                            padding: '4px 10px',
-                            borderRadius: '4px',
-                            border: 'none',
-                            backgroundColor: canAfford ? (item.price === 0 ? '#1971c2' : '#28a745') : '#495057',
-                            color: canAfford ? '#ffffff' : '#868e96',
-                            fontSize: '11px',
-                            fontWeight: 'bold',
-                            cursor: canAfford ? 'pointer' : 'not-allowed',
-                          }}
-                        >
-                          {item.price === 0 ? 'Obter (0 GP)' : 'Comprar'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <ItemSprite itemId={item.id} size={32} />
+                  <div className="slot-corner-accent" />
                 </div>
               );
             })
           )}
         </div>
+
+        {/* 3. PAINEL DE DETALHES E COMPRA DO ITEM SELECIONADO */}
+        {selectedItem ? (
+          <div
+            className="shop-purchase-panel"
+            style={{
+              background: '#131824',
+              border: '1px solid #232c3d',
+              borderRadius: '6px',
+              padding: '10px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '14px',
+              flexWrap: 'wrap',
+            }}
+          >
+            {/* Left: Item Preview & Stats */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 320px' }}>
+              <div
+                style={{
+                  width: '46px',
+                  height: '46px',
+                  background: '#192030',
+                  border: '1px solid #2d384e',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <ItemSprite itemId={selectedItem.id} size={36} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: '#f1f5f9' }}>
+                    {selectedItem.name}
+                  </span>
+                  {selectedItem.charges && (
+                    <span
+                      style={{
+                        fontSize: '9.5px',
+                        padding: '1px 5px',
+                        borderRadius: '3px',
+                        background:
+                          selectedItem.tier === 'lasting'
+                            ? '#064e3b'
+                            : selectedItem.tier === 'durable'
+                            ? '#0369a1'
+                            : '#831843',
+                        color: '#f8fafc',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {selectedItem.charges.toLocaleString('pt-BR')} cargas
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: '10px', fontSize: '11px', color: '#94a3b8' }}>
+                  {selectedItem.attack !== undefined && (
+                    <span>
+                      Atk: <strong style={{ color: '#ef4444' }}>{selectedItem.attack}</strong>
+                    </span>
+                  )}
+                  {selectedItem.defense !== undefined && (
+                    <span>
+                      Def: <strong style={{ color: '#38bdf8' }}>{selectedItem.defense}</strong>
+                    </span>
+                  )}
+                  {selectedItem.armor !== undefined && (
+                    <span>
+                      Arm: <strong style={{ color: '#eab308' }}>{selectedItem.armor}</strong>
+                    </span>
+                  )}
+                  {selectedItem.range !== undefined && (
+                    <span>
+                      Alcance: <strong style={{ color: '#a855f7' }}>{selectedItem.range}</strong>
+                    </span>
+                  )}
+                  {selectedItem.weightOz !== undefined && (
+                    <span>
+                      Peso: <strong>{selectedItem.weightOz} oz</strong>
+                    </span>
+                  )}
+                  {selectedItem.levelReq && selectedItem.levelReq > 1 && (
+                    <span>
+                      Nível: <strong style={{ color: '#f59e0b' }}>{selectedItem.levelReq}+</strong>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Quantity Stepper & Buy Action */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
+              {/* Stepper */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  style={{
+                    width: '26px',
+                    height: '26px',
+                    background: '#1e2638',
+                    border: '1px solid #334155',
+                    borderRadius: '4px',
+                    color: '#e2e8f0',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                  }}
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
+                  style={{
+                    width: '42px',
+                    height: '26px',
+                    textAlign: 'center',
+                    background: '#0f131c',
+                    border: '1px solid #283347',
+                    borderRadius: '4px',
+                    color: '#f8fafc',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.min(100, q + 1))}
+                  style={{
+                    width: '26px',
+                    height: '26px',
+                    background: '#1e2638',
+                    border: '1px solid #334155',
+                    borderRadius: '4px',
+                    color: '#e2e8f0',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                  }}
+                >
+                  +
+                </button>
+              </div>
+
+              {/* Price & Buy Button */}
+              <button
+                type="button"
+                onClick={handleBuy}
+                disabled={!canAfford}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: '5px',
+                  border: canAfford ? '1px solid #f59e0b' : '1px solid #475569',
+                  background: canAfford
+                    ? 'linear-gradient(180deg, #d97706 0%, #b45309 100%)'
+                    : '#1e293b',
+                  color: canAfford ? '#ffffff' : '#64748b',
+                  fontWeight: 700,
+                  fontSize: '12px',
+                  cursor: canAfford ? 'pointer' : 'not-allowed',
+                  boxShadow: canAfford ? '0 2px 8px rgba(217, 119, 6, 0.4)' : 'none',
+                  transition: 'all 0.15s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <span>Comprar por</span>
+                <span style={{ color: canAfford ? '#fef08a' : 'inherit' }}>
+                  {totalPrice.toLocaleString('pt-BR')} gp
+                </span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              padding: '12px',
+              textAlign: 'center',
+              color: '#64748b',
+              fontSize: '11.5px',
+              background: '#131824',
+              borderRadius: '6px',
+            }}
+          >
+            Selecione um item da grade acima para visualizar os atributos e efetuar a compra.
+          </div>
+        )}
       </div>
     </div>
   );

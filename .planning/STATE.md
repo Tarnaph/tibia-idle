@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-17T01:15:00.000Z"
-last_activity: "2026-09-16 — Phase 182 Concluída com Sucesso: Bloco A (Correção de Progressão e Recompensas, Reconciliação Monotônica 409 e Isolamento do Autosave de Caçadores no Colyseus) e Bloco B (Thumbnail Atlases para miniaturas de outfits e montarias com carregamento sob demanda e warm render < 100ms) 100% validados, testados e segregados em commits atômicos."
+last_updated: "2026-09-17T20:05:00.000Z"
+last_activity: "2026-09-17 — Phase 183 Concluída com Sucesso: Redesign da Loja da Cidade (Shop Window) com seleção de categorias estilo pátio de treino (cards com glow azul #58a6ff), catálogo canônico de 67 itens do Print 2 com 21 armas de exercício (regular, durable, lasting), busca, filtro por vocação e integração de compra com saldo da Party."
 progress:
-  total_phases: 182
-  completed_phases: 182
-  total_plans: 189
-  completed_plans: 189
+  total_phases: 183
+  completed_phases: 183
+  total_plans: 190
+  completed_plans: 190
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 182 - Concluída (v1.0 Ready).
+**Current focus:** Phase 183 - Concluída (Redesign da Loja da Cidade).
 
 ## Current Position
 
-Phase: 182 of 182  
-Plan: 2 of 2 in Phase 182  
+Phase: 183 of 183  
+Plan: 1 of 1 in Phase 183  
 Status: Complete  
-Last activity: 2026-09-16 — Phase 182 entregue com commits separados por bloco, 31 testes unitários/integrados aprovados, 0 erros no typecheck e pipeline visual da Phase 181 preservado intacto.
+Last activity: 2026-09-17 — Phase 183 entregue: nova ShopWindow com cards de categorias estilo treino, 67 equipamentos do catálogo do Print 2, 21 armas de exercício geradas e integradas, 9 testes dedicados no Vitest aprovados e 0 erros no typecheck.
 
 Progress: [██████████] 100%
 

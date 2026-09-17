@@ -4968,6 +4968,163 @@ h1, h2, h3, p { margin: 0; }
   to { opacity: 1; }
 }
 
+/* ==========================================================================
+   FASE 183: LOJA DA CIDADE (SHOP WINDOW) REDESIGN COM ESTILO DE TREINO & SLOTS
+   ========================================================================== */
+.shop-window {
+  image-rendering: auto;
+}
+
+.shop-window img {
+  image-rendering: pixelated;
+}
+
+.shop-search-input:focus {
+  border-color: #388bfd !important;
+  box-shadow: 0 0 0 2px rgba(56, 139, 253, 0.2);
+}
+
+.shop-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.shop-category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 6px;
+  background: #181d28;
+  border: 1px solid #293244;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.shop-category-card:hover {
+  background: #1f2636;
+  border-color: #3b4862;
+}
+
+.shop-category-card.selected {
+  background: #1d2b44;
+  border: 2px solid #58a6ff;
+  box-shadow: 0 0 10px rgba(88, 166, 255, 0.35);
+}
+
+.shop-category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.shop-category-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d8e2ed;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.shop-category-card.selected .shop-category-label {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.shop-items-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 40px);
+  gap: 5px;
+  max-height: 270px;
+  overflow-y: auto;
+  background: #0d111a;
+  border: 1px solid #222c3d;
+  border-radius: 6px;
+  padding: 8px;
+  align-content: start;
+}
+
+.shop-items-matrix::-webkit-scrollbar {
+  width: 6px;
+}
+
+.shop-items-matrix::-webkit-scrollbar-track {
+  background: #090c13;
+}
+
+.shop-items-matrix::-webkit-scrollbar-thumb {
+  background: #253146;
+  border-radius: 3px;
+}
+
+.shop-items-matrix::-webkit-scrollbar-thumb:hover {
+  background: #394b69;
+}
+
+.shop-slot-item {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #161c28;
+  border: 1px solid #293244;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.shop-slot-item:hover {
+  background: #1d2535;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.shop-slot-item.selected {
+  background: #1d2b44;
+  border: 2px solid #58a6ff;
+  box-shadow: 0 0 8px rgba(88, 166, 255, 0.45);
+}
+
+.shop-slot-item .slot-corner-accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 7px 7px 0;
+  border-color: transparent #eab308 transparent transparent;
+  pointer-events: none;
+}
+
+.shop-slot-item.tier-durable .slot-corner-accent {
+  border-color: transparent #38bdf8 transparent transparent;
+}
+
+.shop-slot-item.tier-lasting .slot-corner-accent {
+  border-color: transparent #10b981 transparent transparent;
+}
+
+.shop-slot-item.tier-regular .slot-corner-accent {
+  border-color: transparent #ec4899 transparent transparent;
+}
+
+.shop-purchase-panel {
+  background: #131824;
+  border: 1px solid #232c3d;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
 /* ============================================================
    PHASE 41: GLOBAL ITEM TOOLTIP & PLAYER INSPECT (ALWAYS ON TOP)
    ============================================================ */

@@ -5,8 +5,9 @@ const visualAssets = visualAssetsJson as unknown as Tibia1098AssetManifest;
 
 interface ItemSpriteProps {
   itemId?: number;
-  label: string;
+  label?: string;
   className?: string;
+  size?: number;
 }
 
 const TEST_ITEM_SPRITE_MAP: Record<number, number> = {
@@ -41,7 +42,7 @@ export function resolveItemSpriteUrl(itemId: number | undefined): string | null 
   return `/generated/cyclopedia/items/item-${mappedId}.png`;
 }
 
-export function ItemSprite({ itemId, label, className = '' }: ItemSpriteProps) {
+export function ItemSprite({ itemId, label = '', className = '', size }: ItemSpriteProps) {
   const asset = itemVisualAsset(itemId);
   const spriteUrl = asset?.frame?.publicUrl ?? resolveItemSpriteUrl(itemId);
 
@@ -57,8 +58,8 @@ export function ItemSprite({ itemId, label, className = '' }: ItemSpriteProps) {
       src={spriteUrl}
       alt={label}
       draggable={false}
-      width={asset?.frame?.width ?? 32}
-      height={asset?.frame?.height ?? 32}
+      width={size ?? asset?.frame?.width ?? 32}
+      height={size ?? asset?.frame?.height ?? 32}
       onError={(e) => {
         const target = e.currentTarget as HTMLImageElement;
         const mappedId = itemId !== undefined ? (TEST_ITEM_SPRITE_MAP[itemId] ?? itemId) : undefined;
