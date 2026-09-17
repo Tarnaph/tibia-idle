@@ -29,6 +29,15 @@ export class SessionSupersededError extends Error {
   }
 }
 
+export class ContextServiceUnavailableError extends Error {
+  public readonly code = 'CONTEXT_SERVICE_UNAVAILABLE';
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'ContextServiceUnavailableError';
+  }
+}
+
 export interface ItemCatalogMeta {
   id: number;
   slot: string;
@@ -461,11 +470,39 @@ export class CharacterService {
       // Verify that the calling session still holds the exclusive write lease.
       // A superseded session cannot save, preventing overwrite of purchases, consumable usage, or death penalties.
       if (!options?.isInternal) {
-        const activeSession = await ServerCharacterContextRegistry.getActiveSessionAsync(characterId);
-        if (activeSession && (!data.sessionId || data.sessionId !== activeSession)) {
+        if (!data.sessionId) {
           throw new SessionSupersededError(
-            `Sessão ${data.sessionId || 'desconhecida'} foi sobreposta pela sessão ativa ${activeSession} para o personagem ${characterId}. Gravação rejeitada para preservar compras, perdas e progresso legítimo.`,
-            activeSession
+            `sessionId é obrigatório para validação de titularidade da gravação do personagem ${characterId}.`,
+            'UNKNOWN'
+          );
+        }
+
+        const context = await ServerCharacterContextRegistry.getContextAsync(characterId);
+        const activeSession = context.activeSessionId;
+        const lastSession = context.lastActiveSessionId;
+
+        if (activeSession) {
+          if (data.sessionId !== activeSession) {
+            throw new SessionSupersededError(
+              `Sessão ${data.sessionId} foi sobreposta pela sessão ativa ${activeSession} para o personagem ${characterId}. Gravação rejeitada para preservar compras, perdas e progresso legítimo.`,
+              activeSession
+            );
+          }
+        } else if (lastSession) {
+          // No active session currently registered on server (player offline / between sessions).
+          // An old session is not allowed to write over the latest confirmed session lease.
+          if (data.sessionId !== lastSession) {
+            throw new SessionSupersededError(
+              `Sessão ${data.sessionId} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada mesmo sem sessão ativa no momento.`,
+              lastSession
+            );
+          }
+        } else if (!context.isServiceAvailable) {
+          // Context service is unavailable and there is NO cached session lease for this character.
+          // In this condition, we cannot verify if the save is valid or an old superseded save.
+          // We MUST NOT automatically release an unverified save!
+          throw new ContextServiceUnavailableError(
+            `Serviço de contexto de jogo indisponível para validar titularidade da sessão para o personagem ${characterId}. Gravação suspensa por segurança.`
           );
         }
       }
@@ -827,6 +864,9 @@ export class CharacterService {
             timeout: 20000,
           });
           XpRateLimiter.recordAuthorizedExp(characterId, Math.floor(targetExp));
+          if (data.sessionId) {
+            ServerCharacterContextRegistry.setActiveSession(characterId, data.sessionId);
+          }
           return result;
         } catch (err: any) {
           if (consumedDelta > 0) {
@@ -851,6 +891,9 @@ export class CharacterService {
       try {
         const result = await executeMutations(this.prisma);
         XpRateLimiter.recordAuthorizedExp(characterId, Math.floor(targetExp));
+        if (data.sessionId) {
+          ServerCharacterContextRegistry.setActiveSession(characterId, data.sessionId);
+        }
         return result;
       } catch (err: any) {
         if (consumedDelta > 0) {

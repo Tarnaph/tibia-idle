@@ -10,9 +10,17 @@ export interface ProgressionLogEntry {
   details: Record<string, any>;
 }
 
+export interface ConfirmedSaveRecord {
+  timestamp: number;
+  characterId: string;
+  saveVersion: number;
+  responseStatus: number;
+}
+
 class ProgressionDiagnostics {
   private logs: ProgressionLogEntry[] = [];
   private maxLogs = 200;
+  private lastConfirmedSave: ConfirmedSaveRecord | null = null;
 
   private addLog(type: ProgressionLogEntry['type'], details: Record<string, any>) {
     const entry: ProgressionLogEntry = {
@@ -46,8 +54,18 @@ class ProgressionDiagnostics {
     this.addLog('save-attempt', { attemptId, characterId, saveVersion, level, exp, gold, isHunting });
   }
 
-  recordSaveSuccess(attemptId: string, saveVersion: number, responseStatus: number) {
-    this.addLog('save-success', { attemptId, saveVersion, responseStatus });
+  recordSaveSuccess(attemptId: string, characterId: string, saveVersion: number, responseStatus: number) {
+    this.lastConfirmedSave = {
+      timestamp: Date.now(),
+      characterId,
+      saveVersion,
+      responseStatus,
+    };
+    this.addLog('save-success', { attemptId, characterId, saveVersion, responseStatus });
+  }
+
+  getLastConfirmedSave(): ConfirmedSaveRecord | null {
+    return this.lastConfirmedSave;
   }
 
   recordSaveConflict(attemptId: string, requestedVersion: number, serverVersion: number, serverLevel: number, serverExp: number) {

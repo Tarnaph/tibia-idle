@@ -43,11 +43,13 @@ cat << 'EOF' > "$APP_DIR/.env"
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="cavebound-jwt-secret-secure-prod-auth-key-2026"
 NEXT_PUBLIC_SITE_URL="http://187.7.16.210:3000"
+INTERNAL_SERVICE_KEY="cavebound_internal_core_secret_v1"
 EOF
 
 export DATABASE_URL="file:./dev.db"
 export JWT_SECRET="cavebound-jwt-secret-secure-prod-auth-key-2026"
 export NEXT_PUBLIC_SITE_URL="http://187.7.16.210:3000"
+export INTERNAL_SERVICE_KEY="cavebound_internal_core_secret_v1"
 
 # 5. Configurar banco de dados Prisma SQLite
 echo "🗄️ Inicializando banco de dados Prisma..."

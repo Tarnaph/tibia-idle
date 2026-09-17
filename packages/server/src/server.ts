@@ -8,6 +8,13 @@ import { WebSocketTransport } from '@colyseus/ws-transport';
 import { ThaisCityRoom } from './rooms/ThaisCityRoom.ts';
 import { ServerCharacterContextRegistry } from '../../auth/src';
 
+// Ensure .env is loaded in server process if running standalone
+if (typeof (process as any).loadEnvFile === 'function') {
+  try {
+    (process as any).loadEnvFile();
+  } catch {}
+}
+
 export interface CreateGameServerOptions {
   port?: number;
   expressApp?: express.Application;
@@ -75,10 +82,11 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
       return res.json({
         isHunting: ctx.isHunting,
         huntId: ctx.huntId,
-        activeSessionId: ctx.activeSessionId,
+        activeSessionId: ctx.activeSessionId ?? null,
+        lastActiveSessionId: ctx.lastActiveSessionId ?? null,
       });
     }
-    return res.json({ isHunting: false });
+    return res.json({ isHunting: false, activeSessionId: null, lastActiveSessionId: null });
   });
 
   const server = http.createServer(app);

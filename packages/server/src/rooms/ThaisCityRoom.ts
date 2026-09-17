@@ -940,7 +940,7 @@ export class ThaisCityRoom extends Room<WorldState> {
         await persistenceManager.saveCharacter(player);
       }
       if (player.characterId) {
-        ServerCharacterContextRegistry.clear(player.characterId);
+        ServerCharacterContextRegistry.setPlayerOffline(player.characterId);
       }
     }
 

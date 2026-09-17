@@ -113,6 +113,17 @@ export async function POST(
     console.error('[CharacterSave API error]:', error?.message || error);
     try { await request.body?.cancel?.(); } catch {}
 
+    if (error?.code === 'CONTEXT_SERVICE_UNAVAILABLE' || error?.name === 'ContextServiceUnavailableError') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'CONTEXT_SERVICE_UNAVAILABLE',
+          message: error.message,
+        },
+        { status: 503 }
+      );
+    }
+
     if (error?.code === 'SESSION_SUPERSEDED' || error?.name === 'SessionSupersededError') {
       return NextResponse.json(
         {

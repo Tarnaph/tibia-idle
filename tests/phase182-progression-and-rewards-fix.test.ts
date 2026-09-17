@@ -18,7 +18,7 @@ import huntRegionsJson from '../content/generated/hunt-regions.json';
 import economyJson from '../content/generated/item-economy.json';
 import { parseInventoryData } from '../apps/web/lib/characterHydration';
 import { progressionDiagnostics } from '../apps/web/lib/progressionDiagnostics';
-import { ServerCharacterContextRegistry, CharacterService } from '../packages/auth/src';
+import { ServerCharacterContextRegistry, CharacterService, SessionSupersededError, ContextServiceUnavailableError } from '../packages/auth/src';
 import { PrismaPersistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 import type { MonsterCatalog, EquipmentCatalog, StarterLoadoutCatalog, VocationCatalog, SpellCatalog, HuntRegionCatalog, ItemEconomyCatalog } from '../packages/content-schema/src';
@@ -315,7 +315,7 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
         saveVersion: 2,
         experience: BigInt(2200),
       })
-    ).rejects.toThrow('foi sobreposta pela sessão ativa');
+    ).rejects.toThrow(SessionSupersededError);
 
     // 4. Confirmação: O estado do banco NÃO foi sobrescrito!
     expect(dbCharacter.inventory.find((i: any) => i.slot === 'gold')?.count).toBe(300);
@@ -427,5 +427,111 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
     expect(dbRecord.saveVersion).toBe(3);
     expect(dbRecord.level).toBe(7);
     expect(Number(dbRecord.experience)).toBe(3000);
+  });
+
+  it('9. Bloqueio quando não há sessão registrada ou serviço de contexto indisponível: gravação antiga é barrada', async () => {
+    const characterId = 'char-offline-test-1';
+    const mockDbChar: any = {
+      id: characterId,
+      name: 'OfflineHero',
+      level: 5,
+      experience: BigInt(1200),
+      saveVersion: 3,
+      skills: [],
+      inventory: [{ slot: 'gold', serverId: 2148, name: 'Gold Coin', count: 50 }],
+      spells: [],
+    };
+
+    const mockPrisma: any = {
+      character: {
+        findUnique: vi.fn().mockResolvedValue(mockDbChar),
+        update: vi.fn().mockImplementation(({ data }) => {
+          Object.assign(mockDbChar, data);
+          return Promise.resolve(mockDbChar);
+        }),
+      },
+      characterSkill: {
+        upsert: vi.fn().mockResolvedValue({}),
+      },
+      inventoryItem: {
+        deleteMany: vi.fn().mockResolvedValue({}),
+        createMany: vi.fn().mockResolvedValue({}),
+      },
+      $transaction: vi.fn().mockImplementation((cb) => cb(mockPrisma)),
+    };
+
+    const service = new CharacterService(mockPrisma);
+
+    // 1. Sessão 2 salvou por último e o jogador desconectou (setPlayerOffline)
+    ServerCharacterContextRegistry.setActiveSession(characterId, 'session-2-latest');
+    ServerCharacterContextRegistry.setPlayerOffline(characterId);
+
+    // Contexto confirma que activeSessionId é undefined, mas lastActiveSessionId é session-2-latest
+    const ctx = ServerCharacterContextRegistry.getActivity(characterId);
+    expect(ctx?.activeSessionId).toBeUndefined();
+    expect(ctx?.lastActiveSessionId).toBe('session-2-latest');
+
+    // 2. Sessão 1 (antiga) tenta salvar agora que não há sessão ativa registrada
+    await expect(
+      service.saveCharacterProgress(characterId, {
+        saveVersion: 3,
+        experience: BigInt(1500),
+        sessionId: 'session-1-old',
+      })
+    ).rejects.toThrow(SessionSupersededError);
+
+    // O banco NÃO pode ter sido alterado
+    expect(mockDbChar.saveVersion).toBe(3);
+
+    // 3. Quando o serviço de contexto está indisponível e não há lease em cache para o char,
+    // a gravação NÃO é liberada automaticamente
+    const unknownCharId = 'char-unknown-no-cache-1';
+    const unknownMockChar: any = {
+      id: unknownCharId,
+      level: 1,
+      experience: BigInt(0),
+      saveVersion: 1,
+      skills: [],
+      inventory: [],
+      spells: [],
+    };
+    mockPrisma.character.findUnique.mockResolvedValueOnce(unknownMockChar);
+
+    // Mock getContextAsync para simular Colyseus indisponível sem cache local
+    const originalGetContext = ServerCharacterContextRegistry.getContextAsync;
+    ServerCharacterContextRegistry.getContextAsync = vi.fn().mockResolvedValue({
+      isHunting: false,
+      activeSessionId: undefined,
+      lastActiveSessionId: undefined,
+      isServiceAvailable: false,
+    });
+
+    try {
+      await expect(
+        service.saveCharacterProgress(unknownCharId, {
+          saveVersion: 1,
+          experience: BigInt(100),
+          sessionId: 'some-session',
+        })
+      ).rejects.toThrow(ContextServiceUnavailableError);
+    } finally {
+      ServerCharacterContextRegistry.getContextAsync = originalGetContext;
+    }
+  });
+
+  it('10. Retração da garantia de perda zero: timestamp do último salvamento confirmado e keepalive', () => {
+    // Registra sucesso de salvamento e valida rastreamento do último salvamento confirmado
+    progressionDiagnostics.clear();
+    expect(progressionDiagnostics.getLastConfirmedSave()).toBeNull();
+
+    const timestampBefore = Date.now();
+    progressionDiagnostics.recordSaveSuccess('attempt-test-1', 'char-10-test', 5, 200);
+    const confirmed = progressionDiagnostics.getLastConfirmedSave();
+
+    expect(confirmed).toBeDefined();
+    expect(confirmed!.characterId).toBe('char-10-test');
+    expect(confirmed!.saveVersion).toBe(5);
+    expect(confirmed!.responseStatus).toBe(200);
+    expect(confirmed!.timestamp).toBeGreaterThanOrEqual(timestampBefore);
   });
 });

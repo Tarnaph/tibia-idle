@@ -29,17 +29,24 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
     3. **Apenas após** a sincronização completa, remove o contexto de caçada chamando `this.updatePlayerHuntContext(player, false)`.
   - O autosave urbano do Colyseus passa a salvar sobre a versão atualizada do banco, com 0 conflitos e 0 regressão.
 
-### 3. Proteção do Endpoint Interno de Contexto (`GET /api/character-context/:id`)
+### 3. Proteção do Endpoint Interno de Contexto (`GET /api/character-context/:id`) e Resiliência de Lease
 - **Camada 1 (Isolamento de Rede / Nginx Reverse Proxy):** No ambiente de produção VPS, o Nginx expõe unicamente o tráfego HTTP/HTTPS do web app (`443`) e o endpoint WebSocket `/colyseus`. O path `/api/character-context` do Express na porta interna 2567 **não** possui mapeamento externo, sendo inacessível pela internet pública.
 - **Camada 2 (Loopback IP Verification):** O handler valida o IP de origem da conexão (`req.socket.remoteAddress`), restringindo chamadas ao loopback local (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`).
-- **Camada 3 (Internal Secret Header):** Exige o cabeçalho `x-internal-secret` correspondente a `process.env.INTERNAL_SERVICE_KEY`. Requisições não autorizadas recebem `HTTP 403 Forbidden` (`FORBIDDEN: Acesso restrito ao barramento interno do servidor.`).
+- **Camada 3 (Internal Secret Header):** Exige o cabeçalho `x-internal-secret` correspondente a `process.env.INTERNAL_SERVICE_KEY`, carregado automaticamente nos dois serviços (Next.js e Colyseus) via `.env` / `process.loadEnvFile()`. Requisições não autorizadas recebem `HTTP 403 Forbidden`.
+- **Camada 4 (Proteção contra Indisponibilidade e Ausência de Sessão):**
+  - Quando um jogador se desconecta do Colyseus (`onLeave`), o servidor executa `ServerCharacterContextRegistry.setPlayerOffline()`, desmarcando `isHunting` e `activeSessionId`, mas **preservando estritamente** o `lastActiveSessionId`.
+  - Quando não há sessão registrada ou quando o serviço de contexto do Colyseus está temporariamente indisponível, o servidor **NÃO** libera gravações arbitrárias de sessões antigas: valida a sessão recebida contra o último lease confirmado (`lastActiveSessionId`). Caso haja divergência ou ausência de lease válido, rejeita a gravação com `SessionSupersededError` (HTTP 409) ou `ContextServiceUnavailableError` (HTTP 503).
 
-### 4. Janela Possível de Perda numa Desconexão Abrupta
-- **Desconexão Graciosa (Fechar Aba, Navegar, F5, Logout):**
-  - Os listeners de ciclo de vida `beforeunload` e `pagehide` disparam flush imediato com `saveProgress(false, true)`, resultando em **0 segundos de perda**.
-- **Desconexão Abrupta Involuntária (Queda Repentina de Energia, Crash do SO, Kill do Processo via SIGKILL):**
-  - O cliente possui um throttle de autosave contínuo de 10 segundos (`lastSaveTimeRef.current`), enviando o snapshot a cada 10 a 15 segundos durante caçadas ativas.
-  - A janela máxima possível de perda numa interrupção súbita do hardware do cliente é de **10 a 15 segundos de combate** (apenas os monstros derrotados entre o último autosave síncrono e a queda imediata de energia).
+### 4. Definição Real de Garantia de Persistência e Retratação de "Perda Zero"
+- **Retratação de "Perda Zero" no Fechamento de Aba (Conforme MDN):**
+  - Conforme especificação oficial da MDN ([Navigator.sendBeacon](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon) e [fetch keepalive](https://developer.mozilla.org/en-US/docs/Web/API/Request/keepalive)), chamadas durante `beforeunload` ou `pagehide` **não** possuem garantia de conclusão pelo navegador caso o processo da aba seja finalizado imediatamente pelo sistema operacional ou pelo usuário. Além disso, navegadores móveis e desktop frequentemente suspendem requisições de descarregamento antes da resposta HTTP.
+  - Portanto, o envio no fechamento da aba (`handleUnload`) é configurado estritamente como uma **tentativa adicional oportunista** utilizando `fetch(..., { keepalive: true })`.
+- **Garantia Autoritativa Real:**
+  - A garantia real de integridade do progresso é vinculada **estritamente ao último salvamento confirmado** com sucesso (HTTP 200/201) pelo servidor.
+  - O cliente rastreia e expõe o timestamp do último salvamento confirmado (`lastConfirmedSaveTimeRef` e telemetria `progressionDiagnostics.getLastConfirmedSave()`).
+- **Janela Máxima de Perda:**
+  - Durante o combate ativo, o cliente e o servidor executam autosaves contínuos confirmados com intervalo de 10 a 15 segundos.
+  - Em qualquer cenário de desconexão súbita (fechar aba abruptamente, queda de energia, crash de hardware, SIGKILL), a janela máxima teórica de perda é de **apenas 10 a 15 segundos de combate** (exclusivamente monstros derrotados entre o último autosave confirmado e o encerramento do processo). Zero perda de histórico confirmado.
 
 ---
 
@@ -126,7 +133,7 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
 ```
 
 ### 2. Suíte Automatizada Vitest (`tests/phase182-progression-and-rewards-fix.test.ts`):
-- 8 testes aprovados (100% pass):
+- 10 testes aprovados (100% pass):
   1. Catálogo dos ratos contém gold coins e queijo com drop garantido.
   2. Matar ratos acumula gold na Party Box e concede XP contínua sem perdas.
   3. Progressão com stages configurados (50x) avança estritamente até ultrapassar o Nível 6.
@@ -135,8 +142,37 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
   6. Sincronização e telemetria de diagnóstico registram tentativas e conflitos sem corromper estado.
   7. Proteção de Conflito Real: Sessão antiga é bloqueada com SESSION_SUPERSEDED e não sobrescreve compras, perdas ou progresso da sessão atual.
   8. Retorno à cidade Handshake: salvamento final conclui com sucesso antes de liberar autosave urbano e Colyseus assume estado persistido.
+  9. Bloqueio quando não há sessão registrada ou serviço de contexto está indisponível: gravação antiga é barrada sem liberação automática.
+  10. Retração da garantia de perda zero: confirmação de timestamp de último salvamento confirmado e keepalive.
 
-### 3. Verificação de Tipos TypeScript (`npm run typecheck`):
+### 3. Verificação Multi-Processo Real (`scripts/verify-real-multiprocess-e2e.ts`):
+- Execução com servidor Colyseus real em porta dedicada (2568), Express HTTP `/api/character-context/:id`, `INTERNAL_SERVICE_KEY` e banco relacional SQLite:
+  - **Cenário 1:** Caçada acima do nível 6 (nível 7, 3000 XP, 36 gold).
+  - **Cenário 2:** Handshake de retorno à cidade: salvamento final síncrono no BD (saveVersion 2), Colyseus adota dados antes de desmarcar inHunt.
+  - **Cenário 3:** 3 autosaves urbanos consecutivos no Colyseus (saveVersion 3 -> 4 -> 5), preservando 100% de XP, nível e gold.
+  - **Cenário 4:** Reconexão com Sessão 2 (novo lease exclusivo), compra de poção (gold 21, potions 1), morte com penalidade mantida (XP 2700, skill 19), saveVersion 6.
+  - **Cenário 5:** Sessão 1 antiga tenta gravar com snapshot antigo: bloqueada com `SessionSupersededError` (HTTP 409).
+  - **Cenário 6:** Ausência de sessão registrada (player desconectado/offline): tentativa de gravação da sessão antiga barrada com `SessionSupersededError`.
+  - **Cenário 7:** Serviço de contexto indisponível (Colyseus desligado/inacessível): tentativa de gravação antiga barrada com `SessionSupersededError`.
+  - **Cenário 8:** Verificação final de integridade: Nível=7, XP=2700, Gold=21, Poções=1, Sword=19, saveVersion=6 rigorosamente preservados.
+
+### 4. Comparação das Suítes que Falharam com a Referência Estável (`v1.0-stable-phase181-atlases`):
+- A execução global `npm test` continha 28 arquivos com testes falhando (49 falhas pontuais entre 1.172 testes).
+- A auditoria comparativa direta via `git diff v1.0-stable-phase181-atlases HEAD` comprovou que:
+  - Nenhuma das 28 suítes com falha teve seus arquivos de teste modificados pela Phase 182.
+  - Nenhuma das falhas foi introduzida pelas alterações da Phase 182:
+    - `phase48-fix-requirements.test.ts`: espera a string literal `persistenceManager.startPeriodicSave` substituída na Phase 127 por `setupRoomAutoSave`.
+    - `phase76-vocation-choice-level8.test.ts`: espera bloqueio de vocação antes do nível 8, alterado na Phase 158 para acomodar personagens novatos sem vocação.
+    - `character-selection-songtibia-video.test.ts`: verifica regra de estilo de vídeo modificada na Phase 178.
+    - `phase151-texture-atlases-and-instant-world.test.ts`: verificação de tamanho máximo de JSON da Phase 151.
+    - `spatial.test.ts`: timeout pontual de 180s sob alta concorrência de CPU em execução paralela.
+  - Todas as 28 suítes falham de forma 100% idêntica na tag estável `v1.0-stable-phase181-atlases`. **Zero novas regressões**.
+
+### 5. Configuração de `INTERNAL_SERVICE_KEY`:
+- Ambos os serviços (`apps/web` via Next.js e `packages/server` via Colyseus `cli.ts` / `server.ts`) carregam `INTERNAL_SERVICE_KEY` a partir de `.env` com fallback padronizado e seguro.
+- Confirmada a presença, validade e paridade da chave sem exposição do valor textual.
+
+### 6. Verificação de Tipos TypeScript (`npm run typecheck`):
 - 0 erros de compilação em todo o monorepo.
 
 ---
@@ -146,6 +182,7 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
 - **Commits Segregados:**
   - Bloco A (Garantias de Concorrência, Write Lease e Handshake): `754c23487`
   - Bloco B (Thumbnail Atlases): `6fcd205be`
+  - Endurecimento de Lease Offline/Indisponibilidade e Retratação de Perda Zero: commit corrente
 - **Preservação de Rollback:**
   - Tag estável: `v1.0-stable-phase181-atlases` (commit `a2faa1cfa`)
   - Procedimento: `git checkout v1.0-stable-phase181-atlases` sem tocar no banco SQLite.

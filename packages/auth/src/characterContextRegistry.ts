@@ -9,6 +9,15 @@ export interface CharacterActivityContext {
   huntId?: string;
   lastUpdated: number;
   activeSessionId?: string;
+  lastActiveSessionId?: string;
+}
+
+export interface CharacterContextQueryResult {
+  isHunting: boolean;
+  huntId?: string;
+  activeSessionId?: string;
+  lastActiveSessionId?: string;
+  isServiceAvailable: boolean;
 }
 
 export class ServerCharacterContextRegistry {
@@ -16,15 +25,17 @@ export class ServerCharacterContextRegistry {
 
   public static setActivity(
     characterId: string,
-    activity: { isHunting: boolean; huntId?: string; activeSessionId?: string }
+    activity: { isHunting: boolean; huntId?: string; activeSessionId?: string; lastActiveSessionId?: string }
   ): void {
     if (!characterId) return;
     const existing = this.registry.get(characterId);
+    const lastSession = activity.lastActiveSessionId ?? activity.activeSessionId ?? existing?.lastActiveSessionId ?? existing?.activeSessionId;
     this.registry.set(characterId, {
       isHunting: Boolean(activity.isHunting),
       huntId: activity.huntId ?? existing?.huntId,
       lastUpdated: Date.now(),
       activeSessionId: activity.activeSessionId ?? existing?.activeSessionId,
+      lastActiveSessionId: lastSession,
     });
   }
 
@@ -36,7 +47,22 @@ export class ServerCharacterContextRegistry {
       huntId: existing?.huntId,
       lastUpdated: Date.now(),
       activeSessionId: sessionId,
+      lastActiveSessionId: sessionId,
     });
+  }
+
+  public static setPlayerOffline(characterId: string): void {
+    if (!characterId) return;
+    const existing = this.registry.get(characterId);
+    if (existing) {
+      this.registry.set(characterId, {
+        isHunting: false,
+        huntId: undefined,
+        lastUpdated: Date.now(),
+        activeSessionId: undefined,
+        lastActiveSessionId: existing.activeSessionId || existing.lastActiveSessionId,
+      });
+    }
   }
 
   public static getActiveSession(characterId: string): string | undefined {
@@ -44,32 +70,67 @@ export class ServerCharacterContextRegistry {
     return this.registry.get(characterId)?.activeSessionId;
   }
 
-  public static async getActiveSessionAsync(characterId: string): Promise<string | undefined> {
+  public static getLastActiveSession(characterId: string): string | undefined {
     if (!characterId) return undefined;
-    const local = this.getActiveSession(characterId);
-    if (local) return local;
+    const ctx = this.registry.get(characterId);
+    return ctx?.lastActiveSessionId ?? ctx?.activeSessionId;
+  }
+
+  public static async getContextAsync(characterId: string): Promise<CharacterContextQueryResult> {
+    if (!characterId) {
+      return { isHunting: false, isServiceAvailable: true };
+    }
+
+    const local = this.registry.get(characterId);
 
     try {
       const colyseusPort = process.env.COLYSEUS_PORT || 2567;
       const secret = process.env.INTERNAL_SERVICE_KEY || 'cavebound_internal_core_secret_v1';
       const res = await fetch(`http://127.0.0.1:${colyseusPort}/api/character-context/${encodeURIComponent(characterId)}`, {
         headers: { 'x-internal-secret': secret },
-        signal: AbortSignal.timeout(200),
+        signal: AbortSignal.timeout(300),
       });
+
       if (res.ok) {
         const data = (await res.json()) as any;
-        if (data && typeof data.activeSessionId === 'string') {
-          this.setActivity(characterId, {
-            isHunting: Boolean(data.isHunting),
-            huntId: data.huntId,
-            activeSessionId: data.activeSessionId,
-          });
-          return data.activeSessionId;
-        }
-      }
-    } catch {}
+        const activeSessionId = typeof data.activeSessionId === 'string' ? data.activeSessionId : undefined;
+        const lastActiveSessionId =
+          typeof data.lastActiveSessionId === 'string'
+            ? data.lastActiveSessionId
+            : activeSessionId || local?.lastActiveSessionId || local?.activeSessionId;
 
-    return undefined;
+        this.setActivity(characterId, {
+          isHunting: Boolean(data.isHunting),
+          huntId: data.huntId,
+          activeSessionId,
+          lastActiveSessionId,
+        });
+
+        return {
+          isHunting: Boolean(data.isHunting),
+          huntId: data.huntId,
+          activeSessionId,
+          lastActiveSessionId,
+          isServiceAvailable: true,
+        };
+      }
+    } catch {
+      // Colyseus service unreachable or timed out
+    }
+
+    // Context service is unavailable - return cached local state but flag service availability
+    return {
+      isHunting: local?.isHunting ?? false,
+      huntId: local?.huntId,
+      activeSessionId: local?.activeSessionId,
+      lastActiveSessionId: local?.lastActiveSessionId ?? local?.activeSessionId,
+      isServiceAvailable: false,
+    };
+  }
+
+  public static async getActiveSessionAsync(characterId: string): Promise<string | undefined> {
+    const ctx = await this.getContextAsync(characterId);
+    return ctx.activeSessionId;
   }
 
   public static getActivity(characterId: string): CharacterActivityContext | undefined {
@@ -84,32 +145,8 @@ export class ServerCharacterContextRegistry {
   }
 
   public static async isHuntingAsync(characterId: string): Promise<boolean> {
-    if (!characterId) return false;
-    const local = this.isHunting(characterId);
-    if (local) return true;
-
-    // Check Colyseus server endpoint if running in a separate process
-    try {
-      const colyseusPort = process.env.COLYSEUS_PORT || 2567;
-      const secret = process.env.INTERNAL_SERVICE_KEY || 'cavebound_internal_core_secret_v1';
-      const res = await fetch(`http://127.0.0.1:${colyseusPort}/api/character-context/${encodeURIComponent(characterId)}`, {
-        headers: { 'x-internal-secret': secret },
-        signal: AbortSignal.timeout(200),
-      });
-      if (res.ok) {
-        const data = (await res.json()) as any;
-        if (data && typeof data.isHunting === 'boolean') {
-          this.setActivity(characterId, {
-            isHunting: data.isHunting,
-            huntId: data.huntId,
-            activeSessionId: data.activeSessionId,
-          });
-          return data.isHunting;
-        }
-      }
-    } catch {}
-
-    return false;
+    const ctx = await this.getContextAsync(characterId);
+    return ctx.isHunting;
   }
 
   public static clear(characterId: string): void {

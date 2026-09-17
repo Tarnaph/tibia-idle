@@ -1,3 +1,9 @@
+if (typeof (process as any).loadEnvFile === 'function') {
+  try {
+    (process as any).loadEnvFile();
+  } catch {}
+}
+
 import { createGameServer } from './server.ts';
 
 const port = Number(process.env.PORT) || 2567;

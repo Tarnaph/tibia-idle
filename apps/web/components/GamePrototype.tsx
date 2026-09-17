@@ -366,6 +366,8 @@ function GamePrototypeContent() {
   const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [saveErrorAlert, setSaveErrorAlert] = useState<string | null>(null);
+  const [lastConfirmedSaveTime, setLastConfirmedSaveTime] = useState<number | null>(null);
+  const lastConfirmedSaveTimeRef = useRef<number | null>(null);
 
   // Cross-tab BroadcastChannel session duplicate detector & responder
   useEffect(() => {
@@ -1767,6 +1769,7 @@ function GamePrototypeContent() {
 
       const res = await fetch(`/api/characters/${primaryChar.id}/save`, {
         method: 'POST',
+        keepalive: true,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -1884,7 +1887,10 @@ function GamePrototypeContent() {
         if (typeof json?.data?.saveVersion === 'number') {
           currentSaveVersionRef.current = json.data.saveVersion;
           characterSaveVersionsRef.current.set(primaryChar.id, json.data.saveVersion);
-          progressionDiagnostics.recordSaveSuccess(attemptId, json.data.saveVersion, res.status);
+          const confirmedAt = Date.now();
+          lastConfirmedSaveTimeRef.current = confirmedAt;
+          setLastConfirmedSaveTime(confirmedAt);
+          progressionDiagnostics.recordSaveSuccess(attemptId, primaryChar.id, json.data.saveVersion, res.status);
         }
       } else if (res.status !== 409) {
         setSaveErrorAlert('Falha ao salvar progresso no servidor.');
@@ -1938,6 +1944,7 @@ function GamePrototypeContent() {
 
           const altRes = await fetch(`/api/characters/${alt.id}/save`, {
             method: 'POST',
+            keepalive: true,
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
@@ -2006,13 +2013,19 @@ function GamePrototypeContent() {
     }, 30000);
 
     const handleUnload = () => {
+      // Tentativa adicional de salvamento no fechamento da aba.
+      // Conforme documentação da MDN (sendBeacon / fetch keepalive), eventos beforeunload/pagehide
+      // não garantem término da requisição e podem ser cancelados ou não disparados pelo navegador.
+      // A garantia autoritativa de persistência é estritamente o último salvamento confirmado.
       void saveProgress(false, true);
     };
     window.addEventListener('beforeunload', handleUnload);
+    window.addEventListener('pagehide', handleUnload);
 
     return () => {
       clearInterval(timer);
       window.removeEventListener('beforeunload', handleUnload);
+      window.removeEventListener('pagehide', handleUnload);
       // NOTE: NEVER trigger saveProgress() on component re-render/cleanup!
     };
   }, [onlineCharacter?.id, saveProgress]);
