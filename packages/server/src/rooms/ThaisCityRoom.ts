@@ -740,10 +740,13 @@ export class ThaisCityRoom extends Room<WorldState> {
         if (dbChar.gender === 'female' || dbChar.gender === 'male') {
           gender = dbChar.gender;
         }
-        if ((dbChar as any).account?.role === 'ADMIN') {
+        const rawRole = String((dbChar as any).account?.role || '').trim().toUpperCase();
+        if (rawRole === 'ADMIN') {
           accountRole = 'ADMIN';
+        } else if (rawRole === 'GM') {
+          accountRole = 'GM';
         }
-        if (accountRole === 'ADMIN' && (dbChar as any).adminTitle) {
+        if ((accountRole === 'ADMIN' || accountRole === 'GM') && (dbChar as any).adminTitle) {
           const rawTitle = String((dbChar as any).adminTitle).trim().toUpperCase();
           if (rawTitle === 'GOD' || rawTitle === 'GM') {
             adminTitle = rawTitle;

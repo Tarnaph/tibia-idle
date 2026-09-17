@@ -1,4 +1,4 @@
-export type AccountRole = 'player' | 'admin';
+export type AccountRole = 'player' | 'admin' | 'gm';
 
 export interface AuthViewer {
   id: string;

@@ -107,7 +107,7 @@ export class AccountService {
       throw new Error('E-mail ou senha incorretos.');
     }
 
-    const accountRole: AccountRole = account.role === 'ADMIN' ? 'admin' : 'player';
+    const accountRole: AccountRole = account.role === 'ADMIN' ? 'admin' : account.role === 'GM' ? 'gm' : 'player';
     const token = createAuthToken({
       accountId: account.id,
       email: account.email,
@@ -136,8 +136,12 @@ export class AccountService {
           select: {
             id: true,
             name: true,
+            gender: true,
             vocationId: true,
             vocationName: true,
+            promotion: true,
+            adminTitle: true,
+            avatarId: true,
             level: true,
             experience: true,
             health: true,
@@ -169,7 +173,7 @@ export class AccountService {
 
     if (!account) return null;
 
-    const accountRole: AccountRole = account.role === 'ADMIN' ? 'admin' : 'player';
+    const accountRole: AccountRole = account.role === 'ADMIN' ? 'admin' : account.role === 'GM' ? 'gm' : 'player';
     return {
       id: account.id,
       email: account.email,

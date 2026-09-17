@@ -22,6 +22,7 @@ export interface CharacterItem {
   positionX: number;
   positionY: number;
   positionZ: number;
+  adminTitle?: string | null;
 }
 
 interface TibiaAuthCharacterModalProps {

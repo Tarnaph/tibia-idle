@@ -21,6 +21,7 @@ interface UpdateDraft {
 interface PlayerRecord {
   id: string;
   name: string;
+  adminTitle?: string | null;
   vocationId: number;
   vocationName: string;
   level: number;
@@ -59,6 +60,7 @@ export function AdminPanel({
   const [draft, setDraft] = useState<UpdateDraft | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ action: 'promote_gm' | 'demote_gm'; player: PlayerRecord } | null>(null);
 
   // Derive authoritative viewer and role
   const currentViewer = viewer || auth.viewer;
@@ -733,63 +735,107 @@ export function AdminPanel({
                       </td>
                     </tr>
                   )}
-                  {filteredPlayers.map((p) => (
-                    <tr key={p.id} style={{ borderBottom: '1px solid #232c3a' }}>
-                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#fff' }}>
-                        {p.name}
-                        <div style={{ fontSize: '10px', color: '#666' }}>{p.id}</div>
-                      </td>
-                      <td style={{ padding: '12px', color: '#c7b299' }}>{p.vocationName}</td>
-                      <td style={{ padding: '12px', color: '#f3e5ab', fontWeight: 'bold' }}>Lv. {p.level}</td>
-                      <td style={{ padding: '12px', color: '#aaa' }}>
-                        <span style={{ color: '#4fc977' }}>{p.health}/{p.maxHealth} HP</span> • <span style={{ color: '#4f8bc9' }}>{p.mana}/{p.maxMana} MP</span>
-                      </td>
-                      <td style={{ padding: '12px', color: '#888' }}>
-                        {p.posX}, {p.posY}, {p.posZ}
-                      </td>
-                      <td style={{ padding: '12px' }}>
-                        <div style={{ color: '#ddd' }}>{p.accountEmail}</div>
-                        {p.isBanned ? (
-                          <span style={{ fontSize: '10px', padding: '2px 6px', background: '#661b1b', color: '#ff9999', borderRadius: '3px' }}>BANIDO</span>
-                        ) : (
-                          <span style={{ fontSize: '10px', padding: '2px 6px', background: '#1b4d24', color: '#88ff99', borderRadius: '3px' }}>ATIVO</span>
-                        )}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleGmPlayerAction('teleport', p, { x: 32369, y: 32241, z: 7 })}
-                            style={{ padding: '4px 8px', fontSize: '11px', background: '#2c3e50', border: '1px solid #455a64', color: '#fff', borderRadius: '3px', cursor: 'pointer' }}
-                          >
-                            📍 Templo
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleGmPlayerAction('give_exp', p, { value: 10000 })}
-                            style={{ padding: '4px 8px', fontSize: '11px', background: '#6e481f', border: '1px solid #8c5d2b', color: '#f3e5ab', borderRadius: '3px', cursor: 'pointer' }}
-                          >
-                            🎁 +10k EXP
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleGmPlayerAction(p.isBanned ? 'unban' : 'ban', p)}
-                            style={{
-                              padding: '4px 8px',
-                              fontSize: '11px',
-                              background: p.isBanned ? '#1b4d24' : '#6b1d1d',
-                              border: `1px solid ${p.isBanned ? '#2e7d32' : '#992222'}`,
-                              color: '#fff',
-                              borderRadius: '3px',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {p.isBanned ? '🔓 Desbanir' : '🔨 Banir'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredPlayers.map((p) => {
+                    const isGod = p.role?.toUpperCase() === 'ADMIN' || p.adminTitle?.toUpperCase() === 'GOD';
+                    const isGm = (p.role?.toUpperCase() === 'GM' || p.adminTitle?.toUpperCase() === 'GM') && !isGod;
+
+                    return (
+                      <tr key={p.id} style={{ borderBottom: '1px solid #232c3a' }}>
+                        <td style={{ padding: '12px', fontWeight: 'bold', color: '#fff' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {isGod && (
+                              <span style={{ fontSize: '10px', background: '#855800', color: '#ffd700', padding: '1px 5px', borderRadius: '3px', fontWeight: 800 }}>[GOD]</span>
+                            )}
+                            {isGm && (
+                              <span style={{ fontSize: '10px', background: '#3b3111', border: '1px solid #c9a93e', color: '#ffd700', padding: '1px 5px', borderRadius: '3px', fontWeight: 800 }}>[GM]</span>
+                            )}
+                            <span>{p.name}</span>
+                          </div>
+                          <div style={{ fontSize: '10px', color: '#666', marginTop: '2px' }}>{p.id}</div>
+                        </td>
+                        <td style={{ padding: '12px', color: '#c7b299' }}>{p.vocationName}</td>
+                        <td style={{ padding: '12px', color: '#f3e5ab', fontWeight: 'bold' }}>Lv. {p.level}</td>
+                        <td style={{ padding: '12px', color: '#aaa' }}>
+                          <span style={{ color: '#4fc977' }}>{p.health}/{p.maxHealth} HP</span> • <span style={{ color: '#4f8bc9' }}>{p.mana}/{p.maxMana} MP</span>
+                        </td>
+                        <td style={{ padding: '12px', color: '#888' }}>
+                          {p.posX}, {p.posY}, {p.posZ}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <div style={{ color: '#ddd' }}>{p.accountEmail}</div>
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                            <span style={{ fontSize: '10px', padding: '2px 6px', background: '#222d3d', color: '#9db8de', borderRadius: '3px' }}>
+                              {p.role}
+                            </span>
+                            {p.isBanned ? (
+                              <span style={{ fontSize: '10px', padding: '2px 6px', background: '#661b1b', color: '#ff9999', borderRadius: '3px' }}>BANIDO</span>
+                            ) : (
+                              <span style={{ fontSize: '10px', padding: '2px 6px', background: '#1b4d24', color: '#88ff99', borderRadius: '3px' }}>ATIVO</span>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', alignItems: 'center' }}>
+                            {/* Actions restricted strictly to GOD */}
+                            {roleUpper === 'ADMIN' && (
+                              <>
+                                {isGod ? (
+                                  <span style={{ fontSize: '10px', color: '#ffd700', padding: '2px 6px', fontStyle: 'italic' }}>👑 GOD</span>
+                                ) : isGm ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setConfirmModal({ action: 'demote_gm', player: p })}
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#4d1e1e', border: '1px solid #852b2b', color: '#ffb3b3', borderRadius: '3px', cursor: 'pointer' }}
+                                    title="Remover privilégios de GM desta conta"
+                                  >
+                                    🔻 Remover GM
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => setConfirmModal({ action: 'promote_gm', player: p })}
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#544212', border: '1px solid #c9a93e', color: '#ffd700', borderRadius: '3px', cursor: 'pointer', fontWeight: 'bold' }}
+                                    title="Promover jogador a Game Master"
+                                  >
+                                    ⭐ Promover a GM
+                                  </button>
+                                )}
+                              </>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleGmPlayerAction('teleport', p, { x: 32369, y: 32241, z: 7 })}
+                              style={{ padding: '4px 8px', fontSize: '11px', background: '#2c3e50', border: '1px solid #455a64', color: '#fff', borderRadius: '3px', cursor: 'pointer' }}
+                            >
+                              📍 Templo
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleGmPlayerAction('give_exp', p, { value: 10000 })}
+                              style={{ padding: '4px 8px', fontSize: '11px', background: '#6e481f', border: '1px solid #8c5d2b', color: '#f3e5ab', borderRadius: '3px', cursor: 'pointer' }}
+                            >
+                              🎁 +10k EXP
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleGmPlayerAction(p.isBanned ? 'unban' : 'ban', p)}
+                              style={{
+                                padding: '4px 8px',
+                                fontSize: '11px',
+                                background: p.isBanned ? '#1b4d24' : '#6b1d1d',
+                                border: `1px solid ${p.isBanned ? '#2e7d32' : '#992222'}`,
+                                color: '#fff',
+                                borderRadius: '3px',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {p.isBanned ? '🔓 Desbanir' : '🔨 Banir'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -978,6 +1024,92 @@ export function AdminPanel({
               </div>
             </form>
           </section>
+        </div>
+      )}
+
+      {/* CONFIRMATION MODAL FOR GM PROMOTION / DEMOTION */}
+      {confirmModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.78)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              background: '#151921',
+              border: `2px solid ${confirmModal.action === 'promote_gm' ? '#d4af37' : '#e74c3c'}`,
+              borderRadius: '8px',
+              padding: '24px',
+              maxWidth: '520px',
+              width: '100%',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.85)',
+            }}
+          >
+            <h2 style={{ fontSize: '18px', color: confirmModal.action === 'promote_gm' ? '#ffd700' : '#ff766b', marginTop: 0, marginBottom: '16px' }}>
+              {confirmModal.action === 'promote_gm' ? '⭐ Confirmar Promoção a Game Master (GM)' : '🔻 Confirmar Remoção de Privilégios de GM'}
+            </h2>
+
+            <div style={{ background: '#0e1219', border: '1px solid #232c3a', borderRadius: '6px', padding: '14px', marginBottom: '16px', fontSize: '13px', lineHeight: '1.6' }}>
+              <div><strong>Personagem:</strong> <span style={{ color: '#fff' }}>{confirmModal.player.name}</span></div>
+              <div><strong>E-mail da Conta:</strong> <span style={{ color: '#9db8de' }}>{confirmModal.player.accountEmail}</span></div>
+              <div><strong>Nível / Vocação:</strong> <span style={{ color: '#c7b299' }}>Lv. {confirmModal.player.level} ({confirmModal.player.vocationName})</span></div>
+              <div><strong>Status Atual:</strong> <span style={{ color: '#f3e5ab' }}>{confirmModal.player.role} {confirmModal.player.adminTitle ? `[${confirmModal.player.adminTitle}]` : ''}</span></div>
+            </div>
+
+            <p style={{ fontSize: '12px', color: '#aaa', marginBottom: '20px', lineHeight: '1.5' }}>
+              {confirmModal.action === 'promote_gm'
+                ? 'Esta ação concederá privilégios administrativos de Game Master (GM) à conta selecionada. O personagem passará a ter o título [GM] em dourado sobre o nome tanto na cidade quanto nas caçadas, visível para todos os jogadores.'
+                : 'Esta ação revogará os privilégios administrativos da conta selecionada, retornando-a ao nível de PLAYER padrão e removendo o prefixo [GM] do personagem.'}
+            </p>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                disabled={busy}
+                style={{
+                  padding: '8px 16px',
+                  background: '#2c3440',
+                  border: '1px solid #3d4a5d',
+                  color: '#ccc',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                }}
+              >
+                CANCELAR
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  const targetP = confirmModal.player;
+                  const act = confirmModal.action;
+                  setConfirmModal(null);
+                  await handleGmPlayerAction(act, targetP);
+                }}
+                style={{
+                  padding: '8px 18px',
+                  background: confirmModal.action === 'promote_gm' ? '#6e5414' : '#6b1d1d',
+                  border: `1px solid ${confirmModal.action === 'promote_gm' ? '#ffd700' : '#ff4d4d'}`,
+                  color: '#fff',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                }}
+              >
+                {confirmModal.action === 'promote_gm' ? 'CONFIRMAR PROMOÇÃO' : 'CONFIRMAR REMOÇÃO'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </main>
