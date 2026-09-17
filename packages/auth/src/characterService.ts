@@ -444,6 +444,7 @@ export class CharacterService {
       saveVersion?: number;
       isDeathPenalty?: boolean;
       sessionId?: string;
+      isHunting?: boolean;
     },
     options?: { isInternal?: boolean; isHunting?: boolean }
   ) {
@@ -697,14 +698,24 @@ export class CharacterService {
         }
       }
 
-      // Sanity Check: Anti-skill leap protection (+2 max per single save without admin grant)
+      // Sanity Check: Anti-skill leap protection
       if (existing?.skills && Array.isArray(existing.skills) && !options?.isInternal && !(data as any).isManualAdminGrant) {
+        const isHunting = Boolean(options?.isHunting || (data as any).isHunting);
         for (const incomingSkill of skillList) {
           const prev = existing.skills.find((s: any) => s.skillId === incomingSkill.skillId);
-          if (prev && incomingSkill.value > prev.value + 2) {
-            throw new Error(
-              `Salto anômalo de habilidade não permitido: skill ${incomingSkill.skillName || incomingSkill.skillId} subiu de ${prev.value} para ${incomingSkill.value} em um único salvamento.`
-            );
+          if (prev) {
+            // In high-rate Otserver stages (50x/80x), low skills advance very quickly in combat (e.g. Fist/Sword 10 to 30 in 1-2 min).
+            // When hunting or training at dummy, allow realistic leaps while strictly blocking arbitrary injection (e.g. jumping to 100+).
+            // When not hunting, still allow reasonable progress (+10 for low skills, +6 for mid, +2 for high) to prevent false rejections.
+            const maxAllowedDelta = isHunting
+              ? prev.value < 35 ? 35 : prev.value < 65 ? 25 : prev.value < 90 ? 15 : 8
+              : prev.value < 35 ? 10 : prev.value < 65 ? 6 : 2;
+
+            if (incomingSkill.value > prev.value + maxAllowedDelta) {
+              throw new Error(
+                `Salto anômalo de habilidade não permitido: skill ${incomingSkill.skillName || incomingSkill.skillId} subiu de ${prev.value} para ${incomingSkill.value} em um único salvamento.`
+              );
+            }
           }
         }
       }

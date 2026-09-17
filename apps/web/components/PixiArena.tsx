@@ -18,6 +18,7 @@ interface PixiArenaProps {
   isCharacterVisible?: boolean;
   onSelectTarget?: (enemyId: string) => void;
   onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
+  onSceneReady?: () => void;
 }
 interface ActorView {
   root: Container;
@@ -91,11 +92,12 @@ function projectileDirection(from: GridPosition, to: GridPosition): string {
   return vertical && horizontal ? `${vertical}-${horizontal}` : vertical || horizontal || 'south';
 }
 
-export function PixiArena({ game, debug, active = true, isCharacterVisible = true, onSelectTarget, onCharacterContextMenu }: PixiArenaProps) {
+export function PixiArena({ game, debug, active = true, isCharacterVisible = true, onSelectTarget, onCharacterContextMenu, onSceneReady }: PixiArenaProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const syncRef = useRef<((state: GameState, showDebug: boolean) => void) | null>(null);
-  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible });
+  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady });
+  latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady };
 
   useEffect(() => {
     const app = appRef.current;
@@ -351,6 +353,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       let mapOffsetY = 0;
       let camera: WorldCameraState = { x: 0, y: 0, zoom: 1 };
       let cameraInitialized = false;
+      let sceneReadyNotified = false;
 
       const worldPoint = (position: { x: number; y: number }) => ({
         x: mapOffsetX + position.x * TILE_SIZE + TILE_SIZE / 2,
@@ -550,6 +553,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             void loadHuntAtlas(state.encounter.hunt.id);
           }
           cameraInitialized = false;
+          sceneReadyNotified = false;
           for (const view of views.values()) view.root.destroy({ children: true });
           views.clear(); effects.removeChildren().forEach((child) => child.destroy({ children: true })); timed.length = 0; pendingImpacts.length = 0;
           lastProcessedEvents = null;
@@ -937,6 +941,12 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             debugText.text = `CAM ${state.session.cameraTargetCharacterId} · world ${camera.x.toFixed(1)},${camera.y.toFixed(1)} · viewport ${app.screen.width}×${app.screen.height} · fixed ${camera.zoom.toFixed(2)}x\nGRID red=blocked · blue=occupied · yellow=reserved · cyan=path\nSAFE RESPAWN 7 tiles\n${respawns}`;
           }
         }
+
+        if (cameraInitialized && !sceneReadyNotified) {
+          sceneReadyNotified = true;
+          console.log('[SCENE] PixiArena cenário pronto e primeiro frame renderizado:', performance.now());
+          latestRef.current.onSceneReady?.();
+        }
       };
 
       const unsubZoom = onZoomChange(() => {
@@ -945,6 +955,11 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
 
       app.ticker.add(render);
       syncRef.current = sync; sync(latestRef.current.game, latestRef.current.debug);
+      if (cameraInitialized && !sceneReadyNotified) {
+        sceneReadyNotified = true;
+        console.log('[SCENE] PixiArena cenário pronto após sync inicial:', performance.now());
+        latestRef.current.onSceneReady?.();
+      }
       const onResize = () => {
         try {
           app.resize();
@@ -977,7 +992,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };
   }, []);
 
-  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible]);
+  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady]);
   return (
     <div
       ref={hostRef}

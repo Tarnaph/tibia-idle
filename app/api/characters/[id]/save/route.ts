@@ -86,6 +86,7 @@ export async function POST(
       promotion: body.promotion,
       saveVersion: typeof body.saveVersion === 'number' ? body.saveVersion : undefined,
       sessionId: typeof body.sessionId === 'string' ? body.sessionId : undefined,
+      isHunting: typeof body.isHunting === 'boolean' ? body.isHunting : undefined,
     }, {
       isHunting: typeof body.isHunting === 'boolean' ? body.isHunting : undefined,
     });

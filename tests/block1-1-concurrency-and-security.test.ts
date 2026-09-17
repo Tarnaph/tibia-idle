@@ -6,6 +6,7 @@ import {
   CharacterService,
   CharacterSaveLockManager,
   VersionConflictError,
+  ServerCharacterContextRegistry,
   XpRateLimiter,
   MAX_BURST_EXP,
   MAX_EXP_PER_SECOND,
@@ -22,6 +23,7 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
 
   beforeEach(() => {
     vi.clearAllMocks();
+    ServerCharacterContextRegistry.setAuthoritativeSource(true);
     XpRateLimiter.reset('char-occ-1');
     XpRateLimiter.reset('char-occ-race');
     XpRateLimiter.reset('char-ws-hack');

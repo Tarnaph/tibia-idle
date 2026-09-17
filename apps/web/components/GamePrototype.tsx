@@ -279,6 +279,8 @@ function GamePrototypeContent() {
     durationMs?: number;
     huntId?: string;
   } | null>(null);
+  const [isArenaReady, setIsArenaReady] = useState(false);
+  const combatStartedRef = useRef(false);
   const saveProgressRef = useRef<(isDeathPenalty?: boolean, force?: boolean) => Promise<boolean>>(async () => false);
   const activeSessionIdRef = useRef<string>('sess-' + Math.random().toString(36).slice(2, 10));
   const isSavingRef = useRef<boolean>(false);
@@ -1813,7 +1815,7 @@ function GamePrototypeContent() {
           isDeathPenalty,
           saveVersion: primaryVersion,
           replaceFullInventory: true,
-          isHunting: mode === 'hunt',
+          isHunting: mode === 'hunt' || isTrainingAtDummy,
           sessionId: gameNetwork.LocalPlayerId || activeSessionIdRef.current,
         }),
       });
@@ -1974,6 +1976,7 @@ function GamePrototypeContent() {
               promotion: alt.promotion,
               outfit: alt.outfit,
               saveVersion: altVersion,
+              isHunting: mode === 'hunt' || isTrainingAtDummy,
             }),
           });
 
@@ -2496,16 +2499,20 @@ function GamePrototypeContent() {
 
   const lastCombatTimeRef = useRef(performance.now());
   const tickCombat = useCallback(() => {
-    // Phase 107: Prevent monsters from moving, attacking, or dealing damage during loading screen
-    if (initialLoadingActive || Boolean(transitionLoading?.active)) return;
+    // Phase 107 & 182: Prevent monsters from moving, attacking, or dealing damage during loading screen or before arena is visible
+    if (initialLoadingActive || Boolean(transitionLoading?.active) || !isArenaReady) return;
     if (mode !== 'hunt' || encounter.status !== 'running') return;
+    if (!combatStartedRef.current) {
+      combatStartedRef.current = true;
+      console.log('[COMBAT] Combate iniciado com cenário pronto e visível:', performance.now());
+    }
     const now = performance.now();
     const delta = Math.min(now - lastCombatTimeRef.current, 500);
     lastCombatTimeRef.current = now;
     setGame((current) => advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120));
-  }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active]);
+  }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady]);
 
-  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running');
+  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active);
 
   const lastCityAutoSpellsTimeRef = useRef(performance.now());
   const tickCityAutoSpells = useCallback(() => {
@@ -2810,11 +2817,12 @@ function GamePrototypeContent() {
 
     const nextSeed = seed.trim() || defaultSeed;
 
-    // Phase 107: If currently in a hunt, safely exit it immediately so old monsters cannot attack while loading
+    // Phase 107 & 182: If currently in a hunt, halt combat on the previous encounter without transitioning to training mode
     if (mode === 'hunt') {
       setGame((current) => leaveHunt(current));
-      setMode('training');
     }
+    setIsArenaReady(false);
+    combatStartedRef.current = false;
 
     // Phase 107: Defer hunt spawn, authoritative teleport, and combat ticker until loading finishes!
     pendingHuntTransitionRef.current = {
@@ -3626,6 +3634,7 @@ function GamePrototypeContent() {
             debug={debugGrid}
             active={mode === 'hunt'}
             isCharacterVisible={isCharacterVisible}
+            onSceneReady={() => setIsArenaReady(true)}
             onSelectTarget={(enemyId) => {
               setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
               if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
@@ -4341,21 +4350,26 @@ function GamePrototypeContent() {
         const activeHuntId = transitionLoading?.huntId || pendingHuntTransitionRef.current?.huntId;
         const loadingConfig = getLoadingConfigForHunt(activeHuntId);
 
+        const isLoadingActive = initialLoadingActive || Boolean(transitionLoading?.active) || (mode === 'hunt' && !isArenaReady);
+
         return (
           <ExuraLoadingScreen
-            active={initialLoadingActive || Boolean(transitionLoading?.active)}
+            active={isLoadingActive}
             durationMs={transitionLoading?.durationMs ?? 2000}
             message={
               transitionLoading?.message ||
-              (onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
+              (mode === 'hunt' && !isArenaReady ? 'Renderizando cenário e monstros...' :
+               onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
             }
-            waitForAssets={initialLoadingActive}
+            waitForAssets={initialLoadingActive || (mode === 'hunt' && !isArenaReady)}
             bgImage={loadingConfig.bgImage}
             curiosities={loadingConfig.curiosities}
             onFinish={() => {
               const pending = pendingHuntTransitionRef.current;
               if (pending) {
                 pendingHuntTransitionRef.current = null;
+                setIsArenaReady(false);
+                combatStartedRef.current = false;
                 setGame((current) => restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId));
                 setMode('hunt');
                 pauseCityBgm();

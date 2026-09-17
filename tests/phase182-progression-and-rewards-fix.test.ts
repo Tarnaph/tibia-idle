@@ -613,4 +613,96 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       ServerCharacterContextRegistry.getContextAsync = originalGetContext;
     }
   });
+
+  describe('Bloco B: Validação de Salto de Habilidades Durante Caçada e Segurança Anti-Injeção', () => {
+    beforeEach(() => {
+      ServerCharacterContextRegistry.setAuthoritativeSource(true);
+    });
+
+    it('permite saltos naturais de habilidades durante caçada sob multiplicadores de estágio', async () => {
+      const dbChar = {
+        id: 'char-hunt-skills-1',
+        level: 1,
+        experience: BigInt(0),
+        vocationName: 'Knight',
+        saveVersion: 1,
+        skills: [
+          { skillId: 0, skillName: 'Fist Fighting', value: 10, tries: BigInt(0) },
+          { skillId: 2, skillName: 'Sword Fighting', value: 35, tries: BigInt(500) },
+        ],
+      };
+
+      const mockPrisma = {
+        character: {
+          findUnique: vi.fn().mockResolvedValue(dbChar),
+          update: vi.fn().mockImplementation(({ data }) => {
+            return Promise.resolve({ ...dbChar, saveVersion: 2, ...data });
+          }),
+        },
+        characterSkill: {
+          upsert: vi.fn().mockResolvedValue({}),
+        },
+      } as any;
+
+      const service = new CharacterService(mockPrisma);
+
+      // Simula socar ratos durante 1 minuto: Fist sobe de 10 para 27 com isHunting: true
+      const resultFist = await service.saveCharacterProgress('char-hunt-skills-1', {
+        saveVersion: 1,
+        level: 8,
+        experience: BigInt(4200),
+        skills: [
+          { skillId: 0, skillName: 'Fist Fighting', value: 27 },
+        ],
+        isHunting: true,
+      }, { isHunting: true });
+
+      expect(resultFist).toBeDefined();
+
+      // Simula caçada com espada: Sword sobe de 35 para 43 com isHunting: true
+      const resultSword = await service.saveCharacterProgress('char-hunt-skills-1', {
+        saveVersion: 1,
+        level: 8,
+        experience: BigInt(4200),
+        skills: [
+          { skillId: 2, skillName: 'Sword Fighting', value: 43 },
+        ],
+        isHunting: true,
+      }, { isHunting: true });
+
+      expect(resultSword).toBeDefined();
+    });
+
+    it('bloqueia injeção absurda de habilidade mesmo com isHunting ativo (+90 níveis)', async () => {
+      const dbChar = {
+        id: 'char-hunt-hack-1',
+        level: 1,
+        experience: BigInt(0),
+        vocationName: 'Knight',
+        saveVersion: 1,
+        skills: [
+          { skillId: 0, skillName: 'Fist Fighting', value: 10, tries: BigInt(0) },
+        ],
+      };
+
+      const mockPrisma = {
+        character: {
+          findUnique: vi.fn().mockResolvedValue(dbChar),
+        },
+      } as any;
+
+      const service = new CharacterService(mockPrisma);
+
+      // Salto absurdo de 10 para 100 mesmo com isHunting: true
+      await expect(
+        service.saveCharacterProgress('char-hunt-hack-1', {
+          saveVersion: 1,
+          skills: [
+            { skillId: 0, skillName: 'Fist Fighting', value: 100 },
+          ],
+          isHunting: true,
+        }, { isHunting: true })
+      ).rejects.toThrow(/Salto anômalo de habilidade não permitido/);
+    });
+  });
 });

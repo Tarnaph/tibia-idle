@@ -728,8 +728,8 @@ export function ThaisCityArena({
         const tileX = Math.floor(worldX / TILE_SIZE);
         const tileY = Math.floor(worldY / TILE_SIZE);
 
-        const activeZ = latestRef.current.cityPos.z;
-        const activeTileMap = tileMapByZ.get(activeZ);
+        const activeZ = (latestRef.current.cityPos?.z === 6 || latestRef.current.cityPos?.z === 7) ? latestRef.current.cityPos.z : 7;
+        const activeTileMap = tileMapByZ.get(activeZ) || tileMapByZ.get(7);
         const hoverTile = activeTileMap?.get(`${tileX},${tileY}`);
         if (hoverTile ? hoverTile.walkable : true) {
           hoverCursor.position.set(tileX * TILE_SIZE, tileY * TILE_SIZE);
@@ -865,8 +865,8 @@ export function ThaisCityArena({
         const tileX = Math.floor(worldX / TILE_SIZE);
         const tileY = Math.floor(worldY / TILE_SIZE);
 
-        const activeZ = latestRef.current.cityPos.z;
-        const activeTileMap = tileMapByZ.get(activeZ);
+        const activeZ = (latestRef.current.cityPos?.z === 6 || latestRef.current.cityPos?.z === 7) ? latestRef.current.cityPos.z : 7;
+        const activeTileMap = tileMapByZ.get(activeZ) || tileMapByZ.get(7);
         const tile = activeTileMap?.get(`${tileX},${tileY}`);
         if (tile ? tile.walkable : true) {
           latestRef.current.onTileClick?.({ x: tileX, y: tileY, z: activeZ });
@@ -1125,7 +1125,7 @@ export function ThaisCityArena({
         const curPos = {
           x: typeof rawPos?.x === 'number' && !isNaN(rawPos.x) ? rawPos.x : 32369,
           y: typeof rawPos?.y === 'number' && !isNaN(rawPos.y) ? rawPos.y : 32241,
-          z: typeof rawPos?.z === 'number' && !isNaN(rawPos.z) ? rawPos.z : 7,
+          z: (rawPos?.z === 6 || rawPos?.z === 7) ? rawPos.z : 7,
         };
         tickCount++;
         const now = performance.now();
