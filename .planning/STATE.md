@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-17T21:10:00.000Z"
-last_activity: "2026-09-17 — Phase 184 Concluída com Sucesso: Redesign da TopBar (HUD Superior) em 3 clusters semânticos (Esquerda com perfil e moedas ampliadas, Centro com Players Online reativo ao vivo, Direita com Loja e utilitários), substituição pelo monte de ouro clássico (gold-stack.png) e renomeação para Exura Coins."
+status: in_progress
+last_updated: "2026-09-17T21:28:00.000Z"
+last_activity: "2026-09-17 — Phase 185 Iniciada: Upload de músicas e vídeo songtibia.webm para a VPS, trilha sonora dinâmica por hunt e sincronização completa."
 progress:
-  total_phases: 184
+  total_phases: 185
   completed_phases: 184
-  total_plans: 191
+  total_plans: 192
   completed_plans: 191
-  percent: 100
+  percent: 99
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 184 - Redesign da TopBar, Players Online em Tempo Real e Exura Coins.
+**Current focus:** Phase 185 - Trilha Sonora Dinâmica por Hunt, Restauração do Vídeo songtibia.webm e Sincronização VPS.
 
 ## Current Position
 
-Phase: 184 of 184  
-Plan: 1 of 1 in Phase 184  
+Phase: 185 of 185  
+Plan: 1 of 1 in Phase 185  
 Status: In Progress  
-Last activity: 2026-09-17 — Iniciada Phase 184: reorganização da barra em 3 clusters, integração de remotePlayers no Colyseus e sprite de monte de moedas de ouro.
+Last activity: 2026-09-17 — Fase 185 em andamento: mapeamento de áudio em apps/web/lib/audioManager.ts, upload SFTP para VPS e testes.
 
-Progress: [██████████] 100%
+Progress: [█████████░] 99%
 
 
 

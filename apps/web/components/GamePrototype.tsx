@@ -85,7 +85,7 @@ import { resolveSkillKey, parseInventoryData } from '../lib/characterHydration';
 import { progressionDiagnostics } from '../lib/progressionDiagnostics';
 import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
-import { playDragonLairBgm, stopDragonLairBgm, stopAllAudio, DRAGONS_PRIDE_TRACK } from '../lib/audioManager';
+import { playDragonLairBgm, stopDragonLairBgm, stopAllAudio, DRAGONS_PRIDE_TRACK, playHuntBgm, stopHuntBgm, getTrackForHunt } from '../lib/audioManager';
 import { MusicTrackToast } from './audio/MusicTrackToast';
 import thaisCollisionJson from '@/content/generated/thais-collision.json';
 
@@ -1168,6 +1168,7 @@ function GamePrototypeContent() {
         playDragonLairBgm();
       } else {
         stopDragonLairBgm();
+        playHuntBgm(data.huntId);
       }
 
       // Phase 107: Save progress and trigger 10-second Exura loading screen for follower
@@ -1195,6 +1196,7 @@ function GamePrototypeContent() {
     const unsubHuntExit = gameNetwork.onPartyHuntExit((coords) => {
       setSaleMessage('O líder encerrou a caçada. Retornando ao Templo de Thais...');
       followSuppressedUntilRef.current = Date.now() + 2500;
+      stopHuntBgm();
       stopDragonLairBgm();
       playCityBgm();
       const temple = coords?.x && coords?.y ? { x: coords.x, y: coords.y, z: coords.z ?? 7 } : THAIS_TEMPLE_POSITION;
@@ -1289,11 +1291,11 @@ function GamePrototypeContent() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [mode, openWindow, bringToFront]);
 
-  // Phase 103/109: Loop 'Sunset in the Village' while player is in Thais; pause in hunt and dragon lair transition
+  // Phase 103/109/185: Loop 'Sunset in the Village' while player is in Thais; pause in hunt and play hunt bgm
   useEffect(() => {
     if (mode === 'training') {
-      // Do not restart city BGM if transitioning to dragon-lair
-      if (pendingHuntTransitionRef.current?.huntId === 'dragon-lair') {
+      // Do not restart city BGM if transitioning to dragon-lair or any hunt
+      if (pendingHuntTransitionRef.current?.huntId) {
         return;
       }
       const isPreview = typeof window !== 'undefined' && window.location.pathname === '/game-preview';
@@ -1302,8 +1304,11 @@ function GamePrototypeContent() {
       }
     } else {
       pauseCityBgm();
-      if (game.encounter?.hunt?.id === 'dragon-lair') {
+      const currentHuntId = game.encounter?.hunt?.id;
+      if (currentHuntId === 'dragon-lair') {
         playDragonLairBgm();
+      } else if (currentHuntId) {
+        playHuntBgm(currentHuntId);
       }
     }
   }, [mode, isCharacterReady, initialLoadingActive, game.encounter?.hunt?.id]);
@@ -2809,6 +2814,7 @@ function GamePrototypeContent() {
       playDragonLairBgm();
     } else {
       stopDragonLairBgm();
+      playHuntBgm(huntId);
     }
 
     // Phase 102: Save progress and trigger 10-second Exura loading screen
@@ -2878,7 +2884,8 @@ function GamePrototypeContent() {
     gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
     gameNetwork.sendReturnToCity();
 
-    // Phase 103/109: Stop hunt BGM and start Thais BGM immediately during transition loading screen!
+    // Phase 103/109/185: Stop hunt BGM and start Thais BGM immediately during transition loading screen!
+    stopHuntBgm();
     stopDragonLairBgm();
     playCityBgm();
 
@@ -4411,6 +4418,11 @@ function GamePrototypeContent() {
                 // Phase 109: Dragon Lair music notification box appears strictly after loading finishes and character is visible!
                 if (pending.huntId === 'dragon-lair') {
                   triggerTrackNotification(DRAGONS_PRIDE_TRACK);
+                } else {
+                  const huntTrack = getTrackForHunt(pending.huntId);
+                  if (huntTrack) {
+                    triggerTrackNotification(huntTrack);
+                  }
                 }
               }
               if (initialLoadingActive) {

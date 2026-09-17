@@ -3507,7 +3507,43 @@ Plans:
 
 **Status:** Complete
 - Resumo de entrega: `.planning/phases/phase-183-shop-redesign-and-catalog/183-SUMMARY.md`
-- Verificação: 8/8 Vitest tests passed, 23/23 related tests passed, 0 TypeScript errors.
+### Phase 184: Redesign da TopBar (HUD Superior), Players Online em Tempo Real e Exura Coins
+
+**Goal:** Reorganizar a barra superior do HUD (`TopBar.tsx`) em 3 clusters semânticos (Esquerda: Perfil e Moedas com fonte ampliada e ícone de monte de ouro; Centro: Contador dinâmico de Players Online sincronizado via Colyseus; Direita: Acesso à Loja de Equipamentos e utilitários), renomeando as moedas para Exura Coins.
+
+**Requirements:**
+- Cluster esquerdo com dados do personagem e moedas com ícone `gold-stack.png` e tipografia destacada.
+- Cluster central com badge temático de Players Online atualizado em tempo real.
+- Cluster direito com botão da loja e controles de sistema.
+- Renomeação visual e textual para Exura Coins.
+- 0 erros de tipagem no TypeScript e 100% testes aprovados.
+
+**Status:** Complete
+- Resumo de entrega: `.planning/phases/phase-184-topbar-and-live-players/184-SUMMARY.md`
+
+---
+
+### Phase 185: Trilha Sonora Dinâmica por Hunt, Restauração do Vídeo songtibia.webm e Sincronização VPS
+
+**Goal:** Subir as 7 músicas de fundo e o vídeo de login `songtibia.webm` para o servidor VPS via SFTP; implementar o sistema de reprodução dinâmica de trilha sonora em `audioManager.ts` associando cada hunt ao seu tema musical respectivo baseado no nome dos arquivos; e validar a exibição perfeita do vídeo de login na tela de seleção de personagem.
+
+**Requirements:**
+- SFTP upload de `songs/songtibia.webm` para `/root/tibia-idle/public/songtibia.webm`.
+- SFTP upload das 7 faixas de música para `/root/tibia-idle/public/songs/` e `/root/tibia-idle/songs/`.
+- Mapeamento dinâmico em `apps/web/lib/audioManager.ts`:
+  - `rat-cellars` -> `Beneath the Streets - Rats.mp3`
+  - `troll-camp` -> `Drums Under Stone - Trolls.mp3`
+  - `rotworm-cave` -> `Underfoot - Rotworms.mp3`
+  - `old-crypt` -> `The Dead Remember - Skeletons.mp3`
+  - `spider-burrow` -> `Threads in the Dark - Spiders.mp3`
+  - `dragon-lair` -> `Dragons pride.mp3`
+  - `city` / `thais` -> `Sunset in the Village.mp3`
+- Integração de transições suaves e toasts no `GamePrototype.tsx`.
+- 100% dos testes Vitest passando e 0 erros de tipagem TypeScript.
+- Verificação online com código HTTP 200 para os assets de mídia na VPS.
+
+**Status:** In Progress
+
 
 
 

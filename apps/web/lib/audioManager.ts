@@ -11,6 +11,8 @@ export interface AudioState {
   isMuted: boolean;
   isPlayingCityBgm: boolean;
   isPlayingDragonBgm?: boolean;
+  isPlayingHuntBgm?: boolean;
+  currentTrack?: MusicTrackInfo | null;
 }
 
 export interface MusicTrackInfo {
@@ -18,6 +20,7 @@ export interface MusicTrackInfo {
   title: string;
   subtitle?: string;
   location?: string;
+  url?: string;
 }
 
 export const THAIS_THEME_TRACK: MusicTrackInfo = {
@@ -25,6 +28,7 @@ export const THAIS_THEME_TRACK: MusicTrackInfo = {
   title: 'Thais Theme',
   subtitle: 'Sunset in the Village',
   location: 'Cidade de Thais',
+  url: CITY_SONG_URL,
 };
 
 export const DRAGONS_PRIDE_TRACK: MusicTrackInfo = {
@@ -32,7 +36,97 @@ export const DRAGONS_PRIDE_TRACK: MusicTrackInfo = {
   title: 'Dragons Pride',
   subtitle: "Dragon's Lair",
   location: 'Profundezas Chamuscadas',
+  url: DRAGON_LAIR_SONG_URL,
 };
+
+export const RATS_THEME_TRACK: MusicTrackInfo & { url: string } = {
+  id: 'rat-cellars',
+  title: 'Beneath the Streets',
+  subtitle: 'Rat Cellars',
+  location: 'Porões Infestados',
+  url: '/songs/beneath-the-streets-rats.mp3',
+};
+
+export const TROLLS_THEME_TRACK: MusicTrackInfo & { url: string } = {
+  id: 'troll-camp',
+  title: 'Drums Under Stone',
+  subtitle: 'Troll Camp',
+  location: 'Covil dos Trolls',
+  url: '/songs/drums-under-stone-trolls.mp3',
+};
+
+export const ROTWORMS_THEME_TRACK: MusicTrackInfo & { url: string } = {
+  id: 'rotworm-cave',
+  title: 'Underfoot',
+  subtitle: 'Rotworm Cave',
+  location: 'Túneis Escavados',
+  url: '/songs/underfoot-rotworms.mp3',
+};
+
+export const SKELETONS_THEME_TRACK: MusicTrackInfo & { url: string } = {
+  id: 'old-crypt',
+  title: 'The Dead Remember',
+  subtitle: 'Old Crypt',
+  location: 'Cripta Inquieta',
+  url: '/songs/the-dead-remember-skeletons.mp3',
+};
+
+export const SPIDERS_THEME_TRACK: MusicTrackInfo & { url: string } = {
+  id: 'spider-burrow',
+  title: 'Threads in the Dark',
+  subtitle: 'Spider Burrow',
+  location: 'Toca Enredada',
+  url: '/songs/threads-in-the-dark-spiders.mp3',
+};
+
+export const HUNT_MUSIC_TRACKS: Record<string, MusicTrackInfo & { url: string }> = {
+  // Rats
+  'rat-cellars': RATS_THEME_TRACK,
+  'rats': RATS_THEME_TRACK,
+  'rat': RATS_THEME_TRACK,
+
+  // Spiders
+  'spider-burrow': SPIDERS_THEME_TRACK,
+  'spider-lair': SPIDERS_THEME_TRACK,
+  'spiders': SPIDERS_THEME_TRACK,
+  'spider': SPIDERS_THEME_TRACK,
+
+  // Trolls
+  'troll-camp': TROLLS_THEME_TRACK,
+  'troll-caves': TROLLS_THEME_TRACK,
+  'trolls': TROLLS_THEME_TRACK,
+  'troll': TROLLS_THEME_TRACK,
+
+  // Skeletons
+  'old-crypt': SKELETONS_THEME_TRACK,
+  'skeleton-crypt': SKELETONS_THEME_TRACK,
+  'skeletons': SKELETONS_THEME_TRACK,
+  'skeleton': SKELETONS_THEME_TRACK,
+
+  // Rotworms
+  'rotworm-cave': ROTWORMS_THEME_TRACK,
+  'rotworm-mines': ROTWORMS_THEME_TRACK,
+  'rotworms': ROTWORMS_THEME_TRACK,
+  'rotworm': ROTWORMS_THEME_TRACK,
+
+  // Dragons
+  'dragon-lair': { ...DRAGONS_PRIDE_TRACK, url: DRAGON_LAIR_SONG_URL },
+  'dragons-pride': { ...DRAGONS_PRIDE_TRACK, url: DRAGON_LAIR_SONG_URL },
+  'dragons': { ...DRAGONS_PRIDE_TRACK, url: DRAGON_LAIR_SONG_URL },
+  'dragon': { ...DRAGONS_PRIDE_TRACK, url: DRAGON_LAIR_SONG_URL },
+};
+
+export function getTrackForHunt(huntId: string): (MusicTrackInfo & { url: string }) | null {
+  if (!huntId) return null;
+  const normalized = huntId.toLowerCase().trim();
+  if (HUNT_MUSIC_TRACKS[normalized]) return HUNT_MUSIC_TRACKS[normalized];
+  for (const [key, track] of Object.entries(HUNT_MUSIC_TRACKS)) {
+    if (normalized.includes(key) || key.includes(normalized)) {
+      return track;
+    }
+  }
+  return null;
+}
 
 type AudioCallback = (state: AudioState) => void;
 type TrackNotificationCallback = (track: MusicTrackInfo) => void;
@@ -44,8 +138,14 @@ let cachedVolume: number | null = null;
 let cachedMuted: boolean | null = null;
 let cityAudioElement: HTMLAudioElement | null = null;
 let dragonAudioElement: HTMLAudioElement | null = null;
+let currentHuntAudioElement: HTMLAudioElement | null = null;
+let currentHuntTrack: (MusicTrackInfo & { url: string }) | null = null;
+
+const audioPool = new Map<string, HTMLAudioElement>();
+
 let isCityBgmActive = false;
 let isDragonBgmActive = false;
+let isHuntBgmActive = false;
 let unlockerAttached = false;
 let currentTrack: MusicTrackInfo | null = null;
 
@@ -76,7 +176,9 @@ function notifyListeners(): void {
     volume: getAudioVolume(),
     isMuted: isAudioMuted(),
     isPlayingCityBgm: isCityBgmActive && Boolean(cityAudioElement && !cityAudioElement.paused),
-    isPlayingDragonBgm: isDragonBgmActive && Boolean(dragonAudioElement && !dragonAudioElement.paused),
+    isPlayingDragonBgm: (isDragonBgmActive || (isHuntBgmActive && currentHuntTrack?.id === 'dragons-pride')) && Boolean((dragonAudioElement && !dragonAudioElement.paused) || (currentHuntAudioElement && !currentHuntAudioElement.paused && currentHuntTrack?.id === 'dragons-pride')),
+    isPlayingHuntBgm: isHuntBgmActive && Boolean(currentHuntAudioElement && !currentHuntAudioElement.paused),
+    currentTrack,
   };
   listeners.forEach((cb) => {
     try {
@@ -119,6 +221,12 @@ export function setAudioVolume(value: number): void {
   if (dragonAudioElement) {
     dragonAudioElement.volume = effectiveVol;
   }
+  if (currentHuntAudioElement) {
+    currentHuntAudioElement.volume = effectiveVol;
+  }
+  audioPool.forEach((audio) => {
+    audio.volume = effectiveVol;
+  });
   notifyListeners();
 }
 
@@ -150,12 +258,20 @@ export function setAudioMuted(muted: boolean): void {
   if (dragonAudioElement) {
     dragonAudioElement.volume = effectiveVol;
   }
+  if (currentHuntAudioElement) {
+    currentHuntAudioElement.volume = effectiveVol;
+  }
+  audioPool.forEach((audio) => {
+    audio.volume = effectiveVol;
+  });
   notifyListeners();
   if (!cachedMuted) {
     if (isCityBgmActive) {
       triggerTrackNotification(THAIS_THEME_TRACK);
     } else if (isDragonBgmActive) {
       triggerTrackNotification(DRAGONS_PRIDE_TRACK);
+    } else if (isHuntBgmActive && currentHuntTrack) {
+      triggerTrackNotification(currentHuntTrack);
     }
   }
 }
@@ -166,16 +282,26 @@ export function toggleAudioMuted(): boolean {
   return next;
 }
 
+function getOrCreateAudio(url: string): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null;
+  let audio = audioPool.get(url);
+  if (!audio) {
+    audio = new Audio(url);
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.volume = isAudioMuted() ? 0 : getAudioVolume();
+    audio.addEventListener('play', () => notifyListeners());
+    audio.addEventListener('pause', () => notifyListeners());
+    audio.addEventListener('ended', () => notifyListeners());
+    audioPool.set(url, audio);
+  }
+  return audio;
+}
+
 function getOrCreateCityAudio(): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null;
   if (!cityAudioElement) {
-    cityAudioElement = new Audio(CITY_SONG_URL);
-    cityAudioElement.loop = true;
-    cityAudioElement.preload = 'auto';
-    cityAudioElement.volume = isAudioMuted() ? 0 : getAudioVolume();
-    cityAudioElement.addEventListener('play', () => notifyListeners());
-    cityAudioElement.addEventListener('pause', () => notifyListeners());
-    cityAudioElement.addEventListener('ended', () => notifyListeners());
+    cityAudioElement = getOrCreateAudio(CITY_SONG_URL);
   }
   return cityAudioElement;
 }
@@ -183,13 +309,7 @@ function getOrCreateCityAudio(): HTMLAudioElement | null {
 function getOrCreateDragonAudio(): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null;
   if (!dragonAudioElement) {
-    dragonAudioElement = new Audio(DRAGON_LAIR_SONG_URL);
-    dragonAudioElement.loop = true;
-    dragonAudioElement.preload = 'auto';
-    dragonAudioElement.volume = isAudioMuted() ? 0 : getAudioVolume();
-    dragonAudioElement.addEventListener('play', () => notifyListeners());
-    dragonAudioElement.addEventListener('pause', () => notifyListeners());
-    dragonAudioElement.addEventListener('ended', () => notifyListeners());
+    dragonAudioElement = getOrCreateAudio(DRAGON_LAIR_SONG_URL);
   }
   return dragonAudioElement;
 }
@@ -250,6 +370,12 @@ const handleGlobalInteraction = async () => {
       playSuccess = true;
     } catch {}
   }
+  if (isHuntBgmActive && currentHuntAudioElement) {
+    try {
+      await currentHuntAudioElement.play();
+      playSuccess = true;
+    } catch {}
+  }
   if (playSuccess) {
     notifyAutoplayBlocked(false);
     detachUnlocker();
@@ -285,6 +411,12 @@ export async function unlockAudio(): Promise<boolean> {
       success = true;
     } catch {}
   }
+  if (isHuntBgmActive && currentHuntAudioElement) {
+    try {
+      await currentHuntAudioElement.play();
+      success = true;
+    } catch {}
+  }
   if (success) {
     notifyAutoplayBlocked(false);
     detachUnlocker();
@@ -294,11 +426,17 @@ export async function unlockAudio(): Promise<boolean> {
 
 export function playCityBgm(): void {
   if (typeof window === 'undefined') return;
-  // Stop Dragon Lair BGM so songs don't collide
+
+  // Stop hunt / Dragon Lair BGM so songs don't collide
   isDragonBgmActive = false;
+  isHuntBgmActive = false;
   if (dragonAudioElement && !dragonAudioElement.paused) {
     dragonAudioElement.pause();
     dragonAudioElement.currentTime = 0;
+  }
+  if (currentHuntAudioElement && !currentHuntAudioElement.paused) {
+    currentHuntAudioElement.pause();
+    currentHuntAudioElement.currentTime = 0;
   }
 
   isCityBgmActive = true;
@@ -317,7 +455,7 @@ export function playCityBgm(): void {
         notifyAutoplayBlocked(false);
         detachUnlocker();
       })
-      .catch((err) => {
+      .catch(() => {
         // Browser autoplay policy prevented playback without gesture; arm unlocker
         setupAutoplayUnlocker();
       });
@@ -348,37 +486,96 @@ export function resumeCityBgm(): void {
   }
 }
 
-export function playDragonLairBgm(): void {
+export function playHuntBgm(huntId: string): void {
   if (typeof window === 'undefined') return;
+
   // Pause city BGM so it doesn't overlap
-  isCityBgmActive = false;
-  if (cityAudioElement && !cityAudioElement.paused) {
-    cityAudioElement.pause();
+  pauseCityBgm();
+
+  const track = getTrackForHunt(huntId);
+  if (!track) {
+    console.warn(`[audioManager] No track found for hunt: ${huntId}`);
+    return;
   }
 
-  isDragonBgmActive = true;
-  currentTrack = DRAGONS_PRIDE_TRACK;
+  // If already playing this exact hunt track, do nothing
+  if (isHuntBgmActive && currentHuntTrack?.id === track.id && currentHuntAudioElement && !currentHuntAudioElement.paused) {
+    return;
+  }
 
-  const audio = getOrCreateDragonAudio();
+  // Stop previous hunt audio
+  if (currentHuntAudioElement && (!currentHuntTrack || currentHuntTrack.id !== track.id)) {
+    currentHuntAudioElement.pause();
+    currentHuntAudioElement.currentTime = 0;
+  }
+
+  // If switching to dragon-lair, synchronize dragonAudioElement
+  if (track.id === 'dragons-pride' || huntId === 'dragon-lair') {
+    isDragonBgmActive = true;
+  } else {
+    isDragonBgmActive = false;
+    if (dragonAudioElement && !dragonAudioElement.paused) {
+      dragonAudioElement.pause();
+      dragonAudioElement.currentTime = 0;
+    }
+  }
+
+  isHuntBgmActive = true;
+  currentHuntTrack = track;
+  currentTrack = track;
+
+  const audio = getOrCreateAudio(track.url);
   if (!audio) return;
+  currentHuntAudioElement = audio;
 
   audio.volume = isAudioMuted() ? 0 : getAudioVolume();
   audio.loop = true;
 
   const playPromise = audio.play();
   if (playPromise !== undefined) {
-    playPromise.catch(() => {
-      // Browser autoplay policy prevented playback without gesture; arm unlocker
-      setupAutoplayUnlocker();
-    });
+    playPromise
+      .then(() => {
+        notifyAutoplayBlocked(false);
+        detachUnlocker();
+      })
+      .catch(() => {
+        setupAutoplayUnlocker();
+      });
   }
   notifyListeners();
+}
+
+export function pauseHuntBgm(): void {
+  isHuntBgmActive = false;
+  if (currentHuntAudioElement && !currentHuntAudioElement.paused) {
+    currentHuntAudioElement.pause();
+  }
+  notifyListeners();
+}
+
+export function stopHuntBgm(): void {
+  isHuntBgmActive = false;
+  if (currentHuntAudioElement) {
+    currentHuntAudioElement.pause();
+    currentHuntAudioElement.currentTime = 0;
+  }
+  currentHuntTrack = null;
+  notifyListeners();
+}
+
+export function playDragonLairBgm(): void {
+  if (typeof window === 'undefined') return;
+  // Forward to playHuntBgm with 'dragon-lair'
+  playHuntBgm('dragon-lair');
 }
 
 export function pauseDragonLairBgm(): void {
   isDragonBgmActive = false;
   if (dragonAudioElement && !dragonAudioElement.paused) {
     dragonAudioElement.pause();
+  }
+  if (currentHuntAudioElement && currentHuntTrack?.id === 'dragons-pride' && !currentHuntAudioElement.paused) {
+    currentHuntAudioElement.pause();
   }
   notifyListeners();
 }
@@ -389,23 +586,35 @@ export function stopDragonLairBgm(): void {
     dragonAudioElement.pause();
     dragonAudioElement.currentTime = 0;
   }
+  if (currentHuntAudioElement && currentHuntTrack?.id === 'dragons-pride') {
+    currentHuntAudioElement.pause();
+    currentHuntAudioElement.currentTime = 0;
+  }
   notifyListeners();
 }
 
 export function stopAllAudio(): void {
   stopCityBgm();
   stopDragonLairBgm();
+  stopHuntBgm();
+  audioPool.forEach((audio) => {
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+    } catch {}
+  });
 }
 
 export function onAudioChange(cb: AudioCallback): () => void {
   listeners.add(cb);
-  // Emit current state immediately
   try {
     cb({
       volume: getAudioVolume(),
       isMuted: isAudioMuted(),
       isPlayingCityBgm: isCityBgmActive && Boolean(cityAudioElement && !cityAudioElement.paused),
-      isPlayingDragonBgm: isDragonBgmActive && Boolean(dragonAudioElement && !dragonAudioElement.paused),
+      isPlayingDragonBgm: (isDragonBgmActive || (isHuntBgmActive && currentHuntTrack?.id === 'dragons-pride')) && Boolean((dragonAudioElement && !dragonAudioElement.paused) || (currentHuntAudioElement && !currentHuntAudioElement.paused && currentHuntTrack?.id === 'dragons-pride')),
+      isPlayingHuntBgm: isHuntBgmActive && Boolean(currentHuntAudioElement && !currentHuntAudioElement.paused),
+      currentTrack,
     });
   } catch {}
   return () => {

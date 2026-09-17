@@ -1627,7 +1627,7 @@ function BardChromaVideo({
         autoPlay
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         crossOrigin="anonymous"
         onLoadedMetadata={(e) => {
           if (e.currentTarget.currentTime < 14) {
