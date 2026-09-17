@@ -17,6 +17,11 @@ import {
 } from '@/apps/web/lib/outfitRecolor';
 import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
 import { preloadAppearanceAtlas, cancelAtlasScope } from '@/apps/web/lib/outfitAtlasLoader';
+import {
+  loadThumbnailAtlas,
+  isThumbnailAtlasReady,
+  getThumbnailAtlasFrame,
+} from '@/apps/web/lib/thumbnailAtlasLoader';
 
 export { TIBIA_133_COLORS } from '@/apps/web/lib/outfitRecolor';
 
@@ -106,16 +111,20 @@ export const TIBIA_PALETTE = TIBIA_133_COLORS.slice(0, 16).map((color, id) => ({
 const DIRECTIONS = ['south', 'east', 'north', 'west'] as const;
 type Direction = (typeof DIRECTIONS)[number];
 
-function LazyCardImage({
-  src,
+function CardThumbnail({
+  type,
+  id,
   alt,
   className,
   fallback,
+  atlasLoaded,
 }: {
-  src: string;
+  type: 'outfits' | 'mounts';
+  id: string;
   alt: string;
   className?: string;
-  fallback?: string;
+  fallback: string;
+  atlasLoaded: boolean;
 }) {
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -140,23 +149,59 @@ function LazyCardImage({
     return () => obs.disconnect();
   }, []);
 
-  return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {inView ? (
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          decoding="async"
+  if (!inView) {
+    return (
+      <div
+        ref={containerRef}
+        style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      />
+    );
+  }
+
+  const frameInfo = atlasLoaded ? getThumbnailAtlasFrame(type, id) : null;
+  if (frameInfo) {
+    return (
+      <div
+        ref={containerRef}
+        style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <div
           className={className}
-          style={{ imageRendering: 'pixelated' }}
-          onError={(e) => {
-            if (fallback && e.currentTarget.src !== fallback && !e.currentTarget.src.endsWith(fallback)) {
-              e.currentTarget.src = fallback;
-            }
+          style={{
+            width: '64px',
+            height: '64px',
+            backgroundImage: `url(${frameInfo.atlasUrl})`,
+            backgroundPosition: `-${frameInfo.frame.x}px -${frameInfo.frame.y}px`,
+            backgroundRepeat: 'no-repeat',
+            imageRendering: 'pixelated',
+            flexShrink: 0,
           }}
+          role="img"
+          aria-label={alt}
+          title={alt}
         />
-      ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <img
+        src={fallback}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className={className}
+        style={{ imageRendering: 'pixelated' }}
+        onError={(e) => {
+          if (fallback && e.currentTarget.src !== fallback && !e.currentTarget.src.endsWith(fallback)) {
+            e.currentTarget.src = fallback;
+          }
+        }}
+      />
     </div>
   );
 }
@@ -213,6 +258,27 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const activeChar = characters.find((c) => c.id === selectedCharId) || characters[0];
   const charGender: 'male' | 'female' = activeChar?.gender === 'female' ? 'female' : 'male';
   const currentCaps = getOutfitCapabilities(selectedOutfit);
+
+  const [outfitAtlasReady, setOutfitAtlasReady] = useState(() => isThumbnailAtlasReady('outfits'));
+  const [mountAtlasReady, setMountAtlasReady] = useState(() => isThumbnailAtlasReady('mounts'));
+
+  // On-demand loading of thumbnail atlas when modal opens or tab switches
+  useEffect(() => {
+    if (!open) return;
+    let isMounted = true;
+    if (selectedTab === 'outfits') {
+      loadThumbnailAtlas('outfits').then((ready) => {
+        if (isMounted && ready) setOutfitAtlasReady(true);
+      });
+    } else {
+      loadThumbnailAtlas('mounts').then((ready) => {
+        if (isMounted && ready) setMountAtlasReady(true);
+      });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [open, selectedTab]);
 
   // Pre-warm atlas textures via speculative download as soon as appearance selection changes
   useEffect(() => {
@@ -742,11 +808,13 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                       }}
                     >
                       <div className="tibia-card-sprite-wrap">
-                        <LazyCardImage
-                          src={getOutfitThumbUrl(outfit.id, charGender)}
+                        <CardThumbnail
+                          type="outfits"
+                          id={normalizeOutfitId(outfit.id)}
                           alt={outfit.name}
                           className="tibia-card-sprite"
-                          fallback={`/generated/outfit-thumbs/${normalizeOutfitId(outfit.id)}.png`}
+                          fallback={getOutfitThumbUrl(outfit.id, charGender)}
+                          atlasLoaded={outfitAtlasReady}
                         />
                       </div>
                       <span className="tibia-card-name">{outfit.name}</span>
@@ -782,10 +850,13 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                     >
                       <div className="tibia-card-sprite-wrap">
                         {getMountThumbUrl(mount.id) ? (
-                          <LazyCardImage
-                            src={getMountThumbUrl(mount.id)!}
+                          <CardThumbnail
+                            type="mounts"
+                            id={mount.id}
                             alt={mount.name}
                             className="tibia-card-sprite mount-sprite"
+                            fallback={getMountThumbUrl(mount.id)!}
+                            atlasLoaded={mountAtlasReady}
                           />
                         ) : (
                           <div className="tibia-card-no-mount-placeholder" title="Sem Montaria">

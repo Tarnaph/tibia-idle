@@ -142,6 +142,16 @@ export interface OutfitAttemptLog {
     fallbackPngsInitiated?: boolean;
     error?: string;
   };
+  thumbnails?: {
+    outfitsColdLoadMs?: number;
+    mountsColdLoadMs?: number;
+    outfitsWarmAvgMs?: number;
+    mountsWarmAvgMs?: number;
+    outfitsAtlasCount: number;
+    mountsAtlasCount: number;
+    outfitsFallbackCount: number;
+    mountsFallbackCount: number;
+  };
   jsErrors: Array<{ message: string; stack?: string; timestamp: number }>;
   divergences: string[];
 }
@@ -227,10 +237,67 @@ class OutfitDiagnosticsManager {
         apiDispatched: false,
       },
       arena: {},
+      thumbnails: {
+        outfitsColdLoadMs: undefined,
+        mountsColdLoadMs: undefined,
+        outfitsWarmAvgMs: undefined,
+        mountsWarmAvgMs: undefined,
+        outfitsAtlasCount: 0,
+        mountsAtlasCount: 0,
+        outfitsFallbackCount: 0,
+        mountsFallbackCount: 0,
+      },
       jsErrors: [...this.capturedErrors],
       divergences: [],
     };
     return attemptId;
+  }
+
+  recordThumbnailColdLoad(type: 'outfits' | 'mounts', durationMs: number): void {
+    if (!this.currentAttempt) return;
+    if (!this.currentAttempt.thumbnails) {
+      this.currentAttempt.thumbnails = {
+        outfitsAtlasCount: 0,
+        mountsAtlasCount: 0,
+        outfitsFallbackCount: 0,
+        mountsFallbackCount: 0,
+      };
+    }
+    if (type === 'outfits') {
+      this.currentAttempt.thumbnails.outfitsColdLoadMs = durationMs;
+    } else {
+      this.currentAttempt.thumbnails.mountsColdLoadMs = durationMs;
+    }
+  }
+
+  recordThumbnailRender(type: 'outfits' | 'mounts', durationMs: number, fromAtlas: boolean): void {
+    if (!this.currentAttempt) return;
+    if (!this.currentAttempt.thumbnails) {
+      this.currentAttempt.thumbnails = {
+        outfitsAtlasCount: 0,
+        mountsAtlasCount: 0,
+        outfitsFallbackCount: 0,
+        mountsFallbackCount: 0,
+      };
+    }
+    const t = this.currentAttempt.thumbnails;
+    if (type === 'outfits') {
+      if (fromAtlas) {
+        t.outfitsAtlasCount++;
+        const prevAvg = t.outfitsWarmAvgMs ?? 0;
+        t.outfitsWarmAvgMs = Number(((prevAvg * (t.outfitsAtlasCount - 1) + durationMs) / t.outfitsAtlasCount).toFixed(2));
+      } else {
+        t.outfitsFallbackCount++;
+      }
+    } else {
+      if (fromAtlas) {
+        t.mountsAtlasCount++;
+        const prevAvg = t.mountsWarmAvgMs ?? 0;
+        t.mountsWarmAvgMs = Number(((prevAvg * (t.mountsAtlasCount - 1) + durationMs) / t.mountsAtlasCount).toFixed(2));
+      } else {
+        t.mountsFallbackCount++;
+      }
+    }
   }
 
   updateSelection(selection: OutfitAttemptLog['selection'], attemptId?: string): void {
