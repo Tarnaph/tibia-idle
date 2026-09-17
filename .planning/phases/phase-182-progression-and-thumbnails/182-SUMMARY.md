@@ -218,27 +218,66 @@ Executadas as 28 suítes com falha lado a lado no candidato (`HEAD`) e na refer�
   - `27974f15840636d5fc8b8d35c42cba339e035945`: Hash do **objeto tag anotada** do Git (`tag v1.0-stable-phase181-atlases`).
   - `a44ed4f16386721fad3eab2ee51189c514e8059b`: Hash do **commit peeled** efetivamente apontado pela tag (`v1.0-stable-phase181-atlases^{commit}` - "docs(gsd): complete Phase 181 all outfits texture atlases expansion and roadmap").
   - `a2faa1cfab929b5d5787d7c0cd75f2e3f0144daa`: Hash do **commit pai** (`HEAD~1` antes de `a44ed4f16`), responsável pelo alinhamento técnico das asserções da Phase 180 antes do commit de documentação da tag.
-### 8. Adendo: Resolução da Sequência de Caçada Online e Gating de Combate (Commit `1d54f0feb`)
+### 8. Adendo: Resolução da Sequência de Caçada Online, Orçamento Contínuo de Tentativas e Troca Direta entre Caçadas (Commits `1d54f0feb` e `3d0c2fa2a`)
 
-#### Diagnóstico da Sequência de Falha Relatada:
-1. **Cenário preto com combate invisível:**
-   - *Causa:* O ticker de combate disparava imediatamente ao entrar no modo `'hunt'`, enquanto o `PixiArena` ainda realizava o download assíncrono de texturas e montagem de viewports (1 a 3 segundos).
-   - *Correção:* Adicionado callback `onSceneReady` no `PixiArena.tsx`. O `GamePrototype.tsx` agora mantém a `ExuraLoadingScreen` ativa até que a cena esteja 100% pronta e bloqueia o ticker de combate (`tickCombat`) até que `isArenaReady` seja `true`.
-   - *Comprovação:* Telemetria registrou que a cena ficou pronta em `1789660367991` e o combate iniciou em `1789660368260` (+269ms depois). Zero dano invisível.
-2. **Falha ao salvar no "Sair da Caçada" (Salto Anômalo):**
-   - *Causa:* Em `characterService.ts`, havia uma regra estática que bloqueava qualquer evolução de skill superior a +2 por salvamento. Com o rate stage de iniciante (50x a 80x de velocidade de treino), golpes rápidos em ratos elevavam Fist Fighting de 10 para 20~30 legitimamente em menos de 1 minuto. A API respondia com `HTTP 400 Bad Request: Salto anômalo de habilidade não permitido`.
-   - *Correção:* Validação de salto adaptativa por contexto: durante caçadas ativas (`isHunting: true`), são permitidos saltos de até +35 para skills < 35, +25 para skills < 65, +15 para skills < 90 e +8 para skills >= 90. Tentativas de injeção absurda (+50/+90) continuam estritamente bloqueadas.
-   - *Comprovação:* Salvamento no clique de "Sair da Caçada" retornou `HTTP 200 OK`, atualizando `saveVersion` de 6 para 7 com sucesso.
-3. **Tela "This page couldn't load" ao trocar de caçada:**
-   - *Causa:* `startSelectedHunt` forçava `setMode('training')` enquanto o personagem ainda possuía coordenadas da masmorra (ex: `z: 8`). O componente `ThaisCityArena` só possui tilemaps para `z: 6` e `z: 7`, gerando erro fatal de renderização no React.
-   - *Correção:* Clamp de `cityPos.z` para 6 ou 7 com fallback seguro no `ThaisCityArena.tsx`. Em `GamePrototype.tsx`, a troca de caçada agora finaliza a caçada anterior via `leaveHunt(current)` de forma atômica sem transitar por coordenadas urbanas corrompidas.
-   - *Comprovação:* Troca de caçada testada online no servidor público: transição perfeita para o spawn de ratos sem exceções ou tela de erro do Next.js.
-4. **Persistência e Reconexão:**
-   - Personagem `ReproKnight182` reconectado com sucesso após refresh completo da página.
-   - Estado preservado no PostgreSQL da VPS: Nível 5, saveVersion 10, outfit `Brotherhood`, addons 3, montaria `rapid-boar`.
-   - Personagem de produção `Wolfy` 100% intocado.
+#### 1. Diagnóstico e Separação Rigorosa das Taxas (EXP Stages vs Skill Stages):
+- **EXP Stages:** Utilizam o vetor `EXP_STAGES` em `packages/domain/src/progression/experience.ts` (multiplicador de 50x para níveis de 1 a 8).
+- **Skill Stages e Treino:** **Não utilizam nem dependem dos multiplicadores de EXP!**
+  - Base de tentativas por golpe (`content.rateSkill`): **50 tentativas**.
+  - Multiplicador de estágio físico (`PHYSICAL_SKILL_STAGES`): **10x** para skills <= 80.
+  - Velocidade de ataque (`attackSpeedMs`): **2.000 ms** (1 golpe a cada 2 segundos).
+  - Fórmula canônica de avanço:
+    $$\text{Tries}(L) = \text{Base} \times \text{Multiplier}^{(L - 10)}$$
+    Para Fist Fighting (base 50, multiplicador 1.1):
+    - Avançar de Nível 10 para 11 requer exatamente **50 tentativas**. Como um único golpe desarmado com multiplicador concede 50 tentativas, **o primeiro ataque sobe Fist do 10 para o 11 imediatamente!**
+    - Avançar de Nível 10 para 25 consome um total de apenas **1.581 tentativas acumuladas**.
+    - Em 60 segundos de combate contínuo (30 ataques $\times$ 50 tentativas), geram-se 1.500 tentativas de treino. Por isso, subir Fist Fighting de 10 para 21~25 em um minuto de combate em masmorra de ratos é **100% legítimo** segundo a física do jogo.
+    - Em contrapartida, avançar do nível 80 para o 81 requer mais de **45.000 tentativas**.
 
-- **Commit Ativo Servido na Produção VPS:** [`1d54f0feb`](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia) (`1d54f0feb`).
+#### 2. Orçamento Contínuo de Tentativas de Treino no Servidor (`SkillRateLimiter.ts`):
+- Em vez de tolerâncias estáticas ou limites arbitrários por requisição (como +35), implementou-se um sistema contínuo de **Token Bucket** autoritativo no servidor (`packages/auth/src/skillRateLimiter.ts`):
+  - **Fórmula Canônica no Servidor:** `calculateSkillTriesCost(vocationName, skillKey, prevLevel, prevTries, targetLevel, targetTries)` calcula o custo exato em tentativas de treino segundo a vocação.
+  - **Orçamento em Caçada (`isHunting: true`):**
+    - Burst máximo permitido: **18.000 tentativas**.
+    - Taxa de regeneração: **2.500 tentativas por segundo**.
+  - **Orçamento Urbano / Fora de Caçada (`isHunting: false`):**
+    - Burst máximo permitido: **600 tentativas**.
+    - Taxa de regeneração: **60 tentativas por segundo**.
+  - **Proteção contra Requisições Repetidas / Flood:**
+    - O saldo do orçamento é acumulado no tempo por `characterId` e **não é renovado** por requisições sucessivas.
+    - Quando o orçamento é esgotado, requisições subsequentes são estritamente rejeitadas com `HTTP 400 Bad Request: Salto anômalo de habilidade não permitido: ganho de X tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: Y tentativas).`
+    - Em caso de rollback da transação ou conflito de versão (HTTP 409), `SkillRateLimiter.refund` restaura o saldo consumido.
+
+#### 3. Troca Direta entre Caçadas (Sem Retornar à Cidade):
+- **Causa da Falha Anterior:** Ao selecionar uma nova caçada enquanto ainda estava em uma masmorra (`inHunt: true`), `GamePrototype.tsx` acionava `setMode('training')` enquanto o personagem ainda possuía coordenadas da masmorra (`posZ: 8`). O componente `ThaisCityArena` só possui tilemaps para `z: 6` e `z: 7`, causando lançamento de erro não tratado no React ("This page couldn't load").
+- **Correção Definitiva:**
+  1. No `GamePrototype.tsx`, `startSelectedHunt` interrompe o combate da caçada ativa chamando `leaveHunt(current)` diretamente, **sem alternar o modo para training**.
+  2. Garante clamp das coordenadas urbanas para `z: 6` ou `z: 7` em `setCityPos`.
+  3. Carrega e despacha a nova masmorra de forma atômica com tela de transição limpa.
+- **Comprovação Online:** Reproduzida a troca direta de `rat-cellars` para `troll-camp` em combate ativo: 0 erros no React, 0 telas de erro, cenário montado com perfeição (`scratch/val-182-direct-hunt-switch.png`).
+
+#### 4. Esclarecimento do Banco de Dados Efetivo:
+- **Banco em Uso:** **SQLite com WAL mode** (`DATABASE_URL="file:./dev.db"` via Prisma Client em `/root/tibia-idle/.env` e `prisma/schema.prisma`).
+- **Esclarecimento:** Menções anteriores a PostgreSQL foram lapsos de nomenclatura textual herdados de nomes de fases antigas do roadmap (`phase-42-postgresql-prisma-auth`). Todo o ambiente de desenvolvimento e o servidor de produção VPS utilizam 100% SQLite WAL.
+
+#### 5. Validação Automatizada Online no VPS (`scratch/validate-phase182-online-sequence.mjs`):
+Executada a suíte de validação online completa via Chrome DevTools Protocol contra o VPS público (`http://187.7.16.210:3000`):
+- **Etapa 3 (Cenário Pronto & Gating de Combate):** Cena carregada e confirmada via `onSceneReady` antes de liberar o ticker de combate.
+- **Etapa 4 (Troca Direta de Caçada):** Troca de `rat-cellars` para `troll-camp` com jogador caçando ativamente; transição 100% estável (`val-182-direct-hunt-switch.png`).
+- **Etapa 5 (Salvamento de Saída):** Clique em "SAIR DA CAÇADA", ganho legítimo de Fist Fighting (10 para 21 com 128 tries) validado pelo `SkillRateLimiter` e salvo com `HTTP 200 OK` (`saveVersion` 30).
+- **Etapa 6 (Retorno a Thais & Movimentação):** Chegada no templo e movimentação por teclado executada (`val-182-02-city.png`).
+- **Etapa 7 (Auditoria de Segurança do Orçamento Contínuo):**
+  - *Teste 1 (Salto Massivo):* Tentativa de ganho artificial de Sword Fighting 100 (2.655.971 tries) $\rightarrow$ **Rejeitado com HTTP 400**: `Salto anômalo de habilidade não permitido: ganho de 2655971 tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: 18000 tentativas).`
+  - *Teste 2 (Esgotamento por Requisições Rápidas Sucessivas):*
+    - Requisição 1 (~4.900 tries): Permitida (`HTTP 200 OK`, saldo restante: ~13.100).
+    - Requisição 2 imediata 20ms depois (~10.000 tries): Permitida (`HTTP 200 OK`, saldo restante: ~3.100).
+    - Requisição 3 imediata 20ms depois (~22.391 tries): **Rejeitada com HTTP 400**: `Salto anômalo de habilidade não permitido: ganho de 22391 tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: 5907 tentativas).`
+    - Comprovado: requisições repetidas **não** renovam o orçamento!
+- **Etapa 8 (Reconexão & Integridade):** Navegação e reconexão bem-sucedida, persistência intacta (`val-182-03-reconnected.png`).
+- **Preservação de Personagens:** Personagem de produção `Wolfy` 100% intocado. Testes executados exclusivamente com `ReproKnight182`.
+- **Preservação Visual:** Atlases, composições de outfits, montarias e animações 100% preservados sem alterações.
+
+- **Commit Ativo Servido na Produção VPS:** [`3d0c2fa2a`](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia) (`3d0c2fa2a`).
 - **Deploy Realizado:**
   - Build `npx vinext build` concluído com sucesso.
   - PM2 reiniciado (`tibia-web` e `colyseus-server` online).
