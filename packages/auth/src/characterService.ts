@@ -610,8 +610,15 @@ export class CharacterService {
             ? Boolean(options?.isHunting)
             : contextResult.isHunting;
 
+          const lastSavedAtMs = existing.lastSavedAt instanceof Date
+            ? existing.lastSavedAt.getTime()
+            : typeof existing.lastSavedAt === 'number' || typeof existing.lastSavedAt === 'bigint'
+            ? Number(existing.lastSavedAt)
+            : 0;
+
           const check = XpRateLimiter.consume(characterId, deltaExp, Date.now(), {
             isHunting,
+            baselineTime: lastSavedAtMs > 0 ? lastSavedAtMs : undefined,
           });
           if (!check.allowed) {
             throw new Error(`Suspicious XP gain: +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}).`);
@@ -755,7 +762,16 @@ export class CharacterService {
         }
 
         if (totalTriesDelta > 0) {
-          const check = SkillRateLimiter.consume(characterId, totalTriesDelta, Date.now(), { isHunting });
+          const lastSavedAtMs = existing.lastSavedAt instanceof Date
+            ? existing.lastSavedAt.getTime()
+            : typeof existing.lastSavedAt === 'number' || typeof existing.lastSavedAt === 'bigint'
+            ? Number(existing.lastSavedAt)
+            : 0;
+
+          const check = SkillRateLimiter.consume(characterId, totalTriesDelta, Date.now(), {
+            isHunting,
+            baselineTime: lastSavedAtMs > 0 ? lastSavedAtMs : undefined,
+          });
           if (!check.allowed) {
             throw new Error(
               `Salto anômalo de habilidade não permitido: ganho de ${totalTriesDelta} tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: ${check.maxAllowed} tentativas).`

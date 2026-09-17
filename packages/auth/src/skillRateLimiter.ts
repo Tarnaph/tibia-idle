@@ -13,6 +13,7 @@ export interface SkillBudgetEntry {
 
 export interface SkillRateLimiterOptions {
   isHunting?: boolean;
+  baselineTime?: number;
 }
 
 export const SKILL_BASE_TRIES: Record<string, number> = {
@@ -199,19 +200,31 @@ export class SkillRateLimiter {
     }
 
     const entry = this.getOrCreate(characterId, now, maxBurst);
+
     const elapsedSeconds = Math.max(0, (now - entry.lastSyncTime) / 1000);
+    let candidateBudget = entry.availableBudget + elapsedSeconds * rate;
 
-    // Reabastece o bucket proporcionalmente ao tempo real decorrido respeitando o teto de burst
-    entry.availableBudget = Math.min(maxBurst, entry.availableBudget + elapsedSeconds * rate);
-    entry.lastSyncTime = now;
+    // Se baselineTime for informado (ex: lastSavedAt do registro do banco),
+    // o orçamento acomoda o tempo decorrido desde o último salvamento com sucesso,
+    // prevenindo impasses de salvamentos acumulados por falha de rede temporária.
+    if (typeof options?.baselineTime === 'number' && options.baselineTime > 0 && options.baselineTime <= now) {
+      const elapsedSinceBaseline = Math.max(0, (now - options.baselineTime) / 1000);
+      const baselineBudget = maxBurst + elapsedSinceBaseline * rate;
+      candidateBudget = Math.min(baselineBudget, Math.max(candidateBudget, baselineBudget));
+    } else {
+      candidateBudget = Math.min(maxBurst, candidateBudget);
+    }
 
-    if (totalTries <= entry.availableBudget) {
-      entry.availableBudget -= totalTries;
+    if (totalTries <= candidateBudget) {
+      entry.availableBudget = candidateBudget - totalTries;
+      entry.lastSyncTime = now;
       return { allowed: true, maxAllowed: totalTries, currentBudget: entry.availableBudget };
     }
 
-    const maxAllowed = Math.floor(entry.availableBudget);
-    return { allowed: false, maxAllowed, currentBudget: entry.availableBudget };
+    // Em caso de rejeição, preserva o timestamp anterior para que tentativas subsequentes
+    // continuem acumulando o tempo decorrido e não entrem em ciclo de fome irreversível.
+    const maxAllowed = Math.floor(candidateBudget);
+    return { allowed: false, maxAllowed, currentBudget: candidateBudget };
   }
 
   public static reset(characterId: string): void {

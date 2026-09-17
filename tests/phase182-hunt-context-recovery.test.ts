@@ -234,4 +234,32 @@ describe('Phase 182.2 - Recuperação Autoritativa de Contexto de Caçada e Prot
     expect(currentActivity!.huntId).toBe('troll-cave');
     expect(currentActivity!.activeSessionId).toBe('new-session-2');
   });
+
+  it('6. Prevenção de Deadlock: Progresso acumulado durante intervalo estendido é validado pelo tempo real decorrido desde o último save (baselineTime)', () => {
+    const charId = 'test-char-baseline-deadlock-182';
+    SkillRateLimiter.reset(charId);
+
+    const now = 1789672622000;
+    // O último salvamento com sucesso no banco ocorreu há 120 segundos (2 minutos)
+    const baselineTime = now - 120 * 1000;
+
+    // Em caçada (9000 tries/s): 120s de combate geram até 120 * 9000 = 1.080.000 tries
+    // O jogador acumulou 280.000 tries durante esses 2 minutos (ex: 3 autosaves com falha temporária)
+    const totalTries = 280_000;
+
+    // Sem baselineTime (apenas o burst inicial de 225.000), 280.000 seria rejeitado
+    const checkWithoutBaseline = SkillRateLimiter.consume(charId, totalTries, now, {
+      isHunting: true,
+    });
+    expect(checkWithoutBaseline.allowed).toBe(false);
+
+    // Com baselineTime (120s atrás), o orçamento acomoda até 225.000 + 120 * 9000 = 1.305.000 tries
+    const checkWithBaseline = SkillRateLimiter.consume(charId, totalTries, now, {
+      isHunting: true,
+      baselineTime,
+    });
+    expect(checkWithBaseline.allowed).toBe(true);
+    expect(checkWithBaseline.maxAllowed).toBe(totalTries);
+  });
 });
+

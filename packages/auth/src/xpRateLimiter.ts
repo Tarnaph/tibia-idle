@@ -11,6 +11,7 @@ export interface XpBudgetEntry {
 
 export interface XpRateLimiterOptions {
   isHunting?: boolean;
+  baselineTime?: number;
 }
 
 // Taxa máxima durante caçadas ativas com stages altos (até 80x * 1.5 stamina verde = 120x)
@@ -104,20 +105,29 @@ export class XpRateLimiter {
     }
 
     const entry = this.getOrCreate(characterId, now, maxBurst);
+
     const elapsedSeconds = Math.max(0, (now - entry.lastSyncTime) / 1000);
+    let candidateBudget = entry.availableBudget + elapsedSeconds * rate;
 
-    // Reabastece o bucket proporcionalmente ao tempo real decorrido respeitando o teto de burst do contexto
-    entry.availableBudget = Math.min(maxBurst, entry.availableBudget + elapsedSeconds * rate);
-    entry.lastSyncTime = now;
+    // Se baselineTime for informado (ex: lastSavedAt do registro do banco),
+    // o teto acomoda o tempo decorrido desde o último salvamento com sucesso
+    if (typeof options?.baselineTime === 'number' && options.baselineTime > 0 && options.baselineTime <= now) {
+      const elapsedSinceBaseline = Math.max(0, (now - options.baselineTime) / 1000);
+      const baselineBudget = maxBurst + elapsedSinceBaseline * rate;
+      candidateBudget = Math.min(baselineBudget, Math.max(candidateBudget, baselineBudget));
+    } else {
+      candidateBudget = Math.min(maxBurst, candidateBudget);
+    }
 
-    if (deltaExp <= entry.availableBudget) {
-      entry.availableBudget -= deltaExp;
+    if (deltaExp <= candidateBudget) {
+      entry.availableBudget = candidateBudget - deltaExp;
+      entry.lastSyncTime = now;
       return { allowed: true, maxAllowed: deltaExp, currentBudget: entry.availableBudget };
     }
 
-    // Se excedeu o orçamento acumulado, informa o máximo permitido no momento sem conceder o excedente
-    const maxAllowed = Math.floor(entry.availableBudget);
-    return { allowed: false, maxAllowed, currentBudget: entry.availableBudget };
+    // Se excedeu o orçamento acumulado, preserva o timestamp anterior
+    const maxAllowed = Math.floor(candidateBudget);
+    return { allowed: false, maxAllowed, currentBudget: candidateBudget };
   }
 
   public static reset(characterId: string) {
