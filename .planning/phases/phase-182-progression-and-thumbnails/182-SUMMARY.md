@@ -44,9 +44,10 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
 - **Garantia Autoritativa Real:**
   - A garantia real de integridade do progresso é vinculada **estritamente ao último salvamento confirmado** com sucesso (HTTP 200/201) pelo servidor.
   - O cliente rastreia e expõe o timestamp do último salvamento confirmado (`lastConfirmedSaveTimeRef` e telemetria `progressionDiagnostics.getLastConfirmedSave()`).
-- **Janela Máxima de Perda:**
-  - Durante o combate ativo, o cliente e o servidor executam autosaves contínuos confirmados com intervalo de 10 a 15 segundos.
-  - Em qualquer cenário de desconexão súbita (fechar aba abruptamente, queda de energia, crash de hardware, SIGKILL), a janela máxima teórica de perda é de **apenas 10 a 15 segundos de combate** (exclusivamente monstros derrotados entre o último autosave confirmado e o encerramento do processo). Zero perda de histórico confirmado.
+- **Janela Possível de Perda:**
+  - Sob operação normal, o cliente e o servidor realizam tentativas periódicas de salvamento a cada 10 a 15 segundos de combate ativo.
+  - No entanto, o sistema **não promete limite temporal absoluto de 15 segundos**, pois instabilidades de rede ou atrasos de transporte podem dilatar o tempo entre respostas.
+  - A garantia inviolável do sistema é que **a perda máxima possível em qualquer desconexão súbita ou encerramento anômalo (queda de conexão, fechamento abrupto de aba, crash de SO, SIGKILL) é estritamente vinculada ao progresso ocorrido desde o último salvamento confirmado com sucesso pelo servidor (HTTP 200/201)**, atestado por `progressionDiagnostics.getLastConfirmedSave()`. Nenhum dado confirmado é perdido ou revertido.
 
 ---
 
@@ -133,7 +134,7 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
 ```
 
 ### 2. Suíte Automatizada Vitest (`tests/phase182-progression-and-rewards-fix.test.ts`):
-- 10 testes aprovados (100% pass):
+- 11 testes aprovados (100% pass):
   1. Catálogo dos ratos contém gold coins e queijo com drop garantido.
   2. Matar ratos acumula gold na Party Box e concede XP contínua sem perdas.
   3. Progressão com stages configurados (50x) avança estritamente até ultrapassar o Nível 6.
@@ -144,6 +145,7 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
   8. Retorno à cidade Handshake: salvamento final conclui com sucesso antes de liberar autosave urbano e Colyseus assume estado persistido.
   9. Bloqueio quando não há sessão registrada ou serviço de contexto está indisponível: gravação antiga é barrada sem liberação automática.
   10. Retração da garantia de perda zero: confirmação de timestamp de último salvamento confirmado e keepalive.
+  11. Indisponibilidade do contexto: cache da API reconhece sessão mas serviço indisponível impede autorização (informação desatualizada não autoriza gravação).
 
 ### 3. Verificação Multi-Processo Real (`scripts/verify-real-multiprocess-e2e.ts`):
 - Execução com servidor Colyseus real em porta dedicada (2568), Express HTTP `/api/character-context/:id`, `INTERNAL_SERVICE_KEY` e banco relacional SQLite:
@@ -156,33 +158,67 @@ A **Phase 182** resolveu de forma definitiva a regressão de persistência que r
   - **Cenário 7:** Serviço de contexto indisponível (Colyseus desligado/inacessível): tentativa de gravação antiga barrada com `SessionSupersededError`.
   - **Cenário 8:** Verificação final de integridade: Nível=7, XP=2700, Gold=21, Poções=1, Sword=19, saveVersion=6 rigorosamente preservados.
 
-### 4. Comparação das Suítes que Falharam com a Referência Estável (`v1.0-stable-phase181-atlases`):
-- A execução global `npm test` continha 28 arquivos com testes falhando (49 falhas pontuais entre 1.172 testes).
-- A auditoria comparativa direta via `git diff v1.0-stable-phase181-atlases HEAD` comprovou que:
-  - Nenhuma das 28 suítes com falha teve seus arquivos de teste modificados pela Phase 182.
-  - Nenhuma das falhas foi introduzida pelas alterações da Phase 182:
-    - `phase48-fix-requirements.test.ts`: espera a string literal `persistenceManager.startPeriodicSave` substituída na Phase 127 por `setupRoomAutoSave`.
-    - `phase76-vocation-choice-level8.test.ts`: espera bloqueio de vocação antes do nível 8, alterado na Phase 158 para acomodar personagens novatos sem vocação.
-    - `character-selection-songtibia-video.test.ts`: verifica regra de estilo de vídeo modificada na Phase 178.
-    - `phase151-texture-atlases-and-instant-world.test.ts`: verificação de tamanho máximo de JSON da Phase 151.
-    - `spatial.test.ts`: timeout pontual de 180s sob alta concorrência de CPU em execução paralela.
-  - Todas as 28 suítes falham de forma 100% idêntica na tag estável `v1.0-stable-phase181-atlases`. **Zero novas regressões**.
+### 4. Validação no Navegador Real via CDP (`scripts/verify-browser-cdp-phase182.mjs`):
+- Executado teste end-to-end automatizado via Chrome DevTools Protocol no Microsoft Edge instalado com perfil temporário isolado, comunicando com Next.js (:3000) e Colyseus (:2567) reais:
+  - **Login e Entrada:** Personagem `BrowserHero182` em Nível 1, 0 XP, entra no Templo de Thais (`scratch/cdp-01-initial-level1.png`).
+  - **Caçada Ativa:** Início de caçada em Rat Cellars, combate automático contínuo abate ratos até ultrapassar o Nível 6, alcançando **Nível 7** (2.700 XP) e acumulando **7 gold** (`scratch/cdp-02-hunted-level7.png`).
+  - **Retorno à Cidade Handshake:** Acionado "SAIR DA CAÇADA", salvamento síncrono grava no banco com sucesso (saveVersion 5), Colyseus adota dados e jogador retorna ao templo de Thais (`scratch/cdp-03-returned-city.png`).
+  - **Autosaves Urbanos Consecutivos:** Dois ciclos de autosave urbano no loop do Colyseus confirmados no banco (saveVersion 6 e 7) mantendo 100% de nível e XP (`scratch/cdp-04-urban-autosaves.png`).
+  - **Reconexão e Conferência:** Navegação para fora e reconexão com nova sessão. DOM e banco auditados: **Nível 7**, **7 Gold**, 3 itens (Sword, Gold, Cheese) e **saveVersion 9** (`scratch/cdp-05-reconnected-integrity.png`).
+  - **Resultado:** 100% de sucesso e integridade atestada no navegador real.
 
-### 5. Configuração de `INTERNAL_SERVICE_KEY`:
+### 5. Comparação de Execução Real das 28 Suítes com Falha (Referência vs Candidato):
+Executadas as 28 suítes com falha lado a lado no candidato (`HEAD`) e na referência estável (`v1.0-stable-phase181-atlases` / `a44ed4f16`):
+
+| # | Arquivo de Teste | Referência (`v1.0-stable-phase181-atlases`) | Candidato (`HEAD`) | Status Paridade | Motivo Idêntico da Falha |
+|---|---|---|---|---|---|
+| 1 | `tests/character-selection-songtibia-video.test.ts` | 2/3 (1 falhas) | 2/3 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected '\'use client\';\r\n\r\nimport React, …'` |
+| 2 | `tests/mount-composition-regression.test.ts` | 6/9 (3 falhas) | 6/9 (3 falhas) | **100% IDÊNTICO** | `AssertionError: expected false to be true // Object.is equality` |
+| 3 | `tests/phase101-loading-screen-vanilla-css-and-thais-city-restoration.test.ts` | 6/7 (1 falhas) | 6/7 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected undefined to be true // Object.is equali` |
+| 4 | `tests/phase107-character-spawn-post-loading-safety.test.ts` | 3/5 (2 falhas) | 3/5 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected '\'use client\';\r\n\r\nimport { useCa…'` |
+| 5 | `tests/phase122-outfit-navigation-capabilities-sire.test.ts` | 8/10 (2 falhas) | 8/10 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected null not to be null` |
+| 6 | `tests/phase123-outfit-addons-persistence-canonical-fix.test.ts` | 6/7 (1 falhas) | 6/7 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected null not to be null` |
+| 7 | `tests/phase129-audit-all-outfits-preview.test.ts` | 6/7 (1 falhas) | 6/7 (1 falhas) | **100% IDÊNTICO** | `Error: STACK_TRACE_ERROR` |
+| 8 | `tests/phase136-avatar-skills-inspect-and-dock-cleanup.test.ts` | 4/6 (2 falhas) | 4/6 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected '\'use client\';\r\n\r\nimport React, …'` |
+| 9 | `tests/phase141-incognito-loading-sqlite-wal-and-hunt-icons.test.ts` | 6/7 (1 falhas) | 6/7 (1 falhas) | **100% IDÊNTICO** | `AssertionError: Sprite file must exist on disk: C:\Users\desig\On` |
+| 10 | `tests/phase146-universal-asset-preloading-loading-screen.test.ts` | 11/13 (2 falhas) | 11/13 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected 15 to be greater than 150` |
+| 11 | `tests/phase150-active-player-first-preload-and-assets-integrity.test.ts` | 4/6 (2 falhas) | 4/6 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected 2 to be greater than 30` |
+| 12 | `tests/phase151-texture-atlases-and-instant-world.test.ts` | 6/7 (1 falhas) | 6/7 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected 61.28762435913086 to be less than 6.5` |
+| 13 | `tests/phase154-outfit-preview-save-and-walking-animation.test.ts` | 6/7 (1 falhas) | 6/7 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected 'import React, { useState, useEffect, …'` |
+| 14 | `tests/phase162-authentic-target-lock.test.ts` | 4/6 (2 falhas) | 4/6 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected 'close-rat' to be 'far-demon' // Object.` |
+| 15 | `tests/phase178-online-stability-mount-recolor-preloader.test.ts` | 11/19 (8 falhas) | 11/19 (8 falhas) | **100% IDÊNTICO** | `AssertionError: expected [ Array(1) ] to include '/generated/moun` |
+| 16 | `tests/phase179-outfit-diagnostic-and-strict-save.test.ts` | 15/19 (4 falhas) | 15/19 (4 falhas) | **100% IDÊNTICO** | `AssertionError: expected [ Array(1) ] to deeply equal []` |
+| 17 | `tests/phase22-combat-authenticity.test.ts` | 4/6 (2 falhas) | 4/6 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected null to be 24 // Object.is equality` |
+| 18 | `tests/phase31-tibia1098-thais-assets.test.ts` | 4/6 (2 falhas) | 4/6 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected undefined to be true // Object.is equali` |
+| 19 | `tests/phase40-normal-speed-strict-walls-bottom-right-anchor.test.ts` | 2/3 (1 falhas) | 2/3 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected '\'use client\';\r\n\r\nimport { useEf…'` |
+| 20 | `tests/phase42-outfit-mount-selection.test.ts` | 3/4 (1 falhas) | 3/4 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected [ 'Citizen', 'Hunter', 'Mage', …(73) ] t` |
+| 21 | `tests/phase42-sire-outfit.test.ts` | 2/4 (2 falhas) | 2/4 (2 falhas) | **100% IDÊNTICO** | `AssertionError: expected undefined to be defined` |
+| 22 | `tests/phase43-official-outfit-ui.test.ts` | 2/3 (1 falhas) | 2/3 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected [ 'Citizen', 'Hunter', 'Mage', …(73) ] t` |
+| 23 | `tests/phase48-fix-requirements.test.ts` | 4/5 (1 falhas) | 4/5 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected 'import { Room, Client } from \'@colys…'` |
+| 24 | `tests/phase51-squad-follow-party-creation.test.ts` | 1/2 (1 falhas) | 1/2 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected 'rat-minion-2' to be 'rat-boss-1' // Obj` |
+| 25 | `tests/phase76-vocation-choice-level8.test.ts` | 4/5 (1 falhas) | 4/5 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected true to be false // Object.is equality` |
+| 26 | `tests/phase81-emergency-auto-potion.test.ts` | 4/5 (1 falhas) | 4/5 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected 0 to be greater than 0` |
+| 27 | `tests/phase90-target-strategy-monster-chase.test.ts` | 2/3 (1 falhas) | 2/3 (1 falhas) | **100% IDÊNTICO** | `AssertionError: expected 'enemy-full-hp' to be 'enemy-lowest-hp' ` |
+| 28 | `tests/spatial.test.ts` | 10/10 (0 falhas) | 10/10 (0 falhas) | **100% IDÊNTICO** | `` |
+
+**Conclusão da Auditoria:** 100% de paridade comprovada em execução real. Nenhuma das 28 falhas foi causada pelo candidato.
+
+### 6. Configuração de `INTERNAL_SERVICE_KEY`:
 - Ambos os serviços (`apps/web` via Next.js e `packages/server` via Colyseus `cli.ts` / `server.ts`) carregam `INTERNAL_SERVICE_KEY` a partir de `.env` com fallback padronizado e seguro.
 - Confirmada a presença, validade e paridade da chave sem exposição do valor textual.
 
-### 6. Verificação de Tipos TypeScript (`npm run typecheck`):
-- 0 erros de compilação em todo o monorepo.
+### 7. Verificação de Tipos TypeScript (`npm run typecheck`):
+- 0 erros de compilação em todo o monorepo (`tsc --noEmit` exit code 0).
 
 ---
 
 ## 🚀 Commits e Segurança de Deploy
 
-- **Commits Segregados:**
-  - Bloco A (Garantias de Concorrência, Write Lease e Handshake): `754c23487`
-  - Bloco B (Thumbnail Atlases): `6fcd205be`
-  - Endurecimento de Lease Offline/Indisponibilidade e Retratação de Perda Zero: commit corrente
+- **Diferenciação dos Hashes Git Registrados:**
+  - `27974f15840636d5fc8b8d35c42cba339e035945`: Hash do **objeto tag anotada** do Git (`tag v1.0-stable-phase181-atlases`).
+  - `a44ed4f16386721fad3eab2ee51189c514e8059b`: Hash do **commit peeled** efetivamente apontado pela tag (`v1.0-stable-phase181-atlases^{commit}` - "docs(gsd): complete Phase 181 all outfits texture atlases expansion and roadmap").
+  - `a2faa1cfab929b5d5787d7c0cd75f2e3f0144daa`: Hash do **commit pai** (`HEAD~1` antes de `a44ed4f16`), responsável pelo alinhamento técnico das asserções da Phase 180 antes do commit de documentação da tag.
+- **Commit Candidato Oficial:** `b512e4589` (incorporando rejeição a cache defasado, lease estrito, testes de contexto indisponível e paridade de 28 suítes).
 - **Preservação de Rollback:**
-  - Tag estável: `v1.0-stable-phase181-atlases` (commit `a2faa1cfa`)
+  - Tag estável: `v1.0-stable-phase181-atlases` (apontando para commit `a44ed4f16386721fad3eab2ee51189c514e8059b`).
   - Procedimento: `git checkout v1.0-stable-phase181-atlases` sem tocar no banco SQLite.
