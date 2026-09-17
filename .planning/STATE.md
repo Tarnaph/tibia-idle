@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 186 Concluída - FIX.md: Persistência (Bloco A), Navegação Admin (Bloco B), Promoção a GM (Bloco C) e Título no Mapa (Bloco D).
+**Current focus:** Phase 186 Concluída - FIX.md: Persistência (Bloco A), Navegação Admin (Bloco B), Promoção a GM (Bloco C), Título no Mapa (Bloco D) e Contador de Contas Únicas Online (Bloco E).
 
 ## Current Position
 
