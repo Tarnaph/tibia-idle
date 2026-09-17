@@ -469,14 +469,14 @@ export class CharacterService {
       // Authoritative Session Ownership Check:
       // Verify that the calling session still holds the exclusive write lease.
       // A superseded session cannot save, preventing overwrite of purchases, consumable usage, or death penalties.
-      if (!options?.isInternal) {
-        if (!data.sessionId) {
-          throw new SessionSupersededError(
-            `sessionId é obrigatório para validação de titularidade da gravação do personagem ${characterId}.`,
-            'UNKNOWN'
-          );
-        }
+      const isProgressionSave =
+        data.experience !== undefined ||
+        data.level !== undefined ||
+        data.inventory !== undefined ||
+        data.skills !== undefined ||
+        (data as any).gold !== undefined;
 
+      if (!options?.isInternal && (isProgressionSave || data.sessionId)) {
         const context = await ServerCharacterContextRegistry.getContextAsync(characterId);
         const activeSession = context.activeSessionId;
         const lastSession = context.lastActiveSessionId;
@@ -486,7 +486,7 @@ export class CharacterService {
         if (!context.isServiceAvailable) {
           if (lastSession && data.sessionId !== lastSession) {
             throw new SessionSupersededError(
-              `Sessão ${data.sessionId} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada.`,
+              `Sessão ${data.sessionId || 'UNKNOWN'} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada.`,
               lastSession
             );
           }
@@ -496,18 +496,18 @@ export class CharacterService {
         }
 
         if (activeSession) {
-          if (data.sessionId !== activeSession) {
+          if (!data.sessionId || data.sessionId !== activeSession) {
             throw new SessionSupersededError(
-              `Sessão ${data.sessionId} foi sobreposta pela sessão ativa ${activeSession} para o personagem ${characterId}. Gravação rejeitada para preservar compras, perdas e progresso legítimo.`,
+              `Sessão ${data.sessionId || 'UNKNOWN'} foi sobreposta pela sessão ativa ${activeSession} para o personagem ${characterId}. Gravação rejeitada para preservar compras, perdas e progresso legítimo.`,
               activeSession
             );
           }
         } else if (lastSession) {
           // No active session currently registered on server (player offline / between sessions).
           // An old session is not allowed to write over the latest confirmed session lease.
-          if (data.sessionId !== lastSession) {
+          if (!data.sessionId || data.sessionId !== lastSession) {
             throw new SessionSupersededError(
-              `Sessão ${data.sessionId} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada mesmo sem sessão ativa no momento.`,
+              `Sessão ${data.sessionId || 'UNKNOWN'} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada mesmo sem sessão ativa no momento.`,
               lastSession
             );
           }
@@ -516,14 +516,7 @@ export class CharacterService {
 
       // Optimistic Concurrency Control (OCC): Verify saveVersion
       const currentVersion = (existing as any)?.saveVersion ?? 1;
-      if (!options?.isInternal && data.saveVersion !== currentVersion) {
-        throw new VersionConflictError(
-          `Conflito de versão ao salvar personagem ${characterId}. Versão recebida: ${data.saveVersion}, versão atual: ${currentVersion}.`,
-          currentVersion,
-          existing
-        );
-      }
-      if (options?.isInternal && typeof data.saveVersion === 'number' && data.saveVersion !== currentVersion) {
+      if (typeof data.saveVersion === 'number' && data.saveVersion !== currentVersion) {
         throw new VersionConflictError(
           `Conflito de versão ao salvar personagem ${characterId}. Versão recebida: ${data.saveVersion}, versão atual: ${currentVersion}.`,
           currentVersion,
