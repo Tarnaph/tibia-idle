@@ -3542,9 +3542,27 @@ Plans:
 - 100% dos testes Vitest passando e 0 erros de tipagem TypeScript.
 - Verificação online com código HTTP 200 para os assets de mídia na VPS.
 
+### Phase 186: Estabilização de Persistência, Navegação Admin, Promoção a GM e Título no Mapa (FIX.md)
+
+**Goal:** Implementar e validar os 4 blocos técnicos de FIX.md: fechar a persistência e transições de caçada (Bloco A); corrigir a navegação e logout do painel administrativo (Bloco B); adicionar a funcionalidade de promover jogador a GM com restrição a GOD e auditoria (Bloco C); e exibir o próprio título [GOD]/[GM] sobre o personagem no mapa urbano e nas caçadas (Bloco D).
+
+**Requirements:**
+- Bloco A: Validação dos 8 checkpoints de persistência (contexto pós-restart, combate pausado, 503 recovery, limites de XP/skills, autosaves urbanos, bloqueio de payloads forjados e músicas sincronizadas).
+- Bloco B: Botões "Voltar ao Jogo" (retornando à sessão sem perda de estado) e "Sair" (logout completo com limpeza de tokens/cookies e sem loops de redirect) no painel `/admin`.
+- Bloco C: Ação "Promover a GM" no ADMIN → Jogadores com diálogo de confirmação, restrição estrita a GOD, auditoria no SystemLogger e sincronização de role `GM` no banco e Colyseus.
+- Bloco D: Renderização de `[GOD] ` / `[GM] ` em dourado (`#ffd700`) sobre o próprio personagem local tanto em `ThaisCityArena` quanto em `PixiArena`.
+- Commits atômicos separados por bloco.
+- 0 erros de tipagem TypeScript e 100% testes Vitest aprovados.
+- Deploy final em produção na VPS com integridade de banco de dados preservada.
+
+**Plans:**
+- [x] 186-01-PLAN: Bloco A — Fechamento e verificação da persistência e transições de caçada.
+- [x] 186-02-PLAN: Bloco B — Navegação do painel ADMIN ("Voltar ao Jogo" e "Sair" sem estado residual).
+- [x] 186-03-PLAN: Bloco C — Promoção a GM no ADMIN com restrição a GOD, confirmação e auditoria.
+- [x] 186-04-PLAN: Bloco D — Exibição do próprio título [GOD]/[GM] sobre o personagem na cidade e na hunt.
+
 **Status:** Complete
-- Resumo de entrega: `.planning/phases/phase-185-hunt-music-and-auth-video/185-SUMMARY.md`
-- Verificação: 7/7 Vitest testes aprovados (32/32 testes de áudio), 0 erros no typecheck, 8/8 arquivos de mídia verificados com HTTP 200 na VPS.
+
 
 
 

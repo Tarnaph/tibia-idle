@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-17T21:54:00.000Z"
-last_activity: "2026-09-17 — Phase 185 Concluída com Sucesso: Upload de todas as músicas e do vídeo songtibia.webm para a VPS, trilha sonora dinâmica por caçada e vídeo na seleção de personagem."
+last_updated: "2026-09-17T22:35:00.000Z"
+last_activity: "2026-09-17 — Phase 186 Concluída: Estabilização de Persistência, Navegação Admin, Promoção a GM e Título no Mapa (FIX.md)."
 progress:
-  total_phases: 185
-  completed_phases: 185
-  total_plans: 192
-  completed_plans: 192
+  total_phases: 186
+  completed_phases: 186
+  total_plans: 196
+  completed_plans: 196
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 185 - Trilha Sonora Dinâmica por Hunt, Restauração do Vídeo songtibia.webm e Sincronização VPS.
+**Current focus:** Phase 186 Concluída - FIX.md: Persistência (Bloco A), Navegação Admin (Bloco B), Promoção a GM (Bloco C) e Título no Mapa (Bloco D).
 
 ## Current Position
 
-Phase: 185 of 185  
-Plan: 1 of 1 in Phase 185  
+Phase: 186 of 186  
+Plan: 4 of 4 in Phase 186  
 Status: Complete  
-Last activity: 2026-09-17 — Fase 185 concluída com deploy na VPS, verificação HTTP 200 de todos os arquivos de mídia e testes aprovados.
+Last activity: 2026-09-17 — Fase 186 concluída, testada e publicada na VPS com sucesso.
 
 Progress: [██████████] 100%
 
