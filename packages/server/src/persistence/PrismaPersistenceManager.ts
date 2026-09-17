@@ -273,6 +273,89 @@ export class PrismaPersistenceManager {
   }
 
   /**
+   * Persistently records or clears a character's confirmed active hunt session.
+   * Survives Colyseus server reboots and process restarts.
+   */
+  async setPlayerHuntStatus(characterId: string, inHunt: boolean, huntId?: string, sessionId?: string): Promise<void> {
+    if (!characterId || characterId.startsWith('char-guest')) return;
+    try {
+      if (typeof this.db?.character?.update === 'function') {
+        await this.db.character.update({
+          where: { id: characterId },
+          data: {
+            isHunting: inHunt,
+            ...(huntId ? { lastHuntId: huntId } : {}),
+          },
+        });
+      }
+      if (inHunt) {
+        if (typeof (this.db as any)?.activeHuntSession?.upsert === 'function') {
+          await (this.db as any).activeHuntSession.upsert({
+            where: { characterId },
+            create: {
+              characterId,
+              sessionId: sessionId || 'session-unknown',
+              huntId: huntId || 'hunt-generic',
+              isHunting: true,
+            },
+            update: {
+              sessionId: sessionId || undefined,
+              huntId: huntId || undefined,
+              isHunting: true,
+            },
+          });
+        }
+      } else {
+        if (typeof (this.db as any)?.activeHuntSession?.deleteMany === 'function') {
+          await (this.db as any).activeHuntSession.deleteMany({
+            where: { characterId },
+          });
+        }
+      }
+    } catch (err: any) {
+      console.warn(`[PrismaPersistenceManager] Failed to set hunt status for ${characterId}:`, err?.message || err);
+    }
+  }
+
+  /**
+   * Checks whether a character has an active confirmed hunt session in the database.
+   */
+  async getActiveHuntSession(characterId: string): Promise<{ characterId: string; sessionId: string; huntId: string; isHunting: boolean } | null> {
+    if (!characterId || characterId.startsWith('char-guest')) return null;
+    try {
+      if (typeof (this.db as any)?.activeHuntSession?.findUnique === 'function') {
+        const session = await (this.db as any).activeHuntSession.findUnique({
+          where: { characterId },
+        });
+        if (session && session.isHunting) {
+          return {
+            characterId: session.characterId,
+            sessionId: session.sessionId,
+            huntId: session.huntId,
+            isHunting: true,
+          };
+        }
+      }
+      // Fallback: check Character.isHunting
+      const char = await this.db.character.findUnique({
+        where: { id: characterId },
+        select: { id: true, isHunting: true, lastHuntId: true },
+      });
+      if (char && (char as any).isHunting) {
+        return {
+          characterId: char.id,
+          huntId: (char as any).lastHuntId || 'hunt-generic',
+          isHunting: true,
+          sessionId: 'session-persisted',
+        };
+      }
+      return null;
+    } catch (err: any) {
+      return null;
+    }
+  }
+
+  /**
    * Fetches character record from database by ID.
    */
   async loadCharacter(characterId: string) {

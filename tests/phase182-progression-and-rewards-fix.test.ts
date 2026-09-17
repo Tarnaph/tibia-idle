@@ -647,6 +647,8 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       } as any;
 
       const service = new CharacterService(mockPrisma);
+      ServerCharacterContextRegistry.setAuthoritativeSource(true);
+      ServerCharacterContextRegistry.setActivity('char-fist-legit', { isHunting: true });
 
       // Fist de 10 para 25 consome 1581 tries (bem abaixo do burst de 18000 tries)
       const result = await service.saveCharacterProgress('char-fist-legit', {
@@ -779,6 +781,8 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       } as any;
 
       const service = new CharacterService(mockPrisma);
+      ServerCharacterContextRegistry.setAuthoritativeSource(true);
+      ServerCharacterContextRegistry.setActivity(charId, { isHunting: true });
 
       // Requisição 1: Sword 10 -> 63 consome 77.597 tries (< 225.000) -> Permitida pelo burst
       const res1 = await service.saveCharacterProgress(charId, {
@@ -829,6 +833,8 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       } as any;
 
       const service = new CharacterService(mockPrisma);
+      ServerCharacterContextRegistry.setAuthoritativeSource(true);
+      ServerCharacterContextRegistry.setActivity('char-hunt-hack-1', { isHunting: true });
 
       // Salto absurdo de 10 para 100 exige mais de 1.000.000 de tries -> rejeitado
       await expect(

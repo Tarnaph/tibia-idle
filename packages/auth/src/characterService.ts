@@ -39,6 +39,15 @@ export class ContextServiceUnavailableError extends Error {
   }
 }
 
+export class ContextPendingError extends Error {
+  public readonly code = 'CONTEXT_PENDING';
+
+  constructor(message: string = 'Sessão do personagem em recuperação. Aguardando contexto autoritativo do servidor...') {
+    super(message);
+    this.name = 'ContextPendingError';
+  }
+}
+
 export interface ItemCatalogMeta {
   id: number;
   slot: string;
@@ -590,9 +599,16 @@ export class CharacterService {
         const deltaExp = targetExp - unvalidatedBaseline;
 
         if (deltaExp > 0 && !options?.isInternal && !(data as any).isManualAdminGrant) {
+          const contextResult = await ServerCharacterContextRegistry.getContextAsync(characterId);
+          if (!contextResult.isServiceAvailable || contextResult.isContextKnown === false) {
+            throw new ContextPendingError(
+              `Contexto do personagem ${characterId} em sincronização ou serviço reiniciando. Salvamento postergado até restabelecimento da sessão.`
+            );
+          }
+
           const isHunting = options?.isInternal
             ? Boolean(options?.isHunting)
-            : await ServerCharacterContextRegistry.isHuntingAsync(characterId);
+            : contextResult.isHunting;
 
           const check = XpRateLimiter.consume(characterId, deltaExp, Date.now(), {
             isHunting,
@@ -702,9 +718,18 @@ export class CharacterService {
 
       // Sanity Check: Continuous Skill & Training Tries budget (Token Bucket)
       if (existing?.skills && Array.isArray(existing.skills) && !options?.isInternal && !(data as any).isManualAdminGrant) {
-        const isHunting = options?.isInternal
-          ? Boolean(options?.isHunting || (data as any).isHunting)
-          : (await ServerCharacterContextRegistry.isHuntingAsync(characterId)) || Boolean((data as any).isHunting);
+        let isHunting = false;
+        if (options?.isInternal) {
+          isHunting = Boolean(options?.isHunting);
+        } else {
+          const contextResult = await ServerCharacterContextRegistry.getContextAsync(characterId);
+          if (!contextResult.isServiceAvailable || contextResult.isContextKnown === false) {
+            throw new ContextPendingError(
+              `Contexto do personagem ${characterId} em sincronização ou serviço reiniciando. Salvamento postergado até restabelecimento da sessão.`
+            );
+          }
+          isHunting = contextResult.isHunting;
+        }
 
         const targetVoc = data.vocationName || existing?.vocationName || 'Knight';
         let totalTriesDelta = 0;

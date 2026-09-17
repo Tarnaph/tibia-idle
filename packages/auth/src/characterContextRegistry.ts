@@ -18,6 +18,7 @@ export interface CharacterContextQueryResult {
   activeSessionId?: string;
   lastActiveSessionId?: string;
   isServiceAvailable: boolean;
+  isContextKnown: boolean;
 }
 
 export class ServerCharacterContextRegistry {
@@ -65,8 +66,8 @@ export class ServerCharacterContextRegistry {
     const existing = this.registry.get(characterId);
     if (existing) {
       this.registry.set(characterId, {
-        isHunting: false,
-        huntId: undefined,
+        isHunting: existing.isHunting,
+        huntId: existing.huntId,
         lastUpdated: Date.now(),
         activeSessionId: undefined,
         lastActiveSessionId: existing.activeSessionId || existing.lastActiveSessionId,
@@ -87,7 +88,7 @@ export class ServerCharacterContextRegistry {
 
   public static async getContextAsync(characterId: string): Promise<CharacterContextQueryResult> {
     if (!characterId) {
-      return { isHunting: false, isServiceAvailable: true };
+      return { isHunting: false, isServiceAvailable: true, isContextKnown: false };
     }
 
     const local = this.registry.get(characterId);
@@ -99,6 +100,7 @@ export class ServerCharacterContextRegistry {
         activeSessionId: local?.activeSessionId,
         lastActiveSessionId: local?.lastActiveSessionId ?? local?.activeSessionId,
         isServiceAvailable: true,
+        isContextKnown: local !== undefined,
       };
     }
 
@@ -107,7 +109,7 @@ export class ServerCharacterContextRegistry {
       const secret = process.env.INTERNAL_SERVICE_KEY || 'cavebound_internal_core_secret_v1';
       const res = await fetch(`http://127.0.0.1:${colyseusPort}/api/character-context/${encodeURIComponent(characterId)}`, {
         headers: { 'x-internal-secret': secret },
-        signal: AbortSignal.timeout(300),
+        signal: AbortSignal.timeout(400),
       });
 
       if (res.ok) {
@@ -117,13 +119,16 @@ export class ServerCharacterContextRegistry {
           typeof data.lastActiveSessionId === 'string'
             ? data.lastActiveSessionId
             : activeSessionId || local?.lastActiveSessionId || local?.activeSessionId;
+        const isContextKnown = typeof data.isContextKnown === 'boolean' ? data.isContextKnown : true;
 
-        this.setActivity(characterId, {
-          isHunting: Boolean(data.isHunting),
-          huntId: data.huntId,
-          activeSessionId,
-          lastActiveSessionId,
-        });
+        if (isContextKnown) {
+          this.setActivity(characterId, {
+            isHunting: Boolean(data.isHunting),
+            huntId: data.huntId,
+            activeSessionId,
+            lastActiveSessionId,
+          });
+        }
 
         return {
           isHunting: Boolean(data.isHunting),
@@ -131,19 +136,21 @@ export class ServerCharacterContextRegistry {
           activeSessionId,
           lastActiveSessionId,
           isServiceAvailable: true,
+          isContextKnown,
         };
       }
     } catch {
       // Colyseus service unreachable or timed out
     }
 
-    // Context service is unavailable - return cached local state but flag service availability
+    // Context service is unavailable - return cached local state but flag service availability and unknown context
     return {
       isHunting: local?.isHunting ?? false,
       huntId: local?.huntId,
       activeSessionId: local?.activeSessionId,
       lastActiveSessionId: local?.lastActiveSessionId ?? local?.activeSessionId,
       isServiceAvailable: false,
+      isContextKnown: false,
     };
   }
 

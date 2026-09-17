@@ -41,6 +41,7 @@ model Character {
   capacity       Int              @default(400)
   staminaMinutes Int              @default(15)
   isAutoIdle     Boolean          @default(false)
+  isHunting      Boolean          @default(false)
   lastHuntId     String?
   hotbarJson     String?
   bestiaryKillsJson String?
@@ -155,5 +156,16 @@ model ServerConfigRecord {
   updatedAt                DateTime @updatedAt
 
   @@map("server_configs")
+}
+
+model ActiveHuntSession {
+  characterId String   @id
+  sessionId   String
+  huntId      String
+  isHunting   Boolean  @default(true)
+  startedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("active_hunt_sessions")
 }
 

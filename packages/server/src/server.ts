@@ -7,6 +7,7 @@ import { monitor } from '@colyseus/monitor';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { ThaisCityRoom } from './rooms/ThaisCityRoom.ts';
 import { ServerCharacterContextRegistry } from '../../auth/src';
+import { persistenceManager } from './persistence/PrismaPersistenceManager.ts';
 
 // Ensure .env is loaded in server process if running standalone
 if (typeof (process as any).loadEnvFile === 'function') {
@@ -67,7 +68,7 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
-  app.get('/api/character-context/:id', (req, res) => {
+  app.get('/api/character-context/:id', async (req, res) => {
     const clientIp = req.socket?.remoteAddress || (req as any).ip || '';
     const isLoopback = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === '::ffff:127.0.0.1' || clientIp.endsWith('127.0.0.1');
     const secret = process.env.INTERNAL_SERVICE_KEY || 'cavebound_internal_core_secret_v1';
@@ -85,9 +86,61 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
         huntId: ctx.huntId,
         activeSessionId: ctx.activeSessionId ?? null,
         lastActiveSessionId: ctx.lastActiveSessionId ?? null,
+        isContextKnown: true,
       });
     }
-    return res.json({ isHunting: false, activeSessionId: null, lastActiveSessionId: null });
+
+    // Context not cached in memory (e.g. server rebooted or client reconnecting).
+    // Authoritatively consult the persistent database for confirmed hunt session.
+    try {
+      const persistedHunt = await persistenceManager.getActiveHuntSession(charId);
+      if (persistedHunt && persistedHunt.isHunting) {
+        ServerCharacterContextRegistry.setActivity(charId, {
+          isHunting: true,
+          huntId: persistedHunt.huntId,
+          activeSessionId: persistedHunt.sessionId,
+          lastActiveSessionId: persistedHunt.sessionId,
+        });
+        return res.json({
+          isHunting: true,
+          huntId: persistedHunt.huntId,
+          activeSessionId: persistedHunt.sessionId ?? null,
+          lastActiveSessionId: persistedHunt.sessionId ?? null,
+          isContextKnown: true,
+        });
+      }
+
+      // Check if character exists in database
+      const dbChar = await persistenceManager.loadCharacter(charId);
+      if (dbChar) {
+        ServerCharacterContextRegistry.setActivity(charId, {
+          isHunting: false,
+          huntId: undefined,
+        });
+        return res.json({
+          isHunting: false,
+          huntId: undefined,
+          activeSessionId: null,
+          lastActiveSessionId: null,
+          isContextKnown: true,
+        });
+      }
+    } catch (err: any) {
+      console.warn(`[server.ts] Error resolving character context from DB for ${charId}:`, err?.message || err);
+      return res.status(503).json({
+        isHunting: false,
+        isContextKnown: false,
+        error: 'CONTEXT_PENDING',
+        message: 'Contexto do personagem em sincronização com o banco de dados.',
+      });
+    }
+
+    return res.status(404).json({
+      isHunting: false,
+      isContextKnown: false,
+      error: 'CHARACTER_NOT_FOUND',
+      message: 'Personagem não encontrado.',
+    });
   });
 
   const server = http.createServer(app);

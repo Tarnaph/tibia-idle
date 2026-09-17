@@ -114,11 +114,16 @@ export async function POST(
     console.error('[CharacterSave API error]:', error?.message || error);
     try { await request.body?.cancel?.(); } catch {}
 
-    if (error?.code === 'CONTEXT_SERVICE_UNAVAILABLE' || error?.name === 'ContextServiceUnavailableError') {
+    if (
+      error?.code === 'CONTEXT_SERVICE_UNAVAILABLE' ||
+      error?.name === 'ContextServiceUnavailableError' ||
+      error?.code === 'CONTEXT_PENDING' ||
+      error?.name === 'ContextPendingError'
+    ) {
       return NextResponse.json(
         {
           success: false,
-          error: 'CONTEXT_SERVICE_UNAVAILABLE',
+          error: 'CONTEXT_PENDING',
           message: error.message,
         },
         { status: 503 }

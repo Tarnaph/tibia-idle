@@ -107,7 +107,10 @@ export class ThaisCityRoom extends Room<WorldState> {
       ServerCharacterContextRegistry.setActivity(player.characterId, {
         isHunting: inHunt,
         huntId: huntId || player.lastHuntId,
+        activeSessionId: player.id,
+        lastActiveSessionId: player.id,
       });
+      void persistenceManager.setPlayerHuntStatus(player.characterId, inHunt, huntId || player.lastHuntId, player.id);
     }
   }
 
@@ -513,6 +516,9 @@ export class ThaisCityRoom extends Room<WorldState> {
           player.isWalking = false;
           player.lastStepTime = 0;
         }
+        if (typeof client.send === 'function') {
+          client.send('server:huntContextReady', { isHunting: wantsHunt, huntId: data.huntId });
+        }
       }
     });
 
@@ -872,7 +878,30 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.isAutoIdle = loadedIsAutoIdle ?? false;
     player.lastHuntId = loadedLastHuntId || 'rat-cellars';
 
-    this.updatePlayerHuntContext(player, false);
+    // Authoritatively reconstruct active hunt context from persistent server record
+    const activeHuntRecord = await persistenceManager.getActiveHuntSession(charId);
+    let isConfirmedHunting = false;
+    let confirmedHuntId: string | undefined = undefined;
+
+    if (activeHuntRecord && activeHuntRecord.isHunting) {
+      // Confirmed active hunt survived process restart or network disconnection
+      isConfirmedHunting = true;
+      confirmedHuntId = activeHuntRecord.huntId;
+    }
+    // Note: Browser options (options.inHunt) may request resumption, but cannot prove it alone without confirmed activeHuntRecord.
+
+    if (isConfirmedHunting && confirmedHuntId) {
+      player.lastHuntId = confirmedHuntId;
+      this.updatePlayerHuntContext(player, true, confirmedHuntId);
+      if (typeof client.send === 'function') {
+        client.send('server:huntContextReady', { isHunting: true, huntId: confirmedHuntId });
+      }
+    } else {
+      this.updatePlayerHuntContext(player, false);
+      if (typeof client.send === 'function') {
+        client.send('server:huntContextReady', { isHunting: false });
+      }
+    }
     (player as any).bestiaryKills = loadedBestiaryKills;
     player.trackedBestiaryId = loadedTrackedBestiaryId;
     (player as any).bossPoints = loadedBossPoints;
@@ -936,11 +965,17 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     if (player) {
-      if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
-        await persistenceManager.saveCharacter(player);
-      }
-      if (player.characterId) {
-        ServerCharacterContextRegistry.setPlayerOffline(player.characterId);
+      // Session Ownership Guard: Only persist/offline if this client is STILL the active registered session
+      const activeSession = player.characterId ? ServerCharacterContextRegistry.getActiveSession(player.characterId) : undefined;
+      const isStillActiveSession = !activeSession || activeSession === client.sessionId;
+
+      if (isStillActiveSession) {
+        if (!player.inHunt && !ServerCharacterContextRegistry.isHunting(player.characterId)) {
+          await persistenceManager.saveCharacter(player);
+        }
+        if (player.characterId) {
+          ServerCharacterContextRegistry.setPlayerOffline(player.characterId);
+        }
       }
     }
 

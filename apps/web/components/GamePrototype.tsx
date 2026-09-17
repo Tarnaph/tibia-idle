@@ -1894,6 +1894,15 @@ function GamePrototypeContent() {
           setLastConfirmedSaveTime(confirmedAt);
           progressionDiagnostics.recordSaveSuccess(attemptId, primaryChar.id, json.data.saveVersion, res.status);
         }
+      } else if (res.status === 503) {
+        // Context is pending / server is recovering session
+        console.warn('[GamePrototype] Contexto do personagem em sincronização no servidor (HTTP 503). Progresso mantido em memória para autosave subsequente.');
+        setSaveErrorAlert('Sincronizando contexto com o servidor...');
+        setTimeout(() => {
+          setSaveErrorAlert(null);
+          void saveProgressRef.current?.(false, true);
+        }, 2000);
+        return false;
       } else if (res.status !== 409) {
         setSaveErrorAlert('Falha ao salvar progresso no servidor.');
         progressionDiagnostics.recordSaveError(attemptId, res.status, `HTTP ${res.status}`);
@@ -2500,8 +2509,19 @@ function GamePrototypeContent() {
   const lastCombatTimeRef = useRef(performance.now());
   const tickCombat = useCallback(() => {
     // Phase 107 & 182: Prevent monsters from moving, attacking, or dealing damage during loading screen or before arena is visible
-    if (initialLoadingActive || Boolean(transitionLoading?.active) || !isArenaReady) return;
-    if (mode !== 'hunt' || encounter.status !== 'running') return;
+    if (initialLoadingActive || Boolean(transitionLoading?.active) || !isArenaReady) {
+      lastCombatTimeRef.current = performance.now();
+      return;
+    }
+    if (mode !== 'hunt' || encounter.status !== 'running') {
+      lastCombatTimeRef.current = performance.now();
+      return;
+    }
+    // Phase 182.2 Dual Gate: Combat only advances when connected AND authoritative hunt context is confirmed
+    if (!gameNetwork.IsConnected || !gameNetwork.IsHuntContextConfirmed) {
+      lastCombatTimeRef.current = performance.now(); // Reset timestamp during pauses to prevent any retrospective burst compensation
+      return;
+    }
     if (!combatStartedRef.current) {
       combatStartedRef.current = true;
       console.log('[COMBAT] Combate iniciado com cenário pronto e visível:', performance.now());
@@ -2510,9 +2530,9 @@ function GamePrototypeContent() {
     const delta = Math.min(now - lastCombatTimeRef.current, 500);
     lastCombatTimeRef.current = now;
     setGame((current) => advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120));
-  }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady]);
+  }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady, gameNetwork.IsConnected, gameNetwork.IsHuntContextConfirmed]);
 
-  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active);
+  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active && gameNetwork.IsConnected && gameNetwork.IsHuntContextConfirmed);
 
   const lastCityAutoSpellsTimeRef = useRef(performance.now());
   const tickCityAutoSpells = useCallback(() => {
@@ -2843,7 +2863,12 @@ function GamePrototypeContent() {
     }
 
     // Phase 182: Final hunt save must succeed before releasing urban autosave and returning to city
-    const saveOk = await saveProgressRef.current?.(false, true);
+    let saveOk = await saveProgressRef.current?.(false, true);
+    if (!saveOk) {
+      // In case server context is temporarily pending, wait 1.5s and retry once
+      await new Promise((r) => setTimeout(r, 1500));
+      saveOk = await saveProgressRef.current?.(false, true);
+    }
     if (!saveOk) {
       console.warn('[GamePrototype] Salvamento final da caçada falhou. Retorno à cidade cancelado para proteger o progresso.');
       setSaveErrorAlert('Falha ao salvar progresso antes de sair da caçada. Tente novamente.');

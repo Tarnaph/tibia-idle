@@ -163,14 +163,38 @@ export class GameClientNetworkManager {
   private localPlayerId: string | null = null;
   private reconnectionToken: string | null = null;
   private currentParty: PartySnapshot | null = null;
+  private lastHuntContext: { inHunt: boolean; huntId?: string } = { inHunt: false };
+  private isHuntContextConfirmed: boolean = false;
+  private huntContextReadyListeners: Set<(data: { isHunting: boolean; huntId?: string }) => void> = new Set();
 
   get IsConnected(): boolean {
     return this.room !== null;
   }
 
+  get IsHuntContextConfirmed(): boolean {
+    return this.isHuntContextConfirmed;
+  }
+
+  onHuntContextReady(fn: (data: { isHunting: boolean; huntId?: string }) => void): () => void {
+    this.huntContextReadyListeners.add(fn);
+    return () => this.huntContextReadyListeners.delete(fn);
+  }
+
+  setHuntContext(inHunt: boolean, huntId?: string): void {
+    this.lastHuntContext = { inHunt, huntId };
+  }
+
+  getHuntContext(): { inHunt: boolean; huntId?: string } {
+    return this.lastHuntContext;
+  }
+
   async connect(token: string, characterId: string, options?: Record<string, any>): Promise<Room<any>> {
     try {
-      this.room = await joinGameRoom(token, characterId, options);
+      const mergedOptions = {
+        ...this.lastHuntContext,
+        ...options,
+      };
+      this.room = await joinGameRoom(token, characterId, mergedOptions);
       this.localPlayerId = this.room.sessionId;
       this.reconnectionToken = this.room.reconnectionToken || null;
 
@@ -179,6 +203,11 @@ export class GameClientNetworkManager {
       }
 
       this.setupRoomListeners();
+
+      if (this.lastHuntContext.inHunt) {
+        this.room.send('player:setInHunt', this.lastHuntContext);
+      }
+
       return this.room;
     } catch (err: any) {
       if (err?.message?.includes('ACCOUNT_ALREADY_LOGGED_IN')) {
@@ -318,12 +347,18 @@ export class GameClientNetworkManager {
     this.room.onLeave((code) => {
       console.warn('[GameClientNetworkManager] Room connection left, code:', code);
       this.room = null;
+      this.isHuntContextConfirmed = false;
       monitoredPlayers.clear();
       this.playersMap.clear();
       this.notifyStateChange();
     });
 
     // 4. Listen to messages from server
+    this.room.onMessage('server:huntContextReady', (data: { isHunting: boolean; huntId?: string }) => {
+      this.isHuntContextConfirmed = Boolean(data?.isHunting);
+      this.huntContextReadyListeners.forEach((fn) => fn(data));
+    });
+
     const onCombat = (event: NetworkCombatEvent) => {
       this.combatListeners.forEach((fn) => fn(event));
     };
@@ -483,11 +518,13 @@ export class GameClientNetworkManager {
   }
 
   sendSetInHunt(inHunt: boolean, huntId?: string): void {
+    this.setHuntContext(inHunt, huntId);
     if (!this.room) return;
     this.room.send('player:setInHunt', { inHunt, huntId });
   }
 
   sendReturnToCity(): void {
+    this.setHuntContext(false, undefined);
     if (!this.room) return;
     this.room.send('player:returnToCity', {});
   }
