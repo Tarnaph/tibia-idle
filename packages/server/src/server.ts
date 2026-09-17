@@ -56,6 +56,7 @@ export function colyseusMonitorAuthMiddleware(req: express.Request, res: express
 }
 
 export function createGameServer(options: CreateGameServerOptions = {}) {
+  ServerCharacterContextRegistry.setAuthoritativeSource(true);
   const app = options.expressApp || express();
   app.use(cors());
   app.use(express.json());

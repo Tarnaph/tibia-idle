@@ -39,6 +39,7 @@ const content: GameContent = {
 describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada e Conflito Não-Destrutivo', () => {
   beforeEach(() => {
     ServerCharacterContextRegistry.clearAll();
+    ServerCharacterContextRegistry.setAuthoritativeSource(false);
   });
 
   it('1. Catálogo dos ratos contém gold coins e queijo com drop garantido', () => {
@@ -297,6 +298,7 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
     const service = new CharacterService(mockPrisma);
 
     // 1. Sessão 2 (ativa) estabeleceu o direito exclusivo de gravação no servidor
+    ServerCharacterContextRegistry.setAuthoritativeSource(true);
     ServerCharacterContextRegistry.setActiveSession('char-multi-sess-1', 'colyseus-session-2-active');
 
     // 2. Sessão 1 (antiga/defasada) tenta salvar com snapshot anterior: 1000 gold, 10 potions, saveVersion 2
@@ -392,6 +394,7 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
     // 4. Durante a caçada, o cliente acumulou XP e alcançou Nível 7 (3000 XP) com 500 gold
     // O salvamento final da caçada é executado PRIMEIRO via CharacterService
     const service = new CharacterService(mockPrisma);
+    ServerCharacterContextRegistry.setAuthoritativeSource(true);
     ServerCharacterContextRegistry.setActiveSession(player.characterId, player.id);
 
     await service.saveCharacterProgress(player.characterId, {
@@ -533,5 +536,81 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
     expect(confirmed!.saveVersion).toBe(5);
     expect(confirmed!.responseStatus).toBe(200);
     expect(confirmed!.timestamp).toBeGreaterThanOrEqual(timestampBefore);
+  });
+
+  it('11. Indisponibilidade do contexto: cache da API reconhece sessão mas serviço indisponível impede autorização (informação desatualizada não autoriza gravação)', async () => {
+    const charId = 'char-stale-cache-test';
+    let dbRecord: any = {
+      id: charId,
+      accountId: 'acc-stale',
+      name: 'StaleHero',
+      level: 10,
+      experience: BigInt(10000),
+      saveVersion: 5,
+      skills: [],
+      inventory: [{ slot: 'gold', serverId: 2148, name: 'Gold Coin', count: 500 }],
+      lastSavedAt: new Date(),
+    };
+
+    const mockPrisma = {
+      character: {
+        findUnique: vi.fn().mockImplementation(async ({ where }: any) => {
+          if (where.id === dbRecord.id) return { ...dbRecord };
+          return null;
+        }),
+        update: vi.fn().mockImplementation(async ({ where, data }: any) => {
+          dbRecord = { ...dbRecord, ...data, saveVersion: (dbRecord.saveVersion || 1) + 1 };
+          return dbRecord;
+        }),
+      },
+      characterSkill: { upsert: vi.fn() },
+      characterInventory: { deleteMany: vi.fn(), createMany: vi.fn() },
+      $transaction: vi.fn().mockImplementation(async (cb: any) => cb(mockPrisma)),
+    } as any;
+
+    const service = new CharacterService(mockPrisma);
+
+    // O cache local da API ainda reconhece a sessão 'sess-stale-1'
+    ServerCharacterContextRegistry.setActivity(charId, {
+      isHunting: false,
+      activeSessionId: 'sess-stale-1',
+      lastActiveSessionId: 'sess-stale-1',
+    });
+
+    // Mas o serviço de contexto está INDISPONÍVEL!
+    const originalGetContext = ServerCharacterContextRegistry.getContextAsync;
+    ServerCharacterContextRegistry.getContextAsync = vi.fn().mockResolvedValue({
+      isHunting: false,
+      activeSessionId: 'sess-stale-1',
+      lastActiveSessionId: 'sess-stale-1',
+      isServiceAvailable: false, // Contexto indisponível!
+    });
+
+    try {
+      // 1. Cliente apresenta a mesma sessão reconhecida pelo cache ('sess-stale-1').
+      // Como o serviço está indisponível, informação desatualizada de cache NÃO pode autorizar a gravação!
+      await expect(
+        service.saveCharacterProgress(charId, {
+          saveVersion: 5,
+          experience: BigInt(10500),
+          sessionId: 'sess-stale-1',
+        })
+      ).rejects.toThrow(ContextServiceUnavailableError);
+
+      // 2. Cliente tenta enviar uma sessão ainda mais antiga ('ancient-sess-0')
+      await expect(
+        service.saveCharacterProgress(charId, {
+          saveVersion: 5,
+          experience: BigInt(10500),
+          sessionId: 'ancient-sess-0',
+        })
+      ).rejects.toThrow(SessionSupersededError);
+
+      // 3. Garantir que o banco de dados permaneceu 100% intocado
+      expect(dbRecord.saveVersion).toBe(5);
+      expect(Number(dbRecord.experience)).toBe(10000);
+    } finally {
+      ServerCharacterContextRegistry.getContextAsync = originalGetContext;
+    }
   });
 });

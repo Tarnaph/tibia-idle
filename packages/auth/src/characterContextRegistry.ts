@@ -22,6 +22,15 @@ export interface CharacterContextQueryResult {
 
 export class ServerCharacterContextRegistry {
   private static registry = new Map<string, CharacterActivityContext>();
+  private static isAuthoritativeSource: boolean = false;
+
+  public static setAuthoritativeSource(authoritative: boolean): void {
+    this.isAuthoritativeSource = authoritative;
+  }
+
+  public static getIsAuthoritativeSource(): boolean {
+    return this.isAuthoritativeSource;
+  }
 
   public static setActivity(
     characterId: string,
@@ -82,6 +91,16 @@ export class ServerCharacterContextRegistry {
     }
 
     const local = this.registry.get(characterId);
+
+    if (this.isAuthoritativeSource) {
+      return {
+        isHunting: local?.isHunting ?? false,
+        huntId: local?.huntId,
+        activeSessionId: local?.activeSessionId,
+        lastActiveSessionId: local?.lastActiveSessionId ?? local?.activeSessionId,
+        isServiceAvailable: true,
+      };
+    }
 
     try {
       const colyseusPort = process.env.COLYSEUS_PORT || 2567;

@@ -481,6 +481,20 @@ export class CharacterService {
         const activeSession = context.activeSessionId;
         const lastSession = context.lastActiveSessionId;
 
+        // Quando o serviço de contexto estiver indisponível:
+        // Informação desatualizada de cache NÃO pode autorizar a gravação!
+        if (!context.isServiceAvailable) {
+          if (lastSession && data.sessionId !== lastSession) {
+            throw new SessionSupersededError(
+              `Sessão ${data.sessionId} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada.`,
+              lastSession
+            );
+          }
+          throw new ContextServiceUnavailableError(
+            `Serviço de contexto de jogo indisponível para validar titularidade da sessão para o personagem ${characterId}. Informação desatualizada de cache não pode autorizar a gravação.`
+          );
+        }
+
         if (activeSession) {
           if (data.sessionId !== activeSession) {
             throw new SessionSupersededError(
@@ -497,13 +511,6 @@ export class CharacterService {
               lastSession
             );
           }
-        } else if (!context.isServiceAvailable) {
-          // Context service is unavailable and there is NO cached session lease for this character.
-          // In this condition, we cannot verify if the save is valid or an old superseded save.
-          // We MUST NOT automatically release an unverified save!
-          throw new ContextServiceUnavailableError(
-            `Serviço de contexto de jogo indisponível para validar titularidade da sessão para o personagem ${characterId}. Gravação suspensa por segurança.`
-          );
         }
       }
 
