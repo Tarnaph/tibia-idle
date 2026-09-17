@@ -18,6 +18,17 @@ export class VersionConflictError extends Error {
   }
 }
 
+export class SessionSupersededError extends Error {
+  public readonly code = 'SESSION_SUPERSEDED';
+  public readonly activeSessionId?: string;
+
+  constructor(message: string, activeSessionId?: string) {
+    super(message);
+    this.name = 'SessionSupersededError';
+    this.activeSessionId = activeSessionId;
+  }
+}
+
 export interface ItemCatalogMeta {
   id: number;
   slot: string;
@@ -423,6 +434,7 @@ export class CharacterService {
       direction?: string;
       saveVersion?: number;
       isDeathPenalty?: boolean;
+      sessionId?: string;
     },
     options?: { isInternal?: boolean; isHunting?: boolean }
   ) {
@@ -443,6 +455,19 @@ export class CharacterService {
 
       if (!existing) {
         throw new Error(`Personagem ${characterId} não encontrado.`);
+      }
+
+      // Authoritative Session Ownership Check:
+      // Verify that the calling session still holds the exclusive write lease.
+      // A superseded session cannot save, preventing overwrite of purchases, consumable usage, or death penalties.
+      if (!options?.isInternal) {
+        const activeSession = await ServerCharacterContextRegistry.getActiveSessionAsync(characterId);
+        if (activeSession && (!data.sessionId || data.sessionId !== activeSession)) {
+          throw new SessionSupersededError(
+            `Sessão ${data.sessionId || 'desconhecida'} foi sobreposta pela sessão ativa ${activeSession} para o personagem ${characterId}. Gravação rejeitada para preservar compras, perdas e progresso legítimo.`,
+            activeSession
+          );
+        }
       }
 
       // Optimistic Concurrency Control (OCC): Verify saveVersion

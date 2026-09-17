@@ -60,10 +60,23 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
   });
 
   app.get('/api/character-context/:id', (req, res) => {
+    const clientIp = req.socket?.remoteAddress || (req as any).ip || '';
+    const isLoopback = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === '::ffff:127.0.0.1' || clientIp.endsWith('127.0.0.1');
+    const secret = process.env.INTERNAL_SERVICE_KEY || 'cavebound_internal_core_secret_v1';
+    const reqSecret = req.headers['x-internal-secret'];
+
+    if (!isLoopback && reqSecret !== secret) {
+      return res.status(403).json({ error: 'FORBIDDEN', message: 'Acesso restrito ao barramento interno do servidor.' });
+    }
+
     const charId = req.params.id;
     const ctx = ServerCharacterContextRegistry.getActivity(charId);
     if (ctx) {
-      return res.json({ isHunting: ctx.isHunting, huntId: ctx.huntId });
+      return res.json({
+        isHunting: ctx.isHunting,
+        huntId: ctx.huntId,
+        activeSessionId: ctx.activeSessionId,
+      });
     }
     return res.json({ isHunting: false });
   });

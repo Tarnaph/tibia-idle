@@ -279,7 +279,8 @@ function GamePrototypeContent() {
     durationMs?: number;
     huntId?: string;
   } | null>(null);
-  const saveProgressRef = useRef<(isDeathPenalty?: boolean, force?: boolean) => Promise<void>>(async () => {});
+  const saveProgressRef = useRef<(isDeathPenalty?: boolean, force?: boolean) => Promise<boolean>>(async () => false);
+  const activeSessionIdRef = useRef<string>('sess-' + Math.random().toString(36).slice(2, 10));
   const isSavingRef = useRef<boolean>(false);
   const lastSaveTimeRef = useRef<number>(0);
   const currentSaveVersionRef = useRef<number>(1);
@@ -468,6 +469,7 @@ function GamePrototypeContent() {
   // Colyseus network duplicate session listener
   useEffect(() => {
     const unsub = gameNetwork.onDuplicateSession((msg) => {
+      isSaveSuspendedRef.current = true;
       setDuplicateSessionError(msg || 'Sua conta foi conectada em outra janela ou dispositivo. Conexão encerrada.');
     });
     return () => unsub();
@@ -1646,7 +1648,17 @@ function GamePrototypeContent() {
   };
 
   // Robust Auto-Save with Mutex Lock and Throttle
-  const saveProgress = useCallback(async (isDeathPenalty = false, force = false) => {
+  const saveProgress = useCallback(async (isDeathPenalty = false, force = false): Promise<boolean> => {
+    // Mutex lock: wait if a save is currently in flight (up to 2s)
+    if (isSavingRef.current) {
+      let waited = 0;
+      while (isSavingRef.current && waited < 2000) {
+        await new Promise((r) => setTimeout(r, 100));
+        waited += 100;
+      }
+      if (isSavingRef.current) return false;
+    }
+
     const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
     const state = latestSaveStateRef.current;
     const {
@@ -1663,21 +1675,18 @@ function GamePrototypeContent() {
       bossPoints: curBossPoints,
     } = state;
 
-    if (!token || !curOnline) return;
+    if (!token || !curOnline) return false;
 
     // The titular owner of the Caixa da Party in DB is always curOnline (the logged-in session leader)
     const primaryChar = curCharacters.find((c) => c.id === curOnline.id) || (curActive?.id === curOnline.id ? curActive : null);
-    if (!primaryChar) return;
+    if (!primaryChar) return false;
 
-    // Suspended saves guard: if a concurrency conflict couldn't be cleanly reconciled, halt saves until clean reload
-    if (isSaveSuspendedRef.current) return;
-
-    // Mutex lock: prevent concurrent /save HTTP requests
-    if (isSavingRef.current) return;
+    // Suspended saves guard: if a concurrency conflict or superseded session was detected, halt saves
+    if (isSaveSuspendedRef.current) return false;
 
     // Throttle: minimum 10 seconds between auto-saves unless forced (e.g. logout or character switch)
     const now = Date.now();
-    if (!force && lastSaveTimeRef.current > 0 && now - lastSaveTimeRef.current < 10000) return;
+    if (!force && lastSaveTimeRef.current > 0 && now - lastSaveTimeRef.current < 10000) return false;
 
     isSavingRef.current = true;
     lastSaveTimeRef.current = now;
@@ -1802,6 +1811,7 @@ function GamePrototypeContent() {
           saveVersion: primaryVersion,
           replaceFullInventory: true,
           isHunting: mode === 'hunt',
+          sessionId: gameNetwork.LocalPlayerId || activeSessionIdRef.current,
         }),
       });
 
@@ -1832,6 +1842,12 @@ function GamePrototypeContent() {
         // Optimistic Concurrency Conflict: advance saveVersion to server version and retry saving authentic active state
         try {
           const conflictData = (await res.json()) as any;
+          if (conflictData?.error === 'SESSION_SUPERSEDED') {
+            console.warn('[GamePrototype] Sessão sobreposta por uma nova conexão ativa. Autosave permanentemente suspenso.');
+            isSaveSuspendedRef.current = true;
+            return false;
+          }
+
           const nextVersion = typeof conflictData?.currentVersion === 'number'
             ? conflictData.currentVersion
             : primaryVersion + 1;
@@ -1859,7 +1875,7 @@ function GamePrototypeContent() {
         } catch {
           isSaveSuspendedRef.current = true;
         }
-        return;
+        return false;
       }
 
       if (res.ok) {
@@ -1873,6 +1889,7 @@ function GamePrototypeContent() {
       } else if (res.status !== 409) {
         setSaveErrorAlert('Falha ao salvar progresso no servidor.');
         progressionDiagnostics.recordSaveError(attemptId, res.status, `HTTP ${res.status}`);
+        return false;
       }
 
       // Persist all owned party alts individually (level, exp, hp, mana, skills, equipment)
@@ -1968,8 +1985,10 @@ function GamePrototypeContent() {
           // Alt save error handled
         }
       }
+      return true;
     } catch (err) {
       // Auto-save silent error handling
+      return false;
     } finally {
       isSavingRef.current = false;
     }
@@ -2562,10 +2581,13 @@ function GamePrototypeContent() {
       huntId: undefined,
     });
 
-    gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
-    gameNetwork.sendSetInHunt(false);
-
-    void saveProgressRef.current?.(true);
+    void (async () => {
+      const saveOk = await saveProgressRef.current?.(true, true);
+      if (saveOk) {
+        gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
+        gameNetwork.sendReturnToCity();
+      }
+    })();
     setWalkingPath({
       waypoints: [
         { x: 32368, y: 32215, z: 7 },
@@ -2791,18 +2813,24 @@ function GamePrototypeContent() {
   };
   startSelectedHuntRef.current = startSelectedHunt;
 
-  const exitHunt = () => {
+  const exitHunt = async () => {
     pendingHuntTransitionRef.current = null;
     followSuppressedUntilRef.current = Date.now() + 10500;
     const party = multiplayerPartyRef.current;
     if (party && party.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntExit();
     }
-    gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
-    gameNetwork.sendSetInHunt(false);
 
-    // Phase 99/102: Save progress immediately with 100% accumulated XP, level and loot
-    void saveProgressRef.current?.();
+    // Phase 182: Final hunt save must succeed before releasing urban autosave and returning to city
+    const saveOk = await saveProgressRef.current?.(false, true);
+    if (!saveOk) {
+      console.warn('[GamePrototype] Salvamento final da caçada falhou. Retorno à cidade cancelado para proteger o progresso.');
+      setSaveErrorAlert('Falha ao salvar progresso antes de sair da caçada. Tente novamente.');
+      return;
+    }
+
+    gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
+    gameNetwork.sendReturnToCity();
 
     // Phase 103/109: Stop hunt BGM and start Thais BGM immediately during transition loading screen!
     stopDragonLairBgm();

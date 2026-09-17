@@ -487,6 +487,11 @@ export class GameClientNetworkManager {
     this.room.send('player:setInHunt', { inHunt, huntId });
   }
 
+  sendReturnToCity(): void {
+    if (!this.room) return;
+    this.room.send('player:returnToCity', {});
+  }
+
   sendMove(direction: 'north' | 'south' | 'east' | 'west', coords?: { x: number; y: number; z?: number }): void {
     if (!this.room) return;
     this.room.send('move', {

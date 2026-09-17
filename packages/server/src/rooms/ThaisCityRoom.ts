@@ -417,7 +417,55 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     });
 
-    this.onMessage('player:setInHunt', (client, data: { inHunt: boolean; huntId?: string }) => {
+    this.onMessage('player:returnToCity', async (client) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player || !player.characterId) return;
+
+      try {
+        const dbChar = await persistenceManager.loadCharacter(player.characterId);
+        if (dbChar) {
+          player.level = dbChar.level;
+          player.experience = Number(dbChar.experience);
+          player.hp = dbChar.health;
+          player.maxHp = dbChar.maxHealth;
+          player.mp = dbChar.mana;
+          player.maxMp = dbChar.maxMana;
+          player.capacity = dbChar.capacity;
+          (player as any).saveVersion = (dbChar as any).saveVersion ?? 1;
+          player.posX = dbChar.posX ?? 32369;
+          player.posY = dbChar.posY ?? 32241;
+          player.posZ = dbChar.posZ ?? 7;
+          if (Array.isArray((dbChar as any).skills)) {
+            (player as any).skills = (dbChar as any).skills.map((s: any) => ({
+              skillId: s.skillId,
+              skillName: s.skillName,
+              value: s.value,
+              tries: Number(s.tries ?? 0),
+            }));
+          }
+          if ((dbChar as any).bestiaryKills) {
+            (player as any).bestiaryKills = (dbChar as any).bestiaryKills;
+          }
+          if ((dbChar as any).trackedBestiaryId) {
+            player.trackedBestiaryId = (dbChar as any).trackedBestiaryId;
+          }
+          if (typeof (dbChar as any).bossPoints === 'number') {
+            (player as any).bossPoints = (dbChar as any).bossPoints;
+          }
+          if ((dbChar as any).avatarId) {
+            player.avatarId = (dbChar as any).avatarId;
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[ThaisCityRoom] Error syncing state from DB on player:returnToCity for ${player.characterId}:`, err?.message || err);
+      }
+
+      // Authoritatively clear hunt mode ONLY after adopting the persisted DB state
+      this.updatePlayerHuntContext(player, false);
+      this.playerExpSync.set(client.sessionId, { lastSyncTime: Date.now(), lastExperience: player.experience });
+    });
+
+    this.onMessage('player:setInHunt', async (client, data: { inHunt: boolean; huntId?: string }) => {
       const player = this.state.players.get(client.sessionId);
       if (player) {
         const wantsHunt = Boolean(data.inHunt);
@@ -431,6 +479,31 @@ export class ThaisCityRoom extends Room<WorldState> {
           });
           return;
         }
+
+        if (!wantsHunt && player.characterId) {
+          try {
+            const dbChar = await persistenceManager.loadCharacter(player.characterId);
+            if (dbChar) {
+              player.level = dbChar.level;
+              player.experience = Number(dbChar.experience);
+              player.hp = dbChar.health;
+              player.maxHp = dbChar.maxHealth;
+              player.mp = dbChar.mana;
+              player.maxMp = dbChar.maxMana;
+              player.capacity = dbChar.capacity;
+              (player as any).saveVersion = (dbChar as any).saveVersion ?? 1;
+              if (Array.isArray((dbChar as any).skills)) {
+                (player as any).skills = (dbChar as any).skills.map((s: any) => ({
+                  skillId: s.skillId,
+                  skillName: s.skillName,
+                  value: s.value,
+                  tries: Number(s.tries ?? 0),
+                }));
+              }
+            }
+          } catch {}
+        }
+
         this.updatePlayerHuntContext(player, wantsHunt, data.huntId);
         if (wantsHunt && data.huntId) {
           const entrance = getHuntWorldEntrance(data.huntId, gameContent);
@@ -833,6 +906,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     this.state.players.set(client.sessionId, player);
+    if (charId) {
+      ServerCharacterContextRegistry.setActiveSession(charId, client.sessionId);
+    }
     this.playerExpSync.set(client.sessionId, { lastSyncTime: Date.now(), lastExperience: player.experience });
     if (typeof client.send === 'function') {
       client.send('server:config', serverConfigManager.getConfig());

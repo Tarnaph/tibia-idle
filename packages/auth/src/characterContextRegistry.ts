@@ -8,6 +8,7 @@ export interface CharacterActivityContext {
   isHunting: boolean;
   huntId?: string;
   lastUpdated: number;
+  activeSessionId?: string;
 }
 
 export class ServerCharacterContextRegistry {
@@ -15,14 +16,60 @@ export class ServerCharacterContextRegistry {
 
   public static setActivity(
     characterId: string,
-    activity: { isHunting: boolean; huntId?: string }
+    activity: { isHunting: boolean; huntId?: string; activeSessionId?: string }
   ): void {
     if (!characterId) return;
+    const existing = this.registry.get(characterId);
     this.registry.set(characterId, {
       isHunting: Boolean(activity.isHunting),
-      huntId: activity.huntId,
+      huntId: activity.huntId ?? existing?.huntId,
       lastUpdated: Date.now(),
+      activeSessionId: activity.activeSessionId ?? existing?.activeSessionId,
     });
+  }
+
+  public static setActiveSession(characterId: string, sessionId: string): void {
+    if (!characterId) return;
+    const existing = this.registry.get(characterId);
+    this.registry.set(characterId, {
+      isHunting: existing?.isHunting ?? false,
+      huntId: existing?.huntId,
+      lastUpdated: Date.now(),
+      activeSessionId: sessionId,
+    });
+  }
+
+  public static getActiveSession(characterId: string): string | undefined {
+    if (!characterId) return undefined;
+    return this.registry.get(characterId)?.activeSessionId;
+  }
+
+  public static async getActiveSessionAsync(characterId: string): Promise<string | undefined> {
+    if (!characterId) return undefined;
+    const local = this.getActiveSession(characterId);
+    if (local) return local;
+
+    try {
+      const colyseusPort = process.env.COLYSEUS_PORT || 2567;
+      const secret = process.env.INTERNAL_SERVICE_KEY || 'cavebound_internal_core_secret_v1';
+      const res = await fetch(`http://127.0.0.1:${colyseusPort}/api/character-context/${encodeURIComponent(characterId)}`, {
+        headers: { 'x-internal-secret': secret },
+        signal: AbortSignal.timeout(200),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as any;
+        if (data && typeof data.activeSessionId === 'string') {
+          this.setActivity(characterId, {
+            isHunting: Boolean(data.isHunting),
+            huntId: data.huntId,
+            activeSessionId: data.activeSessionId,
+          });
+          return data.activeSessionId;
+        }
+      }
+    } catch {}
+
+    return undefined;
   }
 
   public static getActivity(characterId: string): CharacterActivityContext | undefined {
@@ -44,13 +91,19 @@ export class ServerCharacterContextRegistry {
     // Check Colyseus server endpoint if running in a separate process
     try {
       const colyseusPort = process.env.COLYSEUS_PORT || 2567;
+      const secret = process.env.INTERNAL_SERVICE_KEY || 'cavebound_internal_core_secret_v1';
       const res = await fetch(`http://127.0.0.1:${colyseusPort}/api/character-context/${encodeURIComponent(characterId)}`, {
+        headers: { 'x-internal-secret': secret },
         signal: AbortSignal.timeout(200),
       });
       if (res.ok) {
         const data = (await res.json()) as any;
         if (data && typeof data.isHunting === 'boolean') {
-          this.setActivity(characterId, { isHunting: data.isHunting, huntId: data.huntId });
+          this.setActivity(characterId, {
+            isHunting: data.isHunting,
+            huntId: data.huntId,
+            activeSessionId: data.activeSessionId,
+          });
           return data.isHunting;
         }
       }

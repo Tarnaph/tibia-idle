@@ -85,6 +85,7 @@ export async function POST(
       vocationName: body.vocationName,
       promotion: body.promotion,
       saveVersion: typeof body.saveVersion === 'number' ? body.saveVersion : undefined,
+      sessionId: typeof body.sessionId === 'string' ? body.sessionId : undefined,
     }, {
       isHunting: typeof body.isHunting === 'boolean' ? body.isHunting : undefined,
     });
@@ -111,6 +112,18 @@ export async function POST(
   } catch (error: any) {
     console.error('[CharacterSave API error]:', error?.message || error);
     try { await request.body?.cancel?.(); } catch {}
+
+    if (error?.code === 'SESSION_SUPERSEDED' || error?.name === 'SessionSupersededError') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'SESSION_SUPERSEDED',
+          message: error.message,
+          activeSessionId: error.activeSessionId,
+        },
+        { status: 409 }
+      );
+    }
 
     if (error?.code === 'VERSION_CONFLICT' || error?.name === 'VersionConflictError') {
       const sanitizedChar = error.character

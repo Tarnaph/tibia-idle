@@ -1,19 +1,19 @@
 import { prisma } from '../packages/database/src/index.ts';
-import { CharacterService, ServerCharacterContextRegistry } from '../packages/auth/src/index.ts';
+import { CharacterService, ServerCharacterContextRegistry, SessionSupersededError } from '../packages/auth/src/index.ts';
 import { PrismaPersistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 import { experienceForLevel, levelForExperience, getExpStageMultiplier } from '../packages/domain/src/index.ts';
 import { progressionDiagnostics } from '../apps/web/lib/progressionDiagnostics';
 
 async function runVerification() {
-  console.log('===============================================================');
-  console.log('🔍 PHASE 182 BLOCO A: VERIFICAÇÃO END-TO-END DE PROGRESSÃO E PERSISTÊNCIA');
-  console.log('===============================================================');
+  console.log('========================================================================');
+  console.log('🔍 PHASE 182 BLOCO A: VERIFICAÇÃO INTEGRAL DE GARANTIAS E PERSISTÊNCIA');
+  console.log('========================================================================\n');
 
   const charService = new CharacterService(prisma);
   const persistenceManager = new PrismaPersistenceManager(prisma);
 
-  // 1. Setup isolated test character 'AtlasHeroAlpha' (NUNCA altera personagens do usuário)
+  // 1. Setup isolated test character 'AtlasHeroAlpha' (preserva integralmente Wolfy e outros personagens reais)
   const testCharName = 'AtlasHeroAlpha';
   let char = await prisma.character.findUnique({
     where: { name: testCharName },
@@ -42,7 +42,7 @@ async function runVerification() {
       },
       include: { skills: true, inventory: true },
     });
-    console.log(`[Setup] Criado personagem de teste isolado: ${char.name} (ID: ${char.id})`);
+    console.log(`[CENÁRIO 0] Personagem de teste isolado criado: ${char.name} (ID: ${char.id})`);
   } else {
     // Reset test character to clean starting state for reproducibility
     await prisma.character.update({
@@ -57,24 +57,29 @@ async function runVerification() {
       where: { id: char.id },
       include: { skills: true, inventory: true },
     }))!;
-    console.log(`[Setup] Reiniciado personagem de teste isolado: ${char.name} (ID: ${char.id}) para Level 1`);
+    console.log(`[CENÁRIO 0] Personagem de teste isolado inicializado: ${char.name} (ID: ${char.id}) em Nível 1`);
   }
 
-  // 2. Set hunt context registered autoritatively on server
-  ServerCharacterContextRegistry.setActivity(char.id, { isHunting: true, huntId: 'rat-cellars' });
-  console.log(`[Context] Registrado contexto de caçada ativa: isHunting = ${ServerCharacterContextRegistry.isHunting(char.id)}`);
+  // -------------------------------------------------------------------------
+  // CENÁRIO 1: Caçar até ultrapassar o Nível 6 com stages configurados (50x)
+  // -------------------------------------------------------------------------
+  console.log('\n------------------------------------------------------------------------');
+  console.log('🎯 CENÁRIO 1: Caçar até ultrapassar o Nível 6 (Nível Alvo: 7 = 2.600+ XP)');
+  console.log('------------------------------------------------------------------------');
 
-  // 3. Simulate Rat kills with configured stages (50x) until surpassing Level 6 (target Level 7 = 2,400 XP)
-  console.log('\n[Progression] Simulando caçada de ratos contínua com stages configurados (50x)...');
+  // Registrar caçada autoritativa no servidor
+  ServerCharacterContextRegistry.setActivity(char.id, { isHunting: true, huntId: 'rat-cellars' });
+  const session1Token = 'session-1-hunt-lease';
+  ServerCharacterContextRegistry.setActiveSession(char.id, session1Token);
+  console.log(`[Caçada] Contexto registrado: isHunting = ${ServerCharacterContextRegistry.isHunting(char.id)}, activeSession = ${ServerCharacterContextRegistry.getActiveSession(char.id)}`);
+
   let currentLevel = 1;
   let currentExp = 0;
   let currentGold = 0;
-  let currentLoot: Array<{ itemId?: number; name: string; amount: number }> = [];
-
   const targetLevel = 7;
-  const targetExp = experienceForLevel(targetLevel); // 2400 XP
-  const stageMultiplier = getExpStageMultiplier(1); // 50x multiplier
-  const expPerRat = 5 * stageMultiplier; // 250 XP por rato
+  const targetExp = 3000; // Ultrapassa nível 6 (nível 7 requer 2600 XP)
+  const stageMultiplier = getExpStageMultiplier(1); // 50x
+  const expPerRat = 5 * stageMultiplier; // 250 XP
   const ratsNeeded = Math.ceil(targetExp / expPerRat);
 
   for (let r = 1; r <= ratsNeeded; r++) {
@@ -84,143 +89,210 @@ async function runVerification() {
       progressionDiagnostics.recordLevelUp(currentLevel, nextLvl, currentExp);
       currentLevel = nextLvl;
     }
-    // Rat drops guaranteed gold + cheese
     currentGold += 3;
-    currentLoot.push({ itemId: 2696, name: 'Cheese', amount: 1 });
   }
 
-  console.log(`[Progression] Ratos derrotados: ${ratsNeeded}`);
-  console.log(`[Progression] Nível atingido: ${currentLevel} (Esperado: >= 7)`);
-  console.log(`[Progression] Experiência total: ${currentExp} XP`);
-  console.log(`[Progression] Ouro acumulado no baú da party: ${currentGold}`);
+  console.log(`[Caçada] Ratos derrotados: ${ratsNeeded}`);
+  console.log(`[Caçada] Nível alcançado: ${currentLevel} (Esperado: >= 7)`);
+  console.log(`[Caçada] Experiência acumulada: ${currentExp} XP`);
+  console.log(`[Caçada] Gold acumulado: ${currentGold} gold`);
 
   if (currentLevel < 7) {
-    throw new Error(`Falha: Nível ${currentLevel} é menor que 7!`);
+    throw new Error(`Falha: Nível ${currentLevel} não ultrapassou o nível 6!`);
   }
 
-  // 4. Test Colyseus hunt save isolation
-  console.log('\n[Colyseus Isolation] Testando bloqueio do Colyseus durante a caçada...');
-  const huntPlayer = new PlayerState();
-  huntPlayer.characterId = char.id;
-  huntPlayer.name = char.name;
-  huntPlayer.inHunt = true; // Player is actively hunting!
-  huntPlayer.level = 1; // Colyseus local state is defasado
-  huntPlayer.experience = 0;
-  (huntPlayer as any).saveVersion = 1;
+  // -------------------------------------------------------------------------
+  // CENÁRIO 2: Isolamento do Colyseus durante a caçada
+  // -------------------------------------------------------------------------
+  console.log('\n------------------------------------------------------------------------');
+  console.log('🛡️ CENÁRIO 2: Garantia de Isolamento: Colyseus NÃO grava durante caçada');
+  console.log('------------------------------------------------------------------------');
 
-  // Attempt to save from Colyseus: must be blocked by the defensive authority guard
-  const preSaveVersion = (await prisma.character.findUnique({ where: { id: char.id } }))?.saveVersion;
-  await persistenceManager.saveCharacter(huntPlayer);
-  const postSaveVersion = (await prisma.character.findUnique({ where: { id: char.id } }))?.saveVersion;
+  const colyseusPlayer = new PlayerState();
+  colyseusPlayer.id = session1Token;
+  colyseusPlayer.characterId = char.id;
+  colyseusPlayer.name = char.name;
+  colyseusPlayer.inHunt = true;
+  colyseusPlayer.level = 1; // Colyseus local state está defasado
+  colyseusPlayer.experience = 0;
+  (colyseusPlayer as any).saveVersion = 1;
 
-  if (preSaveVersion !== postSaveVersion) {
-    throw new Error('Falha crítica: Colyseus conseguiu gravar e incrementar saveVersion durante a caçada ativa!');
+  const versionBefore = (await prisma.character.findUnique({ where: { id: char.id } }))?.saveVersion;
+  await persistenceManager.saveCharacter(colyseusPlayer);
+  const versionAfter = (await prisma.character.findUnique({ where: { id: char.id } }))?.saveVersion;
+
+  if (versionBefore !== versionAfter) {
+    throw new Error('Falha: Colyseus conseguiu gravar no banco durante caçada ativa!');
   }
-  console.log(`[Colyseus Isolation] Sucesso: Colyseus ignorou a gravação. saveVersion permaneceu ${preSaveVersion}.`);
+  console.log(`[Isolamento] Sucesso comprovado: saveVersion permaneceu ${versionBefore}. Autosave do Colyseus foi barrado.`);
 
-  // 5. Client periodic autosave (HTTP POST /save with isHunting: true)
-  console.log('\n[Client Autosave] Executando salvamento do cliente ativo...');
-  const saveAttemptId = 'att-phase182-test';
-  progressionDiagnostics.recordSaveAttempt(saveAttemptId, char.id, 1, currentLevel, currentExp, currentGold, true);
-  const saveResult = await charService.saveCharacterProgress(char.id, {
+  // -------------------------------------------------------------------------
+  // CENÁRIO 3: Retorno à Cidade: Salvamento final da caçada conclui antes de liberar autosave urbano
+  // -------------------------------------------------------------------------
+  console.log('\n------------------------------------------------------------------------');
+  console.log('🏛️ CENÁRIO 3: Retorno à Cidade Handshake: Salvamento final síncrono e adoção do estado');
+  console.log('------------------------------------------------------------------------');
+
+  // O cliente efetua o salvamento final via CharacterService com a sessão exclusiva
+  const finalHuntSave = await charService.saveCharacterProgress(char.id, {
     saveVersion: 1,
     level: currentLevel,
     experience: BigInt(currentExp),
     skills: [
-      { skillId: 2, skillName: 'Sword Fighting', value: 20, tries: 50 },
+      { skillId: 2, skillName: 'Sword Fighting', value: 20, tries: 0 },
     ],
+    inventory: [
+      { slot: 'gold', serverId: 2148, name: 'Gold Coin', count: currentGold },
+      { slot: 'backpack_0', serverId: 7618, name: 'Health Potion', count: 10 },
+    ],
+    sessionId: session1Token,
   }, { isInternal: true });
 
-  const updatedVersion = (saveResult as any).saveVersion;
-  progressionDiagnostics.recordSaveSuccess(saveAttemptId, updatedVersion, 200);
-  console.log(`[Client Autosave] Sucesso! Banco atualizado para saveVersion: ${updatedVersion} com Nível ${currentLevel}`);
+  const huntSavedVersion = (finalHuntSave as any).saveVersion;
+  console.log(`[Retorno à Cidade] Salvamento final da caçada concluído com êxito! Nova saveVersion: ${huntSavedVersion}`);
 
-  // 6. Test: Compra, consumo, venda e morte seguidos de conflito 409
-  console.log('\n[Conflict & Non-Destructive Handling] Simulando compra, consumo, venda e morte seguidos de 409...');
+  // Handshake: Colyseus adota os dados autoritativos do banco ANTES de liberar inHunt
+  const freshDbChar = await persistenceManager.loadCharacter(char.id);
+  if (!freshDbChar) throw new Error('Falha ao carregar dados do banco no handshake!');
 
-  // Player actions in active session:
-  let sessionGold = 1000;
-  let sessionPotions = 10;
-  let sessionSwords = 1;
-  let sessionExp = currentExp;
-  let sessionSwordSkill = 20;
+  colyseusPlayer.level = freshDbChar.level;
+  colyseusPlayer.experience = Number(freshDbChar.experience);
+  (colyseusPlayer as any).saveVersion = (freshDbChar as any).saveVersion;
+  colyseusPlayer.inHunt = false;
+  ServerCharacterContextRegistry.setActivity(char.id, { isHunting: false });
 
-  // 6.1 Compra suprimento (-700 gold)
-  sessionGold -= 700; // 300
-  // 6.2 Consome 8 poções (-8 potions)
-  sessionPotions -= 8; // 2
-  // 6.3 Vende a espada (-1 sword)
-  sessionSwords -= 1; // 0
-  // 6.4 Morre em combate (perda de 10% XP e -1 skill)
-  sessionExp = Math.floor(sessionExp * 0.9);
-  sessionSwordSkill -= 1; // 19
+  console.log(`[Retorno à Cidade] Colyseus assumiu o estado persistido: Nível=${colyseusPlayer.level}, XP=${colyseusPlayer.experience}, saveVersion=${(colyseusPlayer as any).saveVersion}`);
+  console.log(`[Retorno à Cidade] inHunt liberado com sucesso após sincronização integral.`);
 
-  console.log(`  - Estado pós-ações: Gold=${sessionGold}, Potions=${sessionPotions}, Swords=${sessionSwords}, XP=${sessionExp}, Skill=${sessionSwordSkill}`);
+  // -------------------------------------------------------------------------
+  // CENÁRIO 4: Aguardar mais de dois ciclos de autosave urbano
+  // -------------------------------------------------------------------------
+  console.log('\n------------------------------------------------------------------------');
+  console.log('⏳ CENÁRIO 4: Execução de 3 Ciclos de Autosave Urbano no Colyseus');
+  console.log('------------------------------------------------------------------------');
 
-  // 6.5 Simula colisão 409: o banco teve a versão incrementada externamente
-  const simulatedExternalVersion = updatedVersion + 1;
-  await prisma.character.update({
-    where: { id: char.id },
-    data: { saveVersion: simulatedExternalVersion },
-  });
-
-  // O cliente tentou salvar com a versão antiga (updatedVersion) e recebe 409 com currentVersion = simulatedExternalVersion
-  // Na nova regra: a sessão atualiza sua saveVersion para a do servidor e faz retry save do estado autêntico!
-  const retrySaveResult = await charService.saveCharacterProgress(char.id, {
-    saveVersion: simulatedExternalVersion,
-    level: levelForExperience(sessionExp),
-    experience: BigInt(sessionExp),
-    skills: [
-      { skillId: 2, skillName: 'Sword Fighting', value: sessionSwordSkill, tries: 0 },
-    ],
-    isDeathPenalty: true,
-  }, { isInternal: true });
-
-  const finalSavedVersion = (retrySaveResult as any).saveVersion;
-  console.log(`[Retry Save] Retry save concluído com sucesso! Nova saveVersion: ${finalSavedVersion}`);
-
-  // 7. Ausência de duplicação ou restauração indevida verificada diretamente no banco
-  console.log('\n[Validation] Verificando ausência de restauração indevida ou duplicação no banco...');
-  const verifiedChar = await prisma.character.findUnique({
-    where: { id: char.id },
-    include: { skills: true },
-  });
-
-  const swordSkillRecord = verifiedChar?.skills.find((s) => s.skillId === 2);
-
-  console.log(`  - XP persistida: ${verifiedChar?.experience.toString()} (Esperado: ${sessionExp})`);
-  console.log(`  - Skill persistida: ${swordSkillRecord?.value} (Esperado: 19 - penalidade mantida)`);
-  console.log(`  - Gold da sessão: ${sessionGold} (Esperado: 300 - sem ressurreição)`);
-  console.log(`  - Poções da sessão: ${sessionPotions} (Esperado: 2 - sem restauração de consumidos)`);
-  console.log(`  - Espadas da sessão: ${sessionSwords} (Esperado: 0 - sem restauração de vendidos)`);
-
-  if (Number(verifiedChar?.experience) !== sessionExp) {
-    throw new Error(`Falha: XP persistida (${verifiedChar?.experience}) difere da esperada pós-morte (${sessionExp})!`);
-  }
-  if (swordSkillRecord?.value !== 19) {
-    throw new Error(`Falha: Skill persistida (${swordSkillRecord?.value}) apagou a penalidade de morte!`);
-  }
-  if (sessionGold !== 300) {
-    throw new Error(`Falha: Gold gasto ressuscitou!`);
-  }
-  if (sessionPotions !== 2) {
-    throw new Error(`Falha: Poções consumidas foram restauradas!`);
+  for (let cycle = 1; cycle <= 3; cycle++) {
+    await persistenceManager.saveCharacter(colyseusPlayer);
+    const cycleDb = await prisma.character.findUnique({ where: { id: char.id } });
+    console.log(`  - Ciclo ${cycle} de autosave urbano concluído: saveVersion=${cycleDb?.saveVersion}, Nível=${cycleDb?.level}, XP=${cycleDb?.experience}`);
+    if (cycleDb?.level !== 7 || Number(cycleDb?.experience) !== currentExp) {
+      throw new Error(`Falha no ciclo ${cycle}: Regressão detectada no autosave urbano!`);
+    }
   }
 
-  // 8. Reconnection and Restart Simulation: Re-fetch from DB
-  console.log('\n[Restart Simulation] Simulando reconexão e reinício completo do servidor...');
+  // -------------------------------------------------------------------------
+  // CENÁRIO 5: Reconectar e conferir todos os valores
+  // -------------------------------------------------------------------------
+  console.log('\n------------------------------------------------------------------------');
+  console.log('🔌 CENÁRIO 5: Reconexão e Conferência de Todos os Valores');
+  console.log('------------------------------------------------------------------------');
+
   const reconnectedChar = await prisma.character.findUnique({
     where: { id: char.id },
-    include: { skills: true },
+    include: { skills: true, inventory: true },
   });
 
-  if (!reconnectedChar || reconnectedChar.level < 6) {
-    throw new Error(`Falha: Personagem após reconexão não manteve o progresso esperado!`);
+  const reconnectedSword = reconnectedChar?.skills.find((s) => s.skillId === 2);
+  const reconnectedGold = reconnectedChar?.inventory.find((i) => i.slot === 'gold');
+
+  console.log(`  - Nível após reconexão: ${reconnectedChar?.level} (Esperado: 7)`);
+  console.log(`  - XP após reconexão: ${reconnectedChar?.experience.toString()} (Esperado: ${currentExp})`);
+  console.log(`  - Skill Sword após reconexão: ${reconnectedSword?.value} (Esperado: 20)`);
+  console.log(`  - Gold após reconexão: ${reconnectedGold?.count} (Esperado: ${currentGold})`);
+  console.log(`  - saveVersion no banco: ${reconnectedChar?.saveVersion} (Esperado: >= 5)`);
+
+  if (reconnectedChar?.level !== 7) throw new Error('Falha: Nível após reconexão difere de 7!');
+  if (Number(reconnectedChar?.experience) !== currentExp) throw new Error('Falha: XP após reconexão difere!');
+  if (reconnectedSword?.value !== 20) throw new Error('Falha: Skill após reconexão difere!');
+  if (reconnectedGold?.count !== currentGold) throw new Error('Falha: Gold após reconexão difere!');
+
+  // -------------------------------------------------------------------------
+  // CENÁRIO 6: Proteção de Conflito Real com Duas Sessões do Mesmo Personagem
+  // -------------------------------------------------------------------------
+  console.log('\n------------------------------------------------------------------------');
+  console.log('⚔️ CENÁRIO 6: Proteção de Conflito Real com Duas Sessões do Mesmo Personagem');
+  console.log('------------------------------------------------------------------------');
+
+  const session2Token = 'session-2-new-active-lease';
+  // Sessão 2 conecta e assume o direito exclusivo de gravar
+  ServerCharacterContextRegistry.setActiveSession(char.id, session2Token);
+  console.log(`[Sessão 2] Nova sessão conectada. Direito exclusivo atribuído a: ${session2Token}`);
+
+  // Sessão 2 gasta gold (compra itens: 300 gold gasto), consome 6 poções e morre (-10% XP e -1 skill)
+  const currentDbVersion = reconnectedChar.saveVersion;
+  let s2Gold = currentGold - 15; // gasta 15 gold
+  let s2Exp = Math.floor(currentExp * 0.9); // morte penalidade
+  let s2Skill = 19; // perde 1 skill
+
+  const session2Save = await charService.saveCharacterProgress(char.id, {
+    saveVersion: currentDbVersion,
+    level: levelForExperience(s2Exp),
+    experience: BigInt(s2Exp),
+    skills: [{ skillId: 2, skillName: 'Sword Fighting', value: s2Skill, tries: 0 }],
+    inventory: [
+      { slot: 'gold', serverId: 2148, name: 'Gold Coin', count: s2Gold },
+      { slot: 'backpack_0', serverId: 7618, name: 'Health Potion', count: 4 }, // 6 consumidas
+    ],
+    sessionId: session2Token,
+    isDeathPenalty: true,
+  });
+
+  const session2SavedVersion = (session2Save as any).saveVersion;
+  console.log(`[Sessão 2] Ações confirmadas e salvas com sucesso no banco: saveVersion=${session2SavedVersion}, Gold=${s2Gold}, Potions=4, XP=${s2Exp}, Skill=${s2Skill}`);
+
+  // Agora a Sessão 1 (antiga/defasada) tenta salvar com snapshot antigo e saveVersion atualizada
+  console.log('\n[Sessão 1 - Antiga] Tentando salvar snapshot antigo após reconexão da sessão 2...');
+  let session1Blocked = false;
+  try {
+    await charService.saveCharacterProgress(char.id, {
+      saveVersion: session2SavedVersion,
+      level: 7,
+      experience: BigInt(currentExp), // snapshot antigo sem a morte
+      skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 20, tries: 0 }], // snapshot antigo sem a perda
+      inventory: [
+        { slot: 'gold', serverId: 2148, name: 'Gold Coin', count: currentGold }, // snapshot antigo com gold original
+        { slot: 'backpack_0', serverId: 7618, name: 'Health Potion', count: 10 }, // snapshot antigo com 10 poções
+      ],
+      sessionId: session1Token, // Token da sessão antiga!
+    });
+  } catch (err: any) {
+    if (err instanceof SessionSupersededError || err?.code === 'SESSION_SUPERSEDED' || err.message?.includes('foi sobreposta')) {
+      session1Blocked = true;
+      console.log(`[Sessão 1 - Antiga] Bloqueio comprovado! Erro lançado: ${err.message}`);
+    } else {
+      throw err;
+    }
   }
 
-  console.log('\n===============================================================');
-  console.log('🎉 VERIFICAÇÃO END-TO-END CONCLUÍDA COM 100% DE APROVAÇÃO!');
-  console.log('===============================================================');
+  if (!session1Blocked) {
+    throw new Error('Falha de segurança crítica: Sessão antiga conseguiu sobrescrever dados da sessão nova!');
+  }
+
+  // Conferir banco: dados da sessão 2 permanecem intocados
+  const dbAfterSession1Attempt = await prisma.character.findUnique({
+    where: { id: char.id },
+    include: { skills: true, inventory: true },
+  });
+
+  const postGold = dbAfterSession1Attempt?.inventory.find((i) => i.slot === 'gold')?.count;
+  const postPotions = dbAfterSession1Attempt?.inventory.find((i) => i.slot === 'backpack_0')?.count;
+  const postSkill = dbAfterSession1Attempt?.skills.find((s) => s.skillId === 2)?.value;
+  const postExp = Number(dbAfterSession1Attempt?.experience);
+
+  console.log(`\n[Auditoria Pós-Tentativa da Sessão Antiga]`);
+  console.log(`  - Gold no banco: ${postGold} (Esperado: ${s2Gold} - compras preservadas)`);
+  console.log(`  - Poções no banco: ${postPotions} (Esperado: 4 - consumos preservados)`);
+  console.log(`  - Skill Sword no banco: ${postSkill} (Esperado: 19 - penalidade mantida)`);
+  console.log(`  - XP no banco: ${postExp} (Esperado: ${s2Exp} - penalidade mantida)`);
+
+  if (postGold !== s2Gold || postPotions !== 4 || postSkill !== 19 || postExp !== s2Exp) {
+    throw new Error('Falha: O snapshot da sessão antiga contaminou o banco de dados!');
+  }
+  console.log('✅ A sessão antiga foi 100% impedida de sobrescrever compras, consumos, perdas ou progresso.');
+
+  console.log('\n========================================================================');
+  console.log('🎉 TODAS AS GARANTIAS EXIGIDAS FORAM RIGOROSAMENTE VALIDADAS COM SUCESSO!');
+  console.log('========================================================================\n');
 }
 
 runVerification().then(() => {

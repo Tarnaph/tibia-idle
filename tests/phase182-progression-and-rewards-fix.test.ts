@@ -18,7 +18,7 @@ import huntRegionsJson from '../content/generated/hunt-regions.json';
 import economyJson from '../content/generated/item-economy.json';
 import { parseInventoryData } from '../apps/web/lib/characterHydration';
 import { progressionDiagnostics } from '../apps/web/lib/progressionDiagnostics';
-import { ServerCharacterContextRegistry } from '../packages/auth/src';
+import { ServerCharacterContextRegistry, CharacterService } from '../packages/auth/src';
 import { PrismaPersistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 import type { MonsterCatalog, EquipmentCatalog, StarterLoadoutCatalog, VocationCatalog, SpellCatalog, HuntRegionCatalog, ItemEconomyCatalog } from '../packages/content-schema/src';
@@ -258,5 +258,174 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
     expect(logs[2].type).toBe('save-attempt');
     expect(logs[3].type).toBe('save-conflict');
     expect((logs[3] as any).details.serverVersion).toBe(5);
+  });
+
+  it('7. Proteção de Conflito Real: Sessão antiga é bloqueada com SESSION_SUPERSEDED e não sobrescreve compras, perdas ou progresso da sessão atual', async () => {
+    // Banco simulado com personagem
+    let dbCharacter: any = {
+      id: 'char-multi-sess-1',
+      accountId: 'acc-1',
+      name: 'AtlasMultiHero',
+      vocationName: 'Knight',
+      level: 6,
+      experience: BigInt(2200),
+      saveVersion: 2,
+      skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 18, tries: BigInt(0) }],
+      inventory: [
+        { slot: 'gold', serverId: 2148, name: 'Gold Coin', count: 300 }, // 700 gold foi gasto pela nova sessão!
+        { slot: 'backpack_0', serverId: 7618, name: 'Health Potion', count: 2 }, // 8 poções foram consumidas
+      ],
+      lastSavedAt: new Date(),
+    };
+
+    const mockPrisma = {
+      character: {
+        findUnique: vi.fn().mockImplementation(async ({ where }: any) => {
+          if (where.id === dbCharacter.id) return { ...dbCharacter };
+          return null;
+        }),
+        update: vi.fn().mockImplementation(async ({ where, data }: any) => {
+          dbCharacter = { ...dbCharacter, ...data, saveVersion: (dbCharacter.saveVersion || 1) + 1 };
+          return dbCharacter;
+        }),
+      },
+      characterSkill: { upsert: vi.fn() },
+      characterInventory: { deleteMany: vi.fn(), createMany: vi.fn() },
+      $transaction: vi.fn().mockImplementation(async (cb: any) => cb(mockPrisma)),
+    } as any;
+
+    const service = new CharacterService(mockPrisma);
+
+    // 1. Sessão 2 (ativa) estabeleceu o direito exclusivo de gravação no servidor
+    ServerCharacterContextRegistry.setActiveSession('char-multi-sess-1', 'colyseus-session-2-active');
+
+    // 2. Sessão 1 (antiga/defasada) tenta salvar com snapshot anterior: 1000 gold, 10 potions, saveVersion 2
+    // Tentativa COM sessionId desatualizada ('colyseus-session-1-stale')
+    await expect(
+      service.saveCharacterProgress('char-multi-sess-1', {
+        saveVersion: 2,
+        experience: BigInt(2200),
+        sessionId: 'colyseus-session-1-stale',
+      })
+    ).rejects.toThrow('foi sobreposta pela sessão ativa');
+
+    // 3. Tentativa da sessão antiga SEM sessionId (tentando burlar)
+    await expect(
+      service.saveCharacterProgress('char-multi-sess-1', {
+        saveVersion: 2,
+        experience: BigInt(2200),
+      })
+    ).rejects.toThrow('foi sobreposta pela sessão ativa');
+
+    // 4. Confirmação: O estado do banco NÃO foi sobrescrito!
+    expect(dbCharacter.inventory.find((i: any) => i.slot === 'gold')?.count).toBe(300);
+    expect(dbCharacter.inventory.find((i: any) => i.slot === 'backpack_0')?.count).toBe(2);
+    expect(dbCharacter.saveVersion).toBe(2);
+
+    // 5. Sessão 2 (ativa legítima) salva com sucesso
+    const validSave = await service.saveCharacterProgress('char-multi-sess-1', {
+      saveVersion: 2,
+      experience: BigInt(2400),
+      sessionId: 'colyseus-session-2-active',
+    });
+    expect(validSave).toBeDefined();
+    expect(dbCharacter.saveVersion).toBe(3);
+  });
+
+  it('8. Retorno à cidade Handshake: salvamento final conclui com sucesso antes de liberar autosave urbano e Colyseus assume estado persistido', async () => {
+    // 1. Personagem no banco com nível 5
+    let dbRecord: any = {
+      id: 'char-return-city-1',
+      accountId: 'acc-return',
+      name: 'CityReturnHero',
+      vocationName: 'Knight',
+      level: 5,
+      experience: BigInt(1200),
+      health: 200,
+      maxHealth: 200,
+      mana: 50,
+      maxMana: 50,
+      capacity: 400,
+      saveVersion: 1,
+      skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 15, tries: BigInt(0) }],
+      inventory: [{ slot: 'gold', serverId: 2148, name: 'Gold Coin', count: 100 }],
+      lastSavedAt: new Date(),
+    };
+
+    const mockPrisma = {
+      character: {
+        findUnique: vi.fn().mockImplementation(async ({ where }: any) => {
+          if (where.id === dbRecord.id) return { ...dbRecord };
+          return null;
+        }),
+        updateMany: vi.fn().mockImplementation(async ({ where, data }: any) => {
+          if (where.saveVersion === dbRecord.saveVersion) {
+            dbRecord = { ...dbRecord, ...data, saveVersion: dbRecord.saveVersion + 1 };
+            return { count: 1 };
+          }
+          return { count: 0 };
+        }),
+      },
+      characterSkill: { upsert: vi.fn() },
+      characterInventory: { deleteMany: vi.fn(), createMany: vi.fn() },
+      $transaction: vi.fn().mockImplementation(async (cb: any) => cb(mockPrisma)),
+    } as any;
+
+    const persistence = new PrismaPersistenceManager(mockPrisma);
+
+    // 2. Jogador entra em caçada no Colyseus
+    const player = new PlayerState();
+    player.id = 'client-sess-handshake';
+    player.characterId = 'char-return-city-1';
+    player.name = 'CityReturnHero';
+    player.level = 5;
+    player.experience = 1200;
+    player.inHunt = true;
+    (player as any).saveVersion = 1;
+
+    ServerCharacterContextRegistry.setActivity(player.characterId, { isHunting: true });
+
+    // 3. Enquanto inHunt=true, o autosave do Colyseus é estritamente ignorado
+    await persistence.saveCharacter(player);
+    expect(dbRecord.saveVersion).toBe(1); // Banco não foi alterado pelo Colyseus
+
+    // 4. Durante a caçada, o cliente acumulou XP e alcançou Nível 7 (3000 XP) com 500 gold
+    // O salvamento final da caçada é executado PRIMEIRO via CharacterService
+    const service = new CharacterService(mockPrisma);
+    ServerCharacterContextRegistry.setActiveSession(player.characterId, player.id);
+
+    await service.saveCharacterProgress(player.characterId, {
+      saveVersion: 1,
+      level: 7,
+      experience: BigInt(3000),
+      sessionId: player.id,
+    });
+
+    expect(dbRecord.saveVersion).toBe(2);
+    expect(dbRecord.level).toBe(7);
+    expect(Number(dbRecord.experience)).toBe(3000);
+
+    // 5. Handshake de Retorno à Cidade: Colyseus sincroniza do banco ANTES de liberar inHunt
+    const freshDbChar = await persistence.loadCharacter(player.characterId);
+    expect(freshDbChar).toBeDefined();
+
+    // Colyseus adota os dados autoritativos do banco
+    player.level = freshDbChar!.level;
+    player.experience = Number(freshDbChar!.experience);
+    (player as any).saveVersion = (freshDbChar as any).saveVersion;
+
+    // Apenas APÓS sincronizar, o inHunt é liberado
+    player.inHunt = false;
+    ServerCharacterContextRegistry.setActivity(player.characterId, { isHunting: false });
+
+    expect(player.level).toBe(7);
+    expect(player.experience).toBe(3000);
+    expect((player as any).saveVersion).toBe(2);
+
+    // 6. Ciclo do autosave urbano do Colyseus roda agora em paz:
+    await persistence.saveCharacter(player);
+    expect(dbRecord.saveVersion).toBe(3);
+    expect(dbRecord.level).toBe(7);
+    expect(Number(dbRecord.experience)).toBe(3000);
   });
 });
