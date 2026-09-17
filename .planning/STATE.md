@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-09-17T00:45:00.000Z"
-last_activity: "2026-09-16 — Phase 182 iniciada: Correção de Progressão e Recompensas (Bloco A, prioridade máxima) + Otimização das Miniaturas (Bloco B). Investigada causa raiz da regressão de nível (reset 5/6 para 1 por colisão Colyseus x Web e reconciliação 409 destrutiva). Plano de implementação elaborado para aprovação."
+status: complete
+last_updated: "2026-09-17T01:15:00.000Z"
+last_activity: "2026-09-16 — Phase 182 Concluída com Sucesso: Bloco A (Correção de Progressão e Recompensas, Reconciliação Monotônica 409 e Isolamento do Autosave de Caçadores no Colyseus) e Bloco B (Thumbnail Atlases para miniaturas de outfits e montarias com carregamento sob demanda e warm render < 100ms) 100% validados, testados e segregados em commits atômicos."
 progress:
   total_phases: 182
-  completed_phases: 181
-  total_plans: 188
-  completed_plans: 187
-  percent: 99
+  completed_phases: 182
+  total_plans: 189
+  completed_plans: 189
+  percent: 100
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 182 - Correção de Progressão e Recompensas + Otimização das Miniaturas.
+**Current focus:** Phase 182 - Concluída (v1.0 Ready).
 
 ## Current Position
 
 Phase: 182 of 182  
-Plan: 0 of 2 in Phase 182  
-Status: In Progress (Planning / Awaiting Approval)  
-Last activity: 2026-09-16 — Plano consolidado elaborado para a Phase 182 (Bloco A: Progressão, Recompensas e Reconciliação Monotônica; Bloco B: Thumbnail Atlases para miniaturas da lista; Procedimento Operacional de Rollback sem perda de dados no SQLite).
+Plan: 2 of 2 in Phase 182  
+Status: Complete  
+Last activity: 2026-09-16 — Phase 182 entregue com commits separados por bloco, 31 testes unitários/integrados aprovados, 0 erros no typecheck e pipeline visual da Phase 181 preservado intacto.
 
-Progress: [██████████] 99%
+Progress: [██████████] 100%
 
 
 

@@ -3449,12 +3449,10 @@ Plans:
 - Personagem de teste avança continuamente até ultrapassar o nível 6 sem jamais sofrer retrocesso para o nível 1.
 - Drops de gold (Caixa da Party) e itens de ratos (como queijo) persistem de forma consistente entre salvamentos e reconexões.
 - Reconciliação em conflitos 409 é 100% monotônica e não-destrutiva.
-- Miniaturas dos cards exibem em < 100ms quando preparadas em cache quente, sem disparar dezenas de requisições individuais ao rolar.
-- Zero regressões no login, movimentação, preview, addons ou montarias.
-
-
-
-
+**Status:** Complete
+- Resumo de entrega: `.planning/phases/phase-182-progression-and-thumbnails/182-SUMMARY.md`
+- Commits segregados: Bloco A (`177db055e`, `3665c1753`, `d9fc02a0b`), Bloco B (`6fcd205be`)
+- Procedimento de Rollback: `git checkout v1.0-stable-phase181-atlases` + `npx vinext build` + `pm2 restart` sem tocar no SQLite.
 
 
 
