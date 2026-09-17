@@ -197,11 +197,11 @@ export function WindowDockBar({
   const shareMax = Math.floor((level * 3) / 2);
 
   return (
-    <header className="huntera-top-bar" aria-label="Barra de Navegação Huntera">
-      {/* Left Cluster: Brand Logo & Account Profile Card */}
+    <header className="huntera-top-bar" aria-label="Barra de Navegação Exura">
+      {/* Left Cluster: Brand Logo, Account Profile Card & Currencies */}
       <div className="huntera-left-cluster" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div className="huntera-logo-wrap" title="Huntera / Exura Online">
-          <img src="/logo.png" alt="Huntera Logo" className="huntera-logo-img" />
+        <div className="huntera-logo-wrap" title="Exura Online">
+          <img src="/logo.png" alt="Exura Logo" className="huntera-logo-img" />
         </div>
 
         {/* Account Profile Card & Character Inspect Container */}
@@ -654,72 +654,76 @@ export function WindowDockBar({
             </div>
           )}
         </div>
-      </div>
 
-      {/* Currency Badges */}
-      <div className="huntera-currency-group">
-        <div className="huntera-badge coins-badge" title="Huntera Coins">
-          <img
-            src="/images/tibia-coin.png"
-            alt="Huntera Coins"
-            className="huntera-coin-img"
-            style={{ width: '22px', height: '22px', imageRendering: 'pixelated', objectFit: 'contain' }}
-          />
-          <span className="badge-value">{coins.toLocaleString('pt-BR')}</span>
-          <button type="button" className="badge-plus-btn" title="Comprar Coins">+</button>
+        {/* Currency Badges (Exura Coins & Gold Stack) */}
+        <div className="huntera-currency-group">
+          <div className="huntera-badge coins-badge" title="Exura Coins">
+            <img
+              src="/images/tibia-coin.png"
+              alt="Exura Coins"
+              className="huntera-coin-img"
+              style={{ width: '26px', height: '26px', imageRendering: 'pixelated', objectFit: 'contain' }}
+            />
+            <span className="badge-value">{coins.toLocaleString('pt-BR')}</span>
+            <button type="button" className="badge-plus-btn" title="Comprar Exura Coins">+</button>
+          </div>
+
+          <div className="huntera-badge gold-badge" title="Gold Coins no inventário/banco">
+            <img
+              src="/images/gold-stack.png"
+              alt="Gold Coins"
+              className="huntera-gold-img"
+              style={{ width: '26px', height: '26px', imageRendering: 'pixelated', objectFit: 'contain' }}
+            />
+            <span className="badge-value">{gold.toLocaleString('pt-BR')}</span>
+          </div>
         </div>
+      </div>
 
-        <div className="huntera-badge gold-badge" title="Gold Coins no inventário/banco">
-          <img
-            src="/images/gold-coin.png"
-            alt="Gold Coins"
-            className="huntera-gold-img"
-            style={{ width: '22px', height: '22px', imageRendering: 'pixelated', objectFit: 'contain' }}
-          />
-          <span className="badge-value">{gold.toLocaleString('pt-BR')}</span>
+      {/* Center Cluster: Real-time Online Players Status */}
+      <div className="huntera-center-cluster">
+        <div className="huntera-online-status" title="Jogadores conectados no mundo online">
+          <span className="status-dot green pulse" />
+          <span className="online-text">
+            <strong>{onlinePlayersCount.toLocaleString('pt-BR')}</strong> jogadores online
+          </span>
         </div>
       </div>
 
-      {/* Golden Shop Button */}
-      <button
-        type="button"
-        className="huntera-shop-btn"
-        onClick={() => {
-          if (onOpenShop) onOpenShop();
-          else toggleWindow('equipment');
-        }}
-        title="Abrir Loja de Itens da Cidade"
-      >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <path d="M16 10a4 4 0 0 1-8 0" />
-        </svg>
-        <span className="shop-label">Loja</span>
-      </button>
+      {/* Right Cluster: Shop Button, Auto-Idle and Utility Actions Grid */}
+      <div className="huntera-right-cluster">
+        {/* Golden Shop Button */}
+        <button
+          type="button"
+          className="huntera-shop-btn"
+          onClick={() => {
+            if (onOpenShop) onOpenShop();
+            else toggleWindow('equipment');
+          }}
+          title="Abrir Loja de Itens da Cidade"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          <span className="shop-label">Loja</span>
+        </button>
 
-      {/* Auto-Idle Button */}
-      {onToggleAutoIdle && (
-        <AutoIdleButton
-          isAutoIdle={isAutoIdle}
-          onToggle={onToggleAutoIdle}
-          inHunt={inHunt}
-          isTraining={isTraining}
-          staminaMinutes={staminaMinutes}
-          maxStaminaMinutes={maxStaminaMinutes}
-        />
-      )}
+        {/* Auto-Idle Button */}
+        {onToggleAutoIdle && (
+          <AutoIdleButton
+            isAutoIdle={isAutoIdle}
+            onToggle={onToggleAutoIdle}
+            inHunt={inHunt}
+            isTraining={isTraining}
+            staminaMinutes={staminaMinutes}
+            maxStaminaMinutes={maxStaminaMinutes}
+          />
+        )}
 
-      {/* Online Players Status */}
-      <div className="huntera-online-status" title="Jogadores conectados no mundo online">
-        <span className="status-dot green" />
-        <span className="online-text">
-          <strong>{onlinePlayersCount.toLocaleString('pt-BR')}</strong> jogadores online
-        </span>
-      </div>
-
-      {/* Right Action Icons Grid */}
-      <div className="huntera-actions-grid">
+        {/* Right Action Icons Grid */}
+        <div className="huntera-actions-grid">
         <button
           type="button"
           className="huntera-square-btn hunt-btn"
@@ -1005,6 +1009,7 @@ export function WindowDockBar({
           </svg>
         </button>
       </div>
-    </header>
-  );
+    </div>
+  </header>
+);
 }

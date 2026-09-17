@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-17T20:05:00.000Z"
-last_activity: "2026-09-17 — Phase 183 Concluída com Sucesso: Redesign da Loja da Cidade (Shop Window) com seleção de categorias estilo pátio de treino (cards com glow azul #58a6ff), catálogo curado e restrito aos 45 itens de FIX.md (Armors, Legs, Shoes, Helmets, Shields e Weapons), busca, filtro por vocação e integração de compra com saldo da Party."
+last_updated: "2026-09-17T21:10:00.000Z"
+last_activity: "2026-09-17 — Phase 184 Concluída com Sucesso: Redesign da TopBar (HUD Superior) em 3 clusters semânticos (Esquerda com perfil e moedas ampliadas, Centro com Players Online reativo ao vivo, Direita com Loja e utilitários), substituição pelo monte de ouro clássico (gold-stack.png) e renomeação para Exura Coins."
 progress:
-  total_phases: 183
-  completed_phases: 183
-  total_plans: 190
-  completed_plans: 190
+  total_phases: 184
+  completed_phases: 184
+  total_plans: 191
+  completed_plans: 191
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 183 - Concluída (Redesign da Loja da Cidade e Catálogo de FIX.md).
+**Current focus:** Phase 184 - Redesign da TopBar, Players Online em Tempo Real e Exura Coins.
 
 ## Current Position
 
-Phase: 183 of 183  
-Plan: 1 of 1 in Phase 183  
-Status: Complete  
-Last activity: 2026-09-17 — Phase 183 entregue: nova ShopWindow com cards de categorias estilo treino, 45 equipamentos curados estritamente conforme FIX.md, 8 testes dedicados no Vitest aprovados e 0 erros no typecheck.
+Phase: 184 of 184  
+Plan: 1 of 1 in Phase 184  
+Status: In Progress  
+Last activity: 2026-09-17 — Iniciada Phase 184: reorganização da barra em 3 clusters, integração de remotePlayers no Colyseus e sprite de monte de moedas de ouro.
 
 Progress: [██████████] 100%
 

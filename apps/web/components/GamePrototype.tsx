@@ -3777,6 +3777,7 @@ function GamePrototypeContent() {
           characterName={activeCharacter.name}
           character={activeCharacter}
           stats={activeStats}
+          onlinePlayersCount={Math.max(1, remotePlayers ? remotePlayers.size : 1)}
           debug={debugGrid}
           isAdmin={isAdmin}
           isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
