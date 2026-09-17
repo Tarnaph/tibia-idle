@@ -283,5 +283,50 @@ Executadas as 28 suítes com falha lado a lado no candidato (`HEAD`) e na refer�
 - Transição direta de caçadas via `startSelectedHunt` sem passar por `'training'` nem quebrar a câmera em `z: 8` preservada.
 - Prontidão de cena (`isArenaReady`) mantida ativa.
 - Pipelines de outfits, montarias, atlases e animações 100% preservados sem alterações visuais.
-- Zero impacto no banco de dados para personagens de jogadores reais (`Wolfy` intocado; validação executada com `ReproKnight182`).
+- Zero impacto no banco de dados para personagens de jogadores reais (`Wolfy` intocado; validação executada com `ReproKnight182` e `ReproMage`).
+
+#### 6. Fechamento da Calibração: Caçada Sustentada com Magia (2 Minutos / 8 Autosaves Consecutivos)
+- **Investigação da Rotação no Motor (`combat.ts`):**
+  - O motor aplica cooldows estritos de Tibia 11 / realmap11: feitiço ofensivo bloqueia grupo `'attack'` por 2.000ms (`groupCooldownMs`), poções têm cooldown de 1.000ms e cura tem 1.000ms.
+  - Em caçada sustentada com feitiços de ataque (`exori flam` / waves) combinados com feitiços de cura reativa (`exura` / `exura gran`) e reposição contínua via poções de mana:
+    - Gasto sustentado de mana medido: $\mathbf{25\text{ a }30\text{ mana/s}}$.
+    - Tentativas em Magic Level geradas: $25\text{ mana/s} \times 25\text{ (rateMagic)} \times 10\text{ (stage)} = \mathbf{6.250\text{ tries/s}}$ (ou $7.500\text{ tries/s}$ a $30\text{ mana/s}$).
+    - Somando o ataque de arma física / wand básica ($250\text{ tries/s}$) e bloqueios de escudo ($500\text{ tries/s}$):
+    - Total de tentativas produzidas em combate ativo sustentado: $\mathbf{7.000\text{ a }8.250\text{ tries/s}}$ (com picos de até $9.000\text{ tries/s}$ sob dano intenso).
+- **Comprovação da Rejeição Legítima no VPS com Limite de 4.500/s:**
+  - Executado teste contínuo de 2 minutos com o personagem `ReproMage` (id `9db4db35-edb8-4cb8-b8fe-5ca34fa2de67`):
+    - Autosave 1 (15s): 200 OK (burst inicial de 120k absorveu).
+    - Autosave 2 (30s): 200 OK (saldo restante zerou).
+    - Autosaves 3 a 8 (45s a 120s): **Rejeitados com HTTP 400** por esgotamento acumulado (`Salto anômalo... ganho de 93.750 excede orçamento contínuo no tempo (máximo permitido: 71.500)`).
+  - A rejeição legítima no motor foi demonstrada de forma cabal.
+- **Calibração Rigorosa no `SkillRateLimiter`:**
+  - Sem alterar taxas de evolução (`rateSkill = 50`, `rateMagic = 25`, stages de EXP e skills mantidos idênticos).
+  - Sem afrouxar os limites urbanos (`NON_HUNT_MAX_TRIES_PER_SECOND = 500`, `NON_HUNT_MAX_BURST_TRIES = 25.000` mantidos estritos).
+  - Novos parâmetros calibrados para caçada (`HUNT`):
+    - `HUNT_MAX_TRIES_PER_SECOND = 9_000` (acomoda rotação sustentada de até 35 mana/s + arma + 2 defesas).
+    - `HUNT_MAX_BURST_TRIES = 225_000` (capacidade para até 25s de combate acumulado com atraso de rede).
+- **Validação Pós-Calibração no VPS (Commit `961186e59`):**
+  - **Delimitação de Escopo dos Resultados:** Os 8 autosaves consecutivos aprovados comprovam com exatidão o **cenário concreto medido** (Sorcerer sustentando rotação de combate com gasto de 25 mana/s e salvamentos a cada 15 segundos). Eles **não** atestam nem extrapolam todas as combinações e rotações possíveis do motor de combate.
+  - Tabela com os valores reais registrados pelo limitador:
+
+| Autosave | Tempo (s) | Mana Gasta (ciclo) | Tentativas Efetivamente Consumidas | Saldo Registrado no Limitador (`currentBudget`) | Resposta HTTP | Status |
+|---|---|---|---|---|---|---|
+| **#1** | 15s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+| **#2** | 30s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+| **#3** | 45s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+| **#4** | 60s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+| **#5** | 75s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+| **#6** | 90s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+| **#7** | 105s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+| **#8** | 120s | 375 mana | 93.750 | 131.250 | **200 OK** | ✅ Aprovado |
+
+  - **Divergências da Tabela Estimativa Inicial Informadas:**
+    1. **Tentativas por Ciclo:** A estimativa anterior exibia $105.000$ somando projeções hipotéticas de hits físicos e bloqueios. A medição real enviada no payload e consumida foi de **93.750 tentativas** ($375\text{ mana} \times 250$).
+    2. **Saldo Registrado no Limitador:** A estimativa inicial sugeria incorretamente `~255.000 / 225.000 cap`. O saldo gravado pelo limitador (`entry.availableBudget`) após cada consumo de 93.750 sobre o bucket reabastecido (225.000) é de rigorosamente **131.250 tentativas**.
+  - Saída limpa da caçada para Thais: **Status 200 OK**.
+  - Reconexão e conferência no banco SQLite de produção:
+    - `saveVersion`: 14 (exatamente a esperada).
+    - `Magic Level`: 40 (tries: 51.642, exatamente o progresso legítimo acumulado).
+    - Integridade total confirmada no cenário medido sem perdas, conflitos ou rebaixamentos.
+
 
