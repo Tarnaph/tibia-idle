@@ -32,6 +32,8 @@ export interface RemotePlayerSnapshot {
   mountActive?: boolean;
   inHunt?: boolean;
   avatarId?: number;
+  accountId?: string;
+  isMonster?: boolean;
 }
 
 export interface NetworkCombatEvent {
@@ -167,8 +169,21 @@ export class GameClientNetworkManager {
   private isHuntContextConfirmed: boolean = false;
   private huntContextReadyListeners: Set<(data: { isHunting: boolean; huntId?: string }) => void> = new Set();
 
+  private uniqueAccountsCount: number = 1;
+  private onlineCountListeners: Set<(count: number) => void> = new Set();
+
   get IsConnected(): boolean {
     return this.room !== null;
+  }
+
+  get UniqueAccountsCount(): number {
+    return this.uniqueAccountsCount;
+  }
+
+  onOnlineCountChange(fn: (count: number) => void): () => void {
+    this.onlineCountListeners.add(fn);
+    fn(this.uniqueAccountsCount);
+    return () => this.onlineCountListeners.delete(fn);
   }
 
   get IsHuntContextConfirmed(): boolean {
@@ -329,6 +344,8 @@ export class GameClientNetworkManager {
                 mount: 'none',
                 mountActive: false,
                 inHunt: true,
+                accountId: '',
+                isMonster: true,
               });
               hasChanges = true;
             } else if (this.playersMap.has(key)) {
@@ -336,6 +353,13 @@ export class GameClientNetworkManager {
               hasChanges = true;
             }
           });
+        }
+        if (typeof (state as any).uniqueAccountsOnline === 'number') {
+          const srvCount = (state as any).uniqueAccountsOnline;
+          if (srvCount > 0 && srvCount !== this.uniqueAccountsCount) {
+            this.uniqueAccountsCount = srvCount;
+            this.onlineCountListeners.forEach((fn) => fn(srvCount));
+          }
         }
         if (hasChanges) {
           this.notifyStateChange();
@@ -354,6 +378,13 @@ export class GameClientNetworkManager {
     });
 
     // 4. Listen to messages from server
+    this.room.onMessage('server:onlineCount', (data: { count: number }) => {
+      if (typeof data?.count === 'number' && data.count > 0) {
+        this.uniqueAccountsCount = data.count;
+        this.onlineCountListeners.forEach((fn) => fn(data.count));
+      }
+    });
+
     this.room.onMessage('server:huntContextReady', (data: { isHunting: boolean; huntId?: string }) => {
       this.isHuntContextConfirmed = Boolean(data?.isHunting);
       this.huntContextReadyListeners.forEach((fn) => fn(data));
@@ -510,6 +541,8 @@ export class GameClientNetworkManager {
       mountActive,
       inHunt: Boolean(player.inHunt),
       avatarId: Number(player.avatarId ?? 1),
+      accountId: player.accountId || '',
+      isMonster: false,
     });
   }
 

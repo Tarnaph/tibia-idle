@@ -42,7 +42,13 @@ export async function GET(request: Request) {
       updatedAt: c.updatedAt.toISOString(),
     }));
 
-    return NextResponse.json({ success: true, count: formatted.length, players: formatted });
+    let onlineCount = 1;
+    try {
+      const { ServerCharacterContextRegistry } = await import('@/packages/auth/src');
+      onlineCount = await ServerCharacterContextRegistry.getUniqueOnlineAccountsCountAsync();
+    } catch {}
+
+    return NextResponse.json({ success: true, count: formatted.length, onlineCount, players: formatted });
   } catch (error: any) {
     const status = error.message === 'UNAUTHORIZED' ? 401 : error.message === 'FORBIDDEN' ? 403 : 500;
     return NextResponse.json({ success: false, error: error.message }, { status });

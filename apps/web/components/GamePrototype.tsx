@@ -304,6 +304,7 @@ function GamePrototypeContent() {
   const gameSessionChannelRef = useRef<BroadcastChannel | null>(null);
   const [isConnectedServer, setIsConnectedServer] = useState(false);
   const [remotePlayers, setRemotePlayers] = useState<Map<string, RemotePlayerSnapshot>>(new Map());
+  const [serverOnlineCount, setServerOnlineCount] = useState<number>(1);
   const [outfitModalOpen, setOutfitModalOpen] = useState(false);
   const [outfitModalCharId, setOutfitModalCharId] = useState<string>('');
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
@@ -519,6 +520,22 @@ function GamePrototypeContent() {
       };
     });
   }, [friendsList, remotePlayers, game.session.characters]);
+
+  // Phase 186 Bloco E: Unique online accounts count across city & hunts without monster or tab duplication
+  const uniqueOnlineAccountsCount = useMemo(() => {
+    if (serverOnlineCount && serverOnlineCount > 0) return serverOnlineCount;
+
+    const unique = new Set<string>();
+    if (onlineAccount?.id) unique.add(onlineAccount.id);
+    if (remotePlayers) {
+      for (const p of remotePlayers.values()) {
+        if ((p as any).isMonster) continue;
+        if (p.accountId) unique.add(p.accountId);
+        else if (p.characterId) unique.add(`char:${p.characterId}`);
+      }
+    }
+    return Math.max(1, unique.size);
+  }, [serverOnlineCount, remotePlayers, onlineAccount?.id]);
 
   const handleAddFriend = useCallback(
     async (name: string): Promise<{ success: boolean; error?: string }> => {
@@ -1038,6 +1055,10 @@ function GamePrototypeContent() {
   useEffect(() => {
     const unsubState = gameNetwork.onStateChange((players) => {
       setRemotePlayers(players);
+    });
+
+    const unsubOnlineCount = gameNetwork.onOnlineCountChange((count) => {
+      if (count > 0) setServerOnlineCount(count);
     });
 
     const unsubCombat = gameNetwork.onCombatEvent((evt) => {
@@ -3799,7 +3820,7 @@ function GamePrototypeContent() {
           characterName={activeCharacter.name}
           character={activeCharacter}
           stats={activeStats}
-          onlinePlayersCount={Math.max(1, remotePlayers ? remotePlayers.size : 1)}
+          onlinePlayersCount={uniqueOnlineAccountsCount}
           debug={debugGrid}
           isAdmin={isAdmin}
           isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}

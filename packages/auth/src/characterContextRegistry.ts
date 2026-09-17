@@ -187,4 +187,16 @@ export class ServerCharacterContextRegistry {
   public static getActiveCount(): number {
     return this.registry.size;
   }
+
+  public static async getUniqueOnlineAccountsCountAsync(): Promise<number> {
+    try {
+      const colyseusPort = process.env.COLYSEUS_PORT || 2567;
+      const res = await fetch(`http://127.0.0.1:${colyseusPort}/api/online-count`);
+      if (res.ok) {
+        const data = (await res.json()) as any;
+        if (typeof data.count === 'number' && data.count > 0) return data.count;
+      }
+    } catch {}
+    return 1;
+  }
 }

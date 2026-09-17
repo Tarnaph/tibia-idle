@@ -55,11 +55,34 @@ export interface JoinOptions {
 }
 
 export class ThaisCityRoom extends Room<WorldState> {
+  public static activeInstance: ThaisCityRoom | null = null;
   maxClients = 100;
   private autoSaveTimer: any = null;
   private activeSavePromise: Promise<void> | null = null;
   private isDisposed: boolean = false;
   private playerExpSync = new Map<string, { lastSyncTime: number; lastExperience: number }>();
+
+  public getUniqueOnlineAccountsCount(): number {
+    const unique = new Set<string>();
+    for (const p of this.state.players.values()) {
+      if (p.accountId && p.accountId !== 'acc-guest') {
+        unique.add(p.accountId);
+      } else if (p.characterId) {
+        unique.add(`char:${p.characterId}`);
+      } else if (p.id) {
+        unique.add(`session:${p.id}`);
+      }
+    }
+    return Math.max(1, unique.size);
+  }
+
+  public updateOnlineAccountsCount(): void {
+    const count = this.getUniqueOnlineAccountsCount();
+    this.state.uniqueAccountsOnline = count;
+    try {
+      this.broadcast('server:onlineCount', { count });
+    } catch {}
+  }
 
   private setupRoomAutoSave(intervalMs: number) {
     if (this.autoSaveTimer) {
@@ -84,6 +107,7 @@ export class ThaisCityRoom extends Room<WorldState> {
 
   private async performRoomAutoSave(): Promise<void> {
     if (this.isDisposed) return;
+    this.updateOnlineAccountsCount();
     if (this.activeSavePromise) {
       return;
     }
@@ -115,6 +139,7 @@ export class ThaisCityRoom extends Room<WorldState> {
   }
 
   onCreate(options: any) {
+    ThaisCityRoom.activeInstance = this;
     this.setState(new WorldState());
     this.state.regionName = 'thais-city';
 
@@ -938,11 +963,13 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     this.state.players.set(client.sessionId, player);
+    this.updateOnlineAccountsCount();
     if (charId) {
       ServerCharacterContextRegistry.setActiveSession(charId, client.sessionId);
     }
     this.playerExpSync.set(client.sessionId, { lastSyncTime: Date.now(), lastExperience: player.experience });
     if (typeof client.send === 'function') {
+      client.send('server:onlineCount', { count: this.getUniqueOnlineAccountsCount() });
       client.send('server:config', serverConfigManager.getConfig());
       client.send('bestiary:sync', {
         kills: loadedBestiaryKills,
@@ -989,10 +1016,14 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.handlePlayerLeaveParty(client.sessionId);
     this.playerExpSync.delete(client.sessionId);
     this.state.players.delete(client.sessionId);
+    this.updateOnlineAccountsCount();
   }
 
   async onDispose() {
     this.isDisposed = true;
+    if (ThaisCityRoom.activeInstance === this) {
+      ThaisCityRoom.activeInstance = null;
+    }
     if (this.autoSaveTimer) {
       if (typeof this.autoSaveTimer.clear === 'function') {
         this.autoSaveTimer.clear();

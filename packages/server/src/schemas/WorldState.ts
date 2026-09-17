@@ -11,4 +11,5 @@ export class WorldState extends Schema {
   @type([ChatMessageSchema]) chatMessages = new ArraySchema<ChatMessageSchema>();
   @type('number') serverTick: number = 0;
   @type('string') regionName: string = 'thais-city';
+  @type('number') uniqueAccountsOnline: number = 1;
 }

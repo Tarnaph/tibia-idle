@@ -682,10 +682,10 @@ export function WindowDockBar({
 
       {/* Center Cluster: Real-time Online Players Status */}
       <div className="huntera-center-cluster">
-        <div className="huntera-online-status" title="Jogadores conectados no mundo online">
+        <div className="huntera-online-status" title="Contas únicas conectadas no mundo online (cidade e caçadas)">
           <span className="status-dot green pulse" />
           <span className="online-text">
-            <strong>{onlinePlayersCount.toLocaleString('pt-BR')}</strong> jogadores online
+            <strong>{onlinePlayersCount.toLocaleString('pt-BR')}</strong> {onlinePlayersCount === 1 ? 'jogador online' : 'jogadores online'}
           </span>
         </div>
       </div>

@@ -68,6 +68,13 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
+  app.get('/api/online-count', (req, res) => {
+    const count = ThaisCityRoom.activeInstance
+      ? ThaisCityRoom.activeInstance.getUniqueOnlineAccountsCount()
+      : 1;
+    res.json({ success: true, count });
+  });
+
   app.get('/api/character-context/:id', async (req, res) => {
     const clientIp = req.socket?.remoteAddress || (req as any).ip || '';
     const isLoopback = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === '::ffff:127.0.0.1' || clientIp.endsWith('127.0.0.1');

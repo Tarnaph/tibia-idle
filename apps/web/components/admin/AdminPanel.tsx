@@ -87,6 +87,8 @@ export function AdminPanel({
   // Players state
   const [players, setPlayers] = useState<PlayerRecord[]>([]);
   const [playerSearch, setPlayerSearch] = useState('');
+  const [viewerCharacter, setViewerCharacter] = useState<any>(null);
+  const [onlineAccountsCount, setOnlineAccountsCount] = useState<number>(1);
   const [selectedVocationFilter, setSelectedVocationFilter] = useState<number | 'all'>('all');
 
   // Logs state
@@ -153,6 +155,9 @@ export function AdminPanel({
       const data = (await res.json()) as any;
       if (data.success && Array.isArray(data.players)) {
         setPlayers(data.players);
+        if (typeof data.onlineCount === 'number' && data.onlineCount > 0) {
+          setOnlineAccountsCount(data.onlineCount);
+        }
       }
     } catch {}
   };
@@ -711,6 +716,11 @@ export function AdminPanel({
                 <option value={3}>Paladin</option>
                 <option value={4}>Knight</option>
               </select>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 12px', background: '#11161d', border: '1px solid #3d3122', borderRadius: '4px', fontSize: '12px', color: '#8c8273', whiteSpace: 'nowrap' }}>
+                <span>Contas Únicas Online:</span>
+                <strong style={{ color: '#38bdf8' }}>{onlineAccountsCount}</strong>
+              </div>
             </div>
 
             {/* PLAYERS TABLE */}
@@ -950,7 +960,7 @@ export function AdminPanel({
               </a>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               <div style={{ background: '#1b222d', border: '1px solid #3d3122', padding: '16px', borderRadius: '6px' }}>
                 <span style={{ fontSize: '11px', color: '#8c8273' }}>SERVIDOR COLYSEUS</span>
                 <h3 style={{ color: '#4fc977', margin: '6px 0 0 0' }}>ONLINE (Porta 2567)</h3>
@@ -967,6 +977,12 @@ export function AdminPanel({
                 <span style={{ fontSize: '11px', color: '#8c8273' }}>AUTO-SAVE POSTGRESQL</span>
                 <h3 style={{ color: '#4f8bc9', margin: '6px 0 0 0' }}>{serverConfig.periodicSaveIntervalMs / 1000}s</h3>
                 <p style={{ fontSize: '12px', color: '#aaa', margin: '4px 0 0 0' }}>Persistência em lote Prisma habilitada.</p>
+              </div>
+
+              <div style={{ background: '#1b222d', border: '1px solid #3d3122', padding: '16px', borderRadius: '6px' }}>
+                <span style={{ fontSize: '11px', color: '#8c8273' }}>CONTAS ÚNICAS ONLINE</span>
+                <h3 style={{ color: '#38bdf8', margin: '6px 0 0 0' }}>{onlineAccountsCount} {onlineAccountsCount === 1 ? 'conta' : 'contas'}</h3>
+                <p style={{ fontSize: '12px', color: '#aaa', margin: '4px 0 0 0' }}>Cidade e caçadas sem duplicar abas.</p>
               </div>
             </div>
           </div>
