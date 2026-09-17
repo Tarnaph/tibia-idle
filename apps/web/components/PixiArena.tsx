@@ -16,6 +16,7 @@ interface PixiArenaProps {
   debug: boolean;
   active?: boolean;
   isCharacterVisible?: boolean;
+  adminTitle?: string | null;
   onSelectTarget?: (enemyId: string) => void;
   onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
   onSceneReady?: () => void;
@@ -24,6 +25,7 @@ interface ActorView {
   root: Container;
   sprite: Sprite;
   label: Text;
+  titleLabel?: Text;
   debugLabel: Text;
   bar: Graphics;
   aura: Graphics;
@@ -92,12 +94,12 @@ function projectileDirection(from: GridPosition, to: GridPosition): string {
   return vertical && horizontal ? `${vertical}-${horizontal}` : vertical || horizontal || 'south';
 }
 
-export function PixiArena({ game, debug, active = true, isCharacterVisible = true, onSelectTarget, onCharacterContextMenu, onSceneReady }: PixiArenaProps) {
+export function PixiArena({ game, debug, active = true, isCharacterVisible = true, adminTitle, onSelectTarget, onCharacterContextMenu, onSceneReady }: PixiArenaProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const syncRef = useRef<((state: GameState, showDebug: boolean) => void) | null>(null);
-  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady });
-  latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady };
+  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady });
+  latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady };
 
   useEffect(() => {
     const app = appRef.current;
@@ -566,14 +568,52 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           liveIds.add(actor.characterId);
           const outfitKey = character.outfit || character.vocation;
           const mapping = visualAssets.outfits[outfitKey] || visualAssets.outfits[baseVocation(outfitKey)] || visualAssets.outfits['Knight'];
-          const adminTitle = (character as any).adminTitle || ((character as any).accountRole === 'admin' ? 'GOD' : undefined);
-          const displayName = adminTitle ? `[${adminTitle}] ${character.name}` : character.name;
+          const rawRole = String((character as any).accountRole || '').trim().toUpperCase();
+          const effectiveAdminTitle = (character as any).adminTitle
+            || latestRef.current.adminTitle
+            || (rawRole === 'ADMIN' ? 'GOD' : rawRole === 'GM' ? 'GM' : undefined);
+          const displayName = character.name;
           const view = views.get(actor.characterId) ?? createView(actor.characterId, mapping, actor.previousPosition, actor.direction, displayName);
           if (view.mapping !== mapping) {
             view.mapping = mapping;
           }
           view.label.text = displayName;
-          view.label.style.fill = adminTitle ? 0xffd700 : 0x67de82;
+          if (effectiveAdminTitle && (effectiveAdminTitle === 'GOD' || effectiveAdminTitle === 'GM')) {
+            if (!view.titleLabel) {
+              view.titleLabel = new Text({
+                text: `[${effectiveAdminTitle}] `,
+                resolution: 2,
+                style: {
+                  fill: 0xffd700,
+                  stroke: { color: 0x08120a, width: 2 },
+                  fontSize: 8,
+                  fontFamily: 'Arial',
+                  fontWeight: '700',
+                },
+              });
+              view.titleLabel.roundPixels = true;
+              view.root.addChild(view.titleLabel);
+            } else {
+              view.titleLabel.text = `[${effectiveAdminTitle}] `;
+              view.titleLabel.visible = true;
+            }
+            const titleW = view.titleLabel.width;
+            const nameW = view.label.width;
+            const totalW = titleW + nameW;
+            const startX = -totalW / 2;
+            view.titleLabel.anchor.set(0, 0.5);
+            view.titleLabel.position.set(startX, creatureVisualLayout.nameplateY);
+            view.label.anchor.set(0, 0.5);
+            view.label.position.set(startX + titleW, creatureVisualLayout.nameplateY);
+            view.label.style.fill = 0x67de82;
+          } else {
+            if (view.titleLabel) {
+              view.titleLabel.visible = false;
+            }
+            view.label.anchor.set(0.5, 0.5);
+            view.label.position.set(0, creatureVisualLayout.nameplateY);
+            view.label.style.fill = 0x67de82;
+          }
           view.sprite.alpha = actor.alive ? 1 : 0.45;
           view.root.visible = latestRef.current.isCharacterVisible !== false && actor.alive;
         }
@@ -839,7 +879,10 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const visualMaxHp = enemy ? enemy.maxHp : actor && character ? character.maxHp : 1;
           const hpRatio = Math.max(0, Math.min(1, visualHp / visualMaxHp));
           const variantColor = enemy?.variant?.visualModifier === 'rare-aura' ? 0xb66cff : 0xffb52e;
-          view.label.position.set(0, creatureVisualLayout.nameplateY); view.bar.clear().rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3).fill({ color: 0x251010 }).rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3).fill({ color: enemy?.variant ? variantColor : enemy ? 0xd3564d : 0x4fc977 });
+          if (!view.titleLabel || !view.titleLabel.visible) {
+            view.label.position.set(0, creatureVisualLayout.nameplateY);
+          }
+          view.bar.clear().rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3).fill({ color: 0x251010 }).rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3).fill({ color: enemy?.variant ? variantColor : enemy ? 0xd3564d : 0x4fc977 });
           const logical = actor?.position ?? enemy?.position;
           view.debugLabel.visible = latestRef.current.debug;
           view.debugLabel.position.set(0, 18);

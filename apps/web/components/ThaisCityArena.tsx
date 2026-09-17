@@ -51,6 +51,7 @@ interface Props {
   active?: boolean;
   isCharacterVisible?: boolean;
   squadFollowEnabled?: boolean;
+  adminTitle?: string | null;
 }
 
 interface ThaisItemFrame {
@@ -147,6 +148,7 @@ export function ThaisCityArena({
   active = true,
   isCharacterVisible = true,
   squadFollowEnabled = false,
+  adminTitle,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
@@ -203,6 +205,7 @@ export function ThaisCityArena({
     active,
     isCharacterVisible,
     squadFollowEnabled,
+    adminTitle,
   };
 
   useEffect(() => {
@@ -1748,7 +1751,8 @@ export function ThaisCityArena({
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
             view.root.visible = (latestRef.current.isCharacterVisible !== false) && Boolean(view.lastCanvas);
-            updateNameplate(view, localChar.name, (localChar as any).adminTitle);
+            const effectiveAdminTitle = latestRef.current.adminTitle || (localChar as any)?.adminTitle;
+            updateNameplate(view, localChar.name, effectiveAdminTitle);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()
               .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)

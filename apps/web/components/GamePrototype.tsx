@@ -1369,6 +1369,19 @@ function GamePrototypeContent() {
     const charGender = ((charItem as any).gender as 'male' | 'female') || 'male';
     const userChar = createCharacter(charItem.id, charItem.name, vocName, content, charGender);
 
+    // Admin title hydration: Derive authorized title ([GOD] or [GM])
+    const dbAdminTitle = (charItem as any).adminTitle;
+    const accRoleUpper = String((acc as any)?.role || '').trim().toUpperCase();
+    const resolvedAdminTitle = dbAdminTitle
+      ? String(dbAdminTitle).trim().toUpperCase()
+      : (accRoleUpper === 'ADMIN' ? 'GOD' : accRoleUpper === 'GM' ? 'GM' : undefined);
+
+    if (resolvedAdminTitle === 'GOD' || resolvedAdminTitle === 'GM') {
+      (userChar as any).adminTitle = resolvedAdminTitle;
+      (charItem as any).adminTitle = resolvedAdminTitle;
+    }
+    (userChar as any).accountRole = accRoleUpper;
+
     // Promotion hydration
     if ((charItem as any).promotion) {
       userChar.promotion = (charItem as any).promotion;
@@ -3666,6 +3679,7 @@ function GamePrototypeContent() {
             debug={debugGrid}
             active={mode === 'hunt'}
             isCharacterVisible={isCharacterVisible}
+            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : onlineAccount?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
             onSceneReady={() => setIsArenaReady(true)}
             onSelectTarget={(enemyId) => {
               setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
@@ -3680,6 +3694,7 @@ function GamePrototypeContent() {
           <ThaisCityArena
             characters={game.session.characters}
             activeCharacterId={activeCharacter.id}
+            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : onlineAccount?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
             cityPos={cityPos}
             isWalking={walkingPath !== null || heldDirectionRef.current !== null}
             isTraining={isTrainingAtDummy}
