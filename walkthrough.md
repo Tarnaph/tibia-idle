@@ -1,72 +1,95 @@
-# Walkthrough: Phase 178 - Estabilidade Online, Troca Atômica de Aparência e Preview Definitivo
+# Walkthrough: Phase 186 — Estabilização Integral de FIX.md (Blocos A, B, C, D e E)
 
-## 🎯 Objetivo Cumprido
-Eliminar falhas visuais na experiência online:
-1. Preview de addons no `OutfitModal`: agora exibe addons em tempo real antes de salvar e descarta requisições atrasadas.
-2. Troca de aparência no mundo: implementação de **Atomic Appearance Swap** (a aparência anterior é preservada 100% íntegra enquanto a nova é pré-aquecida em segundo plano, sendo substituída de forma atômica em um único frame sem quebras na animação).
-3. Proteção do cache provisório: impede que composições provisórias sem addons solicitados sejam cacheadas e reutilizadas como definitivas.
-4. Mapeamento e documentação da infraestrutura de Spritesheets vs PNGs individuais.
-5. Deploy e sincronização com a VPS (`187.7.16.210:3000`).
+## 🎯 Objetivo Concluído com Sucesso
+Implementação e validação completa dos 5 blocos fundamentais solicitados em `FIX.md`, com cobertura de testes unitários no Vitest, verificação estrita de tipos TypeScript (0 erros), deploy na VPS de produção (`187.7.16.210`) e validação visual online automatizada via Microsoft Edge / Chrome DevTools Protocol (CDP):
 
----
-
-## 📌 Status de Versão e Commits
-
-- **Commit Publicado na VPS e no GitHub**: [`718f3495b`](https://github.com/Tarnaph/tibia-idle/commit/718f3495b) - `fix(appearance): atomic appearance swap, definitive addon preview, and unpolluted provisional caching`.
-- **Commit Anterior Testado pelo Usuário**: [`02b0eece9`](https://github.com/Tarnaph/tibia-idle/commit/02b0eece9) - `fix(appearance): enforce mandatory mount, preserve walk addons, eliminate knight fallback and async prepare appearance`.
+1. **Bloco A**: Fechamento de persistência em 8 checkpoints rigorosos e transições de caçada sem reset de nível.
+2. **Bloco B**: Navegação do Painel ADMIN com retorno fluido e seguro ao jogo ("🎮 VOLTAR AO JOGO") e logout completo sem loops ("🚪 SAIR").
+3. **Bloco C**: Promoção e remoção de GM pelo ADMIN com modal de confirmação, proteção de contas GOD e auditoria.
+4. **Bloco D**: Exibição do próprio título `[GOD]` e `[GM]` em dourado sobre o personagem na cidade, caçadas e HUD.
+5. **Bloco E**: Contador real de contas únicas online abrangendo cidade e caçadas sem duplicação de abas.
 
 ---
 
-## 🛠️ Modificações Realizadas
+## 📌 Commits e Ambiente de Produção
 
-### 1. Preview de Addon Definitivo (`apps/web/lib/outfitRecolor.ts` e `OutfitModal.tsx`)
-- **Causa Raiz Identificada**: `renderRecoloredOutfit` executava `getRecoloredCanvasSync` e saía imediatamente (`return;`) quando obtinha um canvas provisório (que ainda não tinha as imagens dos addons). Dessa forma, a promessa assíncrona que carregava os addons nunca era executada.
-- **Correção Aplicada**:
-  - `renderRecoloredOutfit` agora só utiliza o fast-path se o canvas **definitivo** já existir em `recoloredCanvasCache`.
-  - Se não existir, desenha provisoriamente (sem travar nem fechar a função), faz o download de todas as camadas (corpo base, mask, montaria, addon 1 e addon 2), verifica `isCurrent()` para descartar seleções obsoletas do usuário e compõe o canvas definitivo completo.
-  - Armazena no cache definitivo (`recoloredCanvasCache.set`) e purga a entrada provisória correspondente (`provisionalCanvasCache.delete`).
-  - No `OutfitModal.tsx`, ao marcar Addon 1 ou Addon 2, dispara `prepareAppearanceCanvas` em segundo plano para pré-aquecer todas as direções.
-
-### 2. Troca Atômica de Aparência no Mundo (`apps/web/components/ThaisCityArena.tsx`)
-- **Causa Raiz Identificada**: Ao salvar uma aparência, o código antigo zerava imediatamente `view.lastTextureKey = ''` e `view.lastCanvas = undefined`. Durante os 2 a 3 segundos em que os PNGs de caminhada estavam baixando pela rede, o loop de animação tentava renderizar frames incompletos ou nulos, provocando passos truncados e instáveis.
-- **Correção Aplicada (Atomic Appearance Swap)**:
-  - Adicionado rastreamento de `view.activeAppearance` e `view.pendingAppearance`.
-  - Enquanto a nova aparência solicitada está baixando via `prepareAppearanceCanvas`, o personagem **continua sendo renderizado com a aparência anterior 100% completa e funcional** (com corpo, addons e montaria).
-  - Quando os frames essenciais da nova aparência estão confirmados no cache (`isOutfitCanvasCached`), ocorre a **substituição atômica em um único frame** (`view.activeAppearance = desiredAppearance; view.lastTextureKey = '';`).
-  - Não há um único frame onde o personagem fica com camadas faltando ou animação travada.
-
-### 3. Proteção Contra Envenenamento de Cache Provisório (`apps/web/lib/outfitRecolor.ts`)
-- `getRecoloredCanvasSync` agora inspeciona se todos os addons requisitados foram efetivamente desenhados no canvas provisório. Se algum addon requisitado estiver ausente, o canvas provisório **NÃO é salvo em `provisionalCanvasCache` sob a chave do addon**, garantindo que consultas subsequentes continuem tentando desenhar o addon assim que suas imagens forem baixadas.
-
-### 4. Hidratação do Personagem no Login (`apps/web/components/GamePrototype.tsx`)
-- `isCharacterVisible` agora exige `Boolean(onlineCharacter)`. Impede que o Knight padrão de fallback apareça por um único frame antes da seleção e hidratação do personagem real do jogador vindo do banco de dados.
+- **Commit de Código Servido na VPS**: [`e28175086`](https://github.com/Tarnaph/tibia-idle/commit/e28175086) - `fix(title): sanitize adminTitle string against null and undefined`
+- **Commit Base do Bloco E**: [`4b5725487`](https://github.com/Tarnaph/tibia-idle/commit/4b5725487) - `feat(metrics): Phase 186 Bloco E - Contador real de contas unicas online sem duplicacao de abas`
+- **Ambiente de Produção**: VPS `http://187.7.16.210:3000` (PM2 `tibia-web` e `colyseus-server` ativos e monitorados)
 
 ---
 
-## 🖼️ Mapeamento de Spritesheets vs. PNGs Individuais
+## 🔍 Detalhamento dos Cinco Blocos
 
-Conforme solicitado, examinamos a presença de atlas de texturas no projeto:
-1. **Atlases Existentes em `public/generated/atlases/`**:
-   - `creatures-atlas` (monstros)
-   - `equipment-atlas` (equipamentos e itens)
-   - `hunt-*-atlas` (cenários de caçada)
-   - `spells-atlas` (ícones de magia)
-   - `thais-atlas` (mapa e tiles da cidade)
-2. **Outfits e Montarias**:
-   - **NENHUM atlas existe** para outfits de jogadores ou montarias. O renderizador utiliza 100% PNGs individuais carregados sob demanda em `public/generated/outfits/` e `public/generated/mounts/`.
-3. **Volume de Requisições por Aparência**:
-   - 4 direções cardeais x 9 frames (0..8) = 36 steps de animação.
-   - Cada step de jogador montado com 2 addons utiliza: 1 montaria + 2 corpo (base + mask) + 2 addon1 (base + mask) + 2 addon2 (base + mask) = até 7 arquivos.
-   - Totalizando **~180 a 252 requisições HTTP individuais** para cobrir um ciclo completo de caminhada nas 4 direções.
-4. **Decisão Técnica**:
-   - Conforme diretriz do usuário, **nenhuma migração ampla para spritesheets foi aberta nesta fase**, pois o mecanismo de **Atomic Appearance Swap** e o pré-carregamento assíncrono em lote eliminam completamente o impacto da latência na tela sem necessidade de refatorar todo o pipeline de geração de assets.
+### 1. Bloco A — Persistência e Transições de Caçada (8 Checkpoints)
+- **Checkpoints Validados**:
+  1. Cenário e mapa da caçada 100% prontos antes do início do primeiro tick de combate.
+  2. Progressão contínua sem limite no nível 5/6, com recálculo rigoroso de HP, MP, cap, XP e skills.
+  3. Troca direta entre caçadas sem acúmulo de ticks órfãos ou sessões duplicadas.
+  4. Retorno ao Templo de Thais com flush imediato da sessão no banco de dados Prisma (`dev.db`).
+  5. Ciclos sucessivos de autosave urbano confirmados sem degradação ou conflito OCC.
+  6. Reconexão F5 comparando integridade exata dos dados antes e depois da reconexão.
+  7. Simulação de restart durante caçada: relógios pausados, sem acúmulo espúrio de XP ou dano passivo.
+  8. Rejeição de saves de sessões antigas ou dessincronizadas; sem sobreposição de áudio nas trocas de mapa.
+- **Testes**: `tests/phase186-block-a-persistence-and-hunts.test.ts` (7/7 aprovados).
 
 ---
 
-## 🧪 Testes e Validação
+### 2. Bloco B — Navegação do Painel ADMIN
+- **"🎮 VOLTAR AO JOGO"**: Retorna com segurança à sessão em `/game`, garantindo que o cookie e o token em storage permaneçam válidos sem invalidar a conexão do Colyseus.
+- **"🚪 SAIR" (Logout Seguro)**: Limpa `localStorage`, `sessionStorage` e cookies de autenticação (`colyseus_token`, `auth_token`), redirecionando diretamente para `/` sem loops de redirect.
+- **RSC -> Client**: Passagem explícita de `viewer` autenticado do Server Component em `app/admin/page.tsx` para o `AdminPanel.tsx`.
 
-- **Vitest (`tests/phase178-online-stability-mount-recolor-preloader.test.ts`)**: 13/13 testes aprovados (100%).
-- **TypeScript (`npm run typecheck`)**: 0 erros em todo o repositório.
-- **Serviços VPS**: `pm2 status` confirma `colyseus-server` e `tibia-web` ativos e operantes em `187.7.16.210:3000`.
-- **Subagente de Navegador**: O Playwright driver falhou ao baixar na máquina local (CDN da Azure retornou 404 para a versão instalada). A validação final está pronta para ser realizada diretamente no cliente web pelo usuário.
+---
 
+### 3. Bloco C — Promoção a GM pelo ADMIN
+- **Interface e Confirmação**: Aba "Jogadores" no painel administrativo exibe badge `👑 GOD` protegida em contas com permissão suprema e botões contextuais `⭐ Promover a GM` e `🔻 Remover GM`.
+- **Modal de Confirmação**: Diálogo modal detalhado com nome do personagem, email da conta, vocação, nível e explicação dos privilégios.
+- **Segurança Server-Side**:
+  - Restrição absoluta a chamadores com `role === 'ADMIN'`. Contas comuns ou GMs recebem HTTP 403 Forbidden.
+  - Inviolabilidade de contas GOD: qualquer tentativa de modificar uma conta GOD é barrada com HTTP 400.
+  - Auditoria completa com `systemLogger.gmAction`.
+  - Atualização síncrona no banco: `Account.role = 'GM'` e `Character.adminTitle = 'GM'`.
+- **Testes**: `tests/phase186-block-c-gm-promotion.test.ts` (5/5 aprovados).
+
+---
+
+### 4. Bloco D — Exibição do Próprio Título GOD/GM no Mapa
+- **Visualização do Próprio Título**: O jogador administrador visualiza sobre o próprio sprite o prefixo dourado `[GOD] ` ou `[GM] ` (`0xffd700`), mantendo o nome do personagem em verde (`0x67de82`).
+- **Renderização Unificada**: Implementado tanto na cidade (`ThaisCityArena.tsx`) quanto nas arenas de caçada (`PixiArena.tsx`) e no topo do HUD (`WindowDockBar.tsx`).
+- **Sanitização de Strings**: Tratamento defensivo universal contra valores nulos em SQLite/JSON que pudessem vir como as strings literais `"null"` ou `"undefined"`, garantindo precedência determinística.
+- **Testes**: `tests/phase186-block-d-own-title-display.test.ts` (4/4 aprovados).
+
+---
+
+### 5. Bloco E — Contador Real de Contas Únicas Online Sem Duplicar Abas
+- **Cálculo Autoritativo**:
+  - No servidor autoritativo Colyseus (`ThaisCityRoom.ts`), método `getUniqueOnlineAccountsCount()` agrega em um `Set<string>` todos os `accountId`s únicos presentes na sala.
+  - Abrange jogadores na cidade (`inHunt: false`) e jogadores em caçadas ativas (`inHunt: true`).
+  - Entidades com `isMonster === true` são explicitamente ignoradas.
+  - Se um jogador abrir 2 ou mais abas da mesma conta, o contador conta estritamente como **1**.
+- **Propagação**:
+  - Campo `@type('number') uniqueAccountsOnline` integrado ao `WorldState.ts`.
+  - Endpoint REST autoritativo `/api/online-count` exposto pelo servidor de jogo e consumido por `/api/admin/players`.
+  - Exibido em tempo real no TopBar (`● 1 jogador online`) e no painel admin (`Contas Únicas Online: X`).
+- **Testes**: `tests/phase186-block-e-unique-online-accounts.test.ts` (4/4 aprovados).
+
+---
+
+## 🧪 Evidências da Validação Visual Online via CDP (Microsoft Edge)
+
+Executado script automatizado via CDP (`scripts/verify-browser-cdp-phase186.mjs`) no Microsoft Edge contra a VPS:
+- `scratch/cdp-phase186-01-thais-city-god.png`: Cidade de Thais com badge `● 1 jogador online` pulsante e título administrativo renderizado.
+- `scratch/cdp-phase186-02-admin-jogadores.png`: Aba Jogadores com 36 personagens, badge `👑 GOD` protegida no Wolfy, `Contas Únicas Online: 1` e botões `⭐ Promover a GM`.
+- `scratch/cdp-phase186-03-promote-modal.png`: Modal de confirmação aberto ao clicar em `⭐ Promover a GM` com dados completos do jogador.
+- `scratch/cdp-phase186-04-back-to-game.png`: Clique em "🎮 VOLTAR AO JOGO" retornando à sessão de jogo `/game` com sessão ativa.
+- `scratch/cdp-phase186-05-hunt-god.png`: Transição e carregamento de caçada com título de combate.
+- `scratch/cdp-phase186-06-logged-out.png`: Clique em "🚪 SAIR" limpando armazenamento e cookies e redirecionando para a página inicial `/`.
+
+---
+
+## 📊 Resumo das Métricas de Qualidade
+- **Vitest**: **20/20 testes aprovados (100%)** nos 4 arquivos de teste da Fase 186.
+- **TypeScript**: **0 erros de tipagem** em todo o monorepo (`npm run typecheck`).
+- **Deploy em Produção**: Commit **`e28175086`** ativo e verificado na VPS `187.7.16.210`.
+- **Pendências Mantidas em Espera**: Poções/runas fora de hotkeys, loja free/premium, blessings e imbuements guardadas para a próxima fase.
