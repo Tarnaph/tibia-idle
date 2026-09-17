@@ -1,43 +1,47 @@
-# Phase 183: Redesign da Loja da Cidade (Shop Window) & Catálogo Canônico de FIX.md
+# Phase 183: Redesign da Loja da Cidade (Shop Window), Catálogo de FIX.md & Armas de Treino
 
 ## Visão Geral
-A Fase 183 modernizou a Loja da Cidade (`ShopWindow.tsx`) com o design de seleção de categorias em cards no estilo do treino (`.shop-category-card` com realce azul `#58a6ff` e glow). Conforme especificado em `FIX.md`, o catálogo foi estritamente calibrado para conter apenas os 45 equipamentos das categorias básicas de cidade, removendo todos os demais itens não listados (armaduras raras/demoníacas, armas avançadas e afins).
+A Fase 183 modernizou a Loja da Cidade (`ShopWindow.tsx`) implementando o design de seleção de categorias em cards no estilo do treino (`.shop-category-card` com realce azul `#58a6ff` e glow). O catálogo foi estritamente calibrado para conter **66 itens no total**:
+1. Os **45 equipamentos** solicitados em `FIX.md` divididos nas categorias Armors, Legs, Shoes, Helmets, Shields e Weapons.
+2. As **21 armas de exercício** (3 tiers: Regular com 500 cargas, Durable com 1.800 cargas e Lasting com 14.400 cargas) para treino nos training dummies.
+3. Todos os itens que não faziam parte dessa lista foram removidos do catálogo da loja.
+4. O componente `ItemSprite.tsx` foi recalibrado para priorizar a pasta canônica da Cyclopedia (`/generated/cyclopedia/items/item-${id}.png`) com fallback para `/generated/tibia1098/` e `/assets/items/`, além de um fallback SVG limpo, eliminando qualquer ícone de imagem quebrada ("corrupted flag").
 
 ---
 
-## Itens por Categoria Disponíveis na Loja (45 Itens de FIX.md)
+## Estrutura do Catálogo da Loja (66 Itens)
 
-### 1. Armors (5)
+### 1. Armors (5 Itens de FIX.md)
 - **Leather Armor** (`2467`) - Arm: 4, 60 oz, 35 gp
 - **Studded Armor** (`2484`) - Arm: 5, 71 oz, 90 gp
 - **Chain Armor** (`2464`) - Arm: 6, 100 oz, 200 gp
 - **Brass Armor** (`2465`) - Arm: 8, 80 oz, 450 gp
 - **Plate Armor** (`2463`) - Arm: 10, 120 oz, 1.200 gp
 
-### 2. Legs (5)
+### 2. Legs (5 Itens de FIX.md)
 - **Leather Legs** (`2649`) - Arm: 1, 18 oz, 25 gp
 - **Studded Legs** (`2468`) - Arm: 2, 26 oz, 50 gp
 - **Chain Legs** (`2648`) - Arm: 3, 35 oz, 80 gp
 - **Brass Legs** (`2478`) - Arm: 5, 38 oz, 195 gp
 - **Plate Legs** (`2647`) - Arm: 7, 50 oz, 500 gp
 
-### 3. Shoes (1)
+### 3. Shoes (1 Item de FIX.md)
 - **Leather Boots** (`2643`) - Arm: 1, 9 oz, 10 gp
 
-### 4. Helmets (5)
+### 4. Helmets (5 Itens de FIX.md)
 - **Leather Helmet** (`2461`) - Arm: 1, 22 oz, 12 gp
 - **Studded Helmet** (`2482`) - Arm: 2, 24 oz, 63 gp
 - **Brass Helmet** (`2460`) - Arm: 3, 27 oz, 120 gp
 - **Viking Helmet** (`2473`) - Arm: 4, 39 oz, 260 gp
-- **Steel Helmet** (`2457`) - Arm: 6, 46 oz, 580 gp
+- **Steel Helmet** (`2459`) - Arm: 6, 46 oz, 580 gp
 
-### 5. Shields (4)
+### 5. Shields (4 Itens de FIX.md)
 - **Studded Shield** (`2526`) - Def: 15, 33 oz, 50 gp
 - **Brass Shield** (`2511`) - Def: 16, 60 oz, 65 gp
 - **Plate Shield** (`2510`) - Def: 17, 65 oz, 125 gp
 - **Spellbook** (`2175`) - Def: 14, 18 oz, 150 gp (Mages)
 
-### 6. Weapons (25)
+### 6. Weapons (25 Itens de FIX.md)
 - **Hand Axe** (`2380`) - Atk: 10, Def: 5, 18 oz, 8 gp
 - **Sabre** (`2385`) - Atk: 12, Def: 10, 25 oz, 35 gp
 - **Spear** (`2389`) - Atk: 25, Range: 3, 20 oz, 10 gp
@@ -64,10 +68,17 @@ A Fase 183 modernizou a Loja da Cidade (`ShopWindow.tsx`) com o design de seleç
 - **Wand of Inferno** (`2187`) - Lvl 33+, 27 oz, 15.000 gp
 - **Hailstorm Rod** (`2183`) - Lvl 33+, 27 oz, 15.000 gp
 
+### 7. Exercise Weapons (21 Itens - 3 Tiers)
+- **Tier 1 (Regular - 500 Cargas, 262.500 gp):**
+  - Exercise Sword (`31821`), Exercise Axe (`31822`), Exercise Club (`31823`), Exercise Bow (`31824`), Exercise Rod (`31825`), Exercise Wand (`31826`), Exercise Shield (`35279`).
+- **Tier 2 (Durable - 1.800 Cargas, 945.000 gp):**
+  - Durable Exercise Sword (`32384`), Durable Exercise Axe (`32385`), Durable Exercise Club (`32386`), Durable Exercise Bow (`32387`), Durable Exercise Rod (`32388`), Durable Exercise Wand (`32389`), Durable Exercise Shield (`35285`).
+- **Tier 3 (Lasting - 14.400 Cargas, 7.560.000 gp):**
+  - Lasting Exercise Sword (`32390`), Lasting Exercise Axe (`32391`), Lasting Exercise Club (`32392`), Lasting Exercise Bow (`32393`), Lasting Exercise Rod (`32394`), Lasting Exercise Wand (`32395`), Lasting Exercise Shield (`35286`).
+
 ---
 
 ## Verificação e Testes
 - **TypeScript:** `npm run typecheck` executado com **0 erros**.
 - **Vitest:**
   - `tests/phase183-shop-redesign-and-catalog.test.ts`: **8/8 testes aprovados** (100%).
-  - Suíte completa de economia (`phase67`, `phase75`, `phase76` e `phase183`): **23/23 testes aprovados** (100%).

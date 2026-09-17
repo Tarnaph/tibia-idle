@@ -5,7 +5,8 @@ export type ShopCategoryId =
   | 'legs'
   | 'shields'
   | 'weapons'
-  | 'shoes';
+  | 'shoes'
+  | 'exercise';
 
 export interface ShopCategoryDef {
   id: ShopCategoryId;
@@ -32,24 +33,26 @@ export interface ShopItemEntry {
 }
 
 /**
- * Categorias canônicas da loja da cidade conforme FIX.md, utilizando o design de seleção de treino.
+ * Categorias canônicas da loja da cidade com o design de seleção de treino.
  */
 export const SHOP_CATEGORIES: ShopCategoryDef[] = [
-  { id: 'all', label: 'Todos', iconItemId: 2463, description: 'Todos os equipamentos disponíveis na loja da cidade' },
+  { id: 'all', label: 'Todos', iconItemId: 2463, description: 'Todos os equipamentos e armas disponíveis na loja' },
   { id: 'armors', label: 'Armors', iconItemId: 2463, description: 'Armaduras corporais para proteção em combate' },
   { id: 'helmets', label: 'Helmets', iconItemId: 2457, description: 'Capacetes e elmos para defesa craniana' },
   { id: 'legs', label: 'Legs', iconItemId: 2647, description: 'Calças e perneiras de combate' },
   { id: 'shields', label: 'Shields', iconItemId: 2510, description: 'Escudos de defesa corporal e livros mágicos' },
-  { id: 'weapons', label: 'Weapons', iconItemId: 2376, description: 'Espadas, machados, clavas, arcos, cajados e varinhas' },
+  { id: 'weapons', label: 'Weapons', iconItemId: 2376, description: 'Espadas, machados, clavas, arcos e cajados' },
   { id: 'shoes', label: 'Shoes', iconItemId: 2643, description: 'Botas e calçados para movimentação' },
+  { id: 'exercise', label: 'Exercise Weapons', iconItemId: 32384, description: 'Armas de exercício para treino contínuo no dummy' },
 ];
 
 /**
- * Catálogo canônico da Loja da Cidade contendo estritamente os 45 itens solicitados em FIX.md.
+ * Catálogo canônico contendo estritamente a lista solicitada em FIX.md (45 equipamentos)
+ * e as 21 armas de exercício (3 tiers: regular, durable, lasting).
  */
 export const SHOP_ITEMS_CATALOG: ShopItemEntry[] = [
   // ==========================================
-  // 1. ARMORS (5 ITENS)
+  // 1. ARMORS (5 ITENS - FIX.MD)
   // ==========================================
   {
     id: 2467,
@@ -103,7 +106,7 @@ export const SHOP_ITEMS_CATALOG: ShopItemEntry[] = [
   },
 
   // ==========================================
-  // 2. LEGS (5 ITENS)
+  // 2. LEGS (5 ITENS - FIX.MD)
   // ==========================================
   {
     id: 2649,
@@ -157,7 +160,7 @@ export const SHOP_ITEMS_CATALOG: ShopItemEntry[] = [
   },
 
   // ==========================================
-  // 3. SHOES (1 ITEM)
+  // 3. SHOES (1 ITEM - FIX.MD)
   // ==========================================
   {
     id: 2643,
@@ -171,7 +174,7 @@ export const SHOP_ITEMS_CATALOG: ShopItemEntry[] = [
   },
 
   // ==========================================
-  // 4. HELMETS (5 ITENS)
+  // 4. HELMETS (5 ITENS - FIX.MD)
   // ==========================================
   {
     id: 2461,
@@ -225,7 +228,7 @@ export const SHOP_ITEMS_CATALOG: ShopItemEntry[] = [
   },
 
   // ==========================================
-  // 5. SHIELD (4 ITENS)
+  // 5. SHIELD (4 ITENS - FIX.MD)
   // ==========================================
   {
     id: 2526,
@@ -270,7 +273,7 @@ export const SHOP_ITEMS_CATALOG: ShopItemEntry[] = [
   },
 
   // ==========================================
-  // 6. WEAPONS (25 ITENS)
+  // 6. WEAPONS (25 ITENS - FIX.MD)
   // ==========================================
   {
     id: 2380,
@@ -558,6 +561,246 @@ export const SHOP_ITEMS_CATALOG: ShopItemEntry[] = [
     levelReq: 33,
     vocations: ['Druid'],
     description: 'Cajado que desencadeia tempestades de granizo gélido.',
+  },
+
+  // ==========================================
+  // 7. EXERCISE WEAPONS (21 ITENS - 3 TIERS)
+  // ==========================================
+  // --- TIER 1: REGULAR (500 CARGAS) ---
+  {
+    id: 31821,
+    name: 'Exercise Sword',
+    category: 'exercise',
+    price: 262500,
+    tier: 'regular',
+    charges: 500,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Espada de treino básica (500 cargas). Acelera o treino de Sword Fighting no dummy.',
+  },
+  {
+    id: 31822,
+    name: 'Exercise Axe',
+    category: 'exercise',
+    price: 262500,
+    tier: 'regular',
+    charges: 500,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Machado de treino básico (500 cargas). Acelera o treino de Axe Fighting no dummy.',
+  },
+  {
+    id: 31823,
+    name: 'Exercise Club',
+    category: 'exercise',
+    price: 262500,
+    tier: 'regular',
+    charges: 500,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Clava de treino básica (500 cargas). Acelera o treino de Club Fighting no dummy.',
+  },
+  {
+    id: 31824,
+    name: 'Exercise Bow',
+    category: 'exercise',
+    price: 262500,
+    tier: 'regular',
+    charges: 500,
+    weightOz: 10,
+    vocations: ['Paladin'],
+    description: 'Arco de treino básico (500 cargas). Acelera o treino de Distance Fighting no dummy.',
+  },
+  {
+    id: 31825,
+    name: 'Exercise Rod',
+    category: 'exercise',
+    price: 262500,
+    tier: 'regular',
+    charges: 500,
+    weightOz: 10,
+    vocations: ['Druid'],
+    description: 'Cajado de treino básico (500 cargas). Acelera o treino de Magic Level no dummy.',
+  },
+  {
+    id: 31826,
+    name: 'Exercise Wand',
+    category: 'exercise',
+    price: 262500,
+    tier: 'regular',
+    charges: 500,
+    weightOz: 10,
+    vocations: ['Sorcerer'],
+    description: 'Varinha de treino básica (500 cargas). Acelera o treino de Magic Level no dummy.',
+  },
+  {
+    id: 35279,
+    name: 'Exercise Shield',
+    category: 'exercise',
+    price: 262500,
+    tier: 'regular',
+    charges: 500,
+    weightOz: 10,
+    vocations: ['Knight', 'Paladin'],
+    description: 'Escudo de treino básico (500 cargas). Acelera o treino de Shielding no dummy.',
+  },
+
+  // --- TIER 2: DURABLE (1.800 CARGAS) ---
+  {
+    id: 32384,
+    name: 'Durable Exercise Sword',
+    category: 'exercise',
+    price: 945000,
+    tier: 'durable',
+    charges: 1800,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Espada de treino durável (1.800 cargas). Treino intermediário prolongado de Sword.',
+  },
+  {
+    id: 32385,
+    name: 'Durable Exercise Axe',
+    category: 'exercise',
+    price: 945000,
+    tier: 'durable',
+    charges: 1800,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Machado de treino durável (1.800 cargas). Treino intermediário prolongado de Axe.',
+  },
+  {
+    id: 32386,
+    name: 'Durable Exercise Club',
+    category: 'exercise',
+    price: 945000,
+    tier: 'durable',
+    charges: 1800,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Clava de treino durável (1.800 cargas). Treino intermediário prolongado de Club.',
+  },
+  {
+    id: 32387,
+    name: 'Durable Exercise Bow',
+    category: 'exercise',
+    price: 945000,
+    tier: 'durable',
+    charges: 1800,
+    weightOz: 10,
+    vocations: ['Paladin'],
+    description: 'Arco de treino durável (1.800 cargas). Treino intermediário prolongado de Distance.',
+  },
+  {
+    id: 32388,
+    name: 'Durable Exercise Rod',
+    category: 'exercise',
+    price: 945000,
+    tier: 'durable',
+    charges: 1800,
+    weightOz: 10,
+    vocations: ['Druid'],
+    description: 'Cajado de treino durável (1.800 cargas). Treino intermediário prolongado de Magic Level.',
+  },
+  {
+    id: 32389,
+    name: 'Durable Exercise Wand',
+    category: 'exercise',
+    price: 945000,
+    tier: 'durable',
+    charges: 1800,
+    weightOz: 10,
+    vocations: ['Sorcerer'],
+    description: 'Varinha de treino durável (1.800 cargas). Treino intermediário prolongado de Magic Level.',
+  },
+  {
+    id: 35285,
+    name: 'Durable Exercise Shield',
+    category: 'exercise',
+    price: 945000,
+    tier: 'durable',
+    charges: 1800,
+    weightOz: 10,
+    vocations: ['Knight', 'Paladin'],
+    description: 'Escudo de treino durável (1.800 cargas). Treino intermediário prolongado de Shielding.',
+  },
+
+  // --- TIER 3: LASTING (14.400 CARGAS) ---
+  {
+    id: 32390,
+    name: 'Lasting Exercise Sword',
+    category: 'exercise',
+    price: 7560000,
+    tier: 'lasting',
+    charges: 14400,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Espada de treino suprema duradoura (14.400 cargas). Treino massivo de Sword.',
+  },
+  {
+    id: 32391,
+    name: 'Lasting Exercise Axe',
+    category: 'exercise',
+    price: 7560000,
+    tier: 'lasting',
+    charges: 14400,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Machado de treino supremo duradouro (14.400 cargas). Treino massivo de Axe.',
+  },
+  {
+    id: 32392,
+    name: 'Lasting Exercise Club',
+    category: 'exercise',
+    price: 7560000,
+    tier: 'lasting',
+    charges: 14400,
+    weightOz: 10,
+    vocations: ['Knight'],
+    description: 'Clava de treino suprema duradoura (14.400 cargas). Treino massivo de Club.',
+  },
+  {
+    id: 32393,
+    name: 'Lasting Exercise Bow',
+    category: 'exercise',
+    price: 7560000,
+    tier: 'lasting',
+    charges: 14400,
+    weightOz: 10,
+    vocations: ['Paladin'],
+    description: 'Arco de treino supremo duradouro (14.400 cargas). Treino massivo de Distance.',
+  },
+  {
+    id: 32394,
+    name: 'Lasting Exercise Rod',
+    category: 'exercise',
+    price: 7560000,
+    tier: 'lasting',
+    charges: 14400,
+    weightOz: 10,
+    vocations: ['Druid'],
+    description: 'Cajado de treino supremo duradouro (14.400 cargas). Treino massivo de Magic Level.',
+  },
+  {
+    id: 32395,
+    name: 'Lasting Exercise Wand',
+    category: 'exercise',
+    price: 7560000,
+    tier: 'lasting',
+    charges: 14400,
+    weightOz: 10,
+    vocations: ['Sorcerer'],
+    description: 'Varinha de treino suprema duradoura (14.400 cargas). Treino massivo de Magic Level.',
+  },
+  {
+    id: 35286,
+    name: 'Lasting Exercise Shield',
+    category: 'exercise',
+    price: 7560000,
+    tier: 'lasting',
+    charges: 14400,
+    weightOz: 10,
+    vocations: ['Knight', 'Paladin'],
+    description: 'Escudo de treino supremo duradouro (14.400 cargas). Treino massivo de Shielding.',
   },
 ];
 

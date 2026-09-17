@@ -1,3 +1,4 @@
+import { getCanonicalItemUrl } from '@/apps/web/lib/assetPaths';
 import visualAssetsJson from '@/content/generated/tibia1098-combat-assets.json';
 import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 
@@ -35,16 +36,12 @@ export function itemVisualAsset(itemId: number | undefined) {
 export function resolveItemSpriteUrl(itemId: number | undefined): string | null {
   if (itemId === undefined) return null;
   const mappedId = TEST_ITEM_SPRITE_MAP[itemId] ?? itemId;
-  const asset = visualAssets.items[String(mappedId)];
-  if (asset?.frame?.publicUrl) {
-    return asset.frame.publicUrl;
-  }
-  return `/generated/cyclopedia/items/item-${mappedId}.png`;
+  return getCanonicalItemUrl(mappedId);
 }
 
 export function ItemSprite({ itemId, label = '', className = '', size }: ItemSpriteProps) {
-  const asset = itemVisualAsset(itemId);
-  const spriteUrl = asset?.frame?.publicUrl ?? resolveItemSpriteUrl(itemId);
+  const mappedId = itemId !== undefined ? (TEST_ITEM_SPRITE_MAP[itemId] ?? itemId) : undefined;
+  const spriteUrl = resolveItemSpriteUrl(itemId);
 
   if (!spriteUrl) {
     return <span className={`item-sprite item-sprite-fallback ${className}`} aria-label={`${label}: sprite indisponível`}>?</span>;
@@ -58,15 +55,21 @@ export function ItemSprite({ itemId, label = '', className = '', size }: ItemSpr
       src={spriteUrl}
       alt={label}
       draggable={false}
-      width={size ?? asset?.frame?.width ?? 32}
-      height={size ?? asset?.frame?.height ?? 32}
+      width={size ?? 32}
+      height={size ?? 32}
       onError={(e) => {
         const target = e.currentTarget as HTMLImageElement;
-        const mappedId = itemId !== undefined ? (TEST_ITEM_SPRITE_MAP[itemId] ?? itemId) : undefined;
-        if (mappedId !== undefined && !target.src.includes('tibia1098')) {
+        if (mappedId === undefined) return;
+        if (target.src.includes('cyclopedia')) {
           target.src = `/generated/tibia1098/items/item-${mappedId}.png`;
+        } else if (target.src.includes('tibia1098')) {
+          target.src = `/assets/items/item-${mappedId}.png`;
+        } else {
+          target.onerror = null;
+          target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" fill="%231a2233" rx="4"/><text x="16" y="21" font-size="14" font-family="sans-serif" fill="%2364748b" text-anchor="middle">📦</text></svg>';
         }
       }}
     />
   );
 }
+

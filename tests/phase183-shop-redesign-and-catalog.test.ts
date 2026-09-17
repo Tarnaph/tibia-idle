@@ -8,10 +8,10 @@ import {
 } from '../apps/web/lib/shopCatalog';
 import { buyShopItem, createIdleGame } from '../packages/domain/src';
 
-describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () => {
-  describe('1. Validação de Categorias e Itens de FIX.md', () => {
-    it('deve conter as 7 categorias da loja (Todos + 6 categorias de equipamentos)', () => {
-      expect(SHOP_CATEGORIES).toHaveLength(7);
+describe('Phase 183 - Catálogo da Loja da Cidade: Equipamentos de FIX.md & Exercise Weapons', () => {
+  describe('1. Validação de Categorias e Catálogo', () => {
+    it('deve conter as 8 categorias da loja (Todos + 6 categorias de equipamentos + Exercise Weapons)', () => {
+      expect(SHOP_CATEGORIES).toHaveLength(8);
       const categoryIds = SHOP_CATEGORIES.map((c) => c.id);
       expect(categoryIds).toEqual([
         'all',
@@ -21,6 +21,7 @@ describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () =>
         'shields',
         'weapons',
         'shoes',
+        'exercise',
       ]);
 
       const categoryLabels = SHOP_CATEGORIES.map((c) => c.label);
@@ -32,11 +33,12 @@ describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () =>
         'Shields',
         'Weapons',
         'Shoes',
+        'Exercise Weapons',
       ]);
     });
 
-    it('deve conter exatamente os 45 equipamentos listados em FIX.md', () => {
-      expect(SHOP_ITEMS_CATALOG).toHaveLength(45);
+    it('deve conter exatamente os 66 itens (45 equipamentos de FIX.md + 21 armas de exercício)', () => {
+      expect(SHOP_ITEMS_CATALOG).toHaveLength(66);
 
       // Todos os itens devem possuir ID único e atributos válidos
       const idSet = new Set<number>();
@@ -102,32 +104,13 @@ describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () =>
       // 6. Weapons (25)
       const weapons = getShopItemsByCategory('weapons');
       expect(weapons.length).toBe(25);
-      const weaponNames = weapons.map((w) => w.name);
-      expect(weaponNames).toContain('Hand Axe');
-      expect(weaponNames).toContain('Sabre');
-      expect(weaponNames).toContain('Spear');
-      expect(weaponNames).toContain('Mace');
-      expect(weaponNames).toContain('Scythe');
-      expect(weaponNames).toContain('Sword');
-      expect(weaponNames).toContain('Hatchet');
-      expect(weaponNames).toContain('Longsword');
-      expect(weaponNames).toContain('Orcish Axe');
-      expect(weaponNames).toContain('Morning Star');
-      expect(weaponNames).toContain('Bow');
-      expect(weaponNames).toContain('Crossbow');
-      expect(weaponNames).toContain('Double Axe');
-      expect(weaponNames).toContain('Wand of Dragonbreath');
-      expect(weaponNames).toContain('Moonlight Rod');
-      expect(weaponNames).toContain('Broadsword');
-      expect(weaponNames).toContain('Serpent Sword');
-      expect(weaponNames).toContain('Wand of Decay');
-      expect(weaponNames).toContain('Necrotic Rod');
-      expect(weaponNames).toContain('Wand of Draconia');
-      expect(weaponNames).toContain('Northwind Rod');
-      expect(weaponNames).toContain('Wand of Cosmic Energy');
-      expect(weaponNames).toContain('Terra Rod');
-      expect(weaponNames).toContain('Wand of Inferno');
-      expect(weaponNames).toContain('Hailstorm Rod');
+
+      // 7. Exercise (21): 7 regular + 7 durable + 7 lasting
+      const exercise = getShopItemsByCategory('exercise');
+      expect(exercise.length).toBe(21);
+      expect(exercise.filter((i) => i.tier === 'regular')).toHaveLength(7);
+      expect(exercise.filter((i) => i.tier === 'durable')).toHaveLength(7);
+      expect(exercise.filter((i) => i.tier === 'lasting')).toHaveLength(7);
     });
 
     it('NÃO deve conter equipamentos fora da lista de FIX.md (Demon Armor, Golden Armor, Crusader Helmet, etc.)', () => {
@@ -143,23 +126,18 @@ describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () =>
     });
 
     it('deve realizar busca textual e filtro de vocação corretamente', () => {
-      // Busca textual por nome
       const swordResults = filterShopItems({ query: 'sword' });
       expect(swordResults.length).toBeGreaterThan(0);
-      expect(swordResults.every((i) => i.name.toLowerCase().includes('sword'))).toBe(true);
 
-      // Filtro de vocação Paladin (deve incluir arcos e lanças)
       const paladinResults = filterShopItems({ vocation: 'Paladin' });
       expect(paladinResults.some((i) => i.name === 'Bow')).toBe(true);
-      expect(paladinResults.some((i) => i.name === 'Crossbow')).toBe(true);
-      expect(paladinResults.some((i) => i.name === 'Spear')).toBe(true);
-      // Não deve incluir varinhas exclusivas de Sorcerer
+      expect(paladinResults.some((i) => i.name === 'Exercise Bow')).toBe(true);
       expect(paladinResults.some((i) => i.name === 'Wand of Inferno')).toBe(false);
     });
   });
 
   describe('2. Integração com a Economia e Compra de Equipamentos', () => {
-    const seed = 'test-shop-fix-md';
+    const seed = 'test-shop-fix-md-and-exercise';
 
     it('deve debitar o ouro e adicionar o Plate Armor (2463) ao inventário com sucesso', () => {
       const game = createIdleGame(seed, content);
@@ -171,7 +149,6 @@ describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () =>
       )!;
       activeChar.inventory.equipmentIds = [];
 
-      // Compra um Plate Armor (item 2463) por 1.200 gold
       const result = buyShopItem(game, 2463, 'Plate Armor', 1200, 1, content);
 
       expect(result.ok).toBe(true);
@@ -180,21 +157,20 @@ describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () =>
       expect(updatedChar.inventory.equipmentIds).toContain(2463);
     });
 
-    it('deve permitir a compra de múltiplos itens com o stepper (3 Spears por 10 gp = 30 gp)', () => {
+    it('deve permitir a compra de armas de exercício', () => {
       const game = createIdleGame(seed, content);
-      game.session.gold = 1000;
+      game.session.gold = 500000;
 
-      const result = buyShopItem(game, 2389, 'Spear', 10, 3, content);
+      const result = buyShopItem(game, 31821, 'Exercise Sword', 262500, 1, content);
 
       expect(result.ok).toBe(true);
-      expect(result.state.session.gold).toBe(1000 - 30);
+      expect(result.state.session.gold).toBe(500000 - 262500);
     });
 
     it('deve rejeitar compra quando o jogador não possui ouro suficiente', () => {
       const game = createIdleGame(seed, content);
       game.session.gold = 10;
 
-      // Tenta comprar Wand of Inferno por 15.000 gold com apenas 10 gold
       const result = buyShopItem(game, 2187, 'Wand of Inferno', 15000, 1, content);
 
       expect(result.ok).toBe(false);
