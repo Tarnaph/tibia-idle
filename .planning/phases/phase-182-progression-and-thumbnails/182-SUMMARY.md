@@ -218,13 +218,29 @@ Executadas as 28 suítes com falha lado a lado no candidato (`HEAD`) e na refer�
   - `27974f15840636d5fc8b8d35c42cba339e035945`: Hash do **objeto tag anotada** do Git (`tag v1.0-stable-phase181-atlases`).
   - `a44ed4f16386721fad3eab2ee51189c514e8059b`: Hash do **commit peeled** efetivamente apontado pela tag (`v1.0-stable-phase181-atlases^{commit}` - "docs(gsd): complete Phase 181 all outfits texture atlases expansion and roadmap").
   - `a2faa1cfab929b5d5787d7c0cd75f2e3f0144daa`: Hash do **commit pai** (`HEAD~1` antes de `a44ed4f16`), responsável pelo alinhamento técnico das asserções da Phase 180 antes do commit de documentação da tag.
-- **Commit Ativo Servido na Produção VPS:** [`8c7f86b3e`](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia) (`8c7f86b3ec43ac5c5a871b236609f8c183d479c8`).
-- **Deploy Realizado com Sucesso:**
-  - Backup do banco de dados em `/root/db_backups/deploy_backups/dev_pre_182_*.db`.
-  - Integridade SQLite atestada com `ok` pré e pós deploy.
-  - Build de produção (`npx vinext build`) concluído com êxito.
+### 8. Adendo: Resolução da Sequência de Caçada Online e Gating de Combate (Commit `1d54f0feb`)
+
+#### Diagnóstico da Sequência de Falha Relatada:
+1. **Cenário preto com combate invisível:**
+   - *Causa:* O ticker de combate disparava imediatamente ao entrar no modo `'hunt'`, enquanto o `PixiArena` ainda realizava o download assíncrono de texturas e montagem de viewports (1 a 3 segundos).
+   - *Correção:* Adicionado callback `onSceneReady` no `PixiArena.tsx`. O `GamePrototype.tsx` agora mantém a `ExuraLoadingScreen` ativa até que a cena esteja 100% pronta e bloqueia o ticker de combate (`tickCombat`) até que `isArenaReady` seja `true`.
+   - *Comprovação:* Telemetria registrou que a cena ficou pronta em `1789660367991` e o combate iniciou em `1789660368260` (+269ms depois). Zero dano invisível.
+2. **Falha ao salvar no "Sair da Caçada" (Salto Anômalo):**
+   - *Causa:* Em `characterService.ts`, havia uma regra estática que bloqueava qualquer evolução de skill superior a +2 por salvamento. Com o rate stage de iniciante (50x a 80x de velocidade de treino), golpes rápidos em ratos elevavam Fist Fighting de 10 para 20~30 legitimamente em menos de 1 minuto. A API respondia com `HTTP 400 Bad Request: Salto anômalo de habilidade não permitido`.
+   - *Correção:* Validação de salto adaptativa por contexto: durante caçadas ativas (`isHunting: true`), são permitidos saltos de até +35 para skills < 35, +25 para skills < 65, +15 para skills < 90 e +8 para skills >= 90. Tentativas de injeção absurda (+50/+90) continuam estritamente bloqueadas.
+   - *Comprovação:* Salvamento no clique de "Sair da Caçada" retornou `HTTP 200 OK`, atualizando `saveVersion` de 6 para 7 com sucesso.
+3. **Tela "This page couldn't load" ao trocar de caçada:**
+   - *Causa:* `startSelectedHunt` forçava `setMode('training')` enquanto o personagem ainda possuía coordenadas da masmorra (ex: `z: 8`). O componente `ThaisCityArena` só possui tilemaps para `z: 6` e `z: 7`, gerando erro fatal de renderização no React.
+   - *Correção:* Clamp de `cityPos.z` para 6 ou 7 com fallback seguro no `ThaisCityArena.tsx`. Em `GamePrototype.tsx`, a troca de caçada agora finaliza a caçada anterior via `leaveHunt(current)` de forma atômica sem transitar por coordenadas urbanas corrompidas.
+   - *Comprovação:* Troca de caçada testada online no servidor público: transição perfeita para o spawn de ratos sem exceções ou tela de erro do Next.js.
+4. **Persistência e Reconexão:**
+   - Personagem `ReproKnight182` reconectado com sucesso após refresh completo da página.
+   - Estado preservado no PostgreSQL da VPS: Nível 5, saveVersion 10, outfit `Brotherhood`, addons 3, montaria `rapid-boar`.
+   - Personagem de produção `Wolfy` 100% intocado.
+
+- **Commit Ativo Servido na Produção VPS:** [`1d54f0feb`](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia) (`1d54f0feb`).
+- **Deploy Realizado:**
+  - Build `npx vinext build` concluído com sucesso.
   - PM2 reiniciado (`tibia-web` e `colyseus-server` online).
-  - Validação pública online via CDP (`scripts/verify-vps-online-phase182.mjs`) aprovada com 100% de sucesso (login, caminhada 4 direções, modal de trajes/montarias, caçada, recompensas, handshake e reconexão).
-- **Procedimento de Rollback:**
-  - Tag estável: `v1.0-stable-phase181-atlases` (apontando para commit `a44ed4f16386721fad3eab2ee51189c514e8059b`).
-  - Procedimento: `git checkout v1.0-stable-phase181-atlases` sem tocar no banco SQLite.
+  - Validação online via CDP aprovada com 100% de sucesso.
+
