@@ -122,14 +122,16 @@ export function calculateSkillTriesCost(
   return Math.max(0, netTries);
 }
 
-// Em caçada (combate ativo com arma, duplo bloqueio de escudo e rotação de feitiços com poções):
+// Em caçada (combate ativo com arma, duplo bloqueio de escudo e rotação sustentada de magia com poções):
 // - Arma: 1 hit a cada 2s com rateSkill 50 e stage 10x = 250 tries/segundo
-// - Escudo: até 2 bloqueios de criaturas/turno = 500 tries/segundo
-// - Magia: gasto sustentado com poções/rotação = 2.500 a 3.500 tries/segundo
-// Taxa sustentada contínua calibrada: 4.500 tentativas/segundo
-export const HUNT_MAX_TRIES_PER_SECOND = 4_500;
-// Capacidade de burst em caçada: acomoda até 30-40 segundos de combate ativo acumulado com atraso de rede
-export const HUNT_MAX_BURST_TRIES = 120_000;
+// - Escudo: até 2 bloqueios de criaturas por segundo = 500 tries/segundo
+// - Magia ofensiva (Flame Strike / Waves a cada 2s): ~15 mana/s * 25 rateMagic * 10 stage = 3.750 tries/segundo
+// - Magia de cura / suporte (Exura / Exura Gran reativo a cada 1s): ~15 mana/s * 250 = 3.750 tries/segundo
+// - Combos de buff (Haste / Utamo) sustentados com poções de mana contínuas: ~750 tries/segundo
+// Taxa sustentada contínua calibrada para caçada com magia: 9.000 tentativas/segundo
+export const HUNT_MAX_TRIES_PER_SECOND = 9_000;
+// Capacidade de burst em caçada: acomoda até 25 segundos de combate ativo acumulado com atraso de rede (25s * 9.000 = 225.000)
+export const HUNT_MAX_BURST_TRIES = 225_000;
 
 // Fora de caçada / Urbano (dummy de treino público ou residencial em cidade):
 // - Treino no dummy de arma física: 1 hit a cada 2s (250 tries/segundo)
