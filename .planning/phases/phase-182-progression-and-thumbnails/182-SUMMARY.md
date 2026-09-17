@@ -218,68 +218,66 @@ Executadas as 28 suítes com falha lado a lado no candidato (`HEAD`) e na refer�
   - `27974f15840636d5fc8b8d35c42cba339e035945`: Hash do **objeto tag anotada** do Git (`tag v1.0-stable-phase181-atlases`).
   - `a44ed4f16386721fad3eab2ee51189c514e8059b`: Hash do **commit peeled** efetivamente apontado pela tag (`v1.0-stable-phase181-atlases^{commit}` - "docs(gsd): complete Phase 181 all outfits texture atlases expansion and roadmap").
   - `a2faa1cfab929b5d5787d7c0cd75f2e3f0144daa`: Hash do **commit pai** (`HEAD~1` antes de `a44ed4f16`), responsável pelo alinhamento técnico das asserções da Phase 180 antes do commit de documentação da tag.
-### 8. Adendo: Resolução da Sequência de Caçada Online, Orçamento Contínuo de Tentativas e Troca Direta entre Caçadas (Commits `1d54f0feb` e `3d0c2fa2a`)
+### 8. Adendo: Resolução da Sequência de Caçada Online, Orçamento Contínuo de Tentativas e Troca Direta entre Caçadas (Commits `1d54f0feb`, `3d0c2fa2a` e `e2e-sub18k`)
 
-#### 1. Diagnóstico e Separação Rigorosa das Taxas (EXP Stages vs Skill Stages):
-- **EXP Stages:** Utilizam o vetor `EXP_STAGES` em `packages/domain/src/progression/experience.ts` (multiplicador de 50x para níveis de 1 a 8).
-- **Skill Stages e Treino:** **Não utilizam nem dependem dos multiplicadores de EXP!**
-  - Base de tentativas por golpe (`content.rateSkill`): **50 tentativas**.
-  - Multiplicador de estágio físico (`PHYSICAL_SKILL_STAGES`): **10x** para skills <= 80.
-  - Velocidade de ataque (`attackSpeedMs`): **2.000 ms** (1 golpe a cada 2 segundos).
-  - Fórmula canônica de avanço:
-    $$\text{Tries}(L) = \text{Base} \times \text{Multiplier}^{(L - 10)}$$
-    Para Fist Fighting (base 50, multiplicador 1.1):
-    - Avançar de Nível 10 para 11 requer exatamente **50 tentativas**. Como um único golpe desarmado com multiplicador concede 50 tentativas, **o primeiro ataque sobe Fist do 10 para o 11 imediatamente!**
-    - Avançar de Nível 10 para 25 consome um total de apenas **1.581 tentativas acumuladas**.
-    - Em 60 segundos de combate contínuo (30 ataques $\times$ 50 tentativas), geram-se 1.500 tentativas de treino. Por isso, subir Fist Fighting de 10 para 21~25 em um minuto de combate em masmorra de ratos é **100% legítimo** segundo a física do jogo.
-    - Em contrapartida, avançar do nível 80 para o 81 requer mais de **45.000 tentativas**.
+#### 1. Fórmula Completa das Tentativas Legítimas e Justificativa dos Limites:
+- **EXP Stages (Nível do Personagem):** Utilizam o vetor `EXP_STAGES` em `packages/domain/src/progression/experience.ts` (multiplicador de 50x para níveis de 1 a 8).
+- **Skill Stages e Treino Físico/Mágico:** **Totalmente desacoplados e independentes dos multiplicadores de EXP!**
+  - **Tentativas Base por Ação:**
+    - `content.rateSkill = 50`: número base de tentativas concedidas por golpe com armas ou desarmado.
+    - `content.rateMagic = 25`: número base de tentativas por mana gasto.
+  - **Multiplicadores de Estágio:**
+    - `PHYSICAL_SKILL_STAGES`: 1-80 (**10x**), 81-100 (**7x**), 101-120 (**4x**), 121+ (**2x**).
+    - `MAGIC_LEVEL_STAGES`: 0-80 (**10x**), 81-100 (**7x**), 101-120 (**4x**), 121-130 (**3x**), 131+ (**2x**).
+  - **Velocidade de Ataque (`attackSpeedMs`):** **2.000 ms** (1 golpe a cada 2 segundos = 0.5 ataques por segundo).
+  - **Tentativas por Nível Conforme Fórmula Canônica:**
+    $$\text{Tries}(L) = \text{SkillBase} \times \text{VocationMultiplier}^{(L - 11)}$$
+    Onde `SkillBase` é fixo por tipo de habilidade:
+    - Fist, Club, Sword, Axe: **50 tentativas base**.
+    - Distance: **30 tentativas base**.
+    - Shielding: **100 tentativas base**.
+    - Magic Level: $\text{Tries}(ML) = 1600 \times \text{ManaMultiplier}^{(ML - 1)}$.
+  - **Particularidades por Habilidade:**
+    - *Fist Fighting (Knight):* Multiplicador 1.1. Do nível 10 para o 11 exige exatamente **50 tentativas**. Como um único golpe com `rateSkill = 50` concede 50 tentativas, o **primeiro golpe já sobe o nível**. De 10 a 25 consome um total de **1.581 tentativas acumuladas**. Em 60 segundos de socos (30 golpes $\times$ 50), geram-se 1.500 tentativas de treino.
+    - *Shielding:* Treina recebendo até 2 ataques de monstros por turno (1 ataque por segundo), gerando até $2 \times 250 = 500$ tentativas de shielding por segundo em combate cercado.
+    - *Magic Level:* Treina consumindo mana continuamente com feitiços no cooldown.
+  - **Justificativa dos Limites Adotados no Orçamento:**
+    - `HUNT_MAX_TRIES_PER_SECOND = 2_500`: Cobre com folga defensiva a soma das ações físicas simultâneas máximas de um jogador em caçada intensa: 1 ataque com arma (250 tries/s) + 2 blocos de escudo de monstros (500 tries/s) + consumo contínuo de mana com magias no cooldown (~1.000 tries/s) + margem para acomodar variações de latência de rede entre pacotes, sem permitir saltos sobre-humanos.
+    - `HUNT_MAX_BURST_TRIES = 18_000`: Tolerância de rajada para absorver atrasos transitórios de rede ou acumulação de alguns segundos de combate antes de um salvamento (~7 a 8 segundos de throughput máximo de pico).
+    - `NON_HUNT_MAX_BURST_TRIES = 600` e `NON_HUNT_MAX_TRIES_PER_SECOND = 60`: Treino clássico em dummies urbanos em ambiente seguro.
 
-#### 2. Orçamento Contínuo de Tentativas de Treino no Servidor (`SkillRateLimiter.ts`):
-- Em vez de tolerâncias estáticas ou limites arbitrários por requisição (como +35), implementou-se um sistema contínuo de **Token Bucket** autoritativo no servidor (`packages/auth/src/skillRateLimiter.ts`):
-  - **Fórmula Canônica no Servidor:** `calculateSkillTriesCost(vocationName, skillKey, prevLevel, prevTries, targetLevel, targetTries)` calcula o custo exato em tentativas de treino segundo a vocação.
-  - **Orçamento em Caçada (`isHunting: true`):**
-    - Burst máximo permitido: **18.000 tentativas**.
-    - Taxa de regeneração: **2.500 tentativas por segundo**.
-  - **Orçamento Urbano / Fora de Caçada (`isHunting: false`):**
-    - Burst máximo permitido: **600 tentativas**.
-    - Taxa de regeneração: **60 tentativas por segundo**.
-  - **Proteção contra Requisições Repetidas / Flood:**
-    - O saldo do orçamento é acumulado no tempo por `characterId` e **não é renovado** por requisições sucessivas.
-    - Quando o orçamento é esgotado, requisições subsequentes são estritamente rejeitadas com `HTTP 400 Bad Request: Salto anômalo de habilidade não permitido: ganho de X tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: Y tentativas).`
-    - Em caso de rollback da transação ou conflito de versão (HTTP 409), `SkillRateLimiter.refund` restaura o saldo consumido.
+#### 2. Enquadramento do Limitador: Proteção contra Ganhos Excessivos (Guardrail):
+> [!NOTE]
+> O `SkillRateLimiter` atua estritamente como **teto de segurança e barreira de contenção contra anomalias (guardrail anticheat)**. Ele garante que nenhum ganho exceda a capacidade física máxima do motor no tempo decorrido, barrando saltos absurdos e ataques de flood.
+> 
+> Ele **não comprova que todos os ganhos aceitos abaixo do limite foram legitimamente conquistados**, pois uma requisição fraudulenta pequena dentro da janela de tempo ainda pode ser aceita pelo limitador. A legitimidade intrínseca de cada golpe, kill e gasto de mana é assegurada pela autoridade do motor de jogo (`Colyseus` / simulação autoritativa).
 
-#### 3. Troca Direta entre Caçadas (Sem Retornar à Cidade):
-- **Causa da Falha Anterior:** Ao selecionar uma nova caçada enquanto ainda estava em uma masmorra (`inHunt: true`), `GamePrototype.tsx` acionava `setMode('training')` enquanto o personagem ainda possuía coordenadas da masmorra (`posZ: 8`). O componente `ThaisCityArena` só possui tilemaps para `z: 6` e `z: 7`, causando lançamento de erro não tratado no React ("This page couldn't load").
-- **Correção Definitiva:**
-  1. No `GamePrototype.tsx`, `startSelectedHunt` interrompe o combate da caçada ativa chamando `leaveHunt(current)` diretamente, **sem alternar o modo para training**.
-  2. Garante clamp das coordenadas urbanas para `z: 6` ou `z: 7` em `setCityPos`.
-  3. Carrega e despacha a nova masmorra de forma atômica com tela de transição limpa.
-- **Comprovação Online:** Reproduzida a troca direta de `rat-cellars` para `troll-camp` em combate ativo: 0 erros no React, 0 telas de erro, cenário montado com perfeição (`scratch/val-182-direct-hunt-switch.png`).
+#### 3. Teste de Esgotamento Acumulado com Requisições Sub-18.000:
+- Demonstração de que requisições que **individualmente cabem com folga no limite de 18.000** esgotam o orçamento contínuo por acúmulo:
+  - **Requisição 1:** Axe Fighting 10 $\rightarrow$ 40 (**8.209 tentativas** $\ll$ 18.000) $\rightarrow$ **Status 200 OK** (Consumiu parte do burst, saldo restante: ~9.791).
+  - **Requisição 2:** Axe Fighting 40 $\rightarrow$ 46 (**6.729 tentativas** $\ll$ 18.000) $\rightarrow$ **Status 200 OK** (Consumiu saldo restante + regeneração de rede de ~750 tries, saldo restante: ~3.812).
+  - **Requisição 3:** Axe Fighting 46 $\rightarrow$ 50 (**7.172 tentativas** $\ll$ 18.000 individualmente!).
+    - Saldo disponível no momento descontada a regeneração: **4.702 tentativas**.
+    - Como $7.172 > 4.702$, a 3ª requisição é **Rejeitada com HTTP 400 Bad Request**:
+      `Salto anômalo de habilidade não permitido: ganho de 7172 tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: 4702 tentativas).`
+  - Comprovado tanto em testes unitários Vitest quanto em execução online contra o VPS público!
 
-#### 4. Esclarecimento do Banco de Dados Efetivo:
-- **Banco em Uso:** **SQLite com WAL mode** (`DATABASE_URL="file:./dev.db"` via Prisma Client em `/root/tibia-idle/.env` e `prisma/schema.prisma`).
-- **Esclarecimento:** Menções anteriores a PostgreSQL foram lapsos de nomenclatura textual herdados de nomes de fases antigas do roadmap (`phase-42-postgresql-prisma-auth`). Todo o ambiente de desenvolvimento e o servidor de produção VPS utilizam 100% SQLite WAL.
+#### 4. Troca Direta entre Caçadas (Sem Retornar à Cidade):
+- **Causa da Falha Anterior:** `startSelectedHunt` no `GamePrototype.tsx` acionava `setMode('training')` enquanto o personagem ainda possuía coordenadas de masmorra (`posZ: 8`). `ThaisCityArena` só possui tilemaps para `z: 6` e `z: 7`, gerando exceção não tratada no React.
+- **Correção Definitiva:** `startSelectedHunt` interrompe o combate da caçada anterior via `leaveHunt(current)` diretamente sem alternar para `'training'`, e aplica clamp defensivo em `cityPos.z` para 6 ou 7.
+- **Comprovação Online:** Troca direta de `rat-cellars` para `troll-camp` em combate ativo executada via CDP sem telas de erro (`scratch/val-182-direct-hunt-switch.png`).
 
-#### 5. Validação Automatizada Online no VPS (`scratch/validate-phase182-online-sequence.mjs`):
-Executada a suíte de validação online completa via Chrome DevTools Protocol contra o VPS público (`http://187.7.16.210:3000`):
-- **Etapa 3 (Cenário Pronto & Gating de Combate):** Cena carregada e confirmada via `onSceneReady` antes de liberar o ticker de combate.
-- **Etapa 4 (Troca Direta de Caçada):** Troca de `rat-cellars` para `troll-camp` com jogador caçando ativamente; transição 100% estável (`val-182-direct-hunt-switch.png`).
-- **Etapa 5 (Salvamento de Saída):** Clique em "SAIR DA CAÇADA", ganho legítimo de Fist Fighting (10 para 21 com 128 tries) validado pelo `SkillRateLimiter` e salvo com `HTTP 200 OK` (`saveVersion` 30).
-- **Etapa 6 (Retorno a Thais & Movimentação):** Chegada no templo e movimentação por teclado executada (`val-182-02-city.png`).
-- **Etapa 7 (Auditoria de Segurança do Orçamento Contínuo):**
-  - *Teste 1 (Salto Massivo):* Tentativa de ganho artificial de Sword Fighting 100 (2.655.971 tries) $\rightarrow$ **Rejeitado com HTTP 400**: `Salto anômalo de habilidade não permitido: ganho de 2655971 tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: 18000 tentativas).`
-  - *Teste 2 (Esgotamento por Requisições Rápidas Sucessivas):*
-    - Requisição 1 (~4.900 tries): Permitida (`HTTP 200 OK`, saldo restante: ~13.100).
-    - Requisição 2 imediata 20ms depois (~10.000 tries): Permitida (`HTTP 200 OK`, saldo restante: ~3.100).
-    - Requisição 3 imediata 20ms depois (~22.391 tries): **Rejeitada com HTTP 400**: `Salto anômalo de habilidade não permitido: ganho de 22391 tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: 5907 tentativas).`
-    - Comprovado: requisições repetidas **não** renovam o orçamento!
-- **Etapa 8 (Reconexão & Integridade):** Navegação e reconexão bem-sucedida, persistência intacta (`val-182-03-reconnected.png`).
-- **Preservação de Personagens:** Personagem de produção `Wolfy` 100% intocado. Testes executados exclusivamente com `ReproKnight182`.
-- **Preservação Visual:** Atlases, composições de outfits, montarias e animações 100% preservados sem alterações.
+#### 5. Esclarecimento do Banco de Dados Efetivo:
+- **Banco em Uso:** **SQLite com WAL mode** (`DATABASE_URL="file:./dev.db"` via Prisma Client em `/root/tibia-idle/.env` e `prisma/schema.prisma`). Menções anteriores a PostgreSQL foram lapsos de nomenclatura textual herdados de fases antigas.
 
-- **Commit Ativo Servido na Produção VPS:** [`3d0c2fa2a`](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia) (`3d0c2fa2a`).
-- **Deploy Realizado:**
-  - Build `npx vinext build` concluído com sucesso.
-  - PM2 reiniciado (`tibia-web` e `colyseus-server` online).
-  - Validação online via CDP aprovada com 100% de sucesso.
+#### 6. Validação Automatizada Online no VPS (`scratch/validate-phase182-online-sequence.mjs`):
+- **Etapa 3:** Gating de prontidão da cena (`[SCENE]`) antes do combate (`[COMBAT]`).
+- **Etapa 4:** Troca direta de caçada sem transitar por cidade (`val-182-direct-hunt-switch.png`).
+- **Etapa 5:** Salvamento de saída legítimo com HTTP 200 OK (`saveVersion` 48).
+- **Etapa 6:** Retorno a Thais e movimentação por setas direcionais (`val-182-02-city.png`).
+- **Etapa 7:** Auditoria de segurança:
+  - Salto massivo (+90 lvls, Sword 100 = 2.635.918 tries) $\rightarrow$ Rejeitado com HTTP 400.
+  - Sequência de 3 requisições abaixo de 18.000 tries (8.209, 6.729 e 7.172 tries) $\rightarrow$ 3ª requisição rejeitada com HTTP 400 por esgotamento acumulado (máximo permitido: 4.702 tentativas).
+- **Etapa 8:** Reconexão e persistência integral (`val-182-03-reconnected.png`).
+- **Preservação:** `Wolfy` 100% intocado. Atlases, outfits, montarias e animações 100% preservados.
 

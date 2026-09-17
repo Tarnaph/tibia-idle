@@ -662,32 +662,36 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       expect(result).toBeDefined();
     });
 
-    it('bloqueia gravações sucessivas rápidas com ganhos artificiais que tentam esgotar o orçamento', async () => {
+    it('bloqueia requisições que individualmente cabem no orçamento de 18.000, mas cuja soma excede o saldo disponível, descontada a regeneração', async () => {
       SkillRateLimiter.resetAll();
-      const charId = 'char-skill-flood';
+      const charId = 'char-skill-flood-sub18k';
       const baseTime = Date.now();
 
-      // Primeira requisição: consome todo o burst de tentativas
-      const res1 = SkillRateLimiter.consume(charId, HUNT_MAX_BURST_TRIES, baseTime, { isHunting: true });
+      // Cada requisição individual consome exatamente 7.000 tentativas (bem abaixo de 18.000)
+      const triesPerRequest = 7_000;
+
+      // Requisição 1 (t0): consome 7.000 de 18.000 -> Permitida. Saldo restante: 11.000
+      const res1 = SkillRateLimiter.consume(charId, triesPerRequest, baseTime, { isHunting: true });
       expect(res1.allowed).toBe(true);
+      expect(res1.currentBudget).toBe(11_000);
 
-      // Próximas 5 requisições chegam a cada 10ms tentando ganhar +2.000 tries cada
-      let rejectedCount = 0;
-      for (let i = 1; i <= 5; i++) {
-        // A cada 10ms, recarrega apenas 0.01s * 2500 = 25 tries!
-        const check = SkillRateLimiter.consume(charId, 2_000, baseTime + i * 10, { isHunting: true });
-        if (!check.allowed) {
-          rejectedCount++;
-        }
-      }
+      // Requisição 2 (t0 + 50ms): em 50ms regenera 0.05s * 2.500 = 125 tentativas. Saldo disponível: 11.125
+      // Consome 7.000 -> Permitida. Saldo restante: 4.125
+      const res2 = SkillRateLimiter.consume(charId, triesPerRequest, baseTime + 50, { isHunting: true });
+      expect(res2.allowed).toBe(true);
+      expect(res2.currentBudget).toBe(4_125);
 
-      // Todas as requisições sucessivas que tentaram renovar artificialmente o ganho foram bloqueadas!
-      expect(rejectedCount).toBe(5);
+      // Requisição 3 (t0 + 100ms): em mais 50ms regenera 125 tentativas. Saldo disponível: 4.250
+      // Tenta consumir 7.000 tentativas (que individualmente cabe em 18.000!).
+      // Como 7.000 > 4.250 disponível, DEVE ser rejeitada por esgotamento acumulado!
+      const res3 = SkillRateLimiter.consume(charId, triesPerRequest, baseTime + 100, { isHunting: true });
+      expect(res3.allowed).toBe(false);
+      expect(res3.maxAllowed).toBe(4_250);
     });
 
-    it('bloqueia gravações sucessivas via CharacterService mesmo com pequenos ganhos por requisição', async () => {
+    it('bloqueia no CharacterService requisição individualmente abaixo de 18.000 tries por esgotamento acumulado', async () => {
       SkillRateLimiter.resetAll();
-      const charId = 'char-service-flood';
+      const charId = 'char-service-flood-sub18k';
       let currentSkill = 10;
 
       const dbChar = {
@@ -716,7 +720,7 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
 
       const service = new CharacterService(mockPrisma);
 
-      // Requisição 1: 10 -> 35 consome ~4900 tries (permitida pelo burst)
+      // Requisição 1: Sword 10 -> 35 consome 4.904 tries (< 18.000) -> Permitida pelo burst
       const res1 = await service.saveCharacterProgress(charId, {
         saveVersion: 1,
         skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 35, tries: 0 }],
@@ -725,20 +729,21 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       expect(res1).toBeDefined();
       currentSkill = 35;
 
-      // Requisição 2 imediata: 35 -> 45 consome ~10.000 tries (permitida pelo saldo restante do burst)
+      // Requisição 2 imediata: Sword 35 -> 44 consome 7.352 tries (< 18.000) -> Permitida pelo saldo restante (~13.100)
       const res2 = await service.saveCharacterProgress(charId, {
         saveVersion: 1,
-        skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 45, tries: 0 }],
+        skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 44, tries: 0 }],
         isHunting: true,
       }, { isHunting: true });
       expect(res2).toBeDefined();
-      currentSkill = 45;
+      currentSkill = 44;
 
-      // Requisição 3 imediata: 45 -> 55 consome ~25.000 tries (excede o orçamento residual e rate acumulado!)
+      // Requisição 3 imediata: Sword 44 -> 49 consome 7.797 tries (INDIVIDUALMENTE CABE EM 18.000!)
+      // Mas o saldo disponível é de apenas ~5.800 tentativas. Rejeitada por esgotamento acumulado!
       await expect(
         service.saveCharacterProgress(charId, {
           saveVersion: 1,
-          skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 55, tries: 0 }],
+          skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 49, tries: 0 }],
           isHunting: true,
         }, { isHunting: true })
       ).rejects.toThrow(/Salto anômalo de habilidade não permitido/);
