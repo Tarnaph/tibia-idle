@@ -127,7 +127,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 172: Formação de Treino da Party ao Redor do Dummy & HUD Superior Multi-Personagem** - Desacoplamento da fila indiana ao treinar no dummy em Thais, posicionamento automático de todos os membros do squad em volta do training dummy virados para o boneco, treino simultâneo de cada membro em sua respectiva skill vocacional (Knight melee, Paladin distance, Sorcerer/Druid magic level), disparos e animações individuais de cada membro contra o dummy, expansão do `TrainingProgressHUD` para exibir os 4 personagens simultaneamente com progresso e tempo estimado, e retorno automático à formação de seguimento ao cancelar o treino.
 - [x] **Phase 180: Texture Atlases para Outfits e Montarias (Prova de Conceito Assassin Masculino + Midnight Panther)** - Redução do volume de rede de ~260 requisições individuais para 2 arquivos de atlas consolidados, tempo de swap reduzido de 57s para 176ms em cache frio e 67ms em cache quente, preservando 100% recolorPixels e animação 4 direções / 9 frames.
 - [x] **Phase 181: Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção)** - Empacotamento em lote de todos os 44 trajes (88 atlases male/female) e ~130 montarias, eliminação do spawn invisível no login e engasgo na caminhada, cancelamento de requisições de aparências anteriores e swap rápido universal.
-- [ ] **Phase 182: Otimização de Carregamento e Cache de Miniaturas (Thumbnails) na Lista de Outfits e Montarias** - Empacotamento em atlas ou cache pré-renderizado de thumbnails para a listagem/grid do OutfitModal, eliminando a concorrência residual de imagens estáticas 32x32 sem interferir no fluxo de renderização e preview de aparências.
+- [ ] **Phase 182: Correção de Progressão e Recompensas + Otimização das Miniaturas** - [Bloco A] Eliminação da regressão de nível (reset 5/6 para 1), blindagem contra colisão concorrente do autosave de Colyseus com caçada, reconciliação não-destrutiva de 409 com preservação monotônica de XP/gold/loot e correção do banner de avanço. [Bloco B] Otimização de miniaturas da lista via Thumbnail Atlases com render instantâneo (< 100ms em warm load).
 
 ---
 
@@ -3425,24 +3425,32 @@ Plans:
 
 ---
 
-### Phase 182: Otimização de Carregamento e Cache de Miniaturas (Thumbnails) na Lista de Outfits e Montarias
+### Phase 182: Correção de Progressão e Recompensas + Otimização das Miniaturas
 
-**Goal:** Otimizar o carregamento das miniaturas estáticas exibidas nos cards da grade de seleção do `OutfitModal` (outfit thumbs e mount thumbs), implementando atlas de miniaturas consolidadas ou cache offscreen com priorização por virtualização/IntersectionObserver, garantindo que a rolagem do catálogo seja instantânea e completamente desacoplada do fluxo de renderização e animação dos personagens.
+**Goal:** Resolver a regressão de persistência que reiniciava o personagem do nível 5/6 para o 1 e esvaziava os drops de gold e itens nos ratos (Bloco A, prioridade máxima), garantindo reconciliação monotônica estrita e não-destrutiva no cliente e isolamento do autosave de caçada; e subsequentemente consolidar as miniaturas estáticas dos cards de outfits e montarias em Thumbnail Atlases (Bloco B), preservando 100% o pipeline visual estável da Phase 181 (`v1.0-stable-phase181-atlases`).
 
-**Depends on:** Phase 181  
+**Depends on:** Phase 181 (`v1.0-stable-phase181-atlases`, commit `a2faa1cfa`)  
 **Requirements:**
-1. **Atlas Consolidado de Miniaturas (Thumbnails)**:
-   - Empacotar as miniaturas estáticas de outfits (`public/assets/outfit-thumbs/`) e montarias (`public/generated/mounts/`) em sprite sheets de miniaturas ou WebP otimizados.
-   - Fornecer coordenadas CSS ou canvas sub-rects para exibição instantânea sem dezenas de requisições HTTP individuais ao rolar a lista.
-2. **Priorização e Virtualização no `OutfitModal`**:
-   - Manter as miniaturas fora da tela em deferimento estrito, renderizando sob demanda conforme viewport do grid.
-3. **Isolamento Completo do Pipeline de Aparências**:
-   - Não interferir na lógica de Texture Atlases de animação, composição, `recolorPixels`, preview ativo ou renderização da arena (preservando o comportamento estável da Phase 181).
+1. **Bloco A: Correção de Progresso e Recompensas (Prioridade Máxima)**:
+   - **Isolamento de Caçada no Colyseus (`ThaisCityRoom.ts`)**: `performRoomAutoSave` não deve sobrescrever com dados defasados jogadores em caçada ativa (`player.inHunt`), cuja autoridade de inventário e combate reside no ciclo de caçada.
+   - **Reconciliação Monotônica no Cliente (`GamePrototype.tsx`)**: No tratamento de HTTP 409 (VERSION_CONFLICT), aplicar estritamente `Math.max` para nível e experiência, preservar cumulativamente gold e drops de loot, e re-sincronizar imediatamente com a nova versão sem rebaixar atributos.
+   - **Correção da Mensagem e Banner de Avanço**: O banner e o chat devem refletir estritamente avanços reais e crescentes de nível baseados no evento mais recente.
+   - **Diagnóstico Correlacionado de Combate e Persistência**: Telemetria unificada correlacionando morte, XP concedido, cálculo de nível, acúmulo de gold, itens dropados, tentativa de salvamento e resolução de reconciliação.
+   - **Validação com Personagens de Teste**: Reproduzir e validar ultrapassando o nível 6 com `AtlasHeroAlpha` / `AtlasHeroBeta`, testando autosave periódico, reconexão de aba e reinício do servidor de teste.
+2. **Bloco B: Otimização de Miniaturas (Cards)**:
+   - Compilar Thumbnail Atlases unificados para outfits e montarias (`scripts/build-thumbnail-atlases.mjs`), substituindo ~200 requisições individuais HTTP/1.1 por requisição consolidada sob demanda.
+   - Separar medições de primeiro carregamento (download do atlas de thumbs) e acesso com cache preenchido (< 100 ms).
+   - Preservar rigorosamente intocado o pipeline de renderização, preview e arena estabilizado na Phase 181.
+3. **Segregação de Commits e Procedimento Operacional de Rollback**:
+   - Commits independentes para Bloco A e Bloco B.
+   - Documentação do procedimento de rollback (checkout de tag estável + build + restart de PM2 sem alteração do banco SQLite).
 
 **Success Criteria:**
-- Exibição de todas as miniaturas visíveis da lista em < 100ms.
-- Zero requisições HTTP adicionais por item ao navegar na lista com atlas de miniaturas ativo.
-- Integridade total do fluxo de seleção, preview e arena conquistado na Phase 181.
+- Personagem de teste avança continuamente até ultrapassar o nível 6 sem jamais sofrer retrocesso para o nível 1.
+- Drops de gold (Caixa da Party) e itens de ratos (como queijo) persistem de forma consistente entre salvamentos e reconexões.
+- Reconciliação em conflitos 409 é 100% monotônica e não-destrutiva.
+- Miniaturas dos cards exibem em < 100ms quando preparadas em cache quente, sem disparar dezenas de requisições individuais ao rolar.
+- Zero regressões no login, movimentação, preview, addons ou montarias.
 
 
 

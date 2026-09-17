@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-17T00:10:00.000Z"
-last_activity: "2026-09-16 — Phase 181 validada e aprovada pelo usuário no navegador. Commit estável congelado com tag v1.0-stable-phase181-atlases. Phase 182 registrada no backlog para otimização futura de miniaturas (thumbnails)."
+status: in_progress
+last_updated: "2026-09-17T00:45:00.000Z"
+last_activity: "2026-09-16 — Phase 182 iniciada: Correção de Progressão e Recompensas (Bloco A, prioridade máxima) + Otimização das Miniaturas (Bloco B). Investigada causa raiz da regressão de nível (reset 5/6 para 1 por colisão Colyseus x Web e reconciliação 409 destrutiva). Plano de implementação elaborado para aprovação."
 progress:
   total_phases: 182
   completed_phases: 181
-  total_plans: 187
+  total_plans: 188
   completed_plans: 187
   percent: 99
 ---
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 181 - Validada e Estável (`v1.0-stable-phase181-atlases`). Próxima: Phase 182 (Otimização de Thumbnails).
+**Current focus:** Phase 182 - Correção de Progressão e Recompensas + Otimização das Miniaturas.
 
 ## Current Position
 
-Phase: 181 of 182  
-Plan: 1 of 1 in Phase 181  
-Status: Complete (Stable Reference Preserved)  
-Last activity: 2026-09-16 — Phase 181 validada pelo usuário no navegador com sucesso. Versão preservada e congelada como baseline estável para rollback. Phase 182 catalogada para melhoria futura de thumbnails.
+Phase: 182 of 182  
+Plan: 0 of 2 in Phase 182  
+Status: In Progress (Planning / Awaiting Approval)  
+Last activity: 2026-09-16 — Plano consolidado elaborado para a Phase 182 (Bloco A: Progressão, Recompensas e Reconciliação Monotônica; Bloco B: Thumbnail Atlases para miniaturas da lista; Procedimento Operacional de Rollback sem perda de dados no SQLite).
 
 Progress: [██████████] 99%
 
