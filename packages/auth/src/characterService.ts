@@ -3,6 +3,7 @@ import { experienceForLevel, levelForExperience } from '../../domain/src/experie
 import { calculateStatsForLevel } from '../../domain/src/party';
 import { CharacterSaveLockManager } from './characterSaveLock';
 import { XpRateLimiter } from './xpRateLimiter';
+import { SkillRateLimiter, calculateSkillTriesCost } from './skillRateLimiter';
 import { ServerCharacterContextRegistry } from './characterContextRegistry';
 
 export class VersionConflictError extends Error {
@@ -574,6 +575,7 @@ export class CharacterService {
       const isDeath = (data as any).isDeathPenalty === true;
       let targetExp = incomingExp;
       let consumedDelta = 0;
+      let consumedSkillTries = 0;
 
       if (!isDeath) {
         targetExp = Math.max(incomingExp, existingExp);
@@ -698,25 +700,43 @@ export class CharacterService {
         }
       }
 
-      // Sanity Check: Anti-skill leap protection
+      // Sanity Check: Continuous Skill & Training Tries budget (Token Bucket)
       if (existing?.skills && Array.isArray(existing.skills) && !options?.isInternal && !(data as any).isManualAdminGrant) {
-        const isHunting = Boolean(options?.isHunting || (data as any).isHunting);
+        const isHunting = options?.isInternal
+          ? Boolean(options?.isHunting || (data as any).isHunting)
+          : (await ServerCharacterContextRegistry.isHuntingAsync(characterId)) || Boolean((data as any).isHunting);
+
+        const targetVoc = data.vocationName || existing?.vocationName || 'Knight';
+        let totalTriesDelta = 0;
+
         for (const incomingSkill of skillList) {
           const prev = existing.skills.find((s: any) => s.skillId === incomingSkill.skillId);
           if (prev) {
-            // In high-rate Otserver stages (50x/80x), low skills advance very quickly in combat (e.g. Fist/Sword 10 to 30 in 1-2 min).
-            // When hunting or training at dummy, allow realistic leaps while strictly blocking arbitrary injection (e.g. jumping to 100+).
-            // When not hunting, still allow reasonable progress (+10 for low skills, +6 for mid, +2 for high) to prevent false rejections.
-            const maxAllowedDelta = isHunting
-              ? prev.value < 35 ? 35 : prev.value < 65 ? 25 : prev.value < 90 ? 15 : 8
-              : prev.value < 35 ? 10 : prev.value < 65 ? 6 : 2;
+            const prevVal = Number(prev.value ?? 10);
+            const prevTries = Number(prev.tries ?? 0);
+            const incomingVal = Number(incomingSkill.value ?? 10);
+            const incomingTries = Number(incomingSkill.tries ?? 0);
 
-            if (incomingSkill.value > prev.value + maxAllowedDelta) {
-              throw new Error(
-                `Salto anômalo de habilidade não permitido: skill ${incomingSkill.skillName || incomingSkill.skillId} subiu de ${prev.value} para ${incomingSkill.value} em um único salvamento.`
-              );
-            }
+            const cost = calculateSkillTriesCost(
+              targetVoc,
+              incomingSkill.skillName || incomingSkill.skillId,
+              prevVal,
+              prevTries,
+              incomingVal,
+              incomingTries
+            );
+            totalTriesDelta += cost;
           }
+        }
+
+        if (totalTriesDelta > 0) {
+          const check = SkillRateLimiter.consume(characterId, totalTriesDelta, Date.now(), { isHunting });
+          if (!check.allowed) {
+            throw new Error(
+              `Salto anômalo de habilidade não permitido: ganho de ${totalTriesDelta} tentativas de treino excede o orçamento contínuo no tempo (máximo permitido: ${check.maxAllowed} tentativas).`
+            );
+          }
+          consumedSkillTries = totalTriesDelta;
         }
       }
       if (Array.isArray(data.inventory)) {
@@ -883,6 +903,9 @@ export class CharacterService {
           if (consumedDelta > 0) {
             XpRateLimiter.refund(characterId, consumedDelta);
           }
+          if (consumedSkillTries > 0) {
+            SkillRateLimiter.refund(characterId, consumedSkillTries);
+          }
           if (err instanceof VersionConflictError) {
             // Após rollback da transação com colisão, buscar o estado mais recente do banco!
             const fresh = await this.prisma.character.findUnique({
@@ -909,6 +932,9 @@ export class CharacterService {
       } catch (err: any) {
         if (consumedDelta > 0) {
           XpRateLimiter.refund(characterId, consumedDelta);
+        }
+        if (consumedSkillTries > 0) {
+          SkillRateLimiter.refund(characterId, consumedSkillTries);
         }
         if (err instanceof VersionConflictError && !err.character) {
           const fresh = await this.prisma.character.findUnique({

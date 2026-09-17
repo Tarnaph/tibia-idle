@@ -6,6 +6,8 @@ import {
   levelForExperience,
   initialHunts,
   getExpStageMultiplier,
+  leaveHunt,
+  restartHunt,
   type GameContent,
   type EnemyState,
 } from '../packages/domain/src';
@@ -18,7 +20,7 @@ import huntRegionsJson from '../content/generated/hunt-regions.json';
 import economyJson from '../content/generated/item-economy.json';
 import { parseInventoryData } from '../apps/web/lib/characterHydration';
 import { progressionDiagnostics } from '../apps/web/lib/progressionDiagnostics';
-import { ServerCharacterContextRegistry, CharacterService, SessionSupersededError, ContextServiceUnavailableError } from '../packages/auth/src';
+import { ServerCharacterContextRegistry, CharacterService, SessionSupersededError, ContextServiceUnavailableError, SkillRateLimiter, HUNT_MAX_BURST_TRIES } from '../packages/auth/src';
 import { PrismaPersistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 import type { MonsterCatalog, EquipmentCatalog, StarterLoadoutCatalog, VocationCatalog, SpellCatalog, HuntRegionCatalog, ItemEconomyCatalog } from '../packages/content-schema/src';
@@ -619,16 +621,16 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       ServerCharacterContextRegistry.setAuthoritativeSource(true);
     });
 
-    it('permite saltos naturais de habilidades durante caçada sob multiplicadores de estágio', async () => {
+    it('permite ganho legítimo que antes recebia HTTP 400 (Fist 10 para 25 nos ratos)', async () => {
+      SkillRateLimiter.resetAll();
       const dbChar = {
-        id: 'char-hunt-skills-1',
+        id: 'char-fist-legit',
         level: 1,
         experience: BigInt(0),
         vocationName: 'Knight',
         saveVersion: 1,
         skills: [
           { skillId: 0, skillName: 'Fist Fighting', value: 10, tries: BigInt(0) },
-          { skillId: 2, skillName: 'Sword Fighting', value: 35, tries: BigInt(500) },
         ],
       };
 
@@ -646,34 +648,104 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
 
       const service = new CharacterService(mockPrisma);
 
-      // Simula socar ratos durante 1 minuto: Fist sobe de 10 para 27 com isHunting: true
-      const resultFist = await service.saveCharacterProgress('char-hunt-skills-1', {
+      // Fist de 10 para 25 consome 1581 tries (bem abaixo do burst de 18000 tries)
+      const result = await service.saveCharacterProgress('char-fist-legit', {
         saveVersion: 1,
-        level: 8,
-        experience: BigInt(4200),
+        level: 5,
+        experience: BigInt(900),
         skills: [
-          { skillId: 0, skillName: 'Fist Fighting', value: 27 },
+          { skillId: 0, skillName: 'Fist Fighting', value: 25, tries: 0 },
         ],
         isHunting: true,
       }, { isHunting: true });
 
-      expect(resultFist).toBeDefined();
-
-      // Simula caçada com espada: Sword sobe de 35 para 43 com isHunting: true
-      const resultSword = await service.saveCharacterProgress('char-hunt-skills-1', {
-        saveVersion: 1,
-        level: 8,
-        experience: BigInt(4200),
-        skills: [
-          { skillId: 2, skillName: 'Sword Fighting', value: 43 },
-        ],
-        isHunting: true,
-      }, { isHunting: true });
-
-      expect(resultSword).toBeDefined();
+      expect(result).toBeDefined();
     });
 
-    it('bloqueia injeção absurda de habilidade mesmo com isHunting ativo (+90 níveis)', async () => {
+    it('bloqueia gravações sucessivas rápidas com ganhos artificiais que tentam esgotar o orçamento', async () => {
+      SkillRateLimiter.resetAll();
+      const charId = 'char-skill-flood';
+      const baseTime = Date.now();
+
+      // Primeira requisição: consome todo o burst de tentativas
+      const res1 = SkillRateLimiter.consume(charId, HUNT_MAX_BURST_TRIES, baseTime, { isHunting: true });
+      expect(res1.allowed).toBe(true);
+
+      // Próximas 5 requisições chegam a cada 10ms tentando ganhar +2.000 tries cada
+      let rejectedCount = 0;
+      for (let i = 1; i <= 5; i++) {
+        // A cada 10ms, recarrega apenas 0.01s * 2500 = 25 tries!
+        const check = SkillRateLimiter.consume(charId, 2_000, baseTime + i * 10, { isHunting: true });
+        if (!check.allowed) {
+          rejectedCount++;
+        }
+      }
+
+      // Todas as requisições sucessivas que tentaram renovar artificialmente o ganho foram bloqueadas!
+      expect(rejectedCount).toBe(5);
+    });
+
+    it('bloqueia gravações sucessivas via CharacterService mesmo com pequenos ganhos por requisição', async () => {
+      SkillRateLimiter.resetAll();
+      const charId = 'char-service-flood';
+      let currentSkill = 10;
+
+      const dbChar = {
+        id: charId,
+        level: 1,
+        experience: BigInt(0),
+        vocationName: 'Knight',
+        saveVersion: 1,
+        skills: [
+          { skillId: 2, skillName: 'Sword Fighting', value: 10, tries: BigInt(0) },
+        ],
+      };
+
+      const mockPrisma = {
+        character: {
+          findUnique: vi.fn().mockImplementation(() => Promise.resolve({
+            ...dbChar,
+            skills: [{ skillId: 2, skillName: 'Sword Fighting', value: currentSkill, tries: BigInt(0) }],
+          })),
+          update: vi.fn().mockImplementation(({ data }) => Promise.resolve({ ...dbChar, saveVersion: 2, ...data })),
+        },
+        characterSkill: {
+          upsert: vi.fn().mockResolvedValue({}),
+        },
+      } as any;
+
+      const service = new CharacterService(mockPrisma);
+
+      // Requisição 1: 10 -> 35 consome ~4900 tries (permitida pelo burst)
+      const res1 = await service.saveCharacterProgress(charId, {
+        saveVersion: 1,
+        skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 35, tries: 0 }],
+        isHunting: true,
+      }, { isHunting: true });
+      expect(res1).toBeDefined();
+      currentSkill = 35;
+
+      // Requisição 2 imediata: 35 -> 45 consome ~10.000 tries (permitida pelo saldo restante do burst)
+      const res2 = await service.saveCharacterProgress(charId, {
+        saveVersion: 1,
+        skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 45, tries: 0 }],
+        isHunting: true,
+      }, { isHunting: true });
+      expect(res2).toBeDefined();
+      currentSkill = 45;
+
+      // Requisição 3 imediata: 45 -> 55 consome ~25.000 tries (excede o orçamento residual e rate acumulado!)
+      await expect(
+        service.saveCharacterProgress(charId, {
+          saveVersion: 1,
+          skills: [{ skillId: 2, skillName: 'Sword Fighting', value: 55, tries: 0 }],
+          isHunting: true,
+        }, { isHunting: true })
+      ).rejects.toThrow(/Salto anômalo de habilidade não permitido/);
+    });
+
+    it('bloqueia injeção absurda de habilidade (+90 níveis) via SkillRateLimiter', async () => {
+      SkillRateLimiter.resetAll();
       const dbChar = {
         id: 'char-hunt-hack-1',
         level: 1,
@@ -693,16 +765,34 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
 
       const service = new CharacterService(mockPrisma);
 
-      // Salto absurdo de 10 para 100 mesmo com isHunting: true
+      // Salto absurdo de 10 para 100 exige mais de 1.000.000 de tries -> rejeitado
       await expect(
         service.saveCharacterProgress('char-hunt-hack-1', {
           saveVersion: 1,
           skills: [
-            { skillId: 0, skillName: 'Fist Fighting', value: 100 },
+            { skillId: 0, skillName: 'Fist Fighting', value: 100, tries: 0 },
           ],
           isHunting: true,
         }, { isHunting: true })
       ).rejects.toThrow(/Salto anômalo de habilidade não permitido/);
     });
+
+    it('troca diretamente de uma caçada para outra sem transitar por cidade e sem erro', () => {
+      // Cria estado inicial em rat-cellars
+      const state1 = createIdleGame('seed-switch-1', content, 'rat-cellars', 'continuous');
+      expect(state1.encounter.hunt.id).toBe('rat-cellars');
+
+      // Simula troca direta de caçada para rotworm-cave
+      // 1. leaveHunt finaliza combate da caçada anterior sem mudar para training com z inválido
+      const leftState = leaveHunt(state1);
+      expect(leftState.encounter.corpses).toBeDefined();
+
+      // 2. restartHunt inicializa a nova caçada diretamente
+      const switchedState = restartHunt(leftState, 'seed-switch-2', content, 'rotworm-cave');
+      expect(switchedState.encounter.hunt.id).toBe('rotworm-cave');
+      expect(switchedState.encounter.room.number).toBe(1);
+    });
+
   });
 });
+
