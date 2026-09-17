@@ -38,7 +38,7 @@ async function runVerification() {
         vocationId: 4,
         vocationName: 'Knight',
         level: 1,
-        experience: 0n,
+        experience: BigInt(0),
         saveVersion: 1,
       },
       include: { skills: true, inventory: true },
@@ -50,7 +50,7 @@ async function runVerification() {
       where: { id: char.id },
       data: {
         level: 1,
-        experience: 0n,
+        experience: BigInt(0),
         saveVersion: 1,
       },
     });
@@ -106,7 +106,7 @@ async function runVerification() {
   huntPlayer.inHunt = true; // Player is actively hunting!
   huntPlayer.level = 1; // Colyseus local state is defasado
   huntPlayer.experience = 0;
-  huntPlayer.saveVersion = 1;
+  (huntPlayer as any).saveVersion = 1;
 
   const cityPlayers = [huntPlayer].filter((p) => !p.inHunt);
   console.log(`[Colyseus Isolation] Jogadores filtrados para autosave do Colyseus: ${cityPlayers.length} (esperado 0 para hunting)`);
@@ -116,11 +116,12 @@ async function runVerification() {
 
   // 5. Client periodic autosave (HTTP POST /save with isHunting: true)
   console.log('\n[Client Autosave] Executando salvamento do cliente com isHunting = true...');
-  const saveAttemptId = progressionDiagnostics.recordSaveAttempt(char.id, 1, currentLevel, currentExp);
+  const saveAttemptId = 'att-phase182-test';
+  progressionDiagnostics.recordSaveAttempt(saveAttemptId, char.id, 1, currentLevel, currentExp, currentGold, true);
   const saveResult = await charService.saveCharacterProgress(char.id, {
     saveVersion: 1,
     level: currentLevel,
-    experience: currentExp,
+    experience: BigInt(currentExp),
     skills: [
       { skillId: 2, skillName: 'Sword Fighting', value: 15, tries: 50 },
     ],
