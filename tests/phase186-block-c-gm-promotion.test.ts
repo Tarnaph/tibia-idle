@@ -49,7 +49,7 @@ describe('Phase 186 Bloco C - Promover jogador a GM pelo ADMIN', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(403);
-    const data = await res.json();
+    const data = (await res.json()) as any;
     expect(data.success).toBe(false);
     expect(data.error).toContain('Apenas o GOD/Administrador pode promover ou remover');
   });
@@ -96,7 +96,7 @@ describe('Phase 186 Bloco C - Promover jogador a GM pelo ADMIN', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data = (await res.json()) as any;
     expect(data.success).toBe(true);
     expect(data.message).toContain('promovido a GM com sucesso');
 
@@ -159,7 +159,7 @@ describe('Phase 186 Bloco C - Promover jogador a GM pelo ADMIN', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(400);
-    const data = await res.json();
+    const data = (await res.json()) as any;
     expect(data.success).toBe(false);
     expect(data.error).toContain('Não é permitido alterar ou rebaixar um GOD');
   });
@@ -205,7 +205,7 @@ describe('Phase 186 Bloco C - Promover jogador a GM pelo ADMIN', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data = (await res.json()) as any;
     expect(data.success).toBe(true);
 
     expect(spyAccountUpdate).toHaveBeenCalledWith({

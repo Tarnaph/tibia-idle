@@ -185,6 +185,7 @@ export function ThaisCityArena({
     active,
     isCharacterVisible,
     squadFollowEnabled,
+    adminTitle,
   });
   latestRef.current = {
     characters,

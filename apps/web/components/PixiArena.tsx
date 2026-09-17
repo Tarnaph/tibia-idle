@@ -1035,7 +1035,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };
   }, []);
 
-  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, onSceneReady]);
+  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady]);
   return (
     <div
       ref={hostRef}

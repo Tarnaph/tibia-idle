@@ -3679,7 +3679,7 @@ function GamePrototypeContent() {
             debug={debugGrid}
             active={mode === 'hunt'}
             isCharacterVisible={isCharacterVisible}
-            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : onlineAccount?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
+            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : (onlineAccount as any)?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
             onSceneReady={() => setIsArenaReady(true)}
             onSelectTarget={(enemyId) => {
               setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
@@ -3694,7 +3694,7 @@ function GamePrototypeContent() {
           <ThaisCityArena
             characters={game.session.characters}
             activeCharacterId={activeCharacter.id}
-            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : onlineAccount?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
+            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : (onlineAccount as any)?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
             cityPos={cityPos}
             isWalking={walkingPath !== null || heldDirectionRef.current !== null}
             isTraining={isTrainingAtDummy}
