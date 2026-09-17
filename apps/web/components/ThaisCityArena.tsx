@@ -1751,8 +1751,11 @@ export function ThaisCityArena({
 
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
-            view.root.visible = (latestRef.current.isCharacterVisible !== false) && Boolean(view.lastCanvas);
-            const effectiveAdminTitle = latestRef.current.adminTitle || (localChar as any)?.adminTitle;
+            const rawLatestTitle = latestRef.current.adminTitle;
+            const rawLocalTitle = (localChar as any)?.adminTitle;
+            const cleanLatest = (rawLatestTitle && rawLatestTitle !== 'null' && rawLatestTitle !== 'undefined') ? rawLatestTitle : undefined;
+            const cleanLocal = (rawLocalTitle && rawLocalTitle !== 'null' && rawLocalTitle !== 'undefined') ? rawLocalTitle : undefined;
+            const effectiveAdminTitle = (cleanLatest === 'GOD' || cleanLatest === 'GM') ? cleanLatest : (cleanLocal === 'GOD' || cleanLocal === 'GM') ? cleanLocal : undefined;
             updateNameplate(view, localChar.name, effectiveAdminTitle);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()

@@ -687,7 +687,7 @@ function GamePrototypeContent() {
     ch.mount = c.mount ?? 'none';
     ch.mountActive = Boolean(c.mountActive);
     ch.promotion = c.promotion ?? '';
-    ch.adminTitle = c.adminTitle || '';
+    ch.adminTitle = (c.adminTitle && c.adminTitle !== 'null' && c.adminTitle !== 'undefined') ? c.adminTitle : '';
     ch.gender = c.gender === 'female' ? 'female' : 'male';
 
     if (Array.isArray(c.skills)) {
@@ -1391,10 +1391,13 @@ function GamePrototypeContent() {
     const userChar = createCharacter(charItem.id, charItem.name, vocName, content, charGender);
 
     // Admin title hydration: Derive authorized title ([GOD] or [GM])
-    const dbAdminTitle = (charItem as any).adminTitle;
+    const rawDbTitle = (charItem as any).adminTitle;
+    const cleanDbTitle = (rawDbTitle && rawDbTitle !== 'null' && rawDbTitle !== 'undefined')
+      ? String(rawDbTitle).trim().toUpperCase()
+      : null;
     const accRoleUpper = String((acc as any)?.role || '').trim().toUpperCase();
-    const resolvedAdminTitle = dbAdminTitle
-      ? String(dbAdminTitle).trim().toUpperCase()
+    const resolvedAdminTitle = (cleanDbTitle === 'GOD' || cleanDbTitle === 'GM')
+      ? cleanDbTitle
       : (accRoleUpper === 'ADMIN' ? 'GOD' : accRoleUpper === 'GM' ? 'GM' : undefined);
 
     if (resolvedAdminTitle === 'GOD' || resolvedAdminTitle === 'GM') {
@@ -3700,7 +3703,12 @@ function GamePrototypeContent() {
             debug={debugGrid}
             active={mode === 'hunt'}
             isCharacterVisible={isCharacterVisible}
-            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : (onlineAccount as any)?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
+            adminTitle={(() => {
+              const rawTitle = (onlineCharacter as any)?.adminTitle || (game.session.characters[0] as any)?.adminTitle;
+              const clean = (rawTitle && rawTitle !== 'null' && rawTitle !== 'undefined') ? rawTitle : undefined;
+              if (clean === 'GOD' || clean === 'GM') return clean;
+              return roleUpper === 'ADMIN' ? 'GOD' : roleUpper === 'GM' ? 'GM' : undefined;
+            })()}
             onSceneReady={() => setIsArenaReady(true)}
             onSelectTarget={(enemyId) => {
               setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
@@ -3715,7 +3723,12 @@ function GamePrototypeContent() {
           <ThaisCityArena
             characters={game.session.characters}
             activeCharacterId={activeCharacter.id}
-            adminTitle={(onlineCharacter as any)?.adminTitle || (onlineAccount?.role === 'ADMIN' ? 'GOD' : (onlineAccount as any)?.role === 'GM' ? 'GM' : (game.session.characters[0] as any)?.adminTitle)}
+            adminTitle={(() => {
+              const rawTitle = (onlineCharacter as any)?.adminTitle || (game.session.characters[0] as any)?.adminTitle;
+              const clean = (rawTitle && rawTitle !== 'null' && rawTitle !== 'undefined') ? rawTitle : undefined;
+              if (clean === 'GOD' || clean === 'GM') return clean;
+              return roleUpper === 'ADMIN' ? 'GOD' : roleUpper === 'GM' ? 'GM' : undefined;
+            })()}
             cityPos={cityPos}
             isWalking={walkingPath !== null || heldDirectionRef.current !== null}
             isTraining={isTrainingAtDummy}

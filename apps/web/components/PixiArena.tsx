@@ -569,9 +569,13 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const outfitKey = character.outfit || character.vocation;
           const mapping = visualAssets.outfits[outfitKey] || visualAssets.outfits[baseVocation(outfitKey)] || visualAssets.outfits['Knight'];
           const rawRole = String((character as any).accountRole || '').trim().toUpperCase();
-          const effectiveAdminTitle = (character as any).adminTitle
-            || latestRef.current.adminTitle
-            || (rawRole === 'ADMIN' ? 'GOD' : rawRole === 'GM' ? 'GM' : undefined);
+          const rawCharTitle = (character as any).adminTitle;
+          const rawLatestTitle = latestRef.current.adminTitle;
+          const cleanCharTitle = (rawCharTitle && rawCharTitle !== 'null' && rawCharTitle !== 'undefined') ? rawCharTitle : undefined;
+          const cleanLatestTitle = (rawLatestTitle && rawLatestTitle !== 'null' && rawLatestTitle !== 'undefined') ? rawLatestTitle : undefined;
+          const effectiveAdminTitle = (cleanCharTitle === 'GOD' || cleanCharTitle === 'GM') ? cleanCharTitle
+            : (cleanLatestTitle === 'GOD' || cleanLatestTitle === 'GM') ? cleanLatestTitle
+            : (rawRole === 'ADMIN' ? 'GOD' : rawRole === 'GM' ? 'GM' : undefined);
           const displayName = character.name;
           const view = views.get(actor.characterId) ?? createView(actor.characterId, mapping, actor.previousPosition, actor.direction, displayName);
           if (view.mapping !== mapping) {

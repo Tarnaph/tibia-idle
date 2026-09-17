@@ -157,7 +157,9 @@ export function WindowDockBar({
   const vocationName = (character?.vocation || 'Elite Knight').toUpperCase();
   const level = character?.level ?? 1;
   const isPremium = character?.isPremium ?? false;
-  const adminTitle = (character as any)?.adminTitle || (isAdmin ? 'GOD' : undefined);
+  const rawAdminTitle = (character as any)?.adminTitle;
+  const cleanCharTitle = (rawAdminTitle && rawAdminTitle !== 'null' && rawAdminTitle !== 'undefined') ? rawAdminTitle : undefined;
+  const adminTitle = (cleanCharTitle === 'GOD' || cleanCharTitle === 'GM') ? cleanCharTitle : (isAdmin ? 'GOD' : undefined);
   const isGreenStamina = isGreenStaminaActive(character?.staminaMinutes ?? staminaMinutes);
   const effectiveExpMult = getEffectiveExpMultiplier(level, character?.staminaMinutes ?? staminaMinutes);
 
