@@ -10,5 +10,5 @@ export default async function AdminPage() {
   if (decision === 'login-required') redirect('/?auth=required');
   if (decision === 'forbidden') redirect('/?notice=admin-denied');
   const updates = await getAllUpdatesForAdmin();
-  return <AdminPanel initialUpdates={updates} />;
+  return <AdminPanel initialUpdates={updates} viewer={viewer} />;
 }

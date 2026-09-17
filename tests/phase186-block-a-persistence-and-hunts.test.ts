@@ -96,7 +96,7 @@ describe('Phase 186 - Bloco A: Persistência, Transições de Caçada e Trilha S
     ServerCharacterContextRegistry.setActivity(testCharId, {
       isHunting: true,
       huntId: 'rotworm-cave',
-      sessionId: 'session-bloco-a-1',
+      activeSessionId: 'session-bloco-a-1',
     });
 
     const ctx = ServerCharacterContextRegistry.getActivity(testCharId);

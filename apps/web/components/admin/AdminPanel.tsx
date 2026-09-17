@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, type FormEvent } from 'react';
 import { useAuth } from '@/apps/web/auth/AuthProvider';
 import { getBrowserSupabase } from '@/packages/auth/src/browser';
-import type { GameUpdateRow } from '@/packages/auth/src/types';
+import type { GameUpdateRow, AuthViewer } from '@/packages/auth/src/types';
 import { slugifyUpdateTitle } from '@/packages/updates/src/slug';
 import type { ServerConfig } from '@/packages/server/src/config/ServerConfigManager';
 import type { LogEntry, LogLevel } from '@/packages/server/src/logging/SystemLogger';
@@ -46,13 +46,25 @@ function rowToDraft(row: GameUpdateRow): UpdateDraft {
 
 type TabType = 'variables' | 'players' | 'logs' | 'health' | 'updates';
 
-export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[] }) {
+export function AdminPanel({
+  initialUpdates,
+  viewer,
+}: {
+  initialUpdates: GameUpdateRow[];
+  viewer?: AuthViewer | null;
+}) {
   const auth = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('variables');
   const [updates, setUpdates] = useState(initialUpdates);
   const [draft, setDraft] = useState<UpdateDraft | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  // Derive authoritative viewer and role
+  const currentViewer = viewer || auth.viewer;
+  const roleUpper = String(currentViewer?.role || auth.viewer?.role || '').toUpperCase();
+  const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
+  const displayName = currentViewer?.displayName || currentViewer?.email?.split('@')[0] || auth.viewer?.displayName || 'Administrador';
 
   // Server config state
   const [serverConfig, setServerConfig] = useState<ServerConfig>({
@@ -81,8 +93,44 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
   const [logQuery, setLogQuery] = useState('');
 
   const getAuthHeaders = (): Record<string, string> => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('colyseus_token') : null;
+    let token = typeof window !== 'undefined' ? localStorage.getItem('colyseus_token') : null;
+    if (!token && typeof document !== 'undefined') {
+      const match = document.cookie.match(/(?:^|;\s*)colyseus_token=([^;]+)/);
+      if (match) token = decodeURIComponent(match[1]);
+    }
     return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const handleBackToGame = () => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('colyseus_token');
+      if (token) {
+        document.cookie = `colyseus_token=${token}; path=/; max-age=604800; SameSite=Lax`;
+      }
+      sessionStorage.removeItem('cavebound_manual_logout');
+      window.location.href = '/game';
+    }
+  };
+
+  const handleAdminLogout = async () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('colyseus_token');
+      localStorage.removeItem('tibia_auth_token');
+      localStorage.removeItem('cavebound_cached_characters');
+      localStorage.removeItem('cavebound_cached_account');
+      sessionStorage.clear();
+      sessionStorage.setItem('cavebound_manual_logout', 'true');
+      document.cookie = 'colyseus_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+      document.cookie = 'tibia_auth_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+    }
+    try {
+      await auth.signOut();
+    } catch {}
+    window.location.href = '/';
+  };
+
+  const handleGoToSite = () => {
+    window.location.href = '/';
   };
 
   // Load server config
@@ -247,24 +295,36 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
     return matchesSearch && matchesVoc;
   });
 
-  const roleUpper = (auth.viewer?.role || '').toUpperCase();
-  const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
-
-  if (auth.status === 'authenticated' && !isAdminOrGm) {
+  if (auth.status === 'authenticated' && !isAdminOrGm && !viewer) {
     return (
       <main className="admin-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0a0d14', color: '#f0d080' }}>
         <div style={{ background: '#171b26', border: '1px solid #c0392b', padding: '32px', borderRadius: '8px', textAlign: 'center', maxWidth: '480px' }}>
           <h2 style={{ fontSize: '24px', color: '#e74c3c', marginBottom: '16px' }}>⚠️ Acesso Negado</h2>
           <p style={{ color: '#ccc', marginBottom: '24px' }}>
-            Esta área é restrita a administradores. Sua conta (<strong>{auth.viewer?.displayName}</strong>) possui permissão de nível <code>{auth.viewer?.role}</code>.
+            Esta área é restrita a administradores. Sua conta (<strong>{displayName}</strong>) possui permissão de nível <code>{roleUpper || 'PLAYER'}</code>.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <Link href="/game" style={{ background: '#f0d080', color: '#000', padding: '10px 20px', borderRadius: '4px', fontWeight: 'bold', textDecoration: 'none' }}>
-              Voltar ao Jogo
-            </Link>
-            <Link href="/" style={{ background: '#2c3e50', color: '#fff', padding: '10px 20px', borderRadius: '4px', textDecoration: 'none' }}>
-              Página Inicial
-            </Link>
+            <button
+              type="button"
+              onClick={handleBackToGame}
+              style={{ background: '#f0d080', color: '#000', padding: '10px 20px', borderRadius: '4px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+            >
+              🎮 Voltar ao Jogo
+            </button>
+            <button
+              type="button"
+              onClick={handleGoToSite}
+              style={{ background: '#2c3e50', color: '#fff', padding: '10px 20px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+            >
+              🌐 Página Inicial
+            </button>
+            <button
+              type="button"
+              onClick={handleAdminLogout}
+              style={{ background: '#661b1b', color: '#ff9999', padding: '10px 20px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+            >
+              🚪 Sair
+            </button>
           </div>
         </div>
       </main>
@@ -273,16 +333,80 @@ export function AdminPanel({ initialUpdates }: { initialUpdates: GameUpdateRow[]
 
   return (
     <main className="admin-shell">
-      <header className="admin-header">
-        <Link className="public-brand" href="/">
-          <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
-        </Link>
-        <div>
-          <span>ADMINISTRAÇÃO</span>
-          <b>{auth.viewer?.displayName}</b>
-          <Link href="/game">JOGO</Link>
-          <Link href="/">SITE</Link>
-          <button type="button" onClick={() => void auth.signOut()}>SAIR</button>
+      <header className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', background: '#151921', borderBottom: '1px solid #2b3442', minHeight: '60px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button
+            type="button"
+            onClick={handleGoToSite}
+            className="public-brand"
+            style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            title="Ir para o Site"
+          >
+            <img src="/logo.png" alt="Exura Idle Adventures" style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+          </button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ color: '#c6a24e', fontWeight: 800, fontSize: '11px', letterSpacing: '0.08em' }}>
+            {roleUpper === 'ADMIN' ? '🛡️ [GOD]' : roleUpper === 'GM' ? '⚔️ [GM]' : 'ADMINISTRAÇÃO'}
+          </span>
+          <b style={{ color: '#ffd700', fontSize: '12px', marginRight: '6px' }}>{displayName}</b>
+          <button
+            type="button"
+            onClick={handleBackToGame}
+            style={{
+              padding: '7px 14px',
+              fontSize: '11px',
+              fontWeight: 800,
+              background: '#1d3822',
+              border: '1px solid #3ca355',
+              color: '#a3f3b6',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            🎮 VOLTAR AO JOGO
+          </button>
+          <button
+            type="button"
+            onClick={handleGoToSite}
+            style={{
+              padding: '7px 14px',
+              fontSize: '11px',
+              fontWeight: 800,
+              background: '#1a222d',
+              border: '1px solid #3d4a5d',
+              color: '#c9d4e2',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            🌐 SITE
+          </button>
+          <button
+            type="button"
+            onClick={handleAdminLogout}
+            style={{
+              padding: '7px 14px',
+              fontSize: '11px',
+              fontWeight: 800,
+              background: '#3d1616',
+              border: '1px solid #8a2a2a',
+              color: '#ffa3a3',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            🚪 SAIR
+          </button>
         </div>
       </header>
 
