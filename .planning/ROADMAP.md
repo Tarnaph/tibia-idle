@@ -3454,6 +3454,46 @@ Plans:
 - Commits segregados: Bloco A (`177db055e`, `3665c1753`, `d9fc02a0b`), Bloco B (`6fcd205be`)
 - Procedimento de Rollback: `git checkout v1.0-stable-phase181-atlases` + `npx vinext build` + `pm2 restart` sem tocar no SQLite.
 
+---
+
+### Phase 182.2: Recuperação Autoritativa de Contexto de Caçada e Prevenção de Deadlock nos Limitadores
+
+**Goal:** Eliminar a vulnerabilidade de perda de contexto de caçada após reinício do servidor (que causava rejeição HTTP 400 por estouro de limites urbanos), implementar persistência formal no banco (`active_hunt_sessions` e `isHunting`), adicionar portão duplo no combate (`IsConnected` + `IsHuntContextConfirmed`) sem compensação de pausa, aplicar Session Ownership Guard no encerramento de conexões, e adicionar suporte a `baselineTime` nos limitadores de taxa (`SkillRateLimiter` e `XpRateLimiter`) para prevenir deadlocks irreversíveis de salvamento em casos de atraso de rede ou reinício de serviços.
+
+**Depends on:** Phase 182  
+**Requirements:**
+1. **Persistência Formal de Caçada**:
+   - Tabela `active_hunt_sessions` e coluna `characters.isHunting` via migração Prisma (`20260917185000_active_hunt_sessions`).
+   - Métodos `setPlayerHuntStatus` e `getActiveHuntSession` no `PrismaPersistenceManager`.
+2. **Reconstrução Autoritativa no Colyseus e API de Contexto**:
+   - `ThaisCityRoom.ts` no `onJoin` consulta estritamente o banco para restabelecer `isHunting` e emite `server:huntContextReady`.
+   - `/api/character-context/:id` é assíncrono e consulta `active_hunt_sessions` quando o cache em memória é esvaziado.
+   - Retorno de status explícito `isContextKnown` e `HTTP 503 (CONTEXT_PENDING)` durante transições.
+3. **Session Ownership Guard**:
+   - No `onLeave`, o Colyseus só executa `setPlayerOffline` se a sessão que está saindo ainda for a dona ativa (`getActiveSession(charId) === client.sessionId`), impedindo que sessões antigas destruam o contexto assumido por novas sessões.
+4. **Portão Duplo de Combate e Eliminação de Rajada Compensatória**:
+   - `tickCombat` e `useGameTicker` congelam combate se a conexão ou o contexto não estiverem confirmados.
+   - `lastCombatTimeRef.current` é sincronizado continuamente com `performance.now()` durante pausas, impedindo acúmulo de dano ou XP retroativos.
+5. **Prevenção de Deadlock nos Limitadores de Taxa (`baselineTime`)**:
+   - `SkillRateLimiter` e `XpRateLimiter` calculam o orçamento contínuo considerando `baselineTime` (timestamp do último save bem-sucedido no banco, `existing.lastSavedAt`).
+   - Tentativas com falha não resetam o timestamp para não gerar starvation em retentativas subsequentes.
+6. **Segurança e Restrição de Autoridade**:
+   - Removido `|| Boolean((data as any).isHunting)` do `CharacterService` e dos limitadores; cliente não pode forjar autorização.
+   - Teste negativo comprova que `isHunting: true` forjado na cidade é rejeitado autoritativamente com HTTP 400.
+
+**Success Criteria:**
+- Contexto de caçada sobrevive a crash/restart do Colyseus e reconstrói autoritativamente a partir do banco.
+- Teste isolado de ponta a ponta passa em todos os 8 passos (iniciar caçada, ganhar XP, matar Colyseus, reconectar, salvar 200 OK, voltar ao templo, validar limites urbanos e rejeitar payload forjado com 400).
+- 24 testes unitários e de integração Vitest passam com 100% de sucesso.
+- Deadlock de tentativas acumuladas é prevenido via `baselineTime`.
+- Deploy concluído na VPS com integridade SQLite intacta.
+
+**Status:** Complete
+- Resumo de entrega: `.planning/phases/phase-182-progression-and-thumbnails/182-SUMMARY.md` e `walkthrough.md`
+- Commits: `24df69e52`, `e18bea313`
+- Verificação: 24/24 Vitest tests passed, 0 type errors, isolated E2E passed, VPS online e operacional.
+
+
 
 
 
