@@ -212,13 +212,19 @@ Executadas as 28 suítes com falha lado a lado no candidato (`HEAD`) e na refer�
 
 ---
 
-## 🚀 Commits e Segurança de Deploy
+## 🚀 Commits e Deploy em Produção (VPS)
 
 - **Diferenciação dos Hashes Git Registrados:**
   - `27974f15840636d5fc8b8d35c42cba339e035945`: Hash do **objeto tag anotada** do Git (`tag v1.0-stable-phase181-atlases`).
   - `a44ed4f16386721fad3eab2ee51189c514e8059b`: Hash do **commit peeled** efetivamente apontado pela tag (`v1.0-stable-phase181-atlases^{commit}` - "docs(gsd): complete Phase 181 all outfits texture atlases expansion and roadmap").
   - `a2faa1cfab929b5d5787d7c0cd75f2e3f0144daa`: Hash do **commit pai** (`HEAD~1` antes de `a44ed4f16`), responsável pelo alinhamento técnico das asserções da Phase 180 antes do commit de documentação da tag.
-- **Commit Candidato Oficial:** `b512e4589` (incorporando rejeição a cache defasado, lease estrito, testes de contexto indisponível e paridade de 28 suítes).
-- **Preservação de Rollback:**
+- **Commit Ativo Servido na Produção VPS:** [`8c7f86b3e`](file:///c:/Users/desig/OneDrive/Documentos/TibiaWeb/Tibia) (`8c7f86b3ec43ac5c5a871b236609f8c183d479c8`).
+- **Deploy Realizado com Sucesso:**
+  - Backup do banco de dados em `/root/db_backups/deploy_backups/dev_pre_182_*.db`.
+  - Integridade SQLite atestada com `ok` pré e pós deploy.
+  - Build de produção (`npx vinext build`) concluído com êxito.
+  - PM2 reiniciado (`tibia-web` e `colyseus-server` online).
+  - Validação pública online via CDP (`scripts/verify-vps-online-phase182.mjs`) aprovada com 100% de sucesso (login, caminhada 4 direções, modal de trajes/montarias, caçada, recompensas, handshake e reconexão).
+- **Procedimento de Rollback:**
   - Tag estável: `v1.0-stable-phase181-atlases` (apontando para commit `a44ed4f16386721fad3eab2ee51189c514e8059b`).
   - Procedimento: `git checkout v1.0-stable-phase181-atlases` sem tocar no banco SQLite.
