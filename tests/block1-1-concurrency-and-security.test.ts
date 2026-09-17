@@ -434,14 +434,14 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
       const charId = 'char-rate-flood';
       const baseTime = Date.now();
 
-      // Primeira mensagem consome o burst (30.000 XP)
-      const res1 = XpRateLimiter.consume(charId, 30_000, baseTime, { isHunting: true });
+      // Primeira mensagem consome o burst (MAX_BURST_EXP = 1.800.000 XP)
+      const res1 = XpRateLimiter.consume(charId, MAX_BURST_EXP, baseTime, { isHunting: true });
       expect(res1.allowed).toBe(true);
 
-      // Próximas 9 mensagens chegam com 5ms de intervalo tentando ganhar mais 10.000 cada
+      // Próximas 9 mensagens chegam com 1ms de intervalo tentando ganhar mais 10.000 cada
       let rejectedCount = 0;
       for (let i = 1; i <= 9; i++) {
-        const check = XpRateLimiter.consume(charId, 10_000, baseTime + i * 5, { isHunting: true });
+        const check = XpRateLimiter.consume(charId, 10_000, baseTime + i, { isHunting: true });
         if (!check.allowed) {
           rejectedCount++;
         }
@@ -455,8 +455,8 @@ describe('Phase 167.1: Bloco 1.1 - Concorrência Otimista (OCC), Proteção Tran
       const charId = 'char-rate-town';
       const baseTime = Date.now();
 
-      // Fora de caçada, o teto de burst é apenas 2.000 XP (não 30.000)
-      const resNormalBurst = XpRateLimiter.consume(charId, 5_000, baseTime, { isHunting: false });
+      // Fora de caçada, o teto de burst é apenas 10.000 XP (não 1.800.000)
+      const resNormalBurst = XpRateLimiter.consume(charId, 15_000, baseTime, { isHunting: false });
       expect(resNormalBurst.allowed).toBe(false);
       expect(resNormalBurst.maxAllowed).toBeLessThanOrEqual(NON_HUNT_MAX_BURST_EXP);
 

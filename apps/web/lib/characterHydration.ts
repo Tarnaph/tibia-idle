@@ -132,3 +132,31 @@ export function parseInventoryData(
 
   return { equipment, equipmentIds, gold, bag, loot };
 }
+
+/**
+ * Merges local and server loot/bag stacks monotonically so items obtained during active gameplay are not lost.
+ */
+export function mergeLootStacks(
+  localStacks: Array<{ itemId?: number; name: string; amount: number }> = [],
+  serverStacks: Array<{ itemId?: number; name: string; amount: number }> = []
+): Array<{ itemId?: number; name: string; amount: number }> {
+  const map = new Map<string, { itemId?: number; name: string; amount: number }>();
+
+  for (const item of localStacks) {
+    const key = item.itemId ? `id_${item.itemId}` : `name_${item.name}`;
+    map.set(key, { ...item });
+  }
+
+  for (const srvItem of serverStacks) {
+    const key = srvItem.itemId ? `id_${srvItem.itemId}` : `name_${srvItem.name}`;
+    const existing = map.get(key);
+    if (existing) {
+      existing.amount = Math.max(existing.amount, srvItem.amount);
+    } else {
+      map.set(key, { ...srvItem });
+    }
+  }
+
+  return Array.from(map.values());
+}
+

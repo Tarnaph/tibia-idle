@@ -89,7 +89,8 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
 
     try {
-      this.activeSavePromise = persistenceManager.saveBatch(this.state.players.values());
+      const cityPlayers = Array.from(this.state.players.values()).filter((p) => !p.inHunt);
+      this.activeSavePromise = persistenceManager.saveBatch(cityPlayers);
       await this.activeSavePromise;
     } catch (err: any) {
       console.warn(`[ThaisCityRoom] Auto-save cycle warning:`, err?.message || err);
@@ -877,7 +878,8 @@ export class ThaisCityRoom extends Room<WorldState> {
       } catch {}
     }
 
-    await persistenceManager.saveBatch(this.state.players.values());
+    const cityPlayers = Array.from(this.state.players.values()).filter((p) => !p.inHunt);
+    await persistenceManager.saveBatch(cityPlayers);
   }
 
   /**

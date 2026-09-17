@@ -81,7 +81,8 @@ import { PromotionModal } from './character/PromotionModal';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
-import { resolveSkillKey, parseInventoryData } from '../lib/characterHydration';
+import { resolveSkillKey, parseInventoryData, mergeLootStacks } from '../lib/characterHydration';
+import { progressionDiagnostics } from '../lib/progressionDiagnostics';
 import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
 import { playDragonLairBgm, stopDragonLairBgm, stopAllAudio, DRAGONS_PRIDE_TRACK } from '../lib/audioManager';
@@ -1800,8 +1801,20 @@ function GamePrototypeContent() {
           isDeathPenalty,
           saveVersion: primaryVersion,
           replaceFullInventory: true,
+          isHunting: mode === 'hunt',
         }),
       });
+
+      const attemptId = `save-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      progressionDiagnostics.recordSaveAttempt(
+        attemptId,
+        primaryChar.id,
+        primaryVersion,
+        primaryChar.level,
+        Number(primaryChar.experience),
+        curGold,
+        mode === 'hunt'
+      );
 
       if (outfitSaveActiveRef.current) {
         outfitSaveActiveRef.current = false;
@@ -1816,7 +1829,7 @@ function GamePrototypeContent() {
       }
 
       if (res.status === 409) {
-        // Optimistic Concurrency Conflict: reconcile complete state from server, avoid blind re-send
+        // Optimistic Concurrency Conflict: reconcile complete state from server without destructively downgrading progress
         try {
           const conflictData = (await res.json()) as any;
           if (typeof conflictData?.currentVersion === 'number') {
@@ -1828,36 +1841,74 @@ function GamePrototypeContent() {
             const invResult = parseInventoryData(srv.inventory, curEquipment);
             let updatedReconciledChar: typeof primaryChar | null = null;
 
+            // Monotonic non-decreasing gold and loot reconciliation
+            const srvGold = Array.isArray(srv.inventory) ? invResult.gold : 0;
+            const finalGold = Math.max(curGold || 0, srvGold);
+            const finalBag = (Array.isArray(srv.inventory) && invResult.bag.length > 0)
+              ? mergeLootStacks(curBag, invResult.bag)
+              : (curBag || []);
+            const finalLoot = (Array.isArray(srv.inventory) && invResult.loot.length > 0)
+              ? mergeLootStacks(curLoot, invResult.loot)
+              : (curLoot || []);
+
+            const srvExp = srv.experience !== undefined ? Number(srv.experience) : 0;
+            const srvLvl = typeof srv.level === 'number' ? srv.level : 1;
+
+            progressionDiagnostics.recordSaveConflict(
+              attemptId,
+              primaryVersion,
+              conflictData.currentVersion,
+              srvLvl,
+              srvExp
+            );
+
             setGame((cur) => ({
               ...cur,
               session: {
                 ...cur.session,
-                gold: Array.isArray(srv.inventory) ? invResult.gold : cur.session.gold,
-                bag: Array.isArray(srv.inventory) ? invResult.bag : cur.session.bag,
-                loot: Array.isArray(srv.inventory) ? invResult.loot : cur.session.loot,
+                gold: finalGold,
+                bag: finalBag,
+                loot: finalLoot,
                 characters: cur.session.characters.map((c) => {
                   if (c.id !== primaryChar.id) return c;
 
+                  // Monotonic progress reconciliation: NEVER decrease level or experience on 409
+                  const cExp = Number(c.experience || 0);
+                  const reconciledExp = Math.max(cExp, srvExp);
+                  const reconciledLevel = Math.max(c.level || 1, srvLvl, levelForExperience(reconciledExp));
+
                   const reconciled: typeof c = {
                     ...c,
-                    level: typeof srv.level === 'number' ? srv.level : c.level,
-                    experience: srv.experience !== undefined ? Number(srv.experience) : c.experience,
+                    level: reconciledLevel,
+                    experience: reconciledExp,
                     currentHp: typeof srv.health === 'number' ? srv.health : c.currentHp,
                     maxHp: typeof srv.maxHealth === 'number' ? srv.maxHealth : c.maxHp,
                     currentMana: typeof srv.mana === 'number' ? srv.mana : c.currentMana,
                     maxMana: typeof srv.maxMana === 'number' ? srv.maxMana : c.maxMana,
                   };
 
-                  // Reconcile skills from server (mapped by skillId and flexible names)
+                  progressionDiagnostics.recordReconciliation(
+                    primaryChar.id,
+                    primaryVersion,
+                    conflictData.currentVersion,
+                    c.level,
+                    reconciledLevel,
+                    cExp,
+                    reconciledExp,
+                    curGold || 0,
+                    finalGold
+                  );
+
+                  // Reconcile skills from server: preserve highest achieved skill value
                   if (Array.isArray(srv.skills)) {
                     const nextSkills = { ...c.skills };
                     const nextTries = c.skillTries ? { ...c.skillTries } : undefined;
                     srv.skills.forEach((sk: any) => {
                       const key = resolveSkillKey(sk);
                       if (key && nextSkills[key] !== undefined) {
-                        nextSkills[key] = sk.value;
+                        nextSkills[key] = Math.max(nextSkills[key], sk.value);
                         if (key !== 'fishing' && sk.tries !== undefined && nextTries && nextTries[key] !== undefined) {
-                          nextTries[key] = Number(sk.tries);
+                          nextTries[key] = Math.max(Number(nextTries[key] || 0), Number(sk.tries || 0));
                         }
                       }
                     });
@@ -1865,8 +1916,8 @@ function GamePrototypeContent() {
                     if (nextTries) reconciled.skillTries = nextTries;
                   }
 
-                  // Reconcile equipment & inventory: purge items that no longer exist on server
-                  if (Array.isArray(srv.inventory)) {
+                  // Reconcile equipment & inventory
+                  if (Array.isArray(srv.inventory) && invResult.equipmentIds.length > 0) {
                     reconciled.equipment = invResult.equipment;
                     reconciled.inventory = {
                       ...c.inventory,
@@ -1884,12 +1935,17 @@ function GamePrototypeContent() {
               latestSaveStateRef.current = {
                 ...latestSaveStateRef.current,
                 activeCharacter: curActive?.id === primaryChar.id ? updatedReconciledChar : curActive,
-                gold: Array.isArray(srv.inventory) ? invResult.gold : latestSaveStateRef.current.gold,
-                bag: Array.isArray(srv.inventory) ? invResult.bag : latestSaveStateRef.current.bag,
-                loot: Array.isArray(srv.inventory) ? invResult.loot : latestSaveStateRef.current.loot,
+                gold: finalGold,
+                bag: finalBag,
+                loot: finalLoot,
               };
             }
             isSaveSuspendedRef.current = false;
+
+            // Immediately schedule retry save with updated saveVersion to synchronize database
+            setTimeout(() => {
+              void saveProgressRef.current?.(false, true);
+            }, 100);
           } else {
             // Se o servidor não retornou o estado do personagem no 409, suspender salvamentos locais
             isSaveSuspendedRef.current = true;
@@ -1906,9 +1962,11 @@ function GamePrototypeContent() {
         if (typeof json?.data?.saveVersion === 'number') {
           currentSaveVersionRef.current = json.data.saveVersion;
           characterSaveVersionsRef.current.set(primaryChar.id, json.data.saveVersion);
+          progressionDiagnostics.recordSaveSuccess(attemptId, json.data.saveVersion, res.status);
         }
       } else if (res.status !== 409) {
         setSaveErrorAlert('Falha ao salvar progresso no servidor.');
+        progressionDiagnostics.recordSaveError(attemptId, res.status, `HTTP ${res.status}`);
       }
 
       // Persist all owned party alts individually (level, exp, hp, mana, skills, equipment)
@@ -2015,10 +2073,15 @@ function GamePrototypeContent() {
                         }
                       });
                     }
+                    const srvExp = srv.experience !== undefined ? Number(srv.experience) : 0;
+                    const altReconciledExp = Math.max(Number(c.experience || 0), srvExp);
+                    const srvLvl = typeof srv.level === 'number' ? srv.level : 1;
+                    const altReconciledLevel = Math.max(c.level || 1, srvLvl, levelForExperience(altReconciledExp));
+
                     return {
                       ...c,
-                      level: typeof srv.level === 'number' ? srv.level : c.level,
-                      experience: srv.experience !== undefined ? Number(srv.experience) : c.experience,
+                      level: altReconciledLevel,
+                      experience: altReconciledExp,
                       currentHp: typeof srv.health === 'number' ? srv.health : c.currentHp,
                       maxHp: typeof srv.maxHealth === 'number' ? srv.maxHealth : c.maxHp,
                       currentMana: typeof srv.mana === 'number' ? srv.mana : c.currentMana,
@@ -2366,11 +2429,28 @@ function GamePrototypeContent() {
   }, [cityPos, mode, isFollowingLeader, thaisTileMapZ6, thaisTileMapZ7]);
 
   useEffect(() => {
-    const levelUpEvent = encounter.events.find((e) => e.type === 'level-up');
-    if (levelUpEvent && 'message' in levelUpEvent && levelUpEvent.message) {
-      setLevelUpMessage({ text: levelUpEvent.message, timestamp: Date.now() });
+    const levelUpEvents = encounter.events.filter((e) => e.type === 'level-up');
+    const latestLevelUp = levelUpEvents.at(-1);
+    if (latestLevelUp && 'message' in latestLevelUp && latestLevelUp.message) {
+      setLevelUpMessage({ text: latestLevelUp.message, timestamp: Date.now() });
+      progressionDiagnostics.recordLevelUp(
+        (latestLevelUp as any).previousLevel ?? 1,
+        (latestLevelUp as any).level ?? 1,
+        Number(activeCharacter?.experience || 0)
+      );
     }
   }, [encounter.events]);
+
+  // Continuously synchronize active character progress (experience & level) with Colyseus
+  const lastSyncedExpRef = useRef<number>(-1);
+  useEffect(() => {
+    if (!activeCharacter?.id) return;
+    const curExp = Number(activeCharacter.experience || 0);
+    if (curExp !== lastSyncedExpRef.current && curExp > 0) {
+      lastSyncedExpRef.current = curExp;
+      gameNetwork.sendSyncProgress(curExp, activeCharacter.level || 1);
+    }
+  }, [activeCharacter?.id, activeCharacter?.experience, activeCharacter?.level]);
 
   // Listen to Colyseus server bestiary events
   useEffect(() => {

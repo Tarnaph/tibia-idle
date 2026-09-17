@@ -85,6 +85,8 @@ export async function POST(
       vocationName: body.vocationName,
       promotion: body.promotion,
       saveVersion: typeof body.saveVersion === 'number' ? body.saveVersion : undefined,
+    }, {
+      isHunting: typeof body.isHunting === 'boolean' ? body.isHunting : undefined,
     });
 
     if ((updated as any)?.skipped) {
