@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: complete
 last_updated: "2026-09-17T20:05:00.000Z"
-last_activity: "2026-09-17 — Phase 183 Concluída com Sucesso: Redesign da Loja da Cidade (Shop Window) com seleção de categorias estilo pátio de treino (cards com glow azul #58a6ff), catálogo canônico de 67 itens do Print 2 com 21 armas de exercício (regular, durable, lasting), busca, filtro por vocação e integração de compra com saldo da Party."
+last_activity: "2026-09-17 — Phase 183 Concluída com Sucesso: Redesign da Loja da Cidade (Shop Window) com seleção de categorias estilo pátio de treino (cards com glow azul #58a6ff), catálogo curado e restrito aos 45 itens de FIX.md (Armors, Legs, Shoes, Helmets, Shields e Weapons), busca, filtro por vocação e integração de compra com saldo da Party."
 progress:
   total_phases: 183
   completed_phases: 183
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 183 - Concluída (Redesign da Loja da Cidade).
+**Current focus:** Phase 183 - Concluída (Redesign da Loja da Cidade e Catálogo de FIX.md).
 
 ## Current Position
 
 Phase: 183 of 183  
 Plan: 1 of 1 in Phase 183  
 Status: Complete  
-Last activity: 2026-09-17 — Phase 183 entregue: nova ShopWindow com cards de categorias estilo treino, 67 equipamentos do catálogo do Print 2, 21 armas de exercício geradas e integradas, 9 testes dedicados no Vitest aprovados e 0 erros no typecheck.
+Last activity: 2026-09-17 — Phase 183 entregue: nova ShopWindow com cards de categorias estilo treino, 45 equipamentos curados estritamente conforme FIX.md, 8 testes dedicados no Vitest aprovados e 0 erros no typecheck.
 
 Progress: [██████████] 100%
 

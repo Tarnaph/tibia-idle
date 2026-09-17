@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import fs from 'fs';
-import path from 'path';
 import { content } from './fixture';
 import {
   SHOP_CATEGORIES,
@@ -10,10 +8,10 @@ import {
 } from '../apps/web/lib/shopCatalog';
 import { buyShopItem, createIdleGame } from '../packages/domain/src';
 
-describe('Phase 183 - Redesign da Loja da Cidade: Categorias Estilo Treino & Catálogo Completo', () => {
-  describe('1. Validação de Categorias e Catálogo', () => {
-    it('deve conter as 8 categorias solicitadas (Todos + 7 categorias do treino)', () => {
-      expect(SHOP_CATEGORIES).toHaveLength(8);
+describe('Phase 183 - Catálogo Curado da Loja da Cidade conforme FIX.md', () => {
+  describe('1. Validação de Categorias e Itens de FIX.md', () => {
+    it('deve conter as 7 categorias da loja (Todos + 6 categorias de equipamentos)', () => {
+      expect(SHOP_CATEGORIES).toHaveLength(7);
       const categoryIds = SHOP_CATEGORIES.map((c) => c.id);
       expect(categoryIds).toEqual([
         'all',
@@ -23,7 +21,6 @@ describe('Phase 183 - Redesign da Loja da Cidade: Categorias Estilo Treino & Cat
         'shields',
         'weapons',
         'shoes',
-        'exercise',
       ]);
 
       const categoryLabels = SHOP_CATEGORIES.map((c) => c.label);
@@ -35,12 +32,11 @@ describe('Phase 183 - Redesign da Loja da Cidade: Categorias Estilo Treino & Cat
         'Shields',
         'Weapons',
         'Shoes',
-        'Exercise Weapons',
       ]);
     });
 
-    it('deve conter exatamente os 67 equipamentos do catálogo do Print 2', () => {
-      expect(SHOP_ITEMS_CATALOG).toHaveLength(67);
+    it('deve conter exatamente os 45 equipamentos listados em FIX.md', () => {
+      expect(SHOP_ITEMS_CATALOG).toHaveLength(45);
 
       // Todos os itens devem possuir ID único e atributos válidos
       const idSet = new Set<number>();
@@ -54,55 +50,96 @@ describe('Phase 183 - Redesign da Loja da Cidade: Categorias Estilo Treino & Cat
       }
     });
 
-    it('deve filtrar corretamente por categoria específica', () => {
+    it('deve conter rigorosamente os itens por categoria especificados em FIX.md', () => {
+      // 1. Armors (5): Leather, Studded, Chain, Brass, Plate
       const armors = getShopItemsByCategory('armors');
-      expect(armors.length).toBe(5); // Plate, Noble, Mammoth Fur, Golden, Demon
-      expect(armors.every((item) => item.category === 'armors')).toBe(true);
+      expect(armors.length).toBe(5);
+      expect(armors.map((i) => i.name)).toEqual([
+        'Leather Armor',
+        'Studded Armor',
+        'Chain Armor',
+        'Brass Armor',
+        'Plate Armor',
+      ]);
 
-      const helmets = getShopItemsByCategory('helmets');
-      expect(helmets.length).toBe(5); // Leather, Iron, Straw, Horned, Crusader
-      expect(helmets.every((item) => item.category === 'helmets')).toBe(true);
-
+      // 2. Legs (5): Leather, Studded, Chain, Brass, Plate
       const legs = getShopItemsByCategory('legs');
-      expect(legs.length).toBe(5); // Leather, Studded, Chain, Golden, Demon
-      expect(legs.every((item) => item.category === 'legs')).toBe(true);
+      expect(legs.length).toBe(5);
+      expect(legs.map((i) => i.name)).toEqual([
+        'Leather Legs',
+        'Studded Legs',
+        'Chain Legs',
+        'Brass Legs',
+        'Plate Legs',
+      ]);
 
-      const shields = getShopItemsByCategory('shields');
-      expect(shields.length).toBe(4); // Wooden, Griffin, Tower, Spellbook
-      expect(shields.every((item) => item.category === 'shields')).toBe(true);
-
+      // 3. Shoes (1): Leather Boots
       const shoes = getShopItemsByCategory('shoes');
-      expect(shoes.length).toBe(1); // Leather Boots
+      expect(shoes.length).toBe(1);
       expect(shoes[0].name).toBe('Leather Boots');
 
-      const exercise = getShopItemsByCategory('exercise');
-      expect(exercise.length).toBe(21); // 7 weapons * 3 tiers
-      expect(exercise.every((item) => item.category === 'exercise')).toBe(true);
+      // 4. Helmets (5): Leather, Studded, Brass, Viking, Steel
+      const helmets = getShopItemsByCategory('helmets');
+      expect(helmets.length).toBe(5);
+      expect(helmets.map((i) => i.name)).toEqual([
+        'Leather Helmet',
+        'Studded Helmet',
+        'Brass Helmet',
+        'Viking Helmet',
+        'Steel Helmet',
+      ]);
 
-      const all = getShopItemsByCategory('all');
-      expect(all.length).toBe(67);
+      // 5. Shields (4): Studded, Brass, Plate, Spellbook
+      const shields = getShopItemsByCategory('shields');
+      expect(shields.length).toBe(4);
+      expect(shields.map((i) => i.name)).toEqual([
+        'Studded Shield',
+        'Brass Shield',
+        'Plate Shield',
+        'Spellbook',
+      ]);
+
+      // 6. Weapons (25)
+      const weapons = getShopItemsByCategory('weapons');
+      expect(weapons.length).toBe(25);
+      const weaponNames = weapons.map((w) => w.name);
+      expect(weaponNames).toContain('Hand Axe');
+      expect(weaponNames).toContain('Sabre');
+      expect(weaponNames).toContain('Spear');
+      expect(weaponNames).toContain('Mace');
+      expect(weaponNames).toContain('Scythe');
+      expect(weaponNames).toContain('Sword');
+      expect(weaponNames).toContain('Hatchet');
+      expect(weaponNames).toContain('Longsword');
+      expect(weaponNames).toContain('Orcish Axe');
+      expect(weaponNames).toContain('Morning Star');
+      expect(weaponNames).toContain('Bow');
+      expect(weaponNames).toContain('Crossbow');
+      expect(weaponNames).toContain('Double Axe');
+      expect(weaponNames).toContain('Wand of Dragonbreath');
+      expect(weaponNames).toContain('Moonlight Rod');
+      expect(weaponNames).toContain('Broadsword');
+      expect(weaponNames).toContain('Serpent Sword');
+      expect(weaponNames).toContain('Wand of Decay');
+      expect(weaponNames).toContain('Necrotic Rod');
+      expect(weaponNames).toContain('Wand of Draconia');
+      expect(weaponNames).toContain('Northwind Rod');
+      expect(weaponNames).toContain('Wand of Cosmic Energy');
+      expect(weaponNames).toContain('Terra Rod');
+      expect(weaponNames).toContain('Wand of Inferno');
+      expect(weaponNames).toContain('Hailstorm Rod');
     });
 
-    it('deve validar os 3 tiers de armas de treino com cargas e atributos corretos', () => {
-      const exerciseItems = getShopItemsByCategory('exercise');
-
-      // Regular: 500 cargas
-      const regularItems = exerciseItems.filter((i) => i.tier === 'regular');
-      expect(regularItems).toHaveLength(7);
-      expect(regularItems.every((i) => i.charges === 500)).toBe(true);
-      expect(regularItems.every((i) => i.price === 262500)).toBe(true);
-
-      // Durable: 1.800 cargas
-      const durableItems = exerciseItems.filter((i) => i.tier === 'durable');
-      expect(durableItems).toHaveLength(7);
-      expect(durableItems.every((i) => i.charges === 1800)).toBe(true);
-      expect(durableItems.every((i) => i.price === 945000)).toBe(true);
-
-      // Lasting: 14.400 cargas
-      const lastingItems = exerciseItems.filter((i) => i.tier === 'lasting');
-      expect(lastingItems).toHaveLength(7);
-      expect(lastingItems.every((i) => i.charges === 14400)).toBe(true);
-      expect(lastingItems.every((i) => i.price === 7560000)).toBe(true);
+    it('NÃO deve conter equipamentos fora da lista de FIX.md (Demon Armor, Golden Armor, Crusader Helmet, etc.)', () => {
+      const allItemNames = SHOP_ITEMS_CATALOG.map((i) => i.name.toLowerCase());
+      expect(allItemNames).not.toContain('demon armor');
+      expect(allItemNames).not.toContain('golden armor');
+      expect(allItemNames).not.toContain('golden legs');
+      expect(allItemNames).not.toContain('demon legs');
+      expect(allItemNames).not.toContain('crusader helmet');
+      expect(allItemNames).not.toContain('horned helmet');
+      expect(allItemNames).not.toContain('tower shield');
+      expect(allItemNames).not.toContain('griffin shield');
     });
 
     it('deve realizar busca textual e filtro de vocação corretamente', () => {
@@ -111,42 +148,20 @@ describe('Phase 183 - Redesign da Loja da Cidade: Categorias Estilo Treino & Cat
       expect(swordResults.length).toBeGreaterThan(0);
       expect(swordResults.every((i) => i.name.toLowerCase().includes('sword'))).toBe(true);
 
-      // Filtro de vocação Paladin (deve incluir arcos e escudos)
+      // Filtro de vocação Paladin (deve incluir arcos e lanças)
       const paladinResults = filterShopItems({ vocation: 'Paladin' });
       expect(paladinResults.some((i) => i.name === 'Bow')).toBe(true);
       expect(paladinResults.some((i) => i.name === 'Crossbow')).toBe(true);
-      expect(paladinResults.some((i) => i.name === 'Tower Shield')).toBe(true);
-      // Não deve incluir armas exclusivas de Sorcerer
-      expect(paladinResults.some((i) => i.name === 'Wand of Vortex')).toBe(false);
+      expect(paladinResults.some((i) => i.name === 'Spear')).toBe(true);
+      // Não deve incluir varinhas exclusivas de Sorcerer
+      expect(paladinResults.some((i) => i.name === 'Wand of Inferno')).toBe(false);
     });
   });
 
-  describe('2. Verificação de Sprites Gerados de Armas de Exercício', () => {
-    it('deve confirmar a existência de todos os 21 arquivos de sprites de exercício em public/assets/items/', () => {
-      const exerciseIds = [
-        // Regular
-        31821, 31822, 31823, 31824, 31825, 31826, 35279,
-        // Durable
-        32384, 32385, 32386, 32387, 32388, 32389, 35285,
-        // Lasting
-        32390, 32391, 32392, 32393, 32394, 32395, 35286,
-      ];
+  describe('2. Integração com a Economia e Compra de Equipamentos', () => {
+    const seed = 'test-shop-fix-md';
 
-      const publicDir = path.resolve(__dirname, '..', 'public', 'assets', 'items');
-
-      for (const id of exerciseIds) {
-        const filePath = path.join(publicDir, `item-${id}.png`);
-        expect(fs.existsSync(filePath), `Sprite item-${id}.png deve existir`).toBe(true);
-        const stats = fs.statSync(filePath);
-        expect(stats.size).toBeGreaterThan(100);
-      }
-    });
-  });
-
-  describe('3. Integração com a Economia e Compra de Equipamentos', () => {
-    const seed = 'test-shop-183';
-
-    it('deve debitar o ouro e adicionar o equipamento ao inventário com sucesso', () => {
+    it('deve debitar o ouro e adicionar o Plate Armor (2463) ao inventário com sucesso', () => {
       const game = createIdleGame(seed, content);
       game.session.gold = 50000;
       const initialGold = game.session.gold;
@@ -156,36 +171,35 @@ describe('Phase 183 - Redesign da Loja da Cidade: Categorias Estilo Treino & Cat
       )!;
       activeChar.inventory.equipmentIds = [];
 
-      // Compra um Knight Armor (item 2476) por 5.000 gold
-      const result = buyShopItem(game, 2476, 'Knight Armor', 5000, 1, content);
+      // Compra um Plate Armor (item 2463) por 1.200 gold
+      const result = buyShopItem(game, 2463, 'Plate Armor', 1200, 1, content);
 
       expect(result.ok).toBe(true);
-      expect(result.state.session.gold).toBe(initialGold - 5000);
+      expect(result.state.session.gold).toBe(initialGold - 1200);
       const updatedChar = result.state.session.characters.find((c) => c.id === activeChar.id)!;
-      expect(updatedChar.inventory.equipmentIds).toContain(2476);
+      expect(updatedChar.inventory.equipmentIds).toContain(2463);
     });
 
-    it('deve permitir a compra de múltiplos itens com o stepper', () => {
+    it('deve permitir a compra de múltiplos itens com o stepper (3 Spears por 10 gp = 30 gp)', () => {
       const game = createIdleGame(seed, content);
-      game.session.gold = 10000;
+      game.session.gold = 1000;
 
-      // Compra 3 Bows (item 2456) por 150 gold cada = 450 gold
-      const result = buyShopItem(game, 2456, 'Bow', 150, 3, content);
+      const result = buyShopItem(game, 2389, 'Spear', 10, 3, content);
 
       expect(result.ok).toBe(true);
-      expect(result.state.session.gold).toBe(10000 - 450);
+      expect(result.state.session.gold).toBe(1000 - 30);
     });
 
     it('deve rejeitar compra quando o jogador não possui ouro suficiente', () => {
       const game = createIdleGame(seed, content);
-      game.session.gold = 1000;
+      game.session.gold = 10;
 
-      // Tenta comprar Demon Armor (item 2494) por 80.000 gold com apenas 1.000 gold
-      const result = buyShopItem(game, 2494, 'Demon Armor', 80000, 1, content);
+      // Tenta comprar Wand of Inferno por 15.000 gold com apenas 10 gold
+      const result = buyShopItem(game, 2187, 'Wand of Inferno', 15000, 1, content);
 
       expect(result.ok).toBe(false);
       expect(result.error).toContain('Gold insuficiente');
-      expect(result.state.session.gold).toBe(1000);
+      expect(result.state.session.gold).toBe(10);
     });
   });
 });

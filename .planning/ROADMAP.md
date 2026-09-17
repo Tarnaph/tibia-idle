@@ -128,7 +128,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 180: Texture Atlases para Outfits e Montarias (Prova de Conceito Assassin Masculino + Midnight Panther)** - Redução do volume de rede de ~260 requisições individuais para 2 arquivos de atlas consolidados, tempo de swap reduzido de 57s para 176ms em cache frio e 67ms em cache quente, preservando 100% recolorPixels e animação 4 direções / 9 frames.
 - [x] **Phase 181: Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção)** - Empacotamento em lote de todos os 44 trajes (88 atlases male/female) e ~130 montarias, eliminação do spawn invisível no login e engasgo na caminhada, cancelamento de requisições de aparências anteriores e swap rápido universal.
 - [x] **Phase 182: Correção de Progressão e Recompensas + Otimização das Miniaturas** - [Bloco A] Eliminação da regressão de nível (reset 5/6 para 1), blindagem contra colisão concorrente do autosave de Colyseus com caçada, reconciliação não-destrutiva de 409 com preservação monotônica de XP/gold/loot e correção do banner de avanço. [Bloco B] Otimização de miniaturas da lista via Thumbnail Atlases com render instantâneo (< 100ms em warm load).
-- [x] **Phase 183: Redesign da Loja da Cidade (Shop Window) com Estilo de Treino & Catálogo Completo** - Modernização visual da seleção de categorias para o estilo de cards do treino (borda azul #58a6ff e glow), e inclusão do catálogo completo de 67 equipamentos do Print 2 com 21 armas de exercício geradas (tiers regular, durable e lasting), busca e compra integrada com Party gold.
+- [x] **Phase 183: Redesign da Loja da Cidade (Shop Window) com Estilo de Treino & Catálogo Curado de FIX.md** - Modernização visual da seleção de categorias para o estilo de cards do treino (borda azul #58a6ff e glow), e inclusão estrita dos 45 equipamentos e armas solicitados em FIX.md (Armors, Legs, Shoes, Helmets, Shields e Weapons), busca, filtro por vocação e compra integrada com Party gold.
 
 ---
 
@@ -3494,20 +3494,19 @@ Plans:
 - Commits: `24df69e52`, `e18bea313`
 - Verificação: 24/24 Vitest tests passed, 0 type errors, isolated E2E passed, VPS online e operacional.
 
-### Phase 183: Redesign da Loja da Cidade (Shop Window) com Estilo de Treino & Catálogo Completo
+### Phase 183: Redesign da Loja da Cidade (Shop Window) com Estilo de Treino & Catálogo Curado de FIX.md
 
-**Goal:** Reformular a interface da Loja da Cidade (`ShopWindow.tsx`) utilizando a linguagem visual de seleção de treino (cards com ícone centralizado, rótulo e borda azul `#58a6ff` com glow), organizar nas 7 categorias solicitadas (Armors, Helmets, Legs, Shields, Weapons, Shoes e Exercise Weapons mais 'Todos') e disponibilizar à venda exatamente os 67 equipamentos e armas do Print 2 com os 3 tiers de armas de exercício.
+**Goal:** Reformular a interface da Loja da Cidade (`ShopWindow.tsx`) utilizando a linguagem visual de seleção de treino (cards com ícone centralizado, rótulo e borda azul `#58a6ff` com glow), organizar nas categorias solicitadas (Armors, Helmets, Legs, Shields, Weapons e Shoes mais 'Todos') e disponibilizar à venda rigorosamente os 45 equipamentos e armas listados em FIX.md, removendo todos os demais itens fora da lista.
 
 **Requirements:**
-- Geração de 21 sprites das armas de treino (7 armas x 3 tiers: regular 500 cargas, durable 1.800 cargas e lasting 14.400 cargas).
-- Catálogo canônico tipado (`apps/web/lib/shopCatalog.ts`) com todos os 67 itens cadastrados com atributos, pesos, níveis e preços.
-- Redesign da janela `ShopWindow.tsx` com cabeçalho de saldo em gold da Party, barra de busca textual, filtro de vocação, cards de categoria estilo treino, matriz de slots estilo Print 2 com tags nos cantos e painel de compra com stepper numérico.
+- Catálogo canônico tipado (`apps/web/lib/shopCatalog.ts`) com exatamente os 45 itens cadastrados com atributos, pesos, níveis e preços.
+- Redesign da janela `ShopWindow.tsx` com cabeçalho de saldo em gold da Party, barra de busca textual, filtro de vocação, cards de categoria estilo treino, matriz de slots com tags e painel de compra com stepper numérico.
 - 0 erros de tipagem no TypeScript (`npm run typecheck`).
 - Cobertura completa de testes no Vitest (`tests/phase183-shop-redesign-and-catalog.test.ts`).
 
 **Status:** Complete
 - Resumo de entrega: `.planning/phases/phase-183-shop-redesign-and-catalog/183-SUMMARY.md`
-- Verificação: 9/9 Vitest tests passed, 24/24 related tests passed, 0 TypeScript errors.
+- Verificação: 8/8 Vitest tests passed, 23/23 related tests passed, 0 TypeScript errors.
 
 
 
