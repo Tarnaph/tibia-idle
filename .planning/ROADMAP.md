@@ -127,6 +127,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 172: Formação de Treino da Party ao Redor do Dummy & HUD Superior Multi-Personagem** - Desacoplamento da fila indiana ao treinar no dummy em Thais, posicionamento automático de todos os membros do squad em volta do training dummy virados para o boneco, treino simultâneo de cada membro em sua respectiva skill vocacional (Knight melee, Paladin distance, Sorcerer/Druid magic level), disparos e animações individuais de cada membro contra o dummy, expansão do `TrainingProgressHUD` para exibir os 4 personagens simultaneamente com progresso e tempo estimado, e retorno automático à formação de seguimento ao cancelar o treino.
 - [x] **Phase 180: Texture Atlases para Outfits e Montarias (Prova de Conceito Assassin Masculino + Midnight Panther)** - Redução do volume de rede de ~260 requisições individuais para 2 arquivos de atlas consolidados, tempo de swap reduzido de 57s para 176ms em cache frio e 67ms em cache quente, preservando 100% recolorPixels e animação 4 direções / 9 frames.
 - [x] **Phase 181: Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção)** - Empacotamento em lote de todos os 44 trajes (88 atlases male/female) e ~130 montarias, eliminação do spawn invisível no login e engasgo na caminhada, cancelamento de requisições de aparências anteriores e swap rápido universal.
+- [ ] **Phase 182: Otimização de Carregamento e Cache de Miniaturas (Thumbnails) na Lista de Outfits e Montarias** - Empacotamento em atlas ou cache pré-renderizado de thumbnails para a listagem/grid do OutfitModal, eliminando a concorrência residual de imagens estáticas 32x32 sem interferir no fluxo de renderização e preview de aparências.
 
 ---
 
@@ -3417,6 +3418,31 @@ Plans:
 - Zero spawn invisível no login para qualquer combinação de traje e montaria.
 - Preview do modal responsivo (< 100 ms) em qualquer traje selecionado, sem congelamento por fila residual de rede.
 - Zero frames não-compostos e zero regressões em `recolorPixels`.
+
+**Status:** Complete
+- Resumo de entrega: `.planning/phases/phase-181-all-outfits-texture-atlases/181-SUMMARY.md`
+- Tag de referência estável (Rollback): `v1.0-stable-phase181-atlases` (Commit `a44ed4f16` / Build `a2faa1cfa`)
+
+---
+
+### Phase 182: Otimização de Carregamento e Cache de Miniaturas (Thumbnails) na Lista de Outfits e Montarias
+
+**Goal:** Otimizar o carregamento das miniaturas estáticas exibidas nos cards da grade de seleção do `OutfitModal` (outfit thumbs e mount thumbs), implementando atlas de miniaturas consolidadas ou cache offscreen com priorização por virtualização/IntersectionObserver, garantindo que a rolagem do catálogo seja instantânea e completamente desacoplada do fluxo de renderização e animação dos personagens.
+
+**Depends on:** Phase 181  
+**Requirements:**
+1. **Atlas Consolidado de Miniaturas (Thumbnails)**:
+   - Empacotar as miniaturas estáticas de outfits (`public/assets/outfit-thumbs/`) e montarias (`public/generated/mounts/`) em sprite sheets de miniaturas ou WebP otimizados.
+   - Fornecer coordenadas CSS ou canvas sub-rects para exibição instantânea sem dezenas de requisições HTTP individuais ao rolar a lista.
+2. **Priorização e Virtualização no `OutfitModal`**:
+   - Manter as miniaturas fora da tela em deferimento estrito, renderizando sob demanda conforme viewport do grid.
+3. **Isolamento Completo do Pipeline de Aparências**:
+   - Não interferir na lógica de Texture Atlases de animação, composição, `recolorPixels`, preview ativo ou renderização da arena (preservando o comportamento estável da Phase 181).
+
+**Success Criteria:**
+- Exibição de todas as miniaturas visíveis da lista em < 100ms.
+- Zero requisições HTTP adicionais por item ao navegar na lista com atlas de miniaturas ativo.
+- Integridade total do fluxo de seleção, preview e arena conquistado na Phase 181.
 
 
 

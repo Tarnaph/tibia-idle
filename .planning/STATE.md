@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-16T23:55:00.000Z"
-last_activity: "2026-09-16 — Phase 181 concluída: Texture Atlases compilados para todos os 158 trajes e 129 montarias. Validação E2E no Edge confirmou 0 PNGs discretos, login com Brotherhood + Rapid Boar em 11.4s, swap para Citizen em 140ms, Assassin em 137ms, swaps aquecidos <275ms e visibilidade mútua sem camadas progressivas."
+last_updated: "2026-09-17T00:10:00.000Z"
+last_activity: "2026-09-16 — Phase 181 validada e aprovada pelo usuário no navegador. Commit estável congelado com tag v1.0-stable-phase181-atlases. Phase 182 registrada no backlog para otimização futura de miniaturas (thumbnails)."
 progress:
-  total_phases: 181
+  total_phases: 182
   completed_phases: 181
   total_plans: 187
   completed_plans: 187
-  percent: 100
+  percent: 99
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 181 - Expansão Geral de Texture Atlases para Todos os Outfits e Montarias (Pipeline Completo de Produção) [Concluída].
+**Current focus:** Phase 181 - Validada e Estável (`v1.0-stable-phase181-atlases`). Próxima: Phase 182 (Otimização de Thumbnails).
 
 ## Current Position
 
-Phase: 181 of 181  
-Plan: 1 of 1 in current phase  
-Status: Complete  
-Last activity: 2026-09-16 — Texture Atlases compilados para 100% dos trajes e montarias, login frio e quente validados com 0 PNGs discretos, carregamento progressivo extirpado e telemetria de diagnóstico isolada entre preview e arena.
+Phase: 181 of 182  
+Plan: 1 of 1 in Phase 181  
+Status: Complete (Stable Reference Preserved)  
+Last activity: 2026-09-16 — Phase 181 validada pelo usuário no navegador com sucesso. Versão preservada e congelada como baseline estável para rollback. Phase 182 catalogada para melhoria futura de thumbnails.
 
-Progress: [██████████] 100%
+Progress: [██████████] 99%
 
 
 
