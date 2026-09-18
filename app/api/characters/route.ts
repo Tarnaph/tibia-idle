@@ -36,6 +36,14 @@ export async function GET(request: Request) {
             : c.bestiaryKillsJson;
         } catch {}
       }
+      let parsedBlessings: number[] = [];
+      if (c.blessingsJson) {
+        try {
+          parsedBlessings = typeof c.blessingsJson === 'string'
+            ? JSON.parse(c.blessingsJson)
+            : c.blessingsJson;
+        } catch {}
+      }
       return {
         ...c,
         addons: c.outfitAddons ?? 0,
@@ -52,7 +60,9 @@ export async function GET(request: Request) {
         experience: Number(c.experience),
         skills: c.skills ? c.skills.map((s: any) => ({ ...s, tries: Number(s.tries) })) : [],
         bestiaryKills: parsedBestiaryKills,
+        blessings: Array.isArray(parsedBlessings) ? parsedBlessings : [],
       };
+
     };
 
     const formatted = characters.map(formatCharacter);

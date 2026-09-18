@@ -44,6 +44,7 @@ model Character {
   isHunting      Boolean          @default(false)
   lastHuntId     String?
   hotbarJson     String?
+  blessingsJson  String?
   bestiaryKillsJson String?
   trackedBestiaryId String?
   bossPoints     Int              @default(0)

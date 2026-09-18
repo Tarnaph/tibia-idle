@@ -26,6 +26,7 @@ interface BottomDockProps {
   onOpenQuickSell?: () => void;
   onOpenTraining?: () => void;
   onOpenImbuements?: () => void;
+  onOpenBlessings?: () => void;
   onSelectHunt?: () => void;
   onChangeStance?: (stance: CombatStance) => void;
   onChangeTargetDistance?: (distance: number) => void;
@@ -50,6 +51,7 @@ export function BottomDock({
   onOpenQuickSell,
   onOpenTraining,
   onOpenImbuements,
+  onOpenBlessings,
   onSelectHunt,
   onChangeStance,
   onChangeTargetDistance,
@@ -228,7 +230,7 @@ export function BottomDock({
             <button
               type="button"
               className="quick-action-btn btn-blessings"
-              onClick={() => {}}
+              onClick={onOpenBlessings}
               title="Blessings"
             >
               BLESSINGS

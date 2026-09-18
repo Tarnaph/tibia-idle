@@ -1374,8 +1374,69 @@ export class ThaisCityRoom extends Room<WorldState> {
           }
         }
       }
+    } else if (
+      lowerSpell === 'exori hur' ||
+      lowerSpell === 'exori-hur' ||
+      lowerSpell === 'whirlwind throw' ||
+      lowerSpell === '107'
+    ) {
+      const manaCost = 40;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+
+        let targetMonster: MonsterState | null = null;
+        if (player.targetId) {
+          const m = this.state.monsters.get(player.targetId);
+          if (m && !m.isDead && Math.hypot(m.posX - player.posX, m.posY - player.posY) <= 5) {
+            targetMonster = m;
+          }
+        }
+        if (!targetMonster) {
+          let minDist = 99;
+          this.state.monsters.forEach((m) => {
+            if (!m.isDead) {
+              const d = Math.hypot(m.posX - player.posX, m.posY - player.posY);
+              if (d <= 5 && d < minDist) {
+                minDist = d;
+                targetMonster = m;
+              }
+            }
+          });
+        }
+
+        const targetX = targetMonster ? targetMonster.posX : player.posX;
+        const targetY = targetMonster ? targetMonster.posY : player.posY;
+        const targetId = targetMonster ? targetMonster.id : player.id;
+
+        // Projectile 24 (CONST_ANI_WHIRLWINDSWORD), Effect 10 (CONST_ME_HITAREA)
+        this.pushCombatEvent('spell', player.id, targetId, 0, targetX, targetY, 'Exori Hur', '#dedede', 24, 10, player.posX, player.posY);
+
+        if (targetMonster) {
+          const rawDamage = 35 + Math.floor(Math.random() * 30) + Math.floor(player.level * 0.2);
+          const damage = Math.max(1, rawDamage - (targetMonster as MonsterState).armorPower);
+          (targetMonster as MonsterState).hp -= damage;
+
+          this.pushCombatEvent('damage', player.id, (targetMonster as MonsterState).id, damage, targetX, targetY, `${damage}`, '#ffffff', 24, 10, player.posX, player.posY);
+
+          if ((targetMonster as MonsterState).hp <= 0) {
+            this.killMonster(targetMonster as MonsterState, player);
+          }
+        }
+
+        const vocName = (player.vocationName || 'Knight') as VocationName;
+        const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+        const magicTries = manaCost * gameContent.rateMagic * skillRate;
+        let charSkills = (player as any).skills;
+        if (Array.isArray(charSkills)) {
+          let mlObj = charSkills.find((s: any) => s.skillId === 7);
+          if (mlObj) {
+            mlObj.tries = (mlObj.tries || 0) + magicTries;
+          }
+        }
+      }
     }
   }
+
 
   private handleChatMessage(client: Client, rawText: string, channel: string) {
     const player = this.state.players.get(client.sessionId);

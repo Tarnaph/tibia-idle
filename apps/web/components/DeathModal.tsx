@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { DeathPenaltyReport } from '@/packages/domain/src/combat';
 import { ItemSprite } from './ItemSprite';
 
@@ -12,377 +12,404 @@ interface DeathModalProps {
 }
 
 export function DeathModal({ open, report, onConfirm, onCancel }: DeathModalProps) {
+  const [showDetails, setShowDetails] = useState(false);
+  const [showRecentLog, setShowRecentLog] = useState(false);
+
   if (!open) return null;
+
+  const killer = report?.killerName || 'Monstro';
+  const consumedBlessings = report?.consumedBlessingsCount ?? 0;
+  const lostEquipCount = report?.lostEquipment?.length ?? 0;
 
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.72)',
+        backgroundColor: 'rgba(0, 0, 0, 0.82)',
+        backdropFilter: 'blur(5px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 99999,
         fontFamily: 'Verdana, Arial, sans-serif',
-        backdropFilter: 'blur(2px)',
+        userSelect: 'none',
       }}
     >
-      {/* Authentic Classic Tibia Modal Window */}
+      {/* Janela Central Gótica */}
       <div
         style={{
-          width: '510px',
+          position: 'relative',
+          width: '450px',
           maxWidth: '94vw',
-          backgroundColor: '#535353',
-          borderTop: '2px solid #8c8c8c',
-          borderLeft: '2px solid #8c8c8c',
-          borderRight: '2px solid #1f1f1f',
-          borderBottom: '2px solid #1f1f1f',
-          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.9)',
-          padding: '2px',
-          userSelect: 'none',
+          backgroundColor: '#12131c',
+          border: '2px solid #2a3144',
+          borderRadius: '6px',
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.95), inset 0 0 0 1px rgba(255, 255, 255, 0.05)',
+          padding: '24px 24px 20px 24px',
+          overflow: 'hidden',
+          animation: 'fadeIn 0.2s ease-out',
         }}
       >
-        {/* Title Bar */}
+        {/* Fita / Marcador de Página Superior Esquerda com Caveira */}
         <div
           style={{
-            backgroundColor: '#404040',
-            borderTop: '1px solid #757575',
-            borderLeft: '1px solid #757575',
-            borderRight: '1px solid #181818',
-            borderBottom: '1px solid #181818',
-            textAlign: 'center',
-            padding: '4px 0 5px 0',
-            fontSize: '11px',
-            fontWeight: '700',
-            color: '#dedede',
-            textShadow: '1px 1px 0 #000',
-            letterSpacing: '0.6px',
+            position: 'absolute',
+            top: 0,
+            left: '24px',
+            width: '28px',
+            height: '42px',
+            background: 'linear-gradient(180deg, #881337 0%, #4c0519 100%)',
+            borderLeft: '1px solid #be123c',
+            borderRight: '1px solid #be123c',
+            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '6px',
+            paddingBottom: '6px',
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.6)',
+            zIndex: 2,
           }}
         >
-          <span>💀</span>
-          <span>Você está morto</span>
-        </div>
-
-        {/* Content Box with Inset Frame */}
-        <div
-          style={{
-            margin: '3px',
-            backgroundColor: '#595959',
-            borderTop: '2px solid #242424',
-            borderLeft: '2px solid #242424',
-            borderRight: '2px solid #7f7f7f',
-            borderBottom: '2px solid #7f7f7f',
-            padding: '14px 16px 12px 16px',
-          }}
-        >
-          {/* Main Canonical Lore Text in Portuguese */}
-          <div
+          <span
             style={{
-              fontSize: '11px',
-              lineHeight: '1.45',
-              color: '#dedede',
-              textShadow: '1px 1px 0 #181818',
-              fontWeight: '700',
-              fontFamily: 'Verdana, Tahoma, sans-serif',
-              marginBottom: '12px',
+              fontSize: '13px',
+              filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.6))',
             }}
           >
-            <p style={{ margin: '0 0 8px 0' }}>
-              Ai de ti! Bravo aventureiro, você encontrou um triste destino.
-              <br />
-              Mas não se desespere, pois os deuses trarão você de volta ao mundo em troca de um pequeno sacrifício.
-            </p>
-            <p style={{ margin: '0', color: '#c7c7c7' }}>
-              Basta clicar em <strong>&apos;Ok&apos;</strong> para retornar à segurança do Templo de Thais!
-            </p>
+            💀
+          </span>
+        </div>
+
+        {/* Botão Minimizar / Fechar no Canto Superior Direito */}
+        <button
+          type="button"
+          onClick={onCancel ?? onConfirm}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#181b26',
+            border: '1px solid #2e374e',
+            borderRadius: '3px',
+            color: '#71717a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '11px',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#293247';
+            e.currentTarget.style.color = '#ffffff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#181b26';
+            e.currentTarget.style.color = '#71717a';
+          }}
+          title="Fechar"
+        >
+          ✕
+        </button>
+
+        {/* Título Principal em Tipografia Serifada */}
+        <div style={{ textAlign: 'center', marginTop: '4px' }}>
+          <h2
+            style={{
+              margin: 0,
+              fontFamily: 'Cinzel, Georgia, serif',
+              fontSize: '19px',
+              fontWeight: '700',
+              color: '#f87171',
+              letterSpacing: '0.16em',
+              textShadow: '0 0 12px rgba(248, 113, 113, 0.4)',
+            }}
+          >
+            †&nbsp;&nbsp;VOCÊ MORREU.&nbsp;&nbsp;†
+          </h2>
+
+          <div
+            style={{
+              marginTop: '10px',
+              fontSize: '13.5px',
+              fontWeight: '700',
+              color: '#ffffff',
+            }}
+          >
+            Morto por {killer}.
           </div>
 
-          {/* Detailed Penalty Report Box */}
-          {report && (
-            <div
+          <div
+            style={{
+              marginTop: '3px',
+              fontSize: '12px',
+              color: '#94a3b8',
+            }}
+          >
+            Você vai reviver no templo da cidade.
+          </div>
+        </div>
+
+        {/* Divisor Superior */}
+        <div
+          style={{
+            margin: '16px 0 14px 0',
+            height: '1px',
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+          }}
+        />
+
+        {/* Resumo da Perda de Experiência e Nível */}
+        {report ? (
+          <div style={{ textAlign: 'center', padding: '0 6px' }}>
+            <p
               style={{
-                backgroundColor: '#2a2a2a',
-                borderTop: '2px solid #141414',
-                borderLeft: '2px solid #141414',
-                borderRight: '2px solid #555555',
-                borderBottom: '2px solid #555555',
-                padding: '10px 12px',
-                marginBottom: '12px',
-                fontSize: '11px',
-                color: '#e0e0e0',
+                margin: 0,
+                fontSize: '12px',
+                lineHeight: '1.5',
+                color: '#94a3b8',
               }}
             >
-              <div
-                style={{
-                  fontSize: '11px',
-                  fontWeight: '700',
-                  color: '#ff7373',
-                  textShadow: '1px 1px 0 #000',
-                  marginBottom: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  borderBottom: '1px solid #3d3d3d',
-                  paddingBottom: '4px',
-                }}
-              >
-                <span>⚔️ Penalidades Sofridas pela Morte:</span>
-                <span style={{ fontSize: '10px', color: '#b0b0b0', fontWeight: 'normal' }}>
-                  Taxa: {report.expPercent}% XP / {report.skillsLost[0] ? `${report.expPercent}% Skills` : 'Skills'}
+              Você perdeu{' '}
+              <strong style={{ color: '#f1f5f9' }}>
+                {report.lostExp.toLocaleString('pt-BR')} de experiência
+              </strong>
+              {report.isDelevel && (
+                <span>
+                  {' '}e{' '}
+                  <strong style={{ color: '#f87171' }}>
+                    {report.currentLevel - report.newLevel} level
+                    {report.currentLevel - report.newLevel > 1 ? 's' : ''}
+                  </strong>
                 </span>
-              </div>
-
-              {/* XP and Level Loss */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#d0d0d0' }}>✨ Experiência (XP):</span>
-                  <span style={{ fontWeight: '700', color: '#ff6666' }}>
-                    -{report.lostExp.toLocaleString('pt-BR')} XP (-{report.expPercent}%)
-                  </span>
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontSize: '10px',
-                    color: '#9e9e9e',
-                    paddingLeft: '14px',
-                  }}
-                >
-                  <span>Anterior: {report.currentExp.toLocaleString('pt-BR')}</span>
-                  <span>Nova: {report.newExp.toLocaleString('pt-BR')} XP</span>
-                </div>
-
-                {/* Level / De-level */}
-                <div
-                  style={{
-                    marginTop: '2px',
-                    padding: '3px 6px',
-                    backgroundColor: report.isDelevel ? 'rgba(180, 20, 20, 0.25)' : 'rgba(40, 100, 40, 0.15)',
-                    border: `1px solid ${report.isDelevel ? '#802020' : '#2b502b'}`,
-                    borderRadius: '2px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span style={{ fontWeight: '700', color: report.isDelevel ? '#ff5252' : '#88d888' }}>
-                    {report.isDelevel ? '🔻 Nível (De-level):' : '🛡️ Nível do Personagem:'}
-                  </span>
-                  <span style={{ fontWeight: '700', color: report.isDelevel ? '#ff5252' : '#d8d8d8' }}>
-                    {report.isDelevel
-                      ? `Reduzido do Nível ${report.currentLevel} ➔ Nível ${report.newLevel}!`
-                      : `Permanece no Nível ${report.currentLevel}`}
-                  </span>
-                </div>
-              </div>
-
-              {/* Skills Loss */}
-              {report.skillsLost.length > 0 && (
-                <div style={{ marginTop: '8px', borderTop: '1px solid #383838', paddingTop: '6px' }}>
-                  <div style={{ color: '#82b1ff', fontWeight: '700', fontSize: '10px', marginBottom: '4px' }}>
-                    🗡️ Habilidades Reduzidas:
-                  </div>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                      gap: '4px 8px',
-                      fontSize: '10px',
-                    }}
-                  >
-                    {report.skillsLost.map((skill) => (
-                      <div
-                        key={skill.skill}
-                        style={{
-                          backgroundColor: '#202020',
-                          padding: '2px 6px',
-                          border: '1px solid #333',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <span style={{ color: '#ccc' }}>{skill.name}:</span>
-                        <span style={{ fontWeight: '700', color: skill.lost > 0 ? '#ff8585' : '#85e085' }}>
-                          {skill.before} ➔ {skill.after} {skill.lost > 0 ? `(-${skill.lost})` : ''}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               )}
+              , além de uma parte das suas skills.
+            </p>
 
-              {/* Hunt Loot Loss */}
-              <div style={{ marginTop: '8px', borderTop: '1px solid #383838', paddingTop: '6px' }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '4px',
-                  }}
-                >
-                  <span style={{ color: '#f3c362', fontWeight: '700', fontSize: '10px' }}>
-                    🎒 Loot Coletado na Caçada:
-                  </span>
-                  <span style={{ fontSize: '10px', color: report.totalLootItemsLost > 0 ? '#ff7373' : '#88d888' }}>
-                    {report.loseLootEnabled
-                      ? report.totalLootItemsLost > 0
-                        ? `Perdido (${report.totalLootItemsLost} ${report.totalLootItemsLost === 1 ? 'item' : 'itens'})`
-                        : 'Nenhum loot na sessão'
-                      : 'Preservado pelo servidor'}
-                  </span>
-                </div>
-
-                {report.loseLootEnabled && report.lostLoot.length > 0 && (
-                  <div
-                    style={{
-                      maxHeight: '60px',
-                      overflowY: 'auto',
-                      backgroundColor: '#1e1e1e',
-                      border: '1px solid #333',
-                      padding: '4px',
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '4px',
-                    }}
-                  >
-                    {report.lostLoot.map((item, idx) => (
-                      <div
-                        key={`${item.name}-${idx}`}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          backgroundColor: '#282828',
-                          border: '1px solid #404040',
-                          padding: '1px 5px',
-                          fontSize: '10px',
-                          color: '#dedede',
-                        }}
-                      >
-                        <ItemSprite itemId={item.itemId} label={item.name} />
-                        <span>{item.name}</span>
-                        <span style={{ color: '#f3c362', fontWeight: '700' }}>x{item.amount}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Protection Notice */}
+            {lostEquipCount > 0 && (
               <div
                 style={{
                   marginTop: '8px',
-                  borderTop: '1px solid #383838',
-                  paddingTop: '6px',
-                  fontSize: '9.5px',
-                  color: '#7bc87b',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
+                  fontSize: '11px',
+                  color: '#fca5a5',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
                 }}
               >
-                <span>🛡️</span>
-                <span>Seus equipamentos equipados e os itens guardados na Bolsa principal foram preservados.</span>
+                ⚠️ {lostEquipCount} item(ns) equipado(s) perdido(s) na morte!
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
+            Calculando penalidades da morte...
+          </div>
+        )}
 
-          {/* Canonical Tibia Etched Horizontal Divider */}
+        {/* Divisor Inferior */}
+        <div
+          style={{
+            margin: '14px 0 16px 0',
+            height: '1px',
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+          }}
+        />
+
+        {/* Notificação / Pill de Consumo de Blessings */}
+        <div
+          style={{
+            backgroundColor: 'rgba(45, 17, 30, 0.35)',
+            border: '1px solid rgba(244, 63, 94, 0.25)',
+            borderRadius: '6px',
+            padding: '10px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
           <div
             style={{
-              height: '0px',
-              borderTop: '1px solid #2a2a2a',
-              borderBottom: '1px solid #7a7a7a',
-              margin: '12px 0 10px 0',
-            }}
-          />
-
-          {/* Action Buttons */}
-          <div
-            style={{
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              border: '1px solid rgba(244, 63, 94, 0.5)',
               display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '8px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fda4af',
+              fontSize: '11px',
+              flexShrink: 0,
             }}
           >
-            <button
-              type="button"
-              onClick={onConfirm}
-              style={{
-                minWidth: '70px',
-                height: '24px',
-                backgroundColor: '#525252',
-                borderTop: '2px solid #8a8a8a',
-                borderLeft: '2px solid #8a8a8a',
-                borderRight: '2px solid #202020',
-                borderBottom: '2px solid #202020',
-                color: '#ffffff',
-                fontSize: '11px',
-                fontWeight: '700',
-                textShadow: '1px 1px 0 #000',
-                cursor: 'pointer',
-                fontFamily: 'Verdana, Arial, sans-serif',
-                padding: '0 12px',
-              }}
-              onMouseDown={(e) => {
-                e.currentTarget.style.borderTop = '2px solid #202020';
-                e.currentTarget.style.borderLeft = '2px solid #202020';
-                e.currentTarget.style.borderRight = '2px solid #8a8a8a';
-                e.currentTarget.style.borderBottom = '2px solid #8a8a8a';
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.borderTop = '2px solid #8a8a8a';
-                e.currentTarget.style.borderLeft = '2px solid #8a8a8a';
-                e.currentTarget.style.borderRight = '2px solid #202020';
-                e.currentTarget.style.borderBottom = '2px solid #202020';
-              }}
-            >
-              Ok
-            </button>
-
-            <button
-              type="button"
-              onClick={onCancel ?? onConfirm}
-              style={{
-                minWidth: '70px',
-                height: '24px',
-                backgroundColor: '#525252',
-                borderTop: '2px solid #8a8a8a',
-                borderLeft: '2px solid #8a8a8a',
-                borderRight: '2px solid #202020',
-                borderBottom: '2px solid #202020',
-                color: '#c0c0c0',
-                fontSize: '11px',
-                fontWeight: '700',
-                textShadow: '1px 1px 0 #000',
-                cursor: 'pointer',
-                fontFamily: 'Verdana, Arial, sans-serif',
-                padding: '0 12px',
-              }}
-              onMouseDown={(e) => {
-                e.currentTarget.style.borderTop = '2px solid #202020';
-                e.currentTarget.style.borderLeft = '2px solid #202020';
-                e.currentTarget.style.borderRight = '2px solid #8a8a8a';
-                e.currentTarget.style.borderBottom = '2px solid #8a8a8a';
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.borderTop = '2px solid #8a8a8a';
-                e.currentTarget.style.borderLeft = '2px solid #8a8a8a';
-                e.currentTarget.style.borderRight = '2px solid #202020';
-                e.currentTarget.style.borderBottom = '2px solid #202020';
-              }}
-            >
-              Cancelar
-            </button>
+            †
           </div>
+
+          <span
+            style={{
+              fontSize: '12px',
+              color: '#fda4af',
+              fontWeight: '500',
+            }}
+          >
+            {consumedBlessings > 0
+              ? `Suas ${consumedBlessings} blessing${consumedBlessings > 1 ? 's' : ''} foram consumidas.`
+              : 'Nenhuma blessing ativa para proteger sua alma.'}
+          </span>
         </div>
+
+        {/* Botão de Expansão de Detalhes */}
+        <div style={{ textAlign: 'center', marginTop: '14px' }}>
+          <button
+            type="button"
+            onClick={() => setShowDetails((prev) => !prev)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#94a3b8',
+              fontSize: '11px',
+              textDecoration: 'underline dotted',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            {showDetails ? 'Ocultar detalhes' : 'Ver detalhes'}
+          </button>
+        </div>
+
+        {/* Detalhes Expandidos (Skills perdidas e Equipamentos) */}
+        {showDetails && report && (
+          <div
+            style={{
+              marginTop: '10px',
+              backgroundColor: '#0d0f16',
+              border: '1px solid #252b3d',
+              borderRadius: '4px',
+              padding: '8px 10px',
+              maxHeight: '140px',
+              overflowY: 'auto',
+              fontSize: '10.5px',
+            }}
+          >
+            <div style={{ color: '#818cf8', fontWeight: '700', marginBottom: '6px' }}>
+              Taxa de Perda Aplicada: {report.expPercent}% XP e Skills
+            </div>
+
+            {report.skillsLost.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {report.skillsLost.map((sk) => (
+                  <div key={sk.skill} style={{ display: 'flex', justifyContent: 'space-between', color: '#cbd5e1' }}>
+                    <span>{sk.name}:</span>
+                    <span style={{ color: sk.lost > 0 ? '#f87171' : '#4ade80' }}>
+                      {sk.before} ➔ {sk.after} {sk.lost > 0 ? `(-${sk.lost})` : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {report.lostEquipment && report.lostEquipment.length > 0 && (
+              <div style={{ marginTop: '6px', borderTop: '1px solid #1f2434', paddingTop: '4px' }}>
+                <div style={{ color: '#f87171', fontWeight: '700', marginBottom: '3px' }}>Itens Perdidos:</div>
+                {report.lostEquipment.map((eq, idx) => (
+                  <div key={idx} style={{ color: '#fca5a5', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <ItemSprite itemId={eq.itemId} label={eq.name} />
+                    <span>{eq.name} ({eq.slot})</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Botão Ver o Último Minuto */}
+        <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'center' }}>
+          <button
+            type="button"
+            onClick={() => setShowRecentLog((prev) => !prev)}
+            style={{
+              backgroundColor: '#151824',
+              border: '1px solid #2e354a',
+              borderRadius: '4px',
+              color: '#cbd5e1',
+              fontSize: '11px',
+              padding: '6px 14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#1f2538';
+              e.currentTarget.style.borderColor = '#475574';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#151824';
+              e.currentTarget.style.borderColor = '#2e354a';
+            }}
+          >
+            <span>▶</span>
+            <span>{showRecentLog ? 'Fechar registro' : 'Ver o último minuto'}</span>
+          </button>
+        </div>
+
+        {/* Registro do Último Minuto */}
+        {showRecentLog && (
+          <div
+            style={{
+              marginTop: '10px',
+              backgroundColor: '#0a0b10',
+              border: '1px solid #202636',
+              borderRadius: '4px',
+              padding: '8px',
+              maxHeight: '90px',
+              overflowY: 'auto',
+              fontSize: '10px',
+              color: '#94a3b8',
+              lineHeight: '1.4',
+            }}
+          >
+            <div style={{ color: '#e2e8f0', fontWeight: '700', marginBottom: '4px' }}>Últimos Registros:</div>
+            <div>[Combate] O herói foi cercado e sofreu dano crítico fatal.</div>
+            <div style={{ color: '#f87171' }}>[Morte] Derrotado por {killer}.</div>
+          </div>
+        )}
+
+        {/* Botão Principal Reviver */}
+        <button
+          type="button"
+          onClick={onConfirm}
+          style={{
+            marginTop: '16px',
+            width: '100%',
+            height: '42px',
+            backgroundColor: '#27354d',
+            background: 'linear-gradient(180deg, #2c3c58 0%, #1e293d 100%)',
+            border: '1px solid #435b86',
+            borderRadius: '5px',
+            color: '#ffffff',
+            fontSize: '13px',
+            fontWeight: '700',
+            letterSpacing: '0.6px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+            transition: 'all 0.12s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(180deg, #374c70 0%, #25334c 100%)';
+            e.currentTarget.style.borderColor = '#5675ac';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(180deg, #2c3c58 0%, #1e293d 100%)';
+            e.currentTarget.style.borderColor = '#435b86';
+          }}
+        >
+          Reviver
+        </button>
       </div>
     </div>
   );

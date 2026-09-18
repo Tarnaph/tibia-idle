@@ -164,18 +164,30 @@ export function getSpellAreaTiles(
   return getDirectionalSpellTiles(casterPos, direction, spell.name, spell.range);
 }
 
-export function isDirectionalSpell(spell: { name?: string; words?: string; area?: string }): boolean {
-  if (spell.area === 'wave-4') return true;
-  const lowerName = (spell.name || '').toLowerCase();
-  const lowerWords = (spell.words || '').toLowerCase();
+export function isDirectionalSpell(spell: { name?: string; words?: string; area?: string } | string): boolean {
+  if (!spell) return false;
+  const spellObj = typeof spell === 'string' ? { words: spell, name: spell } : spell;
+  if (spellObj.area === 'wave-4') return true;
+  const lowerName = (spellObj.name || '').toLowerCase();
+  const lowerWords = (spellObj.words || '').toLowerCase();
+
+  // Whitelist of specific directional wave words (Sorcerer & Druid waves)
+  const isWaveWords = (
+    lowerWords.includes('flam hur') ||
+    lowerWords.includes('frigo hur') ||
+    lowerWords.includes('tera hur') ||
+    lowerWords.includes('vis hur')
+  );
+
   return (
     lowerName.includes('wave') ||
     lowerName.includes('beam') ||
-    lowerWords.includes('hur') ||
+    isWaveWords ||
     lowerWords.includes('vis lux') ||
     lowerWords.includes('gran vis lux')
   );
 }
+
 
 export function calculateBestSpellDirection(
   casterPos: { x: number; y: number; z?: number },

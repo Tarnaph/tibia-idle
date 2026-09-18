@@ -157,6 +157,9 @@ export class PrismaPersistenceManager {
             : Array.isArray((player as any).hotbar)
             ? JSON.stringify((player as any).hotbar)
             : undefined,
+          blessingsJson: Array.isArray((player as any).blessings)
+            ? JSON.stringify((player as any).blessings)
+            : undefined,
           bestiaryKillsJson: finalBestiaryKillsJson,
           trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
             ? (player as any).trackedBestiaryId
@@ -393,14 +396,24 @@ export class PrismaPersistenceManager {
           }
         } catch (e) { bestiaryKills = {}; }
       }
+      let blessings: number[] = [];
+      if ((char as any).blessingsJson) {
+        try {
+          const parsed = JSON.parse((char as any).blessingsJson);
+          if (Array.isArray(parsed)) blessings = parsed;
+        } catch (e) { blessings = []; }
+      }
+
       return {
         ...char,
         hotbar,
         hotbarConfigs,
+        blessings,
         bestiaryKills,
         trackedBestiaryId: (char as any).trackedBestiaryId || null,
         bossPoints: (char as any).bossPoints ?? 0,
       };
+
     } catch (err: any) {
       console.warn(`[PrismaPersistenceManager] Failed to load character ${characterId}:`, err.message);
       return null;

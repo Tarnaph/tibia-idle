@@ -3623,6 +3623,23 @@ Plans:
 
 **Status:** Complete
 
+---
+
+### Phase 190: Sistema de Blessings, Revamp da Tela de Morte, Loading Screen Seguro e Correção de Magias
+
+**Goal:** Implementar o sistema canônico de Blessings do Tibia com o modal "TEMPLO — BLESSINGS", reformular o modal de morte "VOCÊ MORREU" com perdas reais e consumo de blessings, desativar o skip prematuro do ExuraLoadingScreen e corrigir a classificação de magias direcionais para que exori hur e magias de alvo único funcionem com precisão absoluta.
+
+**Plans:**
+- [ ] 190-01-PLAN: Correção de isDirectionalSpell em packages/domain/src/spells.ts e suporte em ThaisCityRoom.ts.
+- [ ] 190-02-PLAN: Remoção de texto e atalhos de skip em ExuraLoadingScreen.tsx.
+- [ ] 190-03-PLAN: Modelagem de blessings, regras matemáticas e persistência Prisma (blessingsJson).
+- [ ] 190-04-PLAN: Modal autêntico "TEMPLO — BLESSINGS" (BlessingsModal.tsx) e integração no BottomDock.
+- [ ] 190-05-PLAN: Revamp visual e lógico do DeathModal.tsx com perdas reais e consumo de blessings.
+- [ ] 190-06-PLAN: Suíte de testes automatizados, typecheck, commit e deploy na VPS 187.7.16.210.
+
+**Status:** In Progress
+
+
 
 
 

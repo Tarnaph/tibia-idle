@@ -21,6 +21,8 @@ import type {
   LootStack, MonsterVariantDefinition, PartyActorState, SessionState, TargetSelectionStrategy,
 } from './types';
 import { tickImbuementTime } from './imbuements';
+import { calculateDeathProtection } from './blessings';
+import { findEquipment } from './equipment';
 import type { MonsterDefinition } from '../../content-schema/src';
 import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
 
@@ -2032,8 +2034,8 @@ function enemyAttacks(state: GameState, content: GameContent): void {
     addLog(state, `${enemy.name} causou ${damage} em ${character.name}.`);
     if (target.hp <= 0) {
       target.alive = false; target.path = [];
-      encounter.events.push({ type: 'player-death', characterId: target.characterId });
-      addLog(state, `${character.name} foi derrotado.`);
+      encounter.events.push({ type: 'player-death', characterId: target.characterId, killerName: enemy.name } as any);
+      addLog(state, `${character.name} foi derrotado por ${enemy.name}.`);
     }
     syncCharacterResources(state, target);
   }
@@ -2390,6 +2392,8 @@ export interface DeathPenaltyOptions {
   expLossPercent?: number;
   skillLossPercent?: number;
   loseLoot?: boolean;
+  killerName?: string;
+  content?: GameContent;
 }
 
 export interface SkillLossDetail {
@@ -2406,6 +2410,12 @@ export interface LostLootItemDetail {
   amount: number;
 }
 
+export interface LostEquipmentItemDetail {
+  slot: CharacterEquipmentSlot;
+  itemId: number;
+  name: string;
+}
+
 export interface DeathPenaltyReport {
   expPercent: number;
   currentExp: number;
@@ -2418,6 +2428,10 @@ export interface DeathPenaltyReport {
   lostLoot: LostLootItemDetail[];
   totalLootItemsLost: number;
   loseLootEnabled: boolean;
+  consumedBlessingsCount: number;
+  blessingsProtectionPercent: number;
+  lostEquipment: LostEquipmentItemDetail[];
+  killerName?: string;
 }
 
 export function calculateDeathPenaltyReport(
@@ -2430,10 +2444,11 @@ export function calculateDeathPenaltyReport(
   const rawSkillPercent = options?.skillLossPercent ?? cfg.deathPenaltySkillPercent ?? 10;
   const loseLootEnabled = options?.loseLoot ?? cfg.deathPenaltyLoseLoot ?? true;
 
+  const protection = calculateDeathProtection(character.blessings || []);
   const isPromoted = Boolean(character.promotion) || ['Master Sorcerer', 'Elder Druid', 'Royal Paladin', 'Elite Knight'].includes(character.vocation);
   const promoMultiplier = isPromoted ? 0.70 : 1.0;
-  const expPercent = Math.max(0, rawExpPercent * promoMultiplier);
-  const skillPercent = Math.max(0, rawSkillPercent * promoMultiplier);
+  const expPercent = Math.max(0, rawExpPercent * promoMultiplier * protection.effectiveLossRatio);
+  const skillPercent = Math.max(0, rawSkillPercent * promoMultiplier * protection.effectiveLossRatio);
 
   const currentExp = character.experience;
   const lostExp = expPercent > 0 && currentExp > 0 ? Math.floor(currentExp * (expPercent / 100)) : 0;
@@ -2483,6 +2498,25 @@ export function calculateDeathPenaltyReport(
 
   const totalLootItemsLost = lostLoot.reduce((sum, item) => sum + item.amount, 0);
 
+  // Equipment loss based on blessings protection
+  const lostEquipment: LostEquipmentItemDetail[] = [];
+  if (protection.equipLossChancePercent > 0 && character.equipment) {
+    const equipKeys = Object.keys(character.equipment) as CharacterEquipmentSlot[];
+    for (const slot of equipKeys) {
+      const itemId = character.equipment[slot];
+      if (itemId) {
+        if (Math.random() * 100 < protection.equipLossChancePercent) {
+          const itemDef = options?.content?.equipment ? findEquipment(options.content.equipment, itemId) : undefined;
+          lostEquipment.push({
+            slot,
+            itemId,
+            name: itemDef?.name || `Item #${itemId}`,
+          });
+        }
+      }
+    }
+  }
+
   return {
     expPercent,
     currentExp,
@@ -2495,6 +2529,10 @@ export function calculateDeathPenaltyReport(
     lostLoot,
     totalLootItemsLost,
     loseLootEnabled,
+    consumedBlessingsCount: protection.blessingsCount,
+    blessingsProtectionPercent: protection.lossReductionPercent,
+    lostEquipment,
+    killerName: options?.killerName,
   };
 }
 
@@ -2510,13 +2548,19 @@ export function respawnInTemple(
   const loseLoot = options?.loseLoot ?? cfg.deathPenaltyLoseLoot ?? true;
 
   const charMap = new Map(next.session.characters.map((c) => [c.id, c]));
+  let totalBlessingsConsumed = 0;
+
   for (const character of next.session.characters) {
+    const protection = calculateDeathProtection(character.blessings || []);
+    if (protection.blessingsCount > 0) {
+      totalBlessingsConsumed = Math.max(totalBlessingsConsumed, protection.blessingsCount);
+    }
     const isPromoted = Boolean(character.promotion) || ['Master Sorcerer', 'Elder Druid', 'Royal Paladin', 'Elite Knight'].includes(character.vocation);
     const promoMultiplier = isPromoted ? 0.70 : 1.0;
-    const expLossPercent = Math.max(0, rawExpLossPercent * promoMultiplier);
-    const skillLossPercent = Math.max(0, rawSkillLossPercent * promoMultiplier);
+    const expLossPercent = Math.max(0, rawExpLossPercent * promoMultiplier * protection.effectiveLossRatio);
+    const skillLossPercent = Math.max(0, rawSkillLossPercent * promoMultiplier * protection.effectiveLossRatio);
 
-    // 1. XP Penalty: lose configured % of experience (default 10%, 7% if promoted)
+    // 1. XP Penalty: lose configured % of experience (mitigated by blessings & promotion)
     if (expLossPercent > 0 && character.experience > 0) {
       const expLost = Math.floor(character.experience * (expLossPercent / 100));
       character.experience = Math.max(0, character.experience - expLost);
@@ -2532,7 +2576,7 @@ export function respawnInTemple(
       }
     }
 
-    // 2. Skill Penalty: lose configured % in all skills (default 10%)
+    // 2. Skill Penalty: lose configured % in all skills (mitigated by blessings)
     if (skillLossPercent > 0 && character.skills) {
       const skillsToReduce: Array<keyof typeof character.skills> = [
         'sword', 'axe', 'club', 'distance', 'shielding', 'fist', 'magicLevel',
@@ -2547,6 +2591,20 @@ export function respawnInTemple(
       }
     }
 
+    // 3. Equipment Loss if without full blessings
+    if (protection.equipLossChancePercent > 0 && character.equipment) {
+      const equipKeys = Object.keys(character.equipment) as CharacterEquipmentSlot[];
+      for (const slot of equipKeys) {
+        const itemId = character.equipment[slot];
+        if (itemId && Math.random() * 100 < protection.equipLossChancePercent) {
+          character.equipment[slot] = null;
+        }
+      }
+    }
+
+    // 4. Always consume ALL blessings upon death
+    character.blessings = [];
+
     character.currentHp = character.maxHp;
     character.currentMana = character.maxMana;
     character.combatState.targetId = null;
@@ -2554,7 +2612,7 @@ export function respawnInTemple(
     character.combatState.groupCooldowns = {};
   }
 
-  // 3. Loot Penalty: lose accumulated hunt loot if enabled (default true)
+  // 5. Loot Penalty: lose accumulated hunt loot if enabled (default true)
   let lostLootCount = 0;
   if (loseLoot && next.session.loot && next.session.loot.length > 0) {
     lostLootCount = next.session.loot.reduce((sum, item) => sum + item.amount, 0);
@@ -2571,9 +2629,11 @@ export function respawnInTemple(
   }
   next.encounter.status = 'completed';
   next.encounter.events.push({ type: 'hunt-complete' });
-  addLog(next, `Alas! Você morreu e renasceu no Templo de Thais. Penalidade: -${rawExpLossPercent}% XP, -${rawSkillLossPercent}% Skills${loseLoot ? `, e o loot da caçada foi perdido (${lostLootCount} itens)` : ''}.`);
+  const blessingsMsg = totalBlessingsConsumed > 0 ? ` (${totalBlessingsConsumed} blessings consumidas)` : ' (sem blessings)';
+  addLog(next, `Alas! Você morreu e renasceu no Templo de Thais. Penalidade calculada${blessingsMsg}${loseLoot ? `, e o loot da caçada foi perdido (${lostLootCount} itens)` : ''}.`);
   return next;
 }
+
 
 export function synchronizePartyWithEncounter(state: GameState, content: GameContent): GameState {
   const next = cloneState(state); const encounter = next.encounter;

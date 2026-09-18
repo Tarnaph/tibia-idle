@@ -101,6 +101,7 @@ export interface CharacterState {
     manaSimulationRemainderMs: number;
   };
   equipmentAttributes?: Partial<Record<CharacterEquipmentSlot, any>>;
+  blessings?: number[];
 }
 
 export interface PartyActorState {

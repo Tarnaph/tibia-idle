@@ -449,6 +449,8 @@ export class CharacterService {
       bossPoints?: number;
       vocationName?: string;
       promotion?: string;
+      blessings?: number[] | string;
+      blessingsJson?: string | null;
       avatarId?: number;
       direction?: string;
       saveVersion?: number;
@@ -663,6 +665,11 @@ export class CharacterService {
         } else {
           updateData.hotbarJson = typeof data.hotbar === 'string' ? data.hotbar : JSON.stringify(data.hotbar);
         }
+      }
+      if (data.blessings !== undefined) {
+        updateData.blessingsJson = typeof data.blessings === 'string' ? data.blessings : JSON.stringify(data.blessings);
+      } else if (data.blessingsJson !== undefined) {
+        updateData.blessingsJson = data.blessingsJson;
       }
       if (data.vocationName !== undefined) {
         if (existing?.vocationName && existing.vocationName.toLowerCase() !== 'none' && existing.vocationName.toLowerCase() !== 'no vocation') {

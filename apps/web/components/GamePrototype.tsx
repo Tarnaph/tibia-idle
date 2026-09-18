@@ -18,7 +18,7 @@ import {
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
   selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction, findHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations, getHuntWorldEntrance,
-  calculateDeathPenaltyReport, type DeathPenaltyReport,
+  calculateDeathPenaltyReport, type DeathPenaltyReport, buyBlessing, buyAllMissingBlessings,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate, type TrainingDummyInfo,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
@@ -48,6 +48,7 @@ import { BestiaryTrackerHUD } from './BestiaryTrackerHUD';
 import { FloatingPartyHUD } from './party/FloatingPartyHUD';
 import { CANONICAL_BESTIARY_MONSTERS, getCyclopediaItems, getBestiaryMonsters, type BestiaryMonster } from '../lib/cyclopediaData';
 import { DeathModal } from './DeathModal';
+import { BlessingsModal } from './BlessingsModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { GameModalProvider, useGameModal } from '@/apps/web/contexts/GameModalContext';
@@ -399,6 +400,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const chatWindowRef = useRef<ChatWindowHandle>(null);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
+  const [isBlessingsModalOpen, setIsBlessingsModalOpen] = useState(false);
+  const [lastKillerName, setLastKillerName] = useState<string>('Criatura das Trevas');
   const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [saveErrorAlert, setSaveErrorAlert] = useState<string | null>(null);
@@ -2648,6 +2651,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   // When defeated in hunt or dead, open authentic "You are dead" modal
   useEffect(() => {
     if (mode === 'hunt' && encounter.status === 'defeated') {
+      const deathEvt = encounter.events?.find((e: any) => e.type === 'player-death');
+      const killer = (deathEvt as any)?.killerName || encounter.enemies?.find((e) => e.alive)?.name || encounter.enemies?.[0]?.name || encounter.hunt?.name || 'Monstro';
+      setLastKillerName(killer);
       setIsDeathModalOpen(true);
       setOverheadMessages((prev) => [
         ...prev,
@@ -2660,7 +2666,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         },
       ]);
     }
-  }, [mode, encounter.status, activeCharacter.name]);
+  }, [mode, encounter.status, encounter.events, encounter.enemies, encounter.hunt, activeCharacter.name]);
 
   const deathPenaltyReport = useMemo(() => {
     if (!isDeathModalOpen || !activeCharacter) return undefined;
@@ -2672,9 +2678,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         expLossPercent: cfg.deathPenaltyExpPercent ?? 10,
         skillLossPercent: cfg.deathPenaltySkillPercent ?? 10,
         loseLoot: cfg.deathPenaltyLoseLoot ?? true,
+        killerName: lastKillerName,
+        content,
       }
     );
-  }, [isDeathModalOpen, activeCharacter, game.session.loot]);
+  }, [isDeathModalOpen, activeCharacter, game.session.loot, lastKillerName, content]);
 
   const handleConfirmDeath = useCallback(() => {
     setIsDeathModalOpen(false);
@@ -3547,6 +3555,60 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
   };
 
+  const handleBuyBlessing = (blessingId: number) => {
+    if (!activeCharacter) return;
+    setGame((current) => {
+      const res = buyBlessing(current, activeCharacter.id, blessingId);
+      if (res.ok) {
+        setSaleMessage(`Bênção adquirida com sucesso! -${(res.costPaid || 0).toLocaleString('pt-BR')} gp`);
+        const updatedChar = res.state.session.characters.find((c) => c.id === activeCharacter.id);
+        if (updatedChar) {
+          const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+          if (token && updatedChar.id && !updatedChar.id.startsWith('char-guest')) {
+            fetch(`/api/characters/${updatedChar.id}/save`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({
+                blessings: updatedChar.blessings,
+              }),
+            }).catch(() => {});
+          }
+        }
+        return res.state;
+      } else if (res.error) {
+        setSaleMessage(res.error);
+      }
+      return current;
+    });
+  };
+
+  const handleBlessAll = () => {
+    if (!activeCharacter) return;
+    setGame((current) => {
+      const res = buyAllMissingBlessings(current, activeCharacter.id);
+      if (res.ok) {
+        setSaleMessage(`Todas as bênçãos adquiridas com sucesso! -${(res.costPaid || 0).toLocaleString('pt-BR')} gp`);
+        const updatedChar = res.state.session.characters.find((c) => c.id === activeCharacter.id);
+        if (updatedChar) {
+          const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+          if (token && updatedChar.id && !updatedChar.id.startsWith('char-guest')) {
+            fetch(`/api/characters/${updatedChar.id}/save`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({
+                blessings: updatedChar.blessings,
+              }),
+            }).catch(() => {});
+          }
+        }
+        return res.state;
+      } else if (res.error) {
+        setSaleMessage(res.error);
+      }
+      return current;
+    });
+  };
+
   // Proactively display celebratory promotion modal once character reaches Level 20 in safe area
   useEffect(() => {
     if (
@@ -4169,6 +4231,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onOpenQuickSell={() => setQuickSellOpen(true)}
         onOpenTraining={handleOpenTrainingMenu}
         onOpenImbuements={() => setImbuingModalOpen(true)}
+        onOpenBlessings={() => setIsBlessingsModalOpen(true)}
         onSelectHunt={() => {
           setHuntSelectorTab('CAÇADAS');
           setHuntSelectorOpen(true);
@@ -4466,6 +4529,15 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         report={deathPenaltyReport}
         onConfirm={handleConfirmDeath}
         onCancel={handleConfirmDeath}
+      />
+
+      <BlessingsModal
+        open={isBlessingsModalOpen}
+        character={activeCharacter}
+        gold={game.session.gold}
+        onClose={() => setIsBlessingsModalOpen(false)}
+        onBuyBlessing={handleBuyBlessing}
+        onBlessAll={handleBlessAll}
       />
 
       <FriendsWindow

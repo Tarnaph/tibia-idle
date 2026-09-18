@@ -164,30 +164,6 @@ export function ExuraLoadingScreen({
     let finishTimeoutId: NodeJS.Timeout;
     let isHandled = false;
 
-    const handleSkip = () => {
-      void unlockAudio();
-      assetPreloader.requestSkip();
-
-      if (!waitForAssets || assetPreloader.isEssentialComplete()) {
-        if (isHandled) return;
-        isHandled = true;
-        setProgress(100);
-        setIsFadingOut(true);
-        cancelAnimationFrame(animationFrameId);
-        finishTimeoutId = setTimeout(() => {
-          setIsVisible(false);
-          setIsFadingOut(false);
-          onFinishRef.current?.();
-        }, 250);
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') {
-        handleSkip();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
 
     const tick = (now: number) => {
       if (isHandled) return;
@@ -230,7 +206,6 @@ export function ExuraLoadingScreen({
     return () => {
       cancelAnimationFrame(animationFrameId);
       clearTimeout(finishTimeoutId);
-      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [active, durationMs, waitForAssets]);
 
@@ -246,16 +221,6 @@ export function ExuraLoadingScreen({
       className="exura-loading-overlay"
       onClick={() => {
         void unlockAudio();
-        assetPreloader.requestSkip();
-        if (!waitForAssets || assetPreloader.isEssentialComplete()) {
-          setProgress(100);
-          setIsFadingOut(true);
-          setTimeout(() => {
-            setIsVisible(false);
-            setIsFadingOut(false);
-            onFinishRef.current?.();
-          }, 200);
-        }
       }}
       style={{
         position: 'fixed',
@@ -610,19 +575,6 @@ export function ExuraLoadingScreen({
             }}
           >
             {(waitForAssets && preloaderMessage) || message} ({Math.round(progress)}%)
-          </p>
-          <p
-            style={{
-              margin: '0.35rem 0 0 0',
-              fontFamily: 'sans-serif',
-              fontSize: '0.75rem',
-              color: 'rgba(224, 201, 166, 0.6)',
-              letterSpacing: '0.04em',
-              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))',
-              pointerEvents: 'none',
-            }}
-          >
-            Clique na tela ou pressione qualquer tecla para entrar imediatamente
           </p>
         </div>
       </div>

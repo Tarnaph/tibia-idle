@@ -79,6 +79,7 @@ export async function POST(
       replaceFullInventory: typeof body.replaceFullInventory === 'boolean' ? body.replaceFullInventory : undefined,
       hotbar: body.hotbar,
       hotbarConfigs: body.hotbarConfigs,
+      blessings: body.blessings,
       bestiaryKills: body.bestiaryKills,
       trackedBestiaryId: body.trackedBestiaryId,
       bossPoints: typeof body.bossPoints === 'number' ? body.bossPoints : undefined,
