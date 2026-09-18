@@ -5,7 +5,7 @@ import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { ChatMessageSchema } from '../schemas/ChatMessageSchema';
 import { verifyAuthToken, VOCATION_CONFIGS, XpRateLimiter, ServerCharacterContextRegistry } from '../../../auth/src';
-import { experienceForLevel, levelForExperience, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, getHuntWorldEntrance, type TrainableSkill, type GameContent } from '../../../domain/src';
+import { experienceForLevel, levelForExperience, calculateMaxStamina, tickStamina, canEnterHunt, addTrainingTries, vocationFor, initialHunts, getWave4Tiles, getHuntWorldEntrance, getPvPTierInfo, checkRankPromotion, PVP_ARENA_SPAWNS, type TrainableSkill, type GameContent } from '../../../domain/src';
 import vocationsJson from '../../../../content/generated/vocations.json';
 import equipmentJson from '../../../../content/generated/equipment.json';
 import monstersJson from '../../../../content/generated/monsters.json';
@@ -30,6 +30,7 @@ const gameContent: GameContent = {
 import { persistenceManager } from '../persistence/PrismaPersistenceManager';
 import { serverConfigManager } from '../config/ServerConfigManager';
 import '../config/ServerConfigDatabase';
+import { prisma } from '../../../database/src';
 import {
   isInViewport,
   isWithinDistance,
@@ -61,6 +62,35 @@ export class ThaisCityRoom extends Room<WorldState> {
   private activeSavePromise: Promise<void> | null = null;
   private isDisposed: boolean = false;
   private playerExpSync = new Map<string, { lastSyncTime: number; lastExperience: number }>();
+  private pvpQueue = new Map<
+    string,
+    {
+      sessionId: string;
+      characterId: string;
+      name: string;
+      level: number;
+      vocation: string;
+      outfit?: string;
+      outfitLookType?: number;
+      hp?: number;
+      maxHp?: number;
+      attackPower?: number;
+      defensePower?: number;
+      armorPower?: number;
+      elo: number;
+      joinedAt: number;
+      timeoutRef: any;
+    }
+  >();
+  private activeDuels = new Map<
+    string,
+    {
+      duelId: string;
+      player1: { sessionId: string; characterId: string; name: string; spawn: { id: number; x: number; y: number; z: number } };
+      player2: { sessionId: string; characterId: string; name: string; spawn: { id: number; x: number; y: number; z: number } };
+      createdAt: number;
+    }
+  >();
 
   public getUniqueOnlineAccountsCount(): number {
     const unique = new Set<string>();
@@ -547,6 +577,214 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     });
 
+    // ==========================================
+    // ARENA PVP: FILA DE JOGADORES ONLINE & DUELOS
+    // ==========================================
+    this.onMessage('pvp:queue:join', async (client, data?: { characterId?: string }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+      const charId = data?.characterId || player.characterId;
+      if (!charId) return;
+
+      // Se já estava na fila, cancela o timeout anterior
+      if (this.pvpQueue.has(client.sessionId)) {
+        const existing = this.pvpQueue.get(client.sessionId);
+        if (existing?.timeoutRef) clearTimeout(existing.timeoutRef);
+        this.pvpQueue.delete(client.sessionId);
+      }
+
+      // Procura outro jogador ONLINE na fila com rank similar (diferença <= 250 pontos)
+      let matchedSessionId: string | null = null;
+      const playerElo = (player as any).pvpElo ?? 0;
+
+      for (const [sId, entry] of this.pvpQueue.entries()) {
+        if (sId === client.sessionId || entry.characterId === charId) continue;
+
+        // Confirma se o oponente ainda está na sala
+        const oppClient = this.clients.find((c) => c.sessionId === sId);
+        if (!oppClient) {
+          if (entry.timeoutRef) clearTimeout(entry.timeoutRef);
+          this.pvpQueue.delete(sId);
+          continue;
+        }
+
+        const diff = Math.abs(entry.elo - playerElo);
+        if (diff <= 250) {
+          matchedSessionId = sId;
+          break;
+        }
+      }
+
+      if (matchedSessionId) {
+        // MATCH FOUND!
+        const oppEntry = this.pvpQueue.get(matchedSessionId)!;
+        if (oppEntry.timeoutRef) clearTimeout(oppEntry.timeoutRef);
+        this.pvpQueue.delete(matchedSessionId);
+
+        const oppClient = this.clients.find((c) => c.sessionId === matchedSessionId);
+        const duelId = `duel_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+
+        // Sorteio dos spawns oficiais (Spawn 1: 33136, 32965 vs Spawn 2: 33136, 32973)
+        const isPlayerSpawn1 = Math.random() < 0.5;
+        const spawn1 = isPlayerSpawn1 ? PVP_ARENA_SPAWNS[0] : PVP_ARENA_SPAWNS[1];
+        const spawn2 = isPlayerSpawn1 ? PVP_ARENA_SPAWNS[1] : PVP_ARENA_SPAWNS[0];
+
+        this.activeDuels.set(duelId, {
+          duelId,
+          player1: { sessionId: client.sessionId, characterId: charId, name: player.name, spawn: spawn1 },
+          player2: { sessionId: oppEntry.sessionId, characterId: oppEntry.characterId, name: oppEntry.name, spawn: spawn2 },
+          createdAt: Date.now(),
+        });
+
+        // Envia notificação com dados de teletransporte para ambos
+        client.send('pvp:match:found', {
+          duelId,
+          spawn: spawn1,
+          opponentSpawn: spawn2,
+          opponent: {
+            sessionId: oppEntry.sessionId,
+            characterId: oppEntry.characterId,
+            name: oppEntry.name,
+            level: oppEntry.level,
+            vocation: oppEntry.vocation,
+            elo: oppEntry.elo,
+            outfit: oppEntry.outfit,
+            outfitLookType: oppEntry.outfitLookType,
+            hp: oppEntry.hp,
+            maxHp: oppEntry.maxHp,
+            attackPower: oppEntry.attackPower,
+            defensePower: oppEntry.defensePower,
+            armorPower: oppEntry.armorPower,
+          },
+        });
+
+        if (oppClient) {
+          oppClient.send('pvp:match:found', {
+            duelId,
+            spawn: spawn2,
+            opponentSpawn: spawn1,
+            opponent: {
+              sessionId: client.sessionId,
+              characterId: charId,
+              name: player.name,
+              level: player.level,
+              vocation: (player as any).vocationName || (player as any).vocation || 'Knight',
+              elo: playerElo,
+              outfit: (player as any).outfit || 'Knight',
+              outfitLookType: (player as any).outfitLookType || 128,
+              hp: player.hp,
+              maxHp: player.maxHp,
+              attackPower: player.attackPower,
+              defensePower: player.defensePower,
+              armorPower: player.armorPower,
+            },
+          });
+        }
+      } else {
+        // Sem oponente imediato: entra na fila com temporizador de 18 segundos
+        const timeoutRef = setTimeout(() => {
+          if (this.pvpQueue.has(client.sessionId)) {
+            this.pvpQueue.delete(client.sessionId);
+            try {
+              client.send('pvp:queue:timeout', {
+                message: 'Nenhum oponente disponível no momento. Tente novamente em instantes!',
+              });
+            } catch {}
+          }
+        }, 18000);
+
+        this.pvpQueue.set(client.sessionId, {
+          sessionId: client.sessionId,
+          characterId: charId,
+          name: player.name,
+          level: player.level,
+          vocation: (player as any).vocationName || (player as any).vocation || 'Knight',
+          outfit: (player as any).outfit || 'Knight',
+          outfitLookType: (player as any).outfitLookType || 128,
+          hp: player.hp,
+          maxHp: player.maxHp,
+          attackPower: player.attackPower,
+          defensePower: player.defensePower,
+          armorPower: player.armorPower,
+          elo: playerElo,
+          joinedAt: Date.now(),
+          timeoutRef,
+        });
+
+        client.send('pvp:queue:searching', {
+          timeoutSeconds: 18,
+        });
+      }
+    });
+
+    this.onMessage('pvp:queue:leave', (client) => {
+      const entry = this.pvpQueue.get(client.sessionId);
+      if (entry) {
+        if (entry.timeoutRef) clearTimeout(entry.timeoutRef);
+        this.pvpQueue.delete(client.sessionId);
+      }
+      client.send('pvp:queue:left', { success: true });
+    });
+
+    this.onMessage('pvp:duel:complete', async (client, data: { duelId: string; winnerCharacterId: string; loserCharacterId: string }) => {
+      const duel = this.activeDuels.get(data?.duelId);
+      if (!duel) return;
+      this.activeDuels.delete(data.duelId);
+
+      try {
+        const winner = await persistenceManager.loadCharacter(data.winnerCharacterId);
+        const loser = await persistenceManager.loadCharacter(data.loserCharacterId);
+
+        let promoData: any = null;
+        let newWinnerPoints = 0;
+
+        if (winner) {
+          const oldPoints = (winner as any).pvpElo ?? 0;
+          newWinnerPoints = oldPoints + 20; // +20 pontos fixos
+          const tierInfo = getPvPTierInfo(newWinnerPoints);
+          promoData = checkRankPromotion(oldPoints, newWinnerPoints);
+
+          await prisma.character.update({
+            where: { id: winner.id },
+            data: {
+              pvpElo: newWinnerPoints,
+              pvpTier: tierInfo.tier,
+              pvpWins: ((winner as any).pvpWins ?? 0) + 1,
+              arenaCoins: ((winner as any).arenaCoins ?? 0) + 15,
+              displaySkull: newWinnerPoints >= 250 ? true : (winner as any).displaySkull,
+            },
+          });
+        }
+
+        if (loser) {
+          await prisma.character.update({
+            where: { id: loser.id },
+            data: {
+              pvpLosses: ((loser as any).pvpLosses ?? 0) + 1,
+              arenaCoins: ((loser as any).arenaCoins ?? 0) + 5,
+            },
+          });
+        }
+
+        // Notifica ambos os combatentes sobre o encerramento do duelo
+        const p1Client = this.clients.find((c) => c.sessionId === duel.player1.sessionId);
+        const p2Client = this.clients.find((c) => c.sessionId === duel.player2.sessionId);
+
+        const endPayload = {
+          duelId: data.duelId,
+          winnerCharacterId: data.winnerCharacterId,
+          pointsAwarded: 20,
+          promotion: promoData,
+          returnCoords: { x: 32369, y: 32241, z: 7 }, // Thais Temple
+        };
+
+        if (p1Client) p1Client.send('pvp:duel:ended', endPayload);
+        if (p2Client) p2Client.send('pvp:duel:ended', endPayload);
+      } catch (err: any) {
+        console.error('[ThaisCityRoom] Erro ao persistir resultado do duelo PvP:', err?.message || err);
+      }
+    });
+
     this.onMessage('player:toggleAutoIdle', (client, data?: { enabled?: boolean; huntId?: string }) => {
       const player = this.state.players.get(client.sessionId);
       if (player) {
@@ -1012,6 +1250,11 @@ export class ThaisCityRoom extends Room<WorldState> {
     const idx = this.clients.indexOf(client);
     if (idx !== -1) {
       this.clients.splice(idx, 1);
+    }
+    const queueEntry = this.pvpQueue.get(client.sessionId);
+    if (queueEntry) {
+      if (queueEntry.timeoutRef) clearTimeout(queueEntry.timeoutRef);
+      this.pvpQueue.delete(client.sessionId);
     }
     this.handlePlayerLeaveParty(client.sessionId);
     this.playerExpSync.delete(client.sessionId);

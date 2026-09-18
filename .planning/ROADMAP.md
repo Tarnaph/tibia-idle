@@ -139,6 +139,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 191: Assets Canônicos CipSoft de Blessings e Imbuements + Ranking e Ações Rápidas** - Charms autênticos CipSoft para as 5 bênçãos, creature products canônicos nos imbuements, dock com botões RANKING e ARENA PVP, e modal de Highscores autoritativo.
 - [x] **Phase 192: Ranked PvP Arena, Patentes de Caveiras e Renderização de Skulls no Nameplate** - Gerador de sprites de caveiras (Green, Yellow, White, Red, Black, Orange), modelagem de dados no Prisma DB, motor de táticas e renderização das caveiras em 60fps sobre o personagem em Thais.
 - [x] **Phase 193: Novas Hunts (Cyclops & Elf) e Arena PvP Funcional no Mapa com Duelos em Tempo Real** - Novas caçadas Cyclops e Elf com coordenadas exatas do RealMap, extração de regiões de mapa, Arena PvP com pareamento por rank, spawns aleatórios, 100 Health e 100 Mana potions automáticas, pontuação de +20 pts por vitória, 250 pts por rank, celebração comemorativa e desbloqueio do toggle de caveira no Rank 1.
+- [x] **Phase 194: Live PvP Arena Matchmaking, Real-Time Map Teleport & Automated Duel** - Fila exclusiva para jogadores reais online com timeout e aviso de oponentes indisponíveis, teletransporte para a arena idêntico às hunts nos spawns oficiais (33136, 32965 e 33136, 32973), visualização mútua no mapa, combate automático com aproximação e uso visível das 100 poções.
 
 ---
 

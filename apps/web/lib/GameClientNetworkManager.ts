@@ -141,6 +141,40 @@ export interface BestiaryKillEvent {
 export type BestiarySyncListener = (data: BestiarySyncData) => void;
 export type BestiaryKillEventListener = (data: BestiaryKillEvent) => void;
 
+export interface PvPMatchFoundEvent {
+  duelId: string;
+  spawn: { id: number; x: number; y: number; z: number };
+  opponentSpawn: { id: number; x: number; y: number; z: number };
+  opponent: {
+    sessionId: string;
+    characterId: string;
+    name: string;
+    level: number;
+    vocation: string;
+    elo: number;
+    outfit?: string;
+    outfitLookType?: number;
+    hp?: number;
+    maxHp?: number;
+    attackPower?: number;
+    defensePower?: number;
+    armorPower?: number;
+  };
+}
+
+export interface PvPDuelEndedEvent {
+  duelId: string;
+  winnerCharacterId: string;
+  pointsAwarded: number;
+  promotion: any;
+  returnCoords: { x: number; y: number; z: number };
+}
+
+export type PvPMatchFoundListener = (event: PvPMatchFoundEvent) => void;
+export type PvPQueueTimeoutListener = (data: { message: string }) => void;
+export type PvPQueueSearchingListener = (data: { timeoutSeconds: number }) => void;
+export type PvPDuelEndedListener = (event: PvPDuelEndedEvent) => void;
+
 export class GameClientNetworkManager {
   private room: Room<any> | null = null;
   private combatListeners: Set<CombatEventListener> = new Set();
@@ -160,6 +194,10 @@ export class GameClientNetworkManager {
   private partyHuntProposalSyncListeners: Set<PartyHuntProposalSyncListener> = new Set();
   private partyHuntProposalRejectedListeners: Set<PartyHuntProposalRejectedListener> = new Set();
   private duplicateSessionListeners: Set<DuplicateSessionListener> = new Set();
+  private pvpMatchFoundListeners: Set<PvPMatchFoundListener> = new Set();
+  private pvpQueueTimeoutListeners: Set<PvPQueueTimeoutListener> = new Set();
+  private pvpQueueSearchingListeners: Set<PvPQueueSearchingListener> = new Set();
+  private pvpDuelEndedListeners: Set<PvPDuelEndedListener> = new Set();
 
   private playersMap: Map<string, RemotePlayerSnapshot> = new Map();
   private localPlayerId: string | null = null;
@@ -406,6 +444,23 @@ export class GameClientNetworkManager {
       if (config) {
         serverConfigManager.updateConfig(config);
       }
+    });
+
+    // PvP Arena Listeners
+    this.room.onMessage('pvp:match:found', (data: PvPMatchFoundEvent) => {
+      this.pvpMatchFoundListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('pvp:queue:timeout', (data: { message: string }) => {
+      this.pvpQueueTimeoutListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('pvp:queue:searching', (data: { timeoutSeconds: number }) => {
+      this.pvpQueueSearchingListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('pvp:duel:ended', (data: PvPDuelEndedEvent) => {
+      this.pvpDuelEndedListeners.forEach((fn) => fn(data));
     });
 
     // Party multiplayer event listeners
@@ -777,6 +832,41 @@ export class GameClientNetworkManager {
   sendTrainingAction(action: { style?: string; effectId?: number; projectileId?: number | null; dummyPos?: { x: number; y: number; z: number } }): void {
     if (!this.room) return;
     this.room.send('training:action', action);
+  }
+
+  sendPvPQueueJoin(characterId?: string): void {
+    if (!this.room) return;
+    this.room.send('pvp:queue:join', { characterId });
+  }
+
+  sendPvPQueueLeave(): void {
+    if (!this.room) return;
+    this.room.send('pvp:queue:leave');
+  }
+
+  sendPvPDuelComplete(duelId: string, winnerCharacterId: string, loserCharacterId: string): void {
+    if (!this.room) return;
+    this.room.send('pvp:duel:complete', { duelId, winnerCharacterId, loserCharacterId });
+  }
+
+  onPvPMatchFound(listener: PvPMatchFoundListener): () => void {
+    this.pvpMatchFoundListeners.add(listener);
+    return () => this.pvpMatchFoundListeners.delete(listener);
+  }
+
+  onPvPQueueTimeout(listener: PvPQueueTimeoutListener): () => void {
+    this.pvpQueueTimeoutListeners.add(listener);
+    return () => this.pvpQueueTimeoutListeners.delete(listener);
+  }
+
+  onPvPQueueSearching(listener: PvPQueueSearchingListener): () => void {
+    this.pvpQueueSearchingListeners.add(listener);
+    return () => this.pvpQueueSearchingListeners.delete(listener);
+  }
+
+  onPvPDuelEnded(listener: PvPDuelEndedListener): () => void {
+    this.pvpDuelEndedListeners.add(listener);
+    return () => this.pvpDuelEndedListeners.delete(listener);
   }
 
   get CurrentParty(): PartySnapshot | null {

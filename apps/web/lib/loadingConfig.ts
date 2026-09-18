@@ -22,6 +22,12 @@ export const ELF_LORE_CURIOSITIES: string[] = [
   'As flechas disparadas por mestres elfos quase nunca erram o alvo, combinando veneno floral com rajadas mágicas penetrantes.',
 ];
 
+export const PVP_ARENA_LORE_CURIOSITIES: string[] = [
+  'A Arena é o palco sagrado onde guerreiros de todo o reino se enfrentam para provar bravura e maestria tática.',
+  'Cada vitória nas batalhas ranqueadas concede +20 pontos de liga. A cada 250 pontos, uma nova patente de caveira é desbloqueada!',
+  'Todos os combatentes recebem 100 Health Potions e 100 Mana Potions durante o combate para duelos justos e intensos.',
+];
+
 export interface HuntLoadingConfig {
   bgImage: string;
   curiosities: string[];
@@ -44,6 +50,10 @@ export const HUNT_LOADING_CONFIGS: Record<string, HuntLoadingConfig> = {
   'elf-sanctuary': {
     bgImage: '/images/loading/thais-loading.jpg',
     curiosities: ELF_LORE_CURIOSITIES,
+  },
+  'pvp-arena': {
+    bgImage: '/images/loading/thais-loading.jpg',
+    curiosities: PVP_ARENA_LORE_CURIOSITIES,
   },
 };
 

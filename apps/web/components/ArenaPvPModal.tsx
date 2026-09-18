@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { PvPTierInfo, PvPMatchRecord, PvPTacticBoard } from '@/packages/domain/src/pvp';
 import { getPvPTierInfo, getNextRankProgress, canDisplaySkull, PVP_TIERS } from '@/packages/domain/src/pvp';
+import { gameNetwork, type PvPMatchFoundEvent } from '../lib/GameClientNetworkManager';
 
 interface ArenaPvPModalProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface ArenaPvPModalProps {
   onOpenHighscores?: () => void;
   onOpenRotation?: (characterId: string) => void;
   onOpenHelper?: (characterId: string) => void;
+  onStartPvPDuel?: (matchEvent: PvPMatchFoundEvent) => void;
 }
 
 interface PvPStatusData {
@@ -40,9 +42,12 @@ export function ArenaPvPModal({
   onOpenHighscores,
   onOpenRotation,
   onOpenHelper,
+  onStartPvPDuel,
 }: ArenaPvPModalProps) {
   const [loading, setLoading] = useState(false);
-  const [queueing, setQueueing] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchCountdown, setSearchCountdown] = useState(18);
+  const [searchTimeoutMessage, setSearchTimeoutMessage] = useState<string | null>(null);
   const [data, setData] = useState<PvPStatusData | null>(null);
   const [lastMatchResult, setLastMatchResult] = useState<any | null>(null);
   const [editingTacticIndex, setEditingTacticIndex] = useState<number | null>(null);
@@ -70,45 +75,68 @@ export function ArenaPvPModal({
     if (open) {
       loadPvPStatus();
       setLastMatchResult(null);
+      setSearchTimeoutMessage(null);
+    } else {
+      if (isSearching) {
+        gameNetwork.sendPvPQueueLeave();
+        setIsSearching(false);
+      }
     }
   }, [open, loadPvPStatus]);
 
-  // Ação de entrar na fila ranqueada
-  const handleEnterQueue = async () => {
-    if (!currentCharacterId || queueing) return;
-    setQueueing(true);
+  // Listener de eventos do Colyseus (Match Found, Queue Searching, Queue Timeout)
+  useEffect(() => {
+    if (!open) return;
+
+    const unsubSearching = gameNetwork.onPvPQueueSearching(({ timeoutSeconds }) => {
+      setIsSearching(true);
+      setSearchCountdown(timeoutSeconds);
+      setSearchTimeoutMessage(null);
+    });
+
+    const unsubTimeout = gameNetwork.onPvPQueueTimeout(({ message }) => {
+      setIsSearching(false);
+      setSearchTimeoutMessage(message || 'Nenhum oponente disponível no momento. Tente novamente em instantes!');
+    });
+
+    const unsubMatch = gameNetwork.onPvPMatchFound((event) => {
+      setIsSearching(false);
+      setSearchTimeoutMessage(null);
+      onClose();
+      onStartPvPDuel?.(event);
+    });
+
+    return () => {
+      unsubSearching();
+      unsubTimeout();
+      unsubMatch();
+    };
+  }, [open, onClose, onStartPvPDuel]);
+
+  // Temporizador visual regressivo da busca
+  useEffect(() => {
+    if (!isSearching) return;
+    const interval = setInterval(() => {
+      setSearchCountdown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isSearching]);
+
+  // Ação de entrar na fila ranqueada de jogadores online
+  const handleEnterQueue = () => {
+    if (!currentCharacterId || isSearching) return;
+    setIsSearching(true);
+    setSearchCountdown(18);
+    setSearchTimeoutMessage(null);
     setLastMatchResult(null);
-    try {
-      const res = await fetch('/api/pvp/queue', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId: currentCharacterId }),
-      });
-      const result = (await res.json()) as any;
-      if (result.success) {
-        setLastMatchResult(result);
-        // Atualiza estado local
-        if (data) {
-          setData({
-            ...data,
-            elo: result.newPoints ?? result.newElo,
-            tier: result.newTier,
-            skull: result.newSkull,
-            skullAsset: result.skullAsset,
-            arenaCoins: result.newCoins,
-            wins: result.result === 'win' ? data.wins + 1 : data.wins,
-            losses: result.result === 'loss' ? data.losses + 1 : data.losses,
-            draws: result.result === 'draw' ? data.draws + 1 : data.draws,
-            skullUnlocked: result.unlockedSkullToggle,
-            matchHistory: [result.matchRecord, ...(data.matchHistory || [])].slice(0, 10),
-          });
-        }
-      }
-    } catch (err) {
-      console.error('[ARENA PVP] Erro na fila:', err);
-    } finally {
-      setQueueing(false);
-    }
+    gameNetwork.sendPvPQueueJoin(currentCharacterId);
+  };
+
+  // Cancelar busca na fila
+  const handleCancelQueue = () => {
+    gameNetwork.sendPvPQueueLeave();
+    setIsSearching(false);
+    setSearchTimeoutMessage(null);
   };
 
   // Toggle de exibição da caveira
@@ -526,56 +554,138 @@ export function ArenaPvPModal({
             }}
           >
             {/* Botões do Topo: Entrar na fila & Desafiar amigo */}
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={handleEnterQueue}
-                disabled={queueing}
+            {isSearching ? (
+              <div
                 style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  backgroundColor: queueing ? '#854d0e' : '#facc15',
-                  border: '1px solid #ca8a04',
-                  borderRadius: '4px',
-                  color: queueing ? '#fef08a' : '#1e1b4b',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  cursor: queueing ? 'wait' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={(e) => {
-                  if (!queueing) e.currentTarget.style.backgroundColor = '#fde047';
-                }}
-                onMouseLeave={(e) => {
-                  if (!queueing) e.currentTarget.style.backgroundColor = '#facc15';
-                }}
-              >
-                {queueing ? 'Procurando oponente no rank...' : 'Entrar na fila'}
-              </button>
-
-              <button
-                disabled
-                title="Disponível para contas VIP na próxima atualização"
-                style={{
-                  flex: 1,
+                  gap: '12px',
+                  backgroundColor: '#272210',
                   padding: '12px 16px',
-                  backgroundColor: '#2b2d31',
-                  border: '1px solid #3f4248',
                   borderRadius: '4px',
-                  color: '#6b7280',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  cursor: 'not-allowed',
-                  textAlign: 'center',
+                  border: '1px solid #ca8a04',
+                  boxShadow: '0 0 16px rgba(202, 138, 4, 0.3)',
                 }}
               >
-                Desafiar amigo (VIP)
-              </button>
-            </div>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: '50%',
+                      border: '2px solid #facc15',
+                      borderTopColor: 'transparent',
+                      animation: 'spin 1s linear infinite',
+                    }}
+                  />
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#fef08a' }}>
+                      Buscando oponente online no seu rank...
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#eab308' }}>
+                      Tempo limite: {searchCountdown}s restantes
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCancelQueue}
+                  style={{
+                    padding: '8px 14px',
+                    backgroundColor: '#7f1d1d',
+                    border: '1px solid #ef4444',
+                    borderRadius: '4px',
+                    color: '#fef2f2',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#991b1b')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#7f1d1d')}
+                >
+                  Cancelar Busca
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={handleEnterQueue}
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    backgroundColor: '#facc15',
+                    border: '1px solid #ca8a04',
+                    borderRadius: '4px',
+                    color: '#1e1b4b',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#fde047')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#facc15')}
+                >
+                  ⚔️ Entrar na fila ranqueada
+                </button>
+
+                <button
+                  disabled
+                  title="Disponível para contas VIP na próxima atualização"
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    backgroundColor: '#2b2d31',
+                    border: '1px solid #3f4248',
+                    borderRadius: '4px',
+                    color: '#6b7280',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    cursor: 'not-allowed',
+                    textAlign: 'center',
+                  }}
+                >
+                  Desafiar amigo (VIP)
+                </button>
+              </div>
+            )}
+
+            {/* AVISO DE NENHUM OPONENTE ENCONTRADO (TIMEOUT) */}
+            {searchTimeoutMessage && (
+              <div
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(234, 179, 8, 0.12)',
+                  border: '1px solid #eab308',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: '#fef08a',
+                  fontSize: '13px',
+                }}
+              >
+                <span style={{ fontSize: '18px' }}>⏳</span>
+                <div style={{ flex: 1 }}>{searchTimeoutMessage}</div>
+                <button
+                  onClick={() => setSearchTimeoutMessage(null)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#ca8a04',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
             {/* BANNER DE CELEBRAÇÃO DE AVANÇO DE RANK */}
             {lastMatchResult?.promotion && (

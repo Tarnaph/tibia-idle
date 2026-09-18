@@ -75,6 +75,13 @@ export const initialHunts: HuntDefinition[] = [
     roomDefinitions: rooms('dragon-lair'), environment: { regionId: 'dragon-lair', label: 'Dragon lair', source: 'realmap11-otbm' },
     waves: waves('dragon', [1, 1, 2, 2, 2, 3, 3, 3, 4, 0], 'Dragon Lord', 1),
   },
+  {
+    id: 'pvp-arena', name: 'PvP Arena', displayName: 'Arena Ranqueada',
+    description: 'Arena subterrânea de combate gladiatório entre guerreiros.', shortDescription: 'Duelos ranqueados até a morte.',
+    recommendedLevel: 20, minimumLevel: 1, monsters: ['cyclops'], rewardProfile: 'xp', status: 'available',
+    roomDefinitions: rooms('pvp-arena'), environment: { regionId: 'pvp-arena', label: 'PvP Arena', source: 'realmap11-otbm' },
+    waves: waves('cyclops', [1, 1, 1, 1, 1, 1, 1, 1, 1, 0], 'Gladiator Champion', 0),
+  },
 ];
 
 export const rotwormCave = initialHunts.find((hunt) => hunt.id === 'rotworm-cave')!;

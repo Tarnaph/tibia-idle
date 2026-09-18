@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-18T17:00:00.000Z"
-last_activity: "2026-09-18 — Phase 193 Concluída: Novas Hunts (Cyclops & Elf) e Arena PvP Funcional no Mapa."
+last_updated: "2026-09-18T17:35:00.000Z"
+last_activity: "2026-09-18 — Phase 194 Concluída: Live PvP Arena Matchmaking, Real-Time Map Teleport & Automated Duel."
 progress:
-  total_phases: 193
-  completed_phases: 193
-  total_plans: 230
-  completed_plans: 230
+  total_phases: 194
+  completed_phases: 194
+  total_plans: 235
+  completed_plans: 235
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 193 - Novas Hunts (Cyclops & Elf) e Arena PvP Funcional no Mapa com Duelos em Tempo Real (Concluída).
+**Current focus:** Phase 194 - Live PvP Arena Matchmaking, Real-Time Map Teleport & Automated Duel (Complete).
 
 ## Current Position
 
-Phase: 193 of 193  
-Plan: 5 of 5 in Phase 193  
+Phase: 194 of 194  
+Plan: 5 of 5 in Phase 194  
 Status: Complete  
-Last activity: 2026-09-18 — Phase 193 finalizada com sucesso. Testes 100% aprovados e deploy na VPS.
+Last activity: 2026-09-18 — Concluída Phase 194 com fila online autoritativa, timeout de 18s com mensagem informativa, teletransporte idêntico às hunts nos spawns oficiais (33136, 32965 e 33136, 32973) e duelo com 100 poções automáticas.
 
 Progress: [██████████] 100%
 

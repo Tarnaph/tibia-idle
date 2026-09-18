@@ -13,6 +13,7 @@ const counts: Record<string, Array<[number, number]>> = {
   'cyclops-camp': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 5]],
   'elf-sanctuary': [[2, 3], [2, 4], [3, 4], [3, 5], [4, 5], [4, 6]],
   'dragon-lair': [[1, 2], [2, 3], [2, 3], [3, 4], [3, 4], [3, 5]],
+  'pvp-arena': [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]],
 };
 
 function routeThroughMap(room: RoomState): GridPosition[] {

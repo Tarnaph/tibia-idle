@@ -625,10 +625,17 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const hasPending = pendingImpacts.some((p) => p.targetId === enemy.id && now < p.impactAt);
           if (!enemy.alive && !hasPending) continue;
           liveIds.add(enemy.id);
-          const mapping = visualAssets.creatures[enemy.monsterId] || ((enemy as any).lookType ? visualAssets.creatures[String((enemy as any).lookType)] : null) || visualAssets.creatures['rotworm'] || Object.values(visualAssets.creatures)[0];
+          const isPvPOpponent = enemy.id.startsWith('pvp_');
+          const mapping = (isPvPOpponent ? (visualAssets.outfits[enemy.monsterId] || visualAssets.outfits[baseVocation(enemy.monsterId)]) : null)
+            || visualAssets.creatures[enemy.monsterId]
+            || visualAssets.outfits[enemy.monsterId]
+            || ((enemy as any).lookType ? visualAssets.creatures[String((enemy as any).lookType)] : null)
+            || visualAssets.creatures['rotworm']
+            || Object.values(visualAssets.creatures)[0];
           if (!mapping) continue;
           const view = views.get(enemy.id) ?? createView(enemy.id, mapping, enemy.previousPosition, enemy.direction, enemy.name, true);
-          view.label.text = enemy.name; view.label.style.fill = enemy.variant?.visualModifier === 'rare-aura' ? 0xd694ff : enemy.variant ? 0xffc857 : 0xe6ded0;
+          view.label.text = enemy.name;
+          view.label.style.fill = isPvPOpponent ? 0xff6666 : enemy.variant?.visualModifier === 'rare-aura' ? 0xd694ff : enemy.variant ? 0xffc857 : 0xe6ded0;
           view.sprite.scale.set(enemy.variant?.scale ?? 1);
           view.root.visible = enemy.alive;
           view.sprite.alpha = enemy.alive ? 1 : 0;

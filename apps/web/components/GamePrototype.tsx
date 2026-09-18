@@ -21,7 +21,7 @@ import {
   calculateDeathPenaltyReport, type DeathPenaltyReport, buyBlessing, buyAllMissingBlessings,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate, type TrainingDummyInfo,
-  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState,
+  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState, type EnemyState,
 } from '@/packages/domain/src';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -92,7 +92,7 @@ import {
   type ImbuementTier,
 } from '@/packages/domain/src/imbuements';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
-import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
+import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal, type PvPMatchFoundEvent } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
 import { resolveSkillKey, parseInventoryData } from '../lib/characterHydration';
 import { progressionDiagnostics } from '../lib/progressionDiagnostics';
@@ -378,6 +378,23 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     targetHunt: any;
     nextSeed: string;
     entrance: any;
+    pvpMatch?: any;
+  } | null>(null);
+  const activePvPDuelRef = useRef<{
+    duelId: string;
+    opponent: any;
+    playerHpPotions: number;
+    playerMpPotions: number;
+    oppHpPotions: number;
+    oppMpPotions: number;
+    finished: boolean;
+  } | null>(null);
+  const [pvpBannerResult, setPvPBannerResult] = useState<{
+    type: 'win' | 'loss';
+    pointsDelta: number;
+    coinsDelta: number;
+    opponentName: string;
+    promotion?: any;
   } | null>(null);
   const isCharacterVisible = !initialLoadingActive && !transitionLoading?.active && Boolean(onlineCharacter);
 
@@ -1285,6 +1302,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       setSaleMessage(`${data.rejectedByName} recusou a caçada em grupo.`);
     });
 
+    const unsubPvPDuelEnded = gameNetwork.onPvPDuelEnded((data) => {
+      if (data.promotion?.promoted) {
+        setPvPBannerResult((prev) => (prev ? { ...prev, promotion: data.promotion } : null));
+      }
+    });
+
     const unsubTargetSync = gameNetwork.onPartyTargetSync((targetId) => {
       setGame((cur) => {
         let next = cur;
@@ -1335,6 +1358,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       unsubProposal();
       unsubProposalSync();
       unsubProposalRejected();
+      unsubPvPDuelEnded();
     };
   }, [mode, content]);
 
@@ -2634,7 +2658,90 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     const now = performance.now();
     const delta = Math.min(now - lastCombatTimeRef.current, 500);
     lastCombatTimeRef.current = now;
-    setGame((current) => advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120));
+    setGame((current) => {
+      const next = advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120);
+
+      // ARENA PVP: CONSUMO AUTOMÁTICO DE POÇÕES E DETECÇÃO DE VITÓRIA / DERROTA
+      if (next.encounter.hunt?.id === 'pvp-arena' && activePvPDuelRef.current) {
+        const duel = activePvPDuelRef.current;
+        const playerChar = next.session.characters.find((c) => c.id === next.session.selectedCharacterId);
+        const oppEnemy = next.encounter.enemies.find((e) => e.id.startsWith('pvp_opp_'));
+
+        if (playerChar && oppEnemy) {
+          // Potion de Vida do Jogador (HP < 60%)
+          if (playerChar.currentHp < playerChar.maxHp * 0.6 && duel.playerHpPotions > 0) {
+            duel.playerHpPotions -= 1;
+            playerChar.currentHp = Math.min(playerChar.maxHp, playerChar.currentHp + 200);
+            next.encounter.events.push({
+              type: 'spell-cast',
+              sourceId: playerChar.id,
+              targetId: playerChar.id,
+              speech: 'Aaaah...',
+              spellId: 'health-potion',
+            } as any);
+          }
+
+          // Potion de Mana do Jogador (MP < 40%)
+          if (playerChar.currentMana < playerChar.maxMana * 0.4 && duel.playerMpPotions > 0) {
+            duel.playerMpPotions -= 1;
+            playerChar.currentMana = Math.min(playerChar.maxMana, playerChar.currentMana + 150);
+            next.encounter.events.push({
+              type: 'spell-cast',
+              sourceId: playerChar.id,
+              targetId: playerChar.id,
+              speech: 'Aaaah...',
+              spellId: 'mana-potion',
+            } as any);
+          }
+
+          // Potion de Vida do Oponente (HP < 60%)
+          if (oppEnemy.hp < oppEnemy.maxHp * 0.6 && duel.oppHpPotions > 0) {
+            duel.oppHpPotions -= 1;
+            oppEnemy.hp = Math.min(oppEnemy.maxHp, oppEnemy.hp + 200);
+            next.encounter.events.push({
+              type: 'spell-cast',
+              sourceId: oppEnemy.id,
+              targetId: oppEnemy.id,
+              speech: 'Aaaah...',
+              spellId: 'health-potion',
+            } as any);
+          }
+
+          // Verificação de Encerramento do Duelo
+          if (!duel.finished) {
+            if (!oppEnemy.alive || oppEnemy.hp <= 0) {
+              duel.finished = true;
+              gameNetwork.sendPvPDuelComplete(duel.duelId, playerChar.id, duel.opponent.characterId);
+              setPvPBannerResult({
+                type: 'win',
+                pointsDelta: 20,
+                coinsDelta: 15,
+                opponentName: duel.opponent.name,
+              });
+              setTimeout(() => {
+                activePvPDuelRef.current = null;
+                void exitHuntRef.current?.();
+              }, 3500);
+            } else if (playerChar.currentHp <= 0) {
+              duel.finished = true;
+              gameNetwork.sendPvPDuelComplete(duel.duelId, duel.opponent.characterId, playerChar.id);
+              setPvPBannerResult({
+                type: 'loss',
+                pointsDelta: 0,
+                coinsDelta: 5,
+                opponentName: duel.opponent.name,
+              });
+              setTimeout(() => {
+                activePvPDuelRef.current = null;
+                void exitHuntRef.current?.();
+              }, 3500);
+            }
+          }
+        }
+      }
+
+      return next;
+    });
   }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady, gameNetwork.IsConnected, gameNetwork.IsHuntContextConfirmed]);
 
   useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active && gameNetwork.IsConnected && gameNetwork.IsHuntContextConfirmed);
@@ -2655,6 +2762,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   // When defeated in hunt or dead, open authentic "You are dead" modal
   useEffect(() => {
     if (mode === 'hunt' && encounter.status === 'defeated') {
+      if (encounter.hunt?.id === 'pvp-arena') return; // Duelo esportivo na Arena não ativa tela de morte
       const deathEvt = encounter.events?.find((e: any) => e.type === 'player-death');
       const killer = (deathEvt as any)?.killerName || encounter.enemies?.find((e) => e.alive)?.name || encounter.enemies?.[0]?.name || encounter.hunt?.name || 'Monstro';
       setLastKillerName(killer);
@@ -2964,6 +3072,68 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     };
   };
   startSelectedHuntRef.current = startSelectedHunt;
+
+  const handleStartPvPDuel = useCallback((matchEvent: PvPMatchFoundEvent) => {
+    setIsPvPArenaModalOpen(false);
+    setIsTrainingAtDummy(false);
+    setWalkingPath(null);
+
+    stopDragonLairBgm();
+    playHuntBgm('pvp-arena');
+
+    setTransitionLoading({
+      active: true,
+      message: `⚔️ Duelo encontrado! Teleportando para a Arena PvP contra ${matchEvent.opponent.name}...`,
+      durationMs: 3000,
+      huntId: 'pvp-arena',
+    });
+
+    const targetHunt = content.hunts.find((h) => h.id === 'pvp-arena') ?? initialHunts.find((h) => h.id === 'pvp-arena')!;
+    const localSpawn = {
+      x: matchEvent.spawn.x - 33116,
+      y: matchEvent.spawn.y - 32949,
+      z: matchEvent.spawn.z,
+    };
+    const localOpponentSpawn = {
+      x: matchEvent.opponentSpawn.x - 33116,
+      y: matchEvent.opponentSpawn.y - 32949,
+      z: matchEvent.opponentSpawn.z,
+    };
+
+    if (mode === 'hunt') {
+      setGame((current) => leaveHunt(current));
+    }
+    setIsArenaReady(false);
+    combatStartedRef.current = false;
+
+    activePvPDuelRef.current = {
+      duelId: matchEvent.duelId,
+      opponent: matchEvent.opponent,
+      playerHpPotions: 100,
+      playerMpPotions: 100,
+      oppHpPotions: 100,
+      oppMpPotions: 100,
+      finished: false,
+    };
+
+    pendingHuntTransitionRef.current = {
+      huntId: 'pvp-arena',
+      targetHunt,
+      nextSeed: `pvp_${matchEvent.duelId}`,
+      entrance: {
+        worldPosition: matchEvent.spawn,
+        localPosition: localSpawn,
+        bounds: { x: 33116, y: 32949, z: 8, width: 41, height: 41 },
+        isInsideMap: true,
+        isWalkable: true,
+      },
+      pvpMatch: {
+        ...matchEvent,
+        localSpawn,
+        localOpponentSpawn,
+      },
+    };
+  }, [content, mode]);
 
   const exitHunt = async () => {
     pendingHuntTransitionRef.current = null;
@@ -4557,7 +4727,50 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         currentCharacterId={activeCharacter?.id}
         onClose={() => setIsPvPArenaModalOpen(false)}
         onOpenHighscores={() => setIsHighscoresModalOpen(true)}
+        onStartPvPDuel={handleStartPvPDuel}
       />
+
+      {/* OVERLAY DE RESULTADO DO DUELO PVP */}
+      {pvpBannerResult && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '75px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 999999,
+            padding: '16px 28px',
+            borderRadius: '8px',
+            backgroundColor: pvpBannerResult.type === 'win' ? 'rgba(20, 83, 45, 0.95)' : 'rgba(127, 29, 29, 0.95)',
+            border: `2px solid ${pvpBannerResult.type === 'win' ? '#22c55e' : '#ef4444'}`,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.85)',
+            color: '#fff',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '6px',
+            fontFamily: 'Verdana, Arial, sans-serif',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div style={{ fontSize: '20px', fontWeight: 'bold', fontFamily: 'Georgia, serif' }}>
+            {pvpBannerResult.type === 'win' ? '🏆 VITÓRIA NA ARENA PVP!' : '💀 DERROTA NA ARENA PVP'}
+          </div>
+          <div style={{ fontSize: '13px', color: '#fef08a' }}>
+            {pvpBannerResult.type === 'win'
+              ? `Você derrotou ${pvpBannerResult.opponentName}! +20 Pontos de Rank · +15 Arena Coins`
+              : `Você foi derrotado por ${pvpBannerResult.opponentName}. +5 Arena Coins pelo combate.`}
+          </div>
+          {pvpBannerResult.promotion?.promoted && (
+            <div style={{ fontSize: '12px', color: '#4ade80', fontWeight: 'bold', marginTop: '2px' }}>
+              🎉 Você avançou para a patente {pvpBannerResult.promotion.newTier?.label}!
+            </div>
+          )}
+          <div style={{ fontSize: '11px', color: '#cbd5e1' }}>
+            Retornando ao Templo de Thais...
+          </div>
+        </div>
+      )}
 
       <FriendsWindow
         friends={effectiveFriendsList}
@@ -4758,7 +4971,46 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 pendingHuntTransitionRef.current = null;
                 setIsArenaReady(false);
                 combatStartedRef.current = false;
-                setGame((current) => restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId));
+                setGame((current) => {
+                  const restarted = restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId);
+                  if (pending.pvpMatch) {
+                    const pvp = pending.pvpMatch;
+                    const opp = pvp.opponent;
+                    const oppMaxHp = opp.maxHp || Math.max(250, opp.level * 25);
+                    const oppEnemy: EnemyState = {
+                      id: `pvp_opp_${opp.characterId}`,
+                      monsterId: opp.outfit || opp.vocation || 'Knight',
+                      name: opp.name,
+                      hp: oppMaxHp,
+                      maxHp: oppMaxHp,
+                      attackMax: opp.attackPower || Math.max(30, Math.floor(opp.level * 3)),
+                      defense: opp.defensePower || Math.max(15, Math.floor(opp.level * 1.5)),
+                      armor: opp.armorPower || Math.max(12, Math.floor(opp.level * 1.2)),
+                      alive: true,
+                      position: { ...pvp.localOpponentSpawn },
+                      previousPosition: { ...pvp.localOpponentSpawn },
+                      direction: pvp.localOpponentSpawn.y > pvp.localSpawn.y ? 'north' : 'south',
+                      path: [],
+                      targetId: current.session.selectedCharacterId || null,
+                      nextAttackAt: performance.now() + 1000,
+                      attackIntervalMs: 1800,
+                      speed: 120,
+                      behavior: 'chase',
+                      nextRoamAt: 0,
+                      nextMoveAt: 0,
+                      detectionRange: 25,
+                      variant: null,
+                    };
+
+                    if (restarted.encounter.partyActors[0]) {
+                      restarted.encounter.partyActors[0].position = { ...pvp.localSpawn };
+                      restarted.encounter.partyActors[0].previousPosition = { ...pvp.localSpawn };
+                      restarted.encounter.partyActors[0].targetId = oppEnemy.id;
+                    }
+                    restarted.encounter.enemies = [oppEnemy];
+                  }
+                  return restarted;
+                });
                 setMode('hunt');
                 pauseCityBgm();
                 setCityPos(pending.entrance.worldPosition);
@@ -4767,7 +5019,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
                   gameNetwork.sendPartyHuntSync(pending.huntId, pending.nextSeed);
                 }
-                setSaleMessage(`Você viajou para ${pending.targetHunt.name}!`);
+                setSaleMessage(pending.pvpMatch ? `⚔️ Duelo de Arena contra ${pending.pvpMatch.opponent.name} iniciado!` : `Você viajou para ${pending.targetHunt.name}!`);
                 lastCombatTimeRef.current = performance.now();
 
                 // Phase 109: Dragon Lair music notification box appears strictly after loading finishes and character is visible!
