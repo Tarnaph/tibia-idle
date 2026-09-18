@@ -989,6 +989,7 @@ export function ThaisCityArena({
       }
       const actorViews = new Map<string, CityActorView>();
       const processedSpeechIds = new Set<string>();
+      const pendingPreloadSignatures = new Set<string>();
 
       function updateNameplate(view: CityActorView, name: string, adminTitle?: string) {
         view.label.text = name;
@@ -1082,8 +1083,15 @@ export function ThaisCityArena({
           }
         }
 
-        if (!tex) {
-          tex = Texture.EMPTY;
+        if (!tex || tex === Texture.EMPTY) {
+          const normOutfit = normalizeOutfitId(char.outfit || char.vocation || 'Knight');
+          const thumbUrl = `/generated/outfit-thumbs/${normOutfit}.png`;
+          try {
+            tex = Texture.from(thumbUrl);
+            tex.source.style.scaleMode = 'nearest';
+          } catch {
+            tex = Texture.EMPTY;
+          }
         }
 
         const root = new Container();
@@ -2274,7 +2282,17 @@ export function ThaisCityArena({
             if (view.lastOutfitSignature !== appearanceSig) {
               view.lastOutfitSignature = appearanceSig;
               view.lastTextureKey = undefined;
-              preloadOutfitAllFrames(outfitKey, rGender, colors, rAddons, p.mount, rMounted, rDir as any).catch(() => {});
+              if (!pendingPreloadSignatures.has(appearanceSig)) {
+                pendingPreloadSignatures.add(appearanceSig);
+                preloadOutfitAllFrames(outfitKey, rGender, colors, rAddons, p.mount, rMounted, rDir as any)
+                  .then(() => {
+                    view.lastTextureKey = undefined;
+                  })
+                  .catch(() => {})
+                  .finally(() => {
+                    pendingPreloadSignatures.delete(appearanceSig);
+                  });
+              }
             }
 
             const targetTile = { x: p.x ?? 32369, y: p.y ?? 32241, z: p.z ?? 7 };
@@ -2324,12 +2342,12 @@ export function ThaisCityArena({
               ? isOutfitCanvasCached(outfitKey, rGender, dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted)
               : true;
 
-            if (view.lastTextureKey !== textureKey || !isCached) {
+            if (view.lastTextureKey !== textureKey || !isCached || view.sprite.texture === Texture.EMPTY) {
               let updated = false;
               if (colors) {
                 const canvas = getRecoloredCanvasSync(outfitKey, rGender, dir as any, rSafeFrame, colors, rAddons, p.mount, rMounted);
                 if (canvas) {
-                  if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
+                  if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey || view.sprite.texture === Texture.EMPTY) {
                     view.lastCanvas = canvas;
                     const tex = Texture.from(canvas);
                     tex.source.style.scaleMode = 'nearest';
@@ -2341,19 +2359,26 @@ export function ThaisCityArena({
                   }
                   view.lastUrl = 'canvas';
                   updated = true;
-                } else {
-                  preloadOutfitAllFrames(outfitKey, rGender, colors, rAddons, p.mount, rMounted, dir as any).catch(() => {});
+                } else if (!pendingPreloadSignatures.has(appearanceSig)) {
+                  pendingPreloadSignatures.add(appearanceSig);
+                  preloadOutfitAllFrames(outfitKey, rGender, colors, rAddons, p.mount, rMounted, dir as any)
+                    .then(() => {
+                      view.lastTextureKey = undefined;
+                    })
+                    .catch(() => {})
+                    .finally(() => {
+                      pendingPreloadSignatures.delete(appearanceSig);
+                    });
                 }
               }
-              if (!updated && !rMounted) {
-                const url = getOutfitFrameUrl(outfitKey, dir, rSafeFrame);
-                if (url && loaded[url]) {
-                  view.sprite.texture = loaded[url];
-                  view.lastUrl = url;
-                  if (!colors) {
-                    view.lastTextureKey = textureKey;
-                  }
-                }
+              if (!updated && (view.sprite.texture === Texture.EMPTY || !view.lastTextureKey)) {
+                const thumbUrl = `/generated/outfit-thumbs/${rNormOutfit}.png`;
+                try {
+                  const fallbackTex = Texture.from(thumbUrl);
+                  fallbackTex.source.style.scaleMode = 'nearest';
+                  view.sprite.texture = fallbackTex;
+                  view.lastUrl = thumbUrl;
+                } catch {}
               }
             }
 

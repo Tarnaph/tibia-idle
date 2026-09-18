@@ -79,6 +79,7 @@ import { UnifiedPartyModal } from './party/UnifiedPartyModal';
 import { LogoutConfirmModal } from './character/LogoutConfirmModal';
 import { PromotionModal } from './character/PromotionModal';
 import { ImbuingModal } from './ImbuingModal';
+import { PlayerInspectModal } from './PlayerInspectModal';
 import {
   CANONICAL_IMBUEMENTS,
   IMBUEMENT_TIER_COSTS,
@@ -137,7 +138,16 @@ function ValueRow({ label, value, changed = false }: { label: string; value: str
   return <div className={changed ? 'compact-value-row changed' : 'compact-value-row'}><span>{label}</span><strong>{value}</strong></div>;
 }
 
-export function GamePrototype() {
+export interface GamePrototypeProps {
+  initialSelection?: {
+    authToken: string;
+    charItem: CharacterItem;
+    acc: AuthAccount;
+  } | null;
+  onSwitchCharacter?: () => void;
+}
+
+export function GamePrototype({ initialSelection, onSwitchCharacter }: GamePrototypeProps = {}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -160,7 +170,10 @@ export function GamePrototype() {
   return (
     <GameModalProvider>
       <WindowManagerProvider>
-        <GamePrototypeContent />
+        <GamePrototypeContent
+          initialSelection={initialSelection}
+          onSwitchCharacter={onSwitchCharacter}
+        />
       </WindowManagerProvider>
     </GameModalProvider>
   );
@@ -222,7 +235,7 @@ function useGameTicker(callback: () => void, intervalMs: number, active: boolean
   }, [active, intervalMs]);
 }
 
-function GamePrototypeContent() {
+function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GamePrototypeProps) {
   const gameModal = useGameModal();
   const [seed, setSeed] = useState(defaultSeed);
   const [game, setGame] = useState(() => createIdleGame(defaultSeed, content));
@@ -245,6 +258,7 @@ function GamePrototypeContent() {
   const [confirmSale, setConfirmSale] = useState(false);
   const [levelUpMessage, setLevelUpMessage] = useState<{ text: string; timestamp: number } | null>(null);
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
+  const [inspectPlayerName, setInspectPlayerName] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   useEffect(() => {
     if (isProfileModalOpen) {
@@ -265,12 +279,18 @@ function GamePrototypeContent() {
   const [activeTrainingSkill, setActiveTrainingSkill] = useState<string>('Sword Fighting');
   const auth = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(() => {
+    if (initialSelection) {
+      return false;
+    }
     if (typeof window !== 'undefined' && window.location.pathname === '/game-preview') {
       return false;
     }
     return true;
   });
   const [isCharacterReady, setIsCharacterReady] = useState(() => {
+    if (initialSelection) {
+      return true;
+    }
     if (typeof window !== 'undefined' && window.location.pathname === '/game-preview') {
       return true;
     }
@@ -278,6 +298,9 @@ function GamePrototypeContent() {
   });
   const [isLoadingCharacter, setIsLoadingCharacter] = useState(false);
   const [initialLoadingActive, setInitialLoadingActive] = useState(() => {
+    if (initialSelection) {
+      return true;
+    }
     if (typeof window !== 'undefined' && window.location.pathname === '/game-preview') {
       return true;
     }
@@ -1650,10 +1673,22 @@ function GamePrototypeContent() {
       getBestiaryMonsters();
     } catch {}
 
-    // Set character readiness and clear loading flag
     setIsCharacterReady(true);
     setIsLoadingCharacter(false);
   }, [content]);
+
+  // Phase 189: Auto-apply initial selection from lightweight GameClientLauncher
+  const initialSelectionAppliedRef = useRef(false);
+  useEffect(() => {
+    if (initialSelection && !initialSelectionAppliedRef.current) {
+      initialSelectionAppliedRef.current = true;
+      handleSelectCharacter(
+        initialSelection.authToken,
+        initialSelection.charItem,
+        initialSelection.acc
+      );
+    }
+  }, [initialSelection, handleSelectCharacter]);
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
@@ -3814,10 +3849,14 @@ function GamePrototypeContent() {
       sessionStorage.setItem('cavebound_manual_logout', 'true');
     }
     setOnlineCharacter(null);
-    setShowAuthModal(true);
     setSaleMessage('Retornando à seleção de personagens...');
     setDuplicateSessionError(null);
-  }, []);
+    if (onSwitchCharacter) {
+      onSwitchCharacter();
+      return;
+    }
+    setShowAuthModal(true);
+  }, [onSwitchCharacter]);
 
   const handleConfirmLogout = useCallback(async () => {
     setIsLogoutModalOpen(false);
@@ -4489,17 +4528,26 @@ function GamePrototypeContent() {
             x={charContextMenu.x}
             y={charContextMenu.y}
             character={dummyChar}
-            onSetOutfit={() => {
-              gameModal.openOutfit(dummyChar.id);
+            onInspect={() => {
+              setInspectPlayerName(dummyChar.name);
+              setCharContextMenu(null);
             }}
-            onToggleMount={() => handleToggleMount(dummyChar.id)}
-            onInviteParty={() => handleInviteParty(dummyChar.name)}
             onPrivateMessage={() => handlePrivateMessage(dummyChar.name)}
             onAddFriend={() => handleAddFriend(dummyChar.name)}
             onClose={() => setCharContextMenu(null)}
           />
         );
       })()}
+
+      <PlayerInspectModal
+        isOpen={Boolean(inspectPlayerName)}
+        characterName={inspectPlayerName || ''}
+        onClose={() => setInspectPlayerName(null)}
+        onPrivateMessage={(name) => {
+          setInspectPlayerName(null);
+          handlePrivateMessage(name);
+        }}
+      />
 
       {dummyContextMenu && (
         <TrainingDummyContextMenu

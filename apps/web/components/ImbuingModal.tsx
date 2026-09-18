@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
 import type {
   CharacterEquipmentSlot,
@@ -254,6 +254,16 @@ export function ImbuingModal({
   const [autoRenewChoice, setAutoRenewChoice] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
+  // Cleanup global tooltip when closing or unmounting
+  useEffect(() => {
+    if (!isOpen) {
+      hideGlobalItemTooltip();
+    }
+    return () => {
+      hideGlobalItemTooltip();
+    };
+  }, [isOpen]);
+
   // Find equipment definition for the selected item
   const selectedItemDef = useMemo(() => {
     if (!selectedTarget) return null;
@@ -377,6 +387,27 @@ export function ImbuingModal({
   // Paperdoll items
   const eq = activeChar.equipment;
   const getSlotsCount = (id: number | null | undefined) => (id ? getItemImbuingSlots(id, equipmentCatalog) : 0);
+
+  const handleItemHover = (
+    e: React.MouseEvent,
+    itemId: number | null | undefined,
+    slot?: CharacterEquipmentSlot
+  ) => {
+    if (!itemId) return;
+    const itemDef = equipmentCatalog.find((it) => it.id === itemId);
+    const attributes = slot && activeChar ? activeChar.equipmentAttributes?.[slot] : undefined;
+    showGlobalItemTooltip(
+      {
+        item: itemDef,
+        itemId,
+        name: itemDef?.name,
+        slot,
+        attributes,
+        equippedInName: slot && activeChar ? activeChar.name : undefined,
+      },
+      e
+    );
+  };
 
   // Backpack items that have imbuing slots
   const backpackItemIds = activeChar.inventory?.equipmentIds || [];
@@ -543,6 +574,9 @@ export function ImbuingModal({
                     <button
                       type="button"
                       onClick={() => handleSelectEquipSlot('head')}
+                      onMouseEnter={(e) => handleItemHover(e, id, 'head')}
+                      onMouseMove={(e) => handleItemHover(e, id, 'head')}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       disabled={slots === 0}
                       style={{
                         width: '44px',
@@ -575,6 +609,9 @@ export function ImbuingModal({
                     <button
                       type="button"
                       onClick={() => handleSelectEquipSlot('leftHand')}
+                      onMouseEnter={(e) => handleItemHover(e, id, 'leftHand')}
+                      onMouseMove={(e) => handleItemHover(e, id, 'leftHand')}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       disabled={slots === 0}
                       style={{
                         width: '44px',
@@ -604,6 +641,9 @@ export function ImbuingModal({
                     <button
                       type="button"
                       onClick={() => handleSelectEquipSlot('armor')}
+                      onMouseEnter={(e) => handleItemHover(e, id, 'armor')}
+                      onMouseMove={(e) => handleItemHover(e, id, 'armor')}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       disabled={slots === 0}
                       style={{
                         width: '44px',
@@ -633,6 +673,9 @@ export function ImbuingModal({
                     <button
                       type="button"
                       onClick={() => handleSelectEquipSlot('rightHand')}
+                      onMouseEnter={(e) => handleItemHover(e, id, 'rightHand')}
+                      onMouseMove={(e) => handleItemHover(e, id, 'rightHand')}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       disabled={slots === 0}
                       style={{
                         width: '44px',
@@ -667,6 +710,9 @@ export function ImbuingModal({
                     <button
                       type="button"
                       onClick={() => handleSelectEquipSlot('legs')}
+                      onMouseEnter={(e) => handleItemHover(e, id, 'legs')}
+                      onMouseMove={(e) => handleItemHover(e, id, 'legs')}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       disabled={slots === 0}
                       style={{
                         width: '44px',
@@ -702,6 +748,9 @@ export function ImbuingModal({
                     <button
                       type="button"
                       onClick={() => handleSelectEquipSlot('boots')}
+                      onMouseEnter={(e) => handleItemHover(e, id, 'boots')}
+                      onMouseMove={(e) => handleItemHover(e, id, 'boots')}
+                      onMouseLeave={() => hideGlobalItemTooltip()}
                       disabled={slots === 0}
                       style={{
                         width: '44px',
@@ -751,6 +800,9 @@ export function ImbuingModal({
                         key={`${itemId}-${idx}`}
                         type="button"
                         onClick={() => handleSelectBackpackItem(itemId, idx)}
+                        onMouseEnter={(e) => handleItemHover(e, itemId)}
+                        onMouseMove={(e) => handleItemHover(e, itemId)}
+                        onMouseLeave={() => hideGlobalItemTooltip()}
                         disabled={slots === 0}
                         style={{
                           width: '40px',

@@ -22,7 +22,36 @@ export async function GET(request: Request) {
         level: true,
         vocationId: true,
         vocationName: true,
+        promotion: true,
+        health: true,
+        maxHealth: true,
+        mana: true,
+        maxMana: true,
+        outfit: true,
+        outfitHead: true,
+        outfitBody: true,
+        outfitLegs: true,
+        outfitFeet: true,
+        outfitAddons: true,
+        mount: true,
+        mountActive: true,
         isOnline: true,
+        skills: {
+          select: {
+            skillId: true,
+            skillName: true,
+            value: true,
+          },
+        },
+        inventory: {
+          select: {
+            slot: true,
+            serverId: true,
+            count: true,
+            tier: true,
+            attributesJson: true,
+          },
+        },
       },
     });
 
@@ -35,7 +64,36 @@ export async function GET(request: Request) {
           level: true,
           vocationId: true,
           vocationName: true,
+          promotion: true,
+          health: true,
+          maxHealth: true,
+          mana: true,
+          maxMana: true,
+          outfit: true,
+          outfitHead: true,
+          outfitBody: true,
+          outfitLegs: true,
+          outfitFeet: true,
+          outfitAddons: true,
+          mount: true,
+          mountActive: true,
           isOnline: true,
+          skills: {
+            select: {
+              skillId: true,
+              skillName: true,
+              value: true,
+            },
+          },
+          inventory: {
+            select: {
+              slot: true,
+              serverId: true,
+              count: true,
+              tier: true,
+              attributesJson: true,
+            },
+          },
         },
       });
       character = all.find((c) => c.name.toLowerCase() === name.toLowerCase()) ?? null;

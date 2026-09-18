@@ -3602,23 +3602,27 @@ Plans:
 
 ---
 
-### Phase 188: Integração Nativa de Slots do RealMap 11, Funcionalidade E2E de Imbuements e Deploy VPS
+### Phase 189: Slots e Ativos no Tooltip de Itens, Desacoplamento Leve de Auth/Seleção, Context Menu de Players (Inspecionar), Áudio no Sanduíche e Correção de Visibilidade Remota
 
-**Goal:** Importar slots de imbuements nativamente do `realmap11/data/items/items.xml` e `imbuement.lua` no importador web (`importEquipment.ts`), sincronizar com o catálogo de equipamentos, garantir funcionalidade operacional do botão "IMBUEMENTS" na barra de ações rápidas, e realizar o deploy completo na VPS `187.7.16.210` com restart dos serviços PM2.
+**Goal:** Implementar o pacote completo de correções e otimizações de FIX.md: exibir slots totais e imbuements ativos com tempo restante nos tooltips (e hover no ImbuingModal), desacoplar a seleção de personagem do carregamento de 35MB+ com imagem estática leve, permitir inspecionar equipamentos e skills de jogadores via botão direito removendo opções de outfit/montaria, mover o botão de som para dentro do menu sanduíche da barra superior, e corrigir a visibilidade de jogadores remotos no ThaisCityArena preservando outfit, montarias, movimentos, efeitos e mapa.
 
 **Requirements:**
-- Adicionar suporte a `imbuingSlots` em `packages/content-schema` e parsing no `packages/realmap11-importer/src/importEquipment.ts`.
-- Rodar `npm run import:content` para atualizar `content/generated/equipment.json`.
-- Integrar `imbuingSlots` nativo do catálogo no `getItemImbuingSlots` de `packages/domain/src/imbuements.ts`.
-- Executar testes automatizados (Vitest) e typecheck (0 erros).
-- Executar script de deploy seguro na VPS (`deploy-phase188-vps.mjs`) com backup do SQLite, git pull, build do bundle e restart do PM2.
+- Tooltip de itens mostrando slots de imbuements totais e se imbuído, nome, tier, bônus de atributos e tempo restante (verde), com badge dourada e suporte a hover no `ImbuingModal.tsx`.
+- Desacoplamento leve da tela de login/seleção de personagens com lazy loading do motor pesado (`GamePrototype.tsx`) e substituição do iframe de YouTube por arte estática nítida.
+- Reformulação do `CharacterContextMenu.tsx`: remoção de "Set Outfit" e "Montar", adição de "Inspecionar" com modal dedicado (`PlayerInspectModal.tsx`) e rota de busca com dados de inventário/skills.
+- Otimização do `WindowDockBar.tsx`: remoção do botão quadrado de áudio avulso e inclusão do controle completo no menu sanduíche.
+- Resolução definitiva da invisibilidade de jogadores remotos no `ThaisCityArena.tsx`, eliminando o loop de preload a 60fps e providenciando textura inicial válida com bind correto no canvas recolorido.
+- Validação total sem regressões: typecheck 0 erros, testes Vitest 100% aprovados e deploy seguro na VPS `187.7.16.210`.
 
 **Plans:**
-- [x] 188-01-PLAN: Parsing nativo de `imbuingslots` no `importEquipment.ts` e regeneração de `equipment.json`.
-- [x] 188-02-PLAN: Ajustes de integração no `GamePrototype.tsx`, `BottomDock.tsx` e verificação Vitest.
-- [x] 188-03-PLAN: Deploy na VPS `187.7.16.210`, reinício de `tibia-web` e `colyseus-server`, e verificação online.
+- [x] 189-01-PLAN: Exibição de slots totais e imbuements ativos nos tooltips e hover no ImbuingModal.
+- [x] 189-02-PLAN: Desacoplamento leve da seleção com lazy-loading do GamePrototype e arte estática no modal de login.
+- [x] 189-03-PLAN: Menu de contexto de players com Inspecionar, PlayerInspectModal e rota de inventário/skills.
+- [x] 189-04-PLAN: Botão de áudio integrado no menu sanduíche da barra de topo.
+- [x] 189-05-PLAN: Correção de visibilidade de jogadores remotos no ThaisCityArena e verificação e2e/deploy VPS.
 
 **Status:** Complete
+
 
 
 

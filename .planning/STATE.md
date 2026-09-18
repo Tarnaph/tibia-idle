@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-18T10:16:30.000Z"
-last_activity: "2026-09-18 — Phase 188 Concluída: Integração Nativa de Slots do RealMap 11, Funcionalidade E2E de Imbuements e Deploy VPS."
+last_updated: "2026-09-18T14:15:30.000Z"
+last_activity: "2026-09-18 — Phase 189 Concluída: Slots e Ativos no Tooltip de Itens, Desacoplamento Leve de Auth/Seleção, Context Menu de Players (Inspecionar), Áudio no Sanduíche e Correção de Visibilidade Remota."
 progress:
-  total_phases: 188
-  completed_phases: 188
-  total_plans: 203
-  completed_plans: 203
+  total_phases: 189
+  completed_phases: 189
+  total_plans: 208
+  completed_plans: 208
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 188 Concluída - Integração Nativa de Slots do RealMap 11, Funcionalidade E2E de Imbuements e Deploy VPS.
+**Current focus:** Phase 189 Concluída - Slots e Ativos no Tooltip de Itens, Desacoplamento Leve de Auth/Seleção, Context Menu de Players (Inspecionar), Áudio no Sanduíche e Correção de Visibilidade Remota.
 
 ## Current Position
 
-Phase: 188 of 188  
-Plan: 3 of 3 in Phase 188  
+Phase: 189 of 189  
+Plan: 5 of 5 in Phase 189  
 Status: Complete  
-Last activity: 2026-09-18 — Phase 188 finalizada: importação nativa de slots do RealMap 11, validação completa e deploy em produção na VPS.
+Last activity: 2026-09-18 — Phase 189 finalizada com sucesso atendendo todos os 5 itens de FIX.md.
 
 Progress: [██████████] 100%
 

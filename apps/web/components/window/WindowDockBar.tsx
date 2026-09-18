@@ -942,8 +942,19 @@ export function WindowDockBar({
                   type="button"
                   className="zoom-reset-btn"
                   onClick={() => toggleAudioMuted()}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    backgroundColor: audioState.isMuted ? '#b91c1c' : '#047857',
+                    color: '#ffffff',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                  }}
                 >
-                  {audioState.isMuted ? '🔊 Ativar Som do Jogo' : '🔇 Silenciar Som do Jogo'}
+                  {audioState.isMuted ? '🔇 Som Desligado (Clique para Ligar)' : '🔊 Som Ligado (Clique para Desligar)'}
                 </button>
 
                 <div
@@ -975,28 +986,6 @@ export function WindowDockBar({
             </div>
           )}
         </div>
-
-        {/* Phase 103: Quick Mute / Unmute Button beside Exit Button */}
-        <button
-          type="button"
-          className={`huntera-square-btn mute-btn ${audioState.isMuted ? 'muted' : ''}`}
-          onClick={() => toggleAudioMuted()}
-          title={audioState.isMuted ? 'Desmutar Áudio (Som Desativado) [Atalho: M]' : 'Mutar Áudio (Som Ativado) [Atalho: M]'}
-          aria-label={audioState.isMuted ? 'Desmutar Áudio' : 'Mutar Áudio'}
-        >
-          {audioState.isMuted ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 5L6 9H2v6h4l5 4V5z" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-            </svg>
-          )}
-        </button>
 
         <button
           type="button"

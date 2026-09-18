@@ -571,7 +571,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
         {isMuted ? '🔇' : '🔊'}
       </button>
 
-      {/* Background Video Frame */}
+      {/* Background Static Artwork */}
       <div
         style={{
           position: 'absolute',
@@ -581,31 +581,26 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
           pointerEvents: 'none',
         }}
       >
-        <iframe
-          src="https://www.youtube.com/embed/b3Q0iWCTuZI?autoplay=1&mute=1&controls=0&loop=1&playlist=b3Q0iWCTuZI&playsinline=1"
-          title="Vídeo de Fundo - Seleção de Personagem"
-          loading="lazy"
+        <img
+          src="/images/loading/thais-loading.jpg"
+          alt="Tibia Background Artwork"
           style={{
             position: 'absolute',
             top: '50%',
             left: '50%',
-            width: '100vw',
-            height: '56.25vw',
-            minHeight: '100vh',
-            minWidth: '177.77vh',
-            transform: 'translate(-50%, -50%) scale(1.08)',
-            border: 'none',
-            pointerEvents: 'none',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            transform: 'translate(-50%, -50%) scale(1.02)',
+            filter: 'brightness(0.72) contrast(1.08)',
           }}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
         />
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundColor: 'rgba(5, 7, 10, 0.55)',
-            backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 100%)',
+            backgroundColor: 'rgba(5, 7, 10, 0.45)',
+            backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.78) 100%)',
           }}
         />
       </div>

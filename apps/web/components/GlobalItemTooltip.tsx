@@ -6,6 +6,7 @@ import { formatTibiaLookText } from '@/packages/domain/src/itemLook';
 import {
   CANONICAL_IMBUEMENTS,
   formatImbuementRemainingTime,
+  getItemImbuingSlots,
   type ImbuementSlotState,
   type ItemAttributes,
   type ImbuementTier,
@@ -252,6 +253,9 @@ export function GlobalItemTooltip() {
       )
     : [];
 
+  // Total imbuement slots for this item
+  const totalSlots = getItemImbuingSlots(equip ?? data.itemId ?? 0, equipmentCatalog);
+
   return (
     <div
       id="global-item-tooltip-layer"
@@ -352,6 +356,12 @@ export function GlobalItemTooltip() {
             </b>
           </div>
         )}
+        {totalSlots > 0 && (
+          <div className="stat-row imbuing-slots" style={{ color: '#93c5fd', display: 'flex', justifyContent: 'space-between', marginTop: '2px' }}>
+            <span style={{ color: '#9ca3af' }}>Slots de Imbuement:</span>
+            <b style={{ color: '#60a5fa' }}>{totalSlots}</b>
+          </div>
+        )}
       </div>
 
       {look.minLevel !== undefined && look.minLevel > 0 && (
@@ -360,20 +370,25 @@ export function GlobalItemTooltip() {
         </div>
       )}
 
-      {/* Imbuements Section (matching Screenshot 4) */}
-      {activeImbuements.length > 0 && (
+      {/* Imbuements Section (matching Screenshot 2 & FIX.md) */}
+      {activeImbuements.length > 0 ? (
         <div
           className="item-tooltip-imbuements-block"
           style={{
             marginTop: '8px',
             padding: '6px 8px',
-            backgroundColor: 'rgba(0,0,0,0.3)',
+            backgroundColor: 'rgba(0,0,0,0.4)',
             borderRadius: '4px',
             borderLeft: '3px solid #22c55e',
           }}
         >
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#e5e7eb', marginBottom: '3px' }}>
-            Imbuements:
+          <div style={{ fontSize: '11px', fontWeight: 700, color: '#e5e7eb', marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Imbuements:</span>
+            {totalSlots > 0 && (
+              <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 500 }}>
+                {activeImbuements.length}/{totalSlots} slots
+              </span>
+            )}
           </div>
           {activeImbuements.map((imb, idx) => {
             const imbDef = CANONICAL_IMBUEMENTS.find((c) => c.id.toLowerCase() === imb.imbuementId.toLowerCase());
@@ -390,7 +405,24 @@ export function GlobalItemTooltip() {
             );
           })}
         </div>
-      )}
+      ) : totalSlots > 0 ? (
+        <div
+          className="item-tooltip-imbuements-empty"
+          style={{
+            marginTop: '6px',
+            padding: '4px 8px',
+            backgroundColor: 'rgba(255,255,255,0.03)',
+            borderRadius: '4px',
+            borderLeft: '3px solid #3b82f6',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ fontSize: '11px', color: '#9ca3af' }}>Imbuements:</span>
+          <span style={{ fontSize: '11px', color: '#60a5fa', fontWeight: 600 }}>{totalSlots} slot{totalSlots > 1 ? 's' : ''} disponível{totalSlots > 1 ? 'is' : ''}</span>
+        </div>
+      ) : null}
 
       {(equip?.twoHanded || data.twoHanded || look.twoHanded) && (
         <div className="item-tooltip-badge two-handed">⚔️ Arma de duas mãos</div>

@@ -3,6 +3,7 @@
 import React from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
 import { formatTibiaLookText } from '@/packages/domain/src/itemLook';
+import { getItemImbuingSlots } from '@/packages/domain/src/imbuements';
 
 interface ItemTooltipProps {
   item: EquipmentDefinition;
@@ -28,6 +29,7 @@ export function ItemTooltip({ item, children, className = '' }: ItemTooltipProps
   const isShield = item.defense > 0 && !isWeapon;
   const isArmor = item.armor > 0;
   const look = formatTibiaLookText(item);
+  const totalSlots = getItemImbuingSlots(item);
 
   return (
     <div className={`item-tooltip-wrapper ${className}`}>
@@ -97,6 +99,12 @@ export function ItemTooltip({ item, children, className = '' }: ItemTooltipProps
             <div className="stat-row oz">
               <span>Peso:</span>
               <b>{item.weight.ounces.toFixed(2)} oz</b>
+            </div>
+          )}
+          {totalSlots > 0 && (
+            <div className="stat-row imbuing-slots" style={{ color: '#93c5fd', display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#9ca3af' }}>Slots de Imbuement:</span>
+              <b style={{ color: '#60a5fa' }}>{totalSlots}</b>
             </div>
           )}
         </div>

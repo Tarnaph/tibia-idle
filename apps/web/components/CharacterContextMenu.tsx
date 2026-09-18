@@ -7,9 +7,7 @@ export interface CharacterContextMenuProps {
   x: number;
   y: number;
   character: CharacterState;
-  onSetOutfit: () => void;
-  onToggleMount?: () => void;
-  onInviteParty?: () => void;
+  onInspect?: () => void;
   onPrivateMessage?: () => void;
   onAddFriend?: () => void;
   onClose: () => void;
@@ -19,9 +17,7 @@ export function CharacterContextMenu({
   x,
   y,
   character,
-  onSetOutfit,
-  onToggleMount,
-  onInviteParty,
+  onInspect,
   onPrivateMessage,
   onAddFriend,
   onClose,
@@ -64,36 +60,19 @@ export function CharacterContextMenu({
       </div>
       <div className="context-menu-divider" />
 
-      <button
-        type="button"
-        className="context-menu-item"
-        onClick={() => {
-          onSetOutfit();
-          onClose();
-        }}
-        style={{ fontWeight: '600', color: '#f3c766' }}
-      >
-        🥋 Set Outfit
-      </button>
-
-      {onToggleMount && (
+      {onInspect && (
         <button
           type="button"
           className="context-menu-item"
           onClick={() => {
-            onToggleMount?.();
+            onInspect();
             onClose();
           }}
+          style={{ fontWeight: '600', color: '#60a5fa' }}
         >
-          🐎 {character.mountActive ? 'Desmontar' : 'Montar'}
+          🔍 Inspecionar
         </button>
       )}
-
-      <div className="context-menu-divider" />
-
-{/* Trade desativado */}
-
-      {/* Convite de party entre players desativado temporariamente */}
 
       <button
         type="button"
