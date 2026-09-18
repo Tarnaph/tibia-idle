@@ -1751,6 +1751,7 @@ export function ThaisCityArena({
 
             view.root.position.set(charPixelX, charPixelY);
             view.root.zIndex = charPixelY;
+            view.root.visible = (latestRef.current.isCharacterVisible !== false);
             const rawLatestTitle = latestRef.current.adminTitle;
             const rawLocalTitle = (localChar as any)?.adminTitle;
             const cleanLatest = (rawLatestTitle && rawLatestTitle !== 'null' && rawLatestTitle !== 'undefined') ? rawLatestTitle : undefined;
