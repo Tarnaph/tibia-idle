@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/packages/database/src';
-import { getPvPTierInfo, DEFAULT_PVP_TACTICS, type PvPMatchRecord, type PvPTacticBoard } from '@/packages/domain/src/pvp';
+import {
+  getPvPTierInfo,
+  canDisplaySkull,
+  getNextRankProgress,
+  DEFAULT_PVP_TACTICS,
+  type PvPMatchRecord,
+  type PvPTacticBoard,
+} from '@/packages/domain/src/pvp';
 
 export async function GET(request: Request) {
   try {
@@ -34,8 +41,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Personagem não encontrado' }, { status: 404 });
     }
 
-    const elo = (character as any).pvpElo ?? 1000;
+    const elo = (character as any).pvpElo ?? 0;
     const tierInfo = getPvPTierInfo(elo);
+    const rankProgress = getNextRankProgress(elo);
+    const skullUnlocked = canDisplaySkull(elo);
 
     // Parsing do histórico de partidas
     let matchHistory: PvPMatchRecord[] = [];
@@ -71,6 +80,8 @@ export async function GET(request: Request) {
       arenaCoins: (character as any).arenaCoins ?? 0,
       seasonRemaining: '2d',
       displaySkull: typeof (character as any).displaySkull === 'boolean' ? (character as any).displaySkull : true,
+      skullUnlocked,
+      rankProgress,
       matchHistory,
       tactics,
       accountCharacters: character.account.characters || [],

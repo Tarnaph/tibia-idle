@@ -79,6 +79,22 @@ export const SPIDERS_THEME_TRACK: MusicTrackInfo & { url: string } = {
   url: '/songs/threads-in-the-dark-spiders.mp3',
 };
 
+export const CYCLOPS_THEME_TRACK: MusicTrackInfo & { url: string } = {
+  id: 'cyclops-camp',
+  title: 'Giants of the Stone',
+  subtitle: 'Cyclops Camp',
+  location: 'Planalto dos Ciclopes',
+  url: '/songs/drums-under-stone-trolls.mp3',
+};
+
+export const ELFS_THEME_TRACK: MusicTrackInfo & { url: string } = {
+  id: 'elf-sanctuary',
+  title: 'Whispering Leaves',
+  subtitle: 'Elf Sanctuary',
+  location: 'Santuário dos Elfos',
+  url: '/songs/sunset-in-the-village.mp3',
+};
+
 export const HUNT_MUSIC_TRACKS: Record<string, MusicTrackInfo & { url: string }> = {
   // Rats
   'rat-cellars': RATS_THEME_TRACK,
@@ -108,6 +124,16 @@ export const HUNT_MUSIC_TRACKS: Record<string, MusicTrackInfo & { url: string }>
   'rotworm-mines': ROTWORMS_THEME_TRACK,
   'rotworms': ROTWORMS_THEME_TRACK,
   'rotworm': ROTWORMS_THEME_TRACK,
+
+  // Cyclops
+  'cyclops-camp': CYCLOPS_THEME_TRACK,
+  'cyclops': CYCLOPS_THEME_TRACK,
+
+  // Elfs
+  'elf-sanctuary': ELFS_THEME_TRACK,
+  'elf': ELFS_THEME_TRACK,
+  'elfs': ELFS_THEME_TRACK,
+  'elves': ELFS_THEME_TRACK,
 
   // Dragons
   'dragon-lair': { ...DRAGONS_PRIDE_TRACK, url: DRAGON_LAIR_SONG_URL },

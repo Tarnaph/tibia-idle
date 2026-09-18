@@ -1,22 +1,14 @@
 # CORREÇÕES [FASE 190 - CONCLUÍDO]
+Vamos adicionar 2 novas hunts Cyclops e Elfs, seguem as coordenadas no mapa para você adicionar o local ao jogo.
+Cyclops
+x: 32416 y: 32041 z:8
 
-- [x] 1 - Retirar aquele "clique para entrar mais rapido no loading" quando a pessoa clicar não deve acontecer nada, o loading tem que terminar por completo.
-  - *Resolução*: Removido texto de instrução, listeners de tecla (Space, Enter, Escape) e bypass por clique em `ExuraLoadingScreen.tsx`. A tela agora aguarda o carregamento determinístico total dos assets e mapa.
+Elf
+x: 32741 y: 31298 z:7
 
-- [x] 2 - Vamos implementar o sistema de blessing, aquele botão de blessings vai para um menu onde você pode comprar bênçãos, as regras delas estão abaixo:
-  - Estado: Sem blessings -> 0% de redução, 10% de chance de perder cada item equipado.
-  - Estado: Com as 5 -> 40% de redução (herói sofre 60% da perda normal de XP, skills e Magic Level), 0% de chance de perder itens equipados.
-  - Cada morte consome 100% das blessings que o herói possuir.
-  - Nomes canônicos implementados:
-    1. *The Wisdom of Solitude*
-    2. *The Spark of the Phoenix*
-    3. *The Fire of the Suns*
-    4. *The Spiritual Shielding*
-    5. *The Embrace of Tibia*
-  - Compra individual (51.800 gp cada) e botão "Abençoar tudo (X gp)" comprando apenas as faltantes.
-  - Exibição em tempo real do saldo em gp do jogador, proteção atual e bênçãos ativas com insígnias em pergaminhos antigos.
-  - Persistência permanente no banco Prisma DB (`blessingsJson`) com sincronização entre sessões e reconexão.
-  - Tela de morte modernizada (`DeathModal.tsx`): Exibe quem matou o personagem, experiência e níveis perdidos, card de consumo das bênçãos (`Suas X blessings foram consumidas`), detalhes expansíveis e botão `Reviver` retornando com o estado devidamente persistido.
+Em relação a Arena PVP vamos deixar ela funcional o comportamento é o seguinte os players entram na fila, se forem de rank parecido eles se enfrentam vou deixar abaixo a coordenada que eles devem nascer, sendo aleatório se for o spawn 1 ou 2. Assim que entrarem eles vão um em direção ao outro e vão atacar de maneira automática usando as skills que já estavam programadas, cada personagem tem 100 mana potions e 100 health potions que eles vão usar no automático, o vencedor ganha 20 pontos e para avançar cada rank são 250 pontos. quando ele chegar em 250 pontos ele avança para a primeira caveira, deve aparecer na tela parabenizando ele e mostrando o próximo rank daqui 250 pontos e etc. Quando o jogador ganha o primeiro rank, vai aparecer disponível na tela de pvp arena uma parte para você ligar ou desligar a caveira do seu outfit.
 
-- [x] 3 - Correção de magias (Exori Hur / Whirlwind Throw):
-  - *Resolução*: Corrigido `isDirectionalSpell()` em `packages/domain/src/spells.ts` com whitelist estrita de magias direcionais de mago/druida. `exori hur` e `utani hur` não são mais tratados como ondas de área, e o servidor dispara projétil de arma com alcance 5.
+Arena PVP
+x: 33136 y: 32965 z:8
+x: 33136 y: 32973 z:8
+

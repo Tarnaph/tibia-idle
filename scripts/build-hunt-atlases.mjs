@@ -8,6 +8,8 @@ const initialHunts = [
   { id: 'troll-camp', monsters: ['troll', 'swamp-troll'] },
   { id: 'old-crypt', monsters: ['skeleton'] },
   { id: 'rotworm-cave', monsters: ['rotworm', 'carrion-worm'] },
+  { id: 'cyclops-camp', monsters: ['cyclops'] },
+  { id: 'elf-sanctuary', monsters: ['elf', 'elf-scout'] },
   { id: 'dragon-lair', monsters: ['dragon'] },
 ];
 

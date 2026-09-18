@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import type { PvPTierInfo, PvPMatchRecord, PvPTacticBoard } from '@/packages/domain/src/pvp';
-import { getPvPTierInfo } from '@/packages/domain/src/pvp';
+import { getPvPTierInfo, getNextRankProgress, canDisplaySkull, PVP_TIERS } from '@/packages/domain/src/pvp';
 
 interface ArenaPvPModalProps {
   open: boolean;
@@ -26,6 +26,8 @@ interface PvPStatusData {
   arenaCoins: number;
   seasonRemaining: string;
   displaySkull: boolean;
+  skullUnlocked?: boolean;
+  rankProgress?: any;
   matchHistory: PvPMatchRecord[];
   tactics: PvPTacticBoard[];
   accountCharacters: { id: string; name: string; vocationName: string; level: number }[];
@@ -89,7 +91,7 @@ export function ArenaPvPModal({
         if (data) {
           setData({
             ...data,
-            elo: result.newElo,
+            elo: result.newPoints ?? result.newElo,
             tier: result.newTier,
             skull: result.newSkull,
             skullAsset: result.skullAsset,
@@ -97,6 +99,7 @@ export function ArenaPvPModal({
             wins: result.result === 'win' ? data.wins + 1 : data.wins,
             losses: result.result === 'loss' ? data.losses + 1 : data.losses,
             draws: result.result === 'draw' ? data.draws + 1 : data.draws,
+            skullUnlocked: result.unlockedSkullToggle,
             matchHistory: [result.matchRecord, ...(data.matchHistory || [])].slice(0, 10),
           });
         }
@@ -261,14 +264,14 @@ export function ArenaPvPModal({
               <div>
                 <div
                   style={{
-                    fontSize: '28px',
+                    fontSize: '26px',
                     fontWeight: 'bold',
                     color: '#facc15',
                     lineHeight: 1.1,
                     fontFamily: 'Georgia, serif',
                   }}
                 >
-                  {currentElo}
+                  {currentElo} <span style={{ fontSize: '14px', color: '#9ca3af', fontWeight: 'normal' }}>pontos</span>
                 </div>
                 <div
                   style={{
@@ -278,31 +281,90 @@ export function ArenaPvPModal({
                     letterSpacing: '0.5px',
                   }}
                 >
-                  {currentTier}
+                  {currentTier} {tierInfo.rankLevel > 0 ? `(Rank ${tierInfo.rankLevel})` : '(Sem Rank)'}
                 </div>
               </div>
             </div>
 
-            {/* Toggle de exibição de caveira */}
-            <label
+            {/* Barra de Progresso para o Próximo Rank (250 pts por rank) */}
+            <div
               style={{
+                backgroundColor: '#161719',
+                borderRadius: '4px',
+                padding: '10px 12px',
+                border: '1px solid #2a2c30',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '11px',
-                color: '#9ca3af',
-                cursor: 'pointer',
-                marginTop: '-4px',
+                flexDirection: 'column',
+                gap: '6px',
               }}
             >
-              <input
-                type="checkbox"
-                checked={displaySkull}
-                onChange={handleToggleSkull}
-                style={{ cursor: 'pointer', accentColor: '#facc15' }}
-              />
-              Exibir caveira de patente no personagem
-            </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#9ca3af' }}>
+                <span>{tierInfo.rankLevel >= 6 ? 'Patente Máxima' : `Próximo: ${PVP_TIERS[tierInfo.rankLevel + 1]?.label}`}</span>
+                <span style={{ fontWeight: 'bold', color: '#facc15' }}>
+                  {tierInfo.rankLevel >= 6 ? '1500+ pts' : `${currentElo % 250} / 250 pts`}
+                </span>
+              </div>
+              <div style={{ width: '100%', height: '6px', backgroundColor: '#111214', borderRadius: '3px', overflow: 'hidden' }}>
+                <div
+                  style={{
+                    width: `${tierInfo.rankLevel >= 6 ? 100 : Math.min(100, Math.max(0, ((currentElo % 250) / 250) * 100))}%`,
+                    height: '100%',
+                    backgroundColor: tierInfo.badgeColor,
+                    transition: 'width 0.3s ease',
+                  }}
+                />
+              </div>
+              {tierInfo.rankLevel < 6 && (
+                <div style={{ fontSize: '10px', color: '#6b7280', display: 'flex', justifyContent: 'space-between' }}>
+                  <span>+20 pts por vitória</span>
+                  <span>Faltam {250 - (currentElo % 250)} pts</span>
+                </div>
+              )}
+            </div>
+
+            {/* Toggle de exibição de caveira no outfit (Requer Rank 1 / 250 pontos) */}
+            {canDisplaySkull(currentElo) ? (
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '11px',
+                  color: '#facc15',
+                  cursor: 'pointer',
+                  backgroundColor: '#1c1917',
+                  padding: '8px 10px',
+                  borderRadius: '4px',
+                  border: '1px solid #78350f',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={displaySkull}
+                  onChange={handleToggleSkull}
+                  style={{ cursor: 'pointer', accentColor: '#facc15' }}
+                />
+                <span>Exibir caveira de patente no personagem</span>
+              </label>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11px',
+                  color: '#9ca3af',
+                  backgroundColor: '#18191b',
+                  padding: '8px 10px',
+                  borderRadius: '4px',
+                  border: '1px dashed #4b5563',
+                }}
+                title="Atinja 250 pontos (Rank 1 / Caveira Verde) para desbloquear a exibição no personagem"
+              >
+                <span style={{ fontSize: '13px' }}>🔒</span>
+                <span>Bloqueado: requer Rank 1 (250 pts)</span>
+              </div>
+            )}
 
             {/* Estatísticas Numéricas */}
             <div
@@ -393,10 +455,12 @@ export function ArenaPvPModal({
                       <div
                         style={{
                           fontWeight: 'bold',
-                          color: m.eloChange >= 0 ? '#4ade80' : '#f87171',
+                          color: (m.pointsChange ?? m.eloChange ?? 0) >= 0 ? '#4ade80' : '#f87171',
                         }}
                       >
-                        {m.eloChange >= 0 ? `+${m.eloChange}` : m.eloChange}
+                        {(m.pointsChange ?? m.eloChange ?? 0) >= 0
+                          ? `+${m.pointsChange ?? m.eloChange ?? 0}`
+                          : `${m.pointsChange ?? m.eloChange ?? 0}`}
                       </div>
                     </div>
                   ))
@@ -513,18 +577,85 @@ export function ArenaPvPModal({
               </button>
             </div>
 
-            {/* Alerta de Resultado da Partida */}
+            {/* BANNER DE CELEBRAÇÃO DE AVANÇO DE RANK */}
+            {lastMatchResult?.promotion && (
+              <div
+                style={{
+                  padding: '14px 18px',
+                  borderRadius: '6px',
+                  background: 'linear-gradient(135deg, rgba(161, 98, 7, 0.45), rgba(202, 138, 4, 0.25))',
+                  border: '2px solid #facc15',
+                  boxShadow: '0 0 24px rgba(250, 204, 21, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '52px',
+                    height: '52px',
+                    borderRadius: '8px',
+                    backgroundColor: '#18191b',
+                    border: `2px solid ${lastMatchResult.promotion.newTier?.badgeColor || '#facc15'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    boxShadow: '0 0 12px rgba(250, 204, 21, 0.5)',
+                  }}
+                >
+                  {lastMatchResult.skullAsset ? (
+                    <img
+                      src={lastMatchResult.skullAsset}
+                      alt="Nova Caveira"
+                      style={{ width: '36px', height: '36px', imageRendering: 'pixelated' }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: '26px' }}>🏆</span>
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      fontSize: '15px',
+                      fontWeight: 'bold',
+                      color: '#fef08a',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                      fontFamily: 'Georgia, serif',
+                    }}
+                  >
+                    🎉 PARABÉNS! VOCÊ AVANÇOU PARA O RANK {lastMatchResult.promotion.newTier?.label.toUpperCase()}!
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#fef9c3', marginTop: '2px' }}>
+                    {lastMatchResult.promotion.newTier?.skull !== 'none'
+                      ? `Você conquistou a Caveira ${lastMatchResult.promotion.newTier?.skull.toUpperCase()}!`
+                      : 'Você ingressou nas ranqueadas da Arena!'}
+                    {lastMatchResult.promotion.nextGoalPoints > 0
+                      ? ` Próximo rank em ${lastMatchResult.promotion.nextGoalPoints - (lastMatchResult.newPoints ?? 0)} pontos (+250 pts).`
+                      : ' Você atingiu a patente máxima!'}
+                  </div>
+                  {lastMatchResult.unlockedSkullToggle && (
+                    <div style={{ fontSize: '11px', color: '#4ade80', fontWeight: 'bold', marginTop: '4px' }}>
+                      ✨ Opção de exibir caveira no outfit liberada!
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Alerta de Resultado da Partida e Telemetria do Duelo */}
             {lastMatchResult && (
               <div
                 style={{
-                  padding: '12px 16px',
+                  padding: '14px 16px',
                   borderRadius: '4px',
                   backgroundColor:
                     lastMatchResult.result === 'win'
-                      ? 'rgba(34, 197, 94, 0.15)'
+                      ? 'rgba(34, 197, 94, 0.12)'
                       : lastMatchResult.result === 'loss'
-                      ? 'rgba(239, 68, 68, 0.15)'
-                      : 'rgba(148, 163, 184, 0.15)',
+                      ? 'rgba(239, 68, 68, 0.12)'
+                      : 'rgba(148, 163, 184, 0.12)',
                   border: `1px solid ${
                     lastMatchResult.result === 'win'
                       ? '#22c55e'
@@ -533,38 +664,74 @@ export function ArenaPvPModal({
                       : '#94a3b8'
                   }`,
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '13px',
+                  flexDirection: 'column',
+                  gap: '8px',
                 }}
               >
-                <div>
-                  <div style={{ fontWeight: 'bold', color: '#fff' }}>
-                    {lastMatchResult.result === 'win'
-                      ? '🏆 VITÓRIA NA ARENA!'
-                      : lastMatchResult.result === 'loss'
-                      ? '💀 DERROTA NA ARENA'
-                      : '🤝 EMPATE!'}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '14px' }}>
+                      {lastMatchResult.result === 'win'
+                        ? '🏆 VITÓRIA NA ARENA!'
+                        : lastMatchResult.result === 'loss'
+                        ? '💀 DERROTA NA ARENA'
+                        : '🤝 EMPATE!'}
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '12px', marginTop: '2px' }}>
+                      Adversário: <span style={{ color: '#facc15' }}>{lastMatchResult.opponent?.name}</span> (
+                      {lastMatchResult.opponent?.vocation} · Nvl {lastMatchResult.opponent?.level})
+                    </div>
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: '2px' }}>
-                    Adversário: {lastMatchResult.opponent?.name} ({lastMatchResult.opponent?.vocation} Nvl{' '}
-                    {lastMatchResult.opponent?.level})
+
+                  <div style={{ textAlign: 'right' }}>
+                    <div
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: '15px',
+                        color: lastMatchResult.pointsDelta >= 0 ? '#4ade80' : '#f87171',
+                      }}
+                    >
+                      {lastMatchResult.pointsDelta >= 0
+                        ? `+${lastMatchResult.pointsDelta} Pontos`
+                        : `${lastMatchResult.pointsDelta} Pontos`}
+                    </div>
+                    <div style={{ color: '#facc15', fontSize: '11px' }}>
+                      +{lastMatchResult.arenaCoinsDelta} Arena Coins
+                    </div>
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'right' }}>
-                  <div
-                    style={{
-                      fontWeight: 'bold',
-                      color: lastMatchResult.eloDelta >= 0 ? '#4ade80' : '#f87171',
-                    }}
-                  >
-                    {lastMatchResult.eloDelta >= 0
-                      ? `+${lastMatchResult.eloDelta} Elo`
-                      : `${lastMatchResult.eloDelta} Elo`}
+                {/* Detalhes de Arena: Spawns e Poções Automáticas */}
+                <div
+                  style={{
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    padding: '8px 10px',
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                    color: '#9ca3af',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '3px',
+                    borderLeft: '3px solid #3b82f6',
+                  }}
+                >
+                  <div>
+                    📍 <strong style={{ color: '#cbd5e1' }}>Spawns de Duelo:</strong> Seu spawn:{' '}
+                    <span style={{ color: '#60a5fa' }}>
+                      {lastMatchResult.playerSpawn ? `Spawn ${lastMatchResult.playerSpawn.id} (${lastMatchResult.playerSpawn.x}, ${lastMatchResult.playerSpawn.y})` : 'Spawn 1'}
+                    </span>{' '}
+                    vs Oponente:{' '}
+                    <span style={{ color: '#f87171' }}>
+                      {lastMatchResult.opponentSpawn ? `Spawn ${lastMatchResult.opponentSpawn.id} (${lastMatchResult.opponentSpawn.x}, ${lastMatchResult.opponentSpawn.y})` : 'Spawn 2'}
+                    </span>
                   </div>
-                  <div style={{ color: '#facc15', fontSize: '11px' }}>
-                    +{lastMatchResult.arenaCoinsDelta} Moedas
+                  <div>
+                    🧪 <strong style={{ color: '#cbd5e1' }}>Suprimentos de Duelo:</strong> 100 Health e 100 Mana Potions automáticas{' '}
+                    {lastMatchResult.potionsUsed && (
+                      <span style={{ color: '#94a3b8' }}>
+                        (Gastas: {lastMatchResult.potionsUsed.health} HP / {lastMatchResult.potionsUsed.mana} MP)
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

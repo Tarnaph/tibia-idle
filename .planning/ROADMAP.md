@@ -132,7 +132,13 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 184: Redesign da TopBar (HUD Superior), Reativação Dinâmica de Players Online e Renomeação para Exura Coins** - Reorganização da barra em 3 clusters: Esquerda (Perfil e Moedas ampliadas com monte de 100 gold coins clássico e Exura Coins), Centro (Badge de jogadores online em tempo real conectado ao Colyseus) e Direita (Botão da Loja reposicionado ao lado das ações e utilitários).
 - [x] **Phase 185: Trilha Sonora de Caçadas e Vídeo de Fundo na Autenticação** - Adição de faixas sonoras imersivas nas caçadas com transição suave, e vídeo atmosférico de fundo na tela de login/cadastro.
 - [x] **Phase 186: Estabilização Integral de FIX.md (Blocos A, B, C, D e E)** - [Bloco A] Persistência 8 checkpoints e transições de caçada sem reset; [Bloco B] Navegação do ADMIN com "Voltar ao Jogo" fluido e "Sair" com limpeza de sessão sem loops; [Bloco C] Promoção/remoção de GM pelo ADMIN com modal de confirmação, proteção GOD e auditoria; [Bloco D] Exibição do próprio título [GOD]/[GM] em dourado sobre o personagem na cidade e caçadas; [Bloco E] Contador de contas únicas online sem duplicar abas, incluindo cidade e caçadas. Todos os 5 blocos validados visualmente via CDP (Edge) e 20/20 testes no Vitest.
-- [ ] **Phase 187: Sistema de Imbuements (Imbuir Equipamentos com Slots, Tiers Basic/Intricate/Powerful, Bônus, Renovação Automática e Persistência)** - Ativação do botão Imbuements no dock, modal "Imbuir" fiel aos prints com seleção de membros da party, set equipado e mochila; slots com 3 tiers (Basic 7.5k, Intricate 60k, Powerful 250k), duração de 24h de caça, renovação automática opcional com débito no Party Vault, limpeza de slot gratuita, bônus dinâmicos em combate (skills, leeches, crit, proteções), exclusão de itens imbuídos do "Vender tudo" e tooltips informativos.
+- [x] **Phase 187: Sistema de Imbuements (Imbuir Equipamentos com Slots, Tiers Basic/Intricate/Powerful, Bônus, Renovação Automática e Persistência)** - Ativação do botão Imbuements no dock, modal "Imbuir" fiel aos prints com seleção de membros da party, set equipado e mochila; slots com 3 tiers (Basic 7.5k, Intricate 60k, Powerful 250k), duração de 24h de caça, renovação automática opcional com débito no Party Vault, limpeza de slot gratuita, bônus dinâmicos em combate (skills, leeches, crit, proteções), exclusão de itens imbuídos do "Vender tudo" e tooltips informativos.
+- [x] **Phase 188: Imbuements Funcionais na VPS com Validação End-to-End** - Deploy, integração permanente e validação visual de Imbuements na VPS de produção.
+- [x] **Phase 189: Sincronização Autoritativa de Transições e Persistência Resiliente** - Estabilização de rotas de caça e salvamento atômico de transições.
+- [x] **Phase 190: Whitelist de Magias Direcionais, Loading de Exura e Fluxo de Bênçãos & Morte** - Whitelist de `exori hur`, tela de loading sem flashes e persistência de Death/Blessings.
+- [x] **Phase 191: Assets Canônicos CipSoft de Blessings e Imbuements + Ranking e Ações Rápidas** - Charms autênticos CipSoft para as 5 bênçãos, creature products canônicos nos imbuements, dock com botões RANKING e ARENA PVP, e modal de Highscores autoritativo.
+- [x] **Phase 192: Ranked PvP Arena, Patentes de Caveiras e Renderização de Skulls no Nameplate** - Gerador de sprites de caveiras (Green, Yellow, White, Red, Black, Orange), modelagem de dados no Prisma DB, motor de táticas e renderização das caveiras em 60fps sobre o personagem em Thais.
+- [x] **Phase 193: Novas Hunts (Cyclops & Elf) e Arena PvP Funcional no Mapa com Duelos em Tempo Real** - Novas caçadas Cyclops e Elf com coordenadas exatas do RealMap, extração de regiões de mapa, Arena PvP com pareamento por rank, spawns aleatórios, 100 Health e 100 Mana potions automáticas, pontuação de +20 pts por vitória, 250 pts por rank, celebração comemorativa e desbloqueio do toggle de caveira no Rank 1.
 
 ---
 
@@ -3664,6 +3670,19 @@ Plans:
 - [x] 192-03-PLAN: Construção do modal ArenaPvPModal.tsx idêntico ao anexo (Elo, estatísticas, fila, loadout de PvP e táticas).
 - [x] 192-04-PLAN: Renderização das caveiras de rank (Verde, Amarela, Branca, Vermelha, Preta, Laranja) no nameplate dos personagens.
 - [x] 192-05-PLAN: Testes automatizados de combate de arena, typecheck e deploy na VPS.
+
+---
+
+### Phase 193: Novas Hunts (Cyclops & Elf) e Arena PvP Funcional no Mapa com Duelos em Tempo Real
+
+**Goal:** Adicionar as novas áreas de caçada de Cyclops (32416, 32041, 8) e Elf (32741, 31298, 7), e tornar a Arena PvP 100% funcional no mapa com spawns de duelo (33136, 32965, 8 e 33136, 32973, 8), movimentação mútua automática, combate com 100 Health e 100 Mana potions, pontuação de 20 pts por vitória, avanço de rank a cada 250 pontos com celebração na tela e liberação do toggle de caveira no Rank 1.
+
+**Plans:**
+- [ ] 193-01-PLAN: Mapeamento e inclusão das hunts Cyclops Camp e Elf Fortress nos catálogos de domínio, rotas e regiões OTBM.
+- [ ] 193-02-PLAN: Ajuste das regras de pontuação de PvP (20 pts por vitória, 250 pts por rank, trava de exibição da caveira antes de 250 pts).
+- [ ] 193-03-PLAN: Mapeamento da região da Arena PvP em (33136, 32969, 8) e suporte a spawns de duelo 1 e 2.
+- [ ] 193-04-PLAN: Implementação do fluxo de duelo automático (aproximação mútua, rotação de skills, poções automáticas 100 HP / 100 MP e modal/banner de celebração de rank).
+- [ ] 193-05-PLAN: Testes automatizados no Vitest, typecheck global e deploy na VPS.
 
 
 

@@ -73,12 +73,15 @@ function skipNode(buf: Buffer, start: number): number {
   return o;
 }
 
-const huntConfigs = [
+export const huntConfigs = [
   { huntId: 'rat-cellars', name: 'Rat Cellars', monsterName: 'Rat', recommendedLevel: 1, center: [32102, 32205, 8] as const, radius: 25, available: true },
   { huntId: 'spider-burrow', name: 'Spider Burrow', monsterName: 'Spider', recommendedLevel: 4, center: [0, 0, 0] as const, radius: 0, available: false },
   { huntId: 'troll-camp', name: 'Troll Camp', monsterName: 'Troll', recommendedLevel: 7, center: [32389, 31819, 9] as const, radius: 25, available: true },
   { huntId: 'old-crypt', name: 'Old Crypt', monsterName: 'Skeleton', recommendedLevel: 10, center: [32132, 32198, 10] as const, radius: 25, available: true },
   { huntId: 'rotworm-cave', name: 'Rotworm Cave', monsterName: 'Rotworm', recommendedLevel: 12, center: [32336, 31842, 10] as const, radius: 25, available: true },
+  { huntId: 'cyclops-camp', name: 'Cyclops Camp', monsterName: 'Cyclops', recommendedLevel: 30, center: [32416, 32041, 8] as const, radius: 25, available: true },
+  { huntId: 'elf-sanctuary', name: 'Elf Fortress', monsterName: 'Elf', recommendedLevel: 25, center: [32741, 31298, 7] as const, radius: 25, available: true },
+  { huntId: 'pvp-arena', name: 'Arena PvP', monsterName: 'Gladiator', recommendedLevel: 1, center: [33136, 32969, 8] as const, radius: 20, available: true },
   { huntId: 'dragon-lair', name: 'Dragon Lair', monsterName: 'Dragon', recommendedLevel: 45, center: [32741, 31294, 11] as const, radius: 25, available: true },
 ];
 

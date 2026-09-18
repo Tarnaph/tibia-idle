@@ -55,6 +55,20 @@ export const initialHunts: HuntDefinition[] = [
     waves: waves('rotworm', [1, 1, 2, 2, 2, 3, 3, 3, 4, 0], 'The Burrower', 2),
   },
   {
+    id: 'cyclops-camp', name: 'Cyclops Camp', displayName: 'Acampamento dos Ciclopes',
+    description: 'Montanha e cavernas rochosas habitadas por poderosos Ciclopes.', shortDescription: 'Ciclopes gigantes guardam os tesouros da colina.',
+    recommendedLevel: 30, minimumLevel: 1, monsters: ['cyclops'], rewardProfile: 'xp', status: 'available',
+    roomDefinitions: rooms('cyclops-camp'), environment: { regionId: 'cyclops-camp', label: 'Mount Sternum Cyclops', source: 'realmap11-otbm' },
+    waves: waves('cyclops', [1, 2, 2, 3, 3, 4, 4, 5, 5, 0], 'Monstrous Cyclops', 2),
+  },
+  {
+    id: 'elf-sanctuary', name: 'Elf Fortress', displayName: 'Fortaleza dos Elfos',
+    description: 'Antiga fortaleza élfica na floresta repleta de atiradores e arcanistas.', shortDescription: 'Elfos defendem seu santuário arbóreo.',
+    recommendedLevel: 25, minimumLevel: 1, monsters: ['elf', 'elf-scout'], rewardProfile: 'xp', status: 'available',
+    roomDefinitions: rooms('elf-sanctuary'), environment: { regionId: 'elf-sanctuary', label: 'Shadowthorn Elves', source: 'realmap11-otbm' },
+    waves: waves('elf', [2, 2, 3, 3, 4, 4, 5, 5, 6, 0], 'Dharalion', 2),
+  },
+  {
     id: 'dragon-lair', name: 'Dragon Lair', displayName: 'Profundezas Chamuscadas',
     description: 'Caverna profunda extraída de um lair real habitado por Dragons.', shortDescription: 'Um dragão antigo domina estas profundezas.',
     recommendedLevel: 45, minimumLevel: 1, monsters: ['dragon'], rewardProfile: 'xp', status: 'available',

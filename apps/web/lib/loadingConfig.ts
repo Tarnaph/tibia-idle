@@ -10,6 +10,18 @@ export const DRAGON_LAIR_LORE_CURIOSITIES: string[] = [
   'Um antigo livro afirma que os poderosos Dragon Lords possuem uma inesperada paixão por cogumelos e muitos deles carregavam misteriosos livros marcados com uma grande letra “T”',
 ];
 
+export const CYCLOPS_LORE_CURIOSITIES: string[] = [
+  'Os Ciclopes são criaturas brutais e corpulentas de um só olho, conhecidos por sua prodigiosa força física e forjas subterrâneas.',
+  'Diz a tradição que os antigos ferreiros Ciclopes moldaram maças, machados e armaduras pesadas nas profundezas de Mount Sternum e das colinas ao sul de Thais.',
+  'Apesar de lentos ao caminhar, os golpes pesados de um Cyclops podem facilmente quebrar escudos de aventureiros desprevenidos.',
+];
+
+export const ELF_LORE_CURIOSITIES: string[] = [
+  'Os Elfos são uma das raças mais ancestrais de Tibia, dotados de extrema destreza, visão apurada e harmonia com a natureza.',
+  'Sociedades élficas dividem-se em castas de batedores velozes (Scouts), arcanistas elementais (Arcanists) e soldados de elite guardiões de santuários sagrados.',
+  'As flechas disparadas por mestres elfos quase nunca erram o alvo, combinando veneno floral com rajadas mágicas penetrantes.',
+];
+
 export interface HuntLoadingConfig {
   bgImage: string;
   curiosities: string[];
@@ -24,6 +36,14 @@ export const HUNT_LOADING_CONFIGS: Record<string, HuntLoadingConfig> = {
   'dragon-lair': {
     bgImage: '/images/loading/dragon-lair-loading.jpg',
     curiosities: DRAGON_LAIR_LORE_CURIOSITIES,
+  },
+  'cyclops-camp': {
+    bgImage: '/images/loading/thais-loading.jpg',
+    curiosities: CYCLOPS_LORE_CURIOSITIES,
+  },
+  'elf-sanctuary': {
+    bgImage: '/images/loading/thais-loading.jpg',
+    curiosities: ELF_LORE_CURIOSITIES,
   },
 };
 

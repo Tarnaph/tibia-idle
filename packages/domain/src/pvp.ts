@@ -1,6 +1,10 @@
 /**
  * Ranked PvP Arena & Skull Patentes System
- * Regras canônicas de Elo, patentes de caveiras, táticas e recompensas da Arena.
+ * Regras canônicas de Pontuação, patentes de caveiras, táticas e recompensas da Arena.
+ * Conforme especificado:
+ * - Cada vitória concede +20 pontos.
+ * - Cada rank avança a cada 250 pontos.
+ * - Ao atingir 250 pontos (Rank 1 / Caveira Verde), o jogador pode ligar ou desligar a caveira.
  */
 
 export type PvPSkull = 'none' | 'green' | 'yellow' | 'white' | 'red' | 'black' | 'orange';
@@ -15,89 +19,100 @@ export type PvPTier =
   | 'Desafiante';
 
 export interface PvPTierInfo {
+  rankLevel: number;
   tier: PvPTier;
   skull: PvPSkull;
-  minElo: number;
-  maxElo: number;
+  minPoints: number;
+  maxPoints: number;
   label: string;
   badgeColor: string;
   skullAsset: string | null;
 }
 
+export const PVP_POINTS_PER_WIN = 20;
+export const PVP_POINTS_PER_RANK = 250;
+
 export const PVP_TIERS: PvPTierInfo[] = [
   {
+    rankLevel: 0,
     tier: 'Iniciante',
     skull: 'none',
-    minElo: 0,
-    maxElo: 999,
+    minPoints: 0,
+    maxPoints: 249,
     label: 'Iniciante',
     badgeColor: '#a1a1aa', // cinza
     skullAsset: null,
   },
   {
+    rankLevel: 1,
     tier: 'Bronze',
     skull: 'green',
-    minElo: 1000,
-    maxElo: 1249,
+    minPoints: 250,
+    maxPoints: 499,
     label: 'Bronze',
-    badgeColor: '#cd7f32', // bronze
+    badgeColor: '#22c55e', // verde
     skullAsset: '/assets/skulls/skull-green.png',
   },
   {
+    rankLevel: 2,
     tier: 'Prata',
     skull: 'yellow',
-    minElo: 1250,
-    maxElo: 1499,
+    minPoints: 500,
+    maxPoints: 749,
     label: 'Prata',
-    badgeColor: '#e2e8f0', // prata
+    badgeColor: '#eab308', // amarelo dourado
     skullAsset: '/assets/skulls/skull-yellow.png',
   },
   {
+    rankLevel: 3,
     tier: 'Ouro',
     skull: 'white',
-    minElo: 1500,
-    maxElo: 1749,
+    minPoints: 750,
+    maxPoints: 999,
     label: 'Ouro',
-    badgeColor: '#facc15', // ouro
+    badgeColor: '#f8fafc', // branco
     skullAsset: '/assets/skulls/skull-white.png',
   },
   {
+    rankLevel: 4,
     tier: 'Platina',
     skull: 'red',
-    minElo: 1750,
-    maxElo: 1999,
+    minPoints: 1000,
+    maxPoints: 1249,
     label: 'Platina',
-    badgeColor: '#38bdf8', // platina ciano
+    badgeColor: '#ef4444', // vermelho
     skullAsset: '/assets/skulls/skull-red.png',
   },
   {
+    rankLevel: 5,
     tier: 'Diamante',
     skull: 'black',
-    minElo: 2000,
-    maxElo: 2499,
+    minPoints: 1250,
+    maxPoints: 1499,
     label: 'Diamante',
-    badgeColor: '#c084fc', // diamante roxo / black
+    badgeColor: '#71717a', // preto / dark
     skullAsset: '/assets/skulls/skull-black.png',
   },
   {
+    rankLevel: 6,
     tier: 'Desafiante',
     skull: 'orange',
-    minElo: 2500,
-    maxElo: 99999,
+    minPoints: 1500,
+    maxPoints: 99999,
     label: 'Desafiante',
-    badgeColor: '#fb923c', // laranja fogo / challenger
+    badgeColor: '#f97316', // laranja
     skullAsset: '/assets/skulls/skull-orange.png',
   },
 ];
 
-export function getPvPTierInfo(elo: number, isTop1: boolean = false): PvPTierInfo {
-  if (isTop1 && elo >= 2000) {
+export function getPvPTierInfo(points: number, isTop1: boolean = false): PvPTierInfo {
+  if (isTop1 && points >= 1250) {
     return PVP_TIERS.find((t) => t.tier === 'Desafiante') || PVP_TIERS[PVP_TIERS.length - 1];
   }
 
-  const safeElo = Math.max(0, elo);
+  const safePoints = Math.max(0, points);
   for (let i = PVP_TIERS.length - 1; i >= 0; i--) {
-    if (safeElo >= PVP_TIERS[i].minElo) {
+    if (safePoints >= PVP_TIERS[i].minPoints) {
       return PVP_TIERS[i];
     }
   }
@@ -106,26 +121,81 @@ export function getPvPTierInfo(elo: number, isTop1: boolean = false): PvPTierInf
 }
 
 /**
- * Cálculo de ajuste de Elo FIDE (K-Factor 32)
+ * Verifica se o jogador pode ativar a exibição de caveira no outfit (Requer Rank 1 / 250 pontos)
  */
-export function calculateEloDelta(
-  playerElo: number,
-  opponentElo: number,
-  result: 'win' | 'loss' | 'draw',
-  kFactor: number = 32
-): number {
-  const expectedScore = 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400));
-  let actualScore = 0.5;
-  if (result === 'win') actualScore = 1.0;
-  if (result === 'loss') actualScore = 0.0;
-
-  const rawDelta = Math.round(kFactor * (actualScore - expectedScore));
-  
-  // Garantir limites mínimos de ganho/perda esportiva
-  if (result === 'win') return Math.max(10, rawDelta);
-  if (result === 'loss') return Math.min(-8, rawDelta);
-  return rawDelta;
+export function canDisplaySkull(points: number): boolean {
+  return points >= 250;
 }
+
+/**
+ * Calcula o progresso para o próximo rank
+ */
+export function getNextRankProgress(points: number): {
+  currentRank: number;
+  currentPoints: number;
+  nextRankPoints: number;
+  pointsNeeded: number;
+  isMaxRank: boolean;
+} {
+  const currentTier = getPvPTierInfo(points);
+  if (currentTier.rankLevel >= 6) {
+    return {
+      currentRank: 6,
+      currentPoints: points,
+      nextRankPoints: 1500,
+      pointsNeeded: 0,
+      isMaxRank: true,
+    };
+  }
+
+  const nextTier = PVP_TIERS[currentTier.rankLevel + 1];
+  const nextRankPoints = nextTier.minPoints;
+  const pointsNeeded = Math.max(0, nextRankPoints - points);
+
+  return {
+    currentRank: currentTier.rankLevel,
+    currentPoints: points,
+    nextRankPoints,
+    pointsNeeded,
+    isMaxRank: false,
+  };
+}
+
+/**
+ * Detecta se a partida resultou em avanço de Rank (mudança de caveira)
+ */
+export function checkRankPromotion(
+  oldPoints: number,
+  newPoints: number
+): { promoted: boolean; oldTier: PvPTierInfo; newTier: PvPTierInfo; nextGoalPoints: number } | null {
+  const oldTier = getPvPTierInfo(oldPoints);
+  const newTier = getPvPTierInfo(newPoints);
+
+  if (newTier.rankLevel > oldTier.rankLevel) {
+    const nextGoal = newTier.rankLevel >= 6 ? 0 : PVP_TIERS[newTier.rankLevel + 1].minPoints;
+    return {
+      promoted: true,
+      oldTier,
+      newTier,
+      nextGoalPoints: nextGoal,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Cálculo de ajuste de pontos de Arena:
+ * Vencedor ganha fixo +20 pontos.
+ */
+export function calculatePointsDelta(result: 'win' | 'loss' | 'draw'): number {
+  if (result === 'win') return PVP_POINTS_PER_WIN;
+  if (result === 'draw') return 5;
+  return 0; // derrota não subtrai pontos punitivos na liga esportiva
+}
+
+/** Alias para compatibilidade com versões anteriores */
+export const calculateEloDelta = calculatePointsDelta;
 
 export interface ArenaRewards {
   arenaCoins: number;
@@ -148,9 +218,10 @@ export interface PvPMatchRecord {
   opponentName: string;
   opponentVocation: string;
   opponentLevel: number;
-  opponentElo: number;
+  opponentPoints: number;
   result: 'win' | 'loss' | 'draw';
-  eloChange: number;
+  pointsChange: number;
+  eloChange?: number;
   timestamp: number;
 }
 
@@ -185,3 +256,9 @@ export const DEFAULT_PVP_TACTICS: PvPTacticBoard[] = [
     description: 'Evita combos de área de runas como Avalanche e Great Fireball.',
   },
 ];
+
+/** Coordenadas dos Spawns de Duelo da Arena */
+export const PVP_ARENA_SPAWNS = [
+  { id: 1, x: 33136, y: 32965, z: 8 },
+  { id: 2, x: 33136, y: 32973, z: 8 },
+] as const;

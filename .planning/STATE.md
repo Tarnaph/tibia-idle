@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-18T16:35:00.000Z"
-last_activity: "2026-09-18 — Phase 192 Concluída: Sistema de Arena PvP Ranqueada e Patentes de Caveiras."
+last_updated: "2026-09-18T17:00:00.000Z"
+last_activity: "2026-09-18 — Phase 193 Concluída: Novas Hunts (Cyclops & Elf) e Arena PvP Funcional no Mapa."
 progress:
-  total_phases: 192
-  completed_phases: 192
-  total_plans: 225
-  completed_plans: 225
+  total_phases: 193
+  completed_phases: 193
+  total_plans: 230
+  completed_plans: 230
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Ciclo v1.0 completo e entregue na VPS.
+**Current focus:** Phase 193 - Novas Hunts (Cyclops & Elf) e Arena PvP Funcional no Mapa com Duelos em Tempo Real (Concluída).
 
 ## Current Position
 
-Phase: 192 of 192  
-Plan: 5 of 5 in Phase 192  
+Phase: 193 of 193  
+Plan: 5 of 5 in Phase 193  
 Status: Complete  
-Last activity: 2026-09-18 — Todas as requisições de Blessings canônicas, Imbuements reais, Highscores ordenado com filtros e Arena PvP Ranqueada com Patentes de Caveiras foram 100% implementadas e validadas.
+Last activity: 2026-09-18 — Phase 193 finalizada com sucesso. Testes 100% aprovados e deploy na VPS.
 
 Progress: [██████████] 100%
 
