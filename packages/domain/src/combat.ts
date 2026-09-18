@@ -236,7 +236,7 @@ export function populateRespawnZone(state: GameState, content: GameContent, zone
       hp: resolved.maxHp, maxHp: resolved.maxHp, attackMax: resolved.attackMax, defense: resolved.defense, armor: resolved.armor,
       alive: true, position: clonePosition(tile.position), previousPosition: clonePosition(tile.position), direction: 'west', path: [], targetId: null,
       nextAttackAt: 0, attackIntervalMs: monster.attacks[0].intervalMs, speed: monster.speed, behavior: 'idle',
-      nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: 50, variant, respawnZoneId: zone.id,
+      nextRoamAt: encounter.elapsedMs + 720 + index * 240, nextMoveAt: 0, detectionRange: encounter.hunt.id === 'pvp-arena' ? 50 : 6, variant, respawnZoneId: zone.id,
     });
   }
   encounter.rngState = rng.state; encounter.enemies.push(...spawned);

@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 status: complete
 last_updated: "2026-09-18T18:30:00.000Z"
-last_activity: "2026-09-18 — Phase 195: Hunt System Rework (Catalog & Pull Size Difficulties) and PvP Arena Loading Fix."
+last_activity: "2026-09-18 — Phase 196: Hunt Pacing & Zone Spacing (Pull Size & Aggro Isolation)."
 progress:
-  total_phases: 195
-  completed_phases: 195
-  total_plans: 236
-  completed_plans: 236
+  total_phases: 196
+  completed_phases: 196
+  total_plans: 237
+  completed_plans: 237
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 195 - Hunt System Rework (Catalog & Pull Size Difficulties) and PvP Arena Loading Fix [CONCLUÍDO].
+**Current focus:** Phase 196 - Hunt Pacing & Zone Spacing (Pull Size & Aggro Isolation) [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 195 of 195  
-Plan: 1 of 1 in Phase 195  
+Phase: 196 of 196  
+Plan: 1 of 1 in Phase 196  
 Status: Complete  
-Last activity: 2026-09-18 — Concluída Phase 195: reformulação da interface de caçadas em duas telas com seletor de pull size (Cauteloso 2-3, Ousado 4, Agressivo 5-6), variantes de monstros por dificuldade e resolução do travamento de loading na Arena PvP.
+Last activity: 2026-09-18 — Concluída Phase 196: espaçamento homogêneo de respawns ao longo do roteiro de caçadas, ajuste de raio de detecção para 6 tiles em cavernas e isolamento de pulls (apenas 2 a 3 monstros por encontro no modo Cauteloso).
 
 Progress: [██████████] 100%
 

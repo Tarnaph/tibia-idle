@@ -361,7 +361,7 @@ function nearestActor(enemy: EnemyState, encounter: HuntEncounterState): PartyAc
   }
   if (enemy.targetId) {
     const current = encounter.partyActors.find((actor) => actor.characterId === enemy.targetId && actor.alive);
-    if (current && meleeDistance(enemy.position, current.position) <= Math.max(50, enemy.detectionRange || 50)) {
+    if (current && meleeDistance(enemy.position, current.position) <= Math.max(10, (enemy.detectionRange || 6) + 3)) {
       return current;
     }
   }
@@ -380,7 +380,7 @@ export function moveEnemiesTowardParty(encounter: HuntEncounterState): void {
     if (encounter.elapsedMs < enemy.nextMoveAt) continue;
     const target = nearestActor(enemy, encounter);
     const targetDistance = target ? meleeDistance(enemy.position, target.position) : Number.POSITIVE_INFINITY;
-    const maxDetectionRange = Math.max(50, enemy.detectionRange || 50);
+    const maxDetectionRange = enemy.detectionRange || 6;
     if (!target || targetDistance > maxDetectionRange) {
       enemy.targetId = null;
       enemy.behavior = encounter.elapsedMs >= enemy.nextRoamAt ? 'roam' : 'idle';

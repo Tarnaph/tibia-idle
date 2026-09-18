@@ -92,12 +92,35 @@ export function createContinuousHuntRoute(
   })).filter(({ position }) => room.map.tiles[position.y * room.map.width + position.x]?.walkable
     && findPath(room.map, room.entrance, [position], new Set()).length > 0);
   const usedSourcePositions = new Set<string>();
+  const chosenCenters: GridPosition[] = [];
+  const count = profile.length;
   const respawnZones: RespawnZone[] = profile.map(([minCount, maxCount], index) => {
-    const pathCenter = clonePosition(path[Math.min(outwardLength - 1, Math.max(1, Math.round(((index + 1) / 6) * (outwardLength - 1))))]);
-    const source = [...importedSpawns].filter((candidate) => !usedSourcePositions.has(`${candidate.position.x},${candidate.position.y}`))
-      .sort((a, b) => Math.abs(a.position.x - pathCenter.x) + Math.abs(a.position.y - pathCenter.y) - Math.abs(b.position.x - pathCenter.x) - Math.abs(b.position.y - pathCenter.y))[0];
-    if (source) usedSourcePositions.add(`${source.position.x},${source.position.y}`);
-    const center = clonePosition(source?.position ?? pathCenter);
+    const ratio = (index + 1) / (count + 1);
+    const step = Math.min(outwardLength - 1, Math.max(1, Math.round(ratio * (outwardLength - 1))));
+    const pathCenter = clonePosition(path[step] ?? room.entrance);
+
+    const candidateSource = importedSpawns
+      .filter((s) => !usedSourcePositions.has(`${s.position.x},${s.position.y}`))
+      .filter((s) => {
+        const distToPath = Math.abs(s.position.x - pathCenter.x) + Math.abs(s.position.y - pathCenter.y);
+        if (distToPath > 6) return false;
+        return chosenCenters.every((c) => Math.abs(s.position.x - c.x) + Math.abs(s.position.y - c.y) >= 7);
+      })
+      .sort((a, b) => {
+        const da = Math.abs(a.position.x - pathCenter.x) + Math.abs(a.position.y - pathCenter.y);
+        const db = Math.abs(b.position.x - pathCenter.x) + Math.abs(b.position.y - pathCenter.y);
+        return da - db;
+      })[0];
+
+    let center = pathCenter;
+    let source: { position: GridPosition; spawntime?: number } | undefined = undefined;
+    if (candidateSource) {
+      usedSourcePositions.add(`${candidateSource.position.x},${candidateSource.position.y}`);
+      center = clonePosition(candidateSource.position);
+      source = candidateSource;
+    }
+    chosenCenters.push(center);
+
     const positions = importedSpawns.filter((candidate) => Math.abs(candidate.position.x - center.x) + Math.abs(candidate.position.y - center.y) <= 5)
       .slice(0, maxCount).map((candidate) => clonePosition(candidate.position));
     if (positions.length === 0) positions.push(center);
@@ -105,7 +128,7 @@ export function createContinuousHuntRoute(
       id: `${hunt.id}-respawn-${index + 1}`,
       center, positions, radius: 3, monsterPool,
       monsterComposition: monsterPool.map((id) => ({ monsterId: id, count: Math.ceil(Math.min(maxCount, Math.max(minCount, positions.length)) / monsterPool.length) })),
-      minCount, maxCount, activationRadius: 4,
+      minCount, maxCount, activationRadius: 6,
       sourceRespawnSeconds: source?.spawntime ?? null, gameRespawnSeconds: 20,
     });
   });
