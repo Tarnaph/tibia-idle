@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-17T22:35:00.000Z"
-last_activity: "2026-09-17 — Phase 186 Concluída: Estabilização de Persistência, Navegação Admin, Promoção a GM e Título no Mapa (FIX.md)."
+last_updated: "2026-09-18T10:00:00.000Z"
+last_activity: "2026-09-18 — Phase 187 Concluída: Sistema de Imbuements (Imbuir Equipamentos, Slots, Tiers Basic/Intricate/Powerful, Renovação Automática, Tooltip e Persistência)."
 progress:
-  total_phases: 186
-  completed_phases: 186
-  total_plans: 196
-  completed_plans: 196
+  total_phases: 187
+  completed_phases: 187
+  total_plans: 200
+  completed_plans: 200
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 186 Concluída - FIX.md: Persistência (Bloco A), Navegação Admin (Bloco B), Promoção a GM (Bloco C), Título no Mapa (Bloco D) e Contador de Contas Únicas Online (Bloco E).
+**Current focus:** Phase 187 - Concluída com sucesso!
 
 ## Current Position
 
-Phase: 186 of 186  
-Plan: 4 of 4 in Phase 186  
+Phase: 187 of 187  
+Plan: 4 of 4 in Phase 187  
 Status: Complete  
-Last activity: 2026-09-17 — Fase 186 concluída, testada e publicada na VPS com sucesso.
+Last activity: 2026-09-18 — Conclusão da Phase 187: Modal Imbuir, 17 imbuements canônicos, 23 testes Vitest aprovados, 0 erros typecheck.
 
 Progress: [██████████] 100%
 

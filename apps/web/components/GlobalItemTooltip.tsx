@@ -3,6 +3,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
 import { formatTibiaLookText } from '@/packages/domain/src/itemLook';
+import {
+  CANONICAL_IMBUEMENTS,
+  formatImbuementRemainingTime,
+  type ImbuementSlotState,
+  type ItemAttributes,
+  type ImbuementTier,
+} from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
 import economyJson from '@/content/generated/item-economy.json';
 import equipmentJson from '@/content/generated/equipment.json';
@@ -44,6 +51,9 @@ export interface GlobalTooltipItemData {
   lockSell?: boolean;
   quickSell?: boolean;
   twoHanded?: boolean;
+  attributes?: ItemAttributes | null;
+  attributesJson?: string | null;
+  equippedInName?: string;
 }
 
 export interface PlayerInspectData {
@@ -227,6 +237,21 @@ export function GlobalItemTooltip() {
   // Canonical Tibia Look formatting
   const look = formatTibiaLookText(equip ?? data, data.amount);
 
+  // Resolve imbuements from attributes or attributesJson
+  let parsedAttributes: ItemAttributes | null = data.attributes ?? null;
+  if (!parsedAttributes && data.attributesJson) {
+    try {
+      parsedAttributes = JSON.parse(data.attributesJson);
+    } catch {
+      parsedAttributes = null;
+    }
+  }
+  const activeImbuements: ImbuementSlotState[] = Array.isArray(parsedAttributes?.imbuements)
+    ? (parsedAttributes!.imbuements as ImbuementSlotState[]).filter(
+        (s) => s && s.imbuementId && s.remainingSeconds > 0
+      )
+    : [];
+
   return (
     <div
       id="global-item-tooltip-layer"
@@ -335,6 +360,38 @@ export function GlobalItemTooltip() {
         </div>
       )}
 
+      {/* Imbuements Section (matching Screenshot 4) */}
+      {activeImbuements.length > 0 && (
+        <div
+          className="item-tooltip-imbuements-block"
+          style={{
+            marginTop: '8px',
+            padding: '6px 8px',
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            borderRadius: '4px',
+            borderLeft: '3px solid #22c55e',
+          }}
+        >
+          <div style={{ fontSize: '11px', fontWeight: 700, color: '#e5e7eb', marginBottom: '3px' }}>
+            Imbuements:
+          </div>
+          {activeImbuements.map((imb, idx) => {
+            const imbDef = CANONICAL_IMBUEMENTS.find((c) => c.id.toLowerCase() === imb.imbuementId.toLowerCase());
+            const rawTier = imb.tier || 'Basic';
+            const tierKey = (rawTier.charAt(0).toUpperCase() + rawTier.slice(1).toLowerCase()) as ImbuementTier;
+            const tierData = imbDef?.tiers[tierKey];
+            const imbName = imbDef?.name || imb.imbuementId;
+            const statLabel = tierData?.label || '';
+            const timeStr = formatImbuementRemainingTime(imb.remainingSeconds);
+            return (
+              <div key={idx} style={{ color: '#4ade80', fontSize: '11px', fontWeight: 600, lineHeight: 1.4 }}>
+                {imbName} {tierKey}{statLabel ? ` — ${statLabel}` : ''} · {timeStr}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {(equip?.twoHanded || data.twoHanded || look.twoHanded) && (
         <div className="item-tooltip-badge two-handed">⚔️ Arma de duas mãos</div>
       )}
@@ -343,6 +400,41 @@ export function GlobalItemTooltip() {
       )}
       {data.lockSell && (
         <div className="item-tooltip-badge locked">🔒 Venda Bloqueada</div>
+      )}
+
+      {/* Active Imbuement Warning Notice (Screenshot 4) */}
+      {activeImbuements.length > 0 && (
+        <div
+          className="item-tooltip-imbuement-warning"
+          style={{
+            marginTop: '10px',
+            paddingTop: '6px',
+            borderTop: '1px dashed rgba(234, 179, 8, 0.4)',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ color: '#facc15', fontSize: '11px', fontWeight: 700 }}>
+            Imbuement ativo
+          </div>
+          <div style={{ color: '#eab308', fontSize: '10px', opacity: 0.9, lineHeight: 1.3 }}>
+            Sai no &quot;Vender tudo&quot;, ou espere o imbuement acabar.
+          </div>
+        </div>
+      )}
+
+      {/* Equipped In Character Notice (Screenshot 4) */}
+      {data.equippedInName && (
+        <div
+          style={{
+            marginTop: '6px',
+            fontSize: '11px',
+            color: '#9ca3af',
+            textAlign: 'center',
+            fontWeight: 500,
+          }}
+        >
+          Equipado em {data.equippedInName}
+        </div>
       )}
     </div>
   );

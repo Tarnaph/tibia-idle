@@ -17,9 +17,10 @@ import { createRoomState, roomDefinitionAt } from './spatial/rooms';
 import { clonePosition, samePosition } from './spatial/tileMap';
 import type { GridPosition } from './spatial/types';
 import type {
-  CharacterState, CombatEvent, CombatLogEntry, CombatStance, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
+  CharacterEquipmentSlot, CharacterState, CombatEvent, CombatLogEntry, CombatStance, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
   LootStack, MonsterVariantDefinition, PartyActorState, SessionState, TargetSelectionStrategy,
 } from './types';
+import { tickImbuementTime } from './imbuements';
 import type { MonsterDefinition } from '../../content-schema/src';
 import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
 
@@ -1729,6 +1730,23 @@ function playerAttacks(state: GameState, content: GameContent): void {
         encounter.rngState = rng.state;
         target.hp = Math.max(0, target.hp - damage);
         encounter.events.push({ type: 'player-attack', sourceId: actor.characterId, targetId: target.id, damage, element: pending.element || 'physical' });
+        if (damage > 0) {
+          if (pending.lifeLeechPercent && pending.lifeLeechPercent > 0) {
+            const healedHp = Math.max(1, Math.round(damage * (pending.lifeLeechPercent / 100)));
+            const char = state.session.characters.find((candidate) => candidate.id === actor.characterId);
+            const maxHp = char?.maxHp || 150;
+            actor.hp = Math.min(maxHp, actor.hp + healedHp);
+            if (char) char.currentHp = actor.hp;
+            encounter.visualEvents.push({ type: 'heal-applied', sourceId: actor.characterId, targetId: actor.characterId, effectId: 12 });
+          }
+          if (pending.manaLeechPercent && pending.manaLeechPercent > 0) {
+            const restoredMana = Math.max(1, Math.round(damage * (pending.manaLeechPercent / 100)));
+            const char = state.session.characters.find((candidate) => candidate.id === actor.characterId);
+            const maxMana = char?.maxMana || 35;
+            actor.mana = Math.min(maxMana, actor.mana + restoredMana);
+            if (char) char.currentMana = actor.mana;
+          }
+        }
         if (pending.ranged) {
           const effectId = pending.effectId ?? 12;
           encounter.visualEvents.push({ type: 'projectile-hit', sourceId: actor.characterId, targetId: target.id, effectId });
@@ -1747,7 +1765,8 @@ function playerAttacks(state: GameState, content: GameContent): void {
             addLog(state, `You advanced in ${skillDisplayName}.`);
           }
         }
-        addLog(state, `${character.name} atingiu ${target.name} por ${damage} com ${pending.weaponName}.`);
+        const critText = pending.isCritical ? ' (CRÍTICO!)' : '';
+        addLog(state, `${character.name} atingiu ${target.name} por ${damage}${critText} com ${pending.weaponName}.`);
         if (target.hp <= 0 && target.alive) defeatEnemy(state, target, content);
       }
     }
@@ -1831,6 +1850,7 @@ function playerAttacks(state: GameState, content: GameContent): void {
 
     const rng = createSeededRng(encounter.rngState);
     let effectiveAttack = 0;
+    let isCritical = false;
     if (wandDef) {
       actor.mana = Math.max(0, actor.mana - wandDef.mana);
       syncCharacterResources(state, actor);
@@ -1841,6 +1861,15 @@ function playerAttacks(state: GameState, content: GameContent): void {
       const stance = character.stance ?? actor.stance ?? 'offensive';
       const stanceMultiplier = stance === 'offensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
       effectiveAttack = Math.max(1, Math.round(stats.attack * stanceMultiplier));
+    }
+
+    if (stats.criticalChancePercent && stats.criticalChancePercent > 0) {
+      const critRoll = rollInteger(rng, 1, 100);
+      if (critRoll <= stats.criticalChancePercent) {
+        isCritical = true;
+        const extraCritDmg = Math.round(effectiveAttack * ((stats.criticalDamagePercent || 10) / 100));
+        effectiveAttack += extraCritDmg;
+      }
     }
     encounter.rngState = rng.state;
 
@@ -1856,6 +1885,9 @@ function playerAttacks(state: GameState, content: GameContent): void {
       element: wandDef?.element,
       effectId: wandDef?.effectId,
       projectileId: wandDef?.projectileId,
+      isCritical,
+      lifeLeechPercent: stats.lifeLeechPercent,
+      manaLeechPercent: stats.manaLeechPercent,
     };
     encounter.visualEvents.push({ type: 'basic-attack-started', sourceId: character.id, targetId: target.id, ranged });
     if (ranged) {
@@ -2296,6 +2328,23 @@ export function advanceCombat(state: GameState, content: GameContent, deltaMs = 
       encounter.status = 'completed';
       encounter.events.push({ type: 'hunt-complete' });
       addLog(next, `${character.name}: a estamina acabou! A caçada foi encerrada.`);
+    }
+
+    // Tick imbuements on equipped items
+    if (character.equipmentAttributes) {
+      for (const [slot, attr] of Object.entries(character.equipmentAttributes)) {
+        if (character.equipment[slot as CharacterEquipmentSlot] && attr && Array.isArray(attr.imbuements) && attr.imbuements.length > 0) {
+          const res = tickImbuementTime(attr.imbuements, deltaSec, next.session.gold);
+          if (res.goldDeducted > 0) {
+            next.session.gold = Math.max(0, next.session.gold - res.goldDeducted);
+            addLog(next, `Imbuement renovado automaticamente para ${character.name}! (-${res.goldDeducted} gp da Caixa da Party)`);
+          }
+          if (res.expiredCount > 0) {
+            addLog(next, `Um imbuement de ${character.name} no slot ${slot} expirou!`);
+          }
+          attr.imbuements = res.updated;
+        }
+      }
     }
   }
 

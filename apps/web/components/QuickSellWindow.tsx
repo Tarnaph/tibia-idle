@@ -45,6 +45,7 @@ export function QuickSellWindow({
       if (stack.itemId === undefined) return false;
       const pref = state.session.itemLootPreferences[String(stack.itemId)];
       if (pref?.lockSell) return false; // Travar venda exclui da venda rápida
+      if ((stack as any).attributes?.imbuements?.length > 0 || (stack as any).attributesJson?.includes('"imbuements"')) return false;
       return priceMap.has(stack.itemId);
     });
   }, [backpackItems, priceMap, state.session.itemLootPreferences]);

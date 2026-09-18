@@ -132,6 +132,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 184: Redesign da TopBar (HUD Superior), Reativação Dinâmica de Players Online e Renomeação para Exura Coins** - Reorganização da barra em 3 clusters: Esquerda (Perfil e Moedas ampliadas com monte de 100 gold coins clássico e Exura Coins), Centro (Badge de jogadores online em tempo real conectado ao Colyseus) e Direita (Botão da Loja reposicionado ao lado das ações e utilitários).
 - [x] **Phase 185: Trilha Sonora de Caçadas e Vídeo de Fundo na Autenticação** - Adição de faixas sonoras imersivas nas caçadas com transição suave, e vídeo atmosférico de fundo na tela de login/cadastro.
 - [x] **Phase 186: Estabilização Integral de FIX.md (Blocos A, B, C, D e E)** - [Bloco A] Persistência 8 checkpoints e transições de caçada sem reset; [Bloco B] Navegação do ADMIN com "Voltar ao Jogo" fluido e "Sair" com limpeza de sessão sem loops; [Bloco C] Promoção/remoção de GM pelo ADMIN com modal de confirmação, proteção GOD e auditoria; [Bloco D] Exibição do próprio título [GOD]/[GM] em dourado sobre o personagem na cidade e caçadas; [Bloco E] Contador de contas únicas online sem duplicar abas, incluindo cidade e caçadas. Todos os 5 blocos validados visualmente via CDP (Edge) e 20/20 testes no Vitest.
+- [ ] **Phase 187: Sistema de Imbuements (Imbuir Equipamentos com Slots, Tiers Basic/Intricate/Powerful, Bônus, Renovação Automática e Persistência)** - Ativação do botão Imbuements no dock, modal "Imbuir" fiel aos prints com seleção de membros da party, set equipado e mochila; slots com 3 tiers (Basic 7.5k, Intricate 60k, Powerful 250k), duração de 24h de caça, renovação automática opcional com débito no Party Vault, limpeza de slot gratuita, bônus dinâmicos em combate (skills, leeches, crit, proteções), exclusão de itens imbuídos do "Vender tudo" e tooltips informativos.
 
 ---
 
@@ -3565,11 +3566,39 @@ Plans:
 
 **Status:** Complete
 
+### Phase 187: Sistema de Imbuements (Imbuir Equipamentos, Slots, Tiers Basic/Intricate/Powerful, Renovação Automática e Persistência)
 
+**Goal:** Implementar o sistema completo de Imbuements ativando o botão de Imbuements no jogo, criando a janela modal "Imbuir" fiel aos prints fornecidos (com seleção de membros da party, set equipado e mochila, identificação visual de itens com slots vs apagados), sistema de 3 categorias (Basic: 7.500 GP, Intricate: 60.000 GP, Powerful: 250.000 GP), duração de 24 horas de tempo de caçada ativa, renovação automática opcional com débito no Party Vault, ação de limpar slot gratuita, exclusão de itens imbuídos do "Vender tudo" da loja/quicksell, cálculo em combate de stats e leeches quando equipado, e tooltips informativos em verde com tempo restante.
 
+**Requirements:**
+- Ativação do botão `IMBUEMENTS` no `BottomDock.tsx` e `QuickActionDock.tsx` abrindo o `ImbuingModal`.
+- Modal "Imbuir" com design autêntico dos prints:
+  - Abas de vocação/personagem no topo ([EK], [ED], [RP]).
+  - Coluna esquerda: Set de equipamentos do personagem selecionado e linha horizontal da mochila, com itens sem slots apagados e itens com slots clicáveis e destacados.
+  - Exibição do ouro compartilhado / Party Vault no canto inferior esquerdo.
+  - Painel central/direito: Detalhes do item selecionado, quantidade de slots, slots vazios com `+` ou imbuídos com ícone, 3 pontos de tier e tempo restante (`24h00m`).
+  - Seletor de categorias: Basic (7.500 GP), Intricate (60.000 GP) e Powerful (250.000 GP).
+  - Grid de imbuements compatíveis com o tipo de equipamento (capacete, armadura, escudo, arma, bota, mochila).
+  - Checkbox e toggle de "Renovar automaticamente quando acabar" explicando cobrança ao fim do tempo.
+  - Botão "Limpar slot (grátis)" quando já imbuído.
+  - Botão principal "IMBUIR" com débito de ouro do Party Vault.
+- Regra de exclusão: Itens com imbuement ativo são excluídos de "Vender tudo" na loja de NPCs e no QuickSell.
+- Tooltip de Look e Hover: Seção `Imbuements:` destacada em verde com nome, tier, bônus e tempo restante (`Slash Powerful — melee +4 · 22h17m`), mais rodapé avisando que o item está imbuído e protegido.
+- Motor de jogo e combate:
+  - Bônus só são aplicados quando o item está equipado e com tempo > 0.
+  - Desequipar remove os bônus instantaneamente.
+  - Tempo só decrementa durante caçadas ativas (ticks de hunt).
+  - Suporte a Melee (Slash, Chop, Bash: +1/+2/+4), Distance (Precision: +1/+2/+4), Magic Level (Epiphany: +1/+2/+4), Shielding (Blockade: +1/+2/+4), Life Leech (Vampirism: 5%/10%/25%), Mana Leech (Void: 3%/5%/8%), Critical Hit (Strike: +15%/+25%/+50%), Proteções Elementais (3%/8%/15%), Velocidade (Swiftness: +10/+15/+20) e Capacidade (Featherweight: +3%/+8%/+15%).
+- Persistência permanente em banco de dados Prisma (`attributesJson` em `inventory_items`), sobrevivendo a reconexões e restarts.
+- 0 erros de tipagem TypeScript e 100% de aprovação nos testes Vitest.
 
+**Plans:**
+- [x] 187-01-PLAN: Catálogo de Imbuements, mapeamento de slots por item, compatibilidade e cálculo de bônus no domínio/combate.
+- [x] 187-02-PLAN: Persistência permanente em `attributesJson`, consumo de tempo em caçada, renovação automática e proteção contra "Vender tudo".
+- [x] 187-03-PLAN: Modal visual "Imbuir" fiel aos prints (seleção de party, set paperdoll, mochila, slots, tiers e feedback visual) e ativação no Dock.
+- [x] 187-04-PLAN: Tooltips globais de itens imbuídos, integração end-to-end, suíte de testes automatizados e deploy VPS.
 
-
+**Status:** Complete
 
 
 

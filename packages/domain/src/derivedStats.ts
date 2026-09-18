@@ -1,7 +1,8 @@
 import type { EquipmentDefinition, VocationDefinition } from '../../content-schema/src';
-import type { CharacterSkills, CharacterState, TrainableSkill } from './types';
+import type { CharacterEquipmentSlot, CharacterSkills, CharacterState, TrainableSkill } from './types';
 import { findEquipment } from './equipment';
 import { findWandDefinition } from './wands';
+import { calculateImbuementBonuses, type ActiveImbuementSlot, type AggregatedImbuementBonuses } from './imbuements';
 
 export interface SkillTooltipInfo {
   name: string;
@@ -26,6 +27,19 @@ export interface DerivedStats {
   movementSpeedBonus: number;
   magicDamageResistancePercent: number;
   physicalDamageMitigationPercent: number;
+  imbuementBonuses?: AggregatedImbuementBonuses;
+  lifeLeechPercent?: number;
+  manaLeechPercent?: number;
+  criticalDamagePercent?: number;
+  criticalChancePercent?: number;
+  elementalProtections?: {
+    earth: number;
+    fire: number;
+    ice: number;
+    energy: number;
+    death: number;
+    holy: number;
+  };
 }
 
 export function getEquippedItems(
@@ -39,7 +53,11 @@ export function getEquippedItems(
   });
 }
 
-function effectiveSkills(character: CharacterState, items: EquipmentDefinition[]): CharacterSkills {
+function effectiveSkills(
+  character: CharacterState,
+  items: EquipmentDefinition[],
+  imbuementBonuses?: AggregatedImbuementBonuses,
+): CharacterSkills {
   const result = { ...character.skills };
   for (const item of items) {
     for (const [skill, bonus] of Object.entries(item.skillBonuses)) {
@@ -49,6 +67,14 @@ function effectiveSkills(character: CharacterState, items: EquipmentDefinition[]
       }
     }
     if (item.magicLevelBonus !== null) result.magicLevel += item.magicLevelBonus;
+  }
+  if (imbuementBonuses) {
+    result.sword += imbuementBonuses.skillSword;
+    result.axe += imbuementBonuses.skillAxe;
+    result.club += imbuementBonuses.skillClub;
+    result.distance += imbuementBonuses.skillDist;
+    result.shielding += imbuementBonuses.skillShield;
+    result.magicLevel += imbuementBonuses.magicLevel;
   }
   return result;
 }
@@ -74,9 +100,22 @@ export function deriveStats(
   character: CharacterState,
   catalog: EquipmentDefinition[],
   vocation: VocationDefinition,
+  customAttributes?: Partial<Record<CharacterEquipmentSlot, any>>,
 ): DerivedStats {
   const items = getEquippedItems(character, catalog);
-  const skills = effectiveSkills(character, items);
+
+  // Extrair imbuements ativos exclusivamente dos slots que estão atualmente equipados
+  const activeImbuements: ActiveImbuementSlot[] = [];
+  const attributesSource = customAttributes || character.equipmentAttributes;
+  if (attributesSource) {
+    for (const [slot, attr] of Object.entries(attributesSource)) {
+      if (character.equipment[slot as CharacterEquipmentSlot] && attr && Array.isArray(attr.imbuements)) {
+        activeImbuements.push(...attr.imbuements);
+      }
+    }
+  }
+  const imbuementBonuses = calculateImbuementBonuses(activeImbuements);
+  const skills = effectiveSkills(character, items, imbuementBonuses);
   const weapon = activeWeapon(items);
   const wandDef = weapon ? findWandDefinition(weapon.id) : undefined;
   const isWand = Boolean(wandDef || weapon?.weaponType === 'wand');
@@ -110,23 +149,18 @@ export function deriveStats(
     defenseSkill = skills.shielding;
     defenseValue = shield.defense + (weapon?.extraDefense ?? 0);
   }
-  const defenseFactor = 1;
+
   const defense = Math.trunc(
-    ((defenseSkill / 4) + 2.23) * defenseValue * 0.15 * defenseFactor * vocation.defenseMultiplier,
+    (defenseSkill / 4 + 1) * (defenseValue / 2) * vocation.defenseMultiplier,
   );
-  const armor = Math.trunc(
-    items.reduce((total, item) => total + item.armor, 0) * vocation.armorMultiplier,
-  );
+  const armor = items.reduce((acc, item) => acc + item.armor, 0);
 
-  // Skill-based physical speed & interval reductions (uses character's highest physical fighting skill)
-  const physicalSkillLevel = Math.max(skills.sword, skills.axe, skills.club, skills.distance, skills.fist);
+  const activeWeaponSkill = skills[activeSkill];
+  const attackSpeedBonusPercent = Number(Math.min(50, activeWeaponSkill * 0.4).toFixed(1));
+  const attackIntervalMs = Math.round(2000 / (1 + attackSpeedBonusPercent / 100));
 
-  const attackSpeedBonusPercent = Number((physicalSkillLevel * 0.4).toFixed(1));
-  const attackIntervalMs = Math.max(1000, Math.round(vocation.attackSpeedMs * (1 - attackSpeedBonusPercent / 100)));
-  const movementSpeedBonus = Math.floor(physicalSkillLevel * 0.8);
-
-  // Magic level & shielding resistance/mitigation
-  const magicDamageResistancePercent = Number(Math.min(40, skills.magicLevel * 0.4).toFixed(1));
+  const movementSpeedBonus = (character.skills.fist * 0.25) + imbuementBonuses.speed;
+  const magicDamageResistancePercent = Number(Math.min(25, skills.magicLevel * 0.5).toFixed(1));
   const physicalDamageMitigationPercent = Number(Math.min(30, skills.shielding * 0.3).toFixed(1));
 
   return {
@@ -144,6 +178,12 @@ export function deriveStats(
     movementSpeedBonus,
     magicDamageResistancePercent,
     physicalDamageMitigationPercent,
+    imbuementBonuses,
+    lifeLeechPercent: imbuementBonuses.lifeLeechPercent,
+    manaLeechPercent: imbuementBonuses.manaLeechPercent,
+    criticalDamagePercent: imbuementBonuses.criticalDamagePercent,
+    criticalChancePercent: imbuementBonuses.criticalChancePercent,
+    elementalProtections: imbuementBonuses.elementalProtections,
   };
 }
 

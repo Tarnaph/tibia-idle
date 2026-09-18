@@ -113,8 +113,8 @@ export function EquipmentPanel({
                 data-equipment-slot={slot}
                 onPointerDown={(event) => item && !disabled && onPointerDragStart({ kind: 'equipped', slot }, event)}
                 onClick={() => item && onTransfer({ kind: 'equipped', slot }, { kind: 'inventory' })}
-                onMouseEnter={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
-                onMouseMove={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
+                onMouseEnter={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label, attributes: character.equipmentAttributes?.[slot], equippedInName: character.name }, e)}
+                onMouseMove={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label, attributes: character.equipmentAttributes?.[slot], equippedInName: character.name }, e)}
                 onMouseLeave={() => hideGlobalItemTooltip()}
                 disabled={disabled}
                 title={item ? `Clique para desequipar ${item.name}` : `Solte um item compatível em ${label}`}

@@ -45,10 +45,12 @@ export function resolveSkillKey(sk: { skillId?: number; skillName?: string }): k
 
 export interface HydratedInventoryResult {
   equipment: Record<CharacterEquipmentSlot, number | null>;
+  equipmentAttributes: Partial<Record<CharacterEquipmentSlot, any>>;
+  itemAttributes: Record<number, any>;
   equipmentIds: number[];
   gold: number;
-  bag: Array<{ itemId?: number; name: string; amount: number }>;
-  loot: Array<{ itemId?: number; name: string; amount: number }>;
+  bag: Array<{ itemId?: number; name: string; amount: number; attributes?: any }>;
+  loot: Array<{ itemId?: number; name: string; amount: number; attributes?: any }>;
 }
 
 export function parseInventoryData(
@@ -56,8 +58,8 @@ export function parseInventoryData(
   contentEquipment: any[]
 ): HydratedInventoryResult {
   let gold = 0;
-  const bag: Array<{ itemId?: number; name: string; amount: number }> = [];
-  const loot: Array<{ itemId?: number; name: string; amount: number }> = [];
+  const bag: Array<{ itemId?: number; name: string; amount: number; attributes?: any }> = [];
+  const loot: Array<{ itemId?: number; name: string; amount: number; attributes?: any }> = [];
   const equipment: Record<CharacterEquipmentSlot, number | null> = {
     head: null,
     armor: null,
@@ -66,6 +68,8 @@ export function parseInventoryData(
     leftHand: null,
     rightHand: null,
   };
+  const equipmentAttributes: Partial<Record<CharacterEquipmentSlot, any>> = {};
+  const itemAttributes: Record<number, any> = {};
   const equipmentIds: number[] = [];
 
   const equipSlots: Record<string, CharacterEquipmentSlot> = {
@@ -87,12 +91,28 @@ export function parseInventoryData(
       const normSlot = typeof item.slot === 'string' ? item.slot.toLowerCase() : '';
       const targetSlot = equipSlots[normSlot];
 
+      let parsedAttr: any = null;
+      if (item.attributesJson) {
+        try {
+          parsedAttr = typeof item.attributesJson === 'string' ? JSON.parse(item.attributesJson) : item.attributesJson;
+        } catch {}
+      } else if (item.attributes) {
+        parsedAttr = item.attributes;
+      }
+
+      if (parsedAttr && serverId) {
+        itemAttributes[serverId] = parsedAttr;
+      }
+
       if (item.slot === 'gold' || serverId === 2148 || item.name === 'Gold Coin') {
         gold += count;
       } else if (serverId === 2152 || item.name === 'Platinum Coin') {
         gold += count * 100;
       } else if (targetSlot) {
         equipment[targetSlot] = serverId;
+        if (parsedAttr) {
+          equipmentAttributes[targetSlot] = parsedAttr;
+        }
         if (!equipmentIds.includes(serverId)) {
           equipmentIds.push(serverId);
         }
@@ -101,6 +121,7 @@ export function parseInventoryData(
           itemId: serverId,
           name: item.name || 'Item',
           amount: count,
+          attributes: parsedAttr,
         });
         if (findEquipment(contentEquipment, serverId) && !equipmentIds.includes(serverId)) {
           equipmentIds.push(serverId);
@@ -110,6 +131,7 @@ export function parseInventoryData(
           itemId: serverId,
           name: item.name || 'Loot',
           amount: count,
+          attributes: parsedAttr,
         });
         if (findEquipment(contentEquipment, serverId) && !equipmentIds.includes(serverId)) {
           equipmentIds.push(serverId);
@@ -124,12 +146,13 @@ export function parseInventoryData(
             itemId: serverId,
             name: item.name || 'Item',
             amount: count,
+            attributes: parsedAttr,
           });
         }
       }
     });
   }
 
-  return { equipment, equipmentIds, gold, bag, loot };
+  return { equipment, equipmentAttributes, itemAttributes, equipmentIds, gold, bag, loot };
 }
 

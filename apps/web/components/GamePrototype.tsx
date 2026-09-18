@@ -78,6 +78,15 @@ import { GroupHuntApprovalModal } from './party/GroupHuntApprovalModal';
 import { UnifiedPartyModal } from './party/UnifiedPartyModal';
 import { LogoutConfirmModal } from './character/LogoutConfirmModal';
 import { PromotionModal } from './character/PromotionModal';
+import { ImbuingModal } from './ImbuingModal';
+import {
+  CANONICAL_IMBUEMENTS,
+  IMBUEMENT_TIER_COSTS,
+  IMBUEMENT_DURATION_SECONDS,
+  type ActiveImbuementSlot,
+  type ImbuementDefinition,
+  type ImbuementTier,
+} from '@/packages/domain/src/imbuements';
 import { TibiaAuthCharacterModal, type CharacterItem, type AuthAccount } from './auth/TibiaAuthCharacterModal';
 import { gameNetwork, type RemotePlayerSnapshot, type PartySnapshot, type PartyInvitation, type PartyHuntProposal } from '../lib/GameClientNetworkManager';
 import { useAuth } from '../auth/AuthProvider';
@@ -226,6 +235,7 @@ function GamePrototypeContent() {
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [depotOpen, setDepotOpen] = useState(false);
   const [quickSellOpen, setQuickSellOpen] = useState(false);
+  const [imbuingModalOpen, setImbuingModalOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [equipmentMessage, setEquipmentMessage] = useState('Arraste ou clique em um item para alterar o loadout.');
   const [saleMessage, setSaleMessage] = useState('Itens sem preço comprovado permanecem no pouch.');
@@ -700,6 +710,12 @@ function GamePrototypeContent() {
           }
         }
       });
+    }
+
+    if (Array.isArray(c.inventory)) {
+      const inv = parseInventoryData(c.inventory, content.equipment);
+      ch.equipment = { ...ch.equipment, ...inv.equipment };
+      ch.equipmentAttributes = inv.equipmentAttributes;
     }
     return ch;
   }, [content]);
@@ -1484,6 +1500,7 @@ function GamePrototypeContent() {
     if (Array.isArray(dbInventory)) {
       const parsedInv = parseInventoryData(dbInventory, content.equipment);
       userChar.equipment = parsedInv.equipment;
+      userChar.equipmentAttributes = parsedInv.equipmentAttributes;
       userChar.inventory.equipmentIds = parsedInv.equipmentIds;
       loadedGold = parsedInv.gold;
       loadedBag.push(...parsedInv.bag);
@@ -1747,12 +1764,14 @@ function GamePrototypeContent() {
         const itemId = primaryChar.equipment[slot];
         if (itemId) {
           const eqDef = findEquipment(curEquipment, itemId);
+          const attr = primaryChar.equipmentAttributes?.[slot];
           inventoryPayload.push({
             slot,
             serverId: itemId,
             name: eqDef?.name || 'Equipment',
             count: 1,
-          });
+            ...(attr ? { attributesJson: JSON.stringify(attr) } : {}),
+          } as any);
           savedServerIds.add(itemId);
         }
       });
@@ -1972,12 +1991,14 @@ function GamePrototypeContent() {
             const itemId = alt.equipment[slot];
             if (itemId) {
               const eqDef = findEquipment(curEquipment, itemId);
+              const attr = alt.equipmentAttributes?.[slot];
               altInventoryPayload.push({
                 slot,
                 serverId: itemId,
                 name: eqDef?.name || 'Equipment',
                 count: 1,
-              });
+                ...(attr ? { attributesJson: JSON.stringify(attr) } : {}),
+              } as any);
               altSavedIds.add(itemId);
             }
           });
@@ -3043,6 +3064,140 @@ function GamePrototypeContent() {
     setHuntSelectorOpen(true);
   }, [mode]);
 
+  const handleImbueItem = useCallback(
+    async (
+      characterId: string,
+      target: { kind: 'equipment'; slot: CharacterEquipmentSlot } | { kind: 'backpack'; index: number; serverId: number },
+      imbuementId: string,
+      tier: ImbuementTier,
+      autoRenew: boolean
+    ): Promise<boolean> => {
+      const imbDef = CANONICAL_IMBUEMENTS.find((i: ImbuementDefinition) => i.id === imbuementId);
+      if (!imbDef) return false;
+      const tierInfo = imbDef.tiers[tier];
+      const cost = IMBUEMENT_TIER_COSTS[tier];
+
+      if (game.session.gold < cost) {
+        setSaleMessage(`Gold insuficiente na Caixa da Party (${cost.toLocaleString('pt-BR')} gp necessários)!`);
+        return false;
+      }
+
+      setGame((cur) => {
+        const nextChars = cur.session.characters.map((c) => {
+          if (c.id !== characterId) return c;
+          const char = { ...c };
+          char.equipmentAttributes = { ...(char.equipmentAttributes || {}) };
+
+          if (target.kind === 'equipment') {
+            const slotAttr = { ...(char.equipmentAttributes[target.slot] || {}) };
+            const existing = Array.isArray(slotAttr.imbuements) ? [...slotAttr.imbuements] : [];
+            const nextSlotIdx = existing.length;
+            existing.push({
+              slotIndex: nextSlotIdx,
+              imbuementId,
+              name: imbDef.name,
+              tier,
+              stat: imbDef.stat,
+              value: tierInfo.value,
+              effectDescription: tierInfo.label,
+              cost,
+              remainingSeconds: IMBUEMENT_DURATION_SECONDS,
+              autoRenew,
+            });
+            slotAttr.imbuements = existing;
+            char.equipmentAttributes[target.slot] = slotAttr;
+          }
+          return char;
+        });
+
+        return {
+          ...cur,
+          session: {
+            ...cur.session,
+            gold: Math.max(0, cur.session.gold - cost),
+            characters: nextChars,
+          },
+        };
+      });
+
+      setSaleMessage(`Item imbuído com sucesso com ${imbDef.name} ${tier} (-${cost.toLocaleString('pt-BR')} gp)!`);
+      return true;
+    },
+    [game.session.gold]
+  );
+
+  const handleClearSlot = useCallback(
+    async (
+      characterId: string,
+      target: { kind: 'equipment'; slot: CharacterEquipmentSlot } | { kind: 'backpack'; index: number; serverId: number },
+      slotIndex: number
+    ): Promise<boolean> => {
+      setGame((cur) => {
+        const nextChars = cur.session.characters.map((c) => {
+          if (c.id !== characterId) return c;
+          const char = { ...c };
+          char.equipmentAttributes = { ...(char.equipmentAttributes || {}) };
+          if (target.kind === 'equipment') {
+            const slotAttr = { ...(char.equipmentAttributes[target.slot] || {}) };
+            if (Array.isArray(slotAttr.imbuements)) {
+              slotAttr.imbuements = slotAttr.imbuements
+                .filter((s: ActiveImbuementSlot) => s.slotIndex !== slotIndex)
+                .map((s: ActiveImbuementSlot, idx: number) => ({ ...s, slotIndex: idx }));
+              char.equipmentAttributes[target.slot] = slotAttr;
+            }
+          }
+          return char;
+        });
+        return {
+          ...cur,
+          session: {
+            ...cur.session,
+            characters: nextChars,
+          },
+        };
+      });
+      setSaleMessage('Slot de imbuement limpo com sucesso (grátis)!');
+      return true;
+    },
+    []
+  );
+
+  const handleToggleAutoRenew = useCallback(
+    async (
+      characterId: string,
+      target: { kind: 'equipment'; slot: CharacterEquipmentSlot } | { kind: 'backpack'; index: number; serverId: number },
+      slotIndex: number,
+      autoRenew: boolean
+    ): Promise<boolean> => {
+      setGame((cur) => {
+        const nextChars = cur.session.characters.map((c) => {
+          if (c.id !== characterId) return c;
+          const char = { ...c };
+          char.equipmentAttributes = { ...(char.equipmentAttributes || {}) };
+          if (target.kind === 'equipment') {
+            const slotAttr = { ...(char.equipmentAttributes[target.slot] || {}) };
+            if (Array.isArray(slotAttr.imbuements)) {
+              slotAttr.imbuements = slotAttr.imbuements.map((s: ActiveImbuementSlot) =>
+                s.slotIndex === slotIndex ? { ...s, autoRenew } : s
+              );
+              char.equipmentAttributes[target.slot] = slotAttr;
+            }
+          }
+          return char;
+        });
+        return {
+          ...cur,
+          session: {
+            ...cur.session,
+            characters: nextChars,
+          },
+        };
+      });
+      return true;
+    },
+    []
+  );
+
   const handleStartTraining = (skillName?: string, targetDummy?: TrainingDummyInfo) => {
     if (mode === 'hunt') {
       setSaleMessage('O treino nos dummies só pode ser realizado em Thais.');
@@ -3974,6 +4129,7 @@ function GamePrototypeContent() {
         onOpenDepot={() => setDepotOpen(true)}
         onOpenQuickSell={() => setQuickSellOpen(true)}
         onOpenTraining={handleOpenTrainingMenu}
+        onOpenImbuements={() => setImbuingModalOpen(true)}
         onSelectHunt={() => {
           setHuntSelectorTab('CAÇADAS');
           setHuntSelectorOpen(true);
@@ -4099,6 +4255,17 @@ function GamePrototypeContent() {
         onToggleQuickSellPreference={(itemId) => {
           setGame((cur) => updateItemLootPreference(cur, itemId, { quickSell: !itemLootPreference(cur, itemId).quickSell }));
         }}
+      />
+      <ImbuingModal
+        isOpen={imbuingModalOpen}
+        onClose={() => setImbuingModalOpen(false)}
+        characters={game.session.characters}
+        selectedCharacterId={game.session.selectedCharacterId}
+        equipmentCatalog={content.equipment}
+        partyGold={game.session.gold}
+        onImbueItem={handleImbueItem}
+        onClearSlot={handleClearSlot}
+        onToggleAutoRenew={handleToggleAutoRenew}
       />
       <HuntSelector
         open={huntSelectorOpen}

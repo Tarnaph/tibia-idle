@@ -25,6 +25,7 @@ interface BottomDockProps {
   onOpenDepot?: () => void;
   onOpenQuickSell?: () => void;
   onOpenTraining?: () => void;
+  onOpenImbuements?: () => void;
   onSelectHunt?: () => void;
   onChangeStance?: (stance: CombatStance) => void;
   onChangeTargetDistance?: (distance: number) => void;
@@ -48,6 +49,7 @@ export function BottomDock({
   onOpenDepot,
   onOpenQuickSell,
   onOpenTraining,
+  onOpenImbuements,
   onSelectHunt,
   onChangeStance,
   onChangeTargetDistance,
@@ -218,8 +220,8 @@ export function BottomDock({
             <button
               type="button"
               className="quick-action-btn btn-imbuements"
-              onClick={() => {}}
-              title="Imbuements"
+              onClick={onOpenImbuements}
+              title="Gerenciar Imbuements"
             >
               IMBUEMENTS
             </button>

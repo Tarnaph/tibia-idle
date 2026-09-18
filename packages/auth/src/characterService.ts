@@ -440,7 +440,7 @@ export class CharacterService {
       mount?: string;
       mountActive?: boolean;
       skills?: Array<{ skillId: number; skillName: string; value: number; tries?: bigint }> | Record<string, any>;
-      inventory?: Array<{ slot: string; serverId: number; name: string; count: number }>;
+      inventory?: Array<{ slot: string; serverId: number; name: string; count: number; tier?: number; attributesJson?: string | null; attributes?: any }>;
       replaceFullInventory?: boolean;
       hotbar?: any;
       hotbarConfigs?: any;
@@ -908,7 +908,12 @@ export class CharacterService {
               serverId: eq.serverId,
               name: eq.name || 'Item',
               count: Math.max(1, Math.min(maxCount, Number(eq.count || 1))),
-              tier: 0,
+              tier: typeof (eq as any).tier === 'number' ? (eq as any).tier : 0,
+              attributesJson: typeof (eq as any).attributesJson === 'string'
+                ? (eq as any).attributesJson
+                : (eq as any).attributes
+                  ? JSON.stringify((eq as any).attributes)
+                  : null,
             };
           });
 

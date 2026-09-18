@@ -23,3 +23,4 @@ export * from './stamina';
 export * from './wands';
 export * from './itemLook';
 export * from './progressionStages';
+export * from './imbuements';

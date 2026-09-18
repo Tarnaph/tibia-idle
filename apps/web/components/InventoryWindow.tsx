@@ -228,8 +228,8 @@ export function InventoryWindow({
                   key={slot}
                   className={`paperdoll-slot-box ${item ? 'occupied' : 'empty'}`}
                   style={{ gridArea }}
-                  onMouseEnter={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
-                  onMouseMove={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label }, e)}
+                  onMouseEnter={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label, attributes: isSupportedEquipSlot ? character.equipmentAttributes?.[slot as CharacterEquipmentSlot] : undefined, equippedInName: character.name }, e)}
+                  onMouseMove={(e) => item && showGlobalItemTooltip({ item, itemId: item.id, name: item.name, slot: label, attributes: isSupportedEquipSlot ? character.equipmentAttributes?.[slot as CharacterEquipmentSlot] : undefined, equippedInName: character.name }, e)}
                   onMouseLeave={() => hideGlobalItemTooltip()}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => isSupportedEquipSlot && handleDropOnSlot(e, slot as CharacterEquipmentSlot)}

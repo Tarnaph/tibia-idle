@@ -33,7 +33,11 @@ export function RightSidebar(props: RightSidebarProps) {
   const [menu, setMenu] = useState<{ x: number; y: number; stack: LootStack } | null>(null);
   const lootTotal = loot.reduce((total, stack) => total + stack.amount, 0);
   const prices = new Map(economy.items.map((item) => [item.itemId, preferredSellPrice(item)?.price ?? null]));
-  const sellableValue = loot.reduce((total, stack) => total + (stack.itemId === undefined ? 0 : (prices.get(stack.itemId) ?? 0) * stack.amount), 0);
+  const sellableValue = loot.reduce((total, stack) => {
+    if (stack.itemId === undefined) return total;
+    if ((stack as any).attributes?.imbuements?.length > 0 || (stack as any).attributesJson?.includes('"imbuements"')) return total;
+    return total + (prices.get(stack.itemId) ?? 0) * stack.amount;
+  }, 0);
   return (
     <aside className={`client-sidebar right-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <button type="button" className="sidebar-mobile-close" onClick={onMobileClose}>Fechar backpack ×</button>

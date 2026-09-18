@@ -100,6 +100,7 @@ export interface CharacterState {
     manaSpent: number;
     manaSimulationRemainderMs: number;
   };
+  equipmentAttributes?: Partial<Record<CharacterEquipmentSlot, any>>;
 }
 
 export interface PartyActorState {
@@ -142,6 +143,9 @@ export interface PendingBasicAttack {
   element?: string;
   effectId?: number;
   projectileId?: number;
+  isCritical?: boolean;
+  lifeLeechPercent?: number;
+  manaLeechPercent?: number;
 }
 
 export type EnemyBehavior = 'idle' | 'roam' | 'detect' | 'chase' | 'attack';
