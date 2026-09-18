@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-18T17:35:00.000Z"
-last_activity: "2026-09-18 — Phase 194 Concluída: Live PvP Arena Matchmaking, Real-Time Map Teleport & Automated Duel."
+last_updated: "2026-09-18T18:30:00.000Z"
+last_activity: "2026-09-18 — Phase 195: Hunt System Rework (Catalog & Pull Size Difficulties) and PvP Arena Loading Fix."
 progress:
-  total_phases: 194
-  completed_phases: 194
-  total_plans: 235
-  completed_plans: 235
+  total_phases: 195
+  completed_phases: 195
+  total_plans: 236
+  completed_plans: 236
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 194 - Live PvP Arena Matchmaking, Real-Time Map Teleport & Automated Duel (Complete).
+**Current focus:** Phase 195 - Hunt System Rework (Catalog & Pull Size Difficulties) and PvP Arena Loading Fix [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 194 of 194  
-Plan: 5 of 5 in Phase 194  
+Phase: 195 of 195  
+Plan: 1 of 1 in Phase 195  
 Status: Complete  
-Last activity: 2026-09-18 — Concluída Phase 194 com fila online autoritativa, timeout de 18s com mensagem informativa, teletransporte idêntico às hunts nos spawns oficiais (33136, 32965 e 33136, 32973) e duelo com 100 poções automáticas.
+Last activity: 2026-09-18 — Concluída Phase 195: reformulação da interface de caçadas em duas telas com seletor de pull size (Cauteloso 2-3, Ousado 4, Agressivo 5-6), variantes de monstros por dificuldade e resolução do travamento de loading na Arena PvP.
 
 Progress: [██████████] 100%
 

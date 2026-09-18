@@ -120,6 +120,15 @@ export function getHuntWorldEntrance(
   const region = content.huntRegions.find((r) => r.huntId === hunt.id);
 
   if (!region || region.available === false || !region.tiles || region.tiles.length === 0) {
+    if (huntId === 'pvp-arena' || hunt.id === 'pvp-arena') {
+      return {
+        worldPosition: { x: 33136, y: 32969, z: 8 },
+        localPosition: { x: 20, y: 20, z: 8 },
+        bounds: { x: 33116, y: 32949, z: 8, width: 41, height: 41 },
+        isInsideMap: true,
+        isWalkable: true,
+      };
+    }
     const defaultCenter = region?.sourceCenter ?? { x: 0, y: 0, z: 0 };
     return {
       worldPosition: { x: defaultCenter.x, y: defaultCenter.y, z: defaultCenter.z },

@@ -21,7 +21,7 @@ import {
   calculateDeathPenaltyReport, type DeathPenaltyReport, buyBlessing, buyAllMissingBlessings,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate, type TrainingDummyInfo,
-  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState, type EnemyState,
+  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState, type EnemyState, type HuntPullSize,
 } from '@/packages/domain/src';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -368,7 +368,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   modeRef.current = mode;
   const cityPosRef = useRef(cityPos);
   cityPosRef.current = cityPos;
-  const startSelectedHuntRef = useRef<(huntId: string) => void>(() => {});
+  const startSelectedHuntRef = useRef<(huntId: string, pullSize?: HuntPullSize) => void>(() => {});
   const seedRef = useRef(seed);
   seedRef.current = seed;
   const prepareHuntCharactersRef = useRef<(cur: any) => any>((cur) => cur);
@@ -379,6 +379,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     nextSeed: string;
     entrance: any;
     pvpMatch?: any;
+    pullSize?: HuntPullSize;
   } | null>(null);
   const activePvPDuelRef = useRef<{
     duelId: string;
@@ -3015,7 +3016,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const totalLoot = game.session.loot.reduce((total, stack) => total + stack.amount, 0);
   const metrics = calculateSessionRates({ kills: encounter.corpses.length, damageDealt: 0, damageTaken: 0 }, { elapsedMs, xpGained: leader.experience, lootGained: totalLoot, roomsReached: encounter.room.number });
 
-  const startSelectedHunt = (huntId: string) => {
+  const startSelectedHunt = (huntId: string, pullSize?: HuntPullSize) => {
     const targetHunt = content.hunts.find((h) => h.id === huntId) ?? encounter.hunt;
     setHuntSelectorOpen(false);
     setIsTrainingAtDummy(false);
@@ -3043,7 +3044,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     const entrance = getHuntWorldEntrance(huntId, content);
     const region = content.huntRegions.find((r) => r.huntId === targetHunt.id);
 
-    console.log(`[HUNT] selectedHunt: ${huntId}`);
+    console.log(`[HUNT] selectedHunt: ${huntId} (pullSize: ${pullSize ?? 'default'})`);
     console.log(`[HUNT] mapId: ${region?.huntId ?? huntId}`);
     console.log(`[HUNT] configured entrance: (${region?.sourceCenter.x ?? 32369}, ${region?.sourceCenter.y ?? 32241}, ${region?.sourceCenter.z ?? 7})`);
     console.log(`[HUNT] map bounds: x:${entrance.bounds.x} y:${entrance.bounds.y} w:${entrance.bounds.width} h:${entrance.bounds.height} z:${entrance.bounds.z}`);
@@ -3063,12 +3064,13 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     setIsArenaReady(false);
     combatStartedRef.current = false;
 
-    // Phase 107: Defer hunt spawn, authoritative teleport, and combat ticker until loading finishes!
+    // Phase 107 & 195: Defer hunt spawn, authoritative teleport, combat ticker, and pullSize until loading finishes!
     pendingHuntTransitionRef.current = {
       huntId,
       targetHunt,
       nextSeed,
       entrance,
+      pullSize,
     };
   };
   startSelectedHuntRef.current = startSelectedHunt;
@@ -4556,9 +4558,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onClose={() => setHuntSelectorOpen(false)}
         onSelect={startSelectedHunt}
         onOpenPartyModal={() => setPartyModalOpen(true)}
+        onOpenArena={() => setIsPvPArenaModalOpen(true)}
         onStartTraining={handleStartTraining}
         isPartyLeader={Boolean(multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId && multiplayerParty.members.length > 1)}
-        onSelectWithTeam={(huntId, huntName) => {
+        onSelectWithTeam={(huntId, huntName, pullSize) => {
           setHuntSelectorOpen(false);
           const nextSeed = seed.trim() || defaultSeed;
           gameNetwork.sendPartyHuntPropose(huntId, huntName, nextSeed);
@@ -4971,8 +4974,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 pendingHuntTransitionRef.current = null;
                 setIsArenaReady(false);
                 combatStartedRef.current = false;
+                // Safety net: Garante que a tela de loading nunca trave se o callback do Pixi demorar
+                setTimeout(() => setIsArenaReady(true), 1200);
                 setGame((current) => {
-                  const restarted = restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId);
+                  const restarted = restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId, pending.pullSize);
                   if (pending.pvpMatch) {
                     const pvp = pending.pvpMatch;
                     const opp = pvp.opponent;

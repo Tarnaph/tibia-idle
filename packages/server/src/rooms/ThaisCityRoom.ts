@@ -564,10 +564,16 @@ export class ThaisCityRoom extends Room<WorldState> {
 
         this.updatePlayerHuntContext(player, wantsHunt, data.huntId);
         if (wantsHunt && data.huntId) {
-          const entrance = getHuntWorldEntrance(data.huntId, gameContent);
-          player.posX = entrance.worldPosition.x;
-          player.posY = entrance.worldPosition.y;
-          player.posZ = entrance.worldPosition.z;
+          if (data.huntId === 'pvp-arena') {
+            player.posX = 33136;
+            player.posY = 32969;
+            player.posZ = 8;
+          } else {
+            const entrance = getHuntWorldEntrance(data.huntId, gameContent);
+            player.posX = entrance.worldPosition.x;
+            player.posY = entrance.worldPosition.y;
+            player.posZ = entrance.worldPosition.z;
+          }
           player.isWalking = false;
           player.lastStepTime = 0;
         }

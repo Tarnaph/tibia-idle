@@ -1,8 +1,46 @@
 import type { HuntRegionDefinition } from '../../content-schema/src';
-import type { HuntDefinition, HuntRoute, RespawnZone } from './types';
+import type { HuntDefinition, HuntPullSize, HuntRoute, RespawnZone } from './types';
 import type { GridPosition, RoomState } from './spatial/types';
 import { findPath } from './spatial/pathfinding';
 import { clonePosition } from './spatial/tileMap';
+
+export type { HuntPullSize };
+
+export function getPullSizeCounts(huntId: string, pullSize?: HuntPullSize): [number, number] {
+  if (huntId === 'pvp-arena') return [1, 1];
+  switch (pullSize) {
+    case 'cauteloso':
+      return [2, 3];
+    case 'ousado':
+      return [4, 4];
+    case 'agressivo':
+      return [5, 6];
+    default:
+      return [2, 3];
+  }
+}
+
+export function getPullSizeMonsterPool(huntId: string, pullSize?: HuntPullSize, basePool: string[] = []): string[] {
+  const effective = pullSize ?? 'cauteloso';
+  if (huntId === 'elf-sanctuary' || huntId.includes('elf')) {
+    if (effective === 'cauteloso') return ['elf'];
+    if (effective === 'ousado') return ['elf', 'elf-scout'];
+    return ['elf', 'elf-scout', 'elf-arcanist'];
+  }
+  if (huntId === 'rat-cellars' || huntId.includes('rat')) {
+    if (effective === 'cauteloso') return ['rat'];
+    return ['rat', 'cave-rat'];
+  }
+  if (huntId === 'cyclops-camp' || huntId.includes('cyclops')) {
+    if (effective === 'cauteloso') return ['cyclops'];
+    return ['cyclops', 'cyclops-smith'];
+  }
+  if (huntId === 'dragon-lair' || huntId.includes('dragon')) {
+    if (effective === 'agressivo') return ['dragon', 'dragon-lord'];
+    return ['dragon'];
+  }
+  return basePool && basePool.length > 0 ? basePool : ['rat'];
+}
 
 const counts: Record<string, Array<[number, number]>> = {
   'rat-cellars': [[2, 3], [3, 3], [2, 4], [3, 4], [4, 4], [3, 5]],
@@ -35,12 +73,20 @@ function routeThroughMap(room: RoomState): GridPosition[] {
   return [clonePosition(room.entrance), ...outward.map(clonePosition), ...homeward.slice(1).map(clonePosition)];
 }
 
-export function createContinuousHuntRoute(hunt: HuntDefinition, room: RoomState, region?: HuntRegionDefinition): HuntRoute {
+export function createContinuousHuntRoute(
+  hunt: HuntDefinition,
+  room: RoomState,
+  region?: HuntRegionDefinition,
+  pullSize?: HuntPullSize
+): HuntRoute {
   const path = routeThroughMap(room);
   const outwardLength = Math.max(2, Math.ceil(path.length / 2));
-  const profile = counts[hunt.id] ?? Array.from({ length: 6 }, () => [2, 4] as [number, number]);
-  const monsterPool = hunt.monsters && hunt.monsters.length > 0 ? hunt.monsters : [hunt.waves[0].monsterId];
+  const basePool = hunt.monsters && hunt.monsters.length > 0 ? hunt.monsters : [hunt.waves[0].monsterId];
+  const monsterPool = getPullSizeMonsterPool(hunt.id, pullSize, basePool);
   const monsterId = monsterPool[0];
+  const profile = pullSize
+    ? Array.from({ length: 6 }, () => getPullSizeCounts(hunt.id, pullSize))
+    : (counts[hunt.id] ?? Array.from({ length: 6 }, () => [2, 4] as [number, number]));
   const importedSpawns = (region?.spawnPositions ?? []).map((spawn) => ({
     position: { x: spawn.x - (region?.bounds.x ?? 0), y: spawn.y - (region?.bounds.y ?? 0), z: spawn.z }, spawntime: spawn.spawntime ?? 60,
   })).filter(({ position }) => room.map.tiles[position.y * room.map.width + position.x]?.walkable
@@ -56,13 +102,17 @@ export function createContinuousHuntRoute(hunt: HuntDefinition, room: RoomState,
       .slice(0, maxCount).map((candidate) => clonePosition(candidate.position));
     if (positions.length === 0) positions.push(center);
     return ({
-    id: `${hunt.id}-respawn-${index + 1}`,
-    center, positions, radius: 3, monsterPool, monsterComposition: monsterPool.map((id) => ({ monsterId: id, count: Math.ceil(Math.min(maxCount, Math.max(minCount, positions.length)) / monsterPool.length) })), minCount, maxCount, activationRadius: 4,
-    sourceRespawnSeconds: source?.spawntime ?? null, gameRespawnSeconds: 20,
-  }); });
+      id: `${hunt.id}-respawn-${index + 1}`,
+      center, positions, radius: 3, monsterPool,
+      monsterComposition: monsterPool.map((id) => ({ monsterId: id, count: Math.ceil(Math.min(maxCount, Math.max(minCount, positions.length)) / monsterPool.length) })),
+      minCount, maxCount, activationRadius: 4,
+      sourceRespawnSeconds: source?.spawntime ?? null, gameRespawnSeconds: 20,
+    });
+  });
   return {
     huntId: hunt.id, mapRegion: hunt.environment.regionId, entryPoint: clonePosition(room.entrance), path,
     respawnZones,
+    pullSize,
     rareSpawnRules: {
       probability: 0.04,
       variant: { baseMonsterId: monsterId, name: `Enraged ${monsterId.replaceAll('-', ' ')}`, hpMultiplier: 2, damageMultiplier: 1.25, defenseMultiplier: 1.15, xpMultiplier: 2, lootMultiplier: 1.5, scale: 1.12, visualModifier: 'rare-aura' },

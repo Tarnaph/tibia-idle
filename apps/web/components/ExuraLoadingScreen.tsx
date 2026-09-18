@@ -175,8 +175,9 @@ export function ExuraLoadingScreen({
       const isAssetsComplete = !waitForAssets || assetPreloader.isComplete();
       const assetProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
 
+      const isTimedOut = elapsed >= effectiveDuration + 2000;
       let effectivePct: number;
-      if (!waitForAssets) {
+      if (!waitForAssets || isTimedOut) {
         effectivePct = timePct;
       } else if (!isAssetsComplete) {
         effectivePct = Math.min(99, Math.max(timePct * 0.4, assetProgressPct));
@@ -187,11 +188,12 @@ export function ExuraLoadingScreen({
       const pct = Math.min(100, effectivePct);
       setProgress(pct);
 
-      if (pct < 100 || (!isAssetsComplete && waitForAssets)) {
+      if ((pct < 100 || (!isAssetsComplete && waitForAssets)) && !isTimedOut) {
         animationFrameId = requestAnimationFrame(tick);
       } else {
-        // Recursos essenciais prontos e barra 100%
+        // Recursos essenciais prontos ou tempo limite de segurança atingido
         isHandled = true;
+        setProgress(100);
         setIsFadingOut(true);
         finishTimeoutId = setTimeout(() => {
           setIsVisible(false);

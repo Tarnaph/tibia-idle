@@ -9251,20 +9251,669 @@ h1, h2, h3, p { margin: 0; }
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
 }
 
+/* ==========================================================================
+   Phase 195: Rework do Seletor de Caçadas (Two-Screen Catalog & Pull Size Setup)
+   ========================================================================== */
 
+.hunt-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 14, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.hunt-frame-container {
+  width: 990px;
+  max-width: 96vw;
+  height: 680px;
+  max-height: 94vh;
+  background: #141824;
+  border: 2px solid #283348;
+  border-radius: 6px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  font-family: inherit;
+  color: #cbd5e1;
+}
 
+/* Window Title Bar */
+.hunt-window-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #111520;
+  border-bottom: 1px solid #232b3d;
+}
 
+.hunt-window-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.3px;
+}
 
+.hunt-window-close-btn {
+  background: #1c2231;
+  border: 1px solid #2d384e;
+  color: #94a3b8;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
 
+.hunt-window-close-btn:hover {
+  background: #283349;
+  border-color: #4a5b7d;
+  color: #ffffff;
+}
 
+/* 5 Top Activity Tabs */
+.hunt-top-nav-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  padding: 10px 14px 6px 14px;
+  background: #111520;
+  border-bottom: 1px solid #1f2738;
+}
 
+.hunt-top-nav-tab {
+  background: #151925;
+  border: 1.5px solid #263146;
+  border-radius: 4px;
+  color: #8493a8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 7px 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
 
+.hunt-top-nav-tab:hover {
+  background: #1d2334;
+  border-color: #3b4c6c;
+  color: #cbd5e1;
+}
 
+.hunt-top-nav-tab.active {
+  background: linear-gradient(180deg, #1b253b 0%, #101625 100%);
+  border: 1.5px solid #3b82f6;
+  color: #60a5fa;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+}
 
+/* Subheader bar */
+.hunt-subheader-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: #131722;
+  border-bottom: 1px solid #1d2433;
+}
 
+.hunt-sub-btn {
+  background: transparent;
+  border: none;
+  color: #8b9bb4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
 
+.hunt-sub-btn:hover {
+  color: #cbd5e1;
+  background: #1b2130;
+}
 
+.hunt-sub-btn.active-favorite {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
 
+.hunt-pill-btn {
+  background: #171f30;
+  border: 1.5px solid #2b3b5c;
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 5px;
+  cursor: default;
+}
 
+/* Search Bar */
+.hunt-search-bar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #111520;
+  border-bottom: 1px solid #1e2637;
+}
 
+.hunt-search-input-box {
+  display: flex;
+  align-items: center;
+  background: #0f131d;
+  border: 1px solid #232c3f;
+  border-radius: 5px;
+  padding: 5px 10px;
+  width: 320px;
+  max-width: 60%;
+}
+
+.hunt-search-input-box input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f1f5f9;
+  font-size: 12.5px;
+  margin-left: 6px;
+  width: 100%;
+}
+
+.hunt-search-counter {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Screen 1: 4-Column Card Grid */
+.hunt-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 12px 14px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.hunt-catalog-card {
+  background: #161a27;
+  border: 1.5px solid #242f43;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  min-height: 120px;
+}
+
+.hunt-catalog-card:hover {
+  background: #1b2131;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.hunt-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.hunt-card-sprite-box {
+  width: 48px;
+  height: 48px;
+  background: #0d1018;
+  border: 1px solid #222c3e;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.hunt-card-sprite-box img {
+  max-width: 42px;
+  max-height: 42px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.hunt-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hunt-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.hunt-card-creatures {
+  font-size: 11px;
+  color: #7b8ca5;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.hunt-star-btn {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  color: #4a5871;
+  transition: color 0.15s ease;
+}
+
+.hunt-star-btn:hover {
+  color: #fbbf24;
+}
+
+.hunt-star-btn.is-fav {
+  color: #fbbf24;
+  text-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+}
+
+.hunt-card-bottom {
+  border-top: 1px solid #202838;
+  margin-top: 8px;
+  padding-top: 6px;
+  font-size: 10.5px;
+}
+
+.hunt-card-stat-row {
+  display: flex;
+  justify-content: space-between;
+  line-height: 1.35;
+}
+
+.hunt-card-stat-label {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.hunt-card-stat-val {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.hunt-card-stat-val.negative {
+  color: #f87171;
+}
+
+.hunt-card-no-record {
+  color: #4b5a71;
+  font-style: italic;
+  font-size: 10.5px;
+}
+
+/* Screen 2: Setup View */
+.hunt-setup-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 12px 16px;
+  overflow: hidden;
+}
+
+.hunt-setup-banner {
+  background: #111520;
+  border: 1.5px solid #232c3f;
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.hunt-setup-banner-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hunt-setup-banner-desc {
+  font-size: 12px;
+  color: #8b9bb4;
+  margin-top: 4px;
+  max-width: 560px;
+  line-height: 1.35;
+}
+
+.hunt-setup-record-box {
+  background: #0d1018;
+  border: 1.5px solid #242d40;
+  border-radius: 5px;
+  padding: 7px 12px;
+  min-width: 220px;
+}
+
+.hunt-setup-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.3px;
+}
+
+.hunt-setup-record-body {
+  font-size: 11.5px;
+  color: #cbd5e1;
+  margin-top: 3px;
+  display: flex;
+  gap: 16px;
+  font-weight: 600;
+}
+
+/* Setup Body (2 Columns) */
+.hunt-setup-grid-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 10px;
+}
+
+.hunt-setup-col {
+  background: #111520;
+  border: 1.5px solid #232c3f;
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.hunt-setup-section-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.hunt-pull-size-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.hunt-pull-size-tab {
+  background: #151925;
+  border: 1.5px solid #263146;
+  border-radius: 4px;
+  padding: 7px 4px;
+  text-align: center;
+  color: #8b9bb4;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.hunt-pull-size-tab:hover {
+  background: #1c2333;
+  border-color: #3b4c6c;
+  color: #cbd5e1;
+}
+
+.hunt-pull-size-tab.active {
+  background: linear-gradient(180deg, #1a253c 0%, #0f1626 100%);
+  border: 1.5px solid #3b82f6;
+  color: #60a5fa;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.hunt-pull-creatures-list {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  padding-top: 4px;
+}
+
+.hunt-pull-creature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hunt-pull-creature-sprite-box {
+  width: 58px;
+  height: 58px;
+  background: #0a0d14;
+  border: 1px solid #232c3f;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hunt-pull-creature-sprite-box img {
+  max-width: 50px;
+  max-height: 50px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.hunt-details-btn {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  background: #151a27;
+  border: 1px solid #2a354c;
+  color: #8b9bb4;
+  border-radius: 3px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: all 0.15s ease;
+}
+
+.hunt-details-btn:hover {
+  background: #1e283d;
+  border-color: #3b82f6;
+  color: #60a5fa;
+}
+
+.hunt-pull-creature-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #cbd5e1;
+  text-align: center;
+  max-width: 76px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Loot Table */
+.hunt-loot-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #202738;
+  margin-bottom: 6px;
+}
+
+.hunt-loot-header-actions {
+  display: flex;
+  gap: 14px;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.hunt-loot-scroll-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.hunt-loot-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 4px;
+  border-bottom: 1px solid #1a202d;
+}
+
+.hunt-loot-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.hunt-loot-item-sprite-box {
+  width: 28px;
+  height: 28px;
+  background: #0a0d14;
+  border: 1px solid #1f2738;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hunt-loot-item-sprite-box img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.hunt-loot-item-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hunt-loot-rarity {
+  font-size: 10.5px;
+  margin-right: 14px;
+}
+
+.hunt-loot-rarity.comum {
+  color: #8b9bb4;
+}
+
+.hunt-loot-rarity.incomum {
+  color: #38bdf8;
+}
+
+.hunt-loot-rarity.raro {
+  color: #c084fc;
+}
+
+.hunt-loot-rarity.muito-raro {
+  color: #facc15;
+}
+
+.hunt-loot-item-actions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: flex-end;
+  width: 76px;
+  flex-shrink: 0;
+}
+
+.hunt-loot-checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+/* Setup Footer */
+.hunt-setup-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #202738;
+}
+
+.hunt-setup-footer-btn {
+  background: #151925;
+  border: 1.5px solid #263146;
+  border-radius: 4px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hunt-setup-footer-btn:hover {
+  background: #1c2333;
+  border-color: #3b4c6c;
+  color: #ffffff;
+}
+
+.hunt-start-hunt-btn {
+  background: linear-gradient(180deg, #243048 0%, #151d2c 100%);
+  border: 1.5px solid #3b82f6;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 22px;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+  transition: all 0.15s ease;
+}
+
+.hunt-start-hunt-btn:hover {
+  background: linear-gradient(180deg, #2c3a57 0%, #1a2437 100%);
+  border-color: #60a5fa;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
+}

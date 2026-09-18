@@ -17,7 +17,7 @@ import { createRoomState, roomDefinitionAt } from './spatial/rooms';
 import { clonePosition, samePosition } from './spatial/tileMap';
 import type { GridPosition } from './spatial/types';
 import type {
-  CharacterEquipmentSlot, CharacterState, CombatEvent, CombatLogEntry, CombatStance, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState,
+  CharacterEquipmentSlot, CharacterState, CombatEvent, CombatLogEntry, CombatStance, CorpseState, EnemyState, GameContent, GameState, HuntEncounterState, HuntPullSize,
   LootStack, MonsterVariantDefinition, PartyActorState, SessionState, TargetSelectionStrategy,
 } from './types';
 import { tickImbuementTime } from './imbuements';
@@ -110,14 +110,14 @@ function makeActor(character: SessionState['characters'][number], spawn: PartyAc
   };
 }
 
-function createEncounter(seed: string, session: SessionState, content: GameContent, huntId: string, requestedMode: 'continuous' | 'expedition' | 'legacyWaveMode' | 'waves' = 'continuous'): HuntEncounterState {
+function createEncounter(seed: string, session: SessionState, content: GameContent, huntId: string, requestedMode: 'continuous' | 'expedition' | 'legacyWaveMode' | 'waves' = 'continuous', pullSize?: HuntPullSize): HuntEncounterState {
   const hunt = huntById(content.hunts, huntId);
   const region = regionFor(content, hunt.id);
   const room = createRoomState(hunt, 0, region);
   const definition = roomDefinitionAt(hunt, 0, region);
   const mode = requestedMode === 'waves' ? 'legacyWaveMode' : requestedMode;
   const expedition = mode === 'expedition' ? adaptWaveHuntToExpedition(hunt, room) : null;
-  const huntRoute = mode === 'continuous' ? createContinuousHuntRoute(hunt, room, region) : null;
+  const huntRoute = mode === 'continuous' ? createContinuousHuntRoute(hunt, room, region, pullSize) : null;
   return {
     seed, rngState: createSeededRng(seed).state, status: 'ready', round: 0, elapsedMs: 0,
     nextMovementAt: MOVEMENT_TICK_MS, waveIndex: 0, hunt,
@@ -134,6 +134,7 @@ function createEncounter(seed: string, session: SessionState, content: GameConte
       zones: huntRoute.respawnZones.map((zone) => ({ zoneId: zone.id, activeEnemyIds: [], lastActivatedAt: null, lastClearedAt: null, nextRespawnAt: 0, activationCount: 0 })),
     } : null,
     isMultiplayerParty: Boolean(session.isMultiplayerParty),
+    pullSize,
   };
 }
 
@@ -2299,7 +2300,7 @@ export function startGame(state: GameState, content: GameContent): GameState {
   addLog(next, `${leaderOf(next).name} iniciou ${next.encounter.hunt.name}.`); return next;
 }
 
-export function restartHunt(state: GameState, seed: string, content: GameContent, huntId = state.encounter.hunt.id): GameState {
+export function restartHunt(state: GameState, seed: string, content: GameContent, huntId = state.encounter.hunt.id, pullSize: HuntPullSize | undefined = state.encounter.pullSize): GameState {
   const session = structuredClone(state.session) as SessionState;
   session.characters = session.characters.map((character) => ({
     ...character,
@@ -2307,11 +2308,11 @@ export function restartHunt(state: GameState, seed: string, content: GameContent
     currentMana: character.maxMana,
     combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
   }));
-  return startGame({ session, encounter: createEncounter(seed, session, content, huntId, state.encounter.mode) }, content);
+  return startGame({ session, encounter: createEncounter(seed, session, content, huntId, state.encounter.mode, pullSize) }, content);
 }
 
-export function selectHunt(state: GameState, seed: string, content: GameContent, huntId: string): GameState {
-  return restartHunt(state, seed, content, huntId);
+export function selectHunt(state: GameState, seed: string, content: GameContent, huntId: string, pullSize?: HuntPullSize): GameState {
+  return restartHunt(state, seed, content, huntId, pullSize);
 }
 
 export function advanceCombat(state: GameState, content: GameContent, deltaMs = MOVEMENT_TICK_MS): GameState {

@@ -331,6 +331,8 @@ export interface RespawnZoneState {
   activationCount: number;
 }
 
+export type HuntPullSize = 'cauteloso' | 'ousado' | 'agressivo';
+
 export interface HuntRoute {
   huntId: string;
   mapRegion: string;
@@ -340,6 +342,7 @@ export interface HuntRoute {
   rareSpawnRules: { probability: number; variant: MonsterVariantDefinition };
   exitPoint: GridPosition | null;
   loopMode: boolean;
+  pullSize?: HuntPullSize;
 }
 
 export interface ContinuousHuntProgress {
@@ -375,6 +378,7 @@ export interface HuntEncounterState {
   huntRoute: HuntRoute | null;
   continuousProgress: ContinuousHuntProgress | null;
   isMultiplayerParty?: boolean;
+  pullSize?: HuntPullSize;
 }
 
 export interface GameState { session: SessionState; encounter: HuntEncounterState }
