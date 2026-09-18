@@ -3659,11 +3659,11 @@ Plans:
 **Goal:** Construir o ecossistema completo de Arena PvP Ranqueada com elo, estatísticas por temporada, pareamento por rank, loadouts/táticas, combate isolado sem perda destrutiva de itens/XP, moedas de arena e sistema de Skulls do Tibia como patentes visuais no nameplate.
 
 **Plans:**
-- [ ] 192-01-PLAN: Modelagem de dados de PvP (elo, tier, vitórias, derrotas, arenaCoins, displaySkull) no Prisma DB e domínio.
-- [ ] 192-02-PLAN: Fila de matchmaking e gerenciamento de sala de arena (PvPArenaRoom) no Colyseus.
-- [ ] 192-03-PLAN: Construção do modal ArenaPvPModal.tsx idêntico ao anexo (Elo, estatísticas, fila, loadout de PvP e táticas).
-- [ ] 192-04-PLAN: Renderização das caveiras de rank (Verde, Amarela, Branca, Vermelha, Preta, Laranja) no nameplate dos personagens.
-- [ ] 192-05-PLAN: Testes automatizados de combate de arena, typecheck e deploy na VPS.
+- [x] 192-01-PLAN: Modelagem de dados de PvP (elo, tier, vitórias, derrotas, arenaCoins, displaySkull) no Prisma DB e domínio.
+- [x] 192-02-PLAN: Fila de matchmaking e gerenciamento de sala de arena (PvPArenaRoom) no Colyseus.
+- [x] 192-03-PLAN: Construção do modal ArenaPvPModal.tsx idêntico ao anexo (Elo, estatísticas, fila, loadout de PvP e táticas).
+- [x] 192-04-PLAN: Renderização das caveiras de rank (Verde, Amarela, Branca, Vermelha, Preta, Laranja) no nameplate dos personagens.
+- [x] 192-05-PLAN: Testes automatizados de combate de arena, typecheck e deploy na VPS.
 
 
 

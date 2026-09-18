@@ -102,6 +102,15 @@ export interface CharacterState {
   };
   equipmentAttributes?: Partial<Record<CharacterEquipmentSlot, any>>;
   blessings?: number[];
+  pvpElo?: number;
+  pvpTier?: string;
+  pvpWins?: number;
+  pvpLosses?: number;
+  pvpDraws?: number;
+  arenaCoins?: number;
+  displaySkull?: boolean;
+  pvpMatchHistoryJson?: string;
+  pvpTacticsJson?: string;
 }
 
 export interface PartyActorState {

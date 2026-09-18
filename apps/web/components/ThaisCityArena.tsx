@@ -6,7 +6,7 @@ import thaisCityJson from '@/content/generated/thais-city.json';
 import huntRegionsJson from '@/content/generated/hunt-regions.json';
 import thaisItemMetaJson from '@/content/generated/thais-item-metadata.json';
 import fxAssetsJson from '@/content/generated/tibia1098-fx.json';
-import { THAIS_TRAINING_DUMMIES, EXERCISE_DUMMY_ITEM_IDS, calculatePartyTrainingPositions, type CharacterState, type CombatVisualEvent, type TrainingDummyInfo } from '@/packages/domain/src';
+import { THAIS_TRAINING_DUMMIES, EXERCISE_DUMMY_ITEM_IDS, calculatePartyTrainingPositions, getPvPTierInfo, type CharacterState, type CombatVisualEvent, type TrainingDummyInfo } from '@/packages/domain/src';
 import type { HuntRegionCatalog } from '@/packages/content-schema/src';
 import { calculatePixelCamera, creatureVisualLayout, VisualMotionTrack } from '@/packages/presentation/src';
 import type { ExtractedFrame, ItemVisualAssetMapping, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
@@ -973,6 +973,7 @@ export function ThaisCityArena({
         sprite: InstanceType<typeof Sprite>;
         label: InstanceType<typeof Text>;
         titleLabel?: InstanceType<typeof Text>;
+        skullSprite?: InstanceType<typeof Sprite>;
         bar: InstanceType<typeof Graphics>;
         lastUrl: string;
         lastTextureKey?: string;
@@ -991,8 +992,10 @@ export function ThaisCityArena({
       const processedSpeechIds = new Set<string>();
       const pendingPreloadSignatures = new Set<string>();
 
-      function updateNameplate(view: CityActorView, name: string, adminTitle?: string) {
+      function updateNameplate(view: CityActorView, name: string, adminTitle?: string, skull?: string) {
         view.label.text = name;
+
+        // 1. Título Especial GOD / GM
         if (adminTitle && (adminTitle === 'GOD' || adminTitle === 'GM')) {
           if (!view.titleLabel) {
             view.titleLabel = new Text({
@@ -1012,20 +1015,55 @@ export function ThaisCityArena({
             view.titleLabel.text = `[${adminTitle}] `;
             view.titleLabel.visible = true;
           }
-          const titleW = view.titleLabel.width;
-          const nameW = view.label.width;
-          const totalW = titleW + nameW;
-          const startX = -totalW / 2;
-          view.titleLabel.anchor.set(0, 0.5);
-          view.titleLabel.position.set(startX, creatureVisualLayout.nameplateY);
-          view.label.anchor.set(0, 0.5);
-          view.label.position.set(startX + titleW, creatureVisualLayout.nameplateY);
-        } else {
-          if (view.titleLabel) {
-            view.titleLabel.visible = false;
+        } else if (view.titleLabel) {
+          view.titleLabel.visible = false;
+        }
+
+        // 2. Caveira de Patente PvP
+        if (skull && skull !== 'none') {
+          const skullUrl = `/assets/skulls/skull-${skull}.png`;
+          if (!view.skullSprite) {
+            try {
+              const skullTex = Texture.from(skullUrl);
+              view.skullSprite = new Sprite(skullTex);
+              view.skullSprite.anchor.set(0, 0.5);
+              view.skullSprite.width = 12;
+              view.skullSprite.height = 12;
+              view.skullSprite.roundPixels = true;
+              view.root.addChild(view.skullSprite);
+            } catch {}
+          } else {
+            try {
+              view.skullSprite.texture = Texture.from(skullUrl);
+              view.skullSprite.visible = true;
+            } catch {}
           }
-          view.label.anchor.set(0.5, 0.5);
-          view.label.position.set(0, creatureVisualLayout.nameplateY);
+        } else if (view.skullSprite) {
+          view.skullSprite.visible = false;
+        }
+
+        // 3. Posicionamento unificado: [Title] Name [Skull]
+        const hasTitle = view.titleLabel && view.titleLabel.visible;
+        const hasSkull = view.skullSprite && view.skullSprite.visible;
+
+        const titleW = hasTitle ? view.titleLabel!.width : 0;
+        const nameW = view.label.width;
+        const skullW = hasSkull ? 15 : 0;
+        const totalW = titleW + nameW + skullW;
+        let currentX = -totalW / 2;
+
+        if (hasTitle) {
+          view.titleLabel!.anchor.set(0, 0.5);
+          view.titleLabel!.position.set(currentX, creatureVisualLayout.nameplateY);
+          currentX += titleW;
+        }
+
+        view.label.anchor.set(0, 0.5);
+        view.label.position.set(currentX, creatureVisualLayout.nameplateY);
+        currentX += nameW;
+
+        if (hasSkull && view.skullSprite) {
+          view.skullSprite.position.set(currentX + 3, creatureVisualLayout.nameplateY);
         }
       }
 
@@ -1038,10 +1076,17 @@ export function ThaisCityArena({
         return `/generated/outfit-thumbs/${idLower}.png`;
       }
 
+      function getCharacterSkull(char: any): string {
+        if (!char || char.displaySkull === false) return 'none';
+        if (char.pvpSkull) return char.pvpSkull;
+        const elo = typeof char.pvpElo === 'number' ? char.pvpElo : 1000;
+        return getPvPTierInfo(elo).skull;
+      }
+
       function ensureActorView(char: { id: string; name: string; vocation: string; gender?: 'male' | 'female'; outfit?: string; mount?: string; mountActive?: boolean; outfitColors?: { head: number; primary: number; secondary: number; detail: number }; addons?: number; outfitAddons?: number; adminTitle?: string; x?: number; y?: number }): CityActorView | null {
         let view = actorViews.get(char.id);
         if (view) {
-          updateNameplate(view, char.name, char.adminTitle || (char as any).adminTitle);
+          updateNameplate(view, char.name, char.adminTitle || (char as any).adminTitle, getCharacterSkull(char));
           return view;
         }
 
@@ -1121,7 +1166,7 @@ export function ThaisCityArena({
         actorsLayer.addChild(root);
 
         view = { root, sprite, label, bar, lastUrl: initialUrl || 'canvas' };
-        updateNameplate(view, char.name, char.adminTitle || (char as any).adminTitle);
+        updateNameplate(view, char.name, char.adminTitle || (char as any).adminTitle, getCharacterSkull(char));
         actorViews.set(char.id, view);
         return view;
       }
@@ -1765,7 +1810,7 @@ export function ThaisCityArena({
             const cleanLatest = (rawLatestTitle && rawLatestTitle !== 'null' && rawLatestTitle !== 'undefined') ? rawLatestTitle : undefined;
             const cleanLocal = (rawLocalTitle && rawLocalTitle !== 'null' && rawLocalTitle !== 'undefined') ? rawLocalTitle : undefined;
             const effectiveAdminTitle = (cleanLatest === 'GOD' || cleanLatest === 'GM') ? cleanLatest : (cleanLocal === 'GOD' || cleanLocal === 'GM') ? cleanLocal : undefined;
-            updateNameplate(view, localChar.name, effectiveAdminTitle);
+            updateNameplate(view, localChar.name, effectiveAdminTitle, getCharacterSkull(localChar));
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()
               .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
@@ -1902,7 +1947,7 @@ export function ThaisCityArena({
             view.root.position.set(fPixelX, fPixelY);
             view.root.zIndex = fPixelY;
             view.root.visible = curPos.z === fState.currentTile.z && latestRef.current.isCharacterVisible !== false;
-            updateNameplate(view, fChar.name, (fChar as any).adminTitle);
+            updateNameplate(view, fChar.name, (fChar as any).adminTitle, getCharacterSkull(fChar));
             const hpRatio = fChar.maxHp > 0 ? Math.max(0, Math.min(1, fChar.currentHp / fChar.maxHp)) : 1;
             view.bar.clear()
               .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
@@ -2386,7 +2431,7 @@ export function ThaisCityArena({
               view.root.position.set(px, py);
               view.root.zIndex = py;
             }
-            updateNameplate(view, p.name, p.adminTitle);
+            updateNameplate(view, p.name, p.adminTitle, getCharacterSkull(p));
             const curHp = p.hp ?? 100;
             const maxHp = p.maxHp ?? 100;
             const hpRatio = maxHp > 0 ? Math.max(0, Math.min(1, curHp / maxHp)) : 1;

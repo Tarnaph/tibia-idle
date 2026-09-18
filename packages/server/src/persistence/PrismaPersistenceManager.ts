@@ -160,6 +160,15 @@ export class PrismaPersistenceManager {
           blessingsJson: Array.isArray((player as any).blessings)
             ? JSON.stringify((player as any).blessings)
             : undefined,
+          pvpElo: typeof (player as any).pvpElo === 'number' ? (player as any).pvpElo : undefined,
+          pvpTier: typeof (player as any).pvpTier === 'string' ? (player as any).pvpTier : undefined,
+          pvpWins: typeof (player as any).pvpWins === 'number' ? (player as any).pvpWins : undefined,
+          pvpLosses: typeof (player as any).pvpLosses === 'number' ? (player as any).pvpLosses : undefined,
+          pvpDraws: typeof (player as any).pvpDraws === 'number' ? (player as any).pvpDraws : undefined,
+          arenaCoins: typeof (player as any).arenaCoins === 'number' ? (player as any).arenaCoins : undefined,
+          displaySkull: typeof (player as any).displaySkull === 'boolean' ? (player as any).displaySkull : undefined,
+          pvpMatchHistoryJson: typeof (player as any).pvpMatchHistoryJson === 'string' ? (player as any).pvpMatchHistoryJson : undefined,
+          pvpTacticsJson: typeof (player as any).pvpTacticsJson === 'string' ? (player as any).pvpTacticsJson : undefined,
           bestiaryKillsJson: finalBestiaryKillsJson,
           trackedBestiaryId: typeof (player as any).trackedBestiaryId === 'string' && (player as any).trackedBestiaryId
             ? (player as any).trackedBestiaryId
@@ -412,6 +421,15 @@ export class PrismaPersistenceManager {
         bestiaryKills,
         trackedBestiaryId: (char as any).trackedBestiaryId || null,
         bossPoints: (char as any).bossPoints ?? 0,
+        pvpElo: (char as any).pvpElo ?? 1000,
+        pvpTier: (char as any).pvpTier ?? 'Bronze',
+        pvpWins: (char as any).pvpWins ?? 0,
+        pvpLosses: (char as any).pvpLosses ?? 0,
+        pvpDraws: (char as any).pvpDraws ?? 0,
+        arenaCoins: (char as any).arenaCoins ?? 0,
+        displaySkull: typeof (char as any).displaySkull === 'boolean' ? (char as any).displaySkull : true,
+        pvpMatchHistoryJson: (char as any).pvpMatchHistoryJson ?? null,
+        pvpTacticsJson: (char as any).pvpTacticsJson ?? null,
       };
 
     } catch (err: any) {
