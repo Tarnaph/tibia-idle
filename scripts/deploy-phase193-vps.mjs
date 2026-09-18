@@ -26,9 +26,8 @@ conn.on('ready', () => {
     npx prisma db push --skip-generate
     npx prisma generate
     
-    echo "=== 5. GENERATE SKULL SPRITES & ATLASES ==="
+    echo "=== 5. GENERATE SKULL SPRITES ==="
     node scripts/generate-skull-sprites.cjs
-    node scripts/build-hunt-atlases.mjs
     
     echo "=== 6. CONFIGURE COMMIT STAMP ==="
     if grep -q "NEXT_PUBLIC_GIT_COMMIT" .env; then
