@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-18T15:45:00.000Z"
-last_activity: "2026-09-18 — Phase 190 Completa: Sistema de Blessings, Revamp da Tela de Morte, Loading Screen Seguro e Correção de Magias."
+last_updated: "2026-09-18T16:15:00.000Z"
+last_activity: "2026-09-18 — Phase 191 Concluída: Assets Canônicos de Blessings/Imbuements, Botões de Controle e Sistema de Highscores. Iniciando Phase 192."
 progress:
-  total_phases: 190
-  completed_phases: 190
-  total_plans: 215
-  completed_plans: 215
-  percent: 100
+  total_phases: 192
+  completed_phases: 191
+  total_plans: 225
+  completed_plans: 220
+  percent: 98
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 190 - Sistema de Blessings, Revamp da Tela de Morte, Loading Screen Seguro e Correção de Magias.
+**Current focus:** Phase 192 - Sistema de Arena PvP Ranqueada e Patentes de Caveiras.
 
 ## Current Position
 
-Phase: 190 of 190  
-Plan: 6 of 6 in Phase 190  
-Status: Complete  
-Last activity: 2026-09-18 — Phase 190 entregue com suíte de testes 100% aprovada e zero erros TypeScript.
+Phase: 192 of 192  
+Plan: 1 of 5 in Phase 192  
+Status: In Progress  
+Last activity: 2026-09-18 — Phase 191 concluída. Iniciando modelagem e arquitetura de Arena PvP Ranqueada e Patentes de Caveiras.
 
-Progress: [██████████] 100%
+Progress: [██████████] 98%
 
 
 

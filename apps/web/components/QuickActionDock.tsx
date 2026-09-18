@@ -7,6 +7,8 @@ interface QuickActionDockProps {
   onOpenQuickSell: () => void;
   onOpenImbuements?: () => void;
   onOpenBlessings?: () => void;
+  onOpenRanking?: () => void;
+  onOpenPvP?: () => void;
 }
 
 export function QuickActionDock({
@@ -14,6 +16,8 @@ export function QuickActionDock({
   onOpenQuickSell,
   onOpenImbuements,
   onOpenBlessings,
+  onOpenRanking,
+  onOpenPvP,
 }: QuickActionDockProps) {
   return (
     <nav className="quick-action-dock" aria-label="Ações Rápidas de Cidade">
@@ -51,6 +55,26 @@ export function QuickActionDock({
         title="Bênçãos dos Deuses (Blessings)"
       >
         BLESSINGS
+      </button>
+
+      <button
+        type="button"
+        className="quick-action-btn btn-ranking"
+        onClick={onOpenRanking}
+        title="Highscores e Ranking Geral"
+        style={{ color: '#fde047', borderColor: '#854d0e' }}
+      >
+        RANKING
+      </button>
+
+      <button
+        type="button"
+        className="quick-action-btn btn-pvp"
+        onClick={onOpenPvP}
+        title="Arena PvP Ranqueada"
+        style={{ color: '#f87171', borderColor: '#7f1d1d' }}
+      >
+        ARENA PVP
       </button>
     </nav>
   );

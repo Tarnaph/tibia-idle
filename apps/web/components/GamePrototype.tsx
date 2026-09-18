@@ -49,6 +49,7 @@ import { FloatingPartyHUD } from './party/FloatingPartyHUD';
 import { CANONICAL_BESTIARY_MONSTERS, getCyclopediaItems, getBestiaryMonsters, type BestiaryMonster } from '../lib/cyclopediaData';
 import { DeathModal } from './DeathModal';
 import { BlessingsModal } from './BlessingsModal';
+import { HighscoresModal } from './HighscoresModal';
 import { CharacterContextMenu } from './CharacterContextMenu';
 import { preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { GameModalProvider, useGameModal } from '@/apps/web/contexts/GameModalContext';
@@ -401,6 +402,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
   const [isBlessingsModalOpen, setIsBlessingsModalOpen] = useState(false);
+  const [isHighscoresModalOpen, setIsHighscoresModalOpen] = useState(false);
   const [lastKillerName, setLastKillerName] = useState<string>('Criatura das Trevas');
   const [duplicateSessionError, setDuplicateSessionError] = useState<string | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -4232,6 +4234,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onOpenTraining={handleOpenTrainingMenu}
         onOpenImbuements={() => setImbuingModalOpen(true)}
         onOpenBlessings={() => setIsBlessingsModalOpen(true)}
+        onOpenRanking={() => setIsHighscoresModalOpen(true)}
         onSelectHunt={() => {
           setHuntSelectorTab('CAÇADAS');
           setHuntSelectorOpen(true);
@@ -4538,6 +4541,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onClose={() => setIsBlessingsModalOpen(false)}
         onBuyBlessing={handleBuyBlessing}
         onBlessAll={handleBlessAll}
+      />
+
+      <HighscoresModal
+        open={isHighscoresModalOpen}
+        currentCharacterId={activeCharacter?.id}
+        onClose={() => setIsHighscoresModalOpen(false)}
       />
 
       <FriendsWindow

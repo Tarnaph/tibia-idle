@@ -46,8 +46,63 @@ interface ImbuingModalProps {
   ) => Promise<boolean>;
 }
 
-// Render canonical imbuement icon SVG
+export const IMBUEMENT_CANONICAL_ITEMS: Record<string, number> = {
+  vampirism: 10550, // Vampire Teeth
+  void: 12448,     // Rope Belt
+  strike: 10574,   // Lion's Mane (Critical Hit)
+  slash: 10574,    // Lion's Mane
+  chop: 11113,     // Orc Tooth
+  bash: 10573,     // Cyclops Toe
+  precision: 12422,// Elven Scouting Glass
+  blockade: 10567, // Piece of Marble Rock
+  block: 10567,
+  epiphany: 10552, // Elvish Talisman
+  feather: 12427,  // Peacock Feather Fan
+  featherweight: 12427,
+  swiftness: 26162,// Damaged Worm Gears
+  fire: 10579,     // War Crystal
+  ice: 10578,      // Frosty Heart
+  energy: 10582,   // Rorc Feather
+  earth: 10568,    // Snake Skin
+  death: 10580,    // Piece of Dead Brain
+  lich_shroud: 12400, // Protective Charm
+  vibrancy: 10579,
+};
+
+// Render canonical imbuement icon with official item sprite or SVG fallback
 function ImbuementIcon({ iconId, size = 32 }: { iconId: string; size?: number }) {
+  const canonicalItemId = IMBUEMENT_CANONICAL_ITEMS[iconId];
+  if (canonicalItemId) {
+    return (
+      <div
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          backgroundColor: '#161a26',
+          border: '1px solid #2f3a52',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          flexShrink: 0,
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <img
+          src={`/assets/items/item-${canonicalItemId}.png`}
+          alt={iconId}
+          width={Math.min(size - 4, 32)}
+          height={Math.min(size - 4, 32)}
+          style={{ imageRendering: 'pixelated' }}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).src = `/generated/cyclopedia/items/item-${canonicalItemId}.png`;
+          }}
+        />
+      </div>
+    );
+  }
+
   const s = size;
   switch (iconId) {
     case 'void':

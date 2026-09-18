@@ -3630,14 +3630,40 @@ Plans:
 **Goal:** Implementar o sistema canônico de Blessings do Tibia com o modal "TEMPLO — BLESSINGS", reformular o modal de morte "VOCÊ MORREU" com perdas reais e consumo de blessings, desativar o skip prematuro do ExuraLoadingScreen e corrigir a classificação de magias direcionais para que exori hur e magias de alvo único funcionem com precisão absoluta.
 
 **Plans:**
-- [ ] 190-01-PLAN: Correção de isDirectionalSpell em packages/domain/src/spells.ts e suporte em ThaisCityRoom.ts.
-- [ ] 190-02-PLAN: Remoção de texto e atalhos de skip em ExuraLoadingScreen.tsx.
-- [ ] 190-03-PLAN: Modelagem de blessings, regras matemáticas e persistência Prisma (blessingsJson).
-- [ ] 190-04-PLAN: Modal autêntico "TEMPLO — BLESSINGS" (BlessingsModal.tsx) e integração no BottomDock.
-- [ ] 190-05-PLAN: Revamp visual e lógico do DeathModal.tsx com perdas reais e consumo de blessings.
-- [ ] 190-06-PLAN: Suíte de testes automatizados, typecheck, commit e deploy na VPS 187.7.16.210.
+- [x] 190-01-PLAN: Correção de isDirectionalSpell em packages/domain/src/spells.ts e suporte em ThaisCityRoom.ts.
+- [x] 190-02-PLAN: Remoção de texto e atalhos de skip em ExuraLoadingScreen.tsx.
+- [x] 190-03-PLAN: Modelagem de blessings, regras matemáticas e persistência Prisma (blessingsJson).
+- [x] 190-04-PLAN: Modal autêntico "TEMPLO — BLESSINGS" (BlessingsModal.tsx) e integração no BottomDock.
+- [x] 190-05-PLAN: Revamp visual e lógico do DeathModal.tsx com perdas reais e consumo de blessings.
+- [x] 190-06-PLAN: Suíte de testes automatizados, typecheck, commit e deploy na VPS 187.7.16.210.
 
-**Status:** In Progress
+**Status:** Complete
+
+---
+
+### Phase 191: Assets Canônicos de Blessings/Imbuements, Botões de Controle e Sistema de Highscores
+
+**Goal:** Integrar os sprites e charms canônicos oficiais da CipSoft nas telas de Blessings (item-11258 a item-11262) e Imbuements (itens de criaturas reais e runas), adicionar os botões de controle de PvP e Ranking no HUD, e construir a tela completa de Highscores com backend autoritativo ordenado, filtros por vocação, paginação e medalhas.
+
+**Plans:**
+- [x] 191-01-PLAN: Substituição dos ícones vetoriais de Blessings pelos Charms Canônicos (item-11258 a 11262) e integração dos itens reais de Imbuement.
+- [x] 191-02-PLAN: Inclusão dos botões de ação "PVP" e "RANKING" no HUD de ações rápidas e barra superior.
+- [x] 191-03-PLAN: Criação do endpoint autoritativo de ranking (/api/highscores) com ordenação indexada Prisma DB.
+- [x] 191-04-PLAN: Construção da janela HighscoresModal.tsx fiel ao anexo (categorias, vocações, medalhas, botão "Minha posição" e paginação).
+- [x] 191-05-PLAN: Testes automatizados no Vitest, typecheck e deploy na VPS.
+
+---
+
+### Phase 192: Sistema de Arena PvP Ranqueada e Patentes de Caveiras
+
+**Goal:** Construir o ecossistema completo de Arena PvP Ranqueada com elo, estatísticas por temporada, pareamento por rank, loadouts/táticas, combate isolado sem perda destrutiva de itens/XP, moedas de arena e sistema de Skulls do Tibia como patentes visuais no nameplate.
+
+**Plans:**
+- [ ] 192-01-PLAN: Modelagem de dados de PvP (elo, tier, vitórias, derrotas, arenaCoins, displaySkull) no Prisma DB e domínio.
+- [ ] 192-02-PLAN: Fila de matchmaking e gerenciamento de sala de arena (PvPArenaRoom) no Colyseus.
+- [ ] 192-03-PLAN: Construção do modal ArenaPvPModal.tsx idêntico ao anexo (Elo, estatísticas, fila, loadout de PvP e táticas).
+- [ ] 192-04-PLAN: Renderização das caveiras de rank (Verde, Amarela, Branca, Vermelha, Preta, Laranja) no nameplate dos personagens.
+- [ ] 192-05-PLAN: Testes automatizados de combate de arena, typecheck e deploy na VPS.
 
 
 

@@ -19,16 +19,25 @@ interface BlessingsModalProps {
   onBlessAll: () => void;
 }
 
+const BLESSING_CHARM_ITEM_IDS: Record<number, number> = {
+  1: 11262, // Solitude Charm (The Wisdom of Solitude)
+  2: 11258, // Phoenix Charm (The Spark of the Phoenix)
+  3: 11261, // Twin Sun Charm (The Fire of the Suns)
+  4: 11260, // Spiritual Charm (The Spiritual Shielding)
+  5: 11259, // Unity Charm (The Embrace of Tibia)
+};
+
 /**
- * Renderiza o ícone SVG de pergaminho canônico com a insígnia de cada bênção
+ * Renderiza o ícone de pergaminho antigo com o Charm Canônico Oficial do Tibia
  */
 function BlessingScrollIcon({ id }: { id: number }) {
-  // Cores de pergaminho antigo e detalhes da relíquia
+  const charmItemId = BLESSING_CHARM_ITEM_IDS[id] || 11262;
+
   return (
     <div
       style={{
-        width: '38px',
-        height: '38px',
+        width: '42px',
+        height: '42px',
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
@@ -36,14 +45,20 @@ function BlessingScrollIcon({ id }: { id: number }) {
         position: 'relative',
       }}
     >
-      <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Sombra suave do pergaminho */}
+      {/* Fundo de Pergaminho Antigo */}
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 48 48"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ position: 'absolute', inset: '1px' }}
+      >
         <path
           d="M8 8C8 7 10 5 14 5H36C40 5 42 7 42 10V38C42 41 40 43 36 43H14C10 43 8 41 8 38V8Z"
           fill="#1c160c"
-          fillOpacity="0.4"
+          fillOpacity="0.5"
         />
-        {/* Rolo de pergaminho envelhecido */}
         <path
           d="M10 7C9 7 8 8 8 10C8 11.5 9.5 12.5 11 12H37C38.5 12.5 40 11.5 40 10C40 8 39 7 37 7H10Z"
           fill="#d4af6e"
@@ -56,76 +71,37 @@ function BlessingScrollIcon({ id }: { id: number }) {
           width="30"
           height="28"
           rx="1"
-          fill="#faecc8"
+          fill="#fbf0d3"
           stroke="#785928"
           strokeWidth="1.5"
         />
-        {/* Rolo inferior */}
         <path
           d="M10 38C9 38 8 39 8 40.5C8 42 9.5 43 11 43H37C38.5 43 40 42 40 40.5C40 39 39 38 37 38H10Z"
           fill="#b89353"
           stroke="#4f3816"
           strokeWidth="1.5"
         />
-        {/* Detalhes de textura do papiro */}
-        <line x1="12" y1="15" x2="36" y2="15" stroke="#e0caa3" strokeWidth="1" />
-        <line x1="12" y1="33" x2="36" y2="33" stroke="#e0caa3" strokeWidth="1" />
-
-        {/* Emblema central de acordo com o ID da Bênção */}
-        {id === 1 && (
-          /* The Wisdom of Solitude: Folha / Gota Esmeralda do Eremita */
-          <g transform="translate(18, 16)">
-            <circle cx="6" cy="7" r="5" fill="#15803d" stroke="#14532d" strokeWidth="1" />
-            <path d="M6 3C4 6 3 8 6 11C9 8 8 6 6 3Z" fill="#4ade80" />
-            <circle cx="6" cy="7" r="1.5" fill="#bbf7d0" />
-          </g>
-        )}
-        {id === 2 && (
-          /* The Spark of the Phoenix: Fênix Dourada de Fogo */
-          <g transform="translate(16, 15)">
-            <path
-              d="M8 2C7 5 3 6 1 8C4 8 7 9 8 13C9 9 12 8 15 8C13 6 9 5 8 2Z"
-              fill="#ea580c"
-              stroke="#7c2d12"
-              strokeWidth="0.8"
-            />
-            <path d="M8 5C7 7 5 8 3 9C5 9 7 10 8 12C9 10 11 9 13 9C11 8 9 7 8 5Z" fill="#fbbf24" />
-            <circle cx="8" cy="8" r="1.2" fill="#fff" />
-          </g>
-        )}
-        {id === 3 && (
-          /* The Fire of the Suns: Sóis Gêmeos / Brasão Solar Dourado */
-          <g transform="translate(16, 16)">
-            <circle cx="8" cy="7" r="4.5" fill="#eab308" stroke="#854d0e" strokeWidth="1" />
-            <path d="M8 0L9 4H7L8 0ZM8 14L7 10H9L8 14ZM1 7L5 6V8L1 7ZM15 7L11 8V6L15 7Z" fill="#ca8a04" />
-            <circle cx="8" cy="7" r="2.2" fill="#fef08a" />
-          </g>
-        )}
-        {id === 4 && (
-          /* The Spiritual Shielding: Escudo Espiritual / Cristal Eéreo */
-          <g transform="translate(17, 16)">
-            <path
-              d="M7 1L12 3V8C12 11 9 13 7 14C5 13 2 11 2 8V3L7 1Z"
-              fill="#0284c7"
-              stroke="#0369a1"
-              strokeWidth="1"
-            />
-            <path d="M7 3L10 5V8C10 10 8 11.5 7 12C6 11.5 4 10 4 8V5L7 3Z" fill="#38bdf8" />
-            <circle cx="7" cy="7" r="1.5" fill="#e0f2fe" />
-          </g>
-        )}
-        {id === 5 && (
-          /* The Embrace of Tibia: Abraço Sagrado / Lobo Branco da Natureza */
-          <g transform="translate(16, 15)">
-            <ellipse cx="8" cy="8" rx="6" ry="5.5" fill="#8b5cf6" stroke="#5b21b6" strokeWidth="1" />
-            <path
-              d="M5 4L8 10L11 4C11 7 9 11 8 12C7 11 5 7 5 4Z"
-              fill="#c084fc"
-            />
-            <circle cx="8" cy="7" r="2" fill="#f5f3ff" />
-          </g>
-        )}
+        <line x1="12" y1="14" x2="36" y2="14" stroke="#e0caa3" strokeWidth="1" />
+        <line x1="12" y1="34" x2="36" y2="34" stroke="#e0caa3" strokeWidth="1" />
       </svg>
+
+      {/* Sprite Canônico Oficial do Charm do Tibia */}
+      <img
+        src={`/assets/items/item-${charmItemId}.png`}
+        alt={`Charm ${id}`}
+        width={26}
+        height={26}
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          imageRendering: 'pixelated',
+          filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6))',
+        }}
+        onError={(e) => {
+          // Fallback para pasta generated caso caminho alternativo seja necessário
+          (e.currentTarget as HTMLImageElement).src = `/generated/cyclopedia/items/item-${charmItemId}.png`;
+        }}
+      />
     </div>
   );
 }
