@@ -61,6 +61,7 @@ prisma/*.db-journal
 prisma/*.bak
 dev.db*
 *.sqlite
+/backups/
 
 
 
