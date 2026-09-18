@@ -3600,6 +3600,26 @@ Plans:
 
 **Status:** Complete
 
+---
+
+### Phase 188: Integração Nativa de Slots do RealMap 11, Funcionalidade E2E de Imbuements e Deploy VPS
+
+**Goal:** Importar slots de imbuements nativamente do `realmap11/data/items/items.xml` e `imbuement.lua` no importador web (`importEquipment.ts`), sincronizar com o catálogo de equipamentos, garantir funcionalidade operacional do botão "IMBUEMENTS" na barra de ações rápidas, e realizar o deploy completo na VPS `187.7.16.210` com restart dos serviços PM2.
+
+**Requirements:**
+- Adicionar suporte a `imbuingSlots` em `packages/content-schema` e parsing no `packages/realmap11-importer/src/importEquipment.ts`.
+- Rodar `npm run import:content` para atualizar `content/generated/equipment.json`.
+- Integrar `imbuingSlots` nativo do catálogo no `getItemImbuingSlots` de `packages/domain/src/imbuements.ts`.
+- Executar testes automatizados (Vitest) e typecheck (0 erros).
+- Executar script de deploy seguro na VPS (`deploy-phase188-vps.mjs`) com backup do SQLite, git pull, build do bundle e restart do PM2.
+
+**Plans:**
+- [ ] 188-01-PLAN: Parsing nativo de `imbuingslots` no `importEquipment.ts` e regeneração de `equipment.json`.
+- [ ] 188-02-PLAN: Ajustes de integração no `GamePrototype.tsx`, `BottomDock.tsx` e verificação Vitest.
+- [ ] 188-03-PLAN: Deploy na VPS `187.7.16.210`, reinício de `tibia-web` e `colyseus-server`, e verificação online.
+
+**Status:** In Progress
+
 
 
 

@@ -75,6 +75,7 @@ export interface EquipmentDefinition {
   skillBonuses: Partial<Record<EquipmentSkill, number>>;
   magicLevelBonus: number | null;
   elementalAbsorption: Record<string, number>;
+  imbuingSlots?: number;
   sourceFile: string[];
   sourceId: number;
   source: EquipmentSource;

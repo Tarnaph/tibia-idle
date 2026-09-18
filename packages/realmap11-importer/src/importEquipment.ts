@@ -48,6 +48,7 @@ interface ItemRecordProps {
   skillBonuses?: Partial<Record<EquipmentSkill, number>>;
   magicLevelBonus?: number | null;
   elementalAbsorption?: Record<string, number>;
+  imbuingSlots?: number;
 }
 
 export const SELECTED_EQUIPMENT_IDS = [
@@ -241,6 +242,7 @@ function parseItemsXml(xmlSource: string, requirementsMap: Map<number, ItemRequi
     const skillBonuses: Partial<Record<EquipmentSkill, number>> = {};
     let magicLevelBonus: number | null = null;
     const elementalAbsorption: Record<string, number> = {};
+    let imbuingSlots: number | undefined;
 
     const attrs = asArray(item.attribute);
     for (const attr of attrs) {
@@ -255,6 +257,7 @@ function parseItemsXml(xmlSource: string, requirementsMap: Map<number, ItemRequi
       if (key === 'armor') armor = numberValue(val);
       if (key === 'range') range = numberValue(val);
       if (key === 'reqlevel' || key === 'level') reqLevel = numberValue(val);
+      if (key === 'imbuingslots') imbuingSlots = numberValue(val);
 
       if (key === 'weapontype') {
         const w = String(val).toLowerCase();
@@ -323,6 +326,7 @@ function parseItemsXml(xmlSource: string, requirementsMap: Map<number, ItemRequi
         skillBonuses: Object.keys(skillBonuses).length > 0 ? skillBonuses : undefined,
         magicLevelBonus,
         elementalAbsorption: Object.keys(elementalAbsorption).length > 0 ? elementalAbsorption : undefined,
+        imbuingSlots: imbuingSlots && imbuingSlots > 0 ? imbuingSlots : undefined,
       });
     }
   }
@@ -368,6 +372,7 @@ function normalizeEquipment(
     skillBonuses: itemProps.skillBonuses ?? {},
     magicLevelBonus: itemProps.magicLevelBonus ?? null,
     elementalAbsorption: itemProps.elementalAbsorption ?? {},
+    imbuingSlots: itemProps.imbuingSlots,
     sourceFile: ['data/items/items.otb', 'data/items/items.xml'],
     sourceId: id,
     source: {

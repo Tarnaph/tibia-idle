@@ -346,19 +346,31 @@ const typedImbuingSlots = imbuingSlotsMap as Record<string, number>;
  * Retorna a quantidade de slots de imbuement que um item possui (0 a 3).
  */
 export function getItemImbuingSlots(
-  item: { id?: number; serverId?: number; name?: string; slot?: string; weaponType?: string } | number,
+  item: { id?: number; serverId?: number; name?: string; slot?: string; weaponType?: string; imbuingSlots?: number } | number,
   catalog?: any[]
 ): number {
   const itemId = typeof item === 'number' ? item : item.serverId || item.id || 0;
-  if (itemId && typedImbuingSlots[String(itemId)] !== undefined) {
-    return typedImbuingSlots[String(itemId)];
+
+  // 1. Direct property if present on item object
+  if (typeof item === 'object' && item && typeof item.imbuingSlots === 'number') {
+    return item.imbuingSlots;
   }
 
+  // 2. Catalog definition lookup
   const itemObj = typeof item === 'object' && item
     ? item
     : catalog && Array.isArray(catalog)
       ? catalog.find((c) => c.id === itemId)
       : null;
+
+  if (itemObj && typeof (itemObj as any).imbuingSlots === 'number') {
+    return (itemObj as any).imbuingSlots;
+  }
+
+  // 3. Realmap items.xml extracted map lookup
+  if (itemId && typedImbuingSlots[String(itemId)] !== undefined) {
+    return typedImbuingSlots[String(itemId)];
+  }
 
   if (itemObj) {
     const name = (itemObj.name || '').toLowerCase();

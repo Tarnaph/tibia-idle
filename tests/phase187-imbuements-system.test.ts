@@ -70,6 +70,11 @@ describe('Phase 187 - Imbuements System', () => {
       expect(getItemImbuingSlots({ id: 2160, name: 'Crystal Coin' })).toBe(0);
       expect(getItemImbuingSlots({ id: 2173, name: 'Amulet of Loss', slot: 'necklace' })).toBe(0);
     });
+
+    it('should resolve slots from native item.imbuingSlots property', () => {
+      expect(getItemImbuingSlots({ id: 99999, name: 'Custom Helm', imbuingSlots: 2 })).toBe(2);
+      expect(getItemImbuingSlots({ id: 88888, name: 'Single Slot Armor', imbuingSlots: 1 })).toBe(1);
+    });
   });
 
   describe('Applicable Imbuements Filtering', () => {

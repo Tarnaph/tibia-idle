@@ -48355,6 +48355,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -48765,6 +48766,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -48847,6 +48849,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -48888,6 +48891,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -48929,6 +48933,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -48970,6 +48975,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -49011,6 +49017,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -54422,6 +54429,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -55916,6 +55924,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -56638,6 +56647,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -62042,6 +62052,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 1,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -63783,6 +63794,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -64234,6 +64246,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -64535,6 +64548,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -64882,6 +64896,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -64974,6 +64989,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -65265,6 +65281,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -65555,6 +65572,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -65858,6 +65876,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -65906,6 +65925,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66156,6 +66176,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66240,6 +66261,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66284,6 +66306,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66413,6 +66436,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66497,6 +66521,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66540,6 +66565,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66584,6 +66610,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66756,6 +66783,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66800,6 +66828,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -66886,6 +66915,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67103,6 +67133,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67151,6 +67182,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67194,6 +67226,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67284,6 +67317,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67452,6 +67486,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67500,6 +67535,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67544,6 +67580,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67591,6 +67628,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67632,6 +67670,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -67755,6 +67794,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68001,6 +68041,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68090,6 +68131,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68300,6 +68342,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68348,6 +68391,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68472,6 +68516,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68520,6 +68565,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68935,6 +68981,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -68983,6 +69030,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69153,6 +69201,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69201,6 +69250,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69243,6 +69293,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69284,6 +69335,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69406,6 +69458,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69448,6 +69501,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69489,6 +69543,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69538,6 +69593,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69622,6 +69678,7 @@
       "elementalAbsorption": {
         "physical": 2
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69665,6 +69722,7 @@
       "elementalAbsorption": {
         "physical": 5
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69748,6 +69806,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -69912,6 +69971,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70118,6 +70178,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70200,6 +70261,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70283,6 +70345,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70324,6 +70387,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70366,6 +70430,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70449,6 +70514,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70533,6 +70599,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70697,6 +70764,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70821,6 +70889,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70903,6 +70972,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70945,6 +71015,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -70986,6 +71057,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -71027,6 +71099,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -71068,6 +71141,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -71151,6 +71225,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -71274,6 +71349,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -75381,6 +75457,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -75421,6 +75498,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -75830,6 +75908,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -76081,6 +76160,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -122568,6 +122648,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -123444,6 +123525,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -123692,6 +123774,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -123856,6 +123939,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -123938,6 +124022,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -124250,6 +124335,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -177064,6 +177150,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -187656,6 +187743,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -189857,6 +189945,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -194725,6 +194814,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -195661,6 +195751,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -212403,6 +212494,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -213982,6 +214074,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -217657,6 +217750,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -218679,6 +218773,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -248084,6 +248179,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -249604,6 +249700,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -249695,6 +249792,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -249738,6 +249836,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -249782,6 +249881,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -249826,6 +249926,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250005,6 +250106,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250095,6 +250197,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250139,6 +250242,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250555,6 +250659,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250602,6 +250707,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250645,6 +250751,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250692,6 +250799,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250740,6 +250848,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250787,6 +250896,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250830,6 +250940,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -250916,6 +251027,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251097,6 +251209,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251141,6 +251254,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251184,6 +251298,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251227,6 +251342,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251270,6 +251386,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251313,6 +251430,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251399,6 +251517,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251489,6 +251608,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251532,6 +251652,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251618,6 +251739,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251754,6 +251876,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251798,6 +251921,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251841,6 +251965,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -251971,6 +252096,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252014,6 +252140,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252105,6 +252232,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252147,6 +252275,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252701,6 +252830,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252748,6 +252878,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252795,6 +252926,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252885,6 +253017,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -252928,6 +253061,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -253011,6 +253145,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -253095,6 +253230,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -253219,6 +253355,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -302215,6 +302352,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303358,6 +303496,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303405,6 +303544,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303452,6 +303592,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303498,6 +303639,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303544,6 +303686,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303591,6 +303734,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303638,6 +303782,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -303731,6 +303876,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -305186,6 +305332,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -305334,6 +305481,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -305660,6 +305808,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 1,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -305704,6 +305853,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 1,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306144,6 +306294,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306192,6 +306343,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306562,6 +306714,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306610,6 +306763,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306658,6 +306812,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306746,6 +306901,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306789,6 +306945,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306836,6 +306993,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306922,6 +307080,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -306968,6 +307127,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -307011,6 +307171,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -307053,6 +307214,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -339041,6 +339203,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -339231,6 +339394,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 2,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -345012,6 +345176,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -348425,6 +348590,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 1,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357435,6 +357601,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357518,6 +357685,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357643,6 +357811,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357685,6 +357854,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357727,6 +357897,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357769,6 +357940,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357811,6 +357983,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -357853,6 +358026,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -365947,6 +366121,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -365988,6 +366163,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -366070,6 +366246,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -366111,6 +366288,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -367932,6 +368110,7 @@
       "elementalAbsorption": {
         "manadrain": 5
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -388195,6 +388374,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -392908,6 +393088,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -392990,6 +393171,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -393031,6 +393213,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -393800,6 +393983,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -395302,6 +395486,7 @@
       "elementalAbsorption": {
         "physical": 5
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -395429,6 +395614,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -395519,6 +395705,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -395613,6 +395800,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -396161,6 +396349,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -397991,6 +398180,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 1,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -430389,6 +430579,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -430629,6 +430820,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -431745,6 +431937,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -431796,6 +431989,7 @@
       "elementalAbsorption": {
         "death": 3
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -431937,6 +432131,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -431980,6 +432175,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -505410,6 +505606,7 @@
       "elementalAbsorption": {
         "physical": 8
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -505461,6 +505658,7 @@
       "elementalAbsorption": {
         "death": 5
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -505607,6 +505805,7 @@
       "elementalAbsorption": {
         "physical": 5
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -505656,6 +505855,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 2,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -505754,6 +505954,7 @@
       "elementalAbsorption": {
         "physical": 5
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -505797,6 +505998,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -507326,6 +507528,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -507408,6 +507611,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -508624,6 +508828,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -508667,6 +508872,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -511246,6 +511452,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -511334,6 +511541,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -511375,6 +511583,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -511418,6 +511627,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -511915,6 +512125,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -513338,6 +513549,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -550644,6 +550856,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -550685,6 +550898,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -551167,6 +551381,7 @@
       "elementalAbsorption": {
         "physical": 5
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -551265,6 +551480,7 @@
       "elementalAbsorption": {
         "death": 3
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -553138,6 +553354,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -553183,6 +553400,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -553277,6 +553495,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -553673,6 +553892,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -589429,6 +589649,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -590449,6 +590670,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -631121,6 +631343,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -636660,6 +636883,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -636744,6 +636968,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -636867,6 +637092,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -636908,6 +637134,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -637165,6 +637392,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -637205,6 +637433,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -659800,6 +660029,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -659849,6 +660079,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -659943,6 +660174,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -659992,6 +660224,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660086,6 +660319,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660135,6 +660369,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660229,6 +660464,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660278,6 +660514,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660372,6 +660609,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660421,6 +660659,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660515,6 +660754,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660564,6 +660804,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660658,6 +660899,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660707,6 +660949,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660801,6 +661044,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660850,6 +661094,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -660958,6 +661203,7 @@
         "ice": 3,
         "energy": 3
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -661012,6 +661258,7 @@
         "ice": 5,
         "energy": 5
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -670788,6 +671035,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -701237,6 +701485,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -701278,6 +701527,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -701499,6 +701749,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -705959,6 +706210,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -706077,6 +706329,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -709958,6 +710211,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -726214,6 +726468,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -730141,6 +730396,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -733645,6 +733901,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -734015,6 +734272,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -751446,6 +751704,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -751489,6 +751748,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -752427,6 +752687,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -752476,6 +752737,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 4,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -752517,6 +752779,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -752603,6 +752866,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -752771,6 +753035,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -754747,6 +755012,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -754794,6 +755060,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761049,6 +761316,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761097,6 +761365,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761145,6 +761414,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761193,6 +761463,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761241,6 +761512,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761289,6 +761561,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761337,6 +761610,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761385,6 +761659,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761433,6 +761708,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761481,6 +761757,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761529,6 +761806,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761577,6 +761855,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761625,6 +761904,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761673,6 +761953,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761721,6 +762002,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761769,6 +762051,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761817,6 +762100,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761865,6 +762149,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761913,6 +762198,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -761961,6 +762247,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762009,6 +762296,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762057,6 +762345,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762105,6 +762394,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762153,6 +762443,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762201,6 +762492,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762249,6 +762541,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762297,6 +762590,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762345,6 +762639,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762393,6 +762688,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -762441,6 +762737,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -767955,6 +768252,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -783681,6 +783979,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -783764,6 +784063,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -806701,6 +807001,7 @@
       "elementalAbsorption": {
         "earth": 5
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834439,6 +834740,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834481,6 +834783,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834523,6 +834826,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834565,6 +834869,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834607,6 +834912,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834649,6 +834955,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834691,6 +834998,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834733,6 +835041,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834779,6 +835088,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 2,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -834825,6 +835135,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 2,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -840233,6 +840544,7 @@
         "energy": 8,
         "ice": -2
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -840281,6 +840593,7 @@
         "energy": 8,
         "ice": -2
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -840374,6 +840687,7 @@
         "energy": 8,
         "ice": -2
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -840420,6 +840734,7 @@
       "elementalAbsorption": {
         "energy": 6
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -865690,6 +866005,7 @@
       },
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -865732,6 +866048,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -865774,6 +866091,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 2,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -866127,6 +866445,7 @@
       "elementalAbsorption": {
         "physical": 8
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -866250,6 +866569,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -866291,6 +866611,7 @@
       "skillBonuses": {},
       "magicLevelBonus": 2,
       "elementalAbsorption": {},
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -869877,6 +870198,7 @@
       "skillBonuses": {},
       "magicLevelBonus": null,
       "elementalAbsorption": {},
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875350,6 +875672,7 @@
       "elementalAbsorption": {
         "fire": 9
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875405,6 +875728,7 @@
         "physical": 3,
         "fire": 10
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875453,6 +875777,7 @@
       "elementalAbsorption": {
         "energy": 8
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875501,6 +875826,7 @@
       "elementalAbsorption": {
         "fire": 8
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875552,6 +875878,7 @@
       "elementalAbsorption": {
         "fire": 5
       },
+      "imbuingSlots": 3,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875603,6 +875930,7 @@
       "elementalAbsorption": {
         "physical": 12
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875711,6 +876039,7 @@
         "physical": 6,
         "fire": 10
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875763,6 +876092,7 @@
         "physical": 7,
         "fire": 15
       },
+      "imbuingSlots": 1,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875814,6 +876144,7 @@
       "elementalAbsorption": {
         "earth": 10
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875865,6 +876196,7 @@
       "elementalAbsorption": {
         "energy": 12
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -875916,6 +876248,7 @@
       "elementalAbsorption": {
         "energy": 7
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -879771,6 +880104,7 @@
       "elementalAbsorption": {
         "earth": 5
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -879820,6 +880154,7 @@
       "elementalAbsorption": {
         "holy": 8
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -879939,6 +880274,7 @@
       "elementalAbsorption": {
         "earth": 3
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -879982,6 +880318,7 @@
       "elementalAbsorption": {
         "energy": 3
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -880025,6 +880362,7 @@
       "elementalAbsorption": {
         "death": 3
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
@@ -880068,6 +880406,7 @@
       "elementalAbsorption": {
         "fire": 3
       },
+      "imbuingSlots": 2,
       "sourceFile": [
         "data/items/items.otb",
         "data/items/items.xml"
