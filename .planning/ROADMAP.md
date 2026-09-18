@@ -3614,11 +3614,11 @@ Plans:
 - Executar script de deploy seguro na VPS (`deploy-phase188-vps.mjs`) com backup do SQLite, git pull, build do bundle e restart do PM2.
 
 **Plans:**
-- [ ] 188-01-PLAN: Parsing nativo de `imbuingslots` no `importEquipment.ts` e regeneração de `equipment.json`.
-- [ ] 188-02-PLAN: Ajustes de integração no `GamePrototype.tsx`, `BottomDock.tsx` e verificação Vitest.
-- [ ] 188-03-PLAN: Deploy na VPS `187.7.16.210`, reinício de `tibia-web` e `colyseus-server`, e verificação online.
+- [x] 188-01-PLAN: Parsing nativo de `imbuingslots` no `importEquipment.ts` e regeneração de `equipment.json`.
+- [x] 188-02-PLAN: Ajustes de integração no `GamePrototype.tsx`, `BottomDock.tsx` e verificação Vitest.
+- [x] 188-03-PLAN: Deploy na VPS `187.7.16.210`, reinício de `tibia-web` e `colyseus-server`, e verificação online.
 
-**Status:** In Progress
+**Status:** Complete
 
 
 
