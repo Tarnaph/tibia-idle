@@ -76,20 +76,32 @@ Todas as especificações detalhadas no documento `FIX.md` foram implementadas, 
 
 ---
 
-### 6. Validação Visual via Chrome DevTools Protocol (CDP) no Microsoft Edge
-Reutilizado o navegador nativo Microsoft Edge via protocolo CDP na porta 9349/9350 com execução automatizada ponta a ponta (`scripts/verify-browser-cdp-phase186.mjs`) diretamente contra a VPS (`187.7.16.210:3000`):
+### 6. Investigação e Resolução da Visibilidade do Personagem em Thais (Wolfy)
+- **Diagnóstico da Causa Raiz**:
+  - No commit `e28175086` ao sanitizar as strings de título em `apps/web/components/ThaisCityArena.tsx`, a atribuição de visibilidade do container do ator principal (`view.root.visible = (latestRef.current.isCharacterVisible !== false);`) foi acidentalmente omitida no loop de animação.
+  - Como `ensureActorView` instancia novos containers Pixi com `root.visible = false` por padrão, o sprite do personagem principal ficava invisível na cidade de Thais.
+  - A integridade do banco de dados na VPS (`/root/tibia-idle/prisma/dev.db`) foi auditada: os dados de Wolfy (Level 25 Knight, outfit Citizen, mount racing-bird, adminTitle GOD, posição 32369, 32235, 7) estavam e permanecem 100% íntegros.
+- **Correção Aplicada**:
+  - `apps/web/components/ThaisCityArena.tsx`: Restaurada a atribuição `view.root.visible = (latestRef.current.isCharacterVisible !== false);` na linha 1753.
+- **Commit Atômico**: `70af90d73 fix(city): restore local player view.root.visible in ThaisCityArena`.
+
+---
+
+### 7. Validação Visual via Chrome DevTools Protocol (CDP) no Microsoft Edge
+Reutilizado o navegador nativo Microsoft Edge via protocolo CDP na porta 9349/9350/9355 com execução automatizada ponta a ponta (`scripts/verify-browser-cdp-phase186.mjs` e `scripts/verify-character-visible.mjs`) diretamente contra a VPS (`187.7.16.210:3000`):
 1. `scratch/cdp-phase186-01-thais-city-god.png`: Entrada no jogo no Templo de Thais com o badge central `● 1 jogador online` pulsante e título administrativo renderizado.
 2. `scratch/cdp-phase186-02-admin-jogadores.png`: Navegação para o Painel ADMIN (/admin), aba Jogadores carregada com os 36 personagens, exibição do contador `Contas Únicas Online: 1`, proteção visual `👑 GOD` no Wolfy e botões `⭐ Promover a GM`.
 3. `scratch/cdp-phase186-03-promote-modal.png`: Acionamento de promoção a GM abrindo modal de confirmação com destaque dourado, dados da conta e botões CANCELAR e CONFIRMAR PROMOÇÃO.
 4. `scratch/cdp-phase186-04-back-to-game.png`: Teste do botão "🎮 VOLTAR AO JOGO" navegando de volta para `/game` com sessão preservada.
 5. `scratch/cdp-phase186-05-hunt-god.png`: Transição suave para caçada com título de combate.
 6. `scratch/cdp-phase186-06-logged-out.png`: Teste do botão "🚪 SAIR" no painel admin limpando storages/cookies e redirecionando limpo para `/`.
+7. `scratch/cdp-phase186-07-character-visible.png`: **Confirmação visual do personagem perfeitamente renderizado no Templo de Thais com sprite, nameplate e barra de vida**.
 
 ---
 
-### 7. Métricas de Qualidade e Validação
+### 8. Métricas de Qualidade e Validação
 - **Vitest**: 20/20 testes específicos da Fase 186 aprovados (100% dos 4 arquivos de teste).
 - **TypeScript (`npm run typecheck`)**: 0 erros em todo o monorepo.
-- **Deploy em Produção**: Concluído com sucesso na VPS `187.7.16.210` (Commit ativo `e28175086`).
+- **Deploy em Produção**: Concluído com sucesso na VPS `187.7.16.210` (Commit ativo `70af90d73`).
 - **Serviços PM2**: `colyseus-server` (pid 372208) e `tibia-web` (pid 372195) online e saudáveis.
 - **Pendências Guardadas**: Poções/runas fora de hotkeys, loja free/premium, blessings e imbuements mantidos intactos e preservados para futuras fases.
