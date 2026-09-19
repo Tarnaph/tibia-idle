@@ -192,11 +192,11 @@ export function HotbarConfigModal({
                 onClick={handleClearSlot}
                 title="Remover ação deste slot"
                 style={{
-                  background: '#7a1818',
-                  color: '#ffffff',
-                  border: '1px solid #d94242',
-                  borderRadius: '3px',
-                  padding: '2px 8px',
+                  background: '#271717',
+                  color: '#fca5a5',
+                  border: '1px solid #7f1d1d',
+                  borderRadius: '4px',
+                  padding: '3px 10px',
                   fontSize: '11px',
                   cursor: 'pointer',
                   fontWeight: 'bold',
@@ -646,11 +646,11 @@ export function HotbarConfigModal({
                     className="hotbar-clear-btn"
                     onClick={handleClearSlot}
                     style={{
-                      background: '#4a1515',
-                      color: '#ff9999',
-                      border: '1px solid #7a2828',
-                      borderRadius: '3px',
-                      padding: '4px 10px',
+                      background: '#271717',
+                      color: '#fca5a5',
+                      border: '1px solid #7f1d1d',
+                      borderRadius: '4px',
+                      padding: '5px 12px',
                       fontSize: '12px',
                       cursor: 'pointer',
                       fontWeight: 'bold',

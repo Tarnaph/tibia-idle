@@ -44,6 +44,98 @@ const HUNT_STATS_MAP: Record<string, StatRecord> = {
   'dragon-lair': { soloXp: '65.0K XP/h', soloGp: '18.0K gp/h' },
 };
 
+export interface QuestItem {
+  id: string;
+  name: string;
+  levelReq: number;
+  status: 'active' | 'available' | 'completed';
+  category: string;
+  location: string;
+  description: string;
+  objectives: { text: string; done: boolean }[];
+  rewards: { xp: string; gp: string; items: string[] };
+}
+
+export const DEFAULT_QUESTS: QuestItem[] = [
+  {
+    id: 'thais-sewers',
+    name: 'Infestação nos Esgotos de Thais',
+    levelReq: 1,
+    status: 'active',
+    category: 'Cidade de Thais',
+    location: 'Esgotos Subterrâneos de Thais',
+    description: 'Os cidadãos de Thais reclamam de barulhos constantes vindos dos bueiros. Desça aos esgotos, investigue a passagem e extermine os roedores e criaturas sombrias.',
+    objectives: [
+      { text: 'Entrar nos esgotos pelo bueiro oeste', done: true },
+      { text: 'Derrotar 15 Ratos das Cavernas', done: false },
+      { text: 'Recuperar o anel perdido do guarda real', done: false },
+    ],
+    rewards: { xp: '850 XP', gp: '350 gp', items: ['Brass Legs', 'Small Health Potion x3'] },
+  },
+  {
+    id: 'cyclops-threat',
+    name: 'A Ameaça dos Cíclopes',
+    levelReq: 15,
+    status: 'available',
+    category: 'Montanhas & Forjas',
+    location: 'Mount Sternum',
+    description: 'Ferreiros cíclopes estão fundindo armas suspeitas nas cavernas do Mount Sternum. A guarnição de Thais solicitou reconhecimento e contenção dos batedores.',
+    objectives: [
+      { text: 'Explorar a entrada da forja profunda', done: false },
+      { text: 'Derrotar 20 Cíclopes e 5 Cyclops Drones', done: false },
+      { text: 'Coletar 3 Heavy Maces como prova de armamento', done: false },
+    ],
+    rewards: { xp: '4.800 XP', gp: '1.500 gp', items: ['Dark Helmet', 'Mana Potion x10'] },
+  },
+  {
+    id: 'dragon-lair',
+    name: 'O Despertar dos Dragões',
+    levelReq: 35,
+    status: 'available',
+    category: 'Covis Ancestrais',
+    location: 'Dragon Lair de Venore',
+    description: 'Criaturas aladas cuspidoras de fogo foram avistadas saindo das fossas terrosas de Venore. Derrote as bestas escarlates e assegure a paz nas rotas comerciais.',
+    objectives: [
+      { text: 'Encontrar a câmara do Dragão Ancião', done: false },
+      { text: 'Derrotar 10 Dragões e 3 Dragon Hatchlings', done: false },
+      { text: 'Recuperar uma Dragon Tail intacta', done: false },
+    ],
+    rewards: { xp: '28.000 XP', gp: '8.000 gp', items: ['Dragon Shield', 'Fire Sword Fragment'] },
+  },
+  {
+    id: 'ancient-blessings',
+    name: 'Peregrinação das Bênçãos Divinas',
+    levelReq: 10,
+    status: 'available',
+    category: 'Tradição dos Templos',
+    location: '5 Templos Sagrados do Continente',
+    description: 'Visite os sacerdotes guardiões nos 5 altares sagrados para receber a proteção espiritual que reduz drasticamente a penalidade de morte.',
+    objectives: [
+      { text: 'Visitar o Sacerdote da Centelha da Fênix', done: false },
+      { text: 'Visitar o Eremita do Abraço da Terra', done: false },
+      { text: 'Visitar a Guardiã dos Ventos Espirituais', done: false },
+      { text: 'Visitar o Sábio do Fogo Celestial', done: false },
+      { text: 'Visitar o Mestre do Sol Solene', done: false },
+    ],
+    rewards: { xp: '10.000 XP', gp: '10.000 gp', items: ['Bênção Permanente dos 5 Deuses'] },
+  },
+  {
+    id: 'rookie-training',
+    name: 'Primeiros Passos de um Aventureiro',
+    levelReq: 1,
+    status: 'completed',
+    category: 'Academia de Combate',
+    location: 'Templo de Thais',
+    description: 'Aprenda os fundamentos do combate com o instrutor da corte e prepare suas primeiras armas e armaduras.',
+    objectives: [
+      { text: 'Falar com o Grande Instrutor no Templo', done: true },
+      { text: 'Equipar uma arma condizente com sua vocação', done: true },
+      { text: 'Alcançar o nível 8', done: true },
+    ],
+    rewards: { xp: '1.200 XP', gp: '500 gp', items: ['Leather Set Completo', 'Rope & Shovel'] },
+  },
+];
+
 export function HuntSelector({
   open,
   hunts,
@@ -72,6 +164,8 @@ export function HuntSelector({
 
   // Training state
   const [selectedTrainingSkill, setSelectedTrainingSkill] = useState<string>('Sword Fighting');
+  const [selectedQuestId, setSelectedQuestId] = useState<string>('thais-sewers');
+  const [trackedQuestId, setTrackedQuestId] = useState<string>('thais-sewers');
 
   // Favorites in localStorage
   const [favorites, setFavorites] = useState<Set<string>>(() => {
@@ -219,8 +313,7 @@ export function HuntSelector({
       return;
     }
     if (tab === 'QUESTS') {
-      if (onOpenQuests) onOpenQuests();
-      else gameModal.openCyclopedia('bestiary');
+      setActiveTab('QUESTS');
       return;
     }
     if (tab === 'BOSSES') {
@@ -247,7 +340,13 @@ export function HuntSelector({
         {/* Window Title Bar */}
         <div className="hunt-window-titlebar">
           <span className="hunt-window-title">
-            {activeTab === 'TREINO' ? 'Pátio de Treinamento' : view === 'catalog' ? 'Organizar caçada' : selectedHunt?.name}
+            {activeTab === 'TREINO'
+              ? 'Pátio de Treinamento'
+              : activeTab === 'QUESTS'
+              ? 'Diário de Missões & Quests'
+              : view === 'catalog'
+              ? 'Organizar caçada'
+              : selectedHunt?.name}
           </span>
           <button
             type="button"
@@ -287,24 +386,31 @@ export function HuntSelector({
                 { name: 'Distance Fighting', skill: 'distance', icon: '🏹', desc: 'Arcos, bestas e lanças' },
                 { name: 'Shielding', skill: 'shielding', icon: '🛡️', desc: 'Defesa e bloqueio com escudos' },
                 { name: 'Magic Level', skill: 'magicLevel', icon: '✨', desc: 'Poder e capacidade mágica' },
-              ].map((item) => (
-                <div
-                  key={item.skill}
-                  className={`training-skill-card ${selectedTrainingSkill === item.name ? 'selected' : ''}`}
-                  onClick={() => setSelectedTrainingSkill(item.name)}
-                  style={{
-                    background: selectedTrainingSkill === item.name ? '#1a243a' : '#141824',
-                    border: `1.5px solid ${selectedTrainingSkill === item.name ? '#3b82f6' : '#242e42'}`,
-                    borderRadius: '6px',
-                    padding: '12px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{ fontSize: '24px', marginBottom: '6px' }}>{item.icon}</div>
-                  <div style={{ fontWeight: 700, color: '#f1f5f9', fontSize: '14px' }}>{item.name}</div>
-                  <div style={{ fontSize: '11px', color: '#7b8da6', marginTop: '3px' }}>{item.desc}</div>
-                </div>
-              ))}
+              ].map((item) => {
+                const isSelected = selectedTrainingSkill === item.name;
+                return (
+                  <div
+                    key={item.skill}
+                    className={`training-skill-card ${isSelected ? 'selected' : ''}`}
+                    onClick={() => setSelectedTrainingSkill(item.name)}
+                    style={{
+                      background: isSelected ? '#27292c' : '#161719',
+                      border: `1.5px solid ${isSelected ? '#facc15' : '#2a2c30'}`,
+                      borderRadius: '4px',
+                      padding: '14px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      boxShadow: isSelected ? '0 0 12px rgba(250, 204, 21, 0.25)' : 'none',
+                    }}
+                  >
+                    <div style={{ fontSize: '24px', marginBottom: '6px' }}>{item.icon}</div>
+                    <div style={{ fontWeight: 700, color: isSelected ? '#f3c769' : '#f1f5f9', fontSize: '14px', fontFamily: 'Georgia, serif' }}>
+                      {item.name}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>{item.desc}</div>
+                  </div>
+                );
+              })}
             </div>
             <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
               <button
@@ -325,6 +431,223 @@ export function HuntSelector({
                 Iniciar Treino ({selectedTrainingSkill})
               </button>
             </div>
+          </div>
+        ) : activeTab === 'QUESTS' ? (
+          /* SCREEN: INLINE QUEST LOG VIEW (ROYAL DARK STONE) */
+          <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+            {/* Left Column: Quests List */}
+            <div
+              style={{
+                width: '320px',
+                borderRight: '1px solid #33363a',
+                backgroundColor: '#161719',
+                padding: '14px 12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                overflowY: 'auto',
+              }}
+            >
+              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
+                Missões Disponíveis & Ativas
+              </div>
+              {DEFAULT_QUESTS.map((quest) => {
+                const isSelected = selectedQuestId === quest.id;
+                const isTracked = trackedQuestId === quest.id;
+                const statusBadge =
+                  quest.status === 'active'
+                    ? { text: 'EM ANDAMENTO', bg: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }
+                    : quest.status === 'available'
+                    ? { text: 'DISPONÍVEL', bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }
+                    : { text: 'CONCLUÍDA', bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8', border: '1px solid rgba(148, 163, 184, 0.3)' };
+
+                return (
+                  <div
+                    key={quest.id}
+                    onClick={() => setSelectedQuestId(quest.id)}
+                    style={{
+                      backgroundColor: isSelected ? '#27292c' : '#1b1c1e',
+                      border: `1px solid ${isSelected ? '#facc15' : '#282a2e'}`,
+                      borderRadius: '4px',
+                      padding: '10px 12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.12s ease',
+                      boxShadow: isSelected ? '0 0 10px rgba(250, 204, 21, 0.2)' : 'none',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          padding: '1px 5px',
+                          borderRadius: '3px',
+                          backgroundColor: statusBadge.bg,
+                          color: statusBadge.color,
+                          border: statusBadge.border,
+                        }}
+                      >
+                        {statusBadge.text}
+                      </span>
+                      <span style={{ fontSize: '10px', color: '#9ca3af' }}>Lv. {quest.levelReq}+</span>
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: 'Georgia, serif',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: isSelected ? '#f3c769' : '#f1f5f9',
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {isTracked ? '📍 ' : ''}{quest.name}
+                    </div>
+                    <div style={{ fontSize: '10.5px', color: '#7b8ca5', marginTop: '3px' }}>
+                      {quest.category}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Right Column: Selected Quest Detail */}
+            {(() => {
+              const currentQuest = DEFAULT_QUESTS.find((q) => q.id === selectedQuestId) || DEFAULT_QUESTS[0];
+              const isTracked = trackedQuestId === currentQuest.id;
+
+              return (
+                <div
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#18191b',
+                    padding: '18px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                    overflowY: 'auto',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontFamily: 'Georgia, serif',
+                          fontSize: '18px',
+                          fontWeight: 700,
+                          color: '#f3c769',
+                          letterSpacing: '0.5px',
+                        }}
+                      >
+                        {currentQuest.name}
+                      </h3>
+                      <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 600 }}>
+                        Requisito: Lv. {currentQuest.levelReq}+
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                      Categoria: <span style={{ color: '#9ca3af' }}>{currentQuest.category}</span> | Local:{' '}
+                      <span style={{ color: '#9ca3af' }}>{currentQuest.location}</span>
+                    </div>
+                  </div>
+
+                  {/* Lore Description */}
+                  <div
+                    style={{
+                      backgroundColor: '#141517',
+                      border: '1px solid #2a2c30',
+                      borderRadius: '4px',
+                      padding: '12px 14px',
+                      color: '#cbd5e1',
+                      fontSize: '12px',
+                      lineHeight: '1.5',
+                    }}
+                  >
+                    {currentQuest.description}
+                  </div>
+
+                  {/* Objectives */}
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#f3c769', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                      OBJETIVOS DA MISSÃO
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {currentQuest.objectives.map((obj, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '11.5px',
+                            color: obj.done ? '#64748b' : '#e2e8f0',
+                            textDecoration: obj.done ? 'line-through' : 'none',
+                          }}
+                        >
+                          <span style={{ fontSize: '12px' }}>{obj.done ? '✅' : '⚪'}</span>
+                          <span>{obj.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Rewards Box */}
+                  <div
+                    style={{
+                      backgroundColor: '#141517',
+                      border: '1px solid #2a2c30',
+                      borderRadius: '4px',
+                      padding: '12px 14px',
+                    }}
+                  >
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#facc15', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                      RECOMPENSAS AO COMPLETAR
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '11px', color: '#4ade80', fontWeight: 700 }}>
+                        ⭐ {currentQuest.rewards.xp}
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#facc15', fontWeight: 700 }}>
+                        🪙 {currentQuest.rewards.gp}
+                      </span>
+                      {currentQuest.rewards.items.map((it, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            fontSize: '11px',
+                            color: '#93c5fd',
+                            backgroundColor: '#1b2333',
+                            border: '1px solid #2d3b55',
+                            padding: '2px 6px',
+                            borderRadius: '3px',
+                          }}
+                        >
+                          🎁 {it}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Footer Actions */}
+                  <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '10px' }}>
+                    <button
+                      type="button"
+                      className="hunt-setup-footer-btn"
+                      onClick={() => setActiveTab('CAÇADAS')}
+                    >
+                      Voltar para Caçadas
+                    </button>
+                    <button
+                      type="button"
+                      className="hunt-start-hunt-btn"
+                      onClick={() => setTrackedQuestId(currentQuest.id)}
+                    >
+                      {isTracked ? '📍 Missão Rastreada' : 'Rastrear esta Missão'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         ) : view === 'catalog' ? (
           /* SCREEN 1: CATALOG VIEW */

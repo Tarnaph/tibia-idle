@@ -235,8 +235,8 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           display: 'flex',
           gap: '4px',
           padding: '4px 6px',
-          background: 'rgba(10, 14, 18, 0.75)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          background: '#151618',
+          borderBottom: '1px solid #2d3035',
           overflowX: 'auto',
           alignItems: 'center',
         }}
@@ -251,9 +251,10 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
             fontWeight: 700,
             borderRadius: '3px',
             cursor: 'pointer',
-            border: activeTab === 'local' ? '1px solid #ffd700' : '1px solid rgba(255,255,255,0.08)',
-            background: activeTab === 'local' ? 'rgba(255, 215, 0, 0.15)' : 'rgba(20, 24, 30, 0.5)',
-            color: activeTab === 'local' ? '#ffff55' : '#889098',
+            border: activeTab === 'local' ? '1px solid #4f535a' : '1px solid #282a2e',
+            borderBottom: activeTab === 'local' ? '2px solid #f3c769' : '1px solid #282a2e',
+            background: activeTab === 'local' ? '#2d3035' : '#151618',
+            color: activeTab === 'local' ? '#f3c769' : '#9ca3af',
             transition: 'all 0.15s ease',
             display: 'flex',
             alignItems: 'center',
@@ -275,9 +276,10 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
             fontWeight: 700,
             borderRadius: '3px',
             cursor: 'pointer',
-            border: activeTab === 'world' ? '1px solid #00bfff' : '1px solid rgba(255,255,255,0.08)',
-            background: activeTab === 'world' ? 'rgba(0, 191, 255, 0.15)' : 'rgba(20, 24, 30, 0.5)',
-            color: activeTab === 'world' ? '#55ffff' : '#889098',
+            border: activeTab === 'world' ? '1px solid #4f535a' : '1px solid #282a2e',
+            borderBottom: activeTab === 'world' ? '2px solid #f3c769' : '1px solid #282a2e',
+            background: activeTab === 'world' ? '#2d3035' : '#151618',
+            color: activeTab === 'world' ? '#f3c769' : '#9ca3af',
             transition: 'all 0.15s ease',
             display: 'flex',
             alignItems: 'center',
@@ -308,19 +310,20 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
                 borderRadius: '3px',
                 cursor: 'pointer',
                 border: isActive
-                  ? '1px solid #c084fc'
+                  ? '1px solid #4f535a'
                   : hasUnread
                   ? '1px solid #f59e0b'
-                  : '1px solid rgba(255,255,255,0.08)',
+                  : '1px solid #282a2e',
+                borderBottom: isActive ? '2px solid #f3c769' : undefined,
                 background: isActive
-                  ? 'rgba(147, 51, 234, 0.25)'
+                  ? '#2d3035'
                   : hasUnread
                   ? 'rgba(245, 158, 11, 0.18)'
-                  : 'rgba(20, 24, 30, 0.5)',
-                color: isActive ? '#f3e8ff' : hasUnread ? '#fbbf24' : '#c084fc',
+                  : '#151618',
+                color: isActive ? '#f3c769' : hasUnread ? '#fbbf24' : '#9ca3af',
                 transition: 'all 0.15s ease',
                 flexShrink: 0,
-                boxShadow: isActive ? '0 0 6px rgba(192, 132, 252, 0.25)' : 'none',
+                boxShadow: isActive ? '0 0 6px rgba(243, 199, 105, 0.2)' : 'none',
               }}
               title={`Conversa privada com ${tabName}`}
             >
@@ -389,7 +392,7 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           flex: 1,
           overflowY: 'auto',
           padding: '6px 8px',
-          background: 'rgba(5, 7, 10, 0.65)',
+          background: '#121315',
           fontFamily: 'Inter, system-ui, sans-serif',
           fontSize: '11px',
           lineHeight: '1.4',
@@ -484,10 +487,10 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
         className="chat-input-bar"
         style={{
           display: 'flex',
-          gap: '4px',
-          padding: '4px 6px',
-          background: 'rgba(10, 14, 18, 0.9)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          gap: '5px',
+          padding: '5px 6px',
+          background: '#18191b',
+          borderTop: '1px solid #33363a',
         }}
       >
         <input
@@ -501,10 +504,10 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           maxLength={180}
           style={{
             flex: 1,
-            background: 'rgba(0, 0, 0, 0.5)',
-            border: `1px solid ${inputBorderColor}`,
+            background: '#141517',
+            border: '1px solid #33363a',
             borderRadius: '3px',
-            padding: '4px 8px',
+            padding: '5px 8px',
             color: '#f0f3f6',
             fontSize: '11px',
             outline: 'none',
@@ -515,14 +518,16 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
           onClick={handleSend}
           title="Enviar Mensagem (Enter)"
           style={{
-            padding: '4px 12px',
+            padding: '5px 14px',
             fontSize: '11px',
             fontWeight: 700,
-            borderRadius: '3px',
-            border: `1px solid ${sendButtonBorder}`,
-            background: sendButtonBg,
-            color: sendButtonColor,
+            borderRadius: '4px',
+            border: '1px solid #facc15',
+            background: 'linear-gradient(180deg, #eab308 0%, #ca8a04 100%)',
+            color: '#18191b',
             cursor: 'pointer',
+            fontFamily: 'Georgia, serif',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
           }}
         >
           Enviar

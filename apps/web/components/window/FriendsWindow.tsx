@@ -111,8 +111,8 @@ export function FriendsWindow({
               flex: 1,
               display: 'flex',
               alignItems: 'center',
-              backgroundColor: '#0d1117',
-              border: '1px solid #232936',
+              backgroundColor: '#161719',
+              border: '1px solid #33363a',
               borderRadius: '3px',
               padding: '0 8px',
               opacity: isSearching ? 0.7 : 1,
@@ -146,19 +146,19 @@ export function FriendsWindow({
               padding: '6px 14px',
               fontSize: '11px',
               fontWeight: 600,
-              backgroundColor: isSearching ? '#151a24' : '#1b2230',
-              border: '1px solid #3b4861',
+              backgroundColor: isSearching ? '#202225' : '#27292c',
+              border: '1px solid #4a4d52',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.4)',
-              color: isSearching ? '#64748b' : '#d1d5db',
-              borderRadius: '3px',
+              color: isSearching ? '#64748b' : '#f3c769',
+              borderRadius: '4px',
               cursor: isSearching ? 'not-allowed' : 'pointer',
               transition: 'all 0.15s ease',
             }}
             onMouseEnter={(e) => {
-              if (!isSearching) e.currentTarget.style.backgroundColor = '#263044';
+              if (!isSearching) e.currentTarget.style.backgroundColor = '#33363a';
             }}
             onMouseLeave={(e) => {
-              if (!isSearching) e.currentTarget.style.backgroundColor = '#1b2230';
+              if (!isSearching) e.currentTarget.style.backgroundColor = '#27292c';
             }}
           >
             {isSearching ? 'Verificando...' : 'Adicionar'}
@@ -212,7 +212,7 @@ export function FriendsWindow({
             color: '#a3e635',
             letterSpacing: '0.5px',
             marginBottom: '8px',
-            borderBottom: '1px solid #1e293b',
+            borderBottom: '1px solid #33363a',
             paddingBottom: '4px',
           }}
         >
@@ -250,13 +250,13 @@ export function FriendsWindow({
                 justifyContent: 'space-between',
                 padding: '5px 8px',
                 borderRadius: '3px',
-                backgroundColor: selectedFriend?.name === friend.name ? '#1e293b' : 'transparent',
-                border: selectedFriend?.name === friend.name ? '1px solid #334155' : '1px solid transparent',
+                backgroundColor: selectedFriend?.name === friend.name ? '#27292c' : 'transparent',
+                border: selectedFriend?.name === friend.name ? '1px solid #facc15' : '1px solid transparent',
                 cursor: 'pointer',
                 transition: 'background-color 0.1s',
               }}
               onMouseEnter={(e) => {
-                if (selectedFriend?.name !== friend.name) e.currentTarget.style.backgroundColor = '#151d2c';
+                if (selectedFriend?.name !== friend.name) e.currentTarget.style.backgroundColor = '#202225';
               }}
               onMouseLeave={(e) => {
                 if (selectedFriend?.name !== friend.name) e.currentTarget.style.backgroundColor = 'transparent';
@@ -294,10 +294,10 @@ export function FriendsWindow({
                     padding: '3px 8px',
                     fontSize: '10.5px',
                     fontWeight: 600,
-                    backgroundColor: '#1b2a40',
-                    border: '1px solid #3b5984',
+                    backgroundColor: '#27292c',
+                    border: '1px solid #4a4d52',
                     borderRadius: '3px',
-                    color: '#93c5fd',
+                    color: '#e2e8f0',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -305,12 +305,14 @@ export function FriendsWindow({
                     transition: 'all 0.15s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#253d61';
-                    e.currentTarget.style.color = '#bfdbfe';
+                    e.currentTarget.style.backgroundColor = '#33363a';
+                    e.currentTarget.style.color = '#f3c769';
+                    e.currentTarget.style.borderColor = '#facc15';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#1b2a40';
-                    e.currentTarget.style.color = '#93c5fd';
+                    e.currentTarget.style.backgroundColor = '#27292c';
+                    e.currentTarget.style.color = '#e2e8f0';
+                    e.currentTarget.style.borderColor = '#4a4d52';
                   }}
                 >
                   <span>💬</span>
@@ -334,7 +336,7 @@ export function FriendsWindow({
                   letterSpacing: '0.5px',
                   marginTop: '10px',
                   marginBottom: '6px',
-                  borderBottom: '1px solid #1e293b',
+                  borderBottom: '1px solid #33363a',
                   paddingBottom: '4px',
                 }}
               >
@@ -388,10 +390,10 @@ export function FriendsWindow({
                         padding: '3px 8px',
                         fontSize: '10.5px',
                         fontWeight: 600,
-                        backgroundColor: '#1b2a40',
-                        border: '1px solid #3b5984',
+                        backgroundColor: '#27292c',
+                        border: '1px solid #4a4d52',
                         borderRadius: '3px',
-                        color: '#93c5fd',
+                        color: '#cbd5e1',
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -412,19 +414,19 @@ export function FriendsWindow({
         {selectedFriend && (
           <div
             style={{
-              backgroundColor: '#111726',
-              border: '1px solid #2d3b55',
+              backgroundColor: '#161719',
+              border: '1px solid #33363a',
               borderRadius: '4px',
-              padding: '8px 10px',
+              padding: '10px 12px',
               marginBottom: '10px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '6px',
+              gap: '8px',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '11px' }}>
-                Selecionado: <strong style={{ color: '#60a5fa' }}>{selectedFriend.name}</strong>
+                Selecionado: <strong style={{ color: '#f3c769', fontFamily: 'Georgia, serif' }}>{selectedFriend.name}</strong>
               </span>
               <span style={{ color: '#94a3b8', fontSize: '10.5px' }}>
                 Lv. {selectedFriend.level ?? 1}
@@ -440,19 +442,20 @@ export function FriendsWindow({
                   padding: '5px 8px',
                   fontSize: '11px',
                   fontWeight: 700,
-                  backgroundColor: '#2563eb',
-                  border: '1px solid #60a5fa',
-                  borderRadius: '3px',
-                  color: '#ffffff',
+                  background: 'linear-gradient(180deg, #eab308 0%, #ca8a04 100%)',
+                  border: '1px solid #facc15',
+                  borderRadius: '4px',
+                  color: '#18191b',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '5px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                  fontFamily: 'Georgia, serif',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+                onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(1.1)')}
+                onMouseLeave={(e) => (e.currentTarget.style.filter = 'none')}
               >
                 <span>💬</span>
                 <span>Mandar Mensagem</span>
@@ -489,7 +492,7 @@ export function FriendsWindow({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderTop: '1px solid #1e293b',
+            borderTop: '1px solid #33363a',
             paddingTop: '10px',
             color: '#64748b',
             fontSize: '11px',
@@ -506,17 +509,24 @@ export function FriendsWindow({
               if (el) (el as HTMLElement).style.display = 'none';
             }}
             style={{
-              padding: '5px 16px',
+              padding: '6px 18px',
               fontSize: '11px',
               fontWeight: 600,
-              backgroundColor: '#1b2230',
-              border: '1px solid #3b4861',
-              color: '#d1d5db',
-              borderRadius: '3px',
+              backgroundColor: '#27292c',
+              border: '1px solid #4a4d52',
+              color: '#e2e8f0',
+              borderRadius: '4px',
               cursor: 'pointer',
+              transition: 'all 0.12s ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#263044')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1b2230')}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#33363a';
+              e.currentTarget.style.color = '#f3c769';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#27292c';
+              e.currentTarget.style.color = '#e2e8f0';
+            }}
           >
             Fechar
           </button>
@@ -530,9 +540,9 @@ export function FriendsWindow({
               position: 'fixed',
               top: `${contextMenuPos.y}px`,
               left: `${contextMenuPos.x}px`,
-              backgroundColor: '#111726',
-              border: '1px solid #334155',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.8), 0 0 1px rgba(255,255,255,0.2)',
+              backgroundColor: '#18191b',
+              border: '1px solid #33363a',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.85)',
               borderRadius: '4px',
               padding: '4px 0',
               zIndex: 999999,
@@ -548,7 +558,7 @@ export function FriendsWindow({
               }}
               style={{
                 padding: '7px 12px',
-                color: '#60a5fa',
+                color: '#f3c769',
                 cursor: 'pointer',
                 fontWeight: 600,
                 display: 'flex',
@@ -556,7 +566,7 @@ export function FriendsWindow({
                 gap: '6px',
                 transition: 'background-color 0.1s',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#27292c')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               <span>💬</span>
@@ -572,14 +582,14 @@ export function FriendsWindow({
               style={{
                 padding: '7px 12px',
                 color: '#f87171',
-                borderTop: '1px solid #1e293b',
+                borderTop: '1px solid #33363a',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
                 transition: 'background-color 0.1s',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#27292c')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               <span>❌</span>

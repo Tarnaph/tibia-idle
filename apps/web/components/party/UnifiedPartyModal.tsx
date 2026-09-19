@@ -345,56 +345,112 @@ export function UnifiedPartyModal({
         aria-modal="true"
         aria-label="Gerenciador de Party"
       >
-        {/* Top Header com Placa Octogonal, Brasões e Botão Fechar */}
-        <div className="hunt-modal-top-bar">
-          {/* Abas Medievais à Esquerda */}
-          <div className="hunt-top-tabs-medieval">
+        {/* Top Header Padronizado (Royal Dark Stone / Arena PvP Standard) */}
+        <div
+          style={{
+            padding: '14px 20px',
+            backgroundColor: '#18191b',
+            borderBottom: '1px solid #33363a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            position: 'relative',
+          }}
+        >
+          {/* Abas Superiores */}
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button
               type="button"
-              className={`hunt-tab-pill ${activeTab === 'FORMAÇÃO' ? 'active' : ''}`}
               onClick={() => setActiveTab('FORMAÇÃO')}
+              style={{
+                backgroundColor: activeTab === 'FORMAÇÃO' ? '#2d3035' : '#151618',
+                border: `1px solid ${activeTab === 'FORMAÇÃO' ? '#4f535a' : '#282a2e'}`,
+                borderRadius: '4px',
+                color: activeTab === 'FORMAÇÃO' ? '#f3c769' : '#9ca3af',
+                fontSize: '11.5px',
+                fontWeight: activeTab === 'FORMAÇÃO' ? '700' : '600',
+                padding: '6px 14px',
+                cursor: 'pointer',
+                letterSpacing: '0.5px',
+                transition: 'all 0.12s ease',
+              }}
             >
               FORMAÇÃO DO TIME
             </button>
             <button
               type="button"
-              className={`hunt-tab-pill ${activeTab === 'TÁTICAS' ? 'active' : ''}`}
               onClick={() => setActiveTab('TÁTICAS')}
+              style={{
+                backgroundColor: activeTab === 'TÁTICAS' ? '#2d3035' : '#151618',
+                border: `1px solid ${activeTab === 'TÁTICAS' ? '#4f535a' : '#282a2e'}`,
+                borderRadius: '4px',
+                color: activeTab === 'TÁTICAS' ? '#f3c769' : '#9ca3af',
+                fontSize: '11.5px',
+                fontWeight: activeTab === 'TÁTICAS' ? '700' : '600',
+                padding: '6px 14px',
+                cursor: 'pointer',
+                letterSpacing: '0.5px',
+                transition: 'all 0.12s ease',
+              }}
             >
               TÁTICAS & SINERGIA
             </button>
           </div>
 
-          {/* Placa Octogonal Central com Rubis */}
-          <div className="hunt-header-plaque-wrapper">
-            <div className="hunt-header-plaque-gem-top" />
-            <div className="hunt-header-plaque">
-              <span className="hunt-header-plaque-title">GERENCIADOR DE PARTY</span>
-            </div>
-            <div className="hunt-header-plaque-gem-bottom" />
-          </div>
+          {/* Título Central */}
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '18px',
+              fontWeight: 'bold',
+              color: '#f3c769',
+              letterSpacing: '1px',
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+              fontFamily: 'Georgia, serif',
+            }}
+          >
+            Gerenciador de Party
+          </h2>
 
-          {/* Cluster Direito: Bônus de Vocações e Fechar */}
-          <div className="hunt-top-right-cluster">
+          {/* Cluster Direito: Sinergia e Fechar */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
-              className="hunt-level-range-badge party-synergy-badge"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '4px',
+                backgroundColor: '#151618',
+                border: `1px solid ${hasFullPartySynergy ? '#facc15' : '#33363a'}`,
+                color: hasFullPartySynergy ? '#facc15' : '#9ca3af',
+                fontSize: '11px',
+                fontWeight: 700,
+              }}
               title={
                 hasFullPartySynergy
                   ? 'Bônus de 4 Vocações ativo: +20% de Experiência Compartilhada!'
                   : `Membros no grupo: ${totalOccupied}/4 vagas`
               }
             >
-              <span className="hunt-level-range-icon">{hasFullPartySynergy ? '⭐' : '👥'}</span>
-              <span className="hunt-level-range-text">
-                {hasFullPartySynergy ? 'Bônus 4 Vocações (+20% XP)' : `${totalOccupied}/4 Vagas`}
-              </span>
+              <span>{hasFullPartySynergy ? '⭐' : '👥'}</span>
+              <span>{hasFullPartySynergy ? 'Bônus 4 Vocações (+20% XP)' : `${totalOccupied}/4 Vagas`}</span>
             </div>
 
             <button
               type="button"
-              className="hunt-modal-close-btn"
               onClick={onClose}
-              title="Fechar gerenciador de grupo (ESC)"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#8b8e93',
+                fontSize: '18px',
+                cursor: 'pointer',
+                lineHeight: 1,
+                padding: '4px',
+                borderRadius: '4px',
+              }}
+              title="Fechar Janela (ESC)"
             >
               ✕
             </button>
@@ -699,7 +755,17 @@ export function UnifiedPartyModal({
             {onCreateCharacter && (
               <button
                 type="button"
-                className="hunt-btn-medieval-team"
+                style={{
+                  backgroundColor: '#27292c',
+                  border: '1px solid #4a4d52',
+                  borderRadius: '4px',
+                  color: '#e2e8f0',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  padding: '8px 14px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
                 onClick={() => {
                   const emptyVoc = (['Knight', 'Paladin', 'Sorcerer', 'Druid'] as VocationSlotType[]).find(
                     (v) => slotOccupants[v].source === 'empty'
@@ -718,17 +784,26 @@ export function UnifiedPartyModal({
             {/* Ação Secundária: Convidar Jogador */}
             <button
               type="button"
-              className="hunt-btn-medieval-team"
               onClick={() => setInviteModalOpen(true)}
+              style={{
+                backgroundColor: '#27292c',
+                border: '1px solid #4a4d52',
+                borderRadius: '4px',
+                color: '#e2e8f0',
+                fontSize: '12px',
+                fontWeight: 600,
+                padding: '8px 14px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
               title="Convidar jogador online para a party"
             >
               + Convidar Jogador
             </button>
 
-            {/* Botão Primário Ruby Central: Propor ou Escolher Caçada */}
+            {/* Botão Primário Ouro: Propor ou Escolher Caçada */}
             <button
               type="button"
-              className="hunt-btn-ruby-primary"
               onClick={() => {
                 if (onOpenHuntSelector) {
                   onClose();
@@ -737,23 +812,43 @@ export function UnifiedPartyModal({
                   onProposeHuntToTeam();
                 }
               }}
+              style={{
+                background: 'linear-gradient(180deg, #eab308 0%, #ca8a04 100%)',
+                border: '1px solid #facc15',
+                borderRadius: '4px',
+                color: '#18191b',
+                fontSize: '13px',
+                fontWeight: 700,
+                padding: '9px 24px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(234, 179, 8, 0.35)',
+                fontFamily: 'Georgia, serif',
+                letterSpacing: '0.5px',
+                transition: 'all 0.15s ease',
+              }}
               title="Abrir o Seletor de Caçadas para o grupo"
             >
-              <span className="hunt-btn-ruby-gem left" />
-              <span className="hunt-btn-ruby-text">
-                {currentHuntName ? `CAÇADA ATIVA: ${currentHuntName.toUpperCase()}` : 'ESCOLHER CAÇADA EM GRUPO'}
-              </span>
-              <span className="hunt-btn-ruby-gem right" />
+              {currentHuntName ? `CAÇADA ATIVA: ${currentHuntName.toUpperCase()}` : 'ESCOLHER CAÇADA EM GRUPO'}
             </button>
 
-            {/* Ação Secundária Direita: Sair da Party ou Desfazer */}
+            {/* Ação Secundária: Sair da Party ou Desfazer */}
             {isPartyLeader ? (
               <button
                 type="button"
-                className="hunt-btn-medieval-party"
                 onClick={() => {
                   if (onDisbandParty) onDisbandParty();
                   onClose();
+                }}
+                style={{
+                  backgroundColor: '#271717',
+                  border: '1px solid #7f1d1d',
+                  borderRadius: '4px',
+                  color: '#fca5a5',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  padding: '8px 16px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
                 }}
                 title="Desfazer o grupo atual"
               >
@@ -762,10 +857,20 @@ export function UnifiedPartyModal({
             ) : (
               <button
                 type="button"
-                className="hunt-btn-medieval-party"
                 onClick={() => {
                   if (onLeaveParty) onLeaveParty();
                   onClose();
+                }}
+                style={{
+                  backgroundColor: '#271717',
+                  border: '1px solid #7f1d1d',
+                  borderRadius: '4px',
+                  color: '#fca5a5',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  padding: '8px 16px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
                 }}
                 title="Sair do grupo atual"
               >
