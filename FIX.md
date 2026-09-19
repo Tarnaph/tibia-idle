@@ -22,13 +22,13 @@
 
 [CONCLUÍDO - Fase 202] Falha ao salvar progresso do servidor: Eliminar timeouts de transação interativa do Prisma (de 5s para 30s), busy_timeout de SQLite, falsos positivos de rate limiter de XP (HUNT vs NON_HUNT) e reconciliação estrita de saveVersion entre Next.js e Colyseus.
 
-[PENDENTE] PVP: Jogadores travados no loading (aparece e volta para loading); jogadores começando no último rank (Platina) ao invés do primeiro (Iniciante, 0 ELO); caveira oficial do Tibia (sprite 11x11 autêntico dos assets) posicionada corretamente ao lado do nome.
+[CONCLUÍDO - Fase 204] PVP: Jogadores travados no loading (aparece e volta para loading); jogadores começando no último rank (Platina) ao invés do primeiro (Iniciante, 0 ELO); caveira oficial do Tibia (sprite 11x11 autêntico dos assets) posicionada corretamente ao lado do nome.
 
-[PENDENTE] Ao desmarcar "Exibir caveira no rank pvp", salvar a preferência no banco de dados para persistir após relogar.
+[CONCLUÍDO - Fase 204] Ao desmarcar "Exibir caveira no rank pvp", salvar a preferência no banco de dados para persistir após relogar.
 
-[PENDENTE] Ao sair da arena pvp, voltar a tag de visibilidade para que fique visível em Thais para todos.
+[CONCLUÍDO - Fase 204] Ao sair da arena pvp, voltar a tag de visibilidade para que fique visível em Thais para todos.
 
-[PENDENTE] Criar função permanente para que toda vez que entrar em Thais mudar a tag para que a pessoa fique visível para os outros jogadores.
+[CONCLUÍDO - Fase 204] Criar função permanente para que toda vez que entrar em Thais mudar a tag para que a pessoa fique visível para os outros jogadores.
 
 [PENDENTE] Criar sistema de log de erros centralizado integrado a novas funções e criar botão exclusivo para usuários ADMIN chamado "Debug".
 

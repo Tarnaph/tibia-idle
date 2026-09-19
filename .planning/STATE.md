@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T14:10:00.000Z"
-last_activity: "2026-09-19 — Phase 203: Resolução Definitiva de Falsos Positivos de Rate Limiter de XP e Skills em Caçadas e Conflitos OCC no Colyseus [CONCLUÍDO]."
+last_updated: "2026-09-19T15:20:00.000Z"
+last_activity: "2026-09-19 — Phase 204: Resolução Completa do PVP (Loop de Loading, Rank ELO Inicial 0, Caveira Canônica do Tibia, Persistência de Exibição e Visibilidade em Thais) [CONCLUÍDO]."
 progress:
-  total_phases: 203
-  completed_phases: 203
-  total_plans: 255
-  completed_plans: 255
+  total_phases: 204
+  completed_phases: 204
+  total_plans: 256
+  completed_plans: 256
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 203 - Resolução Definitiva de Falsos Positivos de Rate Limiter de XP e Skills em Caçadas [CONCLUÍDO].
+**Current focus:** Phase 204 - Resolução Completa do PVP, Caveiras Canônicas e Visibilidade em Thais [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 203 of 203  
-Plan: 5 of 5 in Phase 203  
+Phase: 204 of 204  
+Plan: 1 of 1 in Phase 204  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 203 concluída com persistência de isHunting/lastHuntId no SQLite, validação de hasHuntEvidence no rate limiter e eliminação de conflitos OCC no Colyseus.
+Last activity: 2026-09-19 — Phase 204 concluída com eliminação do loop de loading na arena PvP, ELO inicial 0 / Iniciante, sprites 11x11 oficiais do Tibia para as 6 caveiras centralizadas no nameplate, persistência de displaySkull e restauração autoritativa de visibilidade em Thais City.
 
 Progress: [██████████] 100%
 
