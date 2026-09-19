@@ -1006,12 +1006,16 @@ export function ThaisCityArena({
       ];
       const skullTextures: Record<string, InstanceType<typeof Texture>> = {};
       for (const url of SKULL_PRELOAD_URLS) {
-        try {
-          const tex = Texture.from(url);
-          tex.source.style.scaleMode = 'nearest';
-          const skullKey = url.split('skull-')[1].replace('.png', '');
-          skullTextures[skullKey] = tex;
-        } catch {}
+        const skullKey = url.split('skull-')[1].replace('.png', '');
+        void Assets.load<InstanceType<typeof Texture>>(url).then((tex) => {
+          if (tex) {
+            try {
+              if (tex.source?.style) tex.source.style.scaleMode = 'nearest';
+            } catch {}
+            skullTextures[skullKey] = tex;
+            loaded[url] = tex;
+          }
+        }).catch(() => {});
       }
 
       function updateNameplate(view: CityActorView, name: string, adminTitle?: string, skull?: string) {
@@ -1041,26 +1045,45 @@ export function ThaisCityArena({
           view.titleLabel.visible = false;
         }
 
-        // 2. Caveira de Patente PvP Oficial Tibia
+        // 2. Caveira de Patente PvP Oficial Tibia (Carregamento Seguro sem travar renderização)
         if (skull && skull !== 'none') {
           const skullUrl = `/assets/skulls/skull-${skull}.png`;
-          const skullTex = skullTextures[skull] || Texture.from(skullUrl);
-          skullTex.source.style.scaleMode = 'nearest';
+          const skullTex = skullTextures[skull] || loaded[skullUrl];
 
-          if (!view.skullSprite) {
+          if (skullTex) {
             try {
-              view.skullSprite = new Sprite(skullTex);
-              view.skullSprite.anchor.set(0, 0.5);
-              view.skullSprite.scale.set(1, 1);
-              view.skullSprite.roundPixels = true;
-              view.root.addChild(view.skullSprite);
+              if (skullTex.source?.style) skullTex.source.style.scaleMode = 'nearest';
             } catch {}
+
+            if (!view.skullSprite) {
+              try {
+                view.skullSprite = new Sprite(skullTex);
+                view.skullSprite.anchor.set(0, 0.5);
+                view.skullSprite.scale.set(1, 1);
+                view.skullSprite.roundPixels = true;
+                view.root.addChild(view.skullSprite);
+              } catch {}
+            } else {
+              try {
+                view.skullSprite.texture = skullTex;
+                view.skullSprite.scale.set(1, 1);
+                view.skullSprite.visible = true;
+              } catch {}
+            }
           } else {
-            try {
-              view.skullSprite.texture = skullTex;
-              view.skullSprite.scale.set(1, 1);
-              view.skullSprite.visible = true;
-            } catch {}
+            // Lazy load se ainda não estiver em memória
+            void Assets.load<InstanceType<typeof Texture>>(skullUrl).then((tex) => {
+              if (tex) {
+                try {
+                  if (tex.source?.style) tex.source.style.scaleMode = 'nearest';
+                } catch {}
+                skullTextures[skull] = tex;
+                loaded[skullUrl] = tex;
+              }
+            }).catch(() => {});
+            if (view.skullSprite) {
+              view.skullSprite.visible = false;
+            }
           }
         } else if (view.skullSprite) {
           view.skullSprite.visible = false;

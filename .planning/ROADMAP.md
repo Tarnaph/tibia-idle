@@ -3715,6 +3715,19 @@ Plans:
 - [x] 200-03-PLAN: Pré-carregamento de texturas de skulls, eliminação do bug de escala infinita no PixiJS e renderização no canto superior direito acima do player em Thais e na Arena de Duelo.
 - [x] 200-04-PLAN: Testes automatizados no Vitest, typecheck global (0 erros), commit atômico e deploy na VPS de produção.
 
+---
+
+### Phase 201: Eliminação de Tela Preta ao Entrar no Jogo (Texture Crash Shield & Safe Asynchronous PixiJS Preload)
+
+**Goal:** Eliminar a falha crítica que deixava a tela completamente preta ao entrar no jogo decorrente de chamadas síncronas a `Texture.from` e acesso desprotegido a `.source.style.scaleMode` em texturas não carregadas no PixiJS v8; implementar pré-carregamento assíncrono estritamente seguro via `Assets.load` com fallbacks imediatos para que a viewport gráfica sempre inicialize e renderize fluidamente.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 201-01-PLAN: Substituir `Texture.from` síncrono por `Assets.load` assíncrono seguro com cache em `loaded[url]` e proteção condicional `?.source?.style` em `ThaisCityArena.tsx` e `PixiArena.tsx`.
+- [x] 201-02-PLAN: Testes automatizados no Vitest garantindo que texturas não prontas nunca quebrem a renderização do nameplate nem gerem exceções.
+- [x] 201-03-PLAN: Validação com typecheck (0 erros), commit atômico e deploy na VPS de produção `187.7.16.210`.
+
 
 
 

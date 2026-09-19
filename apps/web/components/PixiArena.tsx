@@ -359,22 +359,23 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       ];
       const skullTextures: Record<string, Texture> = {};
       for (const url of SKULL_PRELOAD_URLS) {
-        try {
-          const tex = loaded[url];
-          if (tex) {
-            tex.source.style.scaleMode = 'nearest';
-            const skullKey = url.split('skull-')[1].replace('.png', '');
-            skullTextures[skullKey] = tex;
-          } else {
-            void ensureTexture(url).then((loadedTex) => {
-              if (loadedTex) {
-                loadedTex.source.style.scaleMode = 'nearest';
-                const skullKey = url.split('skull-')[1].replace('.png', '');
-                skullTextures[skullKey] = loadedTex;
-              }
-            });
-          }
-        } catch {}
+        const skullKey = url.split('skull-')[1].replace('.png', '');
+        const tex = loaded[url];
+        if (tex) {
+          try {
+            if (tex.source?.style) tex.source.style.scaleMode = 'nearest';
+          } catch {}
+          skullTextures[skullKey] = tex;
+        } else {
+          void ensureTexture(url).then((loadedTex) => {
+            if (loadedTex) {
+              try {
+                if (loadedTex.source?.style) loadedTex.source.style.scaleMode = 'nearest';
+              } catch {}
+              skullTextures[skullKey] = loadedTex;
+            }
+          }).catch(() => {});
+        }
       }
 
       const getCharacterSkull = (char: any): string => {
@@ -389,27 +390,37 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const skullUrl = `/assets/skulls/skull-${skull}.png`;
           const skullTex = skullTextures[skull] || loaded[skullUrl];
           if (skullTex) {
-            skullTex.source.style.scaleMode = 'nearest';
+            try {
+              if (skullTex.source?.style) skullTex.source.style.scaleMode = 'nearest';
+            } catch {}
             if (!view.skullSprite) {
-              view.skullSprite = new Sprite(skullTex);
-              view.skullSprite.anchor.set(0, 0.5);
-              view.skullSprite.scale.set(1, 1);
-              view.skullSprite.roundPixels = true;
-              view.root.addChild(view.skullSprite);
+              try {
+                view.skullSprite = new Sprite(skullTex);
+                view.skullSprite.anchor.set(0, 0.5);
+                view.skullSprite.scale.set(1, 1);
+                view.skullSprite.roundPixels = true;
+                view.root.addChild(view.skullSprite);
+              } catch {}
             } else {
-              view.skullSprite.texture = skullTex;
-              view.skullSprite.scale.set(1, 1);
-              view.skullSprite.visible = true;
+              try {
+                view.skullSprite.texture = skullTex;
+                view.skullSprite.scale.set(1, 1);
+                view.skullSprite.visible = true;
+              } catch {}
             }
             const sx = (startX !== undefined && nameW !== undefined) ? (startX + nameW + 2) : (view.label.width / 2 + 2);
-            view.skullSprite.position.set(sx, creatureVisualLayout.nameplateY - 1);
+            if (view.skullSprite) {
+              view.skullSprite.position.set(sx, creatureVisualLayout.nameplateY - 1);
+            }
           } else {
             void ensureTexture(skullUrl).then((t) => {
               if (t) {
-                t.source.style.scaleMode = 'nearest';
+                try {
+                  if (t.source?.style) t.source.style.scaleMode = 'nearest';
+                } catch {}
                 skullTextures[skull] = t;
               }
-            });
+            }).catch(() => {});
             if (view.skullSprite) view.skullSprite.visible = false;
           }
         } else if (view.skullSprite) {

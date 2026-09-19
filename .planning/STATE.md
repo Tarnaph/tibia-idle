@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T03:19:00.000Z"
-last_activity: "2026-09-19 — Phase 200: Correção do Matchmaking da Arena PvP 1v1 e Renderização Canônica da Caveira (Skull) no Topo Direito do Personagem [CONCLUÍDO]."
+last_updated: "2026-09-19T11:48:00.000Z"
+last_activity: "2026-09-19 — Phase 201: Eliminação de Tela Preta ao Entrar no Jogo (Texture Crash Shield & Safe Asynchronous PixiJS Preload) [CONCLUÍDO]."
 progress:
-  total_phases: 200
-  completed_phases: 200
-  total_plans: 246
-  completed_plans: 246
+  total_phases: 201
+  completed_phases: 201
+  total_plans: 249
+  completed_plans: 249
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 200 - Correção do Matchmaking da Arena PvP 1v1 e Renderização Canônica da Caveira (Skull) no Topo Direito do Personagem [CONCLUÍDO].
+**Current focus:** Phase 201 - Eliminação de Tela Preta ao Entrar no Jogo (Texture Crash Shield & Safe Asynchronous PixiJS Preload) [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 200 of 200  
-Plan: 4 of 4 in Phase 200  
+Phase: 201 of 201  
+Plan: 3 of 3 in Phase 201  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 200 concluída com sucesso: pareamento imediato de 2 jogadores na fila PvP, auto-cancel e resiliência visual no modal, sincronização Colyseus Schema e renderização canônica da caveira (Red Skull e demais) no canto superior direito do jogador.
+Last activity: 2026-09-19 — Phase 201 concluída com sucesso: eliminação definitiva do crash de Texture.from síncrono e scaleMode, blindagem com Assets.load assíncrono e carregamento seguro do nameplate sem tela preta.
 
 Progress: [██████████] 100%
 
