@@ -6,10 +6,10 @@ const NEIGHBORS = [
   { x: 1, y: 0, cost: 10 },
   { x: 0, y: 1, cost: 10 },
   { x: -1, y: 0, cost: 10 },
-  { x: 1, y: -1, cost: 25 },
-  { x: 1, y: 1, cost: 25 },
-  { x: -1, y: 1, cost: 25 },
-  { x: -1, y: -1, cost: 25 },
+  { x: 1, y: -1, cost: 14 },
+  { x: 1, y: 1, cost: 14 },
+  { x: -1, y: 1, cost: 14 },
+  { x: -1, y: -1, cost: 14 },
 ] as const;
 
 interface OpenNode {
@@ -135,7 +135,7 @@ export function findPath(
       if (neighbor.x !== 0 && neighbor.y !== 0) {
         const horizontal = { x: current.position.x + neighbor.x, y: current.position.y, z: current.position.z };
         const vertical = { x: current.position.x, y: current.position.y + neighbor.y, z: current.position.z };
-        if (!canEnter(horizontal) || !canEnter(vertical)) continue;
+        if (!isTileWalkable(map, horizontal) || !isTileWalkable(map, vertical)) continue;
       }
       const nextKey = positionKey(next);
       if (closed.has(nextKey)) continue;

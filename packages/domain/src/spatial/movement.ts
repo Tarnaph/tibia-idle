@@ -369,7 +369,21 @@ export function moveEnemiesTowardParty(encounter: HuntEncounterState): void {
   const reserved = reservationKeys(encounter);
   const reservedGoals = new Set<string>();
   const rng = createSeededRng(encounter.rngState);
-  for (const enemy of encounter.enemies.filter((candidate) => candidate.alive).sort((a, b) => a.id.localeCompare(b.id))) {
+
+  // 1. Sort active enemies by distance to target ascending so closest enemies claim nearest box slots
+  const livingEnemies = encounter.enemies.filter((candidate) => candidate.alive);
+  const enemyDistanceMap = new Map<string, number>();
+  for (const enemy of livingEnemies) {
+    const target = nearestActor(enemy, encounter);
+    enemyDistanceMap.set(enemy.id, target ? meleeDistance(enemy.position, target.position) : 999);
+  }
+  const sortedEnemies = [...livingEnemies].sort((a, b) => {
+    const distA = enemyDistanceMap.get(a.id) ?? 999;
+    const distB = enemyDistanceMap.get(b.id) ?? 999;
+    return distA - distB || a.id.localeCompare(b.id);
+  });
+
+  for (const enemy of sortedEnemies) {
     enemy.previousPosition = clonePosition(enemy.position);
     if (encounter.elapsedMs < enemy.nextMoveAt) continue;
     const target = nearestActor(enemy, encounter);
@@ -405,24 +419,52 @@ export function moveEnemiesTowardParty(encounter: HuntEncounterState): void {
     blocked.delete(positionKey(enemy.position));
     for (const key of reservedGoals) blocked.add(key);
 
-    let goals = surroundingPositions(target.position).filter((goal) => isTileWalkable(encounter.room.map, goal) && !blocked.has(positionKey(goal)));
+    // 2. Prioritize closest available 8-sqm box slots around target
+    let goals = surroundingPositions(target.position)
+      .filter((goal) => isTileWalkable(encounter.room.map, goal) && !blocked.has(positionKey(goal)))
+      .sort((g1, g2) => meleeDistance(enemy.position, g1) - meleeDistance(enemy.position, g2));
+
     let effectiveBlocked = blocked;
     if (goals.length === 0) {
-      goals = surroundingPositions(target.position).filter((goal) => isTileWalkable(encounter.room.map, goal));
-      const goalKeys = new Set(goals.map(positionKey));
-      effectiveBlocked = new Set([...blocked].filter((k) => !goalKeys.has(k)));
+      // All 8 box slots are occupied; queue up on outer perimeter (distance 2)
+      goals = findRangedApproachTiles(encounter.room.map, target.position, 2, blocked, 2)
+        .sort((g1, g2) => meleeDistance(enemy.position, g1) - meleeDistance(enemy.position, g2));
+
+      if (goals.length === 0) {
+        goals = surroundingPositions(target.position).filter((goal) => isTileWalkable(encounter.room.map, goal));
+        const goalKeys = new Set(goals.map(positionKey));
+        effectiveBlocked = new Set([...blocked].filter((k) => !goalKeys.has(k)));
+      }
     }
 
     const path = findPath(encounter.room.map, enemy.position, goals, effectiveBlocked);
     enemy.path = path.map(clonePosition);
     const goal = path.at(-1);
     if (goal) reservedGoals.add(positionKey(goal));
+
     const next = path[0];
-    if (!next || !destinationAvailable(encounter, next, occupied, reserved)) { enemy.path = []; continue; }
+    let chosenNext: GridPosition | undefined = (next && destinationAvailable(encounter, next, occupied, reserved)) ? next : undefined;
+
+    // 3. If primary path is momentarily blocked by another approaching monster, take a lateral/diagonal step towards target
+    if (!chosenNext) {
+      const alternatives = surroundingPositions(enemy.position)
+        .filter((alt) => destinationAvailable(encounter, alt, occupied, reserved))
+        .filter((alt) => meleeDistance(alt, target.position) <= targetDistance)
+        .sort((a, b) => meleeDistance(a, target.position) - meleeDistance(b, target.position));
+      if (alternatives.length > 0) {
+        chosenNext = alternatives[0];
+      }
+    }
+
+    if (!chosenNext || !destinationAvailable(encounter, chosenNext, occupied, reserved)) {
+      enemy.path = [];
+      continue;
+    }
+
     const from = clonePosition(enemy.position);
-    if (!commitMovement(encounter, enemy.id, from, next, occupied, reserved)) { enemy.path = []; continue; }
-    enemy.direction = directionBetween(enemy.position, next);
-    enemy.position = clonePosition(next);
+    if (!commitMovement(encounter, enemy.id, from, chosenNext, occupied, reserved)) { enemy.path = []; continue; }
+    enemy.direction = directionBetween(enemy.position, chosenNext);
+    enemy.position = clonePosition(chosenNext);
     enemy.nextMoveAt = encounter.elapsedMs + stepDuration(enemy.speed);
   }
   encounter.rngState = rng.state;
