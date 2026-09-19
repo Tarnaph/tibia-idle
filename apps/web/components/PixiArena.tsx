@@ -660,8 +660,17 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             void ensureTexture(mapping.frame.publicUrl);
             continue;
           }
-          const sprite = new Sprite(tex); const point = worldPoint(corpse.position);
-          sprite.anchor.set(0.5, 1); sprite.position.set(point.x, point.y); sprite.zIndex = corpse.position.y * 10;
+          const sprite = new Sprite(tex);
+          const point = worldPoint(corpse.position);
+          const widthTiles = mapping.appearance?.width ?? Math.max(1, Math.round((mapping.frame.width || 32) / 32));
+          const heightTiles = mapping.appearance?.height ?? Math.max(1, Math.round((mapping.frame.height || 32) / 32));
+          sprite.anchor.set(0, 0);
+          sprite.position.set(
+            point.x - 16 - (widthTiles - 1) * 32,
+            point.y - 16 - (heightTiles - 1) * 32
+          );
+          sprite.roundPixels = true;
+          sprite.zIndex = corpse.position.y * 10;
           const dyingEnemy = state.encounter.enemies.find(
             (e) => !e.alive && e.position.x === corpse.position.x && e.position.y === corpse.position.y
           );

@@ -515,15 +515,16 @@ export class CharacterService {
               activeSession
             );
           }
-        } else if (lastSession) {
-          // No active session currently registered on server (player offline / between sessions).
-          // An old session is not allowed to write over the latest confirmed session lease.
-          if (!data.sessionId || data.sessionId !== lastSession) {
-            throw new SessionSupersededError(
-              `Sessão ${data.sessionId || 'UNKNOWN'} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada mesmo sem sessão ativa no momento.`,
-              lastSession
-            );
-          }
+        } else if (data.sessionId) {
+          // No active socket session currently registered on server (player offline, between sessions, or post-restart).
+          // As the authenticated character owner is actively saving progress, adopt the incoming session as the new confirmed
+          // session lease in the context registry so legitimate progression and hunt exits are never rejected.
+          ServerCharacterContextRegistry.setActivity(characterId, {
+            isHunting: Boolean(data.isHunting ?? context.isHunting),
+            huntId: data.isHunting ? (data as any).huntId || context.huntId : undefined,
+            activeSessionId: data.sessionId,
+            lastActiveSessionId: data.sessionId,
+          });
         }
       }
 

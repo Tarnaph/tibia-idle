@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T02:00:00.000Z"
-last_activity: "2026-09-19 — Phase 198: Padronização Visual Integral do Sistema (Identidade Royal Dark Stone da Arena PvP & Ranking) Concluída."
+last_updated: "2026-09-19T02:45:00.000Z"
+last_activity: "2026-09-19 — Phase 199: Resiliência de Salvamento pós-Deploy / Sair da Caçada e Normalização de Sprites de Cadáveres Multi-Tile Concluída."
 progress:
-  total_phases: 198
-  completed_phases: 198
-  total_plans: 239
-  completed_plans: 239
+  total_phases: 199
+  completed_phases: 199
+  total_plans: 242
+  completed_plans: 242
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 198 - Padronização Visual Integral do Sistema (Identidade Royal Dark Stone da Arena PvP & Ranking) [CONCLUÍDA].
+**Current focus:** Phase 199 - Resiliência de Salvamento pós-Deploy / Sair da Caçada e Normalização de Sprites de Cadáveres Multi-Tile (Cyclops & Criaturas Grandes) [CONCLUÍDA].
 
 ## Current Position
 
-Phase: 198 of 198  
-Plan: 1 of 1 in Phase 198  
+Phase: 199 of 199  
+Plan: 3 of 3 in Phase 199  
 Status: Complete  
-Last activity: 2026-09-19 — Concluída Phase 198: unificação estética de Caçadas, Treino, Quests, Amigos/VIP, Party, Chat e Hotkeys sob a identidade visual de alta qualidade do ArenaPvP e Ranking.
+Last activity: 2026-09-19 — Concluída Phase 199: resiliência de save pós-deploy/restart, auto-adoção de lease de sessão, reconciliação OCC de saveVersion e alinhamento de corpses multi-tile (Cyclops).
 
 Progress: [██████████] 100%
 

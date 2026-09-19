@@ -144,6 +144,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 196: Correção de Pacing de Caçadas (Espaçamento de Zonas de Respawn e Raio de Detecção de Criaturas)** - Distribuição espacial homogênea dos 6 packs de monstros ao longo da rota da masmorra, eliminando aglomeração de criaturas na entrada (Cyclops Camp); calibração do raio de detecção para 6 tiles em cavernas (50 mantido para PvP Arena) e leash range de perseguição de 9-10 tiles, garantindo que o jogador enfrente exatamente a quantidade selecionada no pull (2 a 3 no modo Cauteloso) a cada cômodo explorado.
 - [x] **Phase 197: Ajustes Canônicos de Highscores, Treino, Hotbar, Outfit no Menu de Contexto, Botões de Dock e Giro de Corpo (FIX.md)** - Separação do ranking melee em sword, axe e club e limitação estrita às 8 categorias canônicas (level, magic, fist, sword, axe, club, distance, shielding); exclusão de contas/personagens de teste do ranking e banco; sincronização da aba "TREINO" no modal de treinamento; consumo de poções restrito exclusivamente a poções presentes na hotbar; restauração de "Set outfit" no menu de contexto ao clicar no próprio personagem; remoção do botão de customização de outfit da topbar; realocação dos botões Ranking e Arena PvP para o topo superior direito; giro do corpo no próprio eixo via Ctrl + Direcionais/WASD sem locomoção; e harmonização estética dos modais com a identidade visual da Arena PvP.
 - [x] **Phase 198: Padronização Visual Integral do Sistema (Identidade Royal Dark Stone da Arena PvP & Ranking)** - Unificação estética completa de 100% dos menus do jogo sob a identidade nobre do ArenaPvP/Ranking: Caçadas, Treinamento, Quests, Lista de Amigos/VIP, Party, Chat e Hotkeys com paleta em pedra de carvão `#1e2022`, bordas chanfradas `#4a4d52`, header `#18191b`, tipografia `Georgia, serif` em ouro nobre `#f3c769` e botões em gradiente dourado.
+- [x] **Phase 199: Resiliência de Salvamento pós-Deploy / Sair da Caçada e Normalização de Sprites de Cadáveres Multi-Tile (Cyclops & Criaturas Grandes)** - Eliminação definitiva de travamentos e erros ao salvar progresso antes de sair da caçada (auto-recuperação de lease de sessão pós-restart e reconciliação OCC de saveVersion entre Colyseus e Next.js); e renderização alinhada à grade de tiles para cadáveres (corpses) de 1x1 (32x32) e multi-tile (64x64+ como Cyclops e monstros grandes), corrigindo o fatiamento e pedaços soltos de sprites no chão.
 
 ---
 
@@ -3688,6 +3689,18 @@ Plans:
 - [ ] 193-03-PLAN: Mapeamento da região da Arena PvP em (33136, 32969, 8) e suporte a spawns de duelo 1 e 2.
 - [ ] 193-04-PLAN: Implementação do fluxo de duelo automático (aproximação mútua, rotação de skills, poções automáticas 100 HP / 100 MP e modal/banner de celebração de rank).
 - [ ] 193-05-PLAN: Testes automatizados no Vitest, typecheck global e deploy na VPS.
+
+---
+
+### Phase 199: Resiliência de Salvamento pós-Deploy / Sair da Caçada e Normalização de Sprites de Cadáveres Multi-Tile (Cyclops & Criaturas Grandes)
+
+**Goal:** Eliminar definitivamente o bloqueio e erro de salvamento de progresso ao sair de caçadas após reinicializações/deploys do servidor (renovação automática e segura do lease de sessão para o titular da conta e reconciliação atômica de saveVersion OCC entre Colyseus e Next.js), e unificar a engine de renderização de cadáveres (corpses) no PixiJS para posicionamento 100% alinhado à grade de tiles para criaturas normais (32x32) e grandes (64x64+ como Cyclops, Dragons e gigantes).
+
+**Plans:**
+- [x] 199-01-PLAN: Renderização de cadáveres (corpses) alinhada à grade no PixiJS (`PixiArena.tsx`) com cálculo dinâmico de tiles de largura e altura (32x32, 64x64+), ancoragem correta e fim dos pedaços soltos de corpos no chão.
+- [x] 199-02-PLAN: Auto-recuperação de sessão e concorrência OCC (`characterService.ts`, `PrismaPersistenceManager.ts`, `GamePrototype.tsx`) garantindo que o proprietário autenticado nunca seja bloqueado por SESSION_SUPERSEDED pós-restart e que o salvamento ao sair da caçada seja resiliente.
+- [x] 199-03-PLAN: Testes automatizados no Vitest, typecheck global (0 erros), deploy na VPS de produção e validação live.
+
 
 
 

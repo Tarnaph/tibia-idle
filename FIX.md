@@ -17,3 +17,5 @@
 [CONCLUÍDO - Fase 197] Ao segurar ctrl e usar algum dos direcionais (as setas) o personagem vira o corpo sem andar, exemplo apertou ctrl + seta pra cima, ele vai virar o corpo para cima, esse é um tipo de controle básico que tem no tibia.
 
 [CONCLUÍDO - Fase 198] Cada hora que eu aperto em um menu o design fica todo diferente, siga o design do "pvp arena" e faça igual os outros menus para ficar tudo parecido com a mesma identidade e proporções parecidas. (Padronização Visual Completa: Caçadas, Treino, Quests, Amigos/VIP, Party, Chat e Hotkeys).
+
+[CONCLUÍDO - Fase 199] Falha ao salvar progresso antes de sair da caçada (renovação automática do lease de sessão pós-restart e reconciliação OCC de saveVersion entre Colyseus e Next.js) e renderização dos cadáveres (corpses) de Cyclops e criaturas multi-tile perfeitamente alinhados à grade de tiles sem fatiamento de sprites.

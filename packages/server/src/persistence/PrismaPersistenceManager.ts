@@ -119,9 +119,10 @@ export class PrismaPersistenceManager {
           : existing?.bestiaryKillsJson ?? undefined;
 
         const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
-        const currentVersion = typeof (player as any).saveVersion === 'number'
-          ? (player as any).saveVersion
-          : ((existing as any)?.saveVersion ?? 1);
+        const dbVersion = (existing as any)?.saveVersion ?? 1;
+        const playerVersion = typeof (player as any).saveVersion === 'number' ? (player as any).saveVersion : dbVersion;
+        const currentVersion = Math.max(playerVersion, dbVersion);
+        (player as any).saveVersion = currentVersion;
 
         const characterUpdateData: any = {
           level: derivedLevel,

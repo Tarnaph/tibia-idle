@@ -1812,8 +1812,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     const primaryChar = curCharacters.find((c) => c.id === curOnline.id) || (curActive?.id === curOnline.id ? curActive : null);
     if (!primaryChar) return false;
 
-    // Suspended saves guard: if a concurrency conflict or superseded session was detected, halt saves
-    if (isSaveSuspendedRef.current) return false;
+    // Suspended saves guard: if autosave was suspended, allow forced saves (such as exiting hunt, logout, manual save)
+    if (isSaveSuspendedRef.current && !force) return false;
 
     // Throttle: minimum 10 seconds between auto-saves unless forced (e.g. logout or character switch)
     const now = Date.now();
@@ -1977,9 +1977,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         try {
           const conflictData = (await res.json()) as any;
           if (conflictData?.error === 'SESSION_SUPERSEDED') {
-            console.warn('[GamePrototype] Sessão sobreposta por uma nova conexão ativa. Autosave permanentemente suspenso.');
-            isSaveSuspendedRef.current = true;
-            return false;
+            console.warn('[GamePrototype] Sessão sobreposta por uma nova conexão ativa.');
+            if (!force) {
+              isSaveSuspendedRef.current = true;
+              return false;
+            }
           }
 
           const nextVersion = typeof conflictData?.currentVersion === 'number'
@@ -3146,11 +3148,19 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       gameNetwork.sendPartyHuntExit();
     }
 
-    // Phase 182: Final hunt save must succeed before releasing urban autosave and returning to city
+    // Phase 182 & 199: Final hunt save must succeed before releasing urban autosave and returning to city
+    isSaveSuspendedRef.current = false;
     let saveOk = await saveProgressRef.current?.(false, true);
     if (!saveOk) {
-      // In case server context is temporarily pending, wait 1.5s and retry once
-      await new Promise((r) => setTimeout(r, 1500));
+      // In case server context is resolving version conflict or adopting lease, wait 600ms and retry
+      await new Promise((r) => setTimeout(r, 600));
+      isSaveSuspendedRef.current = false;
+      saveOk = await saveProgressRef.current?.(false, true);
+    }
+    if (!saveOk) {
+      // Third attempt with 1.2s delay for full propagation
+      await new Promise((r) => setTimeout(r, 1200));
+      isSaveSuspendedRef.current = false;
       saveOk = await saveProgressRef.current?.(false, true);
     }
     if (!saveOk) {
