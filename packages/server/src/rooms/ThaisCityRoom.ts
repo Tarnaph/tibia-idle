@@ -2178,7 +2178,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     const expRate = serverConfigManager.getConfig().expRate ?? 1.0;
     const xpGain = baseExp === 0 ? 0 : Math.max(1, Math.round(baseExp * expRate));
 
-    if (xpGain > 0) {
+    if (xpGain > 0 && killer && killer.hp > 0) {
       if (!killer.experience || killer.experience < experienceForLevel(killer.level)) {
         killer.experience = experienceForLevel(killer.level);
       }

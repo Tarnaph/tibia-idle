@@ -485,8 +485,26 @@ function levelUpCharacter(state: GameState, characterId: string, content: GameCo
 }
 
 export function grantSharedExperience(state: GameState, rawExperience: number, content: GameContent, serverExpRate: number = 1.0): void {
-  const baseShare = sharedExperiencePerCharacter(rawExperience, state.session.characters);
-  for (const character of state.session.characters) {
+  // Filtrar rigorosamente personagens que estão vivos:
+  // 1) character.currentHp > 0
+  // 2) Se houver encounter com partyActors, o partyActor correspondente deve estar vivo (alive === true e hp > 0)
+  const livingCharacters = state.session.characters.filter((character) => {
+    if (character.currentHp <= 0) return false;
+    if (state.encounter?.partyActors) {
+      const actor = state.encounter.partyActors.find((candidate) => candidate.characterId === character.id);
+      if (actor && (!actor.alive || actor.hp <= 0)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  if (livingCharacters.length === 0) {
+    return;
+  }
+
+  const baseShare = sharedExperiencePerCharacter(rawExperience, livingCharacters);
+  for (const character of livingCharacters) {
     const effectiveMultiplier = getEffectiveExpMultiplier(
       character.level,
       character.staminaMinutes,
@@ -499,15 +517,23 @@ export function grantSharedExperience(state: GameState, rawExperience: number, c
       state.encounter.events.push({ type: 'experience-gained', characterId: character.id, amount: memberExp });
     }
   }
-  if (state.session.characters.length > 1) {
-    addLog(state, `XP base (${rawExperience}) compartilhada entre os membros da party.`);
+  if (livingCharacters.length > 1) {
+    addLog(state, `XP base (${rawExperience}) compartilhada entre os membros vivos da party.`);
   }
 }
 
 function rollLoot(state: GameState, monsterId: string, content: GameContent, multiplier = 1): void {
   const monster = monsterFor(content, monsterId);
   const rng = createSeededRng(state.encounter.rngState);
-  const partyMembers = state.session.characters;
+  const livingPartyMembers = state.session.characters.filter((c) => {
+    if (c.currentHp <= 0) return false;
+    if (state.encounter?.partyActors) {
+      const a = state.encounter.partyActors.find((actor) => actor.characterId === c.id);
+      if (a && (!a.alive || a.hp <= 0)) return false;
+    }
+    return true;
+  });
+  const partyMembers = livingPartyMembers.length > 0 ? livingPartyMembers : state.session.characters;
 
   for (let roll = 0; roll < Math.max(1, Math.floor(multiplier)); roll += 1) {
     for (const loot of monster.loot) {
@@ -2198,6 +2224,76 @@ export function triggerEmergencyAutoPotion(
   syncCharacterResources(state, target);
 }
 
+export function transferActiveMemberOnDeath(state: GameState, deadCharacterId: string): void {
+  // Filtrar todos os membros sobreviventes vivos da party
+  const livingCharacters = state.session.characters.filter((character) => {
+    if (character.id === deadCharacterId) return false;
+    if (character.currentHp <= 0) return false;
+    if (state.encounter?.partyActors) {
+      const actor = state.encounter.partyActors.find((a) => a.characterId === character.id);
+      if (actor && (!actor.alive || actor.hp <= 0)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  if (livingCharacters.length === 0) {
+    return;
+  }
+
+  // Ordenar por maior nível decrescente, desempate por maior XP, e desempate por ID estável
+  livingCharacters.sort((a, b) => {
+    if (b.level !== a.level) {
+      return b.level - a.level;
+    }
+    if (b.experience !== a.experience) {
+      return b.experience - a.experience;
+    }
+    return a.id.localeCompare(b.id);
+  });
+
+  const nextHero = livingCharacters[0];
+  const deadChar = state.session.characters.find((c) => c.id === deadCharacterId);
+  const deadName = deadChar?.name || 'Membro da party';
+
+  const wasSelectedOrCamera =
+    state.session.selectedCharacterId === deadCharacterId ||
+    state.session.cameraTargetCharacterId === deadCharacterId;
+
+  const wasLeader = state.session.leaderId === deadCharacterId;
+
+  if (wasSelectedOrCamera || wasLeader) {
+    state.session.selectedCharacterId = nextHero.id;
+    state.session.cameraTargetCharacterId = nextHero.id;
+
+    if (wasLeader) {
+      state.session.leaderId = nextHero.id;
+      addLog(
+        state,
+        `👑 ${nextHero.name} (Nível ${nextHero.level}) assumiu a liderança da party após a morte de ${deadName}.`
+      );
+      state.encounter.events.push({
+        type: 'leader-transferred',
+        fromId: deadCharacterId,
+        toId: nextHero.id,
+        newLeaderName: nextHero.name,
+      } as any);
+    } else {
+      addLog(
+        state,
+        `🎯 Foco e controle da câmera transferidos para ${nextHero.name} (Nível ${nextHero.level}) após a morte de ${deadName}.`
+      );
+      state.encounter.events.push({
+        type: 'active-character-transferred',
+        fromId: deadCharacterId,
+        toId: nextHero.id,
+        newCharacterName: nextHero.name,
+      } as any);
+    }
+  }
+}
+
 function enemyAttacks(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   const rng = createSeededRng(encounter.rngState);
@@ -2257,10 +2353,13 @@ function enemyAttacks(state: GameState, content: GameContent): void {
     addLog(state, `${enemy.name} causou ${damage} em ${character.name}.`);
     if (target.hp <= 0) {
       target.alive = false; target.path = [];
+      syncCharacterResources(state, target);
       encounter.events.push({ type: 'player-death', characterId: target.characterId, killerName: enemy.name } as any);
       addLog(state, `${character.name} foi derrotado por ${enemy.name}.`);
+      transferActiveMemberOnDeath(state, target.characterId);
+    } else {
+      syncCharacterResources(state, target);
     }
-    syncCharacterResources(state, target);
   }
   encounter.rngState = rng.state;
   if (!encounter.partyActors.some((actor) => actor.alive)) encounter.status = 'defeated';

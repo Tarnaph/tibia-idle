@@ -3903,6 +3903,17 @@ Plans:
 - [x] 212-05-PLAN: Poda de mensagens `processedSpeechIds`, descarte e destruição de nós visuais de jogadores remotos desconectados e cleanup seguro em `ThaisCityArena.tsx` e `TrainingArena.tsx`.
 - [x] 212-06-PLAN: Testes automatizados Vitest (100% de aprovação), typecheck (0 erros) e documentação.
 
+### Phase 213: Transferência Automática de Líder/Câmera na Morte e Bloqueio de XP para Personagens Mortos
+
+**Goal:** Implementar o bloqueio definitivo de ganho de XP para qualquer personagem morto (`currentHp <= 0` ou `alive === false`), manter a distribuição regular entre sobreviventes da party, e transferir automaticamente o controle, foco da câmera e liderança para o membro vivo de maior nível ao ocorrer morte na caçada.
+**Requirements:** `c:\Users\desig\OneDrive\Documentos\TibiaWeb\Tibia\FIX.md`
+**Depends on:** Phase 212
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 213-01-PLAN: Bloqueio de XP para personagens mortos em `grantSharedExperience` e `ThaisCityRoom.ts`, cálculo proporcional entre sobreviventes, e `transferActiveMemberOnDeath` elegendo o membro vivo de maior nível com desempate por experiência e atualização de câmera/foco.
+
 
 
 

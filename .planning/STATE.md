@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T17:45:00.000Z"
-last_activity: "2026-09-19 — Phase 212: PixiJS Memory Safety & Resource Management [CONCLUÍDO]."
+last_updated: "2026-09-19T18:05:00.000Z"
+last_activity: "2026-09-19 — Phase 213: Party Death Handling & Zero XP on Death [CONCLUÍDO]."
 progress:
-  total_phases: 212
-  completed_phases: 212
-  total_plans: 292
-  completed_plans: 292
+  total_phases: 213
+  completed_phases: 213
+  total_plans: 293
+  completed_plans: 293
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 212 - PixiJS Memory Safety & Resource Management [CONCLUÍDO].
+**Current focus:** Phase 213 - Party Death Handling & Zero XP on Death [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 212 of 212  
-Plan: 1 of 1 in Phase 212  
+Phase: 213 of 213  
+Plan: 1 of 1 in Phase 213  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 212 concluída: eliminação definitiva de vazamento de memória (PixiJS memory leak e erro Out of Memory). Texturas de nós Text dinâmicos (dano, cura, XP, balões) no WebGL são liberadas com { texture: true }, scratch canvases 2D reciclados em outfitRecolor sem criação contínua de DOM canvases, caches de texturas delimitados por LRU com zeramento de dimensões para liberação imediata de memória de GPU, poda de processedSpeechIds e remoção/destruição limpa de atores remotos desconectados em ThaisCityArena, PixiArena e TrainingArena. 14/14 testes aprovados no Vitest e 0 erros de tipagem.
+Last activity: 2026-09-19 — Phase 213 concluída: Bloqueio estrito de ganho de XP para qualquer personagem com vida <= 0 ou estado de morte; partilha proporcional de experiência calculada estritamente entre sobreviventes vivos em grantSharedExperience e bloqueio no ThaisCityRoom; implementação de transferActiveMemberOnDeath com sucessão do herói sobrevivente de maior nível, atualizando de imediato selectedCharacterId, cameraTargetCharacterId e leaderId, com eventos de encontro e mensagens no log de combate. 6/6 testes unitários no Vitest aprovados (100%) e 0 erros de tipagem.
 
 Progress: [██████████] 100%
 

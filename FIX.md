@@ -48,9 +48,9 @@
 
 [CONCLUÍDO - Fase 212] Investigar e eliminar vazamento de memória (PixiJS memory leak e tickers sem destroy) que gera o erro "Código de erro: Out of Memory" após deixar o jogo parado aberto.
 
-[PENDENTE] Personagem morto não deve ganhar XP (interromper recepção de experiência enquanto o estado de vida for 0 / morto).
+[CONCLUÍDO - Fase 213] Personagem morto não deve ganhar XP (interromper recepção de experiência enquanto o estado de vida for 0 / morto).
 
-[PENDENTE] Party em caçada com transferência de líder ao morrer: se o personagem ativo morrer, transferir automaticamente o controle e foco da câmera para o próximo membro vivo com maior nível; o personagem morto cessa o ganho de XP enquanto os sobreviventes continuam acumulando normalmente.
+[CONCLUÍDO - Fase 213] Party em caçada com transferência de líder ao morrer: se o personagem ativo morrer, transferir automaticamente o controle e foco da câmera para o próximo membro vivo com maior nível; o personagem morto cessa o ganho de XP enquanto os sobreviventes continuam acumulando normalmente.
 
 [PENDENTE] Knight 'Exeta Res': corrigir animação e efeitos mágicos visuais que não estão aparecendo durante a conjuração do taunt/challenge.
 

@@ -171,6 +171,7 @@ export function addPartyMember(state: GameState, name: string, vocation: BaseVoc
 }
 
 export function sharedExperiencePerCharacter(rawExperience: number, characters: CharacterState[]): number {
+  if (characters.length === 0) return 0;
   const uniqueVocations = new Set(characters.map((character) => character.baseVocation)).size;
   const multiplier = uniqueVocations > 1
     ? 1 + (uniqueVocations * (5 * (uniqueVocations - 1) + 10)) / 100
