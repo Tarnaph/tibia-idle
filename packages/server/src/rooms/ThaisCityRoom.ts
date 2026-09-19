@@ -114,6 +114,26 @@ export class ThaisCityRoom extends Room<WorldState> {
     } catch {}
   }
 
+  public static isCharacterOnline(nameOrId: string): boolean {
+    if (!nameOrId) return false;
+    const normalized = nameOrId.trim().toLowerCase();
+    if (this.activeInstance && this.activeInstance.state?.players) {
+      for (const player of this.activeInstance.state.players.values()) {
+        if (
+          (player.characterId && player.characterId.toLowerCase() === normalized) ||
+          (player.name && player.name.trim().toLowerCase() === normalized) ||
+          (player.id && player.id.toLowerCase() === normalized)
+        ) {
+          return true;
+        }
+      }
+    }
+    if (ServerCharacterContextRegistry.isCharacterOnline(nameOrId)) {
+      return true;
+    }
+    return false;
+  }
+
   private setupRoomAutoSave(intervalMs: number) {
     if (this.autoSaveTimer) {
       if (typeof this.autoSaveTimer.clear === 'function') {
@@ -1358,6 +1378,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     this.updateOnlineAccountsCount();
     if (charId) {
       ServerCharacterContextRegistry.setActiveSession(charId, client.sessionId);
+      void persistenceManager.setPlayerOnlineStatus(charId, true);
     }
     this.playerExpSync.set(client.sessionId, { lastSyncTime: Date.now(), lastExperience: player.experience });
     if (typeof client.send === 'function') {
@@ -1397,6 +1418,7 @@ export class ThaisCityRoom extends Room<WorldState> {
         }
         if (player.characterId) {
           ServerCharacterContextRegistry.setPlayerOffline(player.characterId);
+          void persistenceManager.setPlayerOnlineStatus(player.characterId, false);
         }
       }
     }

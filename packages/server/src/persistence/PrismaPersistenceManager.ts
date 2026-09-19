@@ -341,6 +341,38 @@ export class PrismaPersistenceManager {
   }
 
   /**
+   * Updates isOnline flag in the database for the given character.
+   */
+  async setPlayerOnlineStatus(characterId: string, isOnline: boolean): Promise<void> {
+    if (!characterId || characterId.startsWith('char-guest')) return;
+    try {
+      if (typeof this.db?.character?.updateMany === 'function') {
+        await this.db.character.updateMany({
+          where: { id: characterId },
+          data: { isOnline: Boolean(isOnline) },
+        });
+      }
+    } catch (err: any) {
+      console.warn(`[PrismaPersistenceManager] Failed to set isOnline for ${characterId}:`, err?.message || err);
+    }
+  }
+
+  /**
+   * Resets all characters to isOnline = false on server startup or recovery.
+   */
+  async resetAllOnlineStatus(): Promise<void> {
+    try {
+      if (typeof this.db?.character?.updateMany === 'function') {
+        await this.db.character.updateMany({
+          data: { isOnline: false },
+        });
+      }
+    } catch (err: any) {
+      console.warn(`[PrismaPersistenceManager] Failed to reset online statuses:`, err?.message || err);
+    }
+  }
+
+  /**
    * Checks whether a character has an active confirmed hunt session in the database.
    */
   async getActiveHuntSession(characterId: string): Promise<{ characterId: string; sessionId: string; huntId: string; isHunting: boolean } | null> {

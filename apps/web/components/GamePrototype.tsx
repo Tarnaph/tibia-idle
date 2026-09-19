@@ -4963,6 +4963,18 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       <PlayerInspectModal
         isOpen={Boolean(inspectPlayerName)}
         characterName={inspectPlayerName || ''}
+        isOnlineLocal={(() => {
+          if (!inspectPlayerName) return undefined;
+          const target = inspectPlayerName.trim().toLowerCase();
+          if (activeCharacter?.name && activeCharacter.name.trim().toLowerCase() === target) return true;
+          if (game?.session?.characters?.some((c: any) => c.name && c.name.trim().toLowerCase() === target)) return true;
+          if (remotePlayers) {
+            for (const r of remotePlayers.values()) {
+              if (r.name && r.name.trim().toLowerCase() === target) return true;
+            }
+          }
+          return undefined;
+        })()}
         onClose={() => setInspectPlayerName(null)}
         onPrivateMessage={(name) => {
           setInspectPlayerName(null);

@@ -106,7 +106,32 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, character }, { status: 200 });
+    // Authoritatively check real-time online status from Colyseus game server
+    let isRealtimeOnline = Boolean(character.isOnline);
+    try {
+      const colyseusPort = process.env.COLYSEUS_PORT || 2567;
+      const res = await fetch(
+        `http://127.0.0.1:${colyseusPort}/api/character-online/${encodeURIComponent(character.name)}`,
+        {
+          signal: AbortSignal.timeout(500),
+        }
+      );
+      if (res.ok) {
+        const data = (await res.json()) as any;
+        if (typeof data.isOnline === 'boolean') {
+          isRealtimeOnline = data.isOnline;
+        }
+      }
+    } catch {
+      // Colyseus might be unreachable or in test environment, fallback to database isOnline
+    }
+
+    const payload = {
+      ...character,
+      isOnline: isRealtimeOnline,
+    };
+
+    return NextResponse.json({ success: true, character: payload }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message || 'Erro ao consultar personagem.' },

@@ -86,6 +86,12 @@ export class ServerCharacterContextRegistry {
     return ctx?.lastActiveSessionId ?? ctx?.activeSessionId;
   }
 
+  public static isCharacterOnline(characterId: string): boolean {
+    if (!characterId) return false;
+    const ctx = this.registry.get(characterId);
+    return Boolean(ctx && ctx.activeSessionId);
+  }
+
   public static async getContextAsync(characterId: string): Promise<CharacterContextQueryResult> {
     if (!characterId) {
       return { isHunting: false, isServiceAvailable: true, isContextKnown: false };

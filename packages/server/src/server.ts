@@ -75,6 +75,12 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
     res.json({ success: true, count });
   });
 
+  app.get('/api/character-online/:nameOrId', (req, res) => {
+    const target = req.params.nameOrId;
+    const isOnline = ThaisCityRoom.isCharacterOnline(target);
+    res.json({ success: true, target, isOnline });
+  });
+
   app.get('/api/character-context/:id', async (req, res) => {
     const clientIp = req.socket?.remoteAddress || (req as any).ip || '';
     const isLoopback = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === '::ffff:127.0.0.1' || clientIp.endsWith('127.0.0.1');
@@ -86,6 +92,7 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
     }
 
     const charId = req.params.id;
+    const isOnline = ThaisCityRoom.isCharacterOnline(charId);
     const ctx = ServerCharacterContextRegistry.getActivity(charId);
     if (ctx) {
       return res.json({
@@ -93,6 +100,7 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
         huntId: ctx.huntId,
         activeSessionId: ctx.activeSessionId ?? null,
         lastActiveSessionId: ctx.lastActiveSessionId ?? null,
+        isOnline,
         isContextKnown: true,
       });
     }
@@ -167,6 +175,9 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
     server,
     gameServer,
     listen: async (port: number = options.port || 2567) => {
+      try {
+        await persistenceManager.resetAllOnlineStatus();
+      } catch {}
       await gameServer.listen(port);
       const addr = server.address() as AddressInfo;
       return addr?.port || port;

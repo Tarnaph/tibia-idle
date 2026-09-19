@@ -15,6 +15,7 @@ for (const eq of equipmentCatalog) {
 export interface PlayerInspectModalProps {
   isOpen: boolean;
   characterName: string;
+  isOnlineLocal?: boolean;
   onClose: () => void;
   onPrivateMessage?: (name: string) => void;
 }
@@ -50,6 +51,7 @@ const PAPERDOLL_SLOTS = [
 export function PlayerInspectModal({
   isOpen,
   characterName,
+  isOnlineLocal,
   onClose,
   onPrivateMessage,
 }: PlayerInspectModalProps) {
@@ -197,53 +199,58 @@ export function PlayerInspectModal({
           ) : (
             <>
               {/* Character Summary Bar */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '10px 14px',
-                  backgroundColor: '#141619',
-                  borderRadius: '6px',
-                  border: '1px solid #2b3038',
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#f3d37a' }}>
-                      {data.name}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: '10px',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        backgroundColor: data.isOnline ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
-                        color: data.isOnline ? '#4ade80' : '#9ca3af',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {data.isOnline ? '● Online' : '○ Offline'}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
-                    {data.promotion || data.vocationName} · Nível {data.level}
-                  </div>
-                </div>
-
-                {data.health !== undefined && data.maxHealth !== undefined && (
-                  <div style={{ textAlign: 'right', fontSize: '11px', color: '#9ca3af' }}>
+              {(() => {
+                const effectiveIsOnline = isOnlineLocal !== undefined ? isOnlineLocal : Boolean(data.isOnline);
+                return (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 14px',
+                      backgroundColor: '#141619',
+                      borderRadius: '6px',
+                      border: '1px solid #2b3038',
+                    }}
+                  >
                     <div>
-                      Vida: <b style={{ color: '#4ade80' }}>{data.health}</b>/{data.maxHealth}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '16px', fontWeight: 700, color: '#f3d37a' }}>
+                          {data.name}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: '10px',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            backgroundColor: effectiveIsOnline ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+                            color: effectiveIsOnline ? '#4ade80' : '#9ca3af',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {effectiveIsOnline ? '● Online' : '○ Offline'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
+                        {data.promotion || data.vocationName} · Nível {data.level}
+                      </div>
                     </div>
-                    {data.mana !== undefined && data.maxMana !== undefined && (
-                      <div>
-                        Mana: <b style={{ color: '#60a5fa' }}>{data.mana}</b>/{data.maxMana}
+
+                    {data.health !== undefined && data.maxHealth !== undefined && (
+                      <div style={{ textAlign: 'right', fontSize: '11px', color: '#9ca3af' }}>
+                        <div>
+                          Vida: <b style={{ color: '#4ade80' }}>{data.health}</b>/{data.maxHealth}
+                        </div>
+                        {data.mana !== undefined && data.maxMana !== undefined && (
+                          <div>
+                            Mana: <b style={{ color: '#60a5fa' }}>{data.mana}</b>/{data.maxMana}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
               {/* Grid with 2 Columns: Equipment Paperdoll (Left) + Skills (Right) */}
               <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '16px' }}>
