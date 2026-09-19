@@ -1534,6 +1534,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     const initialBossPoints = typeof (charItem as any).bossPoints === 'number' ? (charItem as any).bossPoints : 0;
     setBossPoints(initialBossPoints);
     (userChar as any).bossPoints = initialBossPoints;
+    (userChar as any).displaySkull = typeof (charItem as any).displaySkull === 'boolean' ? (charItem as any).displaySkull : true;
+    (userChar as any).pvpElo = typeof (charItem as any).pvpElo === 'number' ? (charItem as any).pvpElo : 0;
+    (userChar as any).pvpTier = (charItem as any).pvpTier || 'Iniciante';
 
     // Hydrate skills, gold, loot, bag, and inventory items from DB if available
     let loadedGold = 0;
@@ -3188,17 +3191,18 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
     gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
     gameNetwork.sendReturnToCity();
+    gameNetwork.sendSetInHunt(false);
 
     // Phase 103/109/185: Stop hunt BGM and start Thais BGM immediately during transition loading screen!
     stopHuntBgm();
     stopDragonLairBgm();
     playCityBgm();
 
-    // Phase 102: Trigger 10-second Exura loading screen for tranquil transition and safe saving
+    // Phase 102/204: Responsive 2-second Exura loading screen for safe saving and smooth return
     setTransitionLoading({
       active: true,
       message: 'Salvando progresso e retornando a Thais...',
-      durationMs: 10000,
+      durationMs: 2000,
       huntId: undefined,
     });
 
@@ -5045,10 +5049,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               const pending = pendingHuntTransitionRef.current;
               if (pending) {
                 pendingHuntTransitionRef.current = null;
-                setIsArenaReady(false);
+                setIsArenaReady(true);
                 combatStartedRef.current = false;
-                // Safety net: Garante que a tela de loading nunca trave se o callback do Pixi demorar
-                setTimeout(() => setIsArenaReady(true), 1200);
                 setGame((current) => {
                   const restarted = restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId, pending.pullSize);
                   if (pending.pvpMatch) {

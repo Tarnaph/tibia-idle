@@ -146,7 +146,7 @@ export function ArenaPvPModal({
     setSearchCountdown(30);
     setSearchTimeoutMessage(null);
     setLastMatchResult(null);
-    gameNetwork.sendPvPQueueJoin(currentCharacterId, data?.elo ?? 1000);
+    gameNetwork.sendPvPQueueJoin(currentCharacterId, data?.elo ?? 0);
   };
 
   // Cancelar busca na fila
@@ -176,8 +176,8 @@ export function ArenaPvPModal({
 
   if (!open) return null;
 
-  const currentElo = data?.elo ?? 1000;
-  const currentTier = data?.tier ?? 'Bronze';
+  const currentElo = data?.elo ?? 0;
+  const currentTier = data?.tier ?? 'Iniciante';
   const tierInfo = getPvPTierInfo(currentElo);
   const skullAsset = data?.skullAsset || tierInfo.skullAsset;
 

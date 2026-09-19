@@ -601,8 +601,8 @@ export class GameClientNetworkManager {
       avatarId: Number(player.avatarId ?? 1),
       accountId: player.accountId || '',
       isMonster: false,
-      pvpElo: Number(player.pvpElo ?? 1000),
-      pvpTier: String(player.pvpTier || 'Bronze'),
+      pvpElo: Number(player.pvpElo ?? 0),
+      pvpTier: String(player.pvpTier || 'Iniciante'),
       displaySkull: typeof player.displaySkull === 'boolean' ? player.displaySkull : true,
     });
   }

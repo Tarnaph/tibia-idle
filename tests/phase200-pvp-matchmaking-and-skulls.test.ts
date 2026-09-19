@@ -9,8 +9,8 @@ describe('Phase 200: PvP Matchmaking Immediate Queue & Official Tibia Upper-Righ
   describe('1. Colyseus PlayerState Schema Fields for PvP & Skull Synchronization', () => {
     it('initializes PlayerState with pvpElo, pvpTier, and displaySkull schema properties', () => {
       const player = new PlayerState();
-      expect(player.pvpElo).toBe(1000);
-      expect(player.pvpTier).toBe('Bronze');
+      expect(player.pvpElo).toBe(0);
+      expect(player.pvpTier).toBe('Iniciante');
       expect(player.displaySkull).toBe(true);
     });
 
@@ -127,35 +127,36 @@ describe('Phase 200: PvP Matchmaking Immediate Queue & Official Tibia Upper-Righ
   describe('4. Official Tibia Skull Upper-Right Geometry & Placement', () => {
     it('calculates skull position at the upper right corner of the character nameplate', () => {
       // Tibia Canonical layout:
-      // Name centered or title + name centered
+      // Name centered or title + name centered, accounting for skull width (13px)
       const nameW = 60;
       const titleW = 0;
-      const totalW = titleW + nameW;
-      const startX = -totalW / 2; // -30
+      const skullW = 13;
+      const totalW = titleW + nameW + skullW;
+      const startX = Math.round(-totalW / 2); // -37
 
-      // Skull placed at upper-right corner:
-      const skullX = startX + nameW + 2; // 32
-      const skullY = creatureVisualLayout.nameplateY - 1; // -21
+      // Skull placed adjacent to name:
+      const skullX = startX + nameW + 2; // 25
+      const skullY = creatureVisualLayout.nameplateY;
 
-      expect(skullX).toBe(32);
-      expect(skullY).toBe(creatureVisualLayout.nameplateY - 1);
-      // Skull is strictly to the right of the name
-      expect(skullX).toBeGreaterThan(0);
-      expect(skullX).toBeGreaterThan(nameW / 2);
+      expect(skullX).toBe(26);
+      expect(skullY).toBe(creatureVisualLayout.nameplateY);
+      // Skull is strictly to the right of the name startX + nameW
+      expect(skullX).toBeGreaterThan(startX + nameW);
     });
 
     it('calculates skull position when player has an admin title [GOD] or [GM]', () => {
       const titleW = 28;
       const nameW = 60;
-      const totalW = titleW + nameW;
-      const startX = -totalW / 2; // -44
+      const skullW = 13;
+      const totalW = titleW + nameW + skullW;
+      const startX = Math.round(-totalW / 2); // -50
 
-      // Title at startX (-44)
-      // Name at startX + titleW (-16)
-      // Skull at startX + titleW + nameW + 2 = (-44 + 28 + 60 + 2) = 46
+      // Title at startX (-50)
+      // Name at startX + titleW (-22)
+      // Skull at startX + titleW + nameW + 2 = (-50 + 28 + 60 + 2) = 40
       const skullX = startX + titleW + nameW + 2;
-      expect(skullX).toBe(46);
-      expect(skullX).toBeGreaterThan(totalW / 2);
+      expect(skullX).toBe(40);
+      expect(skullX).toBeGreaterThan(startX + titleW + nameW);
     });
   });
 

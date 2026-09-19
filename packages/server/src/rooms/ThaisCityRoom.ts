@@ -168,6 +168,21 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
   }
 
+  /**
+   * Função permanente autoritativa: restaura estado urbano e visibilidade total do jogador em Thais.
+   * Chamada ao sair da Arena PvP, ao concluir caçada, ao logar ou ao transitar para Thais.
+   */
+  public restorePlayerToThaisCity(player: PlayerState, spawnX = 32369, spawnY = 32241, spawnZ = 7): void {
+    player.inHunt = false;
+    player.lastHuntId = '';
+    player.posX = spawnX;
+    player.posY = spawnY;
+    player.posZ = spawnZ;
+    player.isWalking = false;
+    player.lastStepTime = 0;
+    this.updatePlayerHuntContext(player, false);
+  }
+
   onCreate(options: any) {
     ThaisCityRoom.activeInstance = this;
     this.setState(new WorldState());
@@ -318,12 +333,19 @@ export class ThaisCityRoom extends Room<WorldState> {
 
     this.onMessage('player:teleport', (client, data: { x: number; y: number; z?: number }) => {
       const player = this.state.players.get(client.sessionId);
-      if (player && player.role === 'ADMIN' && typeof data.x === 'number' && typeof data.y === 'number') {
+      if (!player) return;
+      const isAdmin = player.role === 'ADMIN' || player.adminTitle === 'GOD' || player.adminTitle === 'GM';
+      const isThaisReturn = (data.x === 32369 && data.y === 32241) || (data.z === 7 && typeof data.x === 'number' && typeof data.y === 'number');
+      if ((isAdmin || isThaisReturn) && typeof data.x === 'number' && typeof data.y === 'number') {
         player.posX = data.x;
         player.posY = data.y;
-        player.posZ = data.z ?? player.posZ;
+        player.posZ = data.z ?? 7;
         player.isWalking = false;
         player.lastStepTime = 0;
+        if (player.posZ === 7) {
+          player.inHunt = false;
+          this.updatePlayerHuntContext(player, false);
+        }
       }
     });
 
@@ -479,6 +501,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       const player = this.state.players.get(client.sessionId);
       if (!player || !player.characterId) return;
 
+      // Autoritativo permanente: restaura tag de visibilidade urbana para todos os jogadores imediatamente
+      this.restorePlayerToThaisCity(player, 32369, 32241, 7);
+
       try {
         const dbChar = await persistenceManager.loadCharacter(player.characterId);
         if (dbChar) {
@@ -518,8 +543,6 @@ export class ThaisCityRoom extends Room<WorldState> {
         console.warn(`[ThaisCityRoom] Error syncing state from DB on player:returnToCity for ${player.characterId}:`, err?.message || err);
       }
 
-      // Authoritatively clear hunt mode ONLY after adopting the persisted DB state
-      this.updatePlayerHuntContext(player, false);
       this.playerExpSync.set(client.sessionId, { lastSyncTime: Date.now(), lastExperience: player.experience });
     });
 
@@ -531,35 +554,38 @@ export class ThaisCityRoom extends Room<WorldState> {
           player.lastHuntId = data.huntId;
         }
         if (wantsHunt && !canEnterHunt(player.staminaMinutes)) {
-          this.updatePlayerHuntContext(player, false);
+          this.restorePlayerToThaisCity(player, 32369, 32241, 7);
           client.send('stamina:empty', {
             message: 'Sua estamina acabou! Treine na zona de treinamento ou descanse para recuperar.',
           });
           return;
         }
 
-        if (!wantsHunt && player.characterId) {
-          try {
-            const dbChar = await persistenceManager.loadCharacter(player.characterId);
-            if (dbChar) {
-              player.level = dbChar.level;
-              player.experience = Number(dbChar.experience);
-              player.hp = dbChar.health;
-              player.maxHp = dbChar.maxHealth;
-              player.mp = dbChar.mana;
-              player.maxMp = dbChar.maxMana;
-              player.capacity = dbChar.capacity;
-              (player as any).saveVersion = (dbChar as any).saveVersion ?? 1;
-              if (Array.isArray((dbChar as any).skills)) {
-                (player as any).skills = (dbChar as any).skills.map((s: any) => ({
-                  skillId: s.skillId,
-                  skillName: s.skillName,
-                  value: s.value,
-                  tries: Number(s.tries ?? 0),
-                }));
+        if (!wantsHunt) {
+          this.restorePlayerToThaisCity(player, 32369, 32241, 7);
+          if (player.characterId) {
+            try {
+              const dbChar = await persistenceManager.loadCharacter(player.characterId);
+              if (dbChar) {
+                player.level = dbChar.level;
+                player.experience = Number(dbChar.experience);
+                player.hp = dbChar.health;
+                player.maxHp = dbChar.maxHealth;
+                player.mp = dbChar.mana;
+                player.maxMp = dbChar.maxMana;
+                player.capacity = dbChar.capacity;
+                (player as any).saveVersion = (dbChar as any).saveVersion ?? 1;
+                if (Array.isArray((dbChar as any).skills)) {
+                  (player as any).skills = (dbChar as any).skills.map((s: any) => ({
+                    skillId: s.skillId,
+                    skillName: s.skillName,
+                    value: s.value,
+                    tries: Number(s.tries ?? 0),
+                  }));
+                }
               }
-            }
-          } catch {}
+            } catch {}
+          }
         }
 
         this.updatePlayerHuntContext(player, wantsHunt, data.huntId);
@@ -604,7 +630,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       // 2. Match expandido: diferença <= 500 pontos
       // 3. Match de fallback: qualquer outro jogador disponível na fila
       let matchedSessionId: string | null = null;
-      const playerElo = typeof player.pvpElo === 'number' ? player.pvpElo : ((data as any)?.elo ?? 1000);
+      const playerElo = typeof player.pvpElo === 'number' ? player.pvpElo : ((data as any)?.elo ?? 0);
 
       // Prioridade 1: rank próximo (<= 250)
       for (const [sId, entry] of this.pvpQueue.entries()) {
@@ -627,7 +653,11 @@ export class ThaisCityRoom extends Room<WorldState> {
         for (const [sId, entry] of this.pvpQueue.entries()) {
           if (sId === client.sessionId || entry.characterId === charId) continue;
           const oppClient = this.clients.find((c) => c.sessionId === sId);
-          if (!oppClient) continue;
+          if (!oppClient) {
+            if (entry.timeoutRef) clearTimeout(entry.timeoutRef);
+            this.pvpQueue.delete(sId);
+            continue;
+          }
           const diff = Math.abs(entry.elo - playerElo);
           if (diff <= 500) {
             matchedSessionId = sId;
@@ -636,27 +666,30 @@ export class ThaisCityRoom extends Room<WorldState> {
         }
       }
 
-      // Prioridade 3: qualquer oponente disponível na fila
+      // Prioridade 3: Fallback de pareamento imediato
       if (!matchedSessionId) {
         for (const [sId, entry] of this.pvpQueue.entries()) {
           if (sId === client.sessionId || entry.characterId === charId) continue;
           const oppClient = this.clients.find((c) => c.sessionId === sId);
-          if (!oppClient) continue;
+          if (!oppClient) {
+            if (entry.timeoutRef) clearTimeout(entry.timeoutRef);
+            this.pvpQueue.delete(sId);
+            continue;
+          }
           matchedSessionId = sId;
           break;
         }
       }
 
       if (matchedSessionId) {
-        // MATCH FOUND!
         const oppEntry = this.pvpQueue.get(matchedSessionId)!;
         if (oppEntry.timeoutRef) clearTimeout(oppEntry.timeoutRef);
         this.pvpQueue.delete(matchedSessionId);
 
-        const oppClient = this.clients.find((c) => c.sessionId === matchedSessionId);
-        const duelId = `duel_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        const oppClient = this.clients.find((c) => c.sessionId === matchedSessionId)!;
+        const oppPlayer = this.state.players.get(matchedSessionId)!;
 
-        // Sorteio dos spawns oficiais (Spawn 1: 33136, 32965 vs Spawn 2: 33136, 32973)
+        const duelId = `duel_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
         const isPlayerSpawn1 = Math.random() < 0.5;
         const spawn1 = isPlayerSpawn1 ? PVP_ARENA_SPAWNS[0] : PVP_ARENA_SPAWNS[1];
         const spawn2 = isPlayerSpawn1 ? PVP_ARENA_SPAWNS[1] : PVP_ARENA_SPAWNS[0];
@@ -664,75 +697,82 @@ export class ThaisCityRoom extends Room<WorldState> {
         this.activeDuels.set(duelId, {
           duelId,
           player1: { sessionId: client.sessionId, characterId: charId, name: player.name, spawn: spawn1 },
-          player2: { sessionId: oppEntry.sessionId, characterId: oppEntry.characterId, name: oppEntry.name, spawn: spawn2 },
+          player2: { sessionId: matchedSessionId, characterId: oppEntry.characterId, name: oppEntry.name, spawn: spawn2 },
           createdAt: Date.now(),
         });
 
-        // Envia notificação com dados de teletransporte para ambos
         client.send('pvp:match:found', {
           duelId,
+          opponent: {
+            sessionId: oppPlayer.id,
+            characterId: oppPlayer.characterId,
+            name: oppPlayer.name,
+            vocation: oppPlayer.vocationName,
+            level: oppPlayer.level,
+            outfit: oppPlayer.outfit,
+            outfitLookType: oppPlayer.outfitLookType,
+            outfitHead: oppPlayer.outfitHead,
+            outfitBody: oppPlayer.outfitBody,
+            outfitLegs: oppPlayer.outfitLegs,
+            outfitFeet: oppPlayer.outfitFeet,
+            outfitAddons: oppPlayer.outfitAddons,
+            maxHp: oppPlayer.maxHp,
+            maxMp: oppPlayer.maxMp,
+            attackPower: oppPlayer.attackPower,
+            defensePower: oppPlayer.defensePower,
+            armorPower: oppPlayer.armorPower,
+          },
           spawn: spawn1,
           opponentSpawn: spawn2,
-          opponent: {
-            sessionId: oppEntry.sessionId,
-            characterId: oppEntry.characterId,
-            name: oppEntry.name,
-            level: oppEntry.level,
-            vocation: oppEntry.vocation,
-            elo: oppEntry.elo,
-            outfit: oppEntry.outfit,
-            outfitLookType: oppEntry.outfitLookType,
-            hp: oppEntry.hp,
-            maxHp: oppEntry.maxHp,
-            attackPower: oppEntry.attackPower,
-            defensePower: oppEntry.defensePower,
-            armorPower: oppEntry.armorPower,
-          },
         });
 
-        if (oppClient) {
+        if (oppClient && oppPlayer) {
           oppClient.send('pvp:match:found', {
             duelId,
-            spawn: spawn2,
-            opponentSpawn: spawn1,
             opponent: {
-              sessionId: client.sessionId,
-              characterId: charId,
+              sessionId: player.id,
+              characterId: player.characterId,
               name: player.name,
+              vocation: player.vocationName,
               level: player.level,
-              vocation: (player as any).vocationName || (player as any).vocation || 'Knight',
-              elo: playerElo,
-              outfit: (player as any).outfit || 'Knight',
-              outfitLookType: (player as any).outfitLookType || 128,
-              hp: player.hp,
+              outfit: player.outfit,
+              outfitLookType: player.outfitLookType,
+              outfitHead: player.outfitHead,
+              outfitBody: player.outfitBody,
+              outfitLegs: player.outfitLegs,
+              outfitFeet: player.outfitFeet,
+              outfitAddons: player.outfitAddons,
               maxHp: player.maxHp,
+              maxMp: player.maxMp,
               attackPower: player.attackPower,
               defensePower: player.defensePower,
               armorPower: player.armorPower,
             },
+            spawn: spawn2,
+            opponentSpawn: spawn1,
           });
         }
       } else {
-        // Sem oponente imediato: entra na fila com temporizador de 30 segundos
+        const timeoutSeconds = 30;
         const timeoutRef = setTimeout(() => {
           if (this.pvpQueue.has(client.sessionId)) {
             this.pvpQueue.delete(client.sessionId);
             try {
               client.send('pvp:queue:timeout', {
-                message: 'Nenhum oponente disponível no momento. Tente novamente em instantes!',
+                message: 'Tempo limite de busca atingido. Nenhum oponente compatível encontrado no momento.',
               });
             } catch {}
           }
-        }, 30000);
+        }, timeoutSeconds * 1000);
 
         this.pvpQueue.set(client.sessionId, {
           sessionId: client.sessionId,
           characterId: charId,
           name: player.name,
           level: player.level,
-          vocation: (player as any).vocationName || (player as any).vocation || 'Knight',
-          outfit: (player as any).outfit || 'Knight',
-          outfitLookType: (player as any).outfitLookType || 128,
+          vocation: player.vocationName,
+          outfit: player.outfit,
+          outfitLookType: player.outfitLookType,
           hp: player.hp,
           maxHp: player.maxHp,
           attackPower: player.attackPower,
@@ -744,7 +784,8 @@ export class ThaisCityRoom extends Room<WorldState> {
         });
 
         client.send('pvp:queue:searching', {
-          timeoutSeconds: 30,
+          timeoutSeconds,
+          playerElo,
         });
       }
     });
@@ -765,18 +806,18 @@ export class ThaisCityRoom extends Room<WorldState> {
       player.displaySkull = nextVal;
       if (player.characterId) {
         try {
-          await prisma.character.update({
+          await (prisma as any).character.update({
             where: { id: player.characterId },
             data: { displaySkull: nextVal },
           });
         } catch (err: any) {
-          console.warn('[ThaisCityRoom] Failed to persist toggleSkull:', err?.message || err);
+          console.warn('[ThaisCityRoom] Erro ao persistir displaySkull:', err?.message || err);
         }
       }
     });
 
     this.onMessage('pvp:duel:complete', async (client, data: { duelId: string; winnerCharacterId: string; loserCharacterId: string }) => {
-      const duel = this.activeDuels.get(data?.duelId);
+      const duel = this.activeDuels.get(data.duelId);
       if (!duel) return;
       this.activeDuels.delete(data.duelId);
 
@@ -820,6 +861,16 @@ export class ThaisCityRoom extends Room<WorldState> {
               arenaCoins: ((loser as any).arenaCoins ?? 0) + 5,
             },
           });
+        }
+
+        // Restaura ambos os participantes imediatamente para visibilidade total em Thais
+        const winnerPlayer = Array.from(this.state.players.values()).find((p) => p.characterId === data.winnerCharacterId);
+        const loserPlayer = Array.from(this.state.players.values()).find((p) => p.characterId === data.loserCharacterId);
+        if (winnerPlayer) {
+          this.restorePlayerToThaisCity(winnerPlayer, 32369, 32241, 7);
+        }
+        if (loserPlayer) {
+          this.restorePlayerToThaisCity(loserPlayer, 32369, 32241, 7);
         }
 
         // Notifica ambos os combatentes sobre o encerramento do duelo
@@ -1037,8 +1088,8 @@ export class ThaisCityRoom extends Room<WorldState> {
     let adminTitle = '';
     let loadedSkills: any[] = [];
     let loadedExperience = experienceForLevel(level);
-    let loadedPvpElo = 1000;
-    let loadedPvpTier = 'Bronze';
+    let loadedPvpElo = 0;
+    let loadedPvpTier = 'Iniciante';
     let loadedDisplaySkull = true;
 
     if (options.characterId) {
@@ -1090,6 +1141,15 @@ export class ThaisCityRoom extends Room<WorldState> {
         }
         if ((dbChar as any).pvpTier) {
           loadedPvpTier = (dbChar as any).pvpTier;
+        }
+        // Auto-migração: jogadores novos que receberam 1000 ELO do default antigo sem nenhuma partida
+        if (loadedPvpElo === 1000 && ((dbChar as any).pvpWins ?? 0) === 0 && ((dbChar as any).pvpLosses ?? 0) === 0) {
+          loadedPvpElo = 0;
+          loadedPvpTier = 'Iniciante';
+          void (prisma as any).character.update({
+            where: { id: dbChar.id },
+            data: { pvpElo: 0, pvpTier: 'Iniciante' },
+          }).catch(() => {});
         }
         if (typeof (dbChar as any).displaySkull === 'boolean') {
           loadedDisplaySkull = (dbChar as any).displaySkull;

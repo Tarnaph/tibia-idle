@@ -48,8 +48,8 @@ model Character {
   bestiaryKillsJson String?
   trackedBestiaryId String?
   bossPoints     Int              @default(0)
-  pvpElo         Int              @default(1000)
-  pvpTier        String           @default("Bronze")
+  pvpElo         Int              @default(0)
+  pvpTier        String           @default("Iniciante")
   pvpWins        Int              @default(0)
   pvpLosses      Int              @default(0)
   pvpDraws       Int              @default(0)

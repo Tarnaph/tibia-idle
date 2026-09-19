@@ -337,6 +337,9 @@ export class CharacterService {
           capacity: config.capacity,
           outfitLookType,
           outfit: config.vocationId === 0 ? 'Citizen' : config.name,
+          pvpElo: 0,
+          pvpTier: 'Iniciante',
+          displaySkull: true,
           posX: THAIS_TEMPLE_SPAWN.posX,
           posY: THAIS_TEMPLE_SPAWN.posY,
           posZ: THAIS_TEMPLE_SPAWN.posZ,
@@ -457,6 +460,9 @@ export class CharacterService {
       isDeathPenalty?: boolean;
       sessionId?: string;
       isHunting?: boolean;
+      displaySkull?: boolean;
+      pvpElo?: number;
+      pvpTier?: string;
     },
     options?: { isInternal?: boolean; isHunting?: boolean }
   ) {
@@ -674,6 +680,9 @@ export class CharacterService {
       if (data.posZ !== undefined) updateData.posZ = data.posZ;
       if (data.outfitLookType !== undefined) updateData.outfitLookType = data.outfitLookType;
       if (data.direction !== undefined) updateData.direction = data.direction;
+      if (data.displaySkull !== undefined) (updateData as any).displaySkull = data.displaySkull;
+      if (data.pvpElo !== undefined) (updateData as any).pvpElo = data.pvpElo;
+      if (data.pvpTier !== undefined) (updateData as any).pvpTier = data.pvpTier;
       if (data.hotbar !== undefined || data.hotbarConfigs !== undefined) {
         if (data.hotbarConfigs !== undefined) {
           updateData.hotbarJson = JSON.stringify({

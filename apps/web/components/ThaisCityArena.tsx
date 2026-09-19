@@ -1089,14 +1089,15 @@ export function ThaisCityArena({
           view.skullSprite.visible = false;
         }
 
-        // 3. Posicionamento Canônico Oficial Tibia: Nome centralizado e Caveira no Canto Superior Direito
+        // 3. Posicionamento Canônico Oficial Tibia: Nome centralizado e Caveira adjacente à direita
         const hasTitle = view.titleLabel && view.titleLabel.visible;
         const hasSkull = view.skullSprite && view.skullSprite.visible;
 
         const titleW = hasTitle ? view.titleLabel!.width : 0;
         const nameW = view.label.width;
-        const totalW = titleW + nameW;
-        let startX = -totalW / 2;
+        const skullW = hasSkull ? 13 : 0;
+        const totalW = titleW + nameW + skullW;
+        let startX = Math.round(-totalW / 2);
 
         if (hasTitle) {
           view.titleLabel!.anchor.set(0, 0.5);
@@ -1108,9 +1109,9 @@ export function ThaisCityArena({
         view.label.position.set(startX, creatureVisualLayout.nameplateY);
 
         if (hasSkull && view.skullSprite) {
-          // Posicionamento no canto superior direito em cima do player (igual Tibia oficial)
+          // Posicionamento canônico oficial Tibia: 11x11 sprite logo à direita do nome
           view.skullSprite.anchor.set(0, 0.5);
-          view.skullSprite.position.set(startX + nameW + 2, creatureVisualLayout.nameplateY - 1);
+          view.skullSprite.position.set(startX + nameW + 2, creatureVisualLayout.nameplateY);
         }
       }
 
@@ -1126,7 +1127,7 @@ export function ThaisCityArena({
       function getCharacterSkull(char: any): string {
         if (!char || char.displaySkull === false) return 'none';
         if (char.pvpSkull) return char.pvpSkull;
-        const elo = typeof char.pvpElo === 'number' ? char.pvpElo : 1000;
+        const elo = typeof char.pvpElo === 'number' ? char.pvpElo : 0;
         return getPvPTierInfo(elo).skull;
       }
 
@@ -2414,7 +2415,7 @@ export function ThaisCityArena({
             const dir = sample.direction || p.direction || 'south';
             const isMoving = sample.moving || p.isMoving;
 
-            view.root.visible = (p.z ?? 7) === curPos.z;
+            view.root.visible = !p.inHunt && (p.z ?? (p as any).posZ ?? 7) === curPos.z;
             if (!view.root.visible) return;
 
             const rNormOutfit = normalizeOutfitId(outfitKey);

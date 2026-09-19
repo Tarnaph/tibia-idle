@@ -381,7 +381,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       const getCharacterSkull = (char: any): string => {
         if (!char || char.displaySkull === false) return 'none';
         if (char.pvpSkull) return char.pvpSkull;
-        const elo = typeof char.pvpElo === 'number' ? char.pvpElo : 1000;
+        const elo = typeof char.pvpElo === 'number' ? char.pvpElo : 0;
         return getPvPTierInfo(elo).skull;
       };
 
@@ -410,7 +410,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             }
             const sx = (startX !== undefined && nameW !== undefined) ? (startX + nameW + 2) : (view.label.width / 2 + 2);
             if (view.skullSprite) {
-              view.skullSprite.position.set(sx, creatureVisualLayout.nameplateY - 1);
+              view.skullSprite.position.set(sx, creatureVisualLayout.nameplateY);
             }
           } else {
             void ensureTexture(skullUrl).then((t) => {
@@ -667,7 +667,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           if (view.mapping !== mapping) {
             view.mapping = mapping;
           }
-          view.label.text = displayName;
+          const charSkull = getCharacterSkull(character);
+          const hasSkull = charSkull !== 'none';
+          const skullW = hasSkull ? 13 : 0;
           if (effectiveAdminTitle && (effectiveAdminTitle === 'GOD' || effectiveAdminTitle === 'GM')) {
             if (!view.titleLabel) {
               view.titleLabel = new Text({
@@ -689,24 +691,25 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             }
             const titleW = view.titleLabel.width;
             const nameW = view.label.width;
-            const totalW = titleW + nameW;
-            const startX = -totalW / 2;
+            const totalW = titleW + nameW + skullW;
+            const startX = Math.round(-totalW / 2);
             view.titleLabel.anchor.set(0, 0.5);
             view.titleLabel.position.set(startX, creatureVisualLayout.nameplateY);
             view.label.anchor.set(0, 0.5);
             view.label.position.set(startX + titleW, creatureVisualLayout.nameplateY);
             view.label.style.fill = 0x67de82;
-            updateActorSkull(view, getCharacterSkull(character), startX + titleW, nameW);
+            updateActorSkull(view, charSkull, startX + titleW, nameW);
           } else {
             if (view.titleLabel) {
               view.titleLabel.visible = false;
             }
-            view.label.anchor.set(0.5, 0.5);
-            view.label.position.set(0, creatureVisualLayout.nameplateY);
-            view.label.style.fill = 0x67de82;
             const nameW = view.label.width;
-            const startX = -nameW / 2;
-            updateActorSkull(view, getCharacterSkull(character), startX, nameW);
+            const totalW = nameW + skullW;
+            const startX = Math.round(-totalW / 2);
+            view.label.anchor.set(0, 0.5);
+            view.label.position.set(startX, creatureVisualLayout.nameplateY);
+            view.label.style.fill = 0x67de82;
+            updateActorSkull(view, charSkull, startX, nameW);
           }
           view.sprite.alpha = actor.alive ? 1 : 0.45;
           view.root.visible = latestRef.current.isCharacterVisible !== false && actor.alive;
@@ -732,8 +735,13 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           view.sprite.visible = enemy.alive;
           if (isPvPOpponent) {
             const oppSkull = (enemy as any).pvpSkull || (enemy as any).skull || (typeof (enemy as any).pvpElo === 'number' ? getPvPTierInfo((enemy as any).pvpElo).skull : 'red');
+            const hasOppSkull = oppSkull && oppSkull !== 'none';
+            const oppSkullW = hasOppSkull ? 13 : 0;
             const nameW = view.label.width;
-            const startX = -nameW / 2;
+            const totalW = nameW + oppSkullW;
+            const startX = Math.round(-totalW / 2);
+            view.label.anchor.set(0, 0.5);
+            view.label.position.set(startX, creatureVisualLayout.nameplateY);
             updateActorSkull(view, oppSkull, startX, nameW);
           } else if (view.skullSprite) {
             view.skullSprite.visible = false;

@@ -56,8 +56,8 @@ export class PlayerState extends Schema {
   @type('string') trackedBestiaryId: string = '';
 
   // Ranked PvP Arena & Skull Patentes synchronization
-  @type('number') pvpElo: number = 1000;
-  @type('string') pvpTier: string = 'Bronze';
+  @type('number') pvpElo: number = 0;
+  @type('string') pvpTier: string = 'Iniciante';
   @type('boolean') displaySkull: boolean = true;
 }
 
