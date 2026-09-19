@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { ItemEconomyCatalog } from '@/packages/content-schema/src';
 import {
   preferredSellPrice,
@@ -9,6 +9,41 @@ import {
 } from '@/packages/domain/src';
 import { ItemSprite } from './ItemSprite';
 import { showGlobalItemTooltip, hideGlobalItemTooltip } from './GlobalItemTooltip';
+
+export const QUICK_SELL_STORAGE_KEY = 'cavebound_quicksell_selected_items_v2';
+
+function getStorage(): Storage | null {
+  if (typeof window !== 'undefined' && window.localStorage) return window.localStorage;
+  if (typeof localStorage !== 'undefined') return localStorage;
+  return null;
+}
+
+export function loadSavedQuickSellIds(): number[] | null {
+  const storage = getStorage();
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(QUICK_SELL_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter((val) => typeof val === 'number' || (typeof val === 'string' && val.trim() !== '' && !isNaN(Number(val))))
+        .map(Number);
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveQuickSellIds(ids: Set<number> | number[]): void {
+  const storage = getStorage();
+  if (!storage) return;
+  try {
+    const arr = Array.from(ids);
+    storage.setItem(QUICK_SELL_STORAGE_KEY, JSON.stringify(arr));
+  } catch {}
+}
 
 interface QuickSellWindowProps {
   open: boolean;
@@ -50,20 +85,40 @@ export function QuickSellWindow({
     });
   }, [backpackItems, priceMap, state.session.itemLootPreferences]);
 
-  // Itens selecionados inicialmente: todos os que têm quickSell marcado (ou por padrão se nenhum foi alterado)
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => {
+  // Resolve conjunto de itens selecionados considerando memória persistente do localStorage
+  const resolveInitialSelected = () => {
     const set = new Set<number>();
-    for (const stack of sellableItems) {
-      if (stack.itemId === undefined) continue;
-      const pref = state.session.itemLootPreferences[String(stack.itemId)];
-      if (pref?.quickSell) {
-        set.add(stack.itemId);
-      } else if (pref?.quickSell === undefined) {
-        set.add(stack.itemId); // default selecionado se elegível
+    const saved = loadSavedQuickSellIds();
+
+    if (saved !== null) {
+      const savedSet = new Set(saved);
+      for (const stack of sellableItems) {
+        if (stack.itemId !== undefined && savedSet.has(stack.itemId)) {
+          set.add(stack.itemId);
+        }
+      }
+    } else {
+      // Default: todos os itens elegíveis não desmarcados
+      for (const stack of sellableItems) {
+        if (stack.itemId === undefined) continue;
+        const pref = state.session.itemLootPreferences[String(stack.itemId)];
+        if (pref?.quickSell !== false) {
+          set.add(stack.itemId);
+        }
       }
     }
     return set;
-  });
+  };
+
+  // Itens selecionados inicialmente
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(resolveInitialSelected);
+
+  // Re-sincroniza a seleção com o localStorage sempre que o modal abre ou os itens da mochila mudam
+  useEffect(() => {
+    if (open) {
+      setSelectedIds(resolveInitialSelected());
+    }
+  }, [open, sellableItems.length]);
 
   if (!open) return null;
 
@@ -75,7 +130,23 @@ export function QuickSellWindow({
       next.add(itemId);
     }
     setSelectedIds(next);
+    saveQuickSellIds(next);
     onToggleQuickSellPreference(itemId);
+  };
+
+  const handleSelectAll = () => {
+    const next = new Set<number>();
+    for (const stack of sellableItems) {
+      if (stack.itemId !== undefined) next.add(stack.itemId);
+    }
+    setSelectedIds(next);
+    saveQuickSellIds(next);
+  };
+
+  const handleDeselectAll = () => {
+    const next = new Set<number>();
+    setSelectedIds(next);
+    saveQuickSellIds(next);
   };
 
   // Totais calculados
@@ -106,6 +177,56 @@ export function QuickSellWindow({
         {/* Description Banner */}
         <div className="quicksell-description-text">
           Tudo o que a loja da cidade compra da sua mochila. Clique em um item para colocar ou tirar da venda rápida — só os marcados são vendidos, e as marcas ficam salvas para a próxima.
+        </div>
+
+        {/* Quick Selection Toolbar */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '4px 12px 6px',
+            borderBottom: '1px solid #232a39',
+            marginBottom: '6px',
+          }}
+        >
+          <span style={{ fontSize: '10.5px', color: '#8898aa', fontWeight: 600 }}>
+            {selectedIds.size} de {sellableItems.length} selecionado{sellableItems.length !== 1 ? 's' : ''}
+          </span>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              style={{
+                background: '#1c2230',
+                border: '1px solid #36445c',
+                borderRadius: '3px',
+                color: '#a7b8d0',
+                fontSize: '10px',
+                padding: '2px 8px',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+            >
+              Marcar Todos
+            </button>
+            <button
+              type="button"
+              onClick={handleDeselectAll}
+              style={{
+                background: '#1c2230',
+                border: '1px solid #36445c',
+                borderRadius: '3px',
+                color: '#a7b8d0',
+                fontSize: '10px',
+                padding: '2px 8px',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+            >
+              Desmarcar Todos
+            </button>
+          </div>
         </div>
 
         {/* Items List */}
