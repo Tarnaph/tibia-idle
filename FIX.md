@@ -40,7 +40,7 @@
 
 [CONCLUÍDO - Fase 208] Ao inspecionar jogador, verificar status online em tempo real no servidor/Colyseus em vez de exibir incorretamente "offline".
 
-[PENDENTE] Adicionar efeitos sonoros (SFX): ataques físicos para Knight e Paladin, sons de magia para Druid e Sorcerer, e som ao morrer.
+[CONCLUÍDO - Fase 209] Adicionar efeitos sonoros (SFX): ataques físicos para Knight e Paladin, sons de magia para Druid e Sorcerer, e som ao morrer.
 
 [PENDENTE] Venda rápida: memorizar os últimos itens selecionados pelo usuário (localStorage) para abrir já selecionado com agilidade.
 

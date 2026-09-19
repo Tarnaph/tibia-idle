@@ -150,6 +150,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 206: Canonical Skeleton Corpse & Cyclops Smith Hunt Integration** - Substituição visual dos cadáveres de monstros em caçadas pelo esqueleto canônico do Tibia (item 5972 / remains of a skeleton, 32x32 sem cortes ou sobreposições), pré-carregamento imediato no PixiArena, e integração completa do Cyclops Smith (definição de hunt.ts, catalog card e tela de setup de pull com loot agregado em HuntSelector.tsx, registro no Bestiário com stats canônicos e reconstrução do atlas hunt-cyclops-camp-atlas com todos os 12 frames de caminhada).
 - [x] **Phase 207: Eliminate Character Duplication in Thais Temple During Hunts** - Eliminação definitiva da duplicação de personagem no Templo de Thais durante caçadas: sincronização autoritativa de hunt state no handshake Colyseus (onJoin), correção da race condition de saveProgress durante a tela de loading de 10s, gravação correta de coordenadas de entrada ao invés de Thais Temple (32369, 32241, 7), ocultação de caçadores em Thais City e identificação estrita de jogador local em ThaisCityArena.
 - [x] **Phase 208: Real-Time Online Status on Player Inspection** - Correção da inspeção de jogadores para verificação em tempo real do status online no servidor Colyseus e Prisma DB: método estático `ThaisCityRoom.isCharacterOnline`, sincronização de `isOnline` no banco de dados no `onJoin` e `onLeave`, endpoint `GET /api/character-online/:nameOrId`, consulta em tempo real em `/api/characters/lookup` e suporte a `isOnlineLocal` no `PlayerInspectModal`.
+- [x] **Phase 209: Audio & Sound Effects (SFX) System** - Implementação de efeitos sonoros canônicos: ataques físicos para Knight (espada/impacto) e Paladin (disparo à distância), magias elementais/curativas para Sorcerer e Druid, e som dramático de morte ao ser derrotado, com fallback procedural via Web Audio API, geração de arquivos WAV e controle de volume/mute.
 
 
 ---
@@ -3837,6 +3838,22 @@ Plans:
 - [x] 208-04-PLAN: Reconciliação autoritativa em tempo real em `app/api/characters/lookup/route.ts` com fallback para banco.
 - [x] 208-05-PLAN: Suporte a `isOnlineLocal` em `PlayerInspectModal.tsx` e `GamePrototype.tsx`.
 - [x] 208-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
+
+---
+
+### Phase 209: Audio & Sound Effects (SFX) System
+
+**Goal:** Adicionar efeitos sonoros (SFX) imersivos e canônicos: ataque físico para Knight e Paladin, feitiços mágicos para Sorcerer e Druid, e som solene de morte ao ser derrotado, com fallback procedural e arquivos PCM WAV dedicados.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 209-01-PLAN: Geração de arquivos de áudio canônicos PCM WAV em `public/assets/sfx/` (`knight_attack`, `paladin_attack`, `sorcerer_spell`, `druid_spell`, `player_death`).
+- [x] 209-02-PLAN: Motor de áudio de alta fidelidade `apps/web/lib/soundEffects.ts` com pré-carregamento, AudioBuffer, procedural audio fallback e throttling por tipo.
+- [x] 209-03-PLAN: Integração de eventos `player-attack`, `spell-cast` e `player-death` no loop de combate de `PixiArena.tsx`.
+- [x] 209-04-PLAN: Integração sonora nas ações de treino contra dummies em `TrainingArena.tsx`.
+- [x] 209-05-PLAN: Integração do som de morte e preloading de SFX no mount em `GamePrototype.tsx`.
+- [x] 209-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
 
 
 
