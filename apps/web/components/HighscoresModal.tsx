@@ -21,19 +21,15 @@ interface HighscoresModalProps {
   onClose: () => void;
 }
 
+// Strictly the 8 requested categories
 const CATEGORIES = [
-  { id: 'level', label: 'Level', desc: 'Top jogadores por level (desempate por experiência).' },
-  { id: 'guild', label: 'Guild', desc: 'Classificação de guildas ativas no servidor.' },
-  { id: 'speedrun', label: 'Speedrun', desc: 'Recordes de tempo em limpeza de caçadas.' },
-  { id: 'hunt', label: 'Por hunt', desc: 'Estatísticas de caçadas completadas com sucesso.' },
-  { id: 'achievements', label: 'Conquistas', desc: 'Pontos acumulados de conquistas e marcos.' },
-  { id: 'bosses', label: 'Bosses', desc: 'Pontuação de chefes derrotados (Boss Points).' },
-  { id: 'bestiary', label: 'Bestiário', desc: 'Monstros catalogados e desbloqueados no Bestiário.' },
-  { id: 'deaths', label: 'Mortes', desc: 'Histórico de bravura e perdas em combate.' },
-  { id: 'magic', label: 'Magic', desc: 'Avanço de Magic Level e maestria arcana.' },
-  { id: 'fist', label: 'Fist', desc: 'Habilidade de combate desarmado (Fist Fighting).' },
-  { id: 'melee', label: 'Melee', desc: 'Maior habilidade em combate corpo a corpo (Sword, Axe ou Club).' },
-  { id: 'distance', label: 'Distance', desc: 'Precisão e dano com projéteis (Distance Fighting).' },
+  { id: 'level', label: 'Level', desc: 'Top jogadores por nível (desempate por experiência total).' },
+  { id: 'magic', label: 'Magic Level', desc: 'Avanço de Magic Level e maestria arcana.' },
+  { id: 'fist', label: 'Fist Fighting', desc: 'Habilidade de combate desarmado (Fist Fighting).' },
+  { id: 'sword', label: 'Sword Fighting', desc: 'Habilidade com espadas e lâminas cortantes (Sword Fighting).' },
+  { id: 'axe', label: 'Axe Fighting', desc: 'Habilidade com machados de corte pesado (Axe Fighting).' },
+  { id: 'club', label: 'Club Fighting', desc: 'Habilidade com maças e martelos esmagadores (Club Fighting).' },
+  { id: 'distance', label: 'Distance', desc: 'Precisão e maestria com projéteis e arcos (Distance Fighting).' },
   { id: 'shielding', label: 'Shielding', desc: 'Defesa e bloqueio de escudo (Shielding).' },
 ];
 
@@ -126,84 +122,118 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.82)',
-        backdropFilter: 'blur(5px)',
-        zIndex: 2500,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        userSelect: 'none',
-        fontFamily: 'Verdana, Geneva, sans-serif',
+        zIndex: 99999,
+        backdropFilter: 'blur(3px)',
+        padding: '16px',
+        fontFamily: 'Verdana, Arial, sans-serif',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Janela Principal Highscore */}
+      {/* Janela Principal: Estilo Arena PvP */}
       <div
         style={{
-          width: '740px',
+          width: '840px',
           maxWidth: '96vw',
-          height: '540px',
+          height: '560px',
           maxHeight: '94vh',
-          backgroundColor: '#16171d',
-          border: '2px solid #282a36',
-          borderRadius: '6px',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+          backgroundColor: '#1e2022',
+          border: '2px solid #4a4d52',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+          color: '#d1d5db',
           display: 'flex',
           flexDirection: 'column',
+          userSelect: 'none',
+          borderRadius: '4px',
           overflow: 'hidden',
           animation: 'fadeIn 0.15s ease-out',
         }}
       >
-        {/* Barra Superior de Título */}
+        {/* Cabeçalho Oficial (Idêntico ao Arena PvP) */}
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '14px 20px',
+            backgroundColor: '#18191b',
+            borderBottom: '1px solid #33363a',
+            position: 'relative',
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '18px',
+              fontWeight: 'bold',
+              color: '#f3c769',
+              letterSpacing: '1px',
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+              fontFamily: 'Georgia, serif',
+            }}
+          >
+            Highscores & Ranking Geral
+          </h2>
+
+          <div
+            style={{
+              position: 'absolute',
+              left: '16px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '11px',
+              color: '#9ca3af',
+            }}
+          >
+            {totalPlayers} jogadores catalogados
+          </div>
+
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '12px',
+              background: 'transparent',
+              border: 'none',
+              color: '#8b8e93',
+              fontSize: '18px',
+              cursor: 'pointer',
+              lineHeight: 1,
+            }}
+            title="Fechar Janela"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Modal Body: Duas Colunas */}
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '12px 18px 10px 18px',
-            backgroundColor: '#13141a',
-            borderBottom: '1px solid #232532',
+            flex: 1,
+            minHeight: 0,
           }}
         >
-          <span
-            style={{
-              fontSize: '13px',
-              fontWeight: '800',
-              color: '#f8fafc',
-              letterSpacing: '1.2px',
-              textTransform: 'uppercase',
-            }}
-          >
-            HIGHSCORE
-          </span>
-
-          <span
-            style={{
-              fontSize: '11px',
-              color: '#94a3b8',
-            }}
-          >
-            {totalPlayers} jogadores
-          </span>
-        </div>
-
-        {/* Corpo: Duas Colunas (Menu Lateral + Tabela) */}
-        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-          {/* Coluna Esquerda: Abas de Categorias */}
+          {/* COLUNA ESQUERDA: Abas de Categorias */}
           <div
             style={{
-              width: '140px',
-              backgroundColor: '#13141a',
-              borderRight: '1px solid #232532',
+              width: '200px',
+              borderRight: '1px solid #33363a',
+              backgroundColor: '#1b1c1e',
+              padding: '14px 10px',
               display: 'flex',
               flexDirection: 'column',
-              padding: '8px 6px',
-              gap: '2px',
+              gap: '6px',
               overflowY: 'auto',
             }}
           >
+            <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#9ca3af', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>
+              Categorias
+            </div>
             {CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
@@ -212,22 +242,23 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                   type="button"
                   onClick={() => handleCategoryChange(cat.id)}
                   style={{
-                    backgroundColor: isActive ? '#242735' : 'transparent',
-                    border: 'none',
+                    backgroundColor: isActive ? '#2d3035' : '#151618',
+                    border: `1px solid ${isActive ? '#4f535a' : '#282a2e'}`,
                     borderRadius: '4px',
-                    color: isActive ? '#ffffff' : '#94a3b8',
-                    fontSize: '11.5px',
+                    color: isActive ? '#f3c769' : '#9ca3af',
+                    fontSize: '12px',
                     fontWeight: isActive ? '700' : 'normal',
-                    padding: '6px 12px',
+                    padding: '8px 12px',
                     textAlign: 'left',
                     cursor: 'pointer',
                     transition: 'all 0.12s ease',
+                    boxShadow: isActive ? 'inset 0 1px 0 rgba(255,255,255,0.06)' : 'none',
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) e.currentTarget.style.color = '#f1f5f9';
                   }}
                   onMouseLeave={(e) => {
-                    if (!isActive) e.currentTarget.style.color = '#94a3b8';
+                    if (!isActive) e.currentTarget.style.color = '#9ca3af';
                   }}
                 >
                   {cat.label}
@@ -236,45 +267,46 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
             })}
           </div>
 
-          {/* Coluna Direita: Tabela e Controles */}
+          {/* COLUNA DIREITA: Tabela e Controles */}
           <div
             style={{
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              padding: '12px 16px',
+              padding: '14px 18px',
               minWidth: 0,
+              backgroundColor: '#1e2022',
             }}
           >
-            {/* Descrição da Categoria */}
+            {/* Topo da Coluna Direita: Filtro de Vocação e Descrição */}
             <div
               style={{
-                fontSize: '11.5px',
-                color: '#94a3b8',
-                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '10px',
+                gap: '12px',
               }}
             >
-              {currentCatObj.desc}
-            </div>
+              <div style={{ fontSize: '11.5px', color: '#9ca3af' }}>
+                {currentCatObj.desc}
+              </div>
 
-            {/* Dropdown de Vocação */}
-            <div style={{ marginBottom: '12px' }}>
               <select
                 value={selectedVocation}
                 onChange={(e) => handleVocationChange(e.target.value)}
                 style={{
-                  backgroundColor: '#1c1f2b',
-                  border: '1px solid #2d3246',
+                  backgroundColor: '#151618',
+                  border: '1px solid #3b3e44',
                   borderRadius: '4px',
-                  color: '#e2e8f0',
+                  color: '#f3c769',
                   fontSize: '11.5px',
                   padding: '5px 10px',
                   cursor: 'pointer',
                   outline: 'none',
-                  minWidth: '180px',
                 }}
               >
-                <option value="all">Todas as vocacoes</option>
+                <option value="all">Todas as vocações</option>
                 <option value="knight">Knight</option>
                 <option value="paladin">Paladin</option>
                 <option value="sorcerer">Sorcerer</option>
@@ -286,14 +318,17 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '44px 1fr 100px 70px 130px',
+                gridTemplateColumns: '48px 1fr 105px 70px 120px',
                 gap: '8px',
-                padding: '6px 8px',
-                fontSize: '10.5px',
-                fontWeight: '700',
-                color: '#60a5fa',
+                padding: '8px 10px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                color: '#f3c769',
                 letterSpacing: '0.6px',
-                borderBottom: '1px solid #252837',
+                backgroundColor: '#151618',
+                border: '1px solid #33363a',
+                borderRadius: '4px 4px 0 0',
+                fontFamily: 'Georgia, serif',
               }}
             >
               <span>#</span>
@@ -301,7 +336,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
               <span style={{ textAlign: 'center' }}>VOCACAO</span>
               <span style={{ textAlign: 'right' }}>LEVEL</span>
               <span style={{ textAlign: 'right' }}>
-                {activeCategory === 'level' ? 'XP' : activeCategory === 'bosses' ? 'POINTS' : 'VALOR'}
+                {activeCategory === 'level' ? 'XP TOTAL' : 'HABILIDADE'}
               </span>
             </div>
 
@@ -313,14 +348,17 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                 display: 'flex',
                 flexDirection: 'column',
                 minHeight: 0,
+                border: '1px solid #33363a',
+                borderTop: 'none',
+                backgroundColor: '#17181a',
               }}
             >
               {loading ? (
-                <div style={{ padding: '30px', textAlign: 'center', color: '#94a3b8', fontSize: '11.5px' }}>
+                <div style={{ padding: '36px', textAlign: 'center', color: '#9ca3af', fontSize: '12px' }}>
                   Carregando ranking...
                 </div>
               ) : entries.length === 0 ? (
-                <div style={{ padding: '30px', textAlign: 'center', color: '#64748b', fontSize: '11.5px' }}>
+                <div style={{ padding: '36px', textAlign: 'center', color: '#64748b', fontSize: '12px' }}>
                   Nenhum jogador classificado nesta categoria.
                 </div>
               ) : (
@@ -335,14 +373,15 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                       key={entry.id}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '44px 1fr 100px 70px 130px',
+                        gridTemplateColumns: '48px 1fr 105px 70px 120px',
                         gap: '8px',
-                        padding: '6px 8px',
+                        padding: '7px 10px',
                         alignItems: 'center',
                         backgroundColor: entry.isCurrentPlayer
-                          ? 'rgba(59, 130, 246, 0.12)'
+                          ? 'rgba(217, 119, 6, 0.16)'
                           : 'transparent',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+                        borderLeft: entry.isCurrentPlayer ? '3px solid #f59e0b' : '3px solid transparent',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
                         fontSize: '11px',
                         transition: 'background-color 0.1s ease',
                       }}
@@ -355,118 +394,70 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                     >
                       {/* Rank com Medalhas para Top 3 */}
                       <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {isTop1 && (
-                          <div
-                            style={{
-                              width: '20px',
-                              height: '20px',
-                              borderRadius: '50%',
-                              backgroundColor: '#ca8a04',
-                              background: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)',
-                              color: '#1c1917',
-                              fontWeight: '800',
-                              fontSize: '10.5px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              boxShadow: '0 0 8px rgba(234, 179, 8, 0.4)',
-                            }}
-                          >
-                            1
-                          </div>
-                        )}
-                        {isTop2 && (
-                          <div
-                            style={{
-                              width: '20px',
-                              height: '20px',
-                              borderRadius: '50%',
-                              backgroundColor: '#94a3b8',
-                              background: 'linear-gradient(135deg, #cbd5e1 0%, #64748b 100%)',
-                              color: '#0f172a',
-                              fontWeight: '800',
-                              fontSize: '10.5px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              boxShadow: '0 0 6px rgba(148, 163, 184, 0.3)',
-                            }}
-                          >
-                            2
-                          </div>
-                        )}
-                        {isTop3 && (
-                          <div
-                            style={{
-                              width: '20px',
-                              height: '20px',
-                              borderRadius: '50%',
-                              backgroundColor: '#b45309',
-                              background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
-                              color: '#ffffff',
-                              fontWeight: '800',
-                              fontSize: '10.5px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              boxShadow: '0 0 6px rgba(180, 83, 9, 0.3)',
-                            }}
-                          >
-                            3
-                          </div>
-                        )}
-                        {!isTop1 && !isTop2 && !isTop3 && (
-                          <span style={{ color: '#94a3b8', paddingLeft: '4px' }}>
-                            {entry.rank}
-                          </span>
+                        {isTop1 ? (
+                          <span style={{ fontSize: '14px' }}>🥇</span>
+                        ) : isTop2 ? (
+                          <span style={{ fontSize: '14px' }}>🥈</span>
+                        ) : isTop3 ? (
+                          <span style={{ fontSize: '14px' }}>🥉</span>
+                        ) : (
+                          <span style={{ color: '#9ca3af', fontWeight: 'bold' }}>#{entry.rank}</span>
                         )}
                       </div>
 
                       {/* Nome do Personagem */}
-                      <div
-                        style={{
-                          fontWeight: '700',
-                          color: entry.isCurrentPlayer ? '#93c5fd' : '#f8fafc',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {entry.name}
-                      </div>
-
-                      {/* Badge da Vocação */}
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         <span
                           style={{
-                            padding: '2px 8px',
-                            borderRadius: '10px',
+                            fontWeight: entry.isCurrentPlayer ? 'bold' : '600',
+                            color: entry.isCurrentPlayer ? '#fef08a' : '#f1f5f9',
+                          }}
+                        >
+                          {entry.characterName}
+                        </span>
+                        {entry.isCurrentPlayer && (
+                          <span
+                            style={{
+                              marginLeft: '6px',
+                              fontSize: '9.5px',
+                              backgroundColor: 'rgba(245, 158, 11, 0.25)',
+                              color: '#fbbf24',
+                              padding: '1px 5px',
+                              borderRadius: '3px',
+                              border: '1px solid rgba(245, 158, 11, 0.4)',
+                            }}
+                          >
+                            VOCE
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Vocação */}
+                      <div style={{ textAlign: 'center' }}>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '2px 6px',
+                            borderRadius: '3px',
+                            fontSize: '10px',
+                            fontWeight: '600',
                             backgroundColor: vocStyle.bg,
                             color: vocStyle.text,
                             border: `1px solid ${vocStyle.border}`,
-                            fontSize: '9.5px',
-                            fontWeight: '600',
                           }}
                         >
                           {entry.vocation}
                         </span>
                       </div>
 
-                      {/* Nível */}
-                      <div style={{ textAlign: 'right', fontWeight: '700', color: '#e2e8f0' }}>
-                        {entry.level.toLocaleString('pt-BR')}
+                      {/* Level */}
+                      <div style={{ textAlign: 'right', fontWeight: '600', color: '#e2e8f0' }}>
+                        {entry.level}
                       </div>
 
-                      {/* XP ou Métrica */}
-                      <div
-                        style={{
-                          textAlign: 'right',
-                          color: '#94a3b8',
-                          fontSize: '10.5px',
-                          fontVariantNumeric: 'tabular-nums',
-                        }}
-                      >
-                        {entry.secondaryValue || entry.displayValue}
+                      {/* Valor da Categoria */}
+                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#f3c769' }}>
+                        {entry.displayValue}
                       </div>
                     </div>
                   );
@@ -474,14 +465,13 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
               )}
             </div>
 
-            {/* Rodapé Interno: Minha Posição + Paginação */}
+            {/* Paginação e Salto */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 paddingTop: '10px',
-                borderTop: '1px solid #232532',
                 marginTop: 'auto',
               }}
             >
@@ -491,21 +481,15 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                 onClick={handleJumpToMyPosition}
                 disabled={!myRank}
                 style={{
-                  backgroundColor: myRank ? '#222634' : '#171922',
-                  border: `1px solid ${myRank ? '#3b435a' : '#262a38'}`,
+                  backgroundColor: myRank ? 'rgba(217, 119, 6, 0.2)' : '#151618',
+                  border: `1px solid ${myRank ? '#b45309' : '#2d3035'}`,
                   borderRadius: '3px',
-                  color: myRank ? '#f1f5f9' : '#64748b',
+                  color: myRank ? '#fef08a' : '#64748b',
                   fontSize: '11px',
                   fontWeight: '600',
-                  padding: '5px 12px',
+                  padding: '6px 12px',
                   cursor: myRank ? 'pointer' : 'default',
                   transition: 'all 0.12s ease',
-                }}
-                onMouseEnter={(e) => {
-                  if (myRank) e.currentTarget.style.backgroundColor = '#2d3345';
-                }}
-                onMouseLeave={(e) => {
-                  if (myRank) e.currentTarget.style.backgroundColor = '#222634';
                 }}
                 title={myRank ? `Pular para seu rank #${myRank}` : 'Não classificado'}
               >
@@ -519,13 +503,13 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
                   style={{
-                    width: '24px',
-                    height: '24px',
-                    backgroundColor: page > 1 ? '#222634' : '#171922',
-                    border: `1px solid ${page > 1 ? '#3b435a' : '#262a38'}`,
+                    width: '26px',
+                    height: '26px',
+                    backgroundColor: page > 1 ? '#25272a' : '#151618',
+                    border: `1px solid ${page > 1 ? '#3c4046' : '#2d3035'}`,
                     borderRadius: '3px',
                     color: page > 1 ? '#f1f5f9' : '#475569',
-                    fontSize: '12px',
+                    fontSize: '13px',
                     cursor: page > 1 ? 'pointer' : 'not-allowed',
                     display: 'flex',
                     alignItems: 'center',
@@ -536,7 +520,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                   ‹
                 </button>
 
-                <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                <span style={{ fontSize: '11.5px', color: '#9ca3af' }}>
                   {page} / {totalPages}
                 </span>
 
@@ -545,13 +529,13 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
                   style={{
-                    width: '24px',
-                    height: '24px',
-                    backgroundColor: page < totalPages ? '#222634' : '#171922',
-                    border: `1px solid ${page < totalPages ? '#3b435a' : '#262a38'}`,
+                    width: '26px',
+                    height: '26px',
+                    backgroundColor: page < totalPages ? '#25272a' : '#151618',
+                    border: `1px solid ${page < totalPages ? '#3c4046' : '#2d3035'}`,
                     borderRadius: '3px',
                     color: page < totalPages ? '#f1f5f9' : '#475569',
-                    fontSize: '12px',
+                    fontSize: '13px',
                     cursor: page < totalPages ? 'pointer' : 'not-allowed',
                     display: 'flex',
                     alignItems: 'center',
@@ -564,42 +548,6 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Rodapé Externo com Botão Fechar */}
-        <div
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#111218',
-            borderTop: '1px solid #1f212c',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              backgroundColor: '#202430',
-              border: '1px solid #363d52',
-              borderRadius: '4px',
-              color: '#e2e8f0',
-              fontSize: '11.5px',
-              fontWeight: '600',
-              padding: '5px 16px',
-              cursor: 'pointer',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-              transition: 'all 0.12s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#2a3040';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#202430';
-            }}
-          >
-            Fechar
-          </button>
         </div>
       </div>
     </div>

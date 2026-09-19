@@ -61,36 +61,35 @@ export async function GET(request: Request) {
       },
     })) as CharacterRecord[];
 
-    // Função de extração da métrica para ordenação
+    // Exclusão estrita de contas e personagens de teste
+    const isTestCharacter = (char: CharacterRecord): boolean => {
+      const name = (char.name || '').toLowerCase();
+      const email = (char.account?.email || '').toLowerCase();
+      if (
+        name.includes('teste') ||
+        name.includes('test') ||
+        name.includes('browserhero') ||
+        name.includes('atlashero') ||
+        name.startsWith('dummy')
+      ) {
+        return true;
+      }
+      if (
+        email.includes('teste@') ||
+        email.includes('test@') ||
+        email.includes('browsere2e') ||
+        email.includes('e2e') ||
+        email.startsWith('teste')
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    const validCharacters = allCharacters.filter((char) => !isTestCharacter(char));
+
+    // Função de extração da métrica para ordenação (level, magic, fist, sword, axe, club, distance, shielding)
     const getMetric = (char: CharacterRecord): { primary: number; secondary: number; displayValue: string; secondaryValue: string } => {
-      if (category === 'bosses') {
-        const pts = char.bossPoints || 0;
-        return {
-          primary: pts,
-          secondary: char.level,
-          displayValue: `${pts} pts`,
-          secondaryValue: `Nível ${char.level}`,
-        };
-      }
-
-      if (category === 'bestiary') {
-        let count = 0;
-        if (char.bestiaryKillsJson) {
-          try {
-            const kills = typeof char.bestiaryKillsJson === 'string'
-              ? JSON.parse(char.bestiaryKillsJson)
-              : char.bestiaryKillsJson;
-            count = Object.keys(kills || {}).length;
-          } catch {}
-        }
-        return {
-          primary: count,
-          secondary: char.level,
-          displayValue: `${count} descobertas`,
-          secondaryValue: `Nível ${char.level}`,
-        };
-      }
-
       if (category in SKILL_CATEGORY_MAP) {
         const skillId = SKILL_CATEGORY_MAP[category];
         const sk = char.skills.find((s: CharacterSkillRecord) => s.skillId === skillId);
@@ -100,25 +99,6 @@ export async function GET(request: Request) {
           primary: val,
           secondary: tries,
           displayValue: `${val}`,
-          secondaryValue: `Nível ${char.level}`,
-        };
-      }
-
-      if (category === 'melee') {
-        // Maior entre sword (2), axe (3) e club (1)
-        const meleeSkills = char.skills.filter((s: CharacterSkillRecord) => [1, 2, 3].includes(s.skillId));
-        let maxVal = 10;
-        let maxTries = 0;
-        for (const s of meleeSkills) {
-          if (s.value > maxVal || (s.value === maxVal && Number(s.tries || 0) > maxTries)) {
-            maxVal = s.value;
-            maxTries = Number(s.tries || 0);
-          }
-        }
-        return {
-          primary: maxVal,
-          secondary: maxTries,
-          displayValue: `${maxVal}`,
           secondaryValue: `Nível ${char.level}`,
         };
       }
@@ -134,7 +114,7 @@ export async function GET(request: Request) {
     };
 
     // Ordenação estrita decrescente
-    const sorted = allCharacters
+    const sorted = validCharacters
       .map((char) => {
         const metric = getMetric(char);
         return {

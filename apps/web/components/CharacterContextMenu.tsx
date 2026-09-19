@@ -10,6 +10,7 @@ export interface CharacterContextMenuProps {
   onInspect?: () => void;
   onPrivateMessage?: () => void;
   onAddFriend?: () => void;
+  onSetOutfit?: () => void;
   onClose: () => void;
 }
 
@@ -20,6 +21,7 @@ export function CharacterContextMenu({
   onInspect,
   onPrivateMessage,
   onAddFriend,
+  onSetOutfit,
   onClose,
 }: CharacterContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -60,6 +62,20 @@ export function CharacterContextMenu({
       </div>
       <div className="context-menu-divider" />
 
+      {onSetOutfit && (
+        <button
+          type="button"
+          className="context-menu-item"
+          onClick={() => {
+            onSetOutfit();
+            onClose();
+          }}
+          style={{ fontWeight: '600', color: '#f3c769' }}
+        >
+          🎭 Set Outfit
+        </button>
+      )}
+
       {onInspect && (
         <button
           type="button"
@@ -74,27 +90,31 @@ export function CharacterContextMenu({
         </button>
       )}
 
-      <button
-        type="button"
-        className="context-menu-item"
-        onClick={() => {
-          onPrivateMessage?.();
-          onClose();
-        }}
-      >
-        💬 Mandar Mensagem Privada
-      </button>
+      {onPrivateMessage && (
+        <button
+          type="button"
+          className="context-menu-item"
+          onClick={() => {
+            onPrivateMessage();
+            onClose();
+          }}
+        >
+          💬 Mandar Mensagem Privada
+        </button>
+      )}
 
-      <button
-        type="button"
-        className="context-menu-item"
-        onClick={() => {
-          onAddFriend?.();
-          onClose();
-        }}
-      >
-        ⭐ Adicionar como Amigo
-      </button>
+      {onAddFriend && (
+        <button
+          type="button"
+          className="context-menu-item"
+          onClick={() => {
+            onAddFriend();
+            onClose();
+          }}
+        >
+          ⭐ Adicionar como Amigo
+        </button>
+      )}
 
       <div className="context-menu-divider" />
 

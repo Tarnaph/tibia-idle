@@ -239,30 +239,7 @@ export function BottomDock({
             >
               BLESSINGS
             </button>
-            <button
-              type="button"
-              className="quick-action-btn btn-ranking"
-              onClick={onOpenRanking}
-              title="Highscores e Ranking Geral"
-              style={{
-                color: '#fde047',
-                borderColor: '#854d0e',
-              }}
-            >
-              RANKING
-            </button>
-            <button
-              type="button"
-              className="quick-action-btn btn-pvp"
-              onClick={onOpenPvP}
-              title="Arena PvP Ranqueada"
-              style={{
-                color: '#f87171',
-                borderColor: '#7f1d1d',
-              }}
-            >
-              ARENA PVP
-            </button>
+
             <button
               type="button"
               className="quick-action-btn btn-training"

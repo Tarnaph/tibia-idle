@@ -50,6 +50,8 @@ interface WindowDockBarProps {
   onToggleMount?: () => void;
   onExitGame?: () => void;
   onOpenPromotion?: () => void;
+  onOpenRanking?: () => void;
+  onOpenPvP?: () => void;
 }
 
 export function WindowDockBar({
@@ -77,6 +79,8 @@ export function WindowDockBar({
   onOpenOutfit,
   onOpenCyclopedia,
   onOpenParty,
+  onOpenRanking,
+  onOpenPvP,
   isMounted = false,
   onToggleMount,
   onExitGame,
@@ -783,15 +787,29 @@ export function WindowDockBar({
         </button>
 
 
-        <button
-          type="button"
-          className="huntera-square-btn outfit-btn"
-          onClick={onOpenOutfit}
-          title="Customizar Aparência / Outfit & Montaria (Ctrl+U)"
-          style={{ borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.18)', fontSize: '15px' }}
-        >
-          🎭
-        </button>
+        {onOpenRanking && (
+          <button
+            type="button"
+            className="huntera-square-btn ranking-btn"
+            onClick={onOpenRanking}
+            title="Highscores e Ranking Geral"
+            style={{ borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.2)', fontSize: '15px' }}
+          >
+            🏆
+          </button>
+        )}
+
+        {onOpenPvP && (
+          <button
+            type="button"
+            className="huntera-square-btn pvp-btn"
+            onClick={onOpenPvP}
+            title="Arena PvP Ranqueada"
+            style={{ borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.2)', fontSize: '15px' }}
+          >
+            ⚔️
+          </button>
+        )}
 
         <button
           type="button"

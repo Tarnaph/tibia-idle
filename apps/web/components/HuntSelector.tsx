@@ -113,6 +113,13 @@ export function HuntSelector({
     }
   }, [open, currentHuntId]);
 
+  // Sync activeTab with initialTab whenever modal opens or tab changes
+  useEffect(() => {
+    if (open && initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [open, initialTab]);
+
   // Save favorites to localStorage
   const toggleFavorite = (e: React.MouseEvent, huntId: string) => {
     e.stopPropagation();

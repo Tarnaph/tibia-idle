@@ -36,6 +36,7 @@ interface Props {
   characters: CharacterState[];
   activeCharacterId?: string | null;
   cityPos: { x: number; y: number; z: number };
+  playerDirection?: 'north' | 'south' | 'east' | 'west';
   isWalking: boolean;
   isTraining: boolean;
   trainingDummyPos?: { x: number; y: number; z: number } | null;
@@ -133,6 +134,7 @@ export function ThaisCityArena({
   characters,
   activeCharacterId,
   cityPos,
+  playerDirection,
   isWalking,
   isTraining,
   trainingDummyPos,
@@ -170,6 +172,7 @@ export function ThaisCityArena({
     characters,
     activeCharacterId,
     cityPos,
+    playerDirection,
     isWalking,
     isTraining,
     trainingDummyPos,
@@ -191,6 +194,7 @@ export function ThaisCityArena({
     characters,
     activeCharacterId,
     cityPos,
+    playerDirection,
     isWalking,
     isTraining,
     trainingDummyPos,
@@ -1300,6 +1304,9 @@ export function ThaisCityArena({
           playerDirection = sample.direction;
         }
         const isMoving = sample.moving;
+        if (!isMoving && latestRef.current.playerDirection) {
+          playerDirection = latestRef.current.playerDirection;
+        }
 
         // Orient player towards training dummy if training and not actively walking
         const activeDummyPos = latestRef.current.trainingDummyPos ||

@@ -2130,8 +2130,20 @@ export function triggerEmergencyAutoPotion(
   const isLethalOrCritical = (target.hp - incomingDamage <= 0) || (target.hp / character.maxHp <= 0.50);
   if (!isLethalOrCritical) return;
 
-  const potion = getBestHealthPotionForCharacter(character);
-  if (!potion) return;
+  // FIX.md Item 5: O jogador SÓ deve consumir poções se ela estiver na barra de hotkeys (se não tiver poção na hotkey, NÃO deve consumir de jeito nenhum).
+  const potionActionId = (character.hotbar || []).find((id, index) => {
+    if (typeof id !== 'number' || id === 0) return false;
+    const action = findHotbarAction(id, content);
+    if (action?.kind !== 'potion' || action.potion.category !== 'healing') return false;
+    const slotConfig = character.hotbarConfigs?.[index];
+    if (slotConfig && slotConfig.enabled === false) return false;
+    return true;
+  });
+  if (!potionActionId) return;
+
+  const action = findHotbarAction(potionActionId, content);
+  if (!action || action.kind !== 'potion') return;
+  const potion = action.potion;
 
   const canDrink = (target.groupCooldowns['potion'] ?? 0) <= encounter.elapsedMs || target.hp - incomingDamage <= 0;
   if (!canDrink) return;

@@ -271,6 +271,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   }, [isProfileModalOpen, gameModal]);
   const [hotbarConfigSlot, setHotbarConfigSlot] = useState<number | null>(null);
   const [cityPos, setCityPos] = useState<{ x: number; y: number; z: number }>(THAIS_TEMPLE_POSITION);
+  const [cityDirection, setCityDirection] = useState<'north' | 'south' | 'east' | 'west'>('south');
   const [walkingPath, setWalkingPath] = useState<{
     waypoints: Array<{ x: number; y: number; z: number }>;
     destinationName: string;
@@ -3920,6 +3921,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     setIsTrainingAtDummy(false);
 
     const dir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
+    setCityDirection(dir);
 
     setCityPos((current) => {
       const stairTarget = resolveStairsTransition(current, deltaX, deltaY);
@@ -3973,8 +3975,34 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         }
       }
 
+      // FIX.md Item 8: Girar o corpo no próprio eixo (Ctrl + Direcionais / WASD) sem andar
+      const isTurnArrow = e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+        e.key === 'w' || e.key === 'W' || e.key === 's' || e.key === 'S' || e.key === 'a' || e.key === 'A' || e.key === 'd' || e.key === 'D';
+
+      if ((e.ctrlKey || e.metaKey) && isTurnArrow) {
+        e.preventDefault();
+        const turnDir: 'north' | 'south' | 'east' | 'west' =
+          (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') ? 'north' :
+          (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') ? 'south' :
+          (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') ? 'west' : 'east';
+
+        setCityDirection(turnDir);
+        gameNetwork.sendTurn(turnDir);
+
+        if (mode === 'hunt') {
+          setGame((cur) => {
+            const actor = cur.encounter.partyActors.find((a) => a.characterId === activeCharacter.id);
+            if (actor) {
+              actor.direction = turnDir;
+            }
+            return { ...cur };
+          });
+        }
+        return;
+      }
+
       // Manual movement via arrow keys (and WASD) in city mode
-      if (mode !== 'hunt') {
+      if (mode !== 'hunt' && !e.ctrlKey && !e.metaKey) {
         let deltaX = 0;
         let deltaY = 0;
         if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') deltaY = -1;
@@ -4162,6 +4190,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               return roleUpper === 'ADMIN' ? 'GOD' : roleUpper === 'GM' ? 'GM' : undefined;
             })()}
             cityPos={cityPos}
+            playerDirection={cityDirection}
             isWalking={walkingPath !== null || heldDirectionRef.current !== null}
             isTraining={isTrainingAtDummy}
             trainingDummyPos={trainingDummyPos}
@@ -4291,7 +4320,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           onOpenParty={() => setPartyModalOpen(true)}
           onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
           onOpenShop={() => setShopOpen((prev) => !prev)}
-          onOpenOutfit={() => gameModal.openOutfit(activeCharacter.id)}
+          onOpenRanking={() => setIsHighscoresModalOpen(true)}
+          onOpenPvP={() => setIsPvPArenaModalOpen(true)}
           onOpenCyclopedia={() => gameModal.openCyclopedia()}
           isMounted={isCharacterMounted(activeCharacter)}
           onToggleMount={() => handleToggleMount(activeCharacter.id)}
@@ -4829,18 +4859,20 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         const remote = !char && remotePlayers ? Array.from(remotePlayers.values()).find((r) => r.id === charContextMenu.characterId) : null;
         const targetName = char?.name || remote?.name || 'Jogador';
         const dummyChar: CharacterState = char || createCharacter(charContextMenu.characterId, targetName, 'Knight', content);
+        const isSelf = char?.id === activeCharacter?.id || charContextMenu.characterId === activeCharacter?.id;
 
         return (
           <CharacterContextMenu
             x={charContextMenu.x}
             y={charContextMenu.y}
             character={dummyChar}
-            onInspect={() => {
+            onSetOutfit={isSelf ? () => gameModal.openOutfit(activeCharacter.id) : undefined}
+            onInspect={!isSelf ? () => {
               setInspectPlayerName(dummyChar.name);
               setCharContextMenu(null);
-            }}
-            onPrivateMessage={() => handlePrivateMessage(dummyChar.name)}
-            onAddFriend={() => handleAddFriend(dummyChar.name)}
+            } : undefined}
+            onPrivateMessage={!isSelf ? () => handlePrivateMessage(dummyChar.name) : undefined}
+            onAddFriend={!isSelf ? () => handleAddFriend(dummyChar.name) : undefined}
             onClose={() => setCharContextMenu(null)}
           />
         );

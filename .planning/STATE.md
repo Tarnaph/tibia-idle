@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-18T18:30:00.000Z"
-last_activity: "2026-09-18 — Phase 196: Hunt Pacing & Zone Spacing (Pull Size & Aggro Isolation)."
+last_updated: "2026-09-18T21:40:00.000Z"
+last_activity: "2026-09-18 — Phase 197: Ajustes Canônicos de Highscores, Treino, Hotbar, Outfit no Menu de Contexto, Botões de Dock e Giro de Corpo (FIX.md)."
 progress:
-  total_phases: 196
-  completed_phases: 196
-  total_plans: 237
-  completed_plans: 237
+  total_phases: 197
+  completed_phases: 197
+  total_plans: 238
+  completed_plans: 238
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 196 - Hunt Pacing & Zone Spacing (Pull Size & Aggro Isolation) [CONCLUÍDO].
+**Current focus:** Phase 197 - Ajustes Canônicos de Highscores, Treino, Hotbar, Outfit no Menu de Contexto, Botões de Dock e Giro de Corpo (FIX.md) [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 196 of 196  
-Plan: 1 of 1 in Phase 196  
+Phase: 197 of 197  
+Plan: 1 of 1 in Phase 197  
 Status: Complete  
-Last activity: 2026-09-18 — Concluída Phase 196: espaçamento homogêneo de respawns ao longo do roteiro de caçadas, ajuste de raio de detecção para 6 tiles em cavernas e isolamento de pulls (apenas 2 a 3 monstros por encontro no modo Cauteloso).
+Last activity: 2026-09-18 — Concluída Phase 197: resolução de todos os 8 itens de FIX.md (ranking com 8 categorias sem melee genérico e sem contas de teste; sincronização de aba Treino; poções restritas à hotbar; Set Outfit no clique direito do próprio char e remoção da topbar; botões Ranking e Arena PvP no topo superior direito; giro do corpo no próprio eixo via Ctrl+Direcionais/WASD sem dar passos; padronização estética de modais no estilo PvP Arena).
 
 Progress: [██████████] 100%
 

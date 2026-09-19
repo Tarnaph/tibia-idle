@@ -47,7 +47,7 @@ describe('Phase 81 - Emergency Auto-Potion & Auto Hotbar System', () => {
     // Set actor HP to a dangerously low level
     actor.hp = 10;
     character.maxHp = 200;
-    character.hotbar = []; // hotbar empty, should auto-assign potion
+    character.hotbar = [7618]; // Hotbar has potion configured
 
     // Enemy deals 30 damage, which is lethal (10 - 30 <= 0)
     const lethalDamage = 30;
@@ -63,12 +63,30 @@ describe('Phase 81 - Emergency Auto-Potion & Auto Hotbar System', () => {
     expect(emergencyLog).toBeDefined();
   });
 
+  it('does NOT trigger emergency auto-potion if hotbar does NOT contain a potion', () => {
+    const game = createIdleGame('seed-no-hotbar-rescue', content, 'rat-cellars');
+    const actor = game.encounter.partyActors[0];
+    const character = game.session.characters[0];
+
+    actor.hp = 10;
+    character.maxHp = 200;
+    character.hotbar = []; // No potion on hotbar!
+    game.session.loot = [{ itemId: 7618, name: 'Health Potion', amount: 10 }];
+
+    triggerEmergencyAutoPotion(game, actor, character, content, 30);
+
+    // Should NOT have drunk potion
+    expect(actor.hp).toBe(10);
+    expect(game.session.loot[0].amount).toBe(10);
+  });
+
   it('deducts potion item count from inventory when consumed and enforces 50% HP threshold', () => {
     const game = createIdleGame('seed-potion-count', content, 'rat-cellars');
     const actor = game.encounter.partyActors[0];
     const character = game.session.characters[0];
 
     character.maxHp = 200;
+    character.hotbar = [7618];
     // Set HP to 150 (75% HP) - should NOT trigger potion because threshold is <= 50%
     actor.hp = 150;
     game.session.loot = [{ itemId: 7618, name: 'Health Potion', amount: 10 }];
