@@ -33,3 +33,24 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: false, error: error.message }, { status });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    requireAdminAuth(request);
+    const body = (await request.json()) as {
+      level?: LogLevel;
+      category?: string;
+      message?: string;
+      details?: any;
+    };
+    const { level = 'ERROR', category = 'CLIENT_DEBUG', message, details } = body || {};
+    if (!message) {
+      return NextResponse.json({ success: false, error: 'Mensagem é obrigatória.' }, { status: 400 });
+    }
+    const entry = systemLogger.log(level as LogLevel, category, message, details);
+    return NextResponse.json({ success: true, entry });
+  } catch (error: any) {
+    const status = error.message === 'UNAUTHORIZED' ? 401 : error.message === 'FORBIDDEN' ? 403 : 500;
+    return NextResponse.json({ success: false, error: error.message }, { status });
+  }
+}

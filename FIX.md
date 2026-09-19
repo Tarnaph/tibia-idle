@@ -30,7 +30,7 @@
 
 [CONCLUÍDO - Fase 204] Criar função permanente para que toda vez que entrar em Thais mudar a tag para que a pessoa fique visível para os outros jogadores.
 
-[PENDENTE] Criar sistema de log de erros centralizado integrado a novas funções e criar botão exclusivo para usuários ADMIN chamado "Debug".
+[CONCLUÍDO - Fase 205] Criar sistema de log de erros centralizado integrado a novas funções e criar botão exclusivo para usuários ADMIN chamado "Debug".
 
 [PENDENTE] Trocar o corpo dos bichos mortos nas caçadas para o corpo de skeleton canônico (item 4246 / 4247).
 

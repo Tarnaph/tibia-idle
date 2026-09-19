@@ -83,6 +83,8 @@ import { LogoutConfirmModal } from './character/LogoutConfirmModal';
 import { PromotionModal } from './character/PromotionModal';
 import { ImbuingModal } from './ImbuingModal';
 import { PlayerInspectModal } from './PlayerInspectModal';
+import { AdminDebugModal } from './admin/AdminDebugModal';
+import { clientErrorLogger } from '../lib/errorLogger';
 import {
   CANONICAL_IMBUEMENTS,
   IMBUEMENT_TIER_COSTS,
@@ -347,6 +349,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [isPromotionModalOpen, setIsPromotionModalOpen] = useState(false);
   const hasShownPromotionPopupRef = useRef<boolean>(false);
   const [cyclopediaModalOpen, setCyclopediaModalOpen] = useState(false);
+  const [isAdminDebugModalOpen, setIsAdminDebugModalOpen] = useState(false);
   const [trackedBestiaryMonsterId, setTrackedBestiaryMonsterId] = useState<string>('');
   const [isBestiaryTrackerVisible, setIsBestiaryTrackerVisible] = useState<boolean>(true);
   const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
@@ -1413,6 +1416,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     };
   }, []);
 
+  // Phase 205: Initialize centralized client error handlers
+  useEffect(() => {
+    clientErrorLogger.initGlobalHandlers();
+  }, []);
+
   // Phase 131: Preload loading screen artworks immediately on client boot
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -2149,8 +2157,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         }
       }
       return true;
-    } catch (err) {
-      // Auto-save silent error handling
+    } catch (err: any) {
+      clientErrorLogger.warn('SAVE_PROGRESS', `Falha no salvamento: ${err?.message || err}`);
       return false;
     } finally {
       isSavingRef.current = false;
@@ -3185,6 +3193,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
     if (!saveOk) {
       console.warn('[GamePrototype] Salvamento final da caçada falhou. Retorno à cidade cancelado para proteger o progresso.');
+      clientErrorLogger.error('HUNT_SAVE', 'Falha ao salvar progresso antes de sair da caçada.', { characterId: activeCharacter?.id });
       setSaveErrorAlert('Falha ao salvar progresso antes de sair da caçada. Tente novamente.');
       return;
     }
@@ -4353,6 +4362,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           onOpenShop={() => setShopOpen((prev) => !prev)}
           onOpenRanking={() => setIsHighscoresModalOpen(true)}
           onOpenPvP={() => setIsPvPArenaModalOpen(true)}
+          onOpenDebug={() => setIsAdminDebugModalOpen(true)}
           onOpenCyclopedia={() => gameModal.openCyclopedia()}
           isMounted={isCharacterMounted(activeCharacter)}
           onToggleMount={() => handleToggleMount(activeCharacter.id)}
@@ -4806,6 +4816,17 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             };
           });
         }}
+      />
+
+      {/* PAINEL CENTRALIZADO DE DEBUG PARA ADMINISTRADORES */}
+      <AdminDebugModal
+        open={isAdminDebugModalOpen}
+        onClose={() => setIsAdminDebugModalOpen(false)}
+        isAdmin={isAdmin}
+        character={activeCharacter}
+        gameNetwork={gameNetwork}
+        onForceSave={() => saveProgressRef.current?.(false, true)}
+        onReconnect={() => gameNetwork.reconnect()}
       />
 
       {/* OVERLAY DE RESULTADO DO DUELO PVP */}

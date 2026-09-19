@@ -20,6 +20,7 @@ import {
   THAIS_THEME_TRACK,
   type AudioState,
 } from '@/apps/web/lib/audioManager';
+import { clientErrorLogger } from '@/apps/web/lib/errorLogger';
 
 interface WindowDockBarProps {
   gold: number;
@@ -52,6 +53,7 @@ interface WindowDockBarProps {
   onOpenPromotion?: () => void;
   onOpenRanking?: () => void;
   onOpenPvP?: () => void;
+  onOpenDebug?: () => void;
 }
 
 export function WindowDockBar({
@@ -81,6 +83,7 @@ export function WindowDockBar({
   onOpenParty,
   onOpenRanking,
   onOpenPvP,
+  onOpenDebug,
   isMounted = false,
   onToggleMount,
   onExitGame,
@@ -91,7 +94,16 @@ export function WindowDockBar({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
+  const [errorCount, setErrorCount] = useState(0);
   const inspectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setErrorCount(clientErrorLogger.getErrorCount());
+    const unsub = clientErrorLogger.subscribe(() => {
+      setErrorCount(clientErrorLogger.getErrorCount());
+    });
+    return () => unsub();
+  }, []);
   const [zoom, setZoom] = useState(() => getZoomMultiplier());
   const [audioState, setAudioState] = useState<AudioState>(() => ({
     volume: getAudioVolume(),
@@ -825,14 +837,61 @@ export function WindowDockBar({
         </button>
 
         {isAdmin && (
-          <a
-            href="/admin"
-            className="huntera-square-btn"
-            title="Painel de Administração (/admin)"
-            style={{ borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
-          >
-            🛡️
-          </a>
+          <>
+            {onOpenDebug && (
+              <button
+                type="button"
+                className="huntera-square-btn debug-btn"
+                onClick={onOpenDebug}
+                title="Painel Centralizado de Debug & Logs (Exclusivo ADMIN)"
+                style={{
+                  borderColor: '#f59e0b',
+                  backgroundColor: 'rgba(245, 158, 11, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fbbf24',
+                  fontWeight: 800,
+                  fontSize: '11px',
+                  padding: '0 8px',
+                  width: 'auto',
+                  minWidth: '58px',
+                  gap: '4px',
+                  position: 'relative',
+                  cursor: 'pointer',
+                }}
+              >
+                <span>🛠️</span>
+                <span>Debug</span>
+                {errorCount > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '-5px',
+                      right: '-5px',
+                      backgroundColor: '#ef4444',
+                      color: '#fff',
+                      borderRadius: '10px',
+                      padding: '1px 5px',
+                      fontSize: '9px',
+                      fontWeight: 900,
+                      boxShadow: '0 0 6px #ef4444',
+                    }}
+                  >
+                    {errorCount}
+                  </span>
+                )}
+              </button>
+            )}
+            <a
+              href="/admin"
+              className="huntera-square-btn"
+              title="Painel de Administração (/admin)"
+              style={{ borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+            >
+              🛡️
+            </a>
+          </>
         )}
 
         <div style={{ position: 'relative', display: 'inline-block' }}>

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T15:20:00.000Z"
-last_activity: "2026-09-19 — Phase 204: Resolução Completa do PVP (Loop de Loading, Rank ELO Inicial 0, Caveira Canônica do Tibia, Persistência de Exibição e Visibilidade em Thais) [CONCLUÍDO]."
+last_updated: "2026-09-19T15:32:00.000Z"
+last_activity: "2026-09-19 — Phase 205: Centralized Error Logger & ADMIN Exclusive Debug Modal [CONCLUÍDO]."
 progress:
-  total_phases: 204
-  completed_phases: 204
-  total_plans: 256
-  completed_plans: 256
+  total_phases: 205
+  completed_phases: 205
+  total_plans: 257
+  completed_plans: 257
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 204 - Resolução Completa do PVP, Caveiras Canônicas e Visibilidade em Thais [CONCLUÍDO].
+**Current focus:** Phase 205 - Centralized Error Logger & ADMIN Exclusive Debug Modal [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 204 of 204  
-Plan: 1 of 1 in Phase 204  
+Phase: 205 of 205  
+Plan: 1 of 1 in Phase 205  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 204 concluída com eliminação do loop de loading na arena PvP, ELO inicial 0 / Iniciante, sprites 11x11 oficiais do Tibia para as 6 caveiras centralizadas no nameplate, persistência de displaySkull e restauração autoritativa de visibilidade em Thais City.
+Last activity: 2026-09-19 — Phase 205 concluída com sistema unificado de telemetria e captura de erros (buffer circular 300 logs, localStorage, global unhandled listeners), modal de debug administrativo exclusivo (AdminDebugModal) com 3 abas, botão exclusivo no dock inferior com badge de erros em tempo real e endpoint protegido POST /api/admin/logs.
 
 Progress: [██████████] 100%
 

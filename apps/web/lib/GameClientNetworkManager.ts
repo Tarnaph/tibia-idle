@@ -298,6 +298,10 @@ export class GameClientNetworkManager {
     }
   }
 
+  async reconnect(): Promise<Room<any> | null> {
+    return this.tryReconnect();
+  }
+
   private setupRoomListeners(): void {
     if (!this.room) return;
 
