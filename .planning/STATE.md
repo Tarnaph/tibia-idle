@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T17:15:00.000Z"
-last_activity: "2026-09-19 — Phase 211: Monster Movement AI & 8-SQM Box Formation System [CONCLUÍDO]."
+last_updated: "2026-09-19T17:45:00.000Z"
+last_activity: "2026-09-19 — Phase 212: PixiJS Memory Safety & Resource Management [CONCLUÍDO]."
 progress:
-  total_phases: 211
-  completed_phases: 211
-  total_plans: 286
-  completed_plans: 286
+  total_phases: 212
+  completed_phases: 212
+  total_plans: 292
+  completed_plans: 292
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 211 - Monster Movement AI & 8-SQM Box Formation System [CONCLUÍDO].
+**Current focus:** Phase 212 - PixiJS Memory Safety & Resource Management [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 211 of 211  
-Plan: 1 of 1 in Phase 211  
+Phase: 212 of 212  
+Plan: 1 of 1 in Phase 212  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 211 concluída com aprimoramento da inteligência artificial de movimentação de monstros: eliminação do bloqueio diagonal em quinas entre criaturas, custo euclidiano canônico de diagonal corrigido para 14 (10 * sqrt(2)), ordenação de inimigos por distância ascendente, fechamento robusto do Box de 8 SQM ao redor do jogador e passos alternativos laterais anti-congestionamento. Deploy verificado na VPS 187.7.16.210.
+Last activity: 2026-09-19 — Phase 212 concluída: eliminação definitiva de vazamento de memória (PixiJS memory leak e erro Out of Memory). Texturas de nós Text dinâmicos (dano, cura, XP, balões) no WebGL são liberadas com { texture: true }, scratch canvases 2D reciclados em outfitRecolor sem criação contínua de DOM canvases, caches de texturas delimitados por LRU com zeramento de dimensões para liberação imediata de memória de GPU, poda de processedSpeechIds e remoção/destruição limpa de atores remotos desconectados em ThaisCityArena, PixiArena e TrainingArena. 14/14 testes aprovados no Vitest e 0 erros de tipagem.
 
 Progress: [██████████] 100%
 

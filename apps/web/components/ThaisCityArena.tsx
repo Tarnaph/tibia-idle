@@ -17,6 +17,7 @@ import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
 import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
+import { destroyVisualNode, safelyDestroyPixiApp } from '@/apps/web/lib/pixiMemorySafety';
 
 export interface CityOverheadMessage {
   id: string;
@@ -2530,12 +2531,34 @@ export function ThaisCityArena({
           });
         }
 
+        // 6b. Prune disconnected or evicted remote actors from actorViews and motion maps
+        const liveActorIds = new Set<string>([
+          ...curChars.map((c) => c.id),
+          ...AMBIENT_THAIS_PLAYERS.map((a) => a.id),
+          ...(remotes ? Array.from(remotes.keys()).flatMap((k) => {
+            const rp = remotes.get(k);
+            return rp ? [rp.id, rp.characterId, k].filter(Boolean) as string[] : [k];
+          }) : []),
+        ]);
+        for (const [id, view] of actorViews) {
+          if (!liveActorIds.has(id)) {
+            destroyVisualNode(view.root);
+            actorViews.delete(id);
+            remoteMotionTracks.delete(id);
+            remoteAttackPoseUntilMap.delete(id);
+          }
+        }
+
         // 7. Update overhead speech messages in city (Yellow for local, Blue for world)
         const speeches = latestRef.current.overheadMessages;
         if (speeches && speeches.length > 0) {
           for (const sp of speeches) {
             if (processedSpeechIds.has(sp.id)) continue;
             processedSpeechIds.add(sp.id);
+            if (processedSpeechIds.size > 2000) {
+              const toDel = Array.from(processedSpeechIds).slice(0, 1000);
+              toDel.forEach((id) => processedSpeechIds.delete(id));
+            }
 
             let targetView: CityActorView | null = null;
             const myLeader = localChar || curChars[0];
@@ -2647,9 +2670,17 @@ export function ThaisCityArena({
         app.canvas.removeEventListener('pointerdown', onPointerDown);
         app.canvas.removeEventListener('contextmenu', onContextMenu);
         try {
-          app.destroy(true, { children: true });
+          for (const [, view] of actorViews) destroyVisualNode(view.root);
+          actorViews.clear();
+          remoteMotionTracks.clear();
+          remoteAttackPoseUntilMap.clear();
+          timedCityVisuals.forEach((v) => destroyVisualNode(v.root));
+          timedCityVisuals.length = 0;
+          teleportEffects.forEach((t) => destroyVisualNode(t.sprite));
+          teleportEffects.length = 0;
+          safelyDestroyPixiApp(app);
         } catch (err) {
-          console.warn('[ThaisCityArena] Safe catch on app.destroy:', err);
+          console.warn('[ThaisCityArena] Safe catch on app cleanup:', err);
         }
       };
     })();

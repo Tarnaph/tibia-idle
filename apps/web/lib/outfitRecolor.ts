@@ -20,6 +20,7 @@ import {
   getMountAtlasManifest,
   type AtlasFrameRect,
 } from './outfitAtlasLoader';
+import { getScratchCanvases, setBoundedCanvasCache } from './pixiMemorySafety';
 
 export interface OutfitColors {
   head: number;
@@ -551,7 +552,7 @@ export function recolorPixels(
   }
 }
 
-// Composites recolored layer onto target safely
+// Composites recolored layer onto target safely reusing pooled scratch canvases
 function drawRecoloredLayer(
   targetCtx: CanvasRenderingContext2D,
   baseImg: HTMLImageElement,
@@ -567,28 +568,14 @@ function drawRecoloredLayer(
   if (!maskImg.complete || maskImg.naturalWidth === 0) return;
 
   try {
-    const offCanvas = document.createElement('canvas');
-    offCanvas.width = width;
-    offCanvas.height = height;
-    const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+    const scratch = getScratchCanvases(width, height);
+    if (!scratch || !scratch.baseCtx || !scratch.maskCtx || !scratch.recolorCtx) return;
 
-    const maskCanvas = document.createElement('canvas');
-    maskCanvas.width = width;
-    maskCanvas.height = height;
-    const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+    scratch.baseCtx.drawImage(baseImg, 0, 0);
+    scratch.maskCtx.drawImage(maskImg, 0, 0);
+    recolorPixels(scratch.baseCtx, scratch.maskCtx, scratch.recolorCtx, width, height, colors);
 
-    const recoloredCanvas = document.createElement('canvas');
-    recoloredCanvas.width = width;
-    recoloredCanvas.height = height;
-    const recolorCtx = recoloredCanvas.getContext('2d');
-
-    if (!baseCtx || !maskCtx || !recolorCtx) return;
-
-    baseCtx.drawImage(baseImg, 0, 0);
-    maskCtx.drawImage(maskImg, 0, 0);
-    recolorPixels(baseCtx, maskCtx, recolorCtx, width, height, colors);
-
-    targetCtx.drawImage(recoloredCanvas, destX, destY);
+    targetCtx.drawImage(scratch.recolorCanvas, destX, destY);
   } catch (err) {
     console.warn('drawRecoloredLayer safely handled exception:', err);
   }
@@ -606,28 +593,14 @@ export function drawRecoloredLayerFromAtlas(
   destY: number = 0
 ): void {
   try {
-    const offCanvas = document.createElement('canvas');
-    offCanvas.width = width;
-    offCanvas.height = height;
-    const baseCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+    const scratch = getScratchCanvases(width, height);
+    if (!scratch || !scratch.baseCtx || !scratch.maskCtx || !scratch.recolorCtx) return;
 
-    const maskCanvas = document.createElement('canvas');
-    maskCanvas.width = width;
-    maskCanvas.height = height;
-    const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+    scratch.baseCtx.drawImage(atlasImg, baseRect.x, baseRect.y, baseRect.w, baseRect.h, 0, 0, width, height);
+    scratch.maskCtx.drawImage(atlasImg, maskRect.x, maskRect.y, maskRect.w, maskRect.h, 0, 0, width, height);
+    recolorPixels(scratch.baseCtx, scratch.maskCtx, scratch.recolorCtx, width, height, colors);
 
-    const recoloredCanvas = document.createElement('canvas');
-    recoloredCanvas.width = width;
-    recoloredCanvas.height = height;
-    const recolorCtx = recoloredCanvas.getContext('2d');
-
-    if (!baseCtx || !maskCtx || !recolorCtx) return;
-
-    baseCtx.drawImage(atlasImg, baseRect.x, baseRect.y, baseRect.w, baseRect.h, 0, 0, width, height);
-    maskCtx.drawImage(atlasImg, maskRect.x, maskRect.y, maskRect.w, maskRect.h, 0, 0, width, height);
-    recolorPixels(baseCtx, maskCtx, recolorCtx, width, height, colors);
-
-    targetCtx.drawImage(recoloredCanvas, destX, destY);
+    targetCtx.drawImage(scratch.recolorCanvas, destX, destY);
   } catch (err) {
     console.warn('drawRecoloredLayerFromAtlas exception:', err);
   }
@@ -739,7 +712,7 @@ export function composeAppearanceFromAtlasSync(
     }
   }
 
-  recoloredCanvasCache.set(key, targetCanvas);
+  setBoundedCanvasCache(recoloredCanvasCache, key, targetCanvas, 512);
   provisionalCanvasCache.delete(key);
   return targetCanvas;
 }
@@ -970,12 +943,12 @@ export async function renderRecoloredOutfit(
     (!urls.addon2Base || isAddon2Drawn);
 
   if (isFullyComplete) {
-    recoloredCanvasCache.set(definitiveKey, offCanvas);
+    setBoundedCanvasCache(recoloredCanvasCache, definitiveKey, offCanvas, 512);
     provisionalCanvasCache.delete(definitiveKey);
   } else {
     // Incomplete composition: save to provisional canvas cache so UI can show progress,
     // but DO NOT poison definitive cache!
-    provisionalCanvasCache.set(definitiveKey, offCanvas);
+    setBoundedCanvasCache(provisionalCanvasCache, definitiveKey, offCanvas, 128);
   }
 
   // 6. Draw to visible targetCanvas
@@ -995,6 +968,12 @@ export const recoloredCanvasCache = new Map<string, HTMLCanvasElement>();
 export const provisionalCanvasCache = new Map<string, HTMLCanvasElement>();
 
 export function clearRecoloredCanvasCache(): void {
+  for (const canvas of recoloredCanvasCache.values()) {
+    try { canvas.width = 0; canvas.height = 0; } catch {}
+  }
+  for (const canvas of provisionalCanvasCache.values()) {
+    try { canvas.width = 0; canvas.height = 0; } catch {}
+  }
   recoloredCanvasCache.clear();
   provisionalCanvasCache.clear();
 }
@@ -1898,7 +1877,7 @@ export function getRecoloredCanvasSync(
           }
 
           if (!hasMissingAddon) {
-            provisionalCanvasCache.set(key, provCanvas);
+            setBoundedCanvasCache(provisionalCanvasCache, key, provCanvas, 128);
           }
           return provCanvas;
         }
@@ -1961,7 +1940,7 @@ export function getRecoloredCanvasSync(
           }
 
           if (!hasMissingAddonUnmounted) {
-            provisionalCanvasCache.set(key, provCanvas);
+            setBoundedCanvasCache(provisionalCanvasCache, key, provCanvas, 128);
           }
           return provCanvas;
         }
@@ -2012,9 +1991,9 @@ export function getRecoloredCanvasSync(
     (urls.addon2Base && !a2Base);
 
   if (hasIncompleteLayer) {
-    provisionalCanvasCache.set(key, targetCanvas);
+    setBoundedCanvasCache(provisionalCanvasCache, key, targetCanvas, 128);
   } else {
-    recoloredCanvasCache.set(key, targetCanvas);
+    setBoundedCanvasCache(recoloredCanvasCache, key, targetCanvas, 512);
     provisionalCanvasCache.delete(key);
   }
   return targetCanvas;

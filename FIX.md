@@ -46,7 +46,7 @@
 
 [CONCLUÍDO - Fase 211] Investigar e corrigir IA para que os bichos fechem "Box" de 8 sqm em volta do jogador sem travar nas quinas ou bloquear o caminho uns dos outros (permitindo exori eficiente).
 
-[PENDENTE] Investigar e eliminar vazamento de memória (PixiJS memory leak e tickers sem destroy) que gera o erro "Código de erro: Out of Memory" após deixar o jogo parado aberto.
+[CONCLUÍDO - Fase 212] Investigar e eliminar vazamento de memória (PixiJS memory leak e tickers sem destroy) que gera o erro "Código de erro: Out of Memory" após deixar o jogo parado aberto.
 
 [PENDENTE] Personagem morto não deve ganhar XP (interromper recepção de experiência enquanto o estado de vida for 0 / morto).
 

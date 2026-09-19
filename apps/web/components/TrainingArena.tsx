@@ -8,6 +8,7 @@ import { calculatePixelCamera, creatureVisualLayout } from '@/packages/presentat
 import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
 import { playPhysicalAttack, playMagicSpell } from '@/apps/web/lib/soundEffects';
+import { destroyVisualNode, safelyDestroyPixiApp } from '@/apps/web/lib/pixiMemorySafety';
 
 interface TrainingMember { character: CharacterState; skill: TrainableSkill; progress: number }
 interface TrainingArenaProps { members: TrainingMember[]; visualEvents: CombatVisualEvent[]; debug: boolean }
@@ -52,9 +53,9 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
       const timed: Array<{ sprite: InstanceType<typeof Sprite>; start: number; from: { x: number; y: number }; to: { x: number; y: number }; frames: string[]; projectile: boolean }> = [];
 
       const rebuild = () => {
-        terrain.removeChildren().forEach((child) => child.destroy({ children: true }));
-        actors.removeChildren().forEach((child) => child.destroy({ children: true }));
-        overlay.removeChildren().forEach((child) => child.destroy({ children: true }));
+        terrain.removeChildren().forEach((child) => destroyVisualNode(child));
+        actors.removeChildren().forEach((child) => destroyVisualNode(child));
+        overlay.removeChildren().forEach((child) => destroyVisualNode(child));
         const camera = calculatePixelCamera(app.screen.width, app.screen.height, TILE_SIZE);
         world.scale.set(camera.scale); world.position.set(camera.originX * camera.scale, camera.originY * camera.scale);
         for (let y = 0; y < camera.visibleRows; y += 1) for (let x = 0; x < camera.visibleColumns; x += 1) {
@@ -125,7 +126,9 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
       visualSyncRef.current = null;
       cleanup?.();
       try {
-        appRef.current?.destroy(true, { children: true });
+        if (appRef.current) {
+          safelyDestroyPixiApp(appRef.current);
+        }
       } catch (err) {
         console.warn('[TrainingArena] Safe catch on app.destroy:', err);
       }

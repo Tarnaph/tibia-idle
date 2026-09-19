@@ -3887,6 +3887,22 @@ Plans:
 - [x] 211-05-PLAN: Passo alternativo lateral/diagonal anti-congestionamento quando o tile principal estiver momentaneamente ocupado.
 - [x] 211-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
 
+---
+
+### Phase 212: PixiJS Memory Safety & Resource Management
+
+**Goal:** Investigar e eliminar vazamentos de memória (PixiJS memory leak, texturas de textos dinâmicos não liberadas no WebGL, tickers sem destroy, alocações contínuas de DOM Canvas 2D e coleções não podadas) que causam "Código de erro: Out of Memory" após deixar o jogo aberto.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 212-01-PLAN: Criação do módulo `pixiMemorySafety.ts` com `destroyVisualNode`, `safelyDestroyPixiApp`, pool de scratch canvases e `setBoundedCanvasCache`.
+- [x] 212-02-PLAN: Reutilização de scratch canvases em `drawRecoloredLayer` e `drawRecoloredLayerFromAtlas` em `outfitRecolor.ts`, eliminando alocações contínuas de DOM Canvases.
+- [x] 212-03-PLAN: Limite máximo (bounding LRU) e zeramento de dimensões para liberação imediata de texturas de GPU em `recoloredCanvasCache` e `provisionalCanvasCache`.
+- [x] 212-04-PLAN: Destruição correta de texturas de nós Text dinâmicos (`_texture` com `{ texture: true }`) em `PixiArena.tsx` para números flutuantes de combate, cura, XP e views inativas.
+- [x] 212-05-PLAN: Poda de mensagens `processedSpeechIds`, descarte e destruição de nós visuais de jogadores remotos desconectados e cleanup seguro em `ThaisCityArena.tsx` e `TrainingArena.tsx`.
+- [x] 212-06-PLAN: Testes automatizados Vitest (100% de aprovação), typecheck (0 erros) e documentação.
+
 
 
 

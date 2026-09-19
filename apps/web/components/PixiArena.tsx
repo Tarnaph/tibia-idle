@@ -11,6 +11,7 @@ import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon
 import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 import { playPhysicalAttack, playMagicSpell, playPlayerDeath } from '@/apps/web/lib/soundEffects';
+import { destroyVisualNode, safelyDestroyPixiApp } from '@/apps/web/lib/pixiMemorySafety';
 
 interface PixiArenaProps {
   game: GameState;
@@ -752,8 +753,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         for (const movement of committedMovements) views.get(movement.actorId)?.track.commit(movement.from, movement.to, now, movement.durationMs);
         for (const actor of state.encounter.partyActors) views.get(actor.characterId)?.track.reconcileCommitted(actor.position, actor.direction);
         for (const enemy of state.encounter.enemies.filter((candidate) => candidate.alive || pendingImpacts.some((p) => p.targetId === candidate.id && now < p.impactAt))) views.get(enemy.id)?.track.reconcileCommitted(enemy.position, enemy.direction);
-        for (const [id, view] of views) if (!liveIds.has(id)) { view.root.destroy({ children: true }); views.delete(id); }
-        for (const layer of [corpses]) layer.removeChildren().forEach((child) => child.destroy({ children: true }));
+        for (const [id, view] of views) if (!liveIds.has(id)) { destroyVisualNode(view.root); views.delete(id); }
+        for (const layer of [corpses]) layer.removeChildren().forEach((child) => destroyVisualNode(child));
         for (const corpse of state.encounter.corpses) {
           // Canonical Tibia Skeleton Corpse (item 5972 / remains of a skeleton) replaces monster corpses in hunts
           const skeletonMapping = visualAssets.corpses?.['5972']
@@ -1079,7 +1080,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const visual = timed[index]; const progress = (now - visual.startedAt) / visual.durationMs;
           visual.root.visible = progress >= 0;
           if (progress < 0) continue;
-          if (progress >= 1) { if (visual.root.parent) visual.root.parent.removeChild(visual.root); visual.root.destroy({ children: true }); timed.splice(index, 1); continue; }
+          if (progress >= 1) { if (visual.root.parent) visual.root.parent.removeChild(visual.root); destroyVisualNode(visual.root); timed.splice(index, 1); continue; }
           if (visual.kind === 'float') { visual.root.y -= app.ticker.deltaMS * 0.025; visual.root.alpha = 1 - progress; }
           if (visual.kind === 'missile' && visual.from && visual.to) {
             const from = worldPoint(visual.from); const to = worldPoint(visual.to);
@@ -1174,7 +1175,11 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         window.removeEventListener('resize', onResize);
         app.ticker.remove(render);
         try {
-          app.destroy(true, { children: true });
+          for (const [, view] of views) destroyVisualNode(view.root);
+          views.clear();
+          for (const v of timed) destroyVisualNode(v.root);
+          timed.length = 0;
+          safelyDestroyPixiApp(app);
         } catch (err) {
           console.warn('[PixiArena] Safe catch on app.destroy:', err);
         }
