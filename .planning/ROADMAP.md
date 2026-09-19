@@ -151,6 +151,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 207: Eliminate Character Duplication in Thais Temple During Hunts** - Eliminação definitiva da duplicação de personagem no Templo de Thais durante caçadas: sincronização autoritativa de hunt state no handshake Colyseus (onJoin), correção da race condition de saveProgress durante a tela de loading de 10s, gravação correta de coordenadas de entrada ao invés de Thais Temple (32369, 32241, 7), ocultação de caçadores em Thais City e identificação estrita de jogador local em ThaisCityArena.
 - [x] **Phase 208: Real-Time Online Status on Player Inspection** - Correção da inspeção de jogadores para verificação em tempo real do status online no servidor Colyseus e Prisma DB: método estático `ThaisCityRoom.isCharacterOnline`, sincronização de `isOnline` no banco de dados no `onJoin` e `onLeave`, endpoint `GET /api/character-online/:nameOrId`, consulta em tempo real em `/api/characters/lookup` e suporte a `isOnlineLocal` no `PlayerInspectModal`.
 - [x] **Phase 209: Audio & Sound Effects (SFX) System** - Implementação de efeitos sonoros canônicos: ataques físicos para Knight (espada/impacto) e Paladin (disparo à distância), magias elementais/curativas para Sorcerer e Druid, e som dramático de morte ao ser derrotado, com fallback procedural via Web Audio API, geração de arquivos WAV e controle de volume/mute.
+- [x] **Phase 210: Quick Sell Persistent Item Selection (localStorage)** - Memorização persistente dos itens marcados na Venda Rápida via localStorage (`cavebound_quicksell_selected_items_v2`), re-sincronização automática na abertura do modal, toolbar com botões "Marcar Todos" e "Desmarcar Todos", e preservação de seleção em vendas sucessivas.
 
 
 ---
@@ -3854,6 +3855,20 @@ Plans:
 - [x] 209-04-PLAN: Integração sonora nas ações de treino contra dummies em `TrainingArena.tsx`.
 - [x] 209-05-PLAN: Integração do som de morte e preloading de SFX no mount em `GamePrototype.tsx`.
 - [x] 209-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
+
+---
+
+### Phase 210: Quick Sell Persistent Item Selection (localStorage)
+
+**Goal:** Memorizar os últimos itens selecionados pelo usuário na Venda Rápida usando localStorage, garantindo que o modal abra instantaneamente com as seleções e preferências preservadas, com barra de ações para marcar/desmarcar todos.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 210-01-PLAN: Estrutura de persistência `localStorage` com `loadSavedQuickSellIds` e `saveQuickSellIds` protegida para SSR e testes.
+- [x] 210-02-PLAN: Re-sincronização reativa da seleção na abertura do modal (`open === true`) reconciliando com a mochila atual.
+- [x] 210-03-PLAN: Toolbar com botões de ação em lote "Marcar Todos" e "Desmarcar Todos" com atualização instantânea de persistência.
+- [x] 210-04-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
 
 
 

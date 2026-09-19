@@ -42,7 +42,7 @@
 
 [CONCLUÍDO - Fase 209] Adicionar efeitos sonoros (SFX): ataques físicos para Knight e Paladin, sons de magia para Druid e Sorcerer, e som ao morrer.
 
-[PENDENTE] Venda rápida: memorizar os últimos itens selecionados pelo usuário (localStorage) para abrir já selecionado com agilidade.
+[CONCLUÍDO - Fase 210] Venda rápida: memorizar os últimos itens selecionados pelo usuário (localStorage) para abrir já selecionado com agilidade.
 
 [PENDENTE] Investigar e corrigir IA para que os bichos fechem "Box" de 8 sqm em volta do jogador sem travar nas quinas ou bloquear o caminho uns dos outros (permitindo exori eficiente).
 

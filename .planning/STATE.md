@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T16:48:00.000Z"
-last_activity: "2026-09-19 — Phase 209: Audio & Sound Effects (SFX) System [CONCLUÍDO]."
+last_updated: "2026-09-19T17:00:00.000Z"
+last_activity: "2026-09-19 — Phase 210: Quick Sell Persistent Item Selection (localStorage) [CONCLUÍDO]."
 progress:
-  total_phases: 209
-  completed_phases: 209
-  total_plans: 276
-  completed_plans: 276
+  total_phases: 210
+  completed_phases: 210
+  total_plans: 280
+  completed_plans: 280
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 209 - Audio & Sound Effects (SFX) System [CONCLUÍDO].
+**Current focus:** Phase 210 - Quick Sell Persistent Item Selection (localStorage) [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 209 of 209  
-Plan: 1 of 1 in Phase 209  
+Phase: 210 of 210  
+Plan: 1 of 1 in Phase 210  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 209 concluída com implementação do sistema canônico de efeitos sonoros (SFX): ataques físicos de Knight e Paladin, feitiços mágicos de Sorcerer e Druid, e som solene de morte ao ser derrotado, com suporte a AudioBuffer Web Audio API de latência zero, síntese procedural fallback, geração de arquivos PCM WAV e controle de volume e silenciamento. Deploy verificado na VPS 187.7.16.210.
+Last activity: 2026-09-19 — Phase 210 concluída com memorização persistente dos itens marcados na Venda Rápida via localStorage (cavebound_quicksell_selected_items_v2): re-sincronização automática na abertura do modal, toolbar com botões de ação em lote 'Marcar Todos' e 'Desmarcar Todos', e preservação exata da seleção do usuário entre sessões. Deploy verificado na VPS 187.7.16.210.
 
 Progress: [██████████] 100%
 
