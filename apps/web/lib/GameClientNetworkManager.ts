@@ -246,6 +246,9 @@ export class GameClientNetworkManager {
 
   async connect(token: string, characterId: string, options?: Record<string, any>): Promise<Room<any>> {
     try {
+      if (options?.inHunt !== undefined) {
+        this.setHuntContext(Boolean(options.inHunt), options.huntId);
+      }
       const mergedOptions = {
         ...this.lastHuntContext,
         ...options,

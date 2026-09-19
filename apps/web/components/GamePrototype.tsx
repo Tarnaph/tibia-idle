@@ -1674,7 +1674,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         console.warn('Erro ao carregar lista de personagens da conta:', err);
       });
 
-    // Connect to live Colyseus Server room with full outfit info
+    // Connect to live Colyseus Server room with full outfit info and initial hunt context
     gameNetwork
       .connect(authToken, charItem.id, {
         outfit: userChar.outfit,
@@ -1683,6 +1683,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         addons: userChar.addons,
         mount: userChar.mount,
         mountActive: userChar.mountActive,
+        inHunt: Boolean((charItem as any).isHunting),
+        huntId: (charItem as any).lastHuntId,
       })
       .then(() => {
         setIsConnectedServer(true);
@@ -1905,9 +1907,23 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
       const primaryVersion = characterSaveVersionsRef.current.get(primaryChar.id) || currentSaveVersionRef.current;
       const isPrimaryActive = curActive?.id === primaryChar.id;
-      const primaryPosX = isPrimaryActive ? curPos.x : ((primaryChar as any).posX ?? 32369);
-      const primaryPosY = isPrimaryActive ? curPos.y : ((primaryChar as any).posY ?? 32241);
-      const primaryPosZ = isPrimaryActive ? curPos.z : ((primaryChar as any).posZ ?? 7);
+      const isCurrentlyHunting = mode === 'hunt' || Boolean(transitionLoading?.huntId) || gameNetwork.getHuntContext().inHunt;
+      const activeHuntId = (mode === 'hunt' ? game.encounter.hunt?.id : undefined) || transitionLoading?.huntId || gameNetwork.getHuntContext().huntId || 'cyclops-camp';
+
+      let primaryPosX: number;
+      let primaryPosY: number;
+      let primaryPosZ: number;
+
+      if (isCurrentlyHunting && activeHuntId) {
+        const entrance = getHuntWorldEntrance(activeHuntId, content);
+        primaryPosX = entrance.worldPosition.x;
+        primaryPosY = entrance.worldPosition.y;
+        primaryPosZ = entrance.worldPosition.z;
+      } else {
+        primaryPosX = isPrimaryActive ? curPos.x : ((primaryChar as any).posX ?? 32369);
+        primaryPosY = isPrimaryActive ? curPos.y : ((primaryChar as any).posY ?? 32241);
+        primaryPosZ = isPrimaryActive ? curPos.z : ((primaryChar as any).posZ ?? 7);
+      }
 
       const res = await fetch(`/api/characters/${primaryChar.id}/save`, {
         method: 'POST',
@@ -1955,8 +1971,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           isDeathPenalty,
           saveVersion: primaryVersion,
           replaceFullInventory: true,
-          isHunting: mode === 'hunt' || isTrainingAtDummy,
-          lastHuntId: mode === 'hunt' ? (game.encounter.hunt?.id || 'cyclops-camp') : undefined,
+          isHunting: isCurrentlyHunting || isTrainingAtDummy,
+          lastHuntId: isCurrentlyHunting ? activeHuntId : undefined,
           sessionId: gameNetwork.LocalPlayerId || activeSessionIdRef.current,
         }),
       });

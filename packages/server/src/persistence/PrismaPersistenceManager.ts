@@ -302,8 +302,8 @@ export class PrismaPersistenceManager {
   async setPlayerHuntStatus(characterId: string, inHunt: boolean, huntId?: string, sessionId?: string): Promise<void> {
     if (!characterId || characterId.startsWith('char-guest')) return;
     try {
-      if (typeof this.db?.character?.update === 'function') {
-        await this.db.character.update({
+      if (typeof this.db?.character?.updateMany === 'function') {
+        await this.db.character.updateMany({
           where: { id: characterId },
           data: {
             isHunting: inHunt,

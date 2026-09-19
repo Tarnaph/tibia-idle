@@ -807,7 +807,13 @@ export function ThaisCityArena({
           const myId = latestRef.current.localPlayerId;
           latestRef.current.remotePlayers.forEach((p, key) => {
             if (matchedPlayer) return;
-            if (key === myId || curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) return;
+            if (p.inHunt) return;
+            if (
+              key === myId ||
+              p.id === myId ||
+              (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId) ||
+              curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()))
+            ) return;
             if ((p.z ?? 7) !== activeZ) return;
             const px = (p.x ?? 32369) * TILE_SIZE + 16;
             const py = (p.y ?? 32241) * TILE_SIZE + 16;
@@ -924,7 +930,13 @@ export function ThaisCityArena({
           const myId = latestRef.current.localPlayerId;
           latestRef.current.remotePlayers.forEach((p, key) => {
             if (matchedCharId) return;
-            if (key === myId || curChars.some((c) => c.id === p.id || c.id === (p as any).characterId)) return;
+            if (p.inHunt) return;
+            if (
+              key === myId ||
+              p.id === myId ||
+              (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId) ||
+              curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()))
+            ) return;
             const px = (p.x ?? 32369) * TILE_SIZE + 16;
             const py = (p.y ?? 32241) * TILE_SIZE + 16;
             const dx = worldX - px;
@@ -1471,7 +1483,13 @@ export function ThaisCityArena({
 
         if (remotes) {
           remotes.forEach((p, key) => {
-            const isLocal = key === myPlayerId || p.id === myPlayerId || (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId);
+            const isLocal =
+              key === myPlayerId ||
+              p.id === myPlayerId ||
+              (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId) ||
+              (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
+              (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
+              curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
             if (isLocal || p.inHunt) return;
             const pCharId = p.characterId || p.id;
             if (seenRemoteKeys.has(pCharId)) return;
@@ -2330,7 +2348,13 @@ export function ThaisCityArena({
           const renderedRemotes = new Set<string>();
 
           remotes.forEach((p, key) => {
-            const isLocal = key === myPlayerId || p.id === myPlayerId || (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId);
+            const isLocal =
+              key === myPlayerId ||
+              p.id === myPlayerId ||
+              (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId) ||
+              (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
+              (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
+              curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
             if (isLocal || p.inHunt) return; // Skip rendering local player or players in hunt
             const pCharId = p.characterId || p.id;
             if (renderedRemotes.has(pCharId)) return;

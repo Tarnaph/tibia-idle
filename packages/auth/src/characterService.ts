@@ -586,6 +586,12 @@ export class CharacterService {
       }
       if (data.isHunting !== undefined) {
         updateData.isHunting = Boolean(data.isHunting);
+        ServerCharacterContextRegistry.setActivity(characterId, {
+          isHunting: Boolean(data.isHunting),
+          huntId: (data as any).lastHuntId || (data as any).huntId || existing?.lastHuntId || undefined,
+          activeSessionId: data.sessionId || undefined,
+          lastActiveSessionId: data.sessionId || undefined,
+        });
       }
       if ((data as any).lastHuntId) {
         updateData.lastHuntId = (data as any).lastHuntId;

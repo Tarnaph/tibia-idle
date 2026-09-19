@@ -550,6 +550,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       const player = this.state.players.get(client.sessionId);
       if (player) {
         const wantsHunt = Boolean(data.inHunt);
+        const effectiveHuntId = data.huntId || player.lastHuntId || 'rat-cellars';
         if (data.huntId) {
           player.lastHuntId = data.huntId;
         }
@@ -586,16 +587,14 @@ export class ThaisCityRoom extends Room<WorldState> {
               }
             } catch {}
           }
-        }
-
-        this.updatePlayerHuntContext(player, wantsHunt, data.huntId);
-        if (wantsHunt && data.huntId) {
-          if (data.huntId === 'pvp-arena') {
+        } else {
+          this.updatePlayerHuntContext(player, true, effectiveHuntId);
+          if (effectiveHuntId === 'pvp-arena') {
             player.posX = 33136;
             player.posY = 32969;
             player.posZ = 8;
           } else {
-            const entrance = getHuntWorldEntrance(data.huntId, gameContent);
+            const entrance = getHuntWorldEntrance(effectiveHuntId, gameContent);
             player.posX = entrance.worldPosition.x;
             player.posY = entrance.worldPosition.y;
             player.posZ = entrance.worldPosition.z;
@@ -604,7 +603,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           player.lastStepTime = 0;
         }
         if (typeof client.send === 'function') {
-          client.send('server:huntContextReady', { isHunting: wantsHunt, huntId: data.huntId });
+          client.send('server:huntContextReady', { isHunting: wantsHunt, huntId: effectiveHuntId });
         }
       }
     });
@@ -1053,6 +1052,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     let loadedStaminaMinutes: number | undefined;
     let loadedIsAutoIdle: boolean | undefined;
     let loadedLastHuntId: string | undefined;
+    let loadedIsHunting = false;
     let loadedAvatarId = 1;
     let loadedBestiaryKills: Record<string, number> = {};
     let loadedTrackedBestiaryId = '';
@@ -1135,6 +1135,7 @@ export class ThaisCityRoom extends Room<WorldState> {
         loadedStaminaMinutes = dbChar.staminaMinutes ?? 15;
         loadedIsAutoIdle = dbChar.isAutoIdle ?? false;
         loadedLastHuntId = dbChar.lastHuntId ?? '';
+        loadedIsHunting = Boolean((dbChar as any).isHunting);
         loadedAvatarId = (dbChar as any).avatarId ?? 1;
         if (typeof (dbChar as any).pvpElo === 'number') {
           loadedPvpElo = (dbChar as any).pvpElo;
@@ -1272,7 +1273,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.isAutoIdle = loadedIsAutoIdle ?? false;
     player.lastHuntId = loadedLastHuntId || 'rat-cellars';
 
-    // Authoritatively reconstruct active hunt context from persistent server record
+    // Authoritatively reconstruct active hunt context from persistent server record, dbChar or options
     const activeHuntRecord = await persistenceManager.getActiveHuntSession(charId);
     let isConfirmedHunting = false;
     let confirmedHuntId: string | undefined = undefined;
@@ -1281,12 +1282,29 @@ export class ThaisCityRoom extends Room<WorldState> {
       // Confirmed active hunt survived process restart or network disconnection
       isConfirmedHunting = true;
       confirmedHuntId = activeHuntRecord.huntId;
+    } else if (loadedIsHunting) {
+      isConfirmedHunting = true;
+      confirmedHuntId = loadedLastHuntId || 'rat-cellars';
+    } else if ((options as any).inHunt) {
+      isConfirmedHunting = true;
+      confirmedHuntId = (options as any).huntId || loadedLastHuntId || 'rat-cellars';
     }
-    // Note: Browser options (options.inHunt) may request resumption, but cannot prove it alone without confirmed activeHuntRecord.
 
     if (isConfirmedHunting && confirmedHuntId) {
       player.lastHuntId = confirmedHuntId;
       this.updatePlayerHuntContext(player, true, confirmedHuntId);
+      if (confirmedHuntId === 'pvp-arena') {
+        player.posX = 33136;
+        player.posY = 32969;
+        player.posZ = 8;
+      } else {
+        const entrance = getHuntWorldEntrance(confirmedHuntId, gameContent);
+        player.posX = entrance.worldPosition.x;
+        player.posY = entrance.worldPosition.y;
+        player.posZ = entrance.worldPosition.z;
+      }
+      player.isWalking = false;
+      player.lastStepTime = 0;
       if (typeof client.send === 'function') {
         client.send('server:huntContextReady', { isHunting: true, huntId: confirmedHuntId });
       }
