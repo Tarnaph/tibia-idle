@@ -153,6 +153,10 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 209: Audio & Sound Effects (SFX) System** - Implementação de efeitos sonoros canônicos: ataques físicos para Knight (espada/impacto) e Paladin (disparo à distância), magias elementais/curativas para Sorcerer e Druid, e som dramático de morte ao ser derrotado, com fallback procedural via Web Audio API, geração de arquivos WAV e controle de volume/mute.
 - [x] **Phase 210: Quick Sell Persistent Item Selection (localStorage)** - Memorização persistente dos itens marcados na Venda Rápida via localStorage (`cavebound_quicksell_selected_items_v2`), re-sincronização automática na abertura do modal, toolbar com botões "Marcar Todos" e "Desmarcar Todos", e preservação de seleção em vendas sucessivas.
 - [x] **Phase 211: Monster Movement AI & 8-SQM Box Formation System** - Correção da inteligência artificial de movimentação de monstros: eliminação de bloqueios diagonais em quinas entre criaturas (`isTileWalkable` vs `canEnter`), ajuste de custo euclidiano diagonal de 25 para 14, ordenação de prioridade por distância ascendente, e algoritmo de fechamento do "Box" de 8 SQM ao redor do jogador com desvios laterais anti-congestionamento para rotações de Exori de Knight.
+- [x] **Phase 212: Limpeza e Eliminação de Vazamento de Memória (Memory Leak Audit & Canvas Cleanup)** - Reutilização de scratch canvases em outfitRecolor, bounding LRU em caches de textura e descarte atômico de texturas de texto Pixi.
+- [x] **Phase 213: Transferência Automática de Líder/Câmera na Morte e Bloqueio de XP para Personagens Mortos** - Bloqueio definitivo de XP para personagens mortos e migração dinâmica de liderança/câmera para o sobrevivente de maior nível.
+- [x] **Phase 214: Knight Exeta Res Visuals/Taunt e Prevenção de Cooldown Fantasma em Magias** - Animação de 9 tiles no Exeta Res com taunt efetivo e validação prévia de alcance para magias ofensivas direcionadas.
+- [x] **Phase 215: Pré-Carregamento Real na Tela de Loading (Hunts/PvP), Efeitos de Combate e Ajustes FIX.md** - Pré-carregamento determinístico de atlas/texturas de mapa, monstros e efeitos sob a tela de loading antes da liberação do cenário (eliminando tela vazia e monstros pipocando); resolução dos efeitos de combate melee (sangue e faísca de bloqueio de espada do Knight), efeitos mágicos e mísseis com fallback de textura no PixiArena; sprite 64x64 canônico do Cyclops Smith (lookType 277); e eliminação do loop de cooldown fantasma no Exori.
 
 
 ---
@@ -3924,6 +3928,18 @@ Plans:
 Plans:
 
 - [x] 214-01-PLAN: Exeta Res com efeito 13 nos 9 tiles da área e taunt mecânico em solo/party, eliminação de dedução de mana e cooldowns prematuros para magias fora de alcance em `triggerManualHotbarAction`, suporte a magias agressivas `area: 'self'` (Divine Caldera/Mas San) atingindo todos os monstros no raio de área, e sincronização com `ThaisCityRoom.ts`.
+
+### Phase 215: Pré-Carregamento Real na Tela de Loading (Hunts/PvP), Efeitos de Combate e Ajustes FIX.md
+
+**Goal:** Implementar o pré-carregamento real e antecipado de mapas, texturas e monstros das caçadas e PvP sob a tela de loading (`ExuraLoadingScreen`), garantindo que o cenário e criaturas já estejam renderizados na GPU ao liberar a visão do jogador; adicionar regra oficial em `.agents/rules/hunt-loading-and-assets.md`; resolver os efeitos visuais de ataques melee (sangue e faísca de bloqueio de espada), magias e mísseis no PixiArena; corrigir o sprite e ícone do Cyclops Smith no bestiário e atlas para 64x64 canônico do Tibia 10.98; e eliminar o loop de cooldown fantasma no Exori.
+**Requirements:** `c:\Users\desig\OneDrive\Documentos\TibiaWeb\Tibia\FIX.md`
+**Depends on:** Phase 214
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 215-01-PLAN: Criação da regra `.agents/rules/hunt-loading-and-assets.md`, módulo `apps/web/lib/huntAssetPreloader.ts`, instanciação imediata da hunt sob o loading em `GamePrototype.tsx`, prioridade de todos os efeitos/mísseis no `PixiArena.tsx`, emissão de `melee-hit` com sangue/bloqueio em `combat.ts`, extração de lookType 277 canônico do Cyclops Smith (64x64) e prevenção de autocast de Exori fora de alcance.
+
 
 
 

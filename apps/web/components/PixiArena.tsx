@@ -12,6 +12,7 @@ import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normal
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 import { playPhysicalAttack, playMagicSpell, playPlayerDeath } from '@/apps/web/lib/soundEffects';
 import { destroyVisualNode, safelyDestroyPixiApp } from '@/apps/web/lib/pixiMemorySafety';
+import { ESSENTIAL_COMBAT_EFFECT_IDS, ESSENTIAL_COMBAT_MISSILE_IDS } from '@/apps/web/lib/huntAssetPreloader';
 
 interface PixiArenaProps {
   game: GameState;
@@ -268,12 +269,12 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       priorityUrls.add('/generated/mounts/donkey_rider_south.png');
       priorityUrls.add('/generated/tibia1098/items/item-5972.png');
 
-      // Core effects & missiles
-      for (const effId of ['13', '11', '16', '1', '2', '3', '4']) {
+      // Core effects & missiles - All essential combat & spell effects loaded in priority
+      for (const effId of ESSENTIAL_COMBAT_EFFECT_IDS) {
         const eff = visualAssets.effects[effId];
         if (eff) for (const f of eff.frames) priorityUrls.add(f.publicUrl);
       }
-      for (const misId of ['1', '2', '3', '24', '37', '39']) {
+      for (const misId of ESSENTIAL_COMBAT_MISSILE_IDS) {
         const mis = visualAssets.missiles[misId];
         if (mis) for (const f of mis.frames) priorityUrls.add(f.publicUrl);
       }
@@ -582,7 +583,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const direction = projectileDirection(from, to);
           const frame = mapping?.frames.find((candidate) => candidate.direction === direction) ?? mapping?.frames[0];
           if (frame) {
-            const sprite = new Sprite(loaded[frame.publicUrl]); sprite.anchor.set(0.5); effects.addChild(sprite);
+            const tex = loaded[frame.publicUrl] || Texture.from(frame.publicUrl);
+            const sprite = new Sprite(tex); sprite.anchor.set(0.5); effects.addChild(sprite);
             timed.push({ root: sprite, startedAt: now, durationMs: RUNE_PROJECTILE_FLIGHT_MS, kind: 'missile', from: { ...from }, to: { ...to } });
           }
         }
@@ -590,7 +592,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const mapping = visualAssets.effects[String(event.effectId)];
           if (mapping) {
             const root = new Container(); const point = worldPoint(to); root.position.set(point.x, point.y);
-            const sprite = new Sprite(loaded[mapping.frames[0].publicUrl]); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root);
+            const effTex = loaded[mapping.frames[0].publicUrl] || Texture.from(mapping.frames[0].publicUrl);
+            const sprite = new Sprite(effTex); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root);
             const effectDelay = typeof event.delayMs === 'number' ? event.delayMs : (projectileId === null ? 0 : RUNE_PROJECTILE_FLIGHT_MS);
             root.visible = effectDelay <= 0;
             timed.push({ root, startedAt: now + effectDelay, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) });
@@ -916,11 +919,11 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           for (const event of state.encounter.visualEvents) {
             if (event.type === 'projectile-launched') {
               const from = actorPosition(state, event.sourceId); const to = actorPosition(state, event.targetId); const mapping = visualAssets.missiles[String(event.projectileId)];
-              if (from && to && mapping) { const frame = mapping.frames.find((candidate) => candidate.direction === projectileDirection(from, to)) ?? mapping.frames[0]; const sprite = new Sprite(loaded[frame.publicUrl]); sprite.anchor.set(0.5); effects.addChild(sprite); timed.push({ root: sprite, startedAt: now, durationMs: Math.max(220, Math.min(700, 90 * (Math.abs(to.x - from.x) + Math.abs(to.y - from.y)))), kind: 'missile', from: { ...from }, to: { ...to } }); }
+              if (from && to && mapping) { const frame = mapping.frames.find((candidate) => candidate.direction === projectileDirection(from, to)) ?? mapping.frames[0]; const tex = loaded[frame.publicUrl] || Texture.from(frame.publicUrl); const sprite = new Sprite(tex); sprite.anchor.set(0.5); effects.addChild(sprite); timed.push({ root: sprite, startedAt: now, durationMs: Math.max(220, Math.min(700, 90 * (Math.abs(to.x - from.x) + Math.abs(to.y - from.y)))), kind: 'missile', from: { ...from }, to: { ...to } }); }
             }
             if (event.type === 'melee-hit' || event.type === 'projectile-hit') {
               const target = actorPosition(state, event.targetId); const mapping = visualAssets.effects[String(event.effectId)];
-              if (target && mapping) { const root = new Container(); const point = worldPoint(target); root.position.set(point.x, point.y); const sprite = new Sprite(loaded[mapping.frames[0].publicUrl]); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root); timed.push({ root, startedAt: now, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) }); }
+              if (target && mapping) { const root = new Container(); const point = worldPoint(target); root.position.set(point.x, point.y); const effTex = loaded[mapping.frames[0].publicUrl] || Texture.from(mapping.frames[0].publicUrl); const sprite = new Sprite(effTex); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root); timed.push({ root, startedAt: now, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) }); }
             }
           }
         }
@@ -1088,8 +1091,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           }
           if (visual.kind === 'effect' && visual.frames && visual.root.children[0] && 'texture' in visual.root.children[0]) {
             const frame = visual.frames[Math.min(visual.frames.length - 1, Math.floor(progress * visual.frames.length))];
-            if (frame && loaded[frame]) {
-              (visual.root.children[0] as Sprite).texture = loaded[frame];
+            if (frame) {
+              const tex = loaded[frame] || Texture.from(frame);
+              if (tex) (visual.root.children[0] as Sprite).texture = tex;
             }
           }
         }

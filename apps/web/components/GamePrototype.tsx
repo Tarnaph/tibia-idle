@@ -59,6 +59,7 @@ import { isCharacterMounted, canOutfitHaveMount } from '@/apps/web/lib/appearanc
 import { outfitDiagnostics } from '@/apps/web/lib/outfitDiagnostics';
 import { PixiArena } from './PixiArena';
 import { assetPreloader } from '@/apps/web/lib/assetPreloader';
+import { huntAssetPreloader } from '@/apps/web/lib/huntAssetPreloader';
 import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScreen';
 import { TrainingArena } from './TrainingArena';
 import dynamic from 'next/dynamic';
@@ -3104,14 +3105,19 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
     const nextSeed = seed.trim() || defaultSeed;
 
-    // Phase 107 & 182: If currently in a hunt, halt combat on the previous encounter without transitioning to training mode
-    if (mode === 'hunt') {
-      setGame((current) => leaveHunt(current));
-    }
+    // Phase 215: Dispara pré-carregamento imediato dos dados da hunt (atlas, monstros, combate)
+    void huntAssetPreloader.preloadHunt(huntId);
+
+    // Instancia a hunt imediatamente no engine sob a proteção da tela de carregamento
+    setGame((current) => {
+      return restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId, pullSize ?? 'cauteloso');
+    });
+    setMode('hunt');
     setIsArenaReady(false);
     combatStartedRef.current = false;
+    setCityPos(entrance.worldPosition);
 
-    // Phase 107 & 195: Defer hunt spawn, authoritative teleport, combat ticker, and pullSize until loading finishes!
+    // Salva metadados da transição para finalização autoritativa de rede após loading
     pendingHuntTransitionRef.current = {
       huntId,
       targetHunt,
@@ -3152,6 +3158,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     if (mode === 'hunt') {
       setGame((current) => leaveHunt(current));
     }
+    // Phase 215: Dispara pré-carregamento imediato dos dados da arena PvP
+    void huntAssetPreloader.preloadHunt('pvp-arena');
+
     setIsArenaReady(false);
     combatStartedRef.current = false;
 
@@ -3164,6 +3173,45 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       oppMpPotions: 100,
       finished: false,
     };
+
+    setGame((current) => {
+      const restarted = restartHunt(prepareHuntCharacters(current), `pvp_${matchEvent.duelId}`, content, 'pvp-arena', 'cauteloso');
+      const opp = matchEvent.opponent;
+      const oppMaxHp = opp.maxHp || Math.max(250, opp.level * 25);
+      const oppEnemy: EnemyState = {
+        id: `pvp_opp_${opp.characterId}`,
+        monsterId: opp.outfit || opp.vocation || 'Knight',
+        name: opp.name,
+        hp: oppMaxHp,
+        maxHp: oppMaxHp,
+        attackMax: opp.attackPower || Math.max(30, Math.floor(opp.level * 3)),
+        defense: opp.defensePower || Math.max(15, Math.floor(opp.level * 1.5)),
+        armor: opp.armorPower || Math.max(12, Math.floor(opp.level * 1.2)),
+        alive: true,
+        position: { ...localOpponentSpawn },
+        previousPosition: { ...localOpponentSpawn },
+        direction: localOpponentSpawn.y > localSpawn.y ? 'north' : 'south',
+        path: [],
+        targetId: current.session.selectedCharacterId || null,
+        nextAttackAt: performance.now() + 1000,
+        attackIntervalMs: 1800,
+        speed: 120,
+        behavior: 'chase',
+        nextRoamAt: 0,
+        nextMoveAt: 0,
+        detectionRange: 25,
+        variant: null,
+      };
+
+      if (restarted.encounter.partyActors[0]) {
+        restarted.encounter.partyActors[0].position = { ...localSpawn };
+        restarted.encounter.partyActors[0].previousPosition = { ...localSpawn };
+        restarted.encounter.partyActors[0].targetId = oppEnemy.id;
+      }
+      restarted.encounter.enemies = [oppEnemy];
+      return restarted;
+    });
+    setMode('hunt');
 
     pendingHuntTransitionRef.current = {
       huntId: 'pvp-arena',
@@ -5106,47 +5154,6 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 pendingHuntTransitionRef.current = null;
                 setIsArenaReady(true);
                 combatStartedRef.current = false;
-                setGame((current) => {
-                  const restarted = restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId, pending.pullSize);
-                  if (pending.pvpMatch) {
-                    const pvp = pending.pvpMatch;
-                    const opp = pvp.opponent;
-                    const oppMaxHp = opp.maxHp || Math.max(250, opp.level * 25);
-                    const oppEnemy: EnemyState = {
-                      id: `pvp_opp_${opp.characterId}`,
-                      monsterId: opp.outfit || opp.vocation || 'Knight',
-                      name: opp.name,
-                      hp: oppMaxHp,
-                      maxHp: oppMaxHp,
-                      attackMax: opp.attackPower || Math.max(30, Math.floor(opp.level * 3)),
-                      defense: opp.defensePower || Math.max(15, Math.floor(opp.level * 1.5)),
-                      armor: opp.armorPower || Math.max(12, Math.floor(opp.level * 1.2)),
-                      alive: true,
-                      position: { ...pvp.localOpponentSpawn },
-                      previousPosition: { ...pvp.localOpponentSpawn },
-                      direction: pvp.localOpponentSpawn.y > pvp.localSpawn.y ? 'north' : 'south',
-                      path: [],
-                      targetId: current.session.selectedCharacterId || null,
-                      nextAttackAt: performance.now() + 1000,
-                      attackIntervalMs: 1800,
-                      speed: 120,
-                      behavior: 'chase',
-                      nextRoamAt: 0,
-                      nextMoveAt: 0,
-                      detectionRange: 25,
-                      variant: null,
-                    };
-
-                    if (restarted.encounter.partyActors[0]) {
-                      restarted.encounter.partyActors[0].position = { ...pvp.localSpawn };
-                      restarted.encounter.partyActors[0].previousPosition = { ...pvp.localSpawn };
-                      restarted.encounter.partyActors[0].targetId = oppEnemy.id;
-                    }
-                    restarted.encounter.enemies = [oppEnemy];
-                  }
-                  return restarted;
-                });
-                setMode('hunt');
                 pauseCityBgm();
                 setCityPos(pending.entrance.worldPosition);
                 gameNetwork.sendSetInHunt(true, pending.huntId);

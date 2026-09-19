@@ -31,7 +31,6 @@ export const BASE_TILE_TRAVEL_MS = 720;
 const MAX_LOG_ENTRIES = 100;
 
 export const SQUARE_1X1_OFFSETS = [
-  { dx:  0, dy:  0 },
   { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
   { dx: -1, dy:  0 },                     { dx:  1, dy:  0 },
   { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
@@ -1446,6 +1445,10 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               : spell.area === 'self'
               ? inRange
               : [primaryTarget];
+
+            if ((spell.area === 'square-1x1' || spell.area === 'self') && targets.length === 0) {
+              continue;
+            }
           }
 
           const rng = createSeededRng(encounter.rngState);
@@ -2163,7 +2166,8 @@ function playerAttacks(state: GameState, content: GameContent): void {
           const effectId = pending.effectId ?? 12;
           encounter.visualEvents.push({ type: 'projectile-hit', sourceId: actor.characterId, targetId: target.id, effectId });
         } else {
-          encounter.visualEvents.push({ type: 'melee-hit', sourceId: actor.characterId, targetId: target.id, effectId: 10, blocked: damage <= 0 });
+          const effectId = damage <= 0 ? 4 : (pending.effectId ?? 1);
+          encounter.visualEvents.push({ type: 'melee-hit', sourceId: actor.characterId, targetId: target.id, effectId, blocked: damage <= 0 });
         }
         const character = state.session.characters.find((candidate) => candidate.id === actor.characterId)!;
         if (pending.activeSkill) {

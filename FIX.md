@@ -1,57 +1,7 @@
-# CORREÇÕES 
+# CORREÇÕES
 
-[CONCLUÍDO - Fase 197] O Ranking está errado, não é melee, tem que ter rank de sword, axe e club separados, preciso que você tire do ranking todos os personagens que você criou de teste também.
-
-[CONCLUÍDO - Fase 197] O Ranking deve conter level, magic, fist, sword, axe, club, distance e shielding, o resto você pode tirar.
-
-[CONCLUÍDO - Fase 197] Ao clicar o botão treino tem que abrir o menu do pátio de treinamento e não o caçadas.
-
-[CONCLUÍDO - Fase 197] O botão de ranking e arena pvp não é ali embaixo é pra ficar la em cima no canto superior junto aos outros.
-
-[CONCLUÍDO - Fase 197] Os players continuam consumindo potion mesmo sem ela estar colocada nas hotkeys, está errado, ele só usa potion se ela estiver nas hotkeys.
-
-[CONCLUÍDO - Fase 197] Traga de volta o botão "Set outfit" ao clicar com o botão direito em cima do seu personagem (não colocar set outfit ao clicar nos personagens dos outros players).
-
-[CONCLUÍDO - Fase 197] Retire o botão de "Customizar aparência/Outfit e montaria" que está no canto superior direito.
-
-[CONCLUÍDO - Fase 197] Ao segurar ctrl e usar algum dos direcionais (as setas) o personagem vira o corpo sem andar, exemplo apertou ctrl + seta pra cima, ele vai virar o corpo para cima, esse é um tipo de controle básico que tem no tibia.
-
-[CONCLUÍDO - Fase 198] Cada hora que eu aperto em um menu o design fica todo diferente, siga o design do "pvp arena" e faça igual os outros menus para ficar tudo parecido com a mesma identidade e proporções parecidas. (Padronização Visual Completa: Caçadas, Treino, Quests, Amigos/VIP, Party, Chat e Hotkeys).
-
-[CONCLUÍDO - Fase 199] Falha ao salvar progresso antes de sair da caçada (renovação automática do lease de sessão pós-restart e reconciliação OCC de saveVersion entre Colyseus e Next.js) e renderização dos cadáveres (corpses) de Cyclops e criaturas multi-tile perfeitamente alinhados à grade de tiles sem fatiamento de sprites.
-
-[CONCLUÍDO - Fase 202] Falha ao salvar progresso do servidor: Eliminar timeouts de transação interativa do Prisma (de 5s para 30s), busy_timeout de SQLite, falsos positivos de rate limiter de XP (HUNT vs NON_HUNT) e reconciliação estrita de saveVersion entre Next.js e Colyseus.
-
-[CONCLUÍDO - Fase 204] PVP: Jogadores travados no loading (aparece e volta para loading); jogadores começando no último rank (Platina) ao invés do primeiro (Iniciante, 0 ELO); caveira oficial do Tibia (sprite 11x11 autêntico dos assets) posicionada corretamente ao lado do nome.
-
-[CONCLUÍDO - Fase 204] Ao desmarcar "Exibir caveira no rank pvp", salvar a preferência no banco de dados para persistir após relogar.
-
-[CONCLUÍDO - Fase 204] Ao sair da arena pvp, voltar a tag de visibilidade para que fique visível em Thais para todos.
-
-[CONCLUÍDO - Fase 204] Criar função permanente para que toda vez que entrar em Thais mudar a tag para que a pessoa fique visível para os outros jogadores.
-
-[CONCLUÍDO - Fase 205] Criar sistema de log de erros centralizado integrado a novas funções e criar botão exclusivo para usuários ADMIN chamado "Debug".
-
-[CONCLUÍDO - Fase 206] Trocar o corpo dos bichos mortos nas caçadas para o corpo de skeleton canônico (item 4246 / 4247 / 5972).
-
-[CONCLUÍDO - Fase 206] Cyclops Smith não está funcionando na escolha da caçada e nem dentro do jogo.
-
-[CONCLUÍDO - Fase 207] Eliminar duplicação do personagem: personagem não deve ficar no templo de Thais e na caçada ao mesmo tempo.
-
-[CONCLUÍDO - Fase 208] Ao inspecionar jogador, verificar status online em tempo real no servidor/Colyseus em vez de exibir incorretamente "offline".
-
-[CONCLUÍDO - Fase 209] Adicionar efeitos sonoros (SFX): ataques físicos para Knight e Paladin, sons de magia para Druid e Sorcerer, e som ao morrer.
-
-[CONCLUÍDO - Fase 210] Venda rápida: memorizar os últimos itens selecionados pelo usuário (localStorage) para abrir já selecionado com agilidade.
-
-[CONCLUÍDO - Fase 211] Investigar e corrigir IA para que os bichos fechem "Box" de 8 sqm em volta do jogador sem travar nas quinas ou bloquear o caminho uns dos outros (permitindo exori eficiente).
-
-[CONCLUÍDO - Fase 212] Investigar e eliminar vazamento de memória (PixiJS memory leak e tickers sem destroy) que gera o erro "Código de erro: Out of Memory" após deixar o jogo parado aberto.
-
-[CONCLUÍDO - Fase 213] Personagem morto não deve ganhar XP (interromper recepção de experiência enquanto o estado de vida for 0 / morto).
-
-[CONCLUÍDO - Fase 213] Party em caçada com transferência de líder ao morrer: se o personagem ativo morrer, transferir automaticamente o controle e foco da câmera para o próximo membro vivo com maior nível; o personagem morto cessa o ganho de XP enquanto os sobreviventes continuam acumulando normalmente.
-
-[CONCLUÍDO - Fase 214] Knight 'Exeta Res': corrigir animação e efeitos mágicos visuais que não estão aparecendo durante a conjuração do taunt/challenge.
-
-[CONCLUÍDO - Fase 214] Falha na conjuração de magias e loop de cooldown fantasma: investigar magias que não exibem efeito gráfico nem causam dano, e que ao término do cooldown reiniciam o temporizador sem terem disparado o feitiço.
+## Concluído na Phase 215:
+- [x] **Efeitos de combate e magias:** Corrigido no PixiArena e domain. Ataques com sword do knight agora geram evento visual de sangue (`effectId: 1`) em acertos de dano e faísca de bloqueio de escudo (`effectId: 4`) em bloqueios. Efeitos essenciais de magias (físico 10, cura 12, taunt 13, magias de druid e mísseis) foram incluídos na prioridade do Pixi e contam com fallback resiliente de textura.
+- [x] **Ícone do Cyclops Smith no bestiário:** Extraído lookType 277 canônico do Tibia 10.98 DAT/SPR em 64x64 perfeito (martelo e armadura completos), regenerado sprite no bestiário, thumbnail e atlas de hunt-cyclops-camp.
+- [x] **Exori sem loop de cooldown fantasma:** Em `castAutomaticSpells`, o Exori não dispara no ar quando não há inimigos a 1 SQM de alcance. O cast manual projeta a animação autêntica nos 8 tiles ao redor e consome mana normalmente quando executado.
+- [x] **Carregamento antecipado na tela de loading (Hunts e PvP):** Criada regra oficial em `.agents/rules/hunt-loading-and-assets.md`, módulo `apps/web/lib/huntAssetPreloader.ts` e orquestração no `GamePrototype.tsx`. O jogo agora instancia e carrega o mapa, atlas de hunt e texturas sob o `ExuraLoadingScreen`, garantindo que o jogador chegue ao mapa com tudo renderizado na GPU.

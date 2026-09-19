@@ -81,6 +81,7 @@ const CREATURES_MAP = {
   'tarantula': 219,
   'merlkin': 117,
   'cyclops': 22,
+  'cyclops-smith': 277,
   'minotaur-mage': 23,
   
   // Extra common bestiary creatures
