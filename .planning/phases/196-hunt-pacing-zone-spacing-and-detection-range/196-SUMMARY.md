@@ -1,23 +1,30 @@
-# Phase 196: Hunt Pacing, Zone Spacing & Detection Range Isolation
+# Phase 196: Hunt Pacing, Zone Spacing & Single Pull Arena Engine
 
 ## Resumo Executivo
-Nesta fase, diagnosticamos e corrigimos a causa raiz pela qual as caçadas (em especial Cyclops Camp) aglomeravam dezenas de monstros na entrada ao invés de respeitar a cadência de pull por pull selecionada pelo jogador (ex: 2 a 3 monstros por vez no modo Cauteloso).
+Nesta fase, reformulamos integralmente a dinâmica das caçadas para atender à mecânica de **Arena de Pulls Contínuos** orientada pela dificuldade escolhida pelo jogador (Cauteloso, Ousado, Agressivo). Eliminamos o congestionamento com dezenas de monstros e resolvemos o problema de criaturas congeladas, transformando a caçada em ondas ativas que surgem no local de combate.
 
-## Causa Raiz Identificada
-1. **Agrupamento de Zonas de Respawn (`huntRoute.ts`):** O seletor de zonas de respawn atribuía o centro de cada zona ao ponto de spawn importado mais próximo ainda não usado. Como os 6 spawns importados do OTBM de `cyclops-camp` ficavam agrupados em uma pequena câmara de 6x6 tiles próxima à entrada (25, 25), todas as 6 zonas de respawn ficaram posicionadas na entrada, abandonando o restante dos 43 passos da caverna.
-2. **Raio de Detecção Global Excessivo (`detectionRange: 50`):** Tanto em `combat.ts` quanto em `movement.ts`, o raio de detecção de monstros estava forçado a 50 tiles (`Math.max(50, enemy.detectionRange || 50)`). Como a caverna inteira cabe em 51x51 tiles, todos os 15 Cyclops detectavam o jogador no primeiro segundo e convergiam simultaneamente sobre a entrada.
+## Comportamento Especificado & Entregue
+1. **Dificuldade e Dimensionamento Estrito de Pulls:**
+   - **Cauteloso:** Spawnam apenas **2 a 3 monstros** no mapa por vez.
+   - **Ousado:** Spawnam exatamente **4 monstros**.
+   - **Agressivo:** Spawnam **5 a 6 monstros**, com composição mais desafiadora (no Acampamento de Cíclopes, garante pelo menos 2 Cyclops Smiths e 60% de chance nos demais slots).
+2. **Mecânica de Arena Idle (In-Place Respawn):**
+   - A party não fica andando por longos labirintos desnecessariamente quando está caçando em arena de pulls: o personagem permanece na área e as criaturas surgem ao redor (2 a 4 tiles de distância em tiles caminháveis).
+   - **Garantia de 1 Único Pull Ativo:** Se qualquer monstro estiver vivo, nenhum novo monstro é gerado.
+   - **Respawn Imediato pós-Limpeza:** Quando o último monstro da onda morre, é disparado um cooldown de 1 segundo (1000ms), após o qual um novo pull surge no local para o char continuar upando sem interrupções.
+   - **Limpeza de Memória & Cadáveres:** Cadáveres são limitados aos últimos 15 e a lista de inimigos mortos é podada para suportar sessões infinitas de treino/caçada idle.
+3. **Inimigos Ativos (Fim do Congelamento):**
+   - Monstros recém-spawnados recebem `detectionRange: 25`, `behavior: 'chase'`, `targetId: leader.characterId` e `nextMoveAt: elapsedMs + 100`.
+   - Ao surgirem, eles imediatamente localizam o jogador, calculam o pathfinding e avançam para o combate corpo a corpo, atacando sem ficarem parados.
 
-## Correções Implementadas
-1. **Algoritmo de Espaçamento Homogêneo de Zonas (`packages/domain/src/huntRoute.ts`):**
-   - As zonas agora são distribuídas proporcionalmente ao longo de todo o trajeto `outward` da masmorra.
-   - Um ponto importado só é aceito se estiver a no máximo 6 tiles do ponto da rota e a pelo menos 7 tiles de distância de todas as zonas já criadas; caso contrário, o próprio ponto do trajeto é utilizado.
-   - Garante que cada um dos 6 respawns fique em uma câmara diferente da caverna.
-2. **Raio de Detecção e Leash Autênticos (`packages/domain/src/combat.ts` & `movement.ts`):**
-   - `detectionRange` fixado em 6 tiles para cavernas contínuas (e 50 tiles para a Arena PvP).
-   - `maxDetectionRange` em `movement.ts` agora utiliza `enemy.detectionRange || 6` para detecção inicial e leash de até 10 tiles para perseguição contínua do alvo atual.
-   - Criaturas em cômodos distantes permanecem em estado `roam` ou `idle` e não atacam o jogador até que ele se aproxime.
+## Arquivos Modificados
+- `packages/domain/src/combat.ts`: Implementação de `populatePullAroundParty`, `choosePullMonsterId`, `findPullSpawnPositions`, gancho de respawn em `defeatEnemy`, e contenção de movimento da party em arena.
+- `packages/domain/src/spatial/movement.ts`: Preservação do target lock e movimentação de aproximação sem bloqueios.
+- `apps/web/components/GamePrototype.tsx`: Fallback seguro para `pullSize: 'cauteloso'` caso não especificado.
+- `tests/phase196-hunt-pacing-and-arena-pulls.test.ts`: Suíte de testes validando quantidade de monstros, ondas sucessivas, composição e perseguição ativa.
 
 ## Verificação e Testes
-- **Testes Unitários:** Criada a suíte `tests/phase196-hunt-pacing.test.ts` (3 testes) com 100% de aprovação.
-- **Testes de Regressão:** Suítes `continuous-hunt.test.ts` e `phase195-hunt-pull-size-and-catalog.test.ts` aprovadas (16/16 testes).
-- **TypeScript:** 0 erros de tipagem com `npm run typecheck`.
+- **Testes Unitários:** Todas as 7 suítes de combate e movimentação aprovadas (43/43 testes).
+- **TypeScript:** 0 erros de tipagem via `npm run typecheck`.
+- **Deploy em Produção:** Realizado com sucesso na VPS `187.7.16.210` (Commit `820cb6722`, PM2 `tibia-web` e `colyseus-server` online e saudáveis).
+
