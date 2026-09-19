@@ -264,6 +264,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       // Spell action icons & mounts
       for (const url of ALL_SPELL_ICON_URLS) priorityUrls.add(url);
       priorityUrls.add('/generated/mounts/donkey_rider_south.png');
+      priorityUrls.add('/generated/tibia1098/items/item-5972.png');
 
       // Core effects & missiles
       for (const effId of ['13', '11', '16', '1', '2', '3', '4']) {
@@ -753,7 +754,12 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         for (const [id, view] of views) if (!liveIds.has(id)) { view.root.destroy({ children: true }); views.delete(id); }
         for (const layer of [corpses]) layer.removeChildren().forEach((child) => child.destroy({ children: true }));
         for (const corpse of state.encounter.corpses) {
-          const mapping = visualAssets.corpses?.[corpse.monsterId]; if (!mapping?.frame) continue;
+          // Canonical Tibia Skeleton Corpse (item 5972 / remains of a skeleton) replaces monster corpses in hunts
+          const skeletonMapping = visualAssets.corpses?.['5972']
+            || visualAssets.corpses?.['skeleton']
+            || (visualAssets as any).items?.['4246'];
+          const mapping = skeletonMapping || visualAssets.corpses?.[corpse.monsterId] || (corpse.corpseId ? visualAssets.corpses?.[String(corpse.corpseId)] : null);
+          if (!mapping?.frame) continue;
           const tex = loaded[mapping.frame.publicUrl];
           if (!tex) {
             void ensureTexture(mapping.frame.publicUrl);

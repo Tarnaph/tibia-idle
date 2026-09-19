@@ -1280,9 +1280,969 @@
         "h": 64
       }
     },
-    "/generated/tibia1098/monster-cyclops-south-frame-0.png": {
+    "/generated/tibia1098/monster-cyclops-smith-east-frame-0.png": {
       "frame": {
         "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-east-frame-0.png": {
+      "frame": {
+        "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-east-frame-0.png": {
+      "frame": {
+        "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-east-frame-0": {
+      "frame": {
+        "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-east-frame-1.png": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-east-frame-1.png": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-east-frame-1.png": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-east-frame-1": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-east-frame-2.png": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-east-frame-2.png": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-east-frame-2.png": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-east-frame-2": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-north-frame-0.png": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-north-frame-0.png": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-north-frame-0.png": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-north-frame-0": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-north-frame-1.png": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-north-frame-1.png": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-north-frame-1.png": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-north-frame-1": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-north-frame-2.png": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-north-frame-2.png": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-north-frame-2.png": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-north-frame-2": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-south-frame-0.png": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-south-frame-0.png": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-south-frame-0.png": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-south-frame-0": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-south-frame-1.png": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-south-frame-1.png": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-south-frame-1.png": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-south-frame-1": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-south-frame-2.png": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-south-frame-2.png": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-south-frame-2.png": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-south-frame-2": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-west-frame-0.png": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-west-frame-0.png": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-west-frame-0.png": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-west-frame-0": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-west-frame-1.png": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-west-frame-1.png": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-west-frame-1.png": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-west-frame-1": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-smith-west-frame-2.png": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-west-frame-2.png": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-west-frame-2.png": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-cyclops-smith-west-frame-2": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-cyclops-south-frame-0.png": {
+      "frame": {
+        "x": 859,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1302,7 +2262,7 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-0.png": {
       "frame": {
-        "x": 67,
+        "x": 859,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1322,7 +2282,7 @@
     },
     "monster-cyclops-south-frame-0.png": {
       "frame": {
-        "x": 67,
+        "x": 859,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1342,7 +2302,7 @@
     },
     "monster-cyclops-south-frame-0": {
       "frame": {
-        "x": 67,
+        "x": 859,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1362,7 +2322,7 @@
     },
     "/generated/tibia1098/monster-cyclops-south-frame-1.png": {
       "frame": {
-        "x": 133,
+        "x": 925,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1382,7 +2342,7 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-1.png": {
       "frame": {
-        "x": 133,
+        "x": 925,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1402,7 +2362,7 @@
     },
     "monster-cyclops-south-frame-1.png": {
       "frame": {
-        "x": 133,
+        "x": 925,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1422,7 +2382,7 @@
     },
     "monster-cyclops-south-frame-1": {
       "frame": {
-        "x": 133,
+        "x": 925,
         "y": 67,
         "w": 64,
         "h": 64
@@ -1442,8 +2402,8 @@
     },
     "/generated/tibia1098/monster-cyclops-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1462,8 +2422,8 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1482,8 +2442,8 @@
     },
     "monster-cyclops-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1502,8 +2462,8 @@
     },
     "monster-cyclops-south-frame-2": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1522,8 +2482,8 @@
     },
     "/generated/tibia1098/monster-cyclops-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 67,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1542,8 +2502,8 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 67,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1562,8 +2522,8 @@
     },
     "monster-cyclops-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 67,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1582,8 +2542,8 @@
     },
     "monster-cyclops-south-frame-3": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 67,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1602,8 +2562,8 @@
     },
     "/generated/tibia1098/monster-cyclops-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 133,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1622,8 +2582,8 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 133,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1642,8 +2602,8 @@
     },
     "monster-cyclops-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 133,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1662,8 +2622,8 @@
     },
     "monster-cyclops-south-frame-4": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 133,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1682,8 +2642,8 @@
     },
     "/generated/tibia1098/monster-cyclops-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 199,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1702,8 +2662,8 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 199,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1722,8 +2682,8 @@
     },
     "monster-cyclops-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 199,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1742,8 +2702,8 @@
     },
     "monster-cyclops-south-frame-5": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 199,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1762,8 +2722,8 @@
     },
     "/generated/tibia1098/monster-cyclops-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 265,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1782,8 +2742,8 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 265,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1802,8 +2762,8 @@
     },
     "monster-cyclops-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 265,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1822,8 +2782,8 @@
     },
     "monster-cyclops-south-frame-6": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 265,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1842,8 +2802,8 @@
     },
     "/generated/tibia1098/monster-cyclops-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 331,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1862,8 +2822,8 @@
     },
     "generated/tibia1098/monster-cyclops-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 331,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1882,8 +2842,8 @@
     },
     "monster-cyclops-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 331,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1902,8 +2862,8 @@
     },
     "monster-cyclops-south-frame-7": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 331,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1922,8 +2882,8 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 397,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1942,8 +2902,8 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 397,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1962,8 +2922,8 @@
     },
     "monster-cyclops-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 397,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1982,8 +2942,8 @@
     },
     "monster-cyclops-west-frame-0": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 397,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2002,8 +2962,8 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 463,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2022,8 +2982,8 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 463,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2042,8 +3002,8 @@
     },
     "monster-cyclops-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 463,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2062,8 +3022,8 @@
     },
     "monster-cyclops-west-frame-1": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 463,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2082,8 +3042,8 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 529,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2102,8 +3062,8 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 529,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2122,8 +3082,8 @@
     },
     "monster-cyclops-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 529,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2142,8 +3102,8 @@
     },
     "monster-cyclops-west-frame-2": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 529,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2162,8 +3122,8 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 595,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2182,8 +3142,8 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 595,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2202,8 +3162,8 @@
     },
     "monster-cyclops-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 595,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2222,8 +3182,8 @@
     },
     "monster-cyclops-west-frame-3": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 595,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2242,8 +3202,8 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2262,8 +3222,8 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2282,8 +3242,8 @@
     },
     "monster-cyclops-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2302,8 +3262,8 @@
     },
     "monster-cyclops-west-frame-4": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2322,8 +3282,8 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2342,8 +3302,8 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2362,8 +3322,8 @@
     },
     "monster-cyclops-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2382,8 +3342,8 @@
     },
     "monster-cyclops-west-frame-5": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -2402,7 +3362,7 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-6.png": {
       "frame": {
-        "x": 1,
+        "x": 793,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2422,7 +3382,7 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-6.png": {
       "frame": {
-        "x": 1,
+        "x": 793,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2442,7 +3402,7 @@
     },
     "monster-cyclops-west-frame-6.png": {
       "frame": {
-        "x": 1,
+        "x": 793,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2462,7 +3422,7 @@
     },
     "monster-cyclops-west-frame-6": {
       "frame": {
-        "x": 1,
+        "x": 793,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2482,7 +3442,7 @@
     },
     "/generated/tibia1098/monster-cyclops-west-frame-7.png": {
       "frame": {
-        "x": 67,
+        "x": 859,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2502,7 +3462,7 @@
     },
     "generated/tibia1098/monster-cyclops-west-frame-7.png": {
       "frame": {
-        "x": 67,
+        "x": 859,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2522,7 +3482,7 @@
     },
     "monster-cyclops-west-frame-7.png": {
       "frame": {
-        "x": 67,
+        "x": 859,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2542,7 +3502,7 @@
     },
     "monster-cyclops-west-frame-7": {
       "frame": {
-        "x": 67,
+        "x": 859,
         "y": 133,
         "w": 64,
         "h": 64
@@ -2560,9 +3520,89 @@
         "h": 64
       }
     },
+    "/generated/tibia1098/monster-cyclops-smith-thumb.png": {
+      "frame": {
+        "x": 925,
+        "y": 133,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "generated/tibia1098/monster-cyclops-smith-thumb.png": {
+      "frame": {
+        "x": 925,
+        "y": 133,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "monster-cyclops-smith-thumb.png": {
+      "frame": {
+        "x": 925,
+        "y": 133,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "thumb-cyclops-smith": {
+      "frame": {
+        "x": 925,
+        "y": 133,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
     "/generated/tibia1098/monster-cyclops-thumb.png": {
       "frame": {
-        "x": 133,
+        "x": 959,
         "y": 133,
         "w": 32,
         "h": 32
@@ -2582,7 +3622,7 @@
     },
     "generated/tibia1098/monster-cyclops-thumb.png": {
       "frame": {
-        "x": 133,
+        "x": 959,
         "y": 133,
         "w": 32,
         "h": 32
@@ -2602,7 +3642,7 @@
     },
     "monster-cyclops-thumb.png": {
       "frame": {
-        "x": 133,
+        "x": 959,
         "y": 133,
         "w": 32,
         "h": 32
@@ -2622,7 +3662,7 @@
     },
     "thumb-cyclops": {
       "frame": {
-        "x": 133,
+        "x": 959,
         "y": 133,
         "w": 32,
         "h": 32

@@ -640,10 +640,2570 @@
         "h": 64
       }
     },
-    "/generated/tibia1098/monster-dragon-north-frame-0.png": {
+    "/generated/tibia1098/monster-dragon-lord-east-frame-0.png": {
       "frame": {
         "x": 529,
         "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-0.png": {
+      "frame": {
+        "x": 529,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-0.png": {
+      "frame": {
+        "x": 529,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-0": {
+      "frame": {
+        "x": 529,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-east-frame-1.png": {
+      "frame": {
+        "x": 595,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-1.png": {
+      "frame": {
+        "x": 595,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-1.png": {
+      "frame": {
+        "x": 595,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-1": {
+      "frame": {
+        "x": 595,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-east-frame-2.png": {
+      "frame": {
+        "x": 661,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-2.png": {
+      "frame": {
+        "x": 661,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-2.png": {
+      "frame": {
+        "x": 661,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-2": {
+      "frame": {
+        "x": 661,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-east-frame-3.png": {
+      "frame": {
+        "x": 727,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-3.png": {
+      "frame": {
+        "x": 727,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-3.png": {
+      "frame": {
+        "x": 727,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-3": {
+      "frame": {
+        "x": 727,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-east-frame-4.png": {
+      "frame": {
+        "x": 793,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-4.png": {
+      "frame": {
+        "x": 793,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-4.png": {
+      "frame": {
+        "x": 793,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-4": {
+      "frame": {
+        "x": 793,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-east-frame-5.png": {
+      "frame": {
+        "x": 859,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-5.png": {
+      "frame": {
+        "x": 859,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-5.png": {
+      "frame": {
+        "x": 859,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-5": {
+      "frame": {
+        "x": 859,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-east-frame-6.png": {
+      "frame": {
+        "x": 925,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-6.png": {
+      "frame": {
+        "x": 925,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-6.png": {
+      "frame": {
+        "x": 925,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-6": {
+      "frame": {
+        "x": 925,
+        "y": 1,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-east-frame-7.png": {
+      "frame": {
+        "x": 1,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-east-frame-7.png": {
+      "frame": {
+        "x": 1,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-7.png": {
+      "frame": {
+        "x": 1,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-east-frame-7": {
+      "frame": {
+        "x": 1,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-0.png": {
+      "frame": {
+        "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-0.png": {
+      "frame": {
+        "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-0.png": {
+      "frame": {
+        "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-0": {
+      "frame": {
+        "x": 67,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-1.png": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-1.png": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-1.png": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-1": {
+      "frame": {
+        "x": 133,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-2.png": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-2.png": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-2.png": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-2": {
+      "frame": {
+        "x": 199,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-3.png": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-3.png": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-3.png": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-3": {
+      "frame": {
+        "x": 265,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-4.png": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-4.png": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-4.png": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-4": {
+      "frame": {
+        "x": 331,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-5.png": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-5.png": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-5.png": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-5": {
+      "frame": {
+        "x": 397,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-6.png": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-6.png": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-6.png": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-6": {
+      "frame": {
+        "x": 463,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-north-frame-7.png": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-north-frame-7.png": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-7.png": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-north-frame-7": {
+      "frame": {
+        "x": 529,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-0.png": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-0.png": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-0.png": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-0": {
+      "frame": {
+        "x": 595,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-1.png": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-1.png": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-1.png": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-1": {
+      "frame": {
+        "x": 661,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-2.png": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-2.png": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-2.png": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-2": {
+      "frame": {
+        "x": 727,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-3.png": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-3.png": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-3.png": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-3": {
+      "frame": {
+        "x": 793,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-4.png": {
+      "frame": {
+        "x": 859,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-4.png": {
+      "frame": {
+        "x": 859,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-4.png": {
+      "frame": {
+        "x": 859,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-4": {
+      "frame": {
+        "x": 859,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-5.png": {
+      "frame": {
+        "x": 925,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-5.png": {
+      "frame": {
+        "x": 925,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-5.png": {
+      "frame": {
+        "x": 925,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-5": {
+      "frame": {
+        "x": 925,
+        "y": 67,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-6.png": {
+      "frame": {
+        "x": 1,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-6.png": {
+      "frame": {
+        "x": 1,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-6.png": {
+      "frame": {
+        "x": 1,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-6": {
+      "frame": {
+        "x": 1,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-south-frame-7.png": {
+      "frame": {
+        "x": 67,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-south-frame-7.png": {
+      "frame": {
+        "x": 67,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-7.png": {
+      "frame": {
+        "x": 67,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-south-frame-7": {
+      "frame": {
+        "x": 67,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-0.png": {
+      "frame": {
+        "x": 133,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-0.png": {
+      "frame": {
+        "x": 133,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-0.png": {
+      "frame": {
+        "x": 133,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-0": {
+      "frame": {
+        "x": 133,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-1.png": {
+      "frame": {
+        "x": 199,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-1.png": {
+      "frame": {
+        "x": 199,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-1.png": {
+      "frame": {
+        "x": 199,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-1": {
+      "frame": {
+        "x": 199,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-2.png": {
+      "frame": {
+        "x": 265,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-2.png": {
+      "frame": {
+        "x": 265,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-2.png": {
+      "frame": {
+        "x": 265,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-2": {
+      "frame": {
+        "x": 265,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-3.png": {
+      "frame": {
+        "x": 331,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-3.png": {
+      "frame": {
+        "x": 331,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-3.png": {
+      "frame": {
+        "x": 331,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-3": {
+      "frame": {
+        "x": 331,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-4.png": {
+      "frame": {
+        "x": 397,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-4.png": {
+      "frame": {
+        "x": 397,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-4.png": {
+      "frame": {
+        "x": 397,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-4": {
+      "frame": {
+        "x": 397,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-5.png": {
+      "frame": {
+        "x": 463,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-5.png": {
+      "frame": {
+        "x": 463,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-5.png": {
+      "frame": {
+        "x": 463,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-5": {
+      "frame": {
+        "x": 463,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-6.png": {
+      "frame": {
+        "x": 529,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-6.png": {
+      "frame": {
+        "x": 529,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-6.png": {
+      "frame": {
+        "x": 529,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-6": {
+      "frame": {
+        "x": 529,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-lord-west-frame-7.png": {
+      "frame": {
+        "x": 595,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-west-frame-7.png": {
+      "frame": {
+        "x": 595,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-7.png": {
+      "frame": {
+        "x": 595,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "monster-dragon-lord-west-frame-7": {
+      "frame": {
+        "x": 595,
+        "y": 133,
+        "w": 64,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 64
+      }
+    },
+    "/generated/tibia1098/monster-dragon-north-frame-0.png": {
+      "frame": {
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -662,8 +3222,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-0.png": {
       "frame": {
-        "x": 529,
-        "y": 1,
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -682,8 +3242,8 @@
     },
     "monster-dragon-north-frame-0.png": {
       "frame": {
-        "x": 529,
-        "y": 1,
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -702,8 +3262,8 @@
     },
     "monster-dragon-north-frame-0": {
       "frame": {
-        "x": 529,
-        "y": 1,
+        "x": 661,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -722,8 +3282,8 @@
     },
     "/generated/tibia1098/monster-dragon-north-frame-1.png": {
       "frame": {
-        "x": 595,
-        "y": 1,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -742,8 +3302,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-1.png": {
       "frame": {
-        "x": 595,
-        "y": 1,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -762,8 +3322,8 @@
     },
     "monster-dragon-north-frame-1.png": {
       "frame": {
-        "x": 595,
-        "y": 1,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -782,8 +3342,8 @@
     },
     "monster-dragon-north-frame-1": {
       "frame": {
-        "x": 595,
-        "y": 1,
+        "x": 727,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -802,8 +3362,8 @@
     },
     "/generated/tibia1098/monster-dragon-north-frame-2.png": {
       "frame": {
-        "x": 661,
-        "y": 1,
+        "x": 793,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -822,8 +3382,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-2.png": {
       "frame": {
-        "x": 661,
-        "y": 1,
+        "x": 793,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -842,8 +3402,8 @@
     },
     "monster-dragon-north-frame-2.png": {
       "frame": {
-        "x": 661,
-        "y": 1,
+        "x": 793,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -862,8 +3422,8 @@
     },
     "monster-dragon-north-frame-2": {
       "frame": {
-        "x": 661,
-        "y": 1,
+        "x": 793,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -882,8 +3442,8 @@
     },
     "/generated/tibia1098/monster-dragon-north-frame-3.png": {
       "frame": {
-        "x": 727,
-        "y": 1,
+        "x": 859,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -902,8 +3462,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-3.png": {
       "frame": {
-        "x": 727,
-        "y": 1,
+        "x": 859,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -922,8 +3482,8 @@
     },
     "monster-dragon-north-frame-3.png": {
       "frame": {
-        "x": 727,
-        "y": 1,
+        "x": 859,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -942,8 +3502,8 @@
     },
     "monster-dragon-north-frame-3": {
       "frame": {
-        "x": 727,
-        "y": 1,
+        "x": 859,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -962,8 +3522,8 @@
     },
     "/generated/tibia1098/monster-dragon-north-frame-4.png": {
       "frame": {
-        "x": 793,
-        "y": 1,
+        "x": 925,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -982,8 +3542,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-4.png": {
       "frame": {
-        "x": 793,
-        "y": 1,
+        "x": 925,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1002,8 +3562,8 @@
     },
     "monster-dragon-north-frame-4.png": {
       "frame": {
-        "x": 793,
-        "y": 1,
+        "x": 925,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1022,8 +3582,8 @@
     },
     "monster-dragon-north-frame-4": {
       "frame": {
-        "x": 793,
-        "y": 1,
+        "x": 925,
+        "y": 133,
         "w": 64,
         "h": 64
       },
@@ -1042,8 +3602,8 @@
     },
     "/generated/tibia1098/monster-dragon-north-frame-5.png": {
       "frame": {
-        "x": 859,
-        "y": 1,
+        "x": 1,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1062,8 +3622,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-5.png": {
       "frame": {
-        "x": 859,
-        "y": 1,
+        "x": 1,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1082,8 +3642,8 @@
     },
     "monster-dragon-north-frame-5.png": {
       "frame": {
-        "x": 859,
-        "y": 1,
+        "x": 1,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1102,8 +3662,8 @@
     },
     "monster-dragon-north-frame-5": {
       "frame": {
-        "x": 859,
-        "y": 1,
+        "x": 1,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1122,8 +3682,8 @@
     },
     "/generated/tibia1098/monster-dragon-north-frame-6.png": {
       "frame": {
-        "x": 925,
-        "y": 1,
+        "x": 67,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1142,8 +3702,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-6.png": {
       "frame": {
-        "x": 925,
-        "y": 1,
+        "x": 67,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1162,8 +3722,8 @@
     },
     "monster-dragon-north-frame-6.png": {
       "frame": {
-        "x": 925,
-        "y": 1,
+        "x": 67,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1182,8 +3742,8 @@
     },
     "monster-dragon-north-frame-6": {
       "frame": {
-        "x": 925,
-        "y": 1,
+        "x": 67,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1202,8 +3762,8 @@
     },
     "/generated/tibia1098/monster-dragon-north-frame-7.png": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 133,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1222,8 +3782,8 @@
     },
     "generated/tibia1098/monster-dragon-north-frame-7.png": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 133,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1242,8 +3802,8 @@
     },
     "monster-dragon-north-frame-7.png": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 133,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1262,8 +3822,8 @@
     },
     "monster-dragon-north-frame-7": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 133,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1282,8 +3842,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-0.png": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 199,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1302,8 +3862,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-0.png": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 199,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1322,8 +3882,8 @@
     },
     "monster-dragon-south-frame-0.png": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 199,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1342,8 +3902,8 @@
     },
     "monster-dragon-south-frame-0": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 199,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1362,8 +3922,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-1.png": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 265,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1382,8 +3942,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-1.png": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 265,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1402,8 +3962,8 @@
     },
     "monster-dragon-south-frame-1.png": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 265,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1422,8 +3982,8 @@
     },
     "monster-dragon-south-frame-1": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 265,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1442,8 +4002,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 331,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1462,8 +4022,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 331,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1482,8 +4042,8 @@
     },
     "monster-dragon-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 331,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1502,8 +4062,8 @@
     },
     "monster-dragon-south-frame-2": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 331,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1522,8 +4082,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 397,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1542,8 +4102,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 397,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1562,8 +4122,8 @@
     },
     "monster-dragon-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 397,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1582,8 +4142,8 @@
     },
     "monster-dragon-south-frame-3": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 397,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1602,8 +4162,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 463,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1622,8 +4182,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 463,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1642,8 +4202,8 @@
     },
     "monster-dragon-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 463,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1662,8 +4222,8 @@
     },
     "monster-dragon-south-frame-4": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 463,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1682,8 +4242,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 529,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1702,8 +4262,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 529,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1722,8 +4282,8 @@
     },
     "monster-dragon-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 529,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1742,8 +4302,8 @@
     },
     "monster-dragon-south-frame-5": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 529,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1762,8 +4322,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 595,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1782,8 +4342,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 595,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1802,8 +4362,8 @@
     },
     "monster-dragon-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 595,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1822,8 +4382,8 @@
     },
     "monster-dragon-south-frame-6": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 595,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1842,8 +4402,8 @@
     },
     "/generated/tibia1098/monster-dragon-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 661,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1862,8 +4422,8 @@
     },
     "generated/tibia1098/monster-dragon-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 661,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1882,8 +4442,8 @@
     },
     "monster-dragon-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 661,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1902,8 +4462,8 @@
     },
     "monster-dragon-south-frame-7": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 661,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1922,8 +4482,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 727,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1942,8 +4502,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 727,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1962,8 +4522,8 @@
     },
     "monster-dragon-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 727,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -1982,8 +4542,8 @@
     },
     "monster-dragon-west-frame-0": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 727,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2002,8 +4562,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 793,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2022,8 +4582,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 793,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2042,8 +4602,8 @@
     },
     "monster-dragon-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 793,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2062,8 +4622,8 @@
     },
     "monster-dragon-west-frame-1": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 793,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2082,8 +4642,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 859,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2102,8 +4662,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 859,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2122,8 +4682,8 @@
     },
     "monster-dragon-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 859,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2142,8 +4702,8 @@
     },
     "monster-dragon-west-frame-2": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 859,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2162,8 +4722,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 925,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2182,8 +4742,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 925,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2202,8 +4762,8 @@
     },
     "monster-dragon-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 925,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2222,8 +4782,8 @@
     },
     "monster-dragon-west-frame-3": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 925,
+        "y": 199,
         "w": 64,
         "h": 64
       },
@@ -2242,8 +4802,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2262,8 +4822,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2282,8 +4842,8 @@
     },
     "monster-dragon-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2302,8 +4862,8 @@
     },
     "monster-dragon-west-frame-4": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2322,8 +4882,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 67,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2342,8 +4902,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 67,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2362,8 +4922,8 @@
     },
     "monster-dragon-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 67,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2382,8 +4942,8 @@
     },
     "monster-dragon-west-frame-5": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 67,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2402,8 +4962,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 133,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2422,8 +4982,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 133,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2442,8 +5002,8 @@
     },
     "monster-dragon-west-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 133,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2462,8 +5022,8 @@
     },
     "monster-dragon-west-frame-6": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 133,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2482,8 +5042,8 @@
     },
     "/generated/tibia1098/monster-dragon-west-frame-7.png": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 199,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2502,8 +5062,8 @@
     },
     "generated/tibia1098/monster-dragon-west-frame-7.png": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 199,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2522,8 +5082,8 @@
     },
     "monster-dragon-west-frame-7.png": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 199,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2542,8 +5102,8 @@
     },
     "monster-dragon-west-frame-7": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 199,
+        "y": 265,
         "w": 64,
         "h": 64
       },
@@ -2560,10 +5120,90 @@
         "h": 64
       }
     },
+    "/generated/tibia1098/monster-dragon-lord-thumb.png": {
+      "frame": {
+        "x": 265,
+        "y": 265,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "generated/tibia1098/monster-dragon-lord-thumb.png": {
+      "frame": {
+        "x": 265,
+        "y": 265,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "monster-dragon-lord-thumb.png": {
+      "frame": {
+        "x": 265,
+        "y": 265,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
+    "thumb-dragon-lord": {
+      "frame": {
+        "x": 265,
+        "y": 265,
+        "w": 32,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      }
+    },
     "/generated/tibia1098/monster-dragon-thumb.png": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 299,
+        "y": 265,
         "w": 32,
         "h": 32
       },
@@ -2582,8 +5222,8 @@
     },
     "generated/tibia1098/monster-dragon-thumb.png": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 299,
+        "y": 265,
         "w": 32,
         "h": 32
       },
@@ -2602,8 +5242,8 @@
     },
     "monster-dragon-thumb.png": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 299,
+        "y": 265,
         "w": 32,
         "h": 32
       },
@@ -2622,8 +5262,8 @@
     },
     "thumb-dragon": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 299,
+        "y": 265,
         "w": 32,
         "h": 32
       },
@@ -2646,7 +5286,7 @@
     "format": "RGBA8888",
     "size": {
       "w": 1024,
-      "h": 198
+      "h": 330
     },
     "scale": 1
   }

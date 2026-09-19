@@ -57,7 +57,7 @@ export const initialHunts: HuntDefinition[] = [
   {
     id: 'cyclops-camp', name: 'Cyclops Camp', displayName: 'Acampamento dos Ciclopes',
     description: 'Montanha e cavernas rochosas habitadas por poderosos Ciclopes.', shortDescription: 'Ciclopes gigantes guardam os tesouros da colina.',
-    recommendedLevel: 30, minimumLevel: 1, monsters: ['cyclops'], rewardProfile: 'xp', status: 'available',
+    recommendedLevel: 30, minimumLevel: 1, monsters: ['cyclops', 'cyclops-smith'], rewardProfile: 'xp', status: 'available',
     roomDefinitions: rooms('cyclops-camp'), environment: { regionId: 'cyclops-camp', label: 'Mount Sternum Cyclops', source: 'realmap11-otbm' },
     waves: waves('cyclops', [1, 2, 2, 3, 3, 4, 4, 5, 5, 0], 'Monstrous Cyclops', 2),
   },

@@ -32,9 +32,9 @@
 
 [CONCLUÍDO - Fase 205] Criar sistema de log de erros centralizado integrado a novas funções e criar botão exclusivo para usuários ADMIN chamado "Debug".
 
-[PENDENTE] Trocar o corpo dos bichos mortos nas caçadas para o corpo de skeleton canônico (item 4246 / 4247).
+[CONCLUÍDO - Fase 206] Trocar o corpo dos bichos mortos nas caçadas para o corpo de skeleton canônico (item 4246 / 4247 / 5972).
 
-[PENDENTE] Cyclops Smith não está funcionando na escolha da caçada e nem dentro do jogo.
+[CONCLUÍDO - Fase 206] Cyclops Smith não está funcionando na escolha da caçada e nem dentro do jogo.
 
 [PENDENTE] Eliminar duplicação do personagem: personagem não deve ficar no templo de Thais e na caçada ao mesmo tempo.
 

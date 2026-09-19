@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T15:32:00.000Z"
-last_activity: "2026-09-19 — Phase 205: Centralized Error Logger & ADMIN Exclusive Debug Modal [CONCLUÍDO]."
+last_updated: "2026-09-19T15:52:00.000Z"
+last_activity: "2026-09-19 — Phase 206: Canonical Skeleton Corpse & Cyclops Smith Hunt Integration [CONCLUÍDO]."
 progress:
-  total_phases: 205
-  completed_phases: 205
-  total_plans: 257
-  completed_plans: 257
+  total_phases: 206
+  completed_phases: 206
+  total_plans: 258
+  completed_plans: 258
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 205 - Centralized Error Logger & ADMIN Exclusive Debug Modal [CONCLUÍDO].
+**Current focus:** Phase 206 - Canonical Skeleton Corpse & Cyclops Smith Hunt Integration [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 205 of 205  
-Plan: 1 of 1 in Phase 205  
+Phase: 206 of 206  
+Plan: 1 of 1 in Phase 206  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 205 concluída com sistema unificado de telemetria e captura de erros (buffer circular 300 logs, localStorage, global unhandled listeners), modal de debug administrativo exclusivo (AdminDebugModal) com 3 abas, botão exclusivo no dock inferior com badge de erros em tempo real e endpoint protegido POST /api/admin/logs.
+Last activity: 2026-09-19 — Phase 206 concluída com substituição visual de cadáveres de monstros em caçadas pelo esqueleto canônico do Tibia (item 5972), preloading imediato no PixiArena, e integração integral do Cyclops Smith (hunt.ts, HuntSelector.tsx, Bestiário da Cyclopedia e reconstrução do texture atlas com border-extrusion).
 
 Progress: [██████████] 100%
 
