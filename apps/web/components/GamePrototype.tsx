@@ -3070,7 +3070,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       targetHunt,
       nextSeed,
       entrance,
-      pullSize,
+      pullSize: pullSize ?? 'cauteloso',
     };
   };
   startSelectedHuntRef.current = startSelectedHunt;

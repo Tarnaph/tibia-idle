@@ -2,7 +2,7 @@ import { deriveStats, getEquippedItems } from './derivedStats';
 import { adaptWaveHuntToExpedition } from './expedition';
 import { experienceForLevel, levelForExperience } from './experience';
 import { huntById } from './hunt';
-import { createContinuousHuntRoute } from './huntRoute';
+import { createContinuousHuntRoute, getPullSizeMonsterPool } from './huntRoute';
 import { calculateStatsForLevel, createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
 import { createSeededRng, rollInteger } from './rng';
 import { calculateBestSpellDirection, getSpellAreaTiles, isDirectionalSpell, spellFormulaRange } from './spells';
@@ -11,7 +11,7 @@ import { calculateMaxStamina, tickStamina } from './stamina';
 import { getEffectiveExpMultiplier, applySkillTrainingProgress } from './progressionStages';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getActionSupplyCost, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { findWandDefinition, canUseWand } from './wands';
-import { assertSpatialIntegrity, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
+import { assertSpatialIntegrity, directionBetween, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
 import { findPath, isMeleeRange, meleeDistance } from './spatial/pathfinding';
 import { createRoomState, roomDefinitionAt } from './spatial/rooms';
 import { clonePosition, samePosition } from './spatial/tileMap';
@@ -245,9 +245,204 @@ export function populateRespawnZone(state: GameState, content: GameContent, zone
   addLog(state, `${zone.id}: ${spawned.length} criatura(s) despertaram${spawned.some((enemy) => enemy.variant) ? ' · presença rara detectada' : ''}.`);
 }
 
+function choosePullMonsterId(
+  huntId: string,
+  pullSize: HuntPullSize,
+  pool: string[],
+  slotIndex: number,
+  totalSlots: number,
+  rng: ReturnType<typeof createSeededRng>
+): string {
+  if (huntId === 'cyclops-camp' || huntId.includes('cyclops')) {
+    if (pullSize === 'cauteloso') return 'cyclops';
+    if (pullSize === 'ousado') {
+      return rollInteger(rng, 1, 100) <= 25 ? 'cyclops-smith' : 'cyclops';
+    }
+    // agressivo: slots 0 and 1 guaranteed cyclops-smith, others 60% chance cyclops-smith
+    if (slotIndex < 2) return 'cyclops-smith';
+    return rollInteger(rng, 1, 100) <= 60 ? 'cyclops-smith' : 'cyclops';
+  }
+
+  if (huntId === 'dragon-lair' || huntId.includes('dragon')) {
+    if (pullSize === 'agressivo') {
+      if (slotIndex === 0) return 'dragon-lord';
+      return rollInteger(rng, 1, 100) <= 40 ? 'dragon-lord' : 'dragon';
+    }
+    return 'dragon';
+  }
+
+  if (huntId === 'elf-sanctuary' || huntId.includes('elf')) {
+    if (pullSize === 'cauteloso') return 'elf';
+    if (pullSize === 'ousado') {
+      return rollInteger(rng, 1, 100) <= 35 ? 'elf-scout' : 'elf';
+    }
+    const roll = rollInteger(rng, 1, 100);
+    if (roll <= 45) return 'elf-arcanist';
+    if (roll <= 80) return 'elf-scout';
+    return 'elf';
+  }
+
+  if (huntId === 'rat-cellars' || huntId.includes('rat')) {
+    if (pullSize === 'cauteloso') return 'rat';
+    return rollInteger(rng, 1, 100) <= 40 ? 'cave-rat' : 'rat';
+  }
+
+  if (pool.length === 1) return pool[0];
+  return pool[rollInteger(rng, 0, pool.length - 1)];
+}
+
+function findPullSpawnPositions(
+  encounter: HuntEncounterState,
+  center: GridPosition,
+  count: number,
+  rng: ReturnType<typeof createSeededRng>
+): GridPosition[] {
+  const map = encounter.room.map;
+  const occupied = new Set([
+    ...encounter.partyActors.filter((a) => a.alive).map((a) => `${a.position.x},${a.position.y}`),
+    ...encounter.enemies.filter((e) => e.alive).map((e) => `${e.position.x},${e.position.y}`),
+  ]);
+
+  const ring1 = map.tiles.filter((tile) => {
+    if (!tile.walkable) return false;
+    const key = `${tile.position.x},${tile.position.y}`;
+    if (occupied.has(key)) return false;
+    const dist = meleeDistance(tile.position, center);
+    return dist >= 2 && dist <= 4;
+  }).filter((tile) => findPath(map, tile.position, [center], new Set()).length > 0);
+
+  const ring2 = map.tiles.filter((tile) => {
+    if (!tile.walkable) return false;
+    const key = `${tile.position.x},${tile.position.y}`;
+    if (occupied.has(key)) return false;
+    const dist = meleeDistance(tile.position, center);
+    return dist >= 1 && dist <= 6;
+  }).filter((tile) => findPath(map, tile.position, [center], new Set()).length > 0);
+
+  const pool = ring1.length >= count ? ring1 : (ring2.length >= count ? ring2 : map.tiles.filter((t) => t.walkable && !occupied.has(`${t.position.x},${t.position.y}`)));
+
+  const poolCopy = [...pool];
+  const picked: GridPosition[] = [];
+  for (let i = 0; i < count && poolCopy.length > 0; i++) {
+    const idx = rollInteger(rng, 0, poolCopy.length - 1);
+    const chosen = poolCopy.splice(idx, 1)[0];
+    picked.push(clonePosition(chosen.position));
+  }
+  return picked;
+}
+
+export function populatePullAroundParty(state: GameState, content: GameContent, initial = false): void {
+  const encounter = state.encounter;
+  const progress = encounter.continuousProgress;
+  const route = encounter.huntRoute;
+  if (!progress || !route) return;
+
+  const pullSize = encounter.pullSize ?? 'cauteloso';
+
+  // If any enemies are still alive, NEVER spawn new creatures!
+  const living = encounter.enemies.filter((e) => e.alive);
+  if (living.length > 0) return;
+
+  const zoneState = progress.zones[0];
+  if (!initial && zoneState && encounter.elapsedMs < zoneState.nextRespawnAt) {
+    return;
+  }
+
+  // Prune dead enemies and corpses to avoid unbounded accumulation
+  if (encounter.enemies.length > 20) {
+    encounter.enemies = encounter.enemies.filter((e) => e.alive);
+  }
+  if (encounter.corpses.length > 15) {
+    encounter.corpses = encounter.corpses.slice(-15);
+  }
+
+  const leader = encounter.partyActors.find((actor) => actor.alive) ?? encounter.partyActors[0];
+  if (!leader) return;
+
+  const rng = createSeededRng(encounter.rngState);
+  let count = 2;
+  if (pullSize === 'cauteloso') {
+    count = rollInteger(rng, 2, 3);
+  } else if (pullSize === 'ousado') {
+    count = 4;
+  } else if (pullSize === 'agressivo') {
+    count = rollInteger(rng, 5, 6);
+  }
+
+  const basePool = route.respawnZones[0]?.monsterPool ?? getPullSizeMonsterPool(encounter.hunt.id, pullSize, encounter.hunt.monsters);
+  const spawnPositions = findPullSpawnPositions(encounter, leader.position, count, rng);
+
+  const spawned: EnemyState[] = [];
+  const activation = (zoneState?.activationCount ?? 0) + 1;
+
+  for (let i = 0; i < spawnPositions.length; i++) {
+    const pos = spawnPositions[i];
+    const monsterId = choosePullMonsterId(encounter.hunt.id, pullSize, basePool, i, spawnPositions.length, rng);
+    const monster = monsterFor(content, monsterId);
+
+    const rare = rollInteger(rng, 1, 10_000) <= Math.round((route.rareSpawnRules?.probability ?? 0.04) * 10_000);
+    const variant = rare && route.rareSpawnRules ? { ...route.rareSpawnRules.variant, baseMonsterId: monster.id, name: `Enraged ${monster.name}` } : null;
+    const resolved = deriveMonsterVariantStats(monster, variant);
+
+    spawned.push({
+      id: `pull-${activation}-${i + 1}-${rollInteger(rng, 100, 999)}`,
+      monsterId: monster.id,
+      name: variant?.name ?? monster.name,
+      hp: resolved.maxHp,
+      maxHp: resolved.maxHp,
+      attackMax: resolved.attackMax,
+      defense: resolved.defense,
+      armor: resolved.armor,
+      alive: true,
+      position: clonePosition(pos),
+      previousPosition: clonePosition(pos),
+      direction: directionBetween(pos, leader.position),
+      path: [],
+      targetId: leader.characterId,
+      nextAttackAt: 0,
+      attackIntervalMs: monster.attacks[0]?.intervalMs ?? 1800,
+      speed: monster.speed,
+      behavior: 'chase',
+      nextRoamAt: encounter.elapsedMs + 5000,
+      nextMoveAt: encounter.elapsedMs + 100,
+      detectionRange: 25,
+      variant,
+      respawnZoneId: 'pull-zone',
+    });
+  }
+
+  encounter.rngState = rng.state;
+  encounter.enemies.push(...spawned);
+
+  if (zoneState) {
+    zoneState.activeEnemyIds = spawned.map((e) => e.id);
+    zoneState.lastActivatedAt = encounter.elapsedMs;
+    zoneState.activationCount = activation;
+    zoneState.nextRespawnAt = 0;
+  }
+
+  synchronizeEncounterOccupancy(encounter);
+  addLog(state, `Pack de ${spawned.length} criatura(s) surgiu! (${pullSize})`);
+}
+
 function populateReadyRespawns(state: GameState, content: GameContent, initial = false): void {
   const encounter = state.encounter; const route = encounter.huntRoute; const progress = encounter.continuousProgress;
   if (!route || !progress) return;
+
+  if (encounter.pullSize) {
+    populatePullAroundParty(state, content, initial);
+    return;
+  }
+
+  // If there are living enemies not associated with any zone (e.g. injected mock enemies in tests),
+  // or if all zones are currently empty while living enemies exist, do not auto-populate zones.
+  if (!initial && encounter.enemies.some((e) => e.alive && !e.respawnZoneId)) {
+    return;
+  }
+  if (!initial && progress.zones.every((z) => z.activeEnemyIds.length === 0) && encounter.enemies.some((e) => e.alive)) {
+    return;
+  }
+
   for (let index = 0; index < route.respawnZones.length; index += 1) {
     const zone = route.respawnZones[index]; const zoneState = progress.zones[index];
     if (zoneState.activeEnemyIds.length > 0 || encounter.elapsedMs < zoneState.nextRespawnAt) continue;
@@ -375,6 +570,18 @@ export function defeatEnemy(state: GameState, target: EnemyState, content: GameC
   if (encounter.continuousProgress) {
     encounter.continuousProgress.kills += 1;
     if (target.variant?.visualModifier === 'rare-aura') encounter.continuousProgress.rareKills += 1;
+    if (encounter.pullSize) {
+      const remainingAlive = encounter.enemies.filter((enemy) => enemy.alive && enemy.id !== target.id);
+      if (remainingAlive.length === 0) {
+        const zoneState = encounter.continuousProgress.zones[0];
+        if (zoneState) {
+          zoneState.activeEnemyIds = [];
+          zoneState.lastClearedAt = encounter.elapsedMs;
+          zoneState.nextRespawnAt = encounter.elapsedMs + 1000;
+        }
+        encounter.continuousProgress.lastActivityAt = encounter.elapsedMs;
+      }
+    }
   }
 
   // Bestiary progression for idle hunts
@@ -1835,11 +2042,14 @@ function playerAttacks(state: GameState, content: GameContent): void {
       target = leadTarget;
     } else {
       const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : undefined;
-      if (lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range) {
-        target = lockedTarget;
+      if (lockedTarget) {
+        if (meleeDistance(actor.position, lockedTarget.position) <= range) {
+          target = lockedTarget;
+        } else {
+          // Locked target is out of range: do NOT redirect basic attacks to neighboring enemies (Phase 162)
+          continue;
+        }
       } else {
-        // Se o alvo travado ou o alvo do líder não está no alcance (ex: está longe ou atrás de quina),
-        // ataca o monstro vivo mais próximo dentro do alcance (corpo a corpo) e atualiza o targetId
         const inRangeEnemies = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
         if (inRangeEnemies.length > 0) {
           inRangeEnemies.sort((a, b) => meleeDistance(actor.position, a.position) - meleeDistance(actor.position, b.position) || a.id.localeCompare(b.id));
@@ -2145,6 +2355,18 @@ export interface HuntObjective { kind: 'combat' | 'next-respawn' | 'waypoint' | 
 export function resolveNextHuntObjective(state: GameState): HuntObjective | null {
   const { encounter } = state; const route = encounter.huntRoute; const progress = encounter.continuousProgress;
   if (!route || !progress || route.respawnZones.length === 0) return null;
+
+  if (encounter.pullSize) {
+    const living = encounter.enemies.filter((e) => e.alive);
+    const leader = encounter.partyActors.find((a) => a.alive);
+    if (living.length > 0 && leader) {
+      return { kind: 'combat', zoneIndex: 0, target: clonePosition(living[0].position), enemyIds: living.map((e) => e.id) };
+    }
+    if (leader) {
+      return { kind: 'next-respawn', zoneIndex: 0, target: clonePosition(leader.position), enemyIds: [] };
+    }
+  }
+
   for (let offset = 0; offset < route.respawnZones.length; offset += 1) {
     const zoneIndex = (progress.currentZoneIndex + offset) % route.respawnZones.length;
     const enemyIds = progress.zones[zoneIndex].activeEnemyIds.filter((id) => encounter.enemies.some((enemy) => enemy.id === id && enemy.alive));
@@ -2179,7 +2401,11 @@ export function resolveNextHuntObjective(state: GameState): HuntObjective | null
 function recordContinuousActivityOrThrow(state: GameState, objective: HuntObjective): void {
   const progress = state.encounter.continuousProgress!;
   const active = state.encounter.events.some((event) => event.type === 'movement' || event.type === 'player-attack' || event.type === 'enemy-attack' || event.type === 'enemy-death');
-  if (active) { progress.lastActivityAt = state.encounter.elapsedMs; progress.stalledSince = null; return; }
+  if (active || (state.encounter.pullSize && !state.encounter.enemies.some((e) => e.alive))) {
+    progress.lastActivityAt = state.encounter.elapsedMs;
+    progress.stalledSince = null;
+    return;
+  }
   if (progress.stalledSince === null) progress.stalledSince = state.encounter.elapsedMs;
   if (state.encounter.elapsedMs - progress.lastActivityAt >= 5_000) {
     const leader = state.encounter.partyActors.find((actor) => actor.characterId === state.session.leaderId);
@@ -2234,7 +2460,8 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
     return;
   }
 
-  const visibleEnemies = encounter.enemies.filter((enemy) => enemy.alive && encounter.partyActors.some((actor) => actor.alive && (meleeDistance(actor.position, enemy.position) <= 7 || (actor.targetId === enemy.id && meleeDistance(actor.position, enemy.position) <= 8))));
+  const maxVisDist = encounter.pullSize ? 25 : 7;
+  const visibleEnemies = encounter.enemies.filter((enemy) => enemy.alive && encounter.partyActors.some((actor) => actor.alive && (meleeDistance(actor.position, enemy.position) <= maxVisDist || (actor.targetId === enemy.id && meleeDistance(actor.position, enemy.position) <= maxVisDist + 1))));
   if (visibleEnemies.length > 0) {
     const partyKnight = findPartyKnightActor(state);
     const mainLeadId = partyKnight?.characterId ?? state.session.selectedCharacterId;
@@ -2254,6 +2481,12 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   const mainLeadId = partyKnight?.characterId ?? state.session.selectedCharacterId;
   const leader = encounter.partyActors.find((actor) => actor.characterId === (partyKnight?.characterId ?? state.session.leaderId) && actor.alive) ?? encounter.partyActors.find((actor) => actor.alive);
   if (!leader) return;
+
+  // Idle Arena Pull Mode: if pullSize is set and waiting for respawn, leader stays put in arena (no wandering)
+  if (encounter.pullSize && !encounter.enemies.some((e) => e.alive)) {
+    progress.lastActivityAt = encounter.elapsedMs;
+    return;
+  }
 
   // Solo dynamic exploration: if waypoint is empty and there are living monsters elsewhere in the dungeon, pathfind to nearest living monster!
   let targetPoint = objective.target;
