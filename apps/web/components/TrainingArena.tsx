@@ -7,6 +7,7 @@ import type { CharacterState, CombatVisualEvent, TrainableSkill } from '@/packag
 import { calculatePixelCamera, creatureVisualLayout } from '@/packages/presentation/src';
 import type { Tibia1098AssetManifest } from '@/packages/tibia1098-assets/src/types';
 import type { Application as PixiApplication, Texture as PixiTexture } from 'pixi.js';
+import { playPhysicalAttack, playMagicSpell } from '@/apps/web/lib/soundEffects';
 
 interface TrainingMember { character: CharacterState; skill: TrainableSkill; progress: number }
 interface TrainingArenaProps { members: TrainingMember[]; visualEvents: CombatVisualEvent[]; debug: boolean }
@@ -96,6 +97,19 @@ export function TrainingArena({ members, visualEvents, debug }: TrainingArenaPro
       visualSyncRef.current = (events) => {
         for (const event of events.filter((candidate): candidate is Extract<CombatVisualEvent, { type: 'training-action' }> => candidate.type === 'training-action')) {
           const from = memberPoints.get(event.sourceId); if (!from) continue;
+          const member = latestMembers.current.find((m) => m.character.id === event.sourceId);
+          const voc = member?.character.vocation;
+          if (event.projectileId) {
+            playPhysicalAttack('Paladin');
+          } else if (voc === 'Knight') {
+            playPhysicalAttack('Knight');
+          } else if (voc === 'Sorcerer') {
+            playMagicSpell('Sorcerer');
+          } else if (voc === 'Druid') {
+            playMagicSpell('Druid');
+          } else {
+            playPhysicalAttack(voc);
+          }
           const mapping = event.projectileId ? visualAssets.missiles[String(event.projectileId)] : visualAssets.effects[String(event.effectId)];
           const frames = mapping?.frames.map((frame) => frame.publicUrl) ?? []; if (!frames.length) continue;
           const sprite = new Sprite(loaded[frames[0]]); sprite.anchor.set(0.5); sprite.position.set(event.projectileId ? from.x : dummyPoint.x, event.projectileId ? from.y : dummyPoint.y); effects.addChild(sprite);

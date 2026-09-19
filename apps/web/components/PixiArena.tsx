@@ -10,6 +10,7 @@ import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pi
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getCanvasCacheKey, getRecoloredCanvasSync, isOutfitCanvasCached, normalizeOutfitId, preloadOutfitAllFrames } from '@/apps/web/lib/outfitRecolor';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
+import { playPhysicalAttack, playMagicSpell, playPlayerDeath } from '@/apps/web/lib/soundEffects';
 
 interface PixiArenaProps {
   game: GameState;
@@ -861,7 +862,22 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
                 timed.push({ root: xpText, startedAt: now, durationMs: 1100, kind: 'float' });
               }
             }
+            if ((event as any).type === 'player-death') {
+              playPlayerDeath();
+            }
             if (event.type !== 'player-attack' && event.type !== 'enemy-attack' && event.type !== 'spell-cast') continue;
+
+            if (event.type === 'player-attack') {
+              const char = state.session.characters.find((c) => c.id === event.sourceId);
+              const actor = state.encounter.partyActors.find((a) => a.characterId === event.sourceId);
+              const vocation = char?.vocation || (char as any)?.vocationName || (actor as any)?.vocation;
+              playPhysicalAttack(vocation);
+            } else if (event.type === 'spell-cast') {
+              const char = state.session.characters.find((c) => c.id === event.sourceId);
+              const vocation = char?.vocation || (char as any)?.vocationName;
+              playMagicSpell(vocation, (event as any).element);
+            }
+
             const targetId = event.targetId; const targetPosition = actorPosition(state, targetId); if (!targetPosition) continue;
             const amount = event.type === 'spell-cast' ? event.amount : event.damage;
             if (amount > 0) {

@@ -40,6 +40,8 @@ next-env.d.ts
 /scratch/
 *.tsbuildinfo
 /public/assets/
+!/public/assets/sfx/
+!/public/sfx/
 
 # Large binary archives and map/sprite blobs (> 100MB)
 content/generated/tibia1098-assets.json

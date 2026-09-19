@@ -101,6 +101,7 @@ import { progressionDiagnostics } from '../lib/progressionDiagnostics';
 import { playCityBgm, pauseCityBgm, stopCityBgm } from '../lib/audioManager';
 import { triggerTrackNotification, THAIS_THEME_TRACK } from '../lib/audioManager';
 import { playDragonLairBgm, stopDragonLairBgm, stopAllAudio, DRAGONS_PRIDE_TRACK, playHuntBgm, stopHuntBgm, getTrackForHunt } from '../lib/audioManager';
+import { playPlayerDeath, preloadSfx } from '../lib/soundEffects';
 import { MusicTrackToast } from './audio/MusicTrackToast';
 import thaisCollisionJson from '@/content/generated/thais-collision.json';
 
@@ -555,6 +556,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       return [];
     }
   });
+
+  useEffect(() => {
+    preloadSfx().catch(() => {});
+  }, []);
 
   useEffect(() => {
     try {
@@ -2805,6 +2810,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       const deathEvt = encounter.events?.find((e: any) => e.type === 'player-death');
       const killer = (deathEvt as any)?.killerName || encounter.enemies?.find((e) => e.alive)?.name || encounter.enemies?.[0]?.name || encounter.hunt?.name || 'Monstro';
       setLastKillerName(killer);
+      playPlayerDeath();
       setIsDeathModalOpen(true);
       setOverheadMessages((prev) => [
         ...prev,
