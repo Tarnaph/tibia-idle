@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T17:00:00.000Z"
-last_activity: "2026-09-19 — Phase 210: Quick Sell Persistent Item Selection (localStorage) [CONCLUÍDO]."
+last_updated: "2026-09-19T17:15:00.000Z"
+last_activity: "2026-09-19 — Phase 211: Monster Movement AI & 8-SQM Box Formation System [CONCLUÍDO]."
 progress:
-  total_phases: 210
-  completed_phases: 210
-  total_plans: 280
-  completed_plans: 280
+  total_phases: 211
+  completed_phases: 211
+  total_plans: 286
+  completed_plans: 286
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 210 - Quick Sell Persistent Item Selection (localStorage) [CONCLUÍDO].
+**Current focus:** Phase 211 - Monster Movement AI & 8-SQM Box Formation System [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 210 of 210  
-Plan: 1 of 1 in Phase 210  
+Phase: 211 of 211  
+Plan: 1 of 1 in Phase 211  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 210 concluída com memorização persistente dos itens marcados na Venda Rápida via localStorage (cavebound_quicksell_selected_items_v2): re-sincronização automática na abertura do modal, toolbar com botões de ação em lote 'Marcar Todos' e 'Desmarcar Todos', e preservação exata da seleção do usuário entre sessões. Deploy verificado na VPS 187.7.16.210.
+Last activity: 2026-09-19 — Phase 211 concluída com aprimoramento da inteligência artificial de movimentação de monstros: eliminação do bloqueio diagonal em quinas entre criaturas, custo euclidiano canônico de diagonal corrigido para 14 (10 * sqrt(2)), ordenação de inimigos por distância ascendente, fechamento robusto do Box de 8 SQM ao redor do jogador e passos alternativos laterais anti-congestionamento. Deploy verificado na VPS 187.7.16.210.
 
 Progress: [██████████] 100%
 

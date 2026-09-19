@@ -44,7 +44,7 @@
 
 [CONCLUÍDO - Fase 210] Venda rápida: memorizar os últimos itens selecionados pelo usuário (localStorage) para abrir já selecionado com agilidade.
 
-[PENDENTE] Investigar e corrigir IA para que os bichos fechem "Box" de 8 sqm em volta do jogador sem travar nas quinas ou bloquear o caminho uns dos outros (permitindo exori eficiente).
+[CONCLUÍDO - Fase 211] Investigar e corrigir IA para que os bichos fechem "Box" de 8 sqm em volta do jogador sem travar nas quinas ou bloquear o caminho uns dos outros (permitindo exori eficiente).
 
 [PENDENTE] Investigar e eliminar vazamento de memória (PixiJS memory leak e tickers sem destroy) que gera o erro "Código de erro: Out of Memory" após deixar o jogo parado aberto.
 

@@ -152,6 +152,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 208: Real-Time Online Status on Player Inspection** - Correção da inspeção de jogadores para verificação em tempo real do status online no servidor Colyseus e Prisma DB: método estático `ThaisCityRoom.isCharacterOnline`, sincronização de `isOnline` no banco de dados no `onJoin` e `onLeave`, endpoint `GET /api/character-online/:nameOrId`, consulta em tempo real em `/api/characters/lookup` e suporte a `isOnlineLocal` no `PlayerInspectModal`.
 - [x] **Phase 209: Audio & Sound Effects (SFX) System** - Implementação de efeitos sonoros canônicos: ataques físicos para Knight (espada/impacto) e Paladin (disparo à distância), magias elementais/curativas para Sorcerer e Druid, e som dramático de morte ao ser derrotado, com fallback procedural via Web Audio API, geração de arquivos WAV e controle de volume/mute.
 - [x] **Phase 210: Quick Sell Persistent Item Selection (localStorage)** - Memorização persistente dos itens marcados na Venda Rápida via localStorage (`cavebound_quicksell_selected_items_v2`), re-sincronização automática na abertura do modal, toolbar com botões "Marcar Todos" e "Desmarcar Todos", e preservação de seleção em vendas sucessivas.
+- [x] **Phase 211: Monster Movement AI & 8-SQM Box Formation System** - Correção da inteligência artificial de movimentação de monstros: eliminação de bloqueios diagonais em quinas entre criaturas (`isTileWalkable` vs `canEnter`), ajuste de custo euclidiano diagonal de 25 para 14, ordenação de prioridade por distância ascendente, e algoritmo de fechamento do "Box" de 8 SQM ao redor do jogador com desvios laterais anti-congestionamento para rotações de Exori de Knight.
 
 
 ---
@@ -3869,6 +3870,22 @@ Plans:
 - [x] 210-02-PLAN: Re-sincronização reativa da seleção na abertura do modal (`open === true`) reconciliando com a mochila atual.
 - [x] 210-03-PLAN: Toolbar com botões de ação em lote "Marcar Todos" e "Desmarcar Todos" com atualização instantânea de persistência.
 - [x] 210-04-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
+
+---
+
+### Phase 211: Monster Movement AI & 8-SQM Box Formation System
+
+**Goal:** Corrigir a inteligência artificial de movimentação para que os monstros fechem com precisão o "Box" de 8 SQM ao redor do jogador para Exori sem travar nas quinas ou colidirem entre si.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 211-01-PLAN: Desbloqueio de passos diagonais no A* (`findPath`) através de criaturas, exigindo apenas que os tiles intermediários sejam terreno caminhável (`isTileWalkable`).
+- [x] 211-02-PLAN: Correção do custo de diagonal de 25 para 14 no `NEIGHBORS`, tornando o passo diagonal mais econômico que 2 passos ortogonais (14 < 20).
+- [x] 211-03-PLAN: Ordenação de processamento de inimigos por distância ao alvo ascendente (mais próximos primeiro) em `moveEnemiesTowardParty`.
+- [x] 211-04-PLAN: Priorização e ordenação dinâmica dos 8 slots do box por proximidade individual e enfileiramento no anel externo (distância 2) para o 9º monstro em diante.
+- [x] 211-05-PLAN: Passo alternativo lateral/diagonal anti-congestionamento quando o tile principal estiver momentaneamente ocupado.
+- [x] 211-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
 
 
 
