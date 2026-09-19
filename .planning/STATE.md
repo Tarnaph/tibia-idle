@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T13:30:00.000Z"
-last_activity: "2026-09-19 — Phase 202: Resolução Definitiva de Falha ao Salvar Progresso do Servidor (Timeouts Prisma, Rate Limiter de XP e Reconciliação OCC) [CONCLUÍDO]."
+last_updated: "2026-09-19T14:10:00.000Z"
+last_activity: "2026-09-19 — Phase 203: Resolução Definitiva de Falsos Positivos de Rate Limiter de XP e Skills em Caçadas e Conflitos OCC no Colyseus [CONCLUÍDO]."
 progress:
-  total_phases: 202
-  completed_phases: 202
-  total_plans: 250
-  completed_plans: 250
+  total_phases: 203
+  completed_phases: 203
+  total_plans: 255
+  completed_plans: 255
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 202 - Resolução Definitiva de Falha ao Salvar Progresso do Servidor [CONCLUÍDO].
+**Current focus:** Phase 203 - Resolução Definitiva de Falsos Positivos de Rate Limiter de XP e Skills em Caçadas [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 202 of 202  
-Plan: 5 of 5 in Phase 202  
+Phase: 203 of 203  
+Plan: 5 of 5 in Phase 203  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 202 concluída com eliminação de timeouts Prisma, falsos positivos de rate limiter e colisões OCC no salvamento.
+Last activity: 2026-09-19 — Phase 203 concluída com persistência de isHunting/lastHuntId no SQLite, validação de hasHuntEvidence no rate limiter e eliminação de conflitos OCC no Colyseus.
 
 Progress: [██████████] 100%
 

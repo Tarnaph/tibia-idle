@@ -121,6 +121,13 @@ export class PrismaPersistenceManager {
         const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
         const dbVersion = (existing as any)?.saveVersion ?? 1;
         const playerVersion = typeof (player as any).saveVersion === 'number' ? (player as any).saveVersion : dbVersion;
+
+        if (playerVersion < dbVersion) {
+          // Client has saved newer progression via HTTP; adopt latest dbVersion and skip overwriting newer data
+          (player as any).saveVersion = dbVersion;
+          return;
+        }
+
         const currentVersion = playerVersion;
         (player as any).saveVersion = currentVersion;
 

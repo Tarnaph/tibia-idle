@@ -3743,6 +3743,21 @@ Plans:
 - [x] 202-04-PLAN: Aumentar o timeout do mutex de salvamento em `GamePrototype.tsx` para 6000ms, adicionar 4º retry resiliente de saída de caçada e extrair detalhes do erro retornado pela API.
 - [x] 202-05-PLAN: Executar validação automatizada de regressão com Vitest e TypeScript (0 erros), documentar summary e realizar deploy na VPS de produção.
 
+---
+
+### Phase 203: Resolução Definitiva de Falsos Positivos de Rate Limiter de XP e Skills em Caçadas e Conflitos OCC no Colyseus
+
+**Goal:** Eliminar falsos positivos no rate limiter de XP (+29.640 XP no Cyclops) e saltos de tentativas de treino, persistindo explicitamente `isHunting` e `lastHuntId` no banco SQLite através do `characterService.ts`, reconhecendo evidência de caçada pelo identificador da rota/banco, disparando sincronização imediata de caçada no clique de `startSelectedHunt` e eliminando colisões de versão OCC (`playerVersion < dbVersion`) no auto-save periódico do Colyseus.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 203-01-PLAN: Persistir `updateData.isHunting` e `updateData.lastHuntId` na tabela `characters` em `packages/auth/src/characterService.ts`.
+- [x] 203-02-PLAN: Ajustar `characterService.ts` para verificar `hasHuntEvidence` tanto para ganho de XP quanto para tentativas de skills (`SkillRateLimiter`), permitindo a taxa correta de caçada.
+- [x] 203-03-PLAN: Disparar `gameNetwork.sendSetInHunt(true, huntId)` imediatamente em `startSelectedHunt` e incluir `lastHuntId` nos payloads de save em `GamePrototype.tsx`.
+- [x] 203-04-PLAN: Proteger Colyseus contra colisões OCC adotando `dbVersion` quando o cliente já gravou versão mais recente (`playerVersion < dbVersion`) em `PrismaPersistenceManager.ts`.
+- [x] 203-05-PLAN: Validação completa no Vitest (100%), typecheck (0 erros), documentação e deploy na VPS de produção `187.7.16.210`.
+
 
 
 

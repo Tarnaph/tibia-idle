@@ -578,6 +578,12 @@ export class CharacterService {
       if (data.bossPoints !== undefined) {
         updateData.bossPoints = Math.max(Number(existing?.bossPoints || 0), Number(data.bossPoints || 0));
       }
+      if (data.isHunting !== undefined) {
+        updateData.isHunting = Boolean(data.isHunting);
+      }
+      if ((data as any).lastHuntId) {
+        updateData.lastHuntId = (data as any).lastHuntId;
+      }
 
       // Authoritative Level and Experience reconciliation
       const existingLevel = existing?.level ?? 1;
@@ -609,9 +615,20 @@ export class CharacterService {
             );
           }
 
+          const hasHuntEvidence = Boolean(
+            (existing as any)?.lastHuntId ||
+            (data as any)?.lastHuntId ||
+            (existing as any)?.isHunting ||
+            contextResult.isHunting
+          );
+
           const isHunting = options?.isInternal
             ? Boolean(options?.isHunting)
-            : Boolean(contextResult.isHunting || (existing as any)?.isHunting);
+            : Boolean(
+                contextResult.isHunting ||
+                (existing as any)?.isHunting ||
+                (data.isHunting && hasHuntEvidence)
+              );
 
           const lastSavedAtMs = existing.lastSavedAt instanceof Date
             ? existing.lastSavedAt.getTime()
@@ -743,7 +760,17 @@ export class CharacterService {
               `Contexto do personagem ${characterId} em sincronização ou serviço reiniciando. Salvamento postergado até restabelecimento da sessão.`
             );
           }
-          isHunting = Boolean(contextResult.isHunting || (existing as any)?.isHunting);
+          const hasHuntEvidence = Boolean(
+            (existing as any)?.lastHuntId ||
+            (data as any)?.lastHuntId ||
+            (existing as any)?.isHunting ||
+            contextResult.isHunting
+          );
+          isHunting = Boolean(
+            contextResult.isHunting ||
+            (existing as any)?.isHunting ||
+            (data.isHunting && hasHuntEvidence)
+          );
         }
 
         const targetVoc = data.vocationName || existing?.vocationName || 'Knight';

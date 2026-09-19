@@ -20,7 +20,7 @@
 
 [CONCLUÍDO - Fase 199] Falha ao salvar progresso antes de sair da caçada (renovação automática do lease de sessão pós-restart e reconciliação OCC de saveVersion entre Colyseus e Next.js) e renderização dos cadáveres (corpses) de Cyclops e criaturas multi-tile perfeitamente alinhados à grade de tiles sem fatiamento de sprites.
 
-[EM PROGRESSO - Fase 202] Falha ao salvar progresso do servidor: Eliminar timeouts de transação interativa do Prisma (de 5s para 30s), busy_timeout de SQLite, falsos positivos de rate limiter de XP (HUNT vs NON_HUNT) e reconciliação estrita de saveVersion entre Next.js e Colyseus.
+[CONCLUÍDO - Fase 202] Falha ao salvar progresso do servidor: Eliminar timeouts de transação interativa do Prisma (de 5s para 30s), busy_timeout de SQLite, falsos positivos de rate limiter de XP (HUNT vs NON_HUNT) e reconciliação estrita de saveVersion entre Next.js e Colyseus.
 
 [PENDENTE] PVP: Jogadores travados no loading (aparece e volta para loading); jogadores começando no último rank (Platina) ao invés do primeiro (Iniciante, 0 ELO); caveira oficial do Tibia (sprite 11x11 autêntico dos assets) posicionada corretamente ao lado do nome.
 
@@ -47,3 +47,11 @@
 [PENDENTE] Investigar e corrigir IA para que os bichos fechem "Box" de 8 sqm em volta do jogador sem travar nas quinas ou bloquear o caminho uns dos outros (permitindo exori eficiente).
 
 [PENDENTE] Investigar e eliminar vazamento de memória (PixiJS memory leak e tickers sem destroy) que gera o erro "Código de erro: Out of Memory" após deixar o jogo parado aberto.
+
+[PENDENTE] Personagem morto não deve ganhar XP (interromper recepção de experiência enquanto o estado de vida for 0 / morto).
+
+[PENDENTE] Party em caçada com transferência de líder ao morrer: se o personagem ativo morrer, transferir automaticamente o controle e foco da câmera para o próximo membro vivo com maior nível; o personagem morto cessa o ganho de XP enquanto os sobreviventes continuam acumulando normalmente.
+
+[PENDENTE] Knight 'Exeta Res': corrigir animação e efeitos mágicos visuais que não estão aparecendo durante a conjuração do taunt/challenge.
+
+[PENDENTE] Falha na conjuração de magias e loop de cooldown fantasma: investigar magias que não exibem efeito gráfico nem causam dano, e que ao término do cooldown reiniciam o temporizador sem terem disparado o feitiço.

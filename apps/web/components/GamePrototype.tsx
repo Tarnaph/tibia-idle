@@ -1945,6 +1945,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           saveVersion: primaryVersion,
           replaceFullInventory: true,
           isHunting: mode === 'hunt' || isTrainingAtDummy,
+          lastHuntId: mode === 'hunt' ? (game.encounter.hunt?.id || 'cyclops-camp') : undefined,
           sessionId: gameNetwork.LocalPlayerId || activeSessionIdRef.current,
         }),
       });
@@ -2125,6 +2126,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               outfit: alt.outfit,
               saveVersion: altVersion,
               isHunting: mode === 'hunt' || isTrainingAtDummy,
+              lastHuntId: mode === 'hunt' ? (game.encounter.hunt?.id || 'cyclops-camp') : undefined,
             }),
           });
 
@@ -3030,6 +3032,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     setHuntSelectorOpen(false);
     setIsTrainingAtDummy(false);
     setWalkingPath(null);
+
+    // Phase 203: Notify server/Colyseus immediately that player has entered this hunt
+    gameNetwork.sendSetInHunt(true, huntId);
 
     // Phase 109: Start Dragon Lair music immediately during loading screen if entering dragon-lair!
     if (huntId === 'dragon-lair') {
