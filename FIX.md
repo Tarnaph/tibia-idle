@@ -36,7 +36,7 @@
 
 [CONCLUÍDO - Fase 206] Cyclops Smith não está funcionando na escolha da caçada e nem dentro do jogo.
 
-[PENDENTE] Eliminar duplicação do personagem: personagem não deve ficar no templo de Thais e na caçada ao mesmo tempo.
+[CONCLUÍDO - Fase 207] Eliminar duplicação do personagem: personagem não deve ficar no templo de Thais e na caçada ao mesmo tempo.
 
 [PENDENTE] Ao inspecionar jogador, verificar status online em tempo real no servidor/Colyseus em vez de exibir incorretamente "offline".
 

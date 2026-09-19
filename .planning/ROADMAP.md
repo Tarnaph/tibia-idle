@@ -148,6 +148,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 204: Resolução Completa do PVP (Loop de Loading, Rank ELO Inicial 0, Caveira Canônica do Tibia, Persistência de Exibição e Visibilidade em Thais)** - Eliminação definitiva do loop de loading ao entrar na Arena PvP (isArenaReady imediato no término da transição e 2s ao sair), correção do rank inicial para 0 ELO ("Iniciante") no banco e servidor Colyseus, substituição dos sprites das 6 caveiras pelos assets canônicos 11x11 autênticos do Tibia, posicionamento adjacente e centralizado no nameplate, persistência de displaySkull no Prisma DB e restauração autoritativa de visibilidade de jogadores que retornam da arena/caçadas para Thais City (restorePlayerToThaisCity).
 - [x] **Phase 205: Centralized Error Logger & ADMIN Exclusive Debug Modal** - Sistema unificado de telemetria e captura de erros (buffer circular 300 logs, localStorage, global unhandled listeners), modal de debug administrativo exclusivo (AdminDebugModal) com 3 abas (Logs do Sistema com busca e filtro por nível, Telemetria/Engine com monitor de FPS, memória e Colyseus, Ações Rápidas de GM para salvamento e reconexão), botão exclusivo no dock inferior com badge de erros em tempo real e endpoint protegido POST /api/admin/logs.
 - [x] **Phase 206: Canonical Skeleton Corpse & Cyclops Smith Hunt Integration** - Substituição visual dos cadáveres de monstros em caçadas pelo esqueleto canônico do Tibia (item 5972 / remains of a skeleton, 32x32 sem cortes ou sobreposições), pré-carregamento imediato no PixiArena, e integração completa do Cyclops Smith (definição de hunt.ts, catalog card e tela de setup de pull com loot agregado em HuntSelector.tsx, registro no Bestiário com stats canônicos e reconstrução do atlas hunt-cyclops-camp-atlas com todos os 12 frames de caminhada).
+- [x] **Phase 207: Eliminate Character Duplication in Thais Temple During Hunts** - Eliminação definitiva da duplicação de personagem no Templo de Thais durante caçadas: sincronização autoritativa de hunt state no handshake Colyseus (onJoin), correção da race condition de saveProgress durante a tela de loading de 10s, gravação correta de coordenadas de entrada ao invés de Thais Temple (32369, 32241, 7), ocultação de caçadores em Thais City e identificação estrita de jogador local em ThaisCityArena.
 
 
 ---
@@ -3761,6 +3762,65 @@ Plans:
 - [x] 203-03-PLAN: Disparar `gameNetwork.sendSetInHunt(true, huntId)` imediatamente em `startSelectedHunt` e incluir `lastHuntId` nos payloads de save em `GamePrototype.tsx`.
 - [x] 203-04-PLAN: Proteger Colyseus contra colisões OCC adotando `dbVersion` quando o cliente já gravou versão mais recente (`playerVersion < dbVersion`) em `PrismaPersistenceManager.ts`.
 - [x] 203-05-PLAN: Validação completa no Vitest (100%), typecheck (0 erros), documentação e deploy na VPS de produção `187.7.16.210`.
+
+---
+
+### Phase 204: Resolução Completa do PVP (Loop de Loading, Rank ELO Inicial 0, Caveira Canônica do Tibia, Persistência de Exibição e Visibilidade em Thais)
+
+**Goal:** Eliminar o travamento de loading na Arena PvP, inicializar jogadores no ELO 0 ("Iniciante"), exibir a caveira oficial do Tibia com asset canônico 11x11, persistir a preferência no Prisma DB e garantir restauração autoritativa de visibilidade ao retornar a Thais.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 204-01-PLAN: Resolução imediata de readiness de loading na Arena PvP.
+- [x] 204-02-PLAN: Correção de rank ELO inicial 0 no Colyseus e Prisma.
+- [x] 204-03-PLAN: Substituição das caveiras por sprites canônicos 11x11 e centralização adjacente ao nome.
+- [x] 204-04-PLAN: Persistência permanente de displaySkull no Prisma DB.
+- [x] 204-05-PLAN: Restauração autoritativa de visibilidade de jogadores em Thais City (restorePlayerToThaisCity).
+
+---
+
+### Phase 205: Centralized Error Logger & ADMIN Exclusive Debug Modal
+
+**Goal:** Criar sistema de log de erros centralizado com telemetria, buffer circular de 300 logs, listeners globais, modal administrativo exclusivo (AdminDebugModal) e botão dedicado de Debug para usuários ADMIN no dock.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 205-01-PLAN: Módulo de logging centralizado (errorLogger.ts) com buffer circular e persistência em localStorage.
+- [x] 205-02-PLAN: Modal AdminDebugModal com 3 abas (Logs, Telemetria/Engine, Ações de GM).
+- [x] 205-03-PLAN: Botão Debug no dock inferior exclusivo para usuários com role ADMIN e badge de contagem de erros.
+- [x] 205-04-PLAN: Endpoint POST /api/admin/logs protegido para ingestão de telemetria.
+
+---
+
+### Phase 206: Canonical Skeleton Corpse & Cyclops Smith Hunt Integration
+
+**Goal:** Substituir o cadáver de todos os monstros em caçadas pelo esqueleto canônico do Tibia (item 5972 / remains of a skeleton, 32x32 perfeitamente centralizado no tile sem fatiamento) e integrar integralmente o Cyclops Smith na escolha da caçada e no jogo.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 206-01-PLAN: Substituição canônica de cadáveres em caçadas por Skeleton Corpse (item 5972 / sprite 3853) em PixiArena e prioridade de carregamento.
+- [x] 206-02-PLAN: Adição de Cyclops Smith em hunt.ts (cyclops-camp monsters), catalog card e tela de setup de pull com loot agregado em HuntSelector.
+- [x] 206-03-PLAN: Registro canônico no Bestiário da Cyclopedia e reconstrução do texture atlas do Acampamento dos Ciclopes com 12 frames de caminhada.
+
+---
+
+### Phase 207: Eliminate Character Duplication in Thais Temple During Hunts
+
+**Goal:** Eliminar definitivamente a duplicação de personagem no Templo de Thais durante caçadas, corrigindo o handshake de entrada do Colyseus (onJoin), a race condition do saveProgress durante o loading de 10s gravando coordenadas de entrada ao invés do templo, a filtragem de jogadores caçando na cidade e a identificação estrita de jogador local em ThaisCityArena.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 207-01-PLAN: Reconstruir contexto de caçada no onJoin do Colyseus e posicionar player na entrada da hunt ao invés do Templo de Thais.
+- [x] 207-02-PLAN: Corrigir saveProgress em GamePrototype.tsx para detectar transição de loading e salvar coordenadas de entrada com isHunting=true.
+- [x] 207-03-PLAN: Identificação estrita de jogador local (isLocal) em ThaisCityArena.tsx por characterId, name e curChars para nunca renderizar clones fantasmas.
+- [x] 207-04-PLAN: Filtrar jogadores com inHunt ativo nos tooltips e menu de contexto de Thais City.
+- [x] 207-05-PLAN: Sincronização em tempo real de ServerCharacterContextRegistry no saveCharacter e updateMany resiliente em setPlayerHuntStatus.
+- [x] 207-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
+
 
 
 
