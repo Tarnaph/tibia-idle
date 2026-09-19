@@ -13,6 +13,7 @@ interface ArenaPvPModalProps {
   onOpenRotation?: (characterId: string) => void;
   onOpenHelper?: (characterId: string) => void;
   onStartPvPDuel?: (matchEvent: PvPMatchFoundEvent) => void;
+  onToggleSkull?: (displaySkull: boolean) => void;
 }
 
 interface PvPStatusData {
@@ -43,10 +44,11 @@ export function ArenaPvPModal({
   onOpenRotation,
   onOpenHelper,
   onStartPvPDuel,
+  onToggleSkull,
 }: ArenaPvPModalProps) {
   const [loading, setLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [searchCountdown, setSearchCountdown] = useState(18);
+  const [searchCountdown, setSearchCountdown] = useState(30);
   const [searchTimeoutMessage, setSearchTimeoutMessage] = useState<string | null>(null);
   const [data, setData] = useState<PvPStatusData | null>(null);
   const [lastMatchResult, setLastMatchResult] = useState<any | null>(null);
@@ -84,13 +86,13 @@ export function ArenaPvPModal({
     }
   }, [open, loadPvPStatus]);
 
-  // Listener de eventos do Colyseus (Match Found, Queue Searching, Queue Timeout)
+  // Listener de eventos do Colyseus (Match Found, Queue Searching, Queue Timeout, Duplicate Session)
   useEffect(() => {
     if (!open) return;
 
     const unsubSearching = gameNetwork.onPvPQueueSearching(({ timeoutSeconds }) => {
       setIsSearching(true);
-      setSearchCountdown(timeoutSeconds);
+      setSearchCountdown(timeoutSeconds || 30);
       setSearchTimeoutMessage(null);
     });
 
@@ -106,18 +108,33 @@ export function ArenaPvPModal({
       onStartPvPDuel?.(event);
     });
 
+    const unsubDuplicate = gameNetwork.onDuplicateSession((message) => {
+      setIsSearching(false);
+      setSearchTimeoutMessage(`Desconectado: ${message || 'Sua conta foi conectada em outra janela ou dispositivo.'}`);
+    });
+
     return () => {
       unsubSearching();
       unsubTimeout();
       unsubMatch();
+      unsubDuplicate();
     };
   }, [open, onClose, onStartPvPDuel]);
 
-  // Temporizador visual regressivo da busca
+  // Temporizador visual regressivo da busca com auto-cancelamento ao zerar
   useEffect(() => {
     if (!isSearching) return;
     const interval = setInterval(() => {
-      setSearchCountdown((prev) => Math.max(0, prev - 1));
+      setSearchCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setIsSearching(false);
+          gameNetwork.sendPvPQueueLeave();
+          setSearchTimeoutMessage('Nenhum oponente disponível no momento. Tente novamente em instantes!');
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
     return () => clearInterval(interval);
   }, [isSearching]);
@@ -126,10 +143,10 @@ export function ArenaPvPModal({
   const handleEnterQueue = () => {
     if (!currentCharacterId || isSearching) return;
     setIsSearching(true);
-    setSearchCountdown(18);
+    setSearchCountdown(30);
     setSearchTimeoutMessage(null);
     setLastMatchResult(null);
-    gameNetwork.sendPvPQueueJoin(currentCharacterId);
+    gameNetwork.sendPvPQueueJoin(currentCharacterId, data?.elo ?? 1000);
   };
 
   // Cancelar busca na fila
@@ -139,11 +156,13 @@ export function ArenaPvPModal({
     setSearchTimeoutMessage(null);
   };
 
-  // Toggle de exibição da caveira
+  // Toggle de exibição da caveira com sincronização no Colyseus e React state
   const handleToggleSkull = async () => {
     if (!currentCharacterId) return;
     const nextVal = !displaySkull;
     setDisplaySkull(nextVal);
+    gameNetwork.sendToggleSkull(nextVal);
+    onToggleSkull?.(nextVal);
     try {
       await fetch('/api/pvp/toggle-skull', {
         method: 'POST',

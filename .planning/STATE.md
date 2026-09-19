@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T02:45:00.000Z"
-last_activity: "2026-09-19 — Phase 199: Resiliência de Salvamento pós-Deploy / Sair da Caçada e Normalização de Sprites de Cadáveres Multi-Tile Concluída."
+last_updated: "2026-09-19T03:19:00.000Z"
+last_activity: "2026-09-19 — Phase 200: Correção do Matchmaking da Arena PvP 1v1 e Renderização Canônica da Caveira (Skull) no Topo Direito do Personagem [CONCLUÍDO]."
 progress:
-  total_phases: 199
-  completed_phases: 199
-  total_plans: 242
-  completed_plans: 242
+  total_phases: 200
+  completed_phases: 200
+  total_plans: 246
+  completed_plans: 246
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 199 - Resiliência de Salvamento pós-Deploy / Sair da Caçada e Normalização de Sprites de Cadáveres Multi-Tile (Cyclops & Criaturas Grandes) [CONCLUÍDA].
+**Current focus:** Phase 200 - Correção do Matchmaking da Arena PvP 1v1 e Renderização Canônica da Caveira (Skull) no Topo Direito do Personagem [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 199 of 199  
-Plan: 3 of 3 in Phase 199  
-Status: Complete  
-Last activity: 2026-09-19 — Concluída Phase 199: resiliência de save pós-deploy/restart, auto-adoção de lease de sessão, reconciliação OCC de saveVersion e alinhamento de corpses multi-tile (Cyclops).
+Phase: 200 of 200  
+Plan: 4 of 4 in Phase 200  
+Status: Complete ✅  
+Last activity: 2026-09-19 — Phase 200 concluída com sucesso: pareamento imediato de 2 jogadores na fila PvP, auto-cancel e resiliência visual no modal, sincronização Colyseus Schema e renderização canônica da caveira (Red Skull e demais) no canto superior direito do jogador.
 
 Progress: [██████████] 100%
 

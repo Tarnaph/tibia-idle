@@ -3701,6 +3701,21 @@ Plans:
 - [x] 199-02-PLAN: Auto-recuperação de sessão e concorrência OCC (`characterService.ts`, `PrismaPersistenceManager.ts`, `GamePrototype.tsx`) garantindo que o proprietário autenticado nunca seja bloqueado por SESSION_SUPERSEDED pós-restart e que o salvamento ao sair da caçada seja resiliente.
 - [x] 199-03-PLAN: Testes automatizados no Vitest, typecheck global (0 erros), deploy na VPS de produção e validação live.
 
+---
+
+### Phase 200: Correção do Matchmaking da Arena PvP 1v1 e Renderização Canônica da Caveira (Skull) no Topo Direito do Personagem
+
+**Goal:** Corrigir a fila de matchmaking em tempo real na sala Colyseus (ThaisCityRoom) com busca expandida e instantânea quando 2 jogadores puxam a fila, eliminar loops infinitos de busca na UI do modal, e sincronizar e renderizar a caveira de patente PvP (White, Red, Black, Green, Yellow, Orange) no canto superior direito em cima do jogador, com paridade visual canônica ao Tibia oficial.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 200-01-PLAN: Sincronização Colyseus Schema (`PlayerState.displaySkull`, `pvpElo`, `pvpTier`), hidratação no `onJoin`, e handler `player:toggleSkull` com persistência permanente no Prisma DB.
+- [x] 200-02-PLAN: Fila de matchmaking resiliente com pareamento expandido imediato para 2 jogadores, timeout seguro com auto-cancelamento visual na UI e tratamento de desconexão.
+- [x] 200-03-PLAN: Pré-carregamento de texturas de skulls, eliminação do bug de escala infinita no PixiJS e renderização no canto superior direito acima do player em Thais e na Arena de Duelo.
+- [x] 200-04-PLAN: Testes automatizados no Vitest, typecheck global (0 erros), commit atômico e deploy na VPS de produção.
+
+
 
 
 

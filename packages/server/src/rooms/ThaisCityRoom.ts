@@ -599,23 +599,49 @@ export class ThaisCityRoom extends Room<WorldState> {
         this.pvpQueue.delete(client.sessionId);
       }
 
-      // Procura outro jogador ONLINE na fila com rank similar (diferença <= 250 pontos)
+      // Procura outro jogador ONLINE na fila:
+      // 1. Melhor match: diferença de rank <= 250 pontos
+      // 2. Match expandido: diferença <= 500 pontos
+      // 3. Match de fallback: qualquer outro jogador disponível na fila
       let matchedSessionId: string | null = null;
-      const playerElo = (player as any).pvpElo ?? 0;
+      const playerElo = typeof player.pvpElo === 'number' ? player.pvpElo : ((data as any)?.elo ?? 1000);
 
+      // Prioridade 1: rank próximo (<= 250)
       for (const [sId, entry] of this.pvpQueue.entries()) {
         if (sId === client.sessionId || entry.characterId === charId) continue;
-
-        // Confirma se o oponente ainda está na sala
         const oppClient = this.clients.find((c) => c.sessionId === sId);
         if (!oppClient) {
           if (entry.timeoutRef) clearTimeout(entry.timeoutRef);
           this.pvpQueue.delete(sId);
           continue;
         }
-
         const diff = Math.abs(entry.elo - playerElo);
         if (diff <= 250) {
+          matchedSessionId = sId;
+          break;
+        }
+      }
+
+      // Prioridade 2: rank moderado (<= 500)
+      if (!matchedSessionId) {
+        for (const [sId, entry] of this.pvpQueue.entries()) {
+          if (sId === client.sessionId || entry.characterId === charId) continue;
+          const oppClient = this.clients.find((c) => c.sessionId === sId);
+          if (!oppClient) continue;
+          const diff = Math.abs(entry.elo - playerElo);
+          if (diff <= 500) {
+            matchedSessionId = sId;
+            break;
+          }
+        }
+      }
+
+      // Prioridade 3: qualquer oponente disponível na fila
+      if (!matchedSessionId) {
+        for (const [sId, entry] of this.pvpQueue.entries()) {
+          if (sId === client.sessionId || entry.characterId === charId) continue;
+          const oppClient = this.clients.find((c) => c.sessionId === sId);
+          if (!oppClient) continue;
           matchedSessionId = sId;
           break;
         }
@@ -687,7 +713,7 @@ export class ThaisCityRoom extends Room<WorldState> {
           });
         }
       } else {
-        // Sem oponente imediato: entra na fila com temporizador de 18 segundos
+        // Sem oponente imediato: entra na fila com temporizador de 30 segundos
         const timeoutRef = setTimeout(() => {
           if (this.pvpQueue.has(client.sessionId)) {
             this.pvpQueue.delete(client.sessionId);
@@ -697,7 +723,7 @@ export class ThaisCityRoom extends Room<WorldState> {
               });
             } catch {}
           }
-        }, 18000);
+        }, 30000);
 
         this.pvpQueue.set(client.sessionId, {
           sessionId: client.sessionId,
@@ -718,7 +744,7 @@ export class ThaisCityRoom extends Room<WorldState> {
         });
 
         client.send('pvp:queue:searching', {
-          timeoutSeconds: 18,
+          timeoutSeconds: 30,
         });
       }
     });
@@ -730,6 +756,23 @@ export class ThaisCityRoom extends Room<WorldState> {
         this.pvpQueue.delete(client.sessionId);
       }
       client.send('pvp:queue:left', { success: true });
+    });
+
+    this.onMessage('player:toggleSkull', async (client, data?: { displaySkull?: boolean }) => {
+      const player = this.state.players.get(client.sessionId);
+      if (!player) return;
+      const nextVal = typeof data?.displaySkull === 'boolean' ? data.displaySkull : !player.displaySkull;
+      player.displaySkull = nextVal;
+      if (player.characterId) {
+        try {
+          await prisma.character.update({
+            where: { id: player.characterId },
+            data: { displaySkull: nextVal },
+          });
+        } catch (err: any) {
+          console.warn('[ThaisCityRoom] Failed to persist toggleSkull:', err?.message || err);
+        }
+      }
     });
 
     this.onMessage('pvp:duel:complete', async (client, data: { duelId: string; winnerCharacterId: string; loserCharacterId: string }) => {
@@ -760,6 +803,13 @@ export class ThaisCityRoom extends Room<WorldState> {
               displaySkull: newWinnerPoints >= 250 ? true : (winner as any).displaySkull,
             },
           });
+
+          const winnerPlayer = Array.from(this.state.players.values()).find((p) => p.characterId === data.winnerCharacterId);
+          if (winnerPlayer) {
+            winnerPlayer.pvpElo = newWinnerPoints;
+            winnerPlayer.pvpTier = tierInfo.tier;
+            if (newWinnerPoints >= 250) winnerPlayer.displaySkull = true;
+          }
         }
 
         if (loser) {
@@ -987,6 +1037,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     let adminTitle = '';
     let loadedSkills: any[] = [];
     let loadedExperience = experienceForLevel(level);
+    let loadedPvpElo = 1000;
+    let loadedPvpTier = 'Bronze';
+    let loadedDisplaySkull = true;
 
     if (options.characterId) {
       const dbChar = await persistenceManager.loadCharacter(options.characterId);
@@ -1032,6 +1085,15 @@ export class ThaisCityRoom extends Room<WorldState> {
         loadedIsAutoIdle = dbChar.isAutoIdle ?? false;
         loadedLastHuntId = dbChar.lastHuntId ?? '';
         loadedAvatarId = (dbChar as any).avatarId ?? 1;
+        if (typeof (dbChar as any).pvpElo === 'number') {
+          loadedPvpElo = (dbChar as any).pvpElo;
+        }
+        if ((dbChar as any).pvpTier) {
+          loadedPvpTier = (dbChar as any).pvpTier;
+        }
+        if (typeof (dbChar as any).displaySkull === 'boolean') {
+          loadedDisplaySkull = (dbChar as any).displaySkull;
+        }
         if ((dbChar as any).bestiaryKills) {
           loadedBestiaryKills = (dbChar as any).bestiaryKills;
         }
@@ -1177,6 +1239,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     (player as any).bestiaryKills = loadedBestiaryKills;
     player.trackedBestiaryId = loadedTrackedBestiaryId;
     (player as any).bossPoints = loadedBossPoints;
+    player.pvpElo = loadedPvpElo;
+    player.pvpTier = loadedPvpTier;
+    player.displaySkull = loadedDisplaySkull;
 
     if (!this.clients.includes(client)) {
       (this.clients as any).push(client);
@@ -1196,6 +1261,11 @@ export class ThaisCityRoom extends Room<WorldState> {
             });
             oldClient.leave(4000);
           } catch {}
+        }
+        const existingQueueEntry = this.pvpQueue.get(existingSessionId);
+        if (existingQueueEntry) {
+          if (existingQueueEntry.timeoutRef) clearTimeout(existingQueueEntry.timeoutRef);
+          this.pvpQueue.delete(existingSessionId);
         }
         this.handlePlayerLeaveParty(existingSessionId);
         if (!existingPlayer.inHunt && !ServerCharacterContextRegistry.isHunting(existingPlayer.characterId)) {

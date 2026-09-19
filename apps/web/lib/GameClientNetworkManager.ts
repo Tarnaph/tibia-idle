@@ -34,6 +34,9 @@ export interface RemotePlayerSnapshot {
   avatarId?: number;
   accountId?: string;
   isMonster?: boolean;
+  pvpElo?: number;
+  pvpTier?: string;
+  displaySkull?: boolean;
 }
 
 export interface NetworkCombatEvent {
@@ -598,6 +601,9 @@ export class GameClientNetworkManager {
       avatarId: Number(player.avatarId ?? 1),
       accountId: player.accountId || '',
       isMonster: false,
+      pvpElo: Number(player.pvpElo ?? 1000),
+      pvpTier: String(player.pvpTier || 'Bronze'),
+      displaySkull: typeof player.displaySkull === 'boolean' ? player.displaySkull : true,
     });
   }
 
@@ -834,14 +840,19 @@ export class GameClientNetworkManager {
     this.room.send('training:action', action);
   }
 
-  sendPvPQueueJoin(characterId?: string): void {
+  sendPvPQueueJoin(characterId?: string, elo?: number): void {
     if (!this.room) return;
-    this.room.send('pvp:queue:join', { characterId });
+    this.room.send('pvp:queue:join', { characterId, elo });
   }
 
   sendPvPQueueLeave(): void {
     if (!this.room) return;
     this.room.send('pvp:queue:leave');
+  }
+
+  sendToggleSkull(displaySkull: boolean): void {
+    if (!this.room) return;
+    this.room.send('player:toggleSkull', { displaySkull });
   }
 
   sendPvPDuelComplete(duelId: string, winnerCharacterId: string, loserCharacterId: string): void {

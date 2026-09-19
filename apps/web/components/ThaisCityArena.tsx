@@ -996,6 +996,24 @@ export function ThaisCityArena({
       const processedSpeechIds = new Set<string>();
       const pendingPreloadSignatures = new Set<string>();
 
+      const SKULL_PRELOAD_URLS = [
+        '/assets/skulls/skull-green.png',
+        '/assets/skulls/skull-yellow.png',
+        '/assets/skulls/skull-white.png',
+        '/assets/skulls/skull-red.png',
+        '/assets/skulls/skull-black.png',
+        '/assets/skulls/skull-orange.png',
+      ];
+      const skullTextures: Record<string, InstanceType<typeof Texture>> = {};
+      for (const url of SKULL_PRELOAD_URLS) {
+        try {
+          const tex = Texture.from(url);
+          tex.source.style.scaleMode = 'nearest';
+          const skullKey = url.split('skull-')[1].replace('.png', '');
+          skullTextures[skullKey] = tex;
+        } catch {}
+      }
+
       function updateNameplate(view: CityActorView, name: string, adminTitle?: string, skull?: string) {
         view.label.text = name;
 
@@ -1023,22 +1041,24 @@ export function ThaisCityArena({
           view.titleLabel.visible = false;
         }
 
-        // 2. Caveira de Patente PvP
+        // 2. Caveira de Patente PvP Oficial Tibia
         if (skull && skull !== 'none') {
           const skullUrl = `/assets/skulls/skull-${skull}.png`;
+          const skullTex = skullTextures[skull] || Texture.from(skullUrl);
+          skullTex.source.style.scaleMode = 'nearest';
+
           if (!view.skullSprite) {
             try {
-              const skullTex = Texture.from(skullUrl);
               view.skullSprite = new Sprite(skullTex);
               view.skullSprite.anchor.set(0, 0.5);
-              view.skullSprite.width = 12;
-              view.skullSprite.height = 12;
+              view.skullSprite.scale.set(1, 1);
               view.skullSprite.roundPixels = true;
               view.root.addChild(view.skullSprite);
             } catch {}
           } else {
             try {
-              view.skullSprite.texture = Texture.from(skullUrl);
+              view.skullSprite.texture = skullTex;
+              view.skullSprite.scale.set(1, 1);
               view.skullSprite.visible = true;
             } catch {}
           }
@@ -1046,28 +1066,28 @@ export function ThaisCityArena({
           view.skullSprite.visible = false;
         }
 
-        // 3. Posicionamento unificado: [Title] Name [Skull]
+        // 3. Posicionamento Canônico Oficial Tibia: Nome centralizado e Caveira no Canto Superior Direito
         const hasTitle = view.titleLabel && view.titleLabel.visible;
         const hasSkull = view.skullSprite && view.skullSprite.visible;
 
         const titleW = hasTitle ? view.titleLabel!.width : 0;
         const nameW = view.label.width;
-        const skullW = hasSkull ? 15 : 0;
-        const totalW = titleW + nameW + skullW;
-        let currentX = -totalW / 2;
+        const totalW = titleW + nameW;
+        let startX = -totalW / 2;
 
         if (hasTitle) {
           view.titleLabel!.anchor.set(0, 0.5);
-          view.titleLabel!.position.set(currentX, creatureVisualLayout.nameplateY);
-          currentX += titleW;
+          view.titleLabel!.position.set(startX, creatureVisualLayout.nameplateY);
+          startX += titleW;
         }
 
         view.label.anchor.set(0, 0.5);
-        view.label.position.set(currentX, creatureVisualLayout.nameplateY);
-        currentX += nameW;
+        view.label.position.set(startX, creatureVisualLayout.nameplateY);
 
         if (hasSkull && view.skullSprite) {
-          view.skullSprite.position.set(currentX + 3, creatureVisualLayout.nameplateY);
+          // Posicionamento no canto superior direito em cima do player (igual Tibia oficial)
+          view.skullSprite.anchor.set(0, 0.5);
+          view.skullSprite.position.set(startX + nameW + 2, creatureVisualLayout.nameplateY - 1);
         }
       }
 

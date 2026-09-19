@@ -4771,6 +4771,20 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onClose={() => setIsPvPArenaModalOpen(false)}
         onOpenHighscores={() => setIsHighscoresModalOpen(true)}
         onStartPvPDuel={handleStartPvPDuel}
+        onToggleSkull={(nextVal) => {
+          setGame((cur) => {
+            const updatedChars = cur.session.characters.map((c) =>
+              c.id === activeCharacter?.id ? { ...c, displaySkull: nextVal } : c
+            );
+            return {
+              ...cur,
+              session: {
+                ...cur.session,
+                characters: updatedChars,
+              },
+            };
+          });
+        }}
       />
 
       {/* OVERLAY DE RESULTADO DO DUELO PVP */}

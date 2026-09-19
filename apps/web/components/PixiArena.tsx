@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import '@/apps/web/lib/pixiPolyfill';
 import visualAssetsJson from '@/content/generated/tibia1098-combat-assets.json';
-import { RUNE_PROJECTILE_FLIGHT_MS, type CardinalDirection, type GameState, type GridPosition } from '@/packages/domain/src';
+import { RUNE_PROJECTILE_FLIGHT_MS, getPvPTierInfo, type CardinalDirection, type GameState, type GridPosition } from '@/packages/domain/src';
 import { creatureVisualLayout, desiredWorldCamera, smoothWorldCamera, snapWorldCoordinate, VisualMotionTrack, visualMovementConfig, type WorldCameraState } from '@/packages/presentation/src';
 import type { Tibia1098AssetManifest, VisualAssetMapping } from '@/packages/tibia1098-assets/src/types';
 import type { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
@@ -26,6 +26,7 @@ interface ActorView {
   sprite: Sprite;
   label: Text;
   titleLabel?: Text;
+  skullSprite?: Sprite;
   debugLabel: Text;
   bar: Graphics;
   aura: Graphics;
@@ -348,6 +349,73 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       world.addChild(backing, terrain, corpses, actors, targetReticle, darkSprite, effects, spatialDebug);
       app.stage.addChild(world, overlay);
       const views = new Map<string, ActorView>();
+      const SKULL_PRELOAD_URLS = [
+        '/assets/skulls/skull-green.png',
+        '/assets/skulls/skull-yellow.png',
+        '/assets/skulls/skull-white.png',
+        '/assets/skulls/skull-red.png',
+        '/assets/skulls/skull-black.png',
+        '/assets/skulls/skull-orange.png',
+      ];
+      const skullTextures: Record<string, Texture> = {};
+      for (const url of SKULL_PRELOAD_URLS) {
+        try {
+          const tex = loaded[url];
+          if (tex) {
+            tex.source.style.scaleMode = 'nearest';
+            const skullKey = url.split('skull-')[1].replace('.png', '');
+            skullTextures[skullKey] = tex;
+          } else {
+            void ensureTexture(url).then((loadedTex) => {
+              if (loadedTex) {
+                loadedTex.source.style.scaleMode = 'nearest';
+                const skullKey = url.split('skull-')[1].replace('.png', '');
+                skullTextures[skullKey] = loadedTex;
+              }
+            });
+          }
+        } catch {}
+      }
+
+      const getCharacterSkull = (char: any): string => {
+        if (!char || char.displaySkull === false) return 'none';
+        if (char.pvpSkull) return char.pvpSkull;
+        const elo = typeof char.pvpElo === 'number' ? char.pvpElo : 1000;
+        return getPvPTierInfo(elo).skull;
+      };
+
+      const updateActorSkull = (view: ActorView, skull?: string, startX?: number, nameW?: number) => {
+        if (skull && skull !== 'none') {
+          const skullUrl = `/assets/skulls/skull-${skull}.png`;
+          const skullTex = skullTextures[skull] || loaded[skullUrl];
+          if (skullTex) {
+            skullTex.source.style.scaleMode = 'nearest';
+            if (!view.skullSprite) {
+              view.skullSprite = new Sprite(skullTex);
+              view.skullSprite.anchor.set(0, 0.5);
+              view.skullSprite.scale.set(1, 1);
+              view.skullSprite.roundPixels = true;
+              view.root.addChild(view.skullSprite);
+            } else {
+              view.skullSprite.texture = skullTex;
+              view.skullSprite.scale.set(1, 1);
+              view.skullSprite.visible = true;
+            }
+            const sx = (startX !== undefined && nameW !== undefined) ? (startX + nameW + 2) : (view.label.width / 2 + 2);
+            view.skullSprite.position.set(sx, creatureVisualLayout.nameplateY - 1);
+          } else {
+            void ensureTexture(skullUrl).then((t) => {
+              if (t) {
+                t.source.style.scaleMode = 'nearest';
+                skullTextures[skull] = t;
+              }
+            });
+            if (view.skullSprite) view.skullSprite.visible = false;
+          }
+        } else if (view.skullSprite) {
+          view.skullSprite.visible = false;
+        }
+      };
       const timed: TimedVisual[] = [];
       const pendingImpacts: PendingImpact[] = [];
       let terrainKey = '';
@@ -617,6 +685,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             view.label.anchor.set(0, 0.5);
             view.label.position.set(startX + titleW, creatureVisualLayout.nameplateY);
             view.label.style.fill = 0x67de82;
+            updateActorSkull(view, getCharacterSkull(character), startX + titleW, nameW);
           } else {
             if (view.titleLabel) {
               view.titleLabel.visible = false;
@@ -624,6 +693,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             view.label.anchor.set(0.5, 0.5);
             view.label.position.set(0, creatureVisualLayout.nameplateY);
             view.label.style.fill = 0x67de82;
+            const nameW = view.label.width;
+            const startX = -nameW / 2;
+            updateActorSkull(view, getCharacterSkull(character), startX, nameW);
           }
           view.sprite.alpha = actor.alive ? 1 : 0.45;
           view.root.visible = latestRef.current.isCharacterVisible !== false && actor.alive;
@@ -647,6 +719,14 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           view.root.visible = enemy.alive;
           view.sprite.alpha = enemy.alive ? 1 : 0;
           view.sprite.visible = enemy.alive;
+          if (isPvPOpponent) {
+            const oppSkull = (enemy as any).pvpSkull || (enemy as any).skull || (typeof (enemy as any).pvpElo === 'number' ? getPvPTierInfo((enemy as any).pvpElo).skull : 'red');
+            const nameW = view.label.width;
+            const startX = -nameW / 2;
+            updateActorSkull(view, oppSkull, startX, nameW);
+          } else if (view.skullSprite) {
+            view.skullSprite.visible = false;
+          }
         }
         for (const movement of committedMovements) views.get(movement.actorId)?.track.commit(movement.from, movement.to, now, movement.durationMs);
         for (const actor of state.encounter.partyActors) views.get(actor.characterId)?.track.reconcileCommitted(actor.position, actor.direction);
