@@ -38,7 +38,7 @@
 
 [CONCLUÍDO - Fase 207] Eliminar duplicação do personagem: personagem não deve ficar no templo de Thais e na caçada ao mesmo tempo.
 
-[PENDENTE] Ao inspecionar jogador, verificar status online em tempo real no servidor/Colyseus em vez de exibir incorretamente "offline".
+[CONCLUÍDO - Fase 208] Ao inspecionar jogador, verificar status online em tempo real no servidor/Colyseus em vez de exibir incorretamente "offline".
 
 [PENDENTE] Adicionar efeitos sonoros (SFX): ataques físicos para Knight e Paladin, sons de magia para Druid e Sorcerer, e som ao morrer.
 

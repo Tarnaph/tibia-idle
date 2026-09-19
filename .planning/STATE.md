@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T16:21:00.000Z"
-last_activity: "2026-09-19 — Phase 207: Eliminate Character Duplication in Thais Temple During Hunts [CONCLUÍDO]."
+last_updated: "2026-09-19T16:35:00.000Z"
+last_activity: "2026-09-19 — Phase 208: Real-Time Online Status on Player Inspection [CONCLUÍDO]."
 progress:
-  total_phases: 207
-  completed_phases: 207
-  total_plans: 264
-  completed_plans: 264
+  total_phases: 208
+  completed_phases: 208
+  total_plans: 270
+  completed_plans: 270
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 207 - Eliminate Character Duplication in Thais Temple During Hunts [CONCLUÍDO].
+**Current focus:** Phase 208 - Real-Time Online Status on Player Inspection [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 207 of 207  
-Plan: 1 of 1 in Phase 207  
+Phase: 208 of 208  
+Plan: 1 of 1 in Phase 208  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 207 concluída com eliminação da duplicação de personagem no Templo de Thais durante caçadas: sincronização autoritativa de hunt state no handshake Colyseus (onJoin), correção da race condition de saveProgress durante a tela de loading de 10s gravando coordenadas de entrada ao invés do templo, ocultação de caçadores em Thais City e identificação estrita de jogador local em ThaisCityArena. Deploy verificado na VPS 187.7.16.210.
+Last activity: 2026-09-19 — Phase 208 concluída com correção autoritativa da verificação de status online na inspeção de jogadores: método ThaisCityRoom.isCharacterOnline, sincronização no Prisma DB (isOnline) no onJoin/onLeave com reset no boot, novo endpoint /api/character-online/:nameOrId, consulta em tempo real em /api/characters/lookup e suporte a isOnlineLocal no PlayerInspectModal. Deploy verificado na VPS 187.7.16.210.
 
 Progress: [██████████] 100%
 

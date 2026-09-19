@@ -149,6 +149,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 205: Centralized Error Logger & ADMIN Exclusive Debug Modal** - Sistema unificado de telemetria e captura de erros (buffer circular 300 logs, localStorage, global unhandled listeners), modal de debug administrativo exclusivo (AdminDebugModal) com 3 abas (Logs do Sistema com busca e filtro por nível, Telemetria/Engine com monitor de FPS, memória e Colyseus, Ações Rápidas de GM para salvamento e reconexão), botão exclusivo no dock inferior com badge de erros em tempo real e endpoint protegido POST /api/admin/logs.
 - [x] **Phase 206: Canonical Skeleton Corpse & Cyclops Smith Hunt Integration** - Substituição visual dos cadáveres de monstros em caçadas pelo esqueleto canônico do Tibia (item 5972 / remains of a skeleton, 32x32 sem cortes ou sobreposições), pré-carregamento imediato no PixiArena, e integração completa do Cyclops Smith (definição de hunt.ts, catalog card e tela de setup de pull com loot agregado em HuntSelector.tsx, registro no Bestiário com stats canônicos e reconstrução do atlas hunt-cyclops-camp-atlas com todos os 12 frames de caminhada).
 - [x] **Phase 207: Eliminate Character Duplication in Thais Temple During Hunts** - Eliminação definitiva da duplicação de personagem no Templo de Thais durante caçadas: sincronização autoritativa de hunt state no handshake Colyseus (onJoin), correção da race condition de saveProgress durante a tela de loading de 10s, gravação correta de coordenadas de entrada ao invés de Thais Temple (32369, 32241, 7), ocultação de caçadores em Thais City e identificação estrita de jogador local em ThaisCityArena.
+- [x] **Phase 208: Real-Time Online Status on Player Inspection** - Correção da inspeção de jogadores para verificação em tempo real do status online no servidor Colyseus e Prisma DB: método estático `ThaisCityRoom.isCharacterOnline`, sincronização de `isOnline` no banco de dados no `onJoin` e `onLeave`, endpoint `GET /api/character-online/:nameOrId`, consulta em tempo real em `/api/characters/lookup` e suporte a `isOnlineLocal` no `PlayerInspectModal`.
 
 
 ---
@@ -3820,6 +3821,22 @@ Plans:
 - [x] 207-04-PLAN: Filtrar jogadores com inHunt ativo nos tooltips e menu de contexto de Thais City.
 - [x] 207-05-PLAN: Sincronização em tempo real de ServerCharacterContextRegistry no saveCharacter e updateMany resiliente em setPlayerHuntStatus.
 - [x] 207-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
+
+---
+
+### Phase 208: Real-Time Online Status on Player Inspection
+
+**Goal:** Eliminar a exibição incorreta de "Offline" ao inspecionar jogadores ativos, implementando verificação autoritativa em tempo real no servidor Colyseus, sincronização no banco Prisma (`isOnline`), endpoint dedicado `/api/character-online/:nameOrId`, reconciliação em tempo real em `/api/characters/lookup` e suporte a `isOnlineLocal` no `PlayerInspectModal`.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 208-01-PLAN: Método autoritativo `ThaisCityRoom.isCharacterOnline` e `ServerCharacterContextRegistry.isCharacterOnline`.
+- [x] 208-02-PLAN: Persistência de `isOnline` em `PrismaPersistenceManager.ts` com `setPlayerOnlineStatus` e `resetAllOnlineStatus`.
+- [x] 208-03-PLAN: Endpoint `GET /api/character-online/:nameOrId` no Colyseus e enriquecimento de `/api/character-context/:id`.
+- [x] 208-04-PLAN: Reconciliação autoritativa em tempo real em `app/api/characters/lookup/route.ts` com fallback para banco.
+- [x] 208-05-PLAN: Suporte a `isOnlineLocal` em `PlayerInspectModal.tsx` e `GamePrototype.tsx`.
+- [x] 208-06-PLAN: Testes automatizados Vitest (100%), typecheck (0 erros) e deploy verificado na VPS de produção 187.7.16.210.
 
 
 
