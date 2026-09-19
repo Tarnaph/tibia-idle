@@ -3914,6 +3914,17 @@ Plans:
 
 - [x] 213-01-PLAN: Bloqueio de XP para personagens mortos em `grantSharedExperience` e `ThaisCityRoom.ts`, cálculo proporcional entre sobreviventes, e `transferActiveMemberOnDeath` elegendo o membro vivo de maior nível com desempate por experiência e atualização de câmera/foco.
 
+### Phase 214: Knight Exeta Res Visuals/Taunt e Prevenção de Cooldown Fantasma em Magias
+
+**Goal:** Corrigir as animações visuais e efeitos mágicos do Exeta Res (Challenge) do Knight (emitindo efeito 13 `CONST_ME_MAGIC_BLUE` nos 8 tiles de `AREA_SQUARE1X1` e em cada monstro desafiado), suportando tanto modo solo quanto party, e eliminar o loop de cooldown fantasma invertendo a ordem de execução para validar alcance e alvos antes de consumir mana e antes de ativar cooldowns, além de tratar corretamente magias com `area: 'self'` e raio de área.
+**Requirements:** `c:\Users\desig\OneDrive\Documentos\TibiaWeb\Tibia\FIX.md`
+**Depends on:** Phase 213
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 214-01-PLAN: Exeta Res com efeito 13 nos 9 tiles da área e taunt mecânico em solo/party, eliminação de dedução de mana e cooldowns prematuros para magias fora de alcance em `triggerManualHotbarAction`, suporte a magias agressivas `area: 'self'` (Divine Caldera/Mas San) atingindo todos os monstros no raio de área, e sincronização com `ThaisCityRoom.ts`.
+
 
 
 

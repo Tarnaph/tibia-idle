@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-19T18:05:00.000Z"
-last_activity: "2026-09-19 — Phase 213: Party Death Handling & Zero XP on Death [CONCLUÍDO]."
+last_updated: "2026-09-19T18:25:00.000Z"
+last_activity: "2026-09-19 — Phase 214: Knight Exeta Res Visuals/Taunt & Elimination of Phantom Cooldowns [CONCLUÍDO]."
 progress:
-  total_phases: 213
-  completed_phases: 213
-  total_plans: 293
-  completed_plans: 293
+  total_phases: 214
+  completed_phases: 214
+  total_plans: 294
+  completed_plans: 294
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 213 - Party Death Handling & Zero XP on Death [CONCLUÍDO].
+**Current focus:** Phase 214 - Knight Exeta Res Visuals/Taunt & Elimination of Phantom Cooldowns [CONCLUÍDO].
 
 ## Current Position
 
-Phase: 213 of 213  
-Plan: 1 of 1 in Phase 213  
+Phase: 214 of 214  
+Plan: 1 of 1 in Phase 214  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 213 concluída: Bloqueio estrito de ganho de XP para qualquer personagem com vida <= 0 ou estado de morte; partilha proporcional de experiência calculada estritamente entre sobreviventes vivos em grantSharedExperience e bloqueio no ThaisCityRoom; implementação de transferActiveMemberOnDeath com sucessão do herói sobrevivente de maior nível, atualizando de imediato selectedCharacterId, cameraTargetCharacterId e leaderId, com eventos de encontro e mensagens no log de combate. 6/6 testes unitários no Vitest aprovados (100%) e 0 erros de tipagem.
+Last activity: 2026-09-19 — Phase 214 concluída: Exeta Res (Challenge) do Knight completamente corrigido em solo e party, emitindo fala 'Exeta res', efeito visual 13 (CONST_ME_MAGIC_BLUE) nos 9 tiles da área (AREA_SQUARE1X1 com centro) e em cada criatura desafiada, com taunt mecânico; eliminação definitiva do loop de cooldown fantasma invertendo a ordem de execução para validar alcance e alvos antes de debitar mana e aplicar cooldowns; suporte completo a magias agressivas com area: 'self' (Divine Caldera/Mas San) atingindo todos os monstros no raio de área; sincronização com ThaisCityRoom.ts. 5/5 testes unitários no Vitest aprovados (100%), regressão completa de 41/41 testes aprovados e 0 erros de tipagem no TypeScript 5.9.
 
 Progress: [██████████] 100%
 

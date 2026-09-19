@@ -61,6 +61,12 @@ export const CIRCLE_3X3_OFFSETS = [
   { dx: -1, dy: 3 }, { dx: 0, dy: 3 }, { dx: 1, dy: 3 },
 ];
 
+export const SQUARE_1X1_WITH_CENTER_OFFSETS = [
+  { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
+  { dx: -1, dy:  0 }, { dx:  0, dy:  0 }, { dx:  1, dy:  0 },
+  { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
+];
+
 const monsterFor = (content: GameContent, id: string) => {
   const monster = content.monsters.find((candidate) => candidate.id === id);
   if (!monster) throw new Error(`Missing monster ${id}.`);
@@ -689,7 +695,7 @@ export function findPartyKnightActor(state: GameState): PartyActorState | undefi
 
 function executeKnightChallenge(state: GameState, content: GameContent, encounter: HuntEncounterState): void {
   const livingActors = encounter.partyActors.filter((a) => a.alive);
-  if (livingActors.length <= 1) return;
+  if (livingActors.length === 0) return;
   
   const knightActor = findPartyKnightActor(state);
   if (!knightActor) return;
@@ -702,21 +708,31 @@ function executeKnightChallenge(state: GameState, content: GameContent, encounte
   if ((knightActor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return;
 
   const nonKnightActors = livingActors.filter((a) => a.characterId !== knightActor.characterId);
-  const allyThreatened = encounter.enemies.some((enemy) => {
-    if (!enemy.alive) return false;
-    if (meleeDistance(enemy.position, knightActor.position) > 3) return false;
-    const targetsAlly = nonKnightActors.some((ally) => enemy.targetId === ally.characterId);
-    const meleeAlly = nonKnightActors.some((ally) => meleeDistance(enemy.position, ally.position) <= 1);
-    return targetsAlly || meleeAlly;
-  });
+  const isSolo = nonKnightActors.length === 0;
 
-  if (!allyThreatened) return;
+  const nearbyEnemies = encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, knightActor.position) <= 3);
+  if (nearbyEnemies.length === 0) return;
+
+  let shouldChallenge = false;
+  if (!isSolo) {
+    shouldChallenge = nearbyEnemies.some((enemy) => {
+      const targetsAlly = nonKnightActors.some((ally) => enemy.targetId === ally.characterId);
+      const meleeAlly = nonKnightActors.some((ally) => meleeDistance(enemy.position, ally.position) <= 1);
+      return targetsAlly || meleeAlly;
+    });
+  } else {
+    // Solo: desafia se houver monstros adjacentes ou próximos sem taunt ativo
+    shouldChallenge = nearbyEnemies.some((e) => e.challengedTargetId !== knightActor.characterId || (e.challengedUntil ?? 0) <= encounter.elapsedMs);
+  }
+
+  if (!shouldChallenge) return;
 
   knightActor.mana -= 30;
   knightActor.groupCooldowns['support'] = encounter.elapsedMs + 2000;
   knightActor.spellCooldowns['93'] = encounter.elapsedMs + 2000;
   knightActor.groupCooldowns['potion'] = Math.max(knightActor.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
 
+  // 1. Fala sobre a cabeça do Knight
   encounter.events.push({
     type: 'spell-cast',
     sourceId: knightActor.characterId,
@@ -725,21 +741,39 @@ function executeKnightChallenge(state: GameState, content: GameContent, encounte
     amount: 0,
     healing: false,
     speech: 'Exeta res',
-  });
-  encounter.events.push({
-    type: 'spell-visual',
-    sourceId: knightActor.characterId,
-    targetId: knightActor.characterId,
-    spellId: 93,
-    effectId: 13,
-    projectileId: null,
+    element: 'support',
   });
 
-  for (const enemy of encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, knightActor.position) <= 3)) {
+  // 2. Efeito visual CONST_ME_MAGIC_BLUE (13) nos 8 tiles adjacentes e no centro (área SQUARE1X1 autêntica do Tibia)
+  for (const offset of SQUARE_1X1_WITH_CENTER_OFFSETS) {
+    encounter.events.push({
+      type: 'spell-visual',
+      sourceId: knightActor.characterId,
+      targetPosition: {
+        x: knightActor.position.x + offset.dx,
+        y: knightActor.position.y + offset.dy,
+        z: knightActor.position.z,
+      },
+      spellId: 93,
+      effectId: 13,
+      projectileId: null,
+    });
+  }
+
+  // 3. Taunt mecânico e efeito visual em cada criatura no raio de 3 sqm
+  for (const enemy of nearbyEnemies) {
     enemy.targetId = knightActor.characterId;
     enemy.challengedTargetId = knightActor.characterId;
     enemy.challengedUntil = encounter.elapsedMs + 6000;
     enemy.path = [];
+    encounter.events.push({
+      type: 'spell-visual',
+      sourceId: knightActor.characterId,
+      targetId: enemy.id,
+      spellId: 93,
+      effectId: 13,
+      projectileId: null,
+    });
   }
 
   addLog(state, `${knightChar.name} usou Exeta res e desafiou os monstros!`);
@@ -1282,9 +1316,10 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
 
             if (!conditionMet) continue;
           } else if (spell.group === 'support') {
-            const isHaste = spell.name === 'Haste' || spell.name === 'Strong Haste' || spell.words.includes('hur');
-            const isMagicShield = spell.words.includes('utamo') || spell.name.toLowerCase().includes('shield');
-            const isBloodRage = spell.words.includes('tempo') || spell.name.toLowerCase().includes('rage');
+            const isChallenge = spell.spellId === 93 || spell.words.toLowerCase().includes('exeta') || spell.name.toLowerCase().includes('challenge');
+            const isHaste = !isChallenge && (spell.name === 'Haste' || spell.name === 'Strong Haste' || spell.words.includes('hur'));
+            const isMagicShield = !isChallenge && (spell.words.includes('utamo') || spell.name.toLowerCase().includes('shield'));
+            const isBloodRage = !isChallenge && (spell.words.includes('tempo') || spell.name.toLowerCase().includes('rage'));
 
             let buffActive = false;
             if (isHaste && actor.hasteUntil > encounter.elapsedMs) buffActive = true;
@@ -1292,6 +1327,25 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             else if (isBloodRage && actor.bloodRageUntil > encounter.elapsedMs) buffActive = true;
 
             if (buffActive) continue;
+
+            if (isChallenge) {
+              const nearby = encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, actor.position) <= 3);
+              if (nearby.length === 0) continue;
+              const livingActors = encounter.partyActors.filter((a) => a.alive);
+              const nonKnightActors = livingActors.filter((a) => a.characterId !== actor.characterId);
+              const isSolo = nonKnightActors.length === 0;
+              let needsTaunt = false;
+              if (!isSolo) {
+                needsTaunt = nearby.some((enemy) => {
+                  const targetsAlly = nonKnightActors.some((ally) => enemy.targetId === ally.characterId);
+                  const meleeAlly = nonKnightActors.some((ally) => meleeDistance(enemy.position, ally.position) <= 1);
+                  return targetsAlly || meleeAlly;
+                });
+              } else {
+                needsTaunt = nearby.some((e) => e.challengedTargetId !== actor.characterId || (e.challengedUntil ?? 0) <= encounter.elapsedMs);
+              }
+              if (!needsTaunt) continue;
+            }
 
             if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
               const condMet = isHotbarSlotConditionsMet(slotConfig, {
@@ -1363,7 +1417,9 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               : encounter.enemies.filter((enemy) => enemy.alive);
 
             const eligibleEnemies = rawEnemies.filter((e) => !isIgnored(e.name));
-            const range = Math.max(1, spell.range);
+            const range = spell.area === 'self'
+              ? (spell.range > 0 ? spell.range : (spell.words.includes('mas') ? 4 : 3))
+              : Math.max(1, spell.range);
             const inRange = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
               .sort((left, right) => {
                 const isLeftTarget = left.id === targetToPrioritize?.id;
@@ -1385,7 +1441,11 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               if (!condMet) continue;
             }
 
-            targets = spell.area === 'square-1x1' ? inRange.slice(0, 8) : [primaryTarget];
+            targets = spell.area === 'square-1x1'
+              ? inRange.filter((e) => meleeDistance(actor.position, e.position) <= 1).slice(0, 8)
+              : spell.area === 'self'
+              ? inRange
+              : [primaryTarget];
           }
 
           const rng = createSeededRng(encounter.rngState);
@@ -1425,24 +1485,65 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             usedSpellThisTick = true;
             usedPotionThisTick = true;
           } else if (spell.group === 'support' && targetActor) {
-            const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
-            if (spell.words.includes('utamo')) actor.magicShieldUntil = encounter.elapsedMs + duration;
-            else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
-            else actor.hasteUntil = encounter.elapsedMs + duration;
+            const isChallenge = spell.spellId === 93 || spell.words.toLowerCase().includes('exeta') || spell.name.toLowerCase().includes('challenge');
+            if (isChallenge) {
+              const nearbyEnemies = encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, actor.position) <= 3);
+              for (const enemy of nearbyEnemies) {
+                enemy.targetId = actor.characterId;
+                enemy.challengedTargetId = actor.characterId;
+                enemy.challengedUntil = encounter.elapsedMs + 6000;
+                enemy.path = [];
+                encounter.events.push({
+                  type: 'spell-visual',
+                  sourceId: actor.characterId,
+                  targetId: enemy.id,
+                  spellId: spell.spellId,
+                  effectId: 13,
+                  projectileId: null,
+                });
+              }
+              for (const offset of SQUARE_1X1_WITH_CENTER_OFFSETS) {
+                encounter.events.push({
+                  type: 'spell-visual',
+                  sourceId: actor.characterId,
+                  targetPosition: {
+                    x: actor.position.x + offset.dx,
+                    y: actor.position.y + offset.dy,
+                    z: actor.position.z,
+                  },
+                  spellId: spell.spellId,
+                  effectId: 13,
+                  projectileId: null,
+                });
+              }
+              encounter.events.push({
+                type: 'spell-cast',
+                sourceId: actor.characterId,
+                targetId: actor.characterId,
+                spellId: spell.spellId,
+                amount: 0,
+                healing: false,
+                speech: 'Exeta res',
+                element: 'support',
+              });
+              addLog(state, `${character.name} usou Exeta res e desafiou os monstros!`);
+              usedSpellThisTick = true;
+              usedPotionThisTick = true;
+            } else {
+              const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
+              if (spell.words.includes('utamo')) actor.magicShieldUntil = encounter.elapsedMs + duration;
+              else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
+              else actor.hasteUntil = encounter.elapsedMs + duration;
 
-            encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech, element: 'support' });
-            encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
-            addLog(state, `${character.name} usou ${spell.name}.`);
-            usedSpellThisTick = true;
-            usedPotionThisTick = true;
+              encounter.events.push({ type: 'spell-cast', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, amount: 0, healing: false, speech: spellSpeech, element: 'support' });
+              encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
+              addLog(state, `${character.name} usou ${spell.name}.`);
+              usedSpellThisTick = true;
+              usedPotionThisTick = true;
+            }
           } else {
             if (spell.area === 'square-1x1') {
-              const SURROUNDING_OFFSETS = [
-                { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
-                { dx: -1, dy:  0 },                     { dx:  1, dy:  0 },
-                { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
-              ];
-              for (const offset of SURROUNDING_OFFSETS) {
+              for (const offset of SQUARE_1X1_OFFSETS) {
                 encounter.events.push({
                   type: 'spell-visual',
                   sourceId: actor.characterId,
@@ -1452,6 +1553,15 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                   projectileId: null,
                 });
               }
+            } else if (spell.area === 'self') {
+              encounter.events.push({
+                type: 'spell-visual',
+                sourceId: actor.characterId,
+                targetPosition: { x: actor.position.x, y: actor.position.y, z: actor.position.z },
+                spellId: spell.spellId,
+                effectId: spell.visual.effectId,
+                projectileId: null,
+              });
             } else if (isDirectionalSpell(spell)) {
               for (const tile of waveTiles) {
                 encounter.events.push({
@@ -1480,7 +1590,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                 element: spell.combatType,
               });
               isFirstSpellTarget = false;
-              if (spell.area !== 'square-1x1' && !isDirectionalSpell(spell)) {
+              if (spell.area === 'target') {
                 encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
               }
               addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);
@@ -1787,6 +1897,68 @@ export function triggerManualHotbarAction(
   const isOffensive = spell.group === 'attack';
   if (isOffensive && (actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs) return false;
 
+  const isChallenge = spell.spellId === 93 || spell.words.toLowerCase().includes('exeta') || spell.name.toLowerCase().includes('challenge');
+
+  // Validação prévia de alvos para magias ofensivas (evita perda de mana e loop de cooldown fantasma quando fora de alcance)
+  let targets: EnemyState[] = [];
+  let waveTiles: Array<{ x: number; y: number; z: number }> = [];
+  let primaryTarget: EnemyState | null = null;
+
+  if (isOffensive) {
+    if (isDirectionalSpell(spell)) {
+      const maxReach = Math.max(5, spell.range || 1);
+      const nearby = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= maxReach);
+      const lockedTarget = actor.targetId ? nearby.find((e) => e.id === actor.targetId) : undefined;
+      const { direction: bestDir, hitCount } = calculateBestSpellDirection(
+        actor.position,
+        nearby,
+        spell,
+        lockedTarget?.id || null,
+        actor.direction
+      );
+      if (hitCount > 0 || lockedTarget) {
+        if (actor.direction !== bestDir) {
+          actor.direction = bestDir;
+          encounter.events.push({
+            type: 'movement',
+            actorId: actor.characterId,
+            from: clonePosition(actor.position),
+            to: clonePosition(actor.position),
+            durationMs: 0,
+          });
+        }
+      }
+      waveTiles = getSpellAreaTiles(spell, actor.position, actor.direction);
+      const waveTileMap = new Set(waveTiles.map((t) => `${t.x},${t.y}`));
+      targets = encounter.enemies.filter((enemy) => enemy.alive && waveTileMap.has(`${enemy.position.x},${enemy.position.y}`));
+    } else if (spell.area === 'self') {
+      const radius = spell.range > 0 ? spell.range : (spell.words.includes('mas') ? 4 : 3);
+      targets = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= radius);
+    } else if (spell.area === 'square-1x1') {
+      targets = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= 1);
+    } else {
+      // spell.area === 'target' (ex: strike spells: Exori Flam, Exori Vis, Exori Hur, etc.)
+      const spellRange = Math.max(1, spell.range);
+      const lockedTarget = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : null;
+      const candidates = (lockedTarget && spell.area === 'target') ? [lockedTarget] : encounter.enemies.filter((enemy) => enemy.alive);
+      const inRange = candidates.filter((enemy) => meleeDistance(actor.position, enemy.position) <= spellRange)
+        .sort((left, right) => {
+          const isLeftTarget = left.id === actor.targetId;
+          const isRightTarget = right.id === actor.targetId;
+          if (isLeftTarget !== isRightTarget) return isLeftTarget ? -1 : 1;
+          return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
+        });
+
+      if (inRange.length === 0) {
+        // NENHUM ALVO VÁLIDO AO ALCANCE: Aborta sem deduzir mana e sem aplicar cooldown fantasma!
+        return false;
+      }
+      primaryTarget = inRange[0];
+      targets = [primaryTarget];
+    }
+  }
+
+  // Agora que a conjuração foi validada, debita a mana e aplica os cooldowns
   const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
   const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
   const rng = createSeededRng(encounter.rngState);
@@ -1826,6 +1998,51 @@ export function triggerManualHotbarAction(
   }
 
   if (spell.group === 'support') {
+    if (isChallenge) {
+      const nearbyEnemies = encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, actor.position) <= 3);
+      for (const enemy of nearbyEnemies) {
+        enemy.targetId = actor.characterId;
+        enemy.challengedTargetId = actor.characterId;
+        enemy.challengedUntil = encounter.elapsedMs + 6000;
+        enemy.path = [];
+        encounter.events.push({
+          type: 'spell-visual',
+          sourceId: actor.characterId,
+          targetId: enemy.id,
+          spellId: spell.spellId,
+          effectId: 13,
+          projectileId: null,
+        });
+      }
+      for (const offset of SQUARE_1X1_WITH_CENTER_OFFSETS) {
+        encounter.events.push({
+          type: 'spell-visual',
+          sourceId: actor.characterId,
+          targetPosition: {
+            x: actor.position.x + offset.dx,
+            y: actor.position.y + offset.dy,
+            z: actor.position.z,
+          },
+          spellId: spell.spellId,
+          effectId: 13,
+          projectileId: null,
+        });
+      }
+      encounter.events.push({
+        type: 'spell-cast',
+        sourceId: actor.characterId,
+        targetId: actor.characterId,
+        spellId: spell.spellId,
+        amount: 0,
+        healing: false,
+        speech: 'Exeta res',
+        element: 'support',
+      });
+      addLog(state, `${character.name} usou Exeta res e desafiou os monstros!`);
+      syncCharacterResources(state, actor);
+      return true;
+    }
+
     const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
     if (spell.words.includes('utamo')) actor.magicShieldUntil = encounter.elapsedMs + duration;
     else if (spell.words.includes('tempo')) actor.bloodRageUntil = encounter.elapsedMs + duration;
@@ -1838,59 +2055,9 @@ export function triggerManualHotbarAction(
     return true;
   }
 
-  // Attack spell
-  let targets: EnemyState[] = [];
-  let waveTiles: Array<{ x: number; y: number; z: number }> = [];
-
-  if (isDirectionalSpell(spell)) {
-    const maxReach = Math.max(5, spell.range || 1);
-    const nearby = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= maxReach);
-    const lockedTarget = actor.targetId ? nearby.find((e) => e.id === actor.targetId) : undefined;
-    const { direction: bestDir, hitCount } = calculateBestSpellDirection(
-      actor.position,
-      nearby,
-      spell,
-      lockedTarget?.id || null,
-      actor.direction
-    );
-    if (hitCount > 0 || lockedTarget) {
-      if (actor.direction !== bestDir) {
-        actor.direction = bestDir;
-        encounter.events.push({
-          type: 'movement',
-          actorId: actor.characterId,
-          from: clonePosition(actor.position),
-          to: clonePosition(actor.position),
-          durationMs: 0,
-        });
-      }
-    }
-    waveTiles = getSpellAreaTiles(spell, actor.position, actor.direction);
-    const waveTileMap = new Set(waveTiles.map((t) => `${t.x},${t.y}`));
-    targets = encounter.enemies.filter((enemy) => enemy.alive && waveTileMap.has(`${enemy.position.x},${enemy.position.y}`));
-  } else {
-    const spellRange = Math.max(1, spell.range);
-    const lockedTarget = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : null;
-    const candidates = (lockedTarget && spell.area === 'target') ? [lockedTarget] : encounter.enemies.filter((enemy) => enemy.alive);
-    const inRange = candidates.filter((enemy) => meleeDistance(actor.position, enemy.position) <= spellRange)
-      .sort((left, right) => {
-        const isLeftTarget = left.id === actor.targetId;
-        const isRightTarget = right.id === actor.targetId;
-        if (isLeftTarget !== isRightTarget) return isLeftTarget ? -1 : 1;
-        return meleeDistance(actor.position, left.position) - meleeDistance(actor.position, right.position) || left.id.localeCompare(right.id);
-      });
-
-    if (inRange.length === 0 && spell.area === 'target') return false;
-    targets = spell.area === 'square-1x1' ? inRange.slice(0, 8) : (inRange.length > 0 ? [inRange[0]] : []);
-  }
-
+  // Attack spell visual execution
   if (spell.area === 'square-1x1') {
-    const SURROUNDING_OFFSETS = [
-      { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
-      { dx: -1, dy:  0 },                     { dx:  1, dy:  0 },
-      { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
-    ];
-    for (const offset of SURROUNDING_OFFSETS) {
+    for (const offset of SQUARE_1X1_OFFSETS) {
       encounter.events.push({
         type: 'spell-visual',
         sourceId: actor.characterId,
@@ -1900,6 +2067,15 @@ export function triggerManualHotbarAction(
         projectileId: null,
       });
     }
+  } else if (spell.area === 'self') {
+    encounter.events.push({
+      type: 'spell-visual',
+      sourceId: actor.characterId,
+      targetPosition: { x: actor.position.x, y: actor.position.y, z: actor.position.z },
+      spellId: spell.spellId,
+      effectId: spell.visual.effectId,
+      projectileId: null,
+    });
   } else if (isDirectionalSpell(spell)) {
     for (const tile of waveTiles) {
       encounter.events.push({
@@ -1928,7 +2104,7 @@ export function triggerManualHotbarAction(
       element: spell.combatType,
     });
     isFirstManualSpellTarget = false;
-    if (spell.area !== 'square-1x1' && !isDirectionalSpell(spell)) {
+    if (spell.area === 'target') {
       encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: target.id, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
     }
     addLog(state, `${character.name} usou ${spell.name} em ${target.name} por ${damage}.`);

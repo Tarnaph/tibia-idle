@@ -52,6 +52,6 @@
 
 [CONCLUÍDO - Fase 213] Party em caçada com transferência de líder ao morrer: se o personagem ativo morrer, transferir automaticamente o controle e foco da câmera para o próximo membro vivo com maior nível; o personagem morto cessa o ganho de XP enquanto os sobreviventes continuam acumulando normalmente.
 
-[PENDENTE] Knight 'Exeta Res': corrigir animação e efeitos mágicos visuais que não estão aparecendo durante a conjuração do taunt/challenge.
+[CONCLUÍDO - Fase 214] Knight 'Exeta Res': corrigir animação e efeitos mágicos visuais que não estão aparecendo durante a conjuração do taunt/challenge.
 
-[PENDENTE] Falha na conjuração de magias e loop de cooldown fantasma: investigar magias que não exibem efeito gráfico nem causam dano, e que ao término do cooldown reiniciam o temporizador sem terem disparado o feitiço.
+[CONCLUÍDO - Fase 214] Falha na conjuração de magias e loop de cooldown fantasma: investigar magias que não exibem efeito gráfico nem causam dano, e que ao término do cooldown reiniciam o temporizador sem terem disparado o feitiço.

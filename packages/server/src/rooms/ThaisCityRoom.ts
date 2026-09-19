@@ -1650,6 +1650,29 @@ export class ThaisCityRoom extends Room<WorldState> {
           }
         }
       }
+    } else if (lowerSpell === 'exeta res' || lowerSpell === 'exeta-res' || lowerSpell === 'challenge' || lowerSpell === '93') {
+      const manaCost = 30;
+      if (player.mp >= manaCost) {
+        player.mp -= manaCost;
+
+        this.pushCombatEvent('spell', player.id, player.id, 0, player.posX, player.posY, 'Exeta res', '#ffff00', null, 13);
+
+        const SURROUNDING_OFFSETS = [
+          { dx: -1, dy: -1 }, { dx:  0, dy: -1 }, { dx:  1, dy: -1 },
+          { dx: -1, dy:  0 },                     { dx:  1, dy:  0 },
+          { dx: -1, dy:  1 }, { dx:  0, dy:  1 }, { dx:  1, dy:  1 },
+        ];
+        for (const offset of SURROUNDING_OFFSETS) {
+          this.pushCombatEvent('spell_area', player.id, '', 0, player.posX + offset.dx, player.posY + offset.dy, '', '#33ffff', null, 13);
+        }
+
+        this.state.monsters.forEach((monster: MonsterState) => {
+          if (!monster.isDead && Math.hypot(monster.posX - player.posX, monster.posY - player.posY) <= 3) {
+            monster.targetId = player.id;
+            this.pushCombatEvent('spell_area', player.id, monster.id, 0, monster.posX, monster.posY, '', '#33ffff', null, 13);
+          }
+        });
+      }
     } else if (lowerSpell === 'exori' || lowerSpell === 'berserk') {
       const manaCost = 115;
       if (player.mp >= manaCost) {
