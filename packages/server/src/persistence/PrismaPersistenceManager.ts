@@ -121,7 +121,7 @@ export class PrismaPersistenceManager {
         const isHuntMode = Boolean(player.inHunt || (player as any).mode === 'hunt');
         const dbVersion = (existing as any)?.saveVersion ?? 1;
         const playerVersion = typeof (player as any).saveVersion === 'number' ? (player as any).saveVersion : dbVersion;
-        const currentVersion = Math.max(playerVersion, dbVersion);
+        const currentVersion = playerVersion;
         (player as any).saveVersion = currentVersion;
 
         const characterUpdateData: any = {
@@ -252,7 +252,10 @@ export class PrismaPersistenceManager {
         };
 
         if (typeof this.db.$transaction === 'function') {
-          await this.db.$transaction(executePersistenceTx);
+          await this.db.$transaction(executePersistenceTx, {
+            maxWait: 15000,
+            timeout: 30000,
+          });
         } else {
           await executePersistenceTx(this.db);
         }

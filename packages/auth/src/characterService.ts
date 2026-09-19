@@ -611,7 +611,7 @@ export class CharacterService {
 
           const isHunting = options?.isInternal
             ? Boolean(options?.isHunting)
-            : contextResult.isHunting;
+            : Boolean(contextResult.isHunting || (existing as any)?.isHunting);
 
           const lastSavedAtMs = existing.lastSavedAt instanceof Date
             ? existing.lastSavedAt.getTime()
@@ -743,7 +743,7 @@ export class CharacterService {
               `Contexto do personagem ${characterId} em sincronização ou serviço reiniciando. Salvamento postergado até restabelecimento da sessão.`
             );
           }
-          isHunting = contextResult.isHunting;
+          isHunting = Boolean(contextResult.isHunting || (existing as any)?.isHunting);
         }
 
         const targetVoc = data.vocationName || existing?.vocationName || 'Knight';

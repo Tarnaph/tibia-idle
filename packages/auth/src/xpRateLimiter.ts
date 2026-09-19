@@ -19,7 +19,7 @@ export const MAX_EXP_PER_SECOND = 600_000;
 // Capacidade do bucket para absorver morte simultânea de packs de monstros ou bosses com stages
 export const MAX_BURST_EXP = 1_800_000;
 
-// Taxa máxima fora de caçada (em cidades, treino ou idle): 100 XP/segundo
+// Taxa máxima fora de caçada (em cidades, treino ou idle): 500 XP/segundo
 export const NON_HUNT_MAX_EXP_PER_SECOND = 500;
 // Burst fora de caçada
 export const NON_HUNT_MAX_BURST_EXP = 10_000;

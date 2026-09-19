@@ -257,6 +257,8 @@ describe('Phase 167.2: Bloco 1.1b - Correções Críticas de Migração, Reconci
   // =========================================================================
   it('Cenário 5: Executa os dois serviços reais disputando personagem e habilidades no SQLite real com rollback atômico', async () => {
     // 1. Inicializa o banco SQLite real no arquivo de teste
+    ServerCharacterContextRegistry.setAuthoritativeSource(true);
+    ServerCharacterContextRegistry.setActivity('char-dispute', { isHunting: false });
     if (fs.existsSync(TEST_DB_PATH)) {
       fs.unlinkSync(TEST_DB_PATH);
     }
@@ -270,9 +272,30 @@ describe('Phase 167.2: Bloco 1.1b - Correções Críticas de Migração, Reconci
     rawDb.exec('PRAGMA journal_mode = WAL;');
     rawDb.exec(initSql);
     rawDb.exec(migrationSql);
-    try {
-      rawDb.exec('ALTER TABLE "characters" ADD COLUMN "adminTitle" TEXT;');
-    } catch {}
+    const extraCols = [
+      'adminTitle TEXT',
+      'isHunting BOOLEAN DEFAULT 0',
+      'lastHuntId TEXT',
+      'hotbarJson TEXT',
+      'blessingsJson TEXT',
+      'bestiaryKillsJson TEXT',
+      'trackedBestiaryId TEXT',
+      'bossPoints INTEGER DEFAULT 0',
+      'pvpElo INTEGER DEFAULT 1000',
+      'pvpTier TEXT DEFAULT "Bronze"',
+      'pvpWins INTEGER DEFAULT 0',
+      'pvpLosses INTEGER DEFAULT 0',
+      'pvpDraws INTEGER DEFAULT 0',
+      'arenaCoins INTEGER DEFAULT 0',
+      'displaySkull BOOLEAN DEFAULT 1',
+      'pvpMatchHistoryJson TEXT',
+      'pvpTacticsJson TEXT',
+    ];
+    for (const col of extraCols) {
+      try {
+        rawDb.exec(`ALTER TABLE "characters" ADD COLUMN ${col};`);
+      } catch {}
+    }
 
     const nowIso = new Date('2026-09-01T12:00:00.000Z').toISOString();
     rawDb.exec(`INSERT INTO "accounts" ("id", "email", "passwordHash", "createdAt", "updatedAt") VALUES ('acc-dispute', 'dispute@tibia.test', 'hash', '${nowIso}', '${nowIso}');`);

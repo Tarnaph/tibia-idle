@@ -16,18 +16,21 @@ export function getPrismaClient(): PrismaClient {
 
   if (!globalForPrisma.prisma) {
     if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = 'file:./dev.db';
+      process.env.DATABASE_URL = 'file:./dev.db?connection_limit=1&busy_timeout=30000';
+    } else if (process.env.DATABASE_URL.startsWith('file:') && !process.env.DATABASE_URL.includes('busy_timeout')) {
+      const separator = process.env.DATABASE_URL.includes('?') ? '&' : '?';
+      process.env.DATABASE_URL = `${process.env.DATABASE_URL}${separator}connection_limit=1&busy_timeout=30000`;
     }
     const client = new PrismaClient();
 
-    // Configure SQLite for resilient concurrency, WAL mode and 10s busy timeout
+    // Configure SQLite for resilient concurrency, WAL mode and 30s busy timeout
     if (!globalForPrisma.prismaPragmasConfigured) {
       globalForPrisma.prismaPragmasConfigured = true;
       void (async () => {
         try {
           await client.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
           await client.$queryRawUnsafe('PRAGMA synchronous = NORMAL;');
-          await client.$queryRawUnsafe('PRAGMA busy_timeout = 10000;');
+          await client.$queryRawUnsafe('PRAGMA busy_timeout = 30000;');
         } catch {}
       })();
     }

@@ -3728,6 +3728,21 @@ Plans:
 - [x] 201-02-PLAN: Testes automatizados no Vitest garantindo que texturas não prontas nunca quebrem a renderização do nameplate nem gerem exceções.
 - [x] 201-03-PLAN: Validação com typecheck (0 erros), commit atômico e deploy na VPS de produção `187.7.16.210`.
 
+---
+
+### Phase 202: Resolução Definitiva de "Falha ao Salvar Progresso do Servidor" (Timeouts Prisma, Rate Limiter de XP e Reconciliação OCC)
+
+**Goal:** Eliminar a falha crítica "Falha ao salvar progresso do servidor" diagnosticada nos logs da VPS de produção (`187.7.16.210`), aumentando timeouts de transação Prisma para 30s, configurando PRAGMA busy_timeout de 30s no SQLite, eliminando falsos positivos no rate limiter de XP em caçadas ao consultar `existing.isHunting` do DB, blindando o mutex de save do frontend de 2s para 6s com 4 tentativas resilientes no `exitHunt` e expondo mensagens detalhadas de erro.
+
+**Status:** Complete ✅
+
+**Plans:**
+- [x] 202-01-PLAN: Diagnosticar telemetria de erro na VPS (`187.7.16.210`) e identificar causas raízes (timeout Prisma de 5000ms, false positive no XP rate limiter com +388k XP e colisões de versão OCC).
+- [x] 202-02-PLAN: Ajustar `PrismaPersistenceManager.ts` com `{ maxWait: 15000, timeout: 30000 }` e `packages/database/src/index.ts` com `busy_timeout=30000; journal_mode=WAL`.
+- [x] 202-03-PLAN: Ajustar `characterService.ts` para verificar `(existing as any)?.isHunting`, permitindo orçamento legítimo de XP de caçada mesmo se houver atraso na sincronização do Colyseus.
+- [x] 202-04-PLAN: Aumentar o timeout do mutex de salvamento em `GamePrototype.tsx` para 6000ms, adicionar 4º retry resiliente de saída de caçada e extrair detalhes do erro retornado pela API.
+- [x] 202-05-PLAN: Executar validação automatizada de regressão com Vitest e TypeScript (0 erros), documentar summary e realizar deploy na VPS de produção.
+
 
 
 

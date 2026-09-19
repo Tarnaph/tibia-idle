@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { CharacterService, CharacterSaveLockManager } from '../packages/auth/src';
+import { CharacterService, CharacterSaveLockManager, ServerCharacterContextRegistry } from '../packages/auth/src';
 import { PrismaPersistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 import { ThaisCityRoom } from '../packages/server/src/rooms/ThaisCityRoom';
 import { colyseusMonitorAuthMiddleware } from '../packages/server/src/server';
@@ -9,6 +9,7 @@ import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 describe('Phase 167: Bloco 1 - Segurança, Persistência Multi-Sala e Backup SQLite', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    ServerCharacterContextRegistry.setAuthoritativeSource(true);
   });
 
   describe('1. Derivação Autoritativa de Nível e Atributos no Servidor', () => {

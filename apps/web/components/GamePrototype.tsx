@@ -1780,10 +1780,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
   // Robust Auto-Save with Mutex Lock and Throttle
   const saveProgress = useCallback(async (isDeathPenalty = false, force = false): Promise<boolean> => {
-    // Mutex lock: wait if a save is currently in flight (up to 2s)
+    // Mutex lock: wait if a save is currently in flight (up to 6s)
     if (isSavingRef.current) {
       let waited = 0;
-      while (isSavingRef.current && waited < 2000) {
+      while (isSavingRef.current && waited < 6000) {
         await new Promise((r) => setTimeout(r, 100));
         waited += 100;
       }
@@ -2035,8 +2035,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         }, 2000);
         return false;
       } else if (res.status !== 409) {
-        setSaveErrorAlert('Falha ao salvar progresso no servidor.');
-        progressionDiagnostics.recordSaveError(attemptId, res.status, `HTTP ${res.status}`);
+        let errorDetail = '';
+        try {
+          const errData = (await res.json()) as any;
+          errorDetail = errData?.message || errData?.error || '';
+        } catch {}
+        console.error(`[GamePrototype] Falha ao salvar personagem (${res.status}):`, errorDetail);
+        setSaveErrorAlert(errorDetail ? `Falha ao salvar: ${errorDetail}` : 'Falha ao salvar progresso no servidor.');
+        progressionDiagnostics.recordSaveError(attemptId, res.status, errorDetail || `HTTP ${res.status}`);
         return false;
       }
 
@@ -3160,6 +3166,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     if (!saveOk) {
       // Third attempt with 1.2s delay for full propagation
       await new Promise((r) => setTimeout(r, 1200));
+      isSaveSuspendedRef.current = false;
+      saveOk = await saveProgressRef.current?.(false, true);
+    }
+    if (!saveOk) {
+      // Fourth attempt with 1.5s delay to absorb any transient database lock
+      await new Promise((r) => setTimeout(r, 1500));
       isSaveSuspendedRef.current = false;
       saveOk = await saveProgressRef.current?.(false, true);
     }
