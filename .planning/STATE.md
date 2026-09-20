@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-19T21:55:00.000Z"
-last_activity: "2026-09-19 — Phase 215: Hunt Loading Preloader, Combat FX & FIX.md Adjustments [CONCLUÍDO]."
+status: in_progress
+last_updated: "2026-09-20T14:15:00.000Z"
+last_activity: "2026-09-20 — Phase 216: Combat FX Atlas & PixiJS v8 Texture Resolution concluída e testada com sucesso."
 progress:
-  total_phases: 215
-  completed_phases: 215
-  total_plans: 295
-  completed_plans: 295
-  percent: 100.0
+  total_phases: 216
+  completed_phases: 216
+  total_plans: 296
+  completed_plans: 296
+  percent: 100
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 215 - Hunt Loading Preloader, Combat FX & FIX.md Adjustments [CONCLUÍDO].
+**Current focus:** Phase 216 - Combat FX Atlas & PixiJS v8 Texture Resolution [CONCLUÍDA].
 
 ## Current Position
 
-Phase: 215 of 215  
-Plan: 1 of 1 in Phase 215  
+Phase: 216 of 216  
+Plan: 1 of 1 in Phase 216  
 Status: Complete ✅  
-Last activity: 2026-09-19 — Phase 215 concluída: Criação da regra .agents/rules/hunt-loading-and-assets.md para carregamento real na tela de loading antes da liberação visual ao jogador; novo serviço huntAssetPreloader.ts pré-carregando mapa/atlas, monstros e efeitos sob o ExuraLoadingScreen; correção dos efeitos de combate melee (sangue effectId: 1 e faísca de bloqueio de espada effectId: 4), magias elementais e mísseis com prioridade e fallback no PixiArena; extração canônica do Cyclops Smith lookType 277 64x64 do Tibia 10.98 DAT/SPR no bestiário e atlas de hunt; e eliminação do loop de cooldown de Exori em auto-cast quando fora de alcance. 6/6 testes de Phase 215 aprovados, 15/15 testes de regressão aprovados e 0 erros no typecheck.
+Last activity: 2026-09-20 — Criação do atlas unificado de combate (combat-fx-atlas.png de 488KB com 1955 frames de 32x32 e 5865 aliases no combat-fx-atlas.json), resolução da falha crítica do PixiJS v8 onde Texture.from() retornava undefined e deixava sprites invisíveis, ajuste de addSpellVisual, projectile-launched e melee-hit (sangue/block) com getCombatTexture resiliente. 100% testado e validado.
 
 Progress: [██████████] 100%
 
@@ -102,11 +102,13 @@ Progress: [██████████] 100%
 | 177. Stages de EXP e Skills, Bônus de Stamina Verde, Visibilidade de [GOD] Local e Alinhamento de Addons Montados | 1 | - | - | Complete |
 | 182. Correção de Progressão e Recompensas + Otimização das Miniaturas | 2 | - | - | Complete |
 | 182.2. Recuperação Autoritativa de Contexto de Caçada e Prevenção de Deadlock nos Limitadores | 2 | - | - | Complete |
+| 216. Combat FX Atlas & PixiJS v8 Texture Resolution | 1 | - | - | Complete |
 
 ## Accumulated Context
 
 ### Decisions
 
+- [Phase 216]: Criação de Atlas Unificado de Combate (`combat-fx-atlas.png` e `.json`) cobrindo todos os efeitos (1 a 60) e mísseis (1 a 50) do Tibia 10.98; resolução da invisibilidade crítica de sprites temporários de combate no PixiJS v8 através de pré-carregamento no `Assets.load` e função utilitária resiliente `getCombatTexture(url, onLoaded)`; posicionamento e alinhamento dos nós visuais de magia (`addSpellVisual`) e visualEvents (`melee-hit`, `projectile-launched`); e integração integral nos preloaders de assets essenciais e de caçadas.
 - [Phase 182.2]: Recuperação autoritativa de contexto de caçada pós-restart reconstruída exclusivamente a partir do banco de dados (`active_hunt_sessions` e `characters.isHunting`), sem confiar em flags arbitrárias do cliente; portão duplo no combate (`IsConnected` e `IsHuntContextConfirmed`) com sincronização de timestamp durante pausas para impedir rajadas compensatórias retroativas de dano ou XP; Session Ownership Guard no `onLeave` impedindo que o término de sessões antigas descarte a caçada assumida por novas sessões; suporte a `baselineTime` nos limitadores `SkillRateLimiter` e `XpRateLimiter` validando deltas acumulados contra o tempo decorrido desde o último salvamento bem-sucedido no banco (`existing.lastSavedAt`), prevenindo deadlocks permanentes decorrentes de salvamentos transitórios atrasados; e preservação do timestamp anterior em caso de rejeição para evitar starvation.
 - [Phase 182]: Reconciliação estritamente monotônica em conflitos OCC 409 com preservação cumulativa de drops e moedas da Party; isolamento do autosave urbano de Thais para jogadores em caçada ativa (`player.inHunt`); e compilação de Thumbnail Atlases consolidados para outfits e montarias.
 - [Phase 177]: Visibilidade do prefixo `[GOD]` dourado (`#ffd700`/`0xffd700`) para administradores em sua própria visão (arena `PixiArena`, dock bar `WindowDockBar`, top navigation `TopNavigation`) mantendo nome canônico no banco de dados; remoção definitiva do fallback incorreto para addon a pé em `apps/web/lib/outfitRecolor.ts` (substituindo por frame f0 montado e mantendo sela perfeita); tabela canônica de estágios de progressão de EXP (50x a 1.2x) e skills/magic level (10x a 2x) com transição fracionária de excedente e custos de mana reais preservados; bônus de +50% de EXP na stamina verde (39h a 42h) individual na party; ampliação segura do rate limiter para 120x sem falsos positivos.

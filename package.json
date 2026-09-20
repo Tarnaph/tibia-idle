@@ -19,7 +19,7 @@
     "extract:tibia1098": "node --experimental-strip-types packages/tibia1098-assets/src/cli.ts",
     "extract:tibia11:icons": "node scripts/extract-tibia11-icons.cjs",
     "import:rotworm": "npm run import:content",
-    "build:atlases": "node scripts/build-combat-assets.mjs && node scripts/build-collision-map.mjs && node scripts/build-thais-atlas.mjs && node scripts/build-creatures-atlas.mjs",
+    "build:atlases": "node scripts/build-combat-assets.mjs && node scripts/build-collision-map.mjs && node scripts/build-thais-atlas.mjs && node scripts/build-creatures-atlas.mjs && node scripts/build-combat-atlas.mjs",
     "db:backup": "node scripts/backup-sqlite.mjs",
     "setup:assets": "node scripts/ensure-asset-junctions.cjs",
     "postinstall": "node scripts/patch-http-pipeline.cjs && node scripts/ensure-asset-junctions.cjs"

@@ -113,14 +113,16 @@ class HuntAssetPreloaderService {
     const promise = (async () => {
       const urlsToLoad = new Set<string>();
 
-      // 1. Atlas da Hunt específica (json e png)
+      // 1. Atlas da Hunt específica e Atlas Global de Combate (json e png)
       const atlasJsonUrl = `/generated/atlases/hunt-${huntId}-atlas.json`;
       const atlasPngUrl = `/generated/atlases/hunt-${huntId}-atlas.png`;
       urlsToLoad.add(atlasPngUrl);
+      urlsToLoad.add('/generated/atlases/combat-fx-atlas.png');
 
-      // 2. Fetch do JSON do atlas para pré-aquecer cache HTTP
+      // 2. Fetch do JSON dos atlases para pré-aquecer cache HTTP
       if (typeof window !== 'undefined') {
         fetch(atlasJsonUrl, { cache: 'force-cache' }).catch(() => {});
+        fetch('/generated/atlases/combat-fx-atlas.json', { cache: 'force-cache' }).catch(() => {});
       }
 
       // 3. Monstros da Hunt (sprites canônicos no Bestiário e thumbs)

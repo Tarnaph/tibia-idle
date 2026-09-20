@@ -40,7 +40,7 @@ interface ActorView {
   lastOutfitSig?: string;
   attackUntil: number;
 }
-interface TimedVisual { root: Container | Sprite | Text; startedAt: number; durationMs: number; kind: 'float' | 'effect' | 'missile'; from?: GridPosition; to?: GridPosition; frames?: string[]; }
+interface TimedVisual { root: Container | Sprite | Text; sprite?: Sprite; startedAt: number; durationMs: number; kind: 'float' | 'effect' | 'missile'; from?: GridPosition; to?: GridPosition; frames?: string[]; }
 interface PendingImpact { targetId: string; amount: number; impactAt: number; element?: string }
 
 export interface CombatTextColor {
@@ -186,12 +186,13 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         return undefined;
       };
 
-      // 1. Load global atlases first (spells, equipment, creatures)
+      // 1. Load global atlases first (spells, equipment, creatures, combat effects & missiles)
       try {
-        const [spellsSheet, equipSheet, creaturesSheet] = await Promise.all([
+        const [spellsSheet, equipSheet, creaturesSheet, combatSheet] = await Promise.all([
           Assets.load<any>('/generated/atlases/spells-atlas.json').catch(() => null),
           Assets.load<any>('/generated/atlases/equipment-atlas.json').catch(() => null),
           Assets.load<any>('/generated/atlases/creatures-atlas.json').catch(() => null),
+          Assets.load<any>('/generated/atlases/combat-fx-atlas.json').catch(() => null),
         ]);
         if (spellsSheet?.textures) {
           if (spellsSheet.texture?.source?.style) spellsSheet.texture.source.style.scaleMode = 'nearest';
@@ -205,9 +206,43 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           if (creaturesSheet.texture?.source?.style) creaturesSheet.texture.source.style.scaleMode = 'nearest';
           Object.assign(loaded, creaturesSheet.textures);
         }
+        if (combatSheet?.textures) {
+          if (combatSheet.texture?.source?.style) combatSheet.texture.source.style.scaleMode = 'nearest';
+          Object.assign(loaded, combatSheet.textures);
+        }
       } catch (err) {
         console.warn('[PixiArena] Global atlas loading caught:', err);
       }
+
+      const getCombatTexture = (url: string, onLoaded?: (tex: Texture) => void): Texture | undefined => {
+        if (!url) return undefined;
+        if (loaded[url]) return loaded[url];
+        const cleanUrl = url.startsWith('/') ? url.slice(1) : url;
+        if (loaded[cleanUrl]) return loaded[cleanUrl];
+        const leadingSlashUrl = url.startsWith('/') ? url : `/${url}`;
+        if (loaded[leadingSlashUrl]) return loaded[leadingSlashUrl];
+        const fileName = url.split('/').pop();
+        if (fileName && loaded[fileName]) return loaded[fileName];
+
+        try {
+          const fromCache = Texture.from(url);
+          if (fromCache && fromCache !== Texture.EMPTY) {
+            loaded[url] = fromCache;
+            return fromCache;
+          }
+        } catch {}
+
+        void Assets.load<Texture>(url).then((t) => {
+          if (t) {
+            try {
+              if (t.source?.style) t.source.style.scaleMode = 'nearest';
+            } catch {}
+            loaded[url] = t;
+            onLoaded?.(t);
+          }
+        }).catch(() => {});
+        return undefined;
+      };
 
       const loadedHuntAtlases = new Set<string>();
       const loadHuntAtlas = async (huntId?: string) => {
@@ -583,20 +618,59 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const direction = projectileDirection(from, to);
           const frame = mapping?.frames.find((candidate) => candidate.direction === direction) ?? mapping?.frames[0];
           if (frame) {
-            const tex = loaded[frame.publicUrl] || Texture.from(frame.publicUrl);
-            const sprite = new Sprite(tex); sprite.anchor.set(0.5); effects.addChild(sprite);
-            timed.push({ root: sprite, startedAt: now, durationMs: RUNE_PROJECTILE_FLIGHT_MS, kind: 'missile', from: { ...from }, to: { ...to } });
+            const initialTex = getCombatTexture(frame.publicUrl) || Texture.EMPTY;
+            const sprite = new Sprite(initialTex);
+            sprite.anchor.set(0.5);
+            const pFrom = worldPoint(from);
+            sprite.position.set(pFrom.x, pFrom.y);
+            sprite.roundPixels = true;
+            if (sprite.texture === Texture.EMPTY) {
+              getCombatTexture(frame.publicUrl, (loadedTex) => {
+                if (!sprite.destroyed) sprite.texture = loadedTex;
+              });
+            }
+            effects.addChild(sprite);
+            timed.push({
+              root: sprite,
+              sprite,
+              startedAt: now,
+              durationMs: RUNE_PROJECTILE_FLIGHT_MS,
+              kind: 'missile',
+              from: { ...from },
+              to: { ...to },
+              frames: [frame.publicUrl],
+            });
           }
         }
         if (event.effectId !== null && event.effectId > 0) {
           const mapping = visualAssets.effects[String(event.effectId)];
-          if (mapping) {
-            const root = new Container(); const point = worldPoint(to); root.position.set(point.x, point.y);
-            const effTex = loaded[mapping.frames[0].publicUrl] || Texture.from(mapping.frames[0].publicUrl);
-            const sprite = new Sprite(effTex); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root);
+          if (mapping && mapping.frames && mapping.frames.length > 0) {
+            const root = new Container();
+            const point = worldPoint(to);
+            root.position.set(point.x, point.y);
+            root.zIndex = point.y * 10 + 50;
+            const firstFrameUrl = mapping.frames[0].publicUrl;
+            const effTex = getCombatTexture(firstFrameUrl) || Texture.EMPTY;
+            const sprite = new Sprite(effTex);
+            sprite.anchor.set(0.5);
+            sprite.roundPixels = true;
+            if (sprite.texture === Texture.EMPTY) {
+              getCombatTexture(firstFrameUrl, (loadedTex) => {
+                if (!sprite.destroyed) sprite.texture = loadedTex;
+              });
+            }
+            root.addChild(sprite);
+            effects.addChild(root);
             const effectDelay = typeof event.delayMs === 'number' ? event.delayMs : (projectileId === null ? 0 : RUNE_PROJECTILE_FLIGHT_MS);
             root.visible = effectDelay <= 0;
-            timed.push({ root, startedAt: now + effectDelay, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) });
+            timed.push({
+              root,
+              sprite,
+              startedAt: now + effectDelay,
+              durationMs: Math.max(320, mapping.frames.length * 80),
+              kind: 'effect',
+              frames: mapping.frames.map((frame) => frame.publicUrl),
+            });
           }
         }
       };
@@ -794,7 +868,10 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         if (lastProcessedEvents !== state.encounter.events) {
           lastProcessedEvents = state.encounter.events;
           for (const event of state.encounter.events) {
-            if (event.type === 'spell-visual') addSpellVisual(state, event, now);
+            if (event.type === 'spell-visual') {
+              addSpellVisual(state, event, now);
+              continue;
+            }
             if (event.type === 'spell-cast' && event.speech) {
               const sourcePos = actorPosition(state, event.sourceId);
               if (sourcePos) {
@@ -918,12 +995,65 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           lastProcessedVisualEvents = state.encounter.visualEvents;
           for (const event of state.encounter.visualEvents) {
             if (event.type === 'projectile-launched') {
-              const from = actorPosition(state, event.sourceId); const to = actorPosition(state, event.targetId); const mapping = visualAssets.missiles[String(event.projectileId)];
-              if (from && to && mapping) { const frame = mapping.frames.find((candidate) => candidate.direction === projectileDirection(from, to)) ?? mapping.frames[0]; const tex = loaded[frame.publicUrl] || Texture.from(frame.publicUrl); const sprite = new Sprite(tex); sprite.anchor.set(0.5); effects.addChild(sprite); timed.push({ root: sprite, startedAt: now, durationMs: Math.max(220, Math.min(700, 90 * (Math.abs(to.x - from.x) + Math.abs(to.y - from.y)))), kind: 'missile', from: { ...from }, to: { ...to } }); }
+              const from = actorPosition(state, event.sourceId);
+              const to = actorPosition(state, event.targetId);
+              const mapping = visualAssets.missiles[String(event.projectileId)];
+              if (from && to && mapping && mapping.frames && mapping.frames.length > 0) {
+                const direction = projectileDirection(from, to);
+                const frame = mapping.frames.find((candidate) => candidate.direction === direction) ?? mapping.frames[0];
+                const tex = getCombatTexture(frame.publicUrl) || Texture.EMPTY;
+                const sprite = new Sprite(tex);
+                sprite.anchor.set(0.5);
+                const pFrom = worldPoint(from);
+                sprite.position.set(pFrom.x, pFrom.y);
+                sprite.roundPixels = true;
+                if (sprite.texture === Texture.EMPTY) {
+                  getCombatTexture(frame.publicUrl, (loadedTex) => {
+                    if (!sprite.destroyed) sprite.texture = loadedTex;
+                  });
+                }
+                effects.addChild(sprite);
+                timed.push({
+                  root: sprite,
+                  sprite,
+                  startedAt: now,
+                  durationMs: Math.max(180, Math.min(500, 75 * (Math.abs(to.x - from.x) + Math.abs(to.y - from.y)))),
+                  kind: 'missile',
+                  from: { ...from },
+                  to: { ...to },
+                  frames: [frame.publicUrl],
+                });
+              }
             }
             if (event.type === 'melee-hit' || event.type === 'projectile-hit') {
-              const target = actorPosition(state, event.targetId); const mapping = visualAssets.effects[String(event.effectId)];
-              if (target && mapping) { const root = new Container(); const point = worldPoint(target); root.position.set(point.x, point.y); const effTex = loaded[mapping.frames[0].publicUrl] || Texture.from(mapping.frames[0].publicUrl); const sprite = new Sprite(effTex); sprite.anchor.set(0.5); root.addChild(sprite); effects.addChild(root); timed.push({ root, startedAt: now, durationMs: Math.max(300, mapping.frames.length * 70), kind: 'effect', frames: mapping.frames.map((frame) => frame.publicUrl) }); }
+              const targetView = views.get(event.targetId);
+              const targetPos = targetView ? targetView.root.position : (actorPosition(state, event.targetId) ? worldPoint(actorPosition(state, event.targetId)!) : null);
+              const mapping = visualAssets.effects[String(event.effectId)];
+              if (targetPos && mapping && mapping.frames && mapping.frames.length > 0) {
+                const root = new Container();
+                root.position.set(targetPos.x, targetPos.y);
+                root.zIndex = targetPos.y * 10 + 50;
+                const firstUrl = mapping.frames[0].publicUrl;
+                const effTex = getCombatTexture(firstUrl) || Texture.EMPTY;
+                const sprite = new Sprite(effTex);
+                sprite.anchor.set(0.5);
+                sprite.roundPixels = true;
+                if (sprite.texture === Texture.EMPTY) {
+                  getCombatTexture(firstUrl, (loadedTex) => {
+                    if (!sprite.destroyed) sprite.texture = loadedTex;
+                  });
+                }
+                root.addChild(sprite);
+                effects.addChild(root);
+                timed.push({
+                  root,
+                  sprite,
+                  startedAt: now,
+                  durationMs: Math.max(300, mapping.frames.length * 75),
+                  kind: 'effect',
+                  frames: mapping.frames.map((frame) => frame.publicUrl),
+                });
+              }
             }
           }
         }
@@ -1080,20 +1210,36 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           }
         }
         for (let index = timed.length - 1; index >= 0; index -= 1) {
-          const visual = timed[index]; const progress = (now - visual.startedAt) / visual.durationMs;
+          const visual = timed[index];
+          const progress = (now - visual.startedAt) / visual.durationMs;
           visual.root.visible = progress >= 0;
           if (progress < 0) continue;
-          if (progress >= 1) { if (visual.root.parent) visual.root.parent.removeChild(visual.root); destroyVisualNode(visual.root); timed.splice(index, 1); continue; }
-          if (visual.kind === 'float') { visual.root.y -= app.ticker.deltaMS * 0.025; visual.root.alpha = 1 - progress; }
+          if (progress >= 1) {
+            if (visual.root.parent) visual.root.parent.removeChild(visual.root);
+            destroyVisualNode(visual.root);
+            timed.splice(index, 1);
+            continue;
+          }
+          if (visual.kind === 'float') {
+            visual.root.y -= app.ticker.deltaMS * 0.025;
+            visual.root.alpha = 1 - progress;
+          }
           if (visual.kind === 'missile' && visual.from && visual.to) {
-            const from = worldPoint(visual.from); const to = worldPoint(visual.to);
+            const from = worldPoint(visual.from);
+            const to = worldPoint(visual.to);
             visual.root.position.set(from.x + (to.x - from.x) * progress, from.y + (to.y - from.y) * progress);
           }
-          if (visual.kind === 'effect' && visual.frames && visual.root.children[0] && 'texture' in visual.root.children[0]) {
-            const frame = visual.frames[Math.min(visual.frames.length - 1, Math.floor(progress * visual.frames.length))];
-            if (frame) {
-              const tex = loaded[frame] || Texture.from(frame);
-              if (tex) (visual.root.children[0] as Sprite).texture = tex;
+          if (visual.kind === 'effect' && visual.frames && visual.frames.length > 0) {
+            const frameIdx = Math.min(visual.frames.length - 1, Math.floor(progress * visual.frames.length));
+            const frameUrl = visual.frames[frameIdx];
+            const sprite = visual.sprite ?? (visual.root.children?.[0] as Sprite | undefined);
+            if (sprite && frameUrl) {
+              const tex = getCombatTexture(frameUrl, (loadedTex) => {
+                if (!sprite.destroyed) sprite.texture = loadedTex;
+              });
+              if (tex && sprite.texture !== tex) {
+                sprite.texture = tex;
+              }
             }
           }
         }

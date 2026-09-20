@@ -3940,6 +3940,17 @@ Plans:
 
 - [x] 215-01-PLAN: Criação da regra `.agents/rules/hunt-loading-and-assets.md`, módulo `apps/web/lib/huntAssetPreloader.ts`, instanciação imediata da hunt sob o loading em `GamePrototype.tsx`, prioridade de todos os efeitos/mísseis no `PixiArena.tsx`, emissão de `melee-hit` com sangue/bloqueio em `combat.ts`, extração de lookType 277 canônico do Cyclops Smith (64x64) e prevenção de autocast de Exori fora de alcance.
 
+### Phase 216: Combat FX Atlas & PixiJS v8 Texture Resolution
+
+**Goal:** Eliminar em definitivo a invisibilidade de animações de combate (magias, projéteis de wand/rod e acertos melee do Knight com sangue e faíscas de bloqueio) compilando o Atlas Unificado de Combate (`combat-fx-atlas.png` e `.json`) cobrindo todos os efeitos (1 a 60) e mísseis (1 a 50) do Tibia 10.98, resolvendo a falha crítica do PixiJS v8 onde `Texture.from()` retornava `undefined` para texturas fora do cache, ajustando a inicialização de posição e rotação de projéteis e integrando os novos atlases aos preloaders de assets essenciais e de caçadas.
+**Requirements:** `c:\Users\desig\OneDrive\Documentos\TibiaWeb\Tibia\FIX.md`
+**Depends on:** Phase 215
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 216-01-PLAN: Criação de `scripts/build-combat-atlas.mjs` gerando `combat-fx-atlas.png` (488KB) e `combat-fx-atlas.json` (5865 aliases), carregamento de atlas via `Assets.load` no `PixiArena.tsx`, função `getCombatTexture(url, onLoaded)` resiliente a falhas de cache, correção de coordenadas de projéteis em `addSpellVisual`, associação de `sprite` no `TimedVisual` para atualização dinâmica de frames no ticker, e inclusão em `assetPreloader.ts` e `huntAssetPreloader.ts`.
+
 
 
 
