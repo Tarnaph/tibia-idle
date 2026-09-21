@@ -3973,6 +3973,26 @@ Plans:
 
 - [x] 218-01-PLAN: Atualização de `content/generated/vocations.json` e `knight-vocation.json` com valores RubinOT, adição de `'ring'` a `CharacterEquipmentSlot` em `types.ts` e `equipment.ts`, suporte a regeneração de Life Ring (2168/2205) e Ring of Healing (2214/2216) a cada 6s em `combat.ts`, calibração dos ticks de regeneração na cidade em `ThaisCityRoom.ts` (10 ticks/s) com suporte a anel equipado, mapeamento no paperdoll de `InventoryWindow.tsx` e `SlotSilhouette.tsx`, sincronização de anel via `GameClientNetworkManager.ts` e `GamePrototype.tsx`, e suíte de testes `tests/phase218-rubinot-regeneration-and-rings.test.ts`.
 
+---
+
+### Phase 219: Calibração Autêntica de Dano Físico de Monstros, Defesa e Magias/Spells de Criaturas
+
+**Goal:** Implementar o sistema autêntico de combate de criaturas do Tibia:
+1. Calibração da fórmula de defesa física do escudo (`maxDefBlock = (shieldSkill * (shieldDef * 0.05)) + (shieldDef * 0.04)` com modificadores de stance: full def 1.0, balanced 0.75, full atk 0.5) e quebra de escudo para mais de 2 monstros atacando no mesmo turno (3º em diante quebra escudo e atinge direto a armadura).
+2. Redução de dano por armadura proporcional ao Tibia (`armor * 0.475` a `armor * 0.95`), punindo fortemente jogadores com armaduras fracas.
+3. Importação e suporte completo a magias e ataques à distância de monstros no `importMonsters.ts` e `content-schema` (ataques de fogo, energia, veneno/terra, gelo, lifedrain, pedras/flechas, cura) com efeitos de projétil e área.
+4. Execução de magias e ataques à distância de monstros em `combat.ts`, ignorando escudo físico e aplicando dano elemental/mágico autêntico.
+5. Regeneração do catálogo de monstros e suíte de testes dedicada garantindo 100% de aprovação e 0 erros de tipagem.
+
+**Requirements:** `FIX.md`, `packages/content-schema/src/index.ts`, `packages/realmap11-importer/src/importMonsters.ts`, `packages/domain/src/combat.ts`.
+**Depends on:** Phase 218
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 219-01-PLAN: Importação de ataques mágicos e ranged em `importMonsters.ts`, fórmulas autênticas de escudo e armadura com quebra no 3º atacante em `combat.ts`, conjuração de spells e ataques à distância por monstros com efeitos visuais, regeneração de catálogo e testes automatizados.
+
+
 
 
 

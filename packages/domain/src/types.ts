@@ -141,6 +141,8 @@ export interface PartyActorState {
   targetDistance?: number;
   targetStrategy?: TargetSelectionStrategy;
   pendingAttack: PendingBasicAttack | null;
+  shieldBlocksThisTurn?: number;
+  shieldTurnStartAt?: number;
 }
 
 export interface PendingBasicAttack {
@@ -187,7 +189,10 @@ export interface EnemyState {
   respawnZoneId?: string;
   challengedTargetId?: string | null;
   challengedUntil?: number;
+  nextSpellAt?: number;
+  spellCooldowns?: Record<string, number>;
 }
+
 
 export interface CorpseState {
   id: string;

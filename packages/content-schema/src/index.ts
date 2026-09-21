@@ -3,11 +3,33 @@ export interface ContentSource {
   relativePath: string;
 }
 
+export type MonsterAttackKind = 'melee' | 'spell' | 'distance';
+export type MonsterCombatType = 'physical' | 'fire' | 'energy' | 'earth' | 'poison' | 'ice' | 'holy' | 'death' | 'lifedrain' | 'manadrain' | 'drown';
+
 export interface MonsterAttackDefinition {
-  kind: 'melee';
+  name?: string;
+  kind: MonsterAttackKind;
+  combatType?: MonsterCombatType;
   intervalMs: number;
+  chance?: number;
   minDamage: number;
   maxDamage: number;
+  range?: number;
+  radius?: number;
+  length?: number;
+  spread?: number;
+  target?: boolean;
+  shootEffect?: string;
+  areaEffect?: string;
+}
+
+export interface MonsterDefenseDefinition {
+  name: string;
+  intervalMs: number;
+  chance?: number;
+  minHealing?: number;
+  maxHealing?: number;
+  areaEffect?: string;
 }
 
 export interface LootDefinition {
@@ -31,6 +53,7 @@ export interface MonsterDefinition {
   lookType?: number;
   corpseId?: number;
   attacks: MonsterAttackDefinition[];
+  defenses?: MonsterDefenseDefinition[];
   loot: LootDefinition[];
   elementalPercent: Record<string, number | undefined>;
   immunities: string[];

@@ -78,15 +78,18 @@ const regionFor = (content: GameContent, huntId: string) => {
 };
 
 export function deriveMonsterVariantStats(monster: MonsterDefinition, variant: MonsterVariantDefinition | null) {
+  const melee = monster.attacks.find((a) => a.kind === 'melee') ?? monster.attacks[0];
+  const baseAttackMax = melee?.maxDamage ?? 10;
   return {
     maxHp: Math.ceil(monster.maxHp * (variant?.hpMultiplier ?? 1)),
-    attackMax: Math.ceil(monster.attacks[0].maxDamage * (variant?.damageMultiplier ?? 1)),
+    attackMax: Math.ceil(baseAttackMax * (variant?.damageMultiplier ?? 1)),
     defense: Math.ceil(monster.defense * (variant?.defenseMultiplier ?? 1)),
     armor: Math.ceil(monster.armor * (variant?.defenseMultiplier ?? 1)),
     experience: Math.ceil(monster.experience * (variant?.xpMultiplier ?? 1)),
     lootMultiplier: variant?.lootMultiplier ?? 1,
   };
 }
+
 
 function addLog(state: GameState, message: string): void {
   const encounter = state.encounter;
@@ -2465,77 +2468,260 @@ export function transferActiveMemberOnDeath(state: GameState, deadCharacterId: s
   }
 }
 
+function applyDamageToPartyActor(
+  state: GameState,
+  content: GameContent,
+  target: PartyActorState,
+  character: CharacterState,
+  damage: number,
+  element: string,
+  attackerName: string,
+  attackerId: string,
+): void {
+  const encounter = state.encounter;
+  if (damage > 0) {
+    target.lastHitTakenAt = encounter.elapsedMs;
+    // Emergency auto-potion check before applying lethal/critical damage!
+    triggerEmergencyAutoPotion(state, target, character, content, damage);
+
+    // Magic Shield (Utamo Vita) absorbs damage with mana first!
+    if (target.magicShieldUntil > encounter.elapsedMs && target.mana > 0) {
+      const manaDamage = Math.min(damage, target.mana);
+      target.mana -= manaDamage;
+      const remainingDamage = damage - manaDamage;
+      target.hp = Math.max(0, target.hp - remainingDamage);
+      encounter.visualEvents.push({ type: 'heal-applied', sourceId: target.characterId, targetId: target.characterId, effectId: 13 });
+    } else {
+      target.hp = Math.max(0, target.hp - damage);
+    }
+  }
+  encounter.events.push({ type: 'enemy-attack', sourceId: attackerId, targetId: target.characterId, damage, element });
+  addLog(state, `${attackerName} causou ${damage} de dano (${element}) em ${character.name}.`);
+  if (target.hp <= 0) {
+    target.alive = false; target.path = [];
+    syncCharacterResources(state, target);
+    encounter.events.push({ type: 'player-death', characterId: target.characterId, killerName: attackerName } as any);
+    addLog(state, `${character.name} foi derrotado por ${attackerName}.`);
+    transferActiveMemberOnDeath(state, target.characterId);
+  } else {
+    syncCharacterResources(state, target);
+  }
+}
+
+export function mapMonsterEffectToId(effectName?: string): number | null {
+  if (!effectName) return null;
+  const name = effectName.toLowerCase();
+  if (name.includes('fire') || name.includes('flame')) return 15;
+  if (name.includes('blue') || name.includes('heal') || name.includes('shimmer')) return 13;
+  if (name.includes('energy') || name.includes('spark') || name.includes('yellow')) return 11;
+  if (name.includes('poison') || name.includes('earth') || name.includes('green')) return 8;
+  if (name.includes('mort') || name.includes('death') || name.includes('black')) return 17;
+  if (name.includes('ice') || name.includes('freeze')) return 43;
+  if (name.includes('puff')) return 3;
+  if (name.includes('blood') || name.includes('red')) return 1;
+  return 15;
+}
+
+export function mapMonsterProjectileToId(projectileName?: string): number | null {
+  if (!projectileName) return null;
+  const name = projectileName.toLowerCase();
+  if (name.includes('fire')) return 4;
+  if (name.includes('energy')) return 5;
+  if (name.includes('poison') || name.includes('earth')) return 6;
+  if (name.includes('stone') || name.includes('rock')) return 11;
+  if (name.includes('bolt')) return 2;
+  if (name.includes('arrow')) return 3;
+  if (name.includes('spear')) return 1;
+  if (name.includes('knife') || name.includes('star')) return 24;
+  if (name.includes('death') || name.includes('mort')) return 31;
+  if (name.includes('ice')) return 43;
+  return 4;
+}
+
 function enemyAttacks(state: GameState, content: GameContent): void {
   const encounter = state.encounter;
   const rng = createSeededRng(encounter.rngState);
+
+  // 1. Reset de blocos de escudo a cada 2000ms (2s de turno de combate autêntico)
+  for (const actor of encounter.partyActors.filter((candidate) => candidate.alive)) {
+    if (!actor.shieldTurnStartAt || encounter.elapsedMs - actor.shieldTurnStartAt >= 2000) {
+      actor.shieldTurnStartAt = encounter.elapsedMs;
+      actor.shieldBlocksThisTurn = 0;
+    }
+  }
+
   for (const enemy of encounter.enemies.filter((candidate) => candidate.alive)) {
-    if (encounter.elapsedMs < enemy.nextAttackAt) continue;
-    const isChallenged = Boolean(enemy.challengedTargetId && enemy.challengedUntil && enemy.challengedUntil > encounter.elapsedMs);
-    const challengedActor = isChallenged
-      ? encounter.partyActors.find((actor) => actor.characterId === enemy.challengedTargetId && actor.alive && isMeleeRange(enemy.position, actor.position))
-      : undefined;
+    const monsterDef = monsterFor(content, enemy.monsterId);
+    if (!enemy.spellCooldowns) enemy.spellCooldowns = {};
 
-    const target = challengedActor
-      ?? encounter.partyActors.find((actor) => actor.characterId === enemy.targetId && actor.alive && isMeleeRange(enemy.position, actor.position))
-      ?? encounter.partyActors.find((actor) => actor.alive && isMeleeRange(enemy.position, actor.position));
-    if (!target) continue;
-    const character = state.session.characters.find((candidate) => candidate.id === target.characterId)!;
-    const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
-    const stance = character.stance ?? target.stance ?? 'offensive';
-    const defenseMultiplier = stance === 'defensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
-    const raw = rollInteger(rng, 0, enemy.attackMax);
-    const effectiveDefense = Math.max(0, Math.round(stats.defense * defenseMultiplier));
-    const defense = rollInteger(rng, Math.floor(effectiveDefense / 2), effectiveDefense);
-    const armor = rollInteger(rng, Math.floor(stats.armor / 2), stats.armor);
-    let damage = Math.max(0, raw - defense - armor);
-    if (damage > 0 && stats.physicalDamageMitigationPercent > 0) {
-      damage = Math.max(0, Math.round(damage * (1 - stats.physicalDamageMitigationPercent / 100)));
-    }
-    enemy.nextAttackAt = encounter.elapsedMs + enemy.attackIntervalMs;
-    const hasShield = getEquippedItems(character, content.equipment).some(
-      (item) => item.weaponType === 'shield' || (item as any).slot === 'shield' || item.defense > 0
-    );
-    if (hasShield) {
-      const vocation = vocationFor(content, character.vocation);
-      const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
-      const tries = 1 * content.rateSkill * skillRate;
-      for (const advanced of addTrainingTries(character, 'shielding', tries, vocation)) {
-        encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
-        addLog(state, `You advanced in Shielding.`);
+    // 2. Auto-Cura de Monstros (<defense name="healing">)
+    if (enemy.hp < enemy.maxHp && monsterDef.defenses && monsterDef.defenses.length > 0) {
+      for (const def of monsterDef.defenses) {
+        if (def.name !== 'healing') continue;
+        const cooldownKey = `heal_${def.intervalMs}`;
+        const nextReadyAt = enemy.spellCooldowns[cooldownKey] ?? 0;
+        if (encounter.elapsedMs >= nextReadyAt) {
+          if (rollInteger(rng, 1, 100) <= (def.chance ?? 100)) {
+            enemy.spellCooldowns[cooldownKey] = encounter.elapsedMs + def.intervalMs;
+            const minH = def.minHealing ?? 10;
+            const maxH = Math.max(minH, def.maxHealing ?? 40);
+            const healed = rollInteger(rng, minH, maxH);
+            enemy.hp = Math.min(enemy.maxHp, enemy.hp + healed);
+            encounter.visualEvents.push({
+              type: 'heal-applied',
+              sourceId: enemy.id,
+              targetId: enemy.id,
+              effectId: mapMonsterEffectToId(def.areaEffect) ?? 13,
+            });
+            addLog(state, `${enemy.name} se curou em ${healed} HP.`);
+          } else {
+            enemy.spellCooldowns[cooldownKey] = encounter.elapsedMs + 1000;
+          }
+        }
       }
     }
-    if (damage > 0) {
-      target.lastHitTakenAt = encounter.elapsedMs;
-      // Emergency auto-potion check before applying lethal/critical damage!
-      triggerEmergencyAutoPotion(state, target, character, content, damage);
 
-      // Magic Shield (Utamo Vita) absorbs damage with mana first!
-      if (target.magicShieldUntil > encounter.elapsedMs && target.mana > 0) {
-        const manaDamage = Math.min(damage, target.mana);
-        target.mana -= manaDamage;
-        const remainingDamage = damage - manaDamage;
-        target.hp = Math.max(0, target.hp - remainingDamage);
-        encounter.visualEvents.push({ type: 'heal-applied', sourceId: target.characterId, targetId: target.characterId, effectId: 13 });
-      } else {
-        target.hp = Math.max(0, target.hp - damage);
+    // 3. Magias e Ataques à Distância de Monstros (Spells / Distance)
+    if (monsterDef.attacks && monsterDef.attacks.length > 1) {
+      const specialAttacks = monsterDef.attacks.filter((atk) => atk.kind !== 'melee');
+      for (const atk of specialAttacks) {
+        const attackKey = `atk_${atk.name}_${atk.kind}_${atk.combatType}`;
+        const nextReadyAt = enemy.spellCooldowns[attackKey] ?? 0;
+        if (encounter.elapsedMs >= nextReadyAt) {
+          const chancePass = rollInteger(rng, 1, 100) <= (atk.chance ?? 15);
+          if (chancePass) {
+            enemy.spellCooldowns[attackKey] = encounter.elapsedMs + atk.intervalMs;
+            const maxRange = atk.range ?? (atk.target || atk.radius ? 7 : 1);
+
+            const inRangeActors = encounter.partyActors.filter((actor) =>
+              actor.alive && meleeDistance(enemy.position, actor.position) <= maxRange
+            );
+
+            if (inRangeActors.length > 0) {
+              const isChallenged = Boolean(enemy.challengedTargetId && enemy.challengedUntil && enemy.challengedUntil > encounter.elapsedMs);
+              const challengedTarget = isChallenged ? inRangeActors.find((a) => a.characterId === enemy.challengedTargetId) : undefined;
+              const isAoe = Boolean((atk.radius && atk.radius > 1) || (atk.length && atk.length > 1));
+              const targetsToHit = isAoe
+                ? inRangeActors
+                : [challengedTarget ?? inRangeActors.find((a) => a.characterId === enemy.targetId) ?? inRangeActors[0]];
+
+              for (const targetActor of targetsToHit) {
+                const targetChar = state.session.characters.find((c) => c.id === targetActor.characterId);
+                if (!targetChar) continue;
+                const stats = deriveStats(targetChar, content.equipment, vocationFor(content, targetChar.vocation));
+
+                const spellMin = atk.minDamage ?? 10;
+                const spellMax = Math.ceil((atk.maxDamage ?? 30) * (enemy.variant?.damageMultiplier ?? 1));
+                let spellDamage = rollInteger(rng, spellMin, spellMax);
+
+                const element = atk.combatType ?? 'physical';
+                const elementalResistance = stats.elementalProtections?.[element as keyof typeof stats.elementalProtections] ?? 0;
+                if (elementalResistance > 0) {
+                  spellDamage = Math.max(1, Math.round(spellDamage * (1 - elementalResistance / 100)));
+                }
+
+                const projectileId = mapMonsterProjectileToId(atk.shootEffect);
+                const effectId = mapMonsterEffectToId(atk.areaEffect) ?? (element === 'fire' ? 15 : element === 'energy' ? 11 : 8);
+                encounter.visualEvents.push({
+                  type: 'spell-cast-visual',
+                  sourceId: enemy.id,
+                  targetId: targetActor.characterId,
+                  projectileId,
+                  effectId,
+                });
+
+                applyDamageToPartyActor(state, content, targetActor, targetChar, spellDamage, element, enemy.name, enemy.id);
+              }
+            }
+          } else {
+            enemy.spellCooldowns[attackKey] = encounter.elapsedMs + 1000;
+          }
+        }
       }
     }
-    encounter.events.push({ type: 'enemy-attack', sourceId: enemy.id, targetId: target.characterId, damage, element: 'physical' });
-    addLog(state, `${enemy.name} causou ${damage} em ${character.name}.`);
-    if (target.hp <= 0) {
-      target.alive = false; target.path = [];
-      syncCharacterResources(state, target);
-      encounter.events.push({ type: 'player-death', characterId: target.characterId, killerName: enemy.name } as any);
-      addLog(state, `${character.name} foi derrotado por ${enemy.name}.`);
-      transferActiveMemberOnDeath(state, target.characterId);
-    } else {
-      syncCharacterResources(state, target);
+
+    // 4. Ataque Melee Físico (Corpo a Corpo)
+    if (encounter.elapsedMs >= enemy.nextAttackAt) {
+      const isChallenged = Boolean(enemy.challengedTargetId && enemy.challengedUntil && enemy.challengedUntil > encounter.elapsedMs);
+      const challengedActor = isChallenged
+        ? encounter.partyActors.find((actor) => actor.characterId === enemy.challengedTargetId && actor.alive && isMeleeRange(enemy.position, actor.position))
+        : undefined;
+
+      const target = challengedActor
+        ?? encounter.partyActors.find((actor) => actor.characterId === enemy.targetId && actor.alive && isMeleeRange(enemy.position, actor.position))
+        ?? encounter.partyActors.find((actor) => actor.alive && isMeleeRange(enemy.position, actor.position));
+
+      if (target) {
+        const character = state.session.characters.find((candidate) => candidate.id === target.characterId)!;
+        const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
+        const stance = character.stance ?? target.stance ?? 'offensive';
+        const defenseMultiplier = stance === 'defensive' ? 1.0 : stance === 'balanced' ? 0.75 : 0.5;
+
+        const meleeDef = monsterDef.attacks.find((a) => a.kind === 'melee') ?? monsterDef.attacks[0];
+        const minDamage = meleeDef?.minDamage ?? 0;
+        const maxDamage = Math.ceil((meleeDef?.maxDamage ?? enemy.attackMax) * (enemy.variant?.damageMultiplier ?? 1));
+        const raw = rollInteger(rng, minDamage, maxDamage);
+
+        enemy.nextAttackAt = encounter.elapsedMs + (meleeDef?.intervalMs ?? enemy.attackIntervalMs);
+
+        // Treino de Shielding caso tenha escudo equipado
+        const hasShield = getEquippedItems(character, content.equipment).some(
+          (item) => item.weaponType === 'shield' || (item as any).slot === 'shield' || item.defense > 0
+        );
+        if (hasShield) {
+          const vocation = vocationFor(content, character.vocation);
+          const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
+          const tries = 1 * content.rateSkill * skillRate;
+          for (const advanced of addTrainingTries(character, 'shielding', tries, vocation)) {
+            encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
+            addLog(state, `You advanced in Shielding.`);
+          }
+        }
+
+        // Resolução autêntica de Escudo:
+        // O escudo bloqueia até 2 ataques corpo a corpo por rodada (2s).
+        // A partir do 3º atacante simultâneo, a defesa do escudo QUEBRA (blood hit direto).
+        const blocksUsed = target.shieldBlocksThisTurn ?? 0;
+        let damageAfterShield = raw;
+
+        if (blocksUsed < 2 && stats.defense > 0) {
+          target.shieldBlocksThisTurn = blocksUsed + 1;
+          const effectiveDefense = Math.max(0, Math.round(stats.defense * defenseMultiplier));
+          const shieldBlock = rollInteger(rng, Math.floor(effectiveDefense * 0.5), effectiveDefense);
+          damageAfterShield = Math.max(0, raw - shieldBlock);
+        }
+
+        // Resolução autêntica de Armadura:
+        // A armadura reduz o dano que passou do escudo proporcionalmente: entre 47.5% e 95% do total de armor.
+        let finalDamage = 0;
+        if (damageAfterShield > 0) {
+          const minArmor = Math.floor(stats.armor * 0.475);
+          const maxArmor = Math.floor(stats.armor * 0.95);
+          const armorReduction = stats.armor > 0 ? rollInteger(rng, minArmor, maxArmor) : 0;
+          finalDamage = Math.max(0, damageAfterShield - armorReduction);
+          if (finalDamage > 0 && stats.physicalDamageMitigationPercent > 0) {
+            finalDamage = Math.max(1, Math.round(finalDamage * (1 - stats.physicalDamageMitigationPercent / 100)));
+          }
+        }
+
+        // Emite visual melee (spark se bloqueado no escudo / puff se absorvido por armadura / sangue se dano)
+        encounter.visualEvents.push({
+          type: 'melee-hit',
+          sourceId: enemy.id,
+          targetId: target.characterId,
+          effectId: finalDamage <= 0 ? 4 : 1,
+          blocked: finalDamage <= 0,
+        });
+
+        applyDamageToPartyActor(state, content, target, character, finalDamage, 'physical', enemy.name, enemy.id);
+      }
     }
   }
   encounter.rngState = rng.state;
   if (!encounter.partyActors.some((actor) => actor.alive)) encounter.status = 'defeated';
   synchronizeEncounterOccupancy(encounter);
 }
+
 
 function recordMovementEvents(encounter: HuntEncounterState): void {
   for (const actor of [...encounter.partyActors, ...encounter.enemies.filter((enemy) => enemy.alive)]) {

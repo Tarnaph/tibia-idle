@@ -144,15 +144,17 @@ export function deriveStats(
   const attack = Math.trunc(baseMaxDamage * damageMultiplier);
 
   let defenseSkill = activeSkill === 'magicLevel' ? skills.shielding : activeSkillLevel;
-  let defenseValue = weapon ? weapon.defense + weapon.extraDefense : 7;
+  let defenseValue = weapon ? weapon.defense + weapon.extraDefense : 0;
   if (shield) {
     defenseSkill = skills.shielding;
     defenseValue = shield.defense + (weapon?.extraDefense ?? 0);
   }
 
-  const defense = Math.trunc(
-    (defenseSkill / 4 + 1) * (defenseValue / 2) * vocation.defenseMultiplier,
-  );
+  // Fórmula autêntica de bloqueio de escudo do Tibia (CipSoft / TFS 1.x):
+  // maxDefBlock = (skill * (defense * 0.05)) + (defense * 0.04)
+  const defense = (!shield && !weapon) || defenseValue <= 0
+    ? 0
+    : Math.max(1, Math.round(((defenseSkill * (defenseValue * 0.05)) + (defenseValue * 0.04)) * vocation.defenseMultiplier));
   const armor = items.reduce((acc, item) => acc + item.armor, 0);
 
   const activeWeaponSkill = skills[activeSkill];
@@ -161,7 +163,9 @@ export function deriveStats(
 
   const movementSpeedBonus = (character.skills.fist * 0.25) + imbuementBonuses.speed;
   const magicDamageResistancePercent = Number(Math.min(25, skills.magicLevel * 0.5).toFixed(1));
-  const physicalDamageMitigationPercent = Number(Math.min(30, skills.shielding * 0.3).toFixed(1));
+  const itemPhysicalProtection = items.reduce((acc, item) => acc + (item.elementalAbsorption?.physical ?? 0), 0);
+  const physicalDamageMitigationPercent = Number(Math.min(50, itemPhysicalProtection).toFixed(1));
+
 
   return {
     attack,

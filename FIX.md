@@ -1,5 +1,11 @@
 # CORREÇÕES
 
+## Concluído na Phase 219:
+- [x] **Calibração Autêntica de Dano Físico de Monstros:** Defesa calculada de acordo com as regras oficiais do Tibia 10.98+ / TFS 1.x (`(defenseSkill * (defenseValue * 0.05)) + (defenseValue * 0.04)` com modificador de postura de combate). Eliminada a inflação de defesa e redução plana de 30%, fazendo com que personagens com equipamentos fracos recebam dano autêntico e proporcional.
+- [x] **Quebra de Escudo (Shield Break):** O escudo só consegue bloquear ataques de até 2 monstros por turno (2.000ms). A partir do 3º atacante, o escudo quebra e a criatura atinge o jogador com dano direto reduzido apenas pela armadura (`armor * 0.475` a `armor * 0.95`).
+- [x] **Magias e Habilidades Ofensivas de Monstros:** Reimportação canônica de 969 criaturas com catálogo completo de magias (Fire Wave, Great Fireball, Energy Strike, Ice, Poison, etc.) e ataques à distância (pedras, flechas). Monstros agora disparam suas magias no alcance correto (`range`), emitindo efeitos de projéteis e explosões de área, ignorando escudo físico e armadura.
+- [x] **Auto-Cura de Criaturas (Healing Defenses):** Monstros que possuem tags de cura no XML utilizam periodicamente quando feridos, emitindo o efeito visual verde (`CONST_ME_MAGIC_GREEN`).
+
 ## Concluído na Phase 218:
 - [x] **Regeneração Base RubinOT (sem exigência de comida):** Normal a cada 4s (Knight +20 HP/+5 MP, Paladin +10 HP/+10 MP, Mage +5 HP/+20 MP) e Promovida a cada 3s (Elite Knight +20 HP/+5 MP, Royal Paladin +10 HP/+10 MP, MS/ED +5 HP/+20 MP) em combate e na cidade.
 - [x] **Regeneração Independente por Anéis (6s ticks):** Life Ring (+2 HP / +8 MP a cada 6s) e Ring of Healing (+6 HP / +24 MP a cada 6s) no slot de anel (`ring`).

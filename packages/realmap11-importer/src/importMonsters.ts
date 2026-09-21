@@ -7,7 +7,11 @@ import {
   type LootDefinition,
   type MonsterCatalog,
   type MonsterDefinition,
+  type MonsterAttackDefinition,
+  type MonsterCombatType,
+  type MonsterDefenseDefinition,
 } from '../../content-schema/src/index.ts';
+
 import { getServerDataRoot } from './helpers.ts';
 
 interface ImportOptions { projectRoot?: string; write?: boolean }
@@ -53,12 +57,113 @@ function itemIndexes(items: unknown[]) {
   return { namesById, idsByName };
 }
 
+function parseMonsterAttacks(rawAttacks: unknown): MonsterAttackDefinition[] {
+  const attackEntries = asArray<Record<string, unknown>>(rawAttacks as any);
+  const result: MonsterAttackDefinition[] = [];
+
+  for (const attack of attackEntries) {
+    const rawName = String(attack.name ?? '').trim().toLowerCase();
+    if (!rawName) continue;
+
+    let shootEffect: string | undefined;
+    let areaEffect: string | undefined;
+    const rawAttrs = asArray<Record<string, unknown>>(attack.attribute as any);
+
+    for (const attr of rawAttrs) {
+      const key = String(attr.key ?? '').toLowerCase();
+      const val = String(attr.value ?? '').trim();
+      if (key === 'shooteffect') shootEffect = val;
+      if (key === 'areaeffect') areaEffect = val;
+    }
+
+    const intervalMs = numberValue(attack.interval ?? attack.speed, 2_000);
+    const chance = attack.chance !== undefined ? numberValue(attack.chance, 100) : 100;
+    const minDamage = Math.abs(numberValue(attack.min, 0));
+    const maxDamage = Math.abs(numberValue(attack.max, 0));
+    const range = attack.range !== undefined ? numberValue(attack.range) : undefined;
+    const radius = attack.radius !== undefined ? numberValue(attack.radius) : undefined;
+    const length = attack.length !== undefined ? numberValue(attack.length) : undefined;
+    const spread = attack.spread !== undefined ? numberValue(attack.spread) : undefined;
+    const target = attack.target !== undefined ? Boolean(attack.target) : undefined;
+
+    if (rawName === 'melee') {
+      result.push({
+        name: 'melee',
+        kind: 'melee',
+        combatType: 'physical',
+        intervalMs,
+        minDamage,
+        maxDamage,
+      });
+    } else {
+      let combatType: MonsterCombatType = 'physical';
+      if (['fire', 'energy', 'ice', 'holy', 'death', 'lifedrain', 'manadrain', 'drown'].includes(rawName)) {
+        combatType = rawName as MonsterCombatType;
+      } else if (rawName === 'poison' || rawName === 'earth') {
+        combatType = 'earth';
+      }
+
+      const isDistance = rawName === 'physical' && (range !== undefined || shootEffect !== undefined);
+      result.push({
+        name: rawName,
+        kind: isDistance ? 'distance' : 'spell',
+        combatType,
+        intervalMs,
+        chance,
+        minDamage,
+        maxDamage,
+        range: range ?? (target || radius ? 7 : 1),
+        radius,
+        length,
+        spread,
+        target,
+        shootEffect,
+        areaEffect,
+      });
+    }
+  }
+
+  return result;
+}
+
+function parseMonsterDefenses(xmlString?: string): MonsterDefenseDefinition[] {
+  if (!xmlString) return [];
+  const result: MonsterDefenseDefinition[] = [];
+  const defenseMatches = [...xmlString.matchAll(/<defense\s+([^>]+)(?:\/?>|>([\s\S]*?)<\/defense>)/gi)];
+  for (const match of defenseMatches) {
+    const attrsStr = match[1] || '';
+    const bodyStr = match[2] || '';
+    const nameMatch = attrsStr.match(/name="([^"]+)"/i);
+    if (!nameMatch) continue;
+    const name = nameMatch[1].toLowerCase();
+    const intervalMatch = attrsStr.match(/interval="([^"]+)"/i);
+    const chanceMatch = attrsStr.match(/chance="([^"]+)"/i);
+    const minMatch = attrsStr.match(/min="([^"]+)"/i);
+    const maxMatch = attrsStr.match(/max="([^"]+)"/i);
+
+    let areaEffect: string | undefined;
+    const effectMatch = (attrsStr + bodyStr).match(/key="areaEffect"\s+value="([^"]+)"/i);
+    if (effectMatch) areaEffect = effectMatch[1];
+
+    result.push({
+      name,
+      intervalMs: intervalMatch ? numberValue(intervalMatch[1], 2_000) : 2_000,
+      chance: chanceMatch ? numberValue(chanceMatch[1], 100) : 100,
+      minHealing: minMatch ? Math.abs(numberValue(minMatch[1], 0)) : 0,
+      maxHealing: maxMatch ? Math.abs(numberValue(maxMatch[1], 0)) : 0,
+      areaEffect,
+    });
+  }
+  return result;
+}
+
 function normalizeMonster(
   monster: Record<string, unknown>,
   monsterPath: string,
   serverRoot: string,
   namesById: Map<number, string>,
   idsByName: Map<string, number[]>,
+  rawXml?: string,
 ): MonsterDefinition {
   const lootEntries = asRecord(monster.loot).item as Record<string, unknown> | Record<string, unknown>[] | undefined;
   const attackEntries = asRecord(monster.attacks).attack as Record<string, unknown> | Record<string, unknown>[] | undefined;
@@ -82,24 +187,20 @@ function normalizeMonster(
     };
   });
 
-  const parsedAttacks = asArray<Record<string, unknown>>(attackEntries)
-    .filter((attack) => String(attack.name).toLowerCase() === 'melee')
-    .map((attack) => ({
-      kind: 'melee' as const,
-      intervalMs: numberValue(attack.interval ?? attack.speed, 2_000),
-      minDamage: Math.abs(numberValue(attack.min)),
-      maxDamage: Math.abs(numberValue(attack.max)),
-    }));
-
+  const parsedAttacks = parseMonsterAttacks(attackEntries);
   const maxHp = Math.max(1, numberValue(health.max ?? health.now, 100));
 
-  // Fallback attack for monsters without explicit melee tag (e.g. bosses using spells/scripts)
+  // Fallback attack for monsters without explicit attack tags
   const attacks = parsedAttacks.length > 0 ? parsedAttacks : [{
+    name: 'melee',
     kind: 'melee' as const,
+    combatType: 'physical' as const,
     intervalMs: 2_000,
     minDamage: 1,
     maxDamage: Math.max(10, Math.floor(maxHp / 20)),
   }];
+
+  const parsedDefenses = parseMonsterDefenses(rawXml);
 
   return validateMonsterDefinition({
     id: String(monster.name).toLowerCase().replaceAll(/[^a-z0-9]+/g, '-'),
@@ -115,6 +216,7 @@ function normalizeMonster(
     lookType: look.type === undefined ? undefined : numberValue(look.type),
     corpseId: look.corpse === undefined ? undefined : numberValue(look.corpse),
     attacks,
+    defenses: parsedDefenses.length > 0 ? parsedDefenses : undefined,
     loot,
     elementalPercent: Object.assign({}, ...asArray<Record<string, unknown>>(elementEntries).map((entry) => (
       Object.fromEntries(Object.entries(entry).map(([key, value]) => [key.replace(/Percent$/i, '').toLowerCase(), numberValue(value)]))
@@ -124,6 +226,7 @@ function normalizeMonster(
     )),
   });
 }
+
 
 export async function importMonsters(options: ImportOptions = {}): Promise<MonsterCatalog> {
   const projectRoot = options.projectRoot ?? process.cwd();
@@ -149,7 +252,7 @@ export async function importMonsters(options: ImportOptions = {}): Promise<Monst
         const rawContent = await readFile(monsterPath, 'utf8');
         const monsterRaw = parser.parse(rawContent).monster;
         if (monsterRaw) {
-          const def = normalizeMonster(monsterRaw, monsterPath, serverRoot, namesById, idsByName);
+          const def = normalizeMonster(monsterRaw, monsterPath, serverRoot, namesById, idsByName, rawContent);
           monstersMap.set(def.id, def);
         }
       } catch {
@@ -189,7 +292,8 @@ export async function importMonsters(options: ImportOptions = {}): Promise<Monst
           monsterRaw.name = entry.name;
         }
 
-        const def = normalizeMonster(monsterRaw, monsterPath, serverRoot, namesById, idsByName);
+        const def = normalizeMonster(monsterRaw, monsterPath, serverRoot, namesById, idsByName, rawContent);
+
         if (!monstersMap.has(def.id)) {
           monstersMap.set(def.id, def);
         }

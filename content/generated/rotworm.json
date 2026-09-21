@@ -16,7 +16,9 @@
   "corpseId": 5967,
   "attacks": [
     {
+      "name": "melee",
       "kind": "melee",
+      "combatType": "physical",
       "intervalMs": 2000,
       "minDamage": 0,
       "maxDamage": 40

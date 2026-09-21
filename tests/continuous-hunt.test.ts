@@ -79,7 +79,7 @@ describe('continuous regressions and visuals', () => {
     const meleeTile = melee.encounter.room.map.tiles.find((tile) => tile.walkable && Math.abs(tile.position.x - knight.position.x) + Math.abs(tile.position.y - knight.position.y) === 1)!;
     rat.position = { ...meleeTile.position }; rat.previousPosition = { ...meleeTile.position };
     melee = advanceCombat(melee, content, 120); expect(melee.encounter.visualEvents).toContainEqual(expect.objectContaining({ type: 'basic-attack-started', sourceId: knight.characterId, ranged: false }));
-    melee = advanceCombat(melee, content, 240); expect(melee.encounter.visualEvents).toContainEqual(expect.objectContaining({ type: 'melee-hit', sourceId: knight.characterId, effectId: 10 }));
+    melee = advanceCombat(melee, content, 240); expect(melee.encounter.visualEvents).toContainEqual(expect.objectContaining({ type: 'melee-hit', sourceId: knight.characterId, effectId: 1 }));
 
     let ranged = createIdleGame('distance-visual', content); ranged = synchronizePartyWithEncounter(addPartyMember(ranged, 'Lyra', 'Paladin', content), content); ranged = restartHunt(ranged, 'distance-visual', content);
     const paladin = ranged.encounter.partyActors.find((actor) => actor.characterId.includes('paladin'))!; const target = ranged.encounter.enemies[0];

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-09-21T17:10:00.000Z"
-last_activity: "2026-09-21 — Phase 218: RubinOT Vocation & Ring Regeneration System (Foodless Idle) concluída e testada com sucesso."
+status: complete
+last_updated: "2026-09-21T17:45:00.000Z"
+last_activity: "2026-09-21 — Phase 219: Calibração Autêntica de Dano Físico de Monstros, Defesa com Quebra de Escudo no 3º Atacante e Magias/Spells de Criaturas concluída e validada com 100% de testes passando."
 progress:
-  total_phases: 218
-  completed_phases: 218
-  total_plans: 298
-  completed_plans: 298
+  total_phases: 219
+  completed_phases: 219
+  total_plans: 299
+  completed_plans: 299
   percent: 100
 ---
 
@@ -20,14 +20,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 218 - RubinOT Vocation & Ring Regeneration System (Foodless Idle) [CONCLUÍDA].
+**Current focus:** Phase 219 - Calibração Autêntica de Dano Físico de Monstros, Defesa e Magias/Spells de Criaturas [CONCLUÍDA].
 
 ## Current Position
 
-Phase: 218 of 218  
-Plan: 1 of 1 in Phase 218  
+Phase: 219 of 219  
+Plan: 1 of 1 in Phase 219  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Sistema de regeneração RubinOT implementado para todas as vocações (normal a cada 4s: Knight +20 HP/+5 MP, Paladin +10 HP/+10 MP, Mage +5 HP/+20 MP; promovida a cada 3s: Elite Knight +20 HP/+5 MP, Royal Paladin +10 HP/+10 MP, MS/ED +5 HP/+20 MP) e para os anéis Life Ring (+2 HP/+8 MP a cada 6s) e Ring of Healing (+6 HP/+24 MP a cada 6s), operando de forma independente sem exigência de comida no idle. Suporte adicionado ao slot 'ring' no domínio e no inventário, ticks calibrados a 100ms no Colyseus ThaisCityRoom, e 100% de aprovação nos testes (13/13 vitest) e typecheck com 0 erros.
+Last activity: 2026-09-21 — Implementação do sistema autêntico de dano físico de monstros, defesa com limite de 2 bloqueios de escudo (quebra no 3º atacante), absorção de armadura e magias/spells/ranged attacks de criaturas. 100% testado (15/15 testes passando) e 0 erros de tipagem.
+
 
 Progress: [██████████] 100%
 
