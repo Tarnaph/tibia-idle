@@ -4007,6 +4007,17 @@ Plans:
 
 - [x] 220-01-PLAN: Efeito de teleport em spawn de monstros no domínio e renderizador PixiJS, herança de contexto de caçada para alts e calibração de orçamento de treino contínuo com poções/magias no RateLimiter.
 
+### Phase 221: Dead Human Corpse, XP Budget Post-Hunt & Hotbar Conditions Fix
+
+**Goal:** Implementar o corpo canônico de jogador humano (`dead human` - item 3058) com poça de sangue clássica na morte de membros da party em caçadas, corrigir o falso positivo de ganho suspeito de XP ao salvar após transição da caçada para a cidade de Thais, e corrigir o layout e usabilidade das condições no modal de hotbar permitindo definir e executar regras de percentual (ex: <= 80%) para poções e magias de cura.  
+**Requirements:** `FIX.md`, prompt do usuário e imagens enviadas.  
+**Depends on:** Phase 220  
+**Plans:** 1 plan  
+
+Plans:
+
+- [x] 221-01-PLAN: Dead Human Corpse (item 3058) na morte de party members, resolução de XP rate limit pós-hunt no characterService e correção de usabilidade do stepper de condições na hotbar.
+
 
 
 

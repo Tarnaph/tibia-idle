@@ -1063,12 +1063,14 @@ export function evaluateHotbarCondition(
   } else {
     // Default / 'self'
     if (condition.metric === 'hp') {
+      const maxHp = character.maxHp ?? (character as any).maxHealth ?? 1;
       currentValue = condition.isPercent
-        ? (character.maxHp > 0 ? (actor.hp / character.maxHp) * 100 : 0)
+        ? (maxHp > 0 ? (actor.hp / maxHp) * 100 : 0)
         : actor.hp;
     } else if (condition.metric === 'mana') {
+      const maxMana = character.maxMana ?? (character as any).maxMana ?? 1;
       currentValue = condition.isPercent
-        ? (character.maxMana > 0 ? (actor.mana / character.maxMana) * 100 : 0)
+        ? (maxMana > 0 ? (actor.mana / maxMana) * 100 : 0)
         : actor.mana;
     }
   }

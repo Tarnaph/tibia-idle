@@ -950,7 +950,8 @@ export class ThaisCityRoom extends Room<WorldState> {
             const deltaExp = data.experience - player.experience;
             const now = Date.now();
             const charKey = player.characterId || client.sessionId;
-            const check = XpRateLimiter.consume(charKey, deltaExp, now, { isHunting: Boolean(player.inHunt) });
+            const hasHunt = Boolean(player.inHunt || (data as any)?.isHunting || (data as any)?.lastHuntId);
+            const check = XpRateLimiter.consume(charKey, deltaExp, now, { isHunting: hasHunt });
 
             if (!check.allowed) {
               console.warn(

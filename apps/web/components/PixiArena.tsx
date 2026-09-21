@@ -303,6 +303,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       for (const url of ALL_SPELL_ICON_URLS) priorityUrls.add(url);
       priorityUrls.add('/generated/mounts/donkey_rider_south.png');
       priorityUrls.add('/generated/tibia1098/items/item-5972.png');
+      priorityUrls.add('/assets/items/item-3058.png');
+      priorityUrls.add('/assets/items/item-3065.png');
 
       // Core effects & missiles - All essential combat & spell effects loaded in priority
       for (const effId of ESSENTIAL_COMBAT_EFFECT_IDS) {
@@ -833,21 +835,37 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         for (const [id, view] of views) if (!liveIds.has(id)) { destroyVisualNode(view.root); views.delete(id); }
         for (const layer of [corpses]) layer.removeChildren().forEach((child) => destroyVisualNode(child));
         for (const corpse of state.encounter.corpses) {
-          // Canonical Tibia Skeleton Corpse (item 5972 / remains of a skeleton) replaces monster corpses in hunts
-          const skeletonMapping = visualAssets.corpses?.['5972']
-            || visualAssets.corpses?.['skeleton']
-            || (visualAssets as any).items?.['4246'];
-          const mapping = skeletonMapping || visualAssets.corpses?.[corpse.monsterId] || (corpse.corpseId ? visualAssets.corpses?.[String(corpse.corpseId)] : null);
-          if (!mapping?.frame) continue;
-          const tex = loaded[mapping.frame.publicUrl];
-          if (!tex) {
-            void ensureTexture(mapping.frame.publicUrl);
-            continue;
+          const isHumanCorpse = corpse.corpseId === 3058 || corpse.corpseId === 3065 || corpse.monsterId === 'human';
+          let tex: any = null;
+          let widthTiles = 1;
+          let heightTiles = 1;
+
+          if (isHumanCorpse) {
+            const humanUrl = `/assets/items/item-${corpse.corpseId || 3058}.png`;
+            tex = loaded[humanUrl];
+            if (!tex) {
+              void ensureTexture(humanUrl);
+              continue;
+            }
+          } else {
+            // Canonical Tibia Skeleton Corpse (item 5972 / remains of a skeleton) replaces monster corpses in hunts
+            const specificMapping = (corpse.corpseId ? visualAssets.corpses?.[String(corpse.corpseId)] : null)
+              || visualAssets.corpses?.[corpse.monsterId];
+            const skeletonMapping = visualAssets.corpses?.['5972']
+              || visualAssets.corpses?.['skeleton']
+              || (visualAssets as any).items?.['4246'];
+            const mapping = specificMapping || skeletonMapping;
+            if (!mapping?.frame) continue;
+            tex = loaded[mapping.frame.publicUrl];
+            if (!tex) {
+              void ensureTexture(mapping.frame.publicUrl);
+              continue;
+            }
+            widthTiles = mapping.appearance?.width ?? Math.max(1, Math.round((mapping.frame.width || 32) / 32));
+            heightTiles = mapping.appearance?.height ?? Math.max(1, Math.round((mapping.frame.height || 32) / 32));
           }
           const sprite = new Sprite(tex);
           const point = worldPoint(corpse.position);
-          const widthTiles = mapping.appearance?.width ?? Math.max(1, Math.round((mapping.frame.width || 32) / 32));
-          const heightTiles = mapping.appearance?.height ?? Math.max(1, Math.round((mapping.frame.height || 32) / 32));
           sprite.anchor.set(0, 0);
           sprite.position.set(
             point.x - 16 - (widthTiles - 1) * 32,

@@ -7738,76 +7738,103 @@ h1, h2, h3, p { margin: 0; }
 .hotbar-condition-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   background: #141517;
   border: 1px solid #2a2c30;
-  padding: 5px 8px;
+  padding: 6px 8px;
   border-radius: 4px;
+  flex-wrap: wrap;
 }
 
 .hotbar-cond-select {
   background: #18191b;
   border: 1px solid #33363a;
   color: #cbd5e1;
-  padding: 3px 6px;
+  padding: 4px 6px;
   font-size: 11px;
   border-radius: 3px;
+  max-width: 140px;
 }
 
 .hotbar-stepper {
   display: inline-flex;
   align-items: center;
-  border: 1px solid #2e3b5e;
-  border-radius: 2px;
+  border: 1px solid #3b82f6;
+  border-radius: 3px;
   overflow: hidden;
   background: #171e30;
+  flex-shrink: 0;
+  min-width: 74px;
+  height: 24px;
 }
 
 .hotbar-stepper button {
   background: #202b45;
   border: none;
-  color: #9eb5e3;
-  width: 18px;
-  height: 20px;
+  color: #93c5fd;
+  width: 20px;
+  height: 100%;
   cursor: pointer;
   font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .hotbar-stepper button:hover {
-  background: #2d3c61;
+  background: #2563eb;
   color: #ffffff;
 }
 
 .hotbar-stepper input {
-  width: 32px;
+  width: 36px;
+  min-width: 32px;
+  height: 100%;
   border: none;
-  background: transparent;
+  background: #0f172a;
   color: #ffffff;
   text-align: center;
   font-size: 11px;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  -moz-appearance: textfield;
+}
+
+.hotbar-stepper input::-webkit-outer-spin-button,
+.hotbar-stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .hotbar-percent-checkbox {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   color: #9cb1db;
   font-size: 11px;
   margin-left: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
 }
 
 .hotbar-remove-cond-btn {
   background: transparent;
   border: none;
-  color: #ff6666;
-  font-size: 11px;
+  color: #f87171;
+  font-size: 13px;
+  font-weight: bold;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 2px 6px;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .hotbar-remove-cond-btn:hover {
-  color: #ff3333;
+  color: #ef4444;
 }
 
 .hotbar-right-footer {

@@ -138,7 +138,7 @@ export function HotbarConfigModal({
         target: 'self',
         metric: 'hp',
         operator: 'lte',
-        value: 75,
+        value: 80,
         isPercent: true,
       },
     ]);
@@ -570,28 +570,48 @@ export function HotbarConfigModal({
                                 value={cond.operator}
                                 onChange={(e) => handleUpdateCondition(cond.id, { operator: e.target.value as any })}
                               >
-                                <option value="lte">menor ou igual a (&lt;=)</option>
-                                <option value="gte">maior ou igual a (&gt;=)</option>
-                                <option value="lt">menor que (&lt;)</option>
-                                <option value="gt">maior que (&gt;)</option>
-                                <option value="eq">igual a (=)</option>
+                                <option value="lte">&le; (menor ou igual)</option>
+                                <option value="gte">&ge; (maior ou igual)</option>
+                                <option value="lt">&lt; (menor que)</option>
+                                <option value="gt">&gt; (maior que)</option>
+                                <option value="eq">= (igual a)</option>
                               </select>
 
                               <div className="hotbar-stepper">
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateCondition(cond.id, { value: Math.max(1, cond.value - 5) })}
+                                  title="Diminuir 5"
                                 >
                                   -
                                 </button>
                                 <input
                                   type="number"
-                                  value={cond.value}
-                                  onChange={(e) => handleUpdateCondition(cond.id, { value: Number(e.target.value) })}
+                                  min={1}
+                                  max={cond.isPercent ? 100 : 99999}
+                                  value={cond.value === 0 ? '' : cond.value}
+                                  placeholder="80"
+                                  onChange={(e) => {
+                                    const raw = e.target.value;
+                                    if (raw === '') {
+                                      handleUpdateCondition(cond.id, { value: 0 });
+                                    } else {
+                                      const num = parseInt(raw, 10);
+                                      if (!isNaN(num)) {
+                                        handleUpdateCondition(cond.id, { value: num });
+                                      }
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    if (!cond.value || cond.value <= 0) {
+                                      handleUpdateCondition(cond.id, { value: cond.isPercent ? 80 : 1 });
+                                    }
+                                  }}
                                 />
                                 <button
                                   type="button"
-                                  onClick={() => handleUpdateCondition(cond.id, { value: cond.value + 5 })}
+                                  onClick={() => handleUpdateCondition(cond.id, { value: Math.min(cond.isPercent ? 100 : 99999, cond.value + 5) })}
+                                  title="Aumentar 5"
                                 >
                                   +
                                 </button>

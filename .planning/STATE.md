@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-21T18:30:00.000Z"
-last_activity: "2026-09-21 — Conclusão da Phase 220: Efeito Visual de Teleport no Spawn de Monstros e Correção de Rate Limiter de Treino."
+last_updated: "2026-09-21T19:30:00.000Z"
+last_activity: "2026-09-21 — Conclusão da Phase 221: Dead Human Corpse, XP Budget Post-Hunt e Correção de Condições de Hotbar."
 progress:
-  total_phases: 220
-  completed_phases: 220
-  total_plans: 300
-  completed_plans: 300
+  total_phases: 221
+  completed_phases: 221
+  total_plans: 301
+  completed_plans: 301
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 220 - Concluída com sucesso.
+**Current focus:** Phase 221 - Concluída com sucesso.
 
 ## Current Position
 
-Phase: 220 of 220  
-Plan: 1 of 1 in Phase 220  
+Phase: 221 of 221  
+Plan: 1 of 1 in Phase 221  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Implementação do efeito visual de teleport (effect-11) no spawn de criaturas e correção de herança de contexto de caçada e orçamentos do RateLimiter de habilidades.
+Last activity: 2026-09-21 — Conclusão da implementação de corpse humano ao morrer, eliminação de falso positivo de XP rate limit pós-hunt e stepper interativo de condições de hotbar.
 
 
 Progress: [██████████] 100%

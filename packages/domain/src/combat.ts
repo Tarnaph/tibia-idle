@@ -2484,7 +2484,7 @@ export function transferActiveMemberOnDeath(state: GameState, deadCharacterId: s
   }
 }
 
-function applyDamageToPartyActor(
+export function applyDamageToPartyActor(
   state: GameState,
   content: GameContent,
   target: PartyActorState,
@@ -2515,6 +2515,17 @@ function applyDamageToPartyActor(
   addLog(state, `${attackerName} causou ${damage} de dano (${element}) em ${character.name}.`);
   if (target.hp <= 0) {
     target.alive = false; target.path = [];
+    const effectiveCorpseId = (character as any)?.gender === 'female' ? 3065 : 3058;
+    const corpse: CorpseState = {
+      id: `corpse-${target.characterId}`,
+      monsterId: 'human',
+      corpseId: effectiveCorpseId,
+      position: clonePosition(target.position),
+      createdAt: encounter.elapsedMs,
+    };
+    encounter.corpses.push(corpse);
+    encounter.visualEvents.push({ type: 'creature-died', creatureId: target.characterId, corpseId: effectiveCorpseId });
+
     syncCharacterResources(state, target);
     encounter.events.push({ type: 'player-death', characterId: target.characterId, killerName: attackerName } as any);
     addLog(state, `${character.name} foi derrotado por ${attackerName}.`);

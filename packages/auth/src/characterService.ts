@@ -687,6 +687,7 @@ export class CharacterService {
             (existing as any)?.lastHuntId ||
             (data as any)?.lastHuntId ||
             (existing as any)?.isHunting ||
+            (data as any)?.isHunting ||
             contextResult.isHunting ||
             leaderContext?.isHunting ||
             leaderContext?.huntId
@@ -696,7 +697,7 @@ export class CharacterService {
           const isHunting = options?.isInternal
             ? Boolean(options?.isHunting)
             : hasServerContext
-            ? Boolean(contextResult.isHunting || leaderContext?.isHunting)
+            ? Boolean(contextResult.isHunting || leaderContext?.isHunting || hasHuntEvidence || (data as any)?.lastHuntId || (data as any)?.isHunting)
             : Boolean(
                 (existing as any)?.isHunting ||
                 (existing as any)?.lastHuntId ||
@@ -710,12 +711,18 @@ export class CharacterService {
             ? Number(existing.lastSavedAt)
             : 0;
 
-          const check = XpRateLimiter.consume(characterId, deltaExp, Date.now(), {
-            isHunting,
-            baselineTime: lastSavedAtMs > 0 ? lastSavedAtMs : undefined,
-          });
-          if (!check.allowed) {
-            throw new Error(`Suspicious XP gain: +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}).`);
+          // If XP gain was already authorized by real-time WebSocket or falls within hunt budget, grant smoothly
+          const authorizedExp = XpRateLimiter.getAuthorizedExp(characterId);
+          const isPreAuthorized = targetExp <= authorizedExp;
+
+          if (!isPreAuthorized) {
+            const check = XpRateLimiter.consume(characterId, deltaExp, Date.now(), {
+              isHunting,
+              baselineTime: lastSavedAtMs > 0 ? lastSavedAtMs : undefined,
+            });
+            if (!check.allowed) {
+              throw new Error(`Suspicious XP gain: +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}).`);
+            }
           }
           consumedDelta = deltaExp;
         }
