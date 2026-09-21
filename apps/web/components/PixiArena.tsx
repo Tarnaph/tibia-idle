@@ -878,7 +878,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             const skeletonMapping = visualAssets.corpses?.['5972']
               || visualAssets.corpses?.['skeleton']
               || (visualAssets as any).items?.['4246'];
-            const mapping = specificMapping || skeletonMapping;
+            const mapping = skeletonMapping || specificMapping;
             if (!mapping?.frame) continue;
             tex = loaded[mapping.frame.publicUrl];
             if (!tex) {

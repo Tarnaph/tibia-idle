@@ -4,10 +4,10 @@ import { experienceForLevel, levelForExperience } from './experience';
 import { huntById } from './hunt';
 import { createContinuousHuntRoute, getPullSizeMonsterPool } from './huntRoute';
 import { calculateStatsForLevel, createCharacter, leaderOf, sharedExperiencePerCharacter, vocationFor } from './party';
-import { createSeededRng, rollInteger } from './rng';
-import { calculateBestSpellDirection, getSpellAreaTiles, isDirectionalSpell, spellFormulaRange } from './spells';
-import { addTrainingTries } from './training';
 import { calculateMaxStamina, tickStamina } from './stamina';
+import { createSeededRng, rollInteger } from './rng';
+import { calculateBestSpellDirection, getSpellAreaTiles, getMonsterWaveTiles, isDirectionalSpell, spellFormulaRange, type FacingDirection } from './spells';
+import { addTrainingTries } from './training';
 import { getEffectiveExpMultiplier, applySkillTrainingProgress } from './progressionStages';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getActionSupplyCost, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { findWandDefinition, canUseWand } from './wands';
@@ -1044,13 +1044,12 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             addLog(state, `${character.name} usou ${potion.name} (${details}${goldLog}).`);
             syncCharacterResources(state, actor);
             usedPotionThisTick = true;
-            usedSpellThisTick = true;
           }
         }
       }
 
       // 2. RUNES AUTO-TRIGGER
-      if (action.kind === 'rune' && !usedSpellThisTick && !usedPotionThisTick) {
+      if (action.kind === 'rune' && !usedSpellThisTick) {
         const rune = action.rune;
         if (rune.category === 'healing') {
           const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs;
@@ -1134,11 +1133,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
           }
         } else if (!usedOffensiveActionThisTick) {
           if (!allowOffensive) continue;
-          if (isDruid && isParty) {
-            const knightNeedsHeal = partyKnight && (partyKnight.hp / (state.session.characters.find(c => c.id === partyKnight.characterId)?.maxHp ?? 1) < 0.85);
-            const allyNeedsHeal = encounter.partyActors.some(a => a.alive && (a.hp / (state.session.characters.find(c => c.id === a.characterId)?.maxHp ?? 1) < 0.80));
-            if (knightNeedsHeal || allyNeedsHeal) continue;
-          }
           const runeReady = (actor.groupCooldowns['rune'] ?? 0) <= encounter.elapsedMs && (actor.groupCooldowns['attack'] ?? 0) <= encounter.elapsedMs;
           if (runeReady) {
             const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : null;
@@ -1146,14 +1140,9 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               ? (focusTarget ?? leaderTarget)
               : lockedTarget;
 
-            const rawEligible = targetToPrioritize
-              ? [targetToPrioritize]
-              : encounter.enemies.filter((enemy) => enemy.alive);
-
-            const eligibleEnemies = rawEligible.filter((enemy) => !isIgnored(enemy.name));
-
-            const inRange = eligibleEnemies
-              .filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= rune.range)
+            const allLivingEnemies = encounter.enemies.filter((enemy) => enemy.alive && !isIgnored(enemy.name));
+            const inRange = allLivingEnemies
+              .filter((enemy) => meleeDistance(actor.position, enemy.position) <= rune.range)
               .sort((left, right) => {
                 const isLeft = left.id === targetToPrioritize?.id;
                 const isRight = right.id === targetToPrioritize?.id;
@@ -1170,7 +1159,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                   character,
                   state,
                   primaryTarget,
-                  eligibleEnemies: inRange,
+                  eligibleEnemies: allLivingEnemies,
                 });
                 if (!condMet) continue;
               }
@@ -1187,7 +1176,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               let targets: EnemyState[] = [primaryTarget];
               if (offsets) {
                 const affectedMap = new Set(offsets.map((o) => `${centerPos.x + o.dx},${centerPos.y + o.dy}`));
-                const secondaryEnemies = eligibleEnemies.filter((e) => e.alive && e.id !== primaryTarget.id && affectedMap.has(`${e.position.x},${e.position.y}`));
+                const secondaryEnemies = allLivingEnemies.filter((e) => e.alive && e.id !== primaryTarget.id && affectedMap.has(`${e.position.x},${e.position.y}`));
                 targets = [primaryTarget, ...secondaryEnemies];
               }
 
@@ -1284,11 +1273,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
         const spell = action.spell;
         const isOffensive = spell.group === 'attack';
         if (isOffensive && (!allowOffensive || usedOffensiveActionThisTick)) continue;
-        if (isDruid && isParty && isOffensive) {
-          const knightNeedsHeal = partyKnight && (partyKnight.hp / (state.session.characters.find(c => c.id === partyKnight.characterId)?.maxHp ?? 1) < 0.85);
-          const allyNeedsHeal = encounter.partyActors.some(a => a.alive && (a.hp / (state.session.characters.find(c => c.id === a.characterId)?.maxHp ?? 1) < 0.80));
-          if (knightNeedsHeal || allyNeedsHeal) continue;
-        }
 
         const spellReady = actor.mana >= spell.mana &&
           (actor.spellCooldowns[String(spell.spellId)] ?? 0) <= encounter.elapsedMs &&
@@ -1389,9 +1373,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             }
             targetActor = actor;
           } else if (isDirectionalSpell(spell)) {
-            const rawEnemies = ((encounter.isMultiplayerParty && !isLeader && leaderTarget) || (isParty && !isFocusLead && focusTarget))
-              ? [focusTarget ?? leaderTarget!]
-              : encounter.enemies.filter((enemy) => enemy.alive);
+            const rawEnemies = encounter.enemies.filter((enemy) => enemy.alive);
             const eligibleEnemies = rawEnemies.filter((e) => !isIgnored(e.name));
             const maxReach = Math.max(5, spell.range || 1);
             const nearby = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= maxReach);
@@ -1794,9 +1776,8 @@ export function triggerManualHotbarAction(
   if (action.kind === 'rune') {
     const rune = action.rune;
     if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs) return false;
-    const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : null;
-    const candidates = lockedTarget ? [lockedTarget] : encounter.enemies.filter((enemy) => enemy.alive);
-    const inRange = candidates
+    const allLiving = encounter.enemies.filter((enemy) => enemy.alive);
+    const inRange = allLiving
       .filter((enemy) => meleeDistance(actor.position, enemy.position) <= rune.range)
       .sort((left, right) => {
         const isLeftTarget = left.id === actor.targetId;
@@ -1818,9 +1799,9 @@ export function triggerManualHotbarAction(
 
     let targets: EnemyState[] = [primaryTarget];
     if (offsets) {
-      const areaTileKeys = new Set(offsets.map((o) => `${centerPos.x + o.dx},${centerPos.y + o.dy},${centerPos.z}`));
-      const secondaryEnemies = inRange.filter((enemy) =>
-        enemy.alive && enemy.id !== primaryTarget.id && areaTileKeys.has(`${enemy.position.x},${enemy.position.y},${enemy.position.z}`)
+      const areaTileKeys = new Set(offsets.map((o) => `${centerPos.x + o.dx},${centerPos.y + o.dy}`));
+      const secondaryEnemies = allLiving.filter((enemy) =>
+        enemy.alive && enemy.id !== primaryTarget.id && areaTileKeys.has(`${enemy.position.x},${enemy.position.y}`)
       );
       targets = [primaryTarget, ...secondaryEnemies];
     }
@@ -2542,7 +2523,7 @@ export function applyDamageToPartyActor(
 export function mapMonsterEffectToId(effectName?: string): number | null {
   if (!effectName) return null;
   const name = effectName.toLowerCase();
-  if (name.includes('fire') || name.includes('flame')) return 15;
+  if (name.includes('firearea') || name.includes('explosion') || name.includes('blast') || name.includes('fire') || name.includes('flame')) return 7;
   if (name.includes('blue') || name.includes('heal') || name.includes('shimmer')) return 13;
   if (name.includes('energy') || name.includes('spark') || name.includes('yellow')) return 11;
   if (name.includes('poison') || name.includes('earth') || name.includes('green')) return 8;
@@ -2550,7 +2531,7 @@ export function mapMonsterEffectToId(effectName?: string): number | null {
   if (name.includes('ice') || name.includes('freeze')) return 43;
   if (name.includes('puff')) return 3;
   if (name.includes('blood') || name.includes('red')) return 1;
-  return 15;
+  return 7;
 }
 
 export function mapMonsterProjectileToId(projectileName?: string): number | null {
@@ -2582,11 +2563,12 @@ function enemyAttacks(state: GameState, content: GameContent): void {
   }
 
   for (const enemy of encounter.enemies.filter((candidate) => candidate.alive)) {
-    const monsterDef = monsterFor(content, enemy.monsterId);
+    const monsterDef = content.monsters.find((m) => m.id === enemy.monsterId);
+    if (!monsterDef) continue;
     if (!enemy.spellCooldowns) enemy.spellCooldowns = {};
 
-    // 2. Auto-Cura de Monstros (<defense name="healing">)
-    if (enemy.hp < enemy.maxHp && monsterDef.defenses && monsterDef.defenses.length > 0) {
+    // Auto-Cura / Healing de Criaturas
+    if (monsterDef.defenses && monsterDef.defenses.length > 0 && enemy.hp < enemy.maxHp) {
       for (const def of monsterDef.defenses) {
         if (def.name !== 'healing') continue;
         const cooldownKey = `heal_${def.intervalMs}`;
@@ -2622,46 +2604,132 @@ function enemyAttacks(state: GameState, content: GameContent): void {
           const chancePass = rollInteger(rng, 1, 100) <= (atk.chance ?? 15);
           if (chancePass) {
             enemy.spellCooldowns[attackKey] = encounter.elapsedMs + atk.intervalMs;
-            const maxRange = atk.range ?? (atk.target || atk.radius ? 7 : 1);
+            const isWave = Boolean(atk.length && atk.length > 1);
 
-            const inRangeActors = encounter.partyActors.filter((actor) =>
-              actor.alive && meleeDistance(enemy.position, actor.position) <= maxRange
-            );
-
-            if (inRangeActors.length > 0) {
+            if (isWave) {
               const isChallenged = Boolean(enemy.challengedTargetId && enemy.challengedUntil && enemy.challengedUntil > encounter.elapsedMs);
-              const challengedTarget = isChallenged ? inRangeActors.find((a) => a.characterId === enemy.challengedTargetId) : undefined;
-              const isAoe = Boolean((atk.radius && atk.radius > 1) || (atk.length && atk.length > 1));
-              const targetsToHit = isAoe
-                ? inRangeActors
-                : [challengedTarget ?? inRangeActors.find((a) => a.characterId === enemy.targetId) ?? inRangeActors[0]];
+              const target = isChallenged
+                ? encounter.partyActors.find((a) => a.characterId === enemy.challengedTargetId && a.alive)
+                : (encounter.partyActors.find((a) => a.characterId === enemy.targetId && a.alive) ?? encounter.partyActors.find((a) => a.alive));
 
-              for (const targetActor of targetsToHit) {
-                const targetChar = state.session.characters.find((c) => c.id === targetActor.characterId);
-                if (!targetChar) continue;
-                const stats = deriveStats(targetChar, content.equipment, vocationFor(content, targetChar.vocation));
+              if (target && meleeDistance(enemy.position, target.position) <= (atk.length ?? 8) + 2) {
+                const dx = target.position.x - enemy.position.x;
+                const dy = target.position.y - enemy.position.y;
+                const dir: FacingDirection = Math.abs(dx) >= Math.abs(dy)
+                  ? (dx >= 0 ? 'east' : 'west')
+                  : (dy >= 0 ? 'south' : 'north');
 
-                const spellMin = atk.minDamage ?? 10;
-                const spellMax = Math.ceil((atk.maxDamage ?? 30) * (enemy.variant?.damageMultiplier ?? 1));
-                let spellDamage = rollInteger(rng, spellMin, spellMax);
+                const waveTiles = getMonsterWaveTiles(enemy.position, dir, atk.length ?? 8, atk.spread ?? 3);
+                const waveTileMap = new Set(waveTiles.map((t) => `${t.x},${t.y}`));
+                const effectId = mapMonsterEffectToId(atk.areaEffect) ?? 7;
 
-                const element = atk.combatType ?? 'physical';
-                const elementalResistance = stats.elementalProtections?.[element as keyof typeof stats.elementalProtections] ?? 0;
-                if (elementalResistance > 0) {
-                  spellDamage = Math.max(1, Math.round(spellDamage * (1 - elementalResistance / 100)));
+                // Emite o efeito visual de fogo em cada piso da onda
+                for (const tile of waveTiles) {
+                  encounter.events.push({
+                    type: 'spell-visual',
+                    sourceId: enemy.id,
+                    targetPosition: { x: tile.x, y: tile.y, z: tile.z },
+                    spellId: 0,
+                    effectId,
+                    projectileId: null,
+                  });
                 }
 
-                const projectileId = mapMonsterProjectileToId(atk.shootEffect);
-                const effectId = mapMonsterEffectToId(atk.areaEffect) ?? (element === 'fire' ? 15 : element === 'energy' ? 11 : 8);
-                encounter.visualEvents.push({
-                  type: 'spell-cast-visual',
+                // Grito do monstro (ex: GROOOAAARRR!)
+                encounter.events.push({
+                  type: 'spell-cast',
                   sourceId: enemy.id,
-                  targetId: targetActor.characterId,
-                  projectileId,
-                  effectId,
+                  targetId: target.characterId,
+                  spellId: 0,
+                  amount: 0,
+                  healing: false,
+                  speech: enemy.monsterId === 'dragon' ? 'GROOOAAARRR!' : (atk.name ? atk.name.toUpperCase() : 'ATTACK!'),
+                  element: atk.combatType ?? 'fire',
                 });
 
-                applyDamageToPartyActor(state, content, targetActor, targetChar, spellDamage, element, enemy.name, enemy.id);
+                const targetsHit = encounter.partyActors.filter((actor) => actor.alive && waveTileMap.has(`${actor.position.x},${actor.position.y}`));
+                for (const targetActor of targetsHit) {
+                  const targetChar = state.session.characters.find((c) => c.id === targetActor.characterId);
+                  if (!targetChar) continue;
+                  const stats = deriveStats(targetChar, content.equipment, vocationFor(content, targetChar.vocation));
+                  const spellMin = atk.minDamage ?? 10;
+                  const spellMax = Math.ceil((atk.maxDamage ?? 30) * (enemy.variant?.damageMultiplier ?? 1));
+                  let spellDamage = rollInteger(rng, spellMin, spellMax);
+                  const element = atk.combatType ?? 'fire';
+                  const elementalResistance = stats.elementalProtections?.[element as keyof typeof stats.elementalProtections] ?? 0;
+                  if (elementalResistance > 0) {
+                    spellDamage = Math.max(1, Math.round(spellDamage * (1 - elementalResistance / 100)));
+                  }
+                  applyDamageToPartyActor(state, content, targetActor, targetChar, spellDamage, element, enemy.name, enemy.id);
+                }
+              }
+            } else {
+              const maxRange = atk.range ?? (atk.target || atk.radius ? 7 : 4);
+              const inRangeActors = encounter.partyActors.filter((actor) =>
+                actor.alive && meleeDistance(enemy.position, actor.position) <= maxRange
+              );
+
+              if (inRangeActors.length > 0) {
+                const isChallenged = Boolean(enemy.challengedTargetId && enemy.challengedUntil && enemy.challengedUntil > encounter.elapsedMs);
+                const challengedTarget = isChallenged ? inRangeActors.find((a) => a.characterId === enemy.challengedTargetId) : undefined;
+                const isAoe = Boolean(atk.radius && atk.radius > 1);
+                const primaryTarget = challengedTarget ?? inRangeActors.find((a) => a.characterId === enemy.targetId) ?? inRangeActors[0];
+                const targetsToHit = isAoe ? inRangeActors : [primaryTarget];
+
+                const projectileId = mapMonsterProjectileToId(atk.shootEffect);
+                const effectId = mapMonsterEffectToId(atk.areaEffect) ?? (atk.combatType === 'fire' ? 7 : atk.combatType === 'energy' ? 11 : 8);
+
+                if (projectileId && primaryTarget) {
+                  encounter.events.push({
+                    type: 'spell-visual',
+                    sourceId: enemy.id,
+                    targetId: primaryTarget.characterId,
+                    spellId: 0,
+                    effectId: effectId ?? null,
+                    projectileId,
+                    delayMs: RUNE_PROJECTILE_FLIGHT_MS,
+                  });
+                  encounter.visualEvents.push({
+                    type: 'projectile-launched',
+                    sourceId: enemy.id,
+                    targetId: primaryTarget.characterId,
+                    projectileId,
+                  });
+                }
+
+                for (const targetActor of targetsToHit) {
+                  const targetChar = state.session.characters.find((c) => c.id === targetActor.characterId);
+                  if (!targetChar) continue;
+                  const stats = deriveStats(targetChar, content.equipment, vocationFor(content, targetChar.vocation));
+                  const spellMin = atk.minDamage ?? 10;
+                  const spellMax = Math.ceil((atk.maxDamage ?? 30) * (enemy.variant?.damageMultiplier ?? 1));
+                  let spellDamage = rollInteger(rng, spellMin, spellMax);
+                  const element = atk.combatType ?? 'physical';
+                  const elementalResistance = stats.elementalProtections?.[element as keyof typeof stats.elementalProtections] ?? 0;
+                  if (elementalResistance > 0) {
+                    spellDamage = Math.max(1, Math.round(spellDamage * (1 - elementalResistance / 100)));
+                  }
+
+                  if (!projectileId && effectId) {
+                    encounter.events.push({
+                      type: 'spell-visual',
+                      sourceId: enemy.id,
+                      targetId: targetActor.characterId,
+                      spellId: 0,
+                      projectileId: null,
+                      effectId,
+                    });
+                    encounter.visualEvents.push({
+                      type: 'spell-cast-visual',
+                      sourceId: enemy.id,
+                      targetId: targetActor.characterId,
+                      projectileId: null,
+                      effectId,
+                    });
+                  }
+
+                  applyDamageToPartyActor(state, content, targetActor, targetChar, spellDamage, element, enemy.name, enemy.id);
+                }
               }
             }
           } else {

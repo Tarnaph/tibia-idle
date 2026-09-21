@@ -93,7 +93,6 @@ describe('Phase 223: Dragon Lair Black Screen, City Exeta Res Spam & Cyclops/Elf
 
     const actor = state.encounter.partyActors[0];
     actor.mana = 100;
-    actor.maxMana = 100;
 
     // Se porventura existissem inimigos residuais na memória da sala
     state.encounter.enemies = [
@@ -134,7 +133,6 @@ describe('Phase 223: Dragon Lair Black Screen, City Exeta Res Spam & Cyclops/Elf
 
     const actor = state.encounter.partyActors[0];
     actor.mana = 100;
-    actor.maxMana = 100;
 
     // Adiciona inimigo ao alcance corpo a corpo
     state.encounter.enemies = [

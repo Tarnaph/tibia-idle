@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-21T20:35:00.000Z"
-last_activity: "2026-09-21 — Conclusão da Phase 223: Dragon Lair Black Screen Fix, City Exeta Res Purge & Cyclops/Elf Loading Screens."
+last_updated: "2026-09-21T21:05:00.000Z"
+last_activity: "2026-09-21 — Conclusão da Phase 224: Skeleton Monster Corpses, Dragon Fire Wave & Complete AoE Runes Resolution."
 progress:
-  total_phases: 223
-  completed_phases: 223
-  total_plans: 303
-  completed_plans: 303
+  total_phases: 224
+  completed_phases: 224
+  total_plans: 304
+  completed_plans: 304
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 223 - Concluída com sucesso.
+**Current focus:** Phase 224 - Concluída com sucesso.
 
 ## Current Position
 
-Phase: 223 of 223  
-Plan: 1 of 1 in Phase 223  
+Phase: 224 of 224  
+Plan: 1 of 1 in Phase 224  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Eliminação de tela preta e loading 0ms no Dragon Lair, purga de resíduos de monstros em leaveHunt e advanceCityAutoSpells, bloqueio de Exeta Res na cidade e inclusão de loading screens para Cyclops Camp e Elf Sanctuary.
+Last activity: 2026-09-21 — Decaimento de corpos de monstros para esqueleto canônico (item 5972), Fire Wave direcional de 8 SQMs para o Dragão com efeito 7 e rugido, projéteis visíveis de monstros na GPU e dano integral em 100% dos monstros para runas de área (Avalanche/GFB).
 
 
 Progress: [██████████] 100%

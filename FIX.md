@@ -87,3 +87,27 @@ E tem uma coisa interessante para o Exura: eu não transformaria isso em regener
 ### 3. Novas Telas Oficiais de Loading para Cyclops Camp e Elf Sanctuary
 - **Assets Canônicos:** Integradas as artes originais fornecidas pelo usuário em `public/images/loading/cyclops-camp-loading.jpg` (Cyclops Camp) e `public/images/loading/elf-sanctuary-loading.jpg` (Elf Sanctuary), com espelhos correspondentes em `public/assets/loading/`.
 - **Mapeamento:** `HUNT_LOADING_CONFIGS` em `apps/web/lib/loadingConfig.ts` atualizado para renderizar as respectivas artes temáticas e curiosidades de lore, e pré-carregamento no boot do cliente em `GamePrototype.tsx`.
+
+---
+
+## Phase 224: Decaimento Canônico de Monstros para Esqueletos (Item 5972), Fire Wave do Dragão & Resolução Integral de Runas em Área (Avalanche)
+
+### 1. Corpos de Cyclops e Monstros Decaindo para Esqueletos Limpos (Item 5972)
+- **Causa Raiz:** Na Phase 221 (ao adicionar o corpo ensanguentado de jogador `item-3058`), a prioridade foi alterada para `specificMapping || skeletonMapping`. Como `visualAssets.corpses['5962']` existe para o Cyclops (um sprite de 64x64 pixels composto por 4 quadrantes com offset -48px), o jogo desenhava o corpo gigante do cyclops sem decaimento para esqueleto, sobrepondo e sendo cortado por tiles de borda e piso.
+- **Solução:** Em `PixiArena.tsx`, invertida a prioridade para `const mapping = skeletonMapping || specificMapping;` para todas as criaturas não-humanas. Monstros agora decaiem limpa e canonicamente para o esqueleto 32x32 oficial do Tibia (`item-5972` - *remains of a skeleton*), enquanto corpos de jogadores permanecem com a poça de sangue e corpo estirado (`item-3058`/`3065`).
+
+### 2. Magias de Monstros, Fire Wave do Dragão (8 SQMs) e Projéteis Visíveis
+- **Causa Raiz:** O Dragão lia `range: 1` e filtrava `distância <= 1`, impedindo-o de usar a Fire Wave se o jogador estivesse a mais de 1 SQM. O efeito visual de labareda `'firearea'` estava mapeado para o ID 15 (*HITBYFIRE*, uma faísca minúscula) em vez do 7 (*CONST_ME_FIREAREA*). Além disso, disparos de monstros com projéteis não renderizavam o míssil voando na GPU.
+- **Solução:**
+  - Implementada projeção de ondas direcionais (`getMonsterWaveTiles`) com cone de fogo expansivo de 8 SQMs na direção do alvo.
+  - O Dragão emite seu rugido característico no balão de fala (`GROOOAAARRR!`) e a labareda de fogo clássica (efeito 7) em cada SQM do cone, causando dano a todos os jogadores na trajetória.
+  - Projéteis disparados por monstros (bolas de fogo, flechas, pedras) agora emitem `spell-visual` com atraso de voo e animação completa da trajetória em direção ao alvo.
+
+### 3. Druid Usando Avalanche e Resolução Definitiva de Runas em Área (AoE)
+- **Causa Raiz 1 (Runas em Área Atingindo Apenas 1 Monstro):** No motor de combate (`combat.ts`), quando a party possuía um alvo focado, `rawEligible` e `inRange` eram restritos exclusivamente a `[targetToPrioritize]`. O filtro de alvos secundários buscava dentro dessa lista unitária, resultando sempre em `secondaryEnemies = []`. Tanto no auto-cast quanto no cast manual, runas como Avalanche, GFB e Thunderstorm causavam dano a apenas 1 monstro!
+- **Causa Raiz 2 (Druid Travado sem Castar Runas):** Beber poções marcava `usedSpellThisTick = true` e o bloco de runas checava `!usedPotionThisTick`, impedindo o uso de runas no mesmo segundo. Além disso, a trava `knightNeedsHeal || allyNeedsHeal` silenciava magias de ataque do Druid sempre que o Knight estivesse abaixo de 85% de HP.
+- **Causa Raiz 3 (Condição de Hotbar "Monstros >= N" Falhando):** O contador avaliava a lista restrita de 1 monstro, impedindo a ativação de condições de aglomeração.
+- **Solução:**
+  - `secondaryEnemies` agora busca em todos os monstros vivos da sala (`allLivingEnemies`) dentro da máscara 3x3 circular ou cruz, aplicando dano e floaters numéricos simultâneos em 100% das criaturas na área de impacto.
+  - Desacoplamento total de poções e remoção da trava arbitrária de 85% de HP do Druid, garantindo rotação ininterrupta de Avalanche respeitando o exhaust de 2s e mana disponível.
+  - Avaliação precisa de aglomeração de monstros no avaliador de condições de hotbar.

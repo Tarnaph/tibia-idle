@@ -115,6 +115,36 @@ export function getWave4Tiles(
   return tiles;
 }
 
+export function getMonsterWaveTiles(
+  casterPos: { x: number; y: number; z?: number },
+  direction: FacingDirection,
+  length = 8,
+  spread = 3
+): Array<{ x: number; y: number; z: number }> {
+  const vectors: Record<FacingDirection, { fx: number; fy: number; lx: number; ly: number }> = {
+    north: { fx: 0, fy: -1, lx: 1, ly: 0 },
+    south: { fx: 0, fy: 1, lx: 1, ly: 0 },
+    east: { fx: 1, fy: 0, lx: 0, ly: 1 },
+    west: { fx: -1, fy: 0, lx: 0, ly: 1 },
+  };
+  const { fx, fy, lx, ly } = vectors[direction] || vectors.south;
+  const tiles: Array<{ x: number; y: number; z: number }> = [];
+  const cz = casterPos.z ?? 7;
+
+  for (let dist = 1; dist <= length; dist++) {
+    const halfWidth = Math.min(spread, Math.floor(dist / 2));
+    for (let w = -halfWidth; w <= halfWidth; w++) {
+      tiles.push({
+        x: casterPos.x + fx * dist + lx * w,
+        y: casterPos.y + fy * dist + ly * w,
+        z: cz,
+      });
+    }
+  }
+
+  return tiles;
+}
+
 export function getDirectionalSpellTiles(
   casterPos: { x: number; y: number; z?: number },
   direction: FacingDirection,

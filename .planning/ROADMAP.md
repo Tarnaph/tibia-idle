@@ -4038,6 +4038,17 @@ Plans:
 
 - [x] 223-01-PLAN: Eliminação de tela preta e loading 0ms no Dragon Lair (`ExuraLoadingScreen` e `PixiArena` batch loading/resize), purga de monstros residuais no `leaveHunt` e bloqueio de Exeta Res com `allowOffensive = false` na cidade, e novas telas de carregamento para Cyclops Camp e Elf Sanctuary.
 
+### Phase 224: Skeleton Monster Corpses, Dragon Fire Wave & Complete AoE Runes Resolution
+
+**Goal:** Fazer corpos de monstros decaírem limpa e canonicamente para o esqueleto 32x32 oficial do Tibia (`item-5972`), eliminando o bug visual de sobreposição e cortes do Cyclops; implementar o cone direcional de até 8 SQMs da Fire Wave do Dragão com rugido (`GROOOAAARRR!`) e labareda (efeito 7); e resolver em definitivo o dano de runas em área (Avalanche, GFB, etc.) para que atinjam 100% dos monstros no raio 3x3 com remoção de bloqueios indevidos de HP do Druid.  
+**Requirements:** `FIX.md`, prompt do usuário e regras GSD.  
+**Depends on:** Phase 223  
+**Plans:** 1 plan  
+
+Plans:
+
+- [x] 224-01-PLAN: Priorização de `skeletonMapping` para monstros em `PixiArena.tsx`, cone de onda de fogo direcional em `combat.ts`, exibição de projéteis de monstros na GPU, seleção de alvos secundários para todos os inimigos da sala em runas de área e rotação ininterrupta de Avalanche para Druid.
+
 
 
 
