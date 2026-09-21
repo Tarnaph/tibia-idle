@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-21T19:30:00.000Z"
-last_activity: "2026-09-21 — Conclusão da Phase 221: Dead Human Corpse, XP Budget Post-Hunt e Correção de Condições de Hotbar."
+last_updated: "2026-09-21T19:55:00.000Z"
+last_activity: "2026-09-21 — Conclusão da Phase 222: Persistent Hotkeys & Slot Configurations for Party Alts."
 progress:
-  total_phases: 221
-  completed_phases: 221
-  total_plans: 301
-  completed_plans: 301
+  total_phases: 222
+  completed_phases: 222
+  total_plans: 302
+  completed_plans: 302
   percent: 100
 ---
 
@@ -20,17 +20,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 221 - Concluída com sucesso.
+**Current focus:** Phase 222 - Concluída com sucesso.
 
 ## Current Position
 
-Phase: 221 of 221  
-Plan: 1 of 1 in Phase 221  
+Phase: 222 of 222  
+Plan: 1 of 1 in Phase 222  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Conclusão da implementação de corpse humano ao morrer, eliminação de falso positivo de XP rate limit pós-hunt e stepper interativo de condições de hotbar.
+Last activity: 2026-09-21 — Conclusão da persistência permanente e hidratação de hotkeys/condições para alts da party, com resolução de saveVersion e mesclagem não-destrutiva de hotbarJson.
 
 
 Progress: [██████████] 100%
+
+
 
 
 

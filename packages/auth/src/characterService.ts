@@ -759,13 +759,45 @@ export class CharacterService {
       if (data.pvpElo !== undefined) (updateData as any).pvpElo = data.pvpElo;
       if (data.pvpTier !== undefined) (updateData as any).pvpTier = data.pvpTier;
       if (data.hotbar !== undefined || data.hotbarConfigs !== undefined) {
-        if (data.hotbarConfigs !== undefined) {
+        let currentHotbar: any[] = [];
+        let currentConfigs: any = undefined;
+        if (existing?.hotbarJson) {
+          try {
+            const parsedExisting = JSON.parse(existing.hotbarJson);
+            if (Array.isArray(parsedExisting)) {
+              currentHotbar = parsedExisting;
+            } else if (parsedExisting && typeof parsedExisting === 'object') {
+              if (Array.isArray(parsedExisting.hotbar)) currentHotbar = parsedExisting.hotbar;
+              if (parsedExisting.hotbarConfigs) currentConfigs = parsedExisting.hotbarConfigs;
+            }
+          } catch {}
+        }
+
+        let finalHotbar = currentHotbar;
+        if (data.hotbar !== undefined) {
+          if (Array.isArray(data.hotbar)) {
+            finalHotbar = data.hotbar;
+          } else if (typeof data.hotbar === 'string') {
+            try {
+              const p = JSON.parse(data.hotbar);
+              finalHotbar = Array.isArray(p) ? p : (Array.isArray(p?.hotbar) ? p.hotbar : currentHotbar);
+            } catch {
+              finalHotbar = currentHotbar;
+            }
+          }
+        }
+
+        const finalConfigs = data.hotbarConfigs !== undefined
+          ? data.hotbarConfigs
+          : currentConfigs;
+
+        if (finalConfigs !== undefined) {
           updateData.hotbarJson = JSON.stringify({
-            hotbar: Array.isArray(data.hotbar) ? data.hotbar : [],
-            hotbarConfigs: data.hotbarConfigs,
+            hotbar: finalHotbar,
+            hotbarConfigs: finalConfigs,
           });
         } else {
-          updateData.hotbarJson = typeof data.hotbar === 'string' ? data.hotbar : JSON.stringify(data.hotbar);
+          updateData.hotbarJson = JSON.stringify(finalHotbar);
         }
       }
       if (data.blessings !== undefined) {

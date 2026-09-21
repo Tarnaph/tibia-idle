@@ -775,6 +775,25 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       ch.equipment = { ...ch.equipment, ...inv.equipment };
       ch.equipmentAttributes = inv.equipmentAttributes;
     }
+
+    if (c.hotbarJson) {
+      try {
+        const parsed = typeof c.hotbarJson === 'string' ? JSON.parse(c.hotbarJson) : c.hotbarJson;
+        if (Array.isArray(parsed)) {
+          ch.hotbar = parsed;
+        } else if (parsed && typeof parsed === 'object') {
+          if (Array.isArray(parsed.hotbar)) {
+            ch.hotbar = parsed.hotbar;
+          }
+          if (parsed.hotbarConfigs) {
+            (ch as any).hotbarConfigs = parsed.hotbarConfigs;
+          }
+        }
+      } catch {}
+    } else if (Array.isArray(c.hotbar)) {
+      ch.hotbar = c.hotbar;
+    }
+
     return ch;
   }, [content]);
 
@@ -2192,6 +2211,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               ],
               inventory: altInventoryPayload,
               replaceFullInventory: false,
+              hotbar: alt.hotbar,
+              hotbarConfigs: (alt as any).hotbarConfigs,
               vocationName: alt.vocation,
               promotion: alt.promotion,
               outfit: alt.outfit,
@@ -3916,16 +3937,47 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
 
     if (updatedChar) {
+      const charToSync = updatedChar;
+      setSavedPool((prev) =>
+        prev.map((c) => (c.id === charToSync.id ? { ...c, hotbar: charToSync.hotbar, hotbarConfigs: (charToSync as any).hotbarConfigs } : c))
+      );
+      if (savedPoolRef.current) {
+        const idx = savedPoolRef.current.findIndex((c) => c.id === charToSync.id);
+        if (idx !== -1) {
+          savedPoolRef.current[idx] = {
+            ...savedPoolRef.current[idx],
+            hotbar: charToSync.hotbar,
+            hotbarConfigs: (charToSync as any).hotbarConfigs,
+          };
+        }
+      }
+
       const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
       if (token && updatedChar.id && !updatedChar.id.startsWith('char-guest')) {
+        const saveVer = characterSaveVersionsRef.current.get(updatedChar.id) || (updatedChar as any).saveVersion || 1;
         fetch(`/api/characters/${updatedChar.id}/save`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
             hotbar: updatedChar.hotbar,
-            hotbarConfigs: updatedChar.hotbarConfigs,
+            hotbarConfigs: (updatedChar as any).hotbarConfigs,
+            saveVersion: saveVer,
           }),
-        }).catch(() => {});
+        })
+          .then(async (res) => {
+            if (res.status === 409) {
+              const conf = (await res.json()) as any;
+              if (typeof conf?.currentVersion === 'number') {
+                characterSaveVersionsRef.current.set(charToSync.id, conf.currentVersion);
+              }
+            } else if (res.ok) {
+              const d = (await res.json()) as any;
+              if (typeof d?.data?.saveVersion === 'number') {
+                characterSaveVersionsRef.current.set(charToSync.id, d.data.saveVersion);
+              }
+            }
+          })
+          .catch(() => {});
       }
     }
 
@@ -4057,16 +4109,47 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       });
 
       if (targetChar) {
+        const charToSync = targetChar;
+        setSavedPool((prev) =>
+          prev.map((c) => (c.id === charToSync.id ? { ...c, hotbar: charToSync.hotbar, hotbarConfigs: (charToSync as any).hotbarConfigs } : c))
+        );
+        if (savedPoolRef.current) {
+          const idx = savedPoolRef.current.findIndex((c) => c.id === charToSync.id);
+          if (idx !== -1) {
+            savedPoolRef.current[idx] = {
+              ...savedPoolRef.current[idx],
+              hotbar: charToSync.hotbar,
+              hotbarConfigs: (charToSync as any).hotbarConfigs,
+            };
+          }
+        }
+
         const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
         if (token && targetChar.id && !targetChar.id.startsWith('char-guest')) {
+          const saveVer = characterSaveVersionsRef.current.get(targetChar.id) || (targetChar as any).saveVersion || 1;
           fetch(`/api/characters/${targetChar.id}/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({
               hotbar: targetChar.hotbar,
-              hotbarConfigs: targetChar.hotbarConfigs,
+              hotbarConfigs: (targetChar as any).hotbarConfigs,
+              saveVersion: saveVer,
             }),
-          }).catch(() => {});
+          })
+            .then(async (res) => {
+              if (res.status === 409) {
+                const conf = (await res.json()) as any;
+                if (typeof conf?.currentVersion === 'number') {
+                  characterSaveVersionsRef.current.set(charToSync.id, conf.currentVersion);
+                }
+              } else if (res.ok) {
+                const d = (await res.json()) as any;
+                if (typeof d?.data?.saveVersion === 'number') {
+                  characterSaveVersionsRef.current.set(charToSync.id, d.data.saveVersion);
+                }
+              }
+            })
+            .catch(() => {});
         }
       }
 

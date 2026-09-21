@@ -4005,8 +4005,6 @@ Plans:
 
 Plans:
 
-- [x] 220-01-PLAN: Efeito de teleport em spawn de monstros no domínio e renderizador PixiJS, herança de contexto de caçada para alts e calibração de orçamento de treino contínuo com poções/magias no RateLimiter.
-
 ### Phase 221: Dead Human Corpse, XP Budget Post-Hunt & Hotbar Conditions Fix
 
 **Goal:** Implementar o corpo canônico de jogador humano (`dead human` - item 3058) com poça de sangue clássica na morte de membros da party em caçadas, corrigir o falso positivo de ganho suspeito de XP ao salvar após transição da caçada para a cidade de Thais, e corrigir o layout e usabilidade das condições no modal de hotbar permitindo definir e executar regras de percentual (ex: <= 80%) para poções e magias de cura.  
@@ -4017,6 +4015,19 @@ Plans:
 Plans:
 
 - [x] 221-01-PLAN: Dead Human Corpse (item 3058) na morte de party members, resolução de XP rate limit pós-hunt no characterService e correção de usabilidade do stepper de condições na hotbar.
+
+### Phase 222: Persistent Hotkeys & Slot Configurations for Party Alts
+
+**Goal:** Garantir a persistência permanente no banco de dados e hidratação perfeita de hotkeys (poções, magias, runas) e condições de ativação (% de vida, mana, monstros, etc.) para todos os personagens da party (alts), não apenas o líder principal. Corrigir o payload de autosave periódico dos alts em `GamePrototype.tsx`, a hidratação em `hydrateDbCharacter`, a rejeição com 400 por falta de `saveVersion` nas edições pontuais de hotbar, e a mesclagem não-destrutiva de `hotbarJson` em `characterService.ts`.  
+**Requirements:** Solicitação do usuário e persistência MMORPG state permanente.  
+**Depends on:** Phase 221  
+**Plans:** 1 plan  
+
+Plans:
+
+- [x] 222-01-PLAN: Persistência e hidratação integral de hotkeys e slot configs para alts da party, envio de `saveVersion` nos saves pontuais de hotbar, inclusão de `hotbar` e `hotbarConfigs` no autosave de alts e mesclagem segura em `characterService.ts`.
+
+
 
 
 
