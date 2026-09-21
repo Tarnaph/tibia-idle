@@ -67,6 +67,7 @@ export function parseInventoryData(
     boots: null,
     leftHand: null,
     rightHand: null,
+    ring: null,
   };
   const equipmentAttributes: Partial<Record<CharacterEquipmentSlot, any>> = {};
   const itemAttributes: Record<number, any> = {};
@@ -82,6 +83,8 @@ export function parseInventoryData(
     righthand: 'rightHand',
     left: 'leftHand',
     right: 'rightHand',
+    finger: 'ring',
+    ring: 'ring',
   };
 
   if (Array.isArray(dbInventory)) {

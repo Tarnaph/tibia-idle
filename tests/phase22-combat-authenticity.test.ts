@@ -112,11 +112,11 @@ describe('Phase 22: Combat Authenticity (Whirlwind Throw, Speech, Regen, Chase, 
     }
   });
 
-  it('verifies authentic base Tibia health regeneration rate (1 HP per tick interval)', () => {
+  it('verifies authentic base RubinOT health regeneration rate (+20 HP / +5 MP per 4s interval)', () => {
     const knightVocation = vocationFor(content, 'Knight');
-    expect(knightVocation.healthGainAmount).toBe(1); // Not 80!
-    expect(knightVocation.healthGainTicks).toBe(6); // 6 seconds in Tibia 11 vocations.xml
-    expect(knightVocation.manaGainAmount).toBe(2);
+    expect(knightVocation.healthGainAmount).toBe(20);
+    expect(knightVocation.healthGainTicks).toBe(4);
+    expect(knightVocation.manaGainAmount).toBe(5);
 
     let state = startGame(createIdleGame('test-regen', content), content);
     const character = state.session.characters[0];

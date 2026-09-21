@@ -142,7 +142,7 @@ export function InventoryWindow({
     { slot: 'armor', label: 'Armadura', gridArea: 'armor' },
     { slot: 'rightHand', label: 'Escudo', gridArea: 'rightHand' },
     { slot: 'legs', label: 'Calça', gridArea: 'legs' },
-    { slot: 'finger', label: 'Anel', gridArea: 'finger' },
+    { slot: 'ring', label: 'Anel', gridArea: 'finger' },
     { slot: 'boots', label: 'Botas', gridArea: 'boots' },
     { slot: 'ammo', label: 'Munição', gridArea: 'ammo' },
   ];

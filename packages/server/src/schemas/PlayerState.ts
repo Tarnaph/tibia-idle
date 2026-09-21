@@ -59,5 +59,6 @@ export class PlayerState extends Schema {
   @type('number') pvpElo: number = 0;
   @type('string') pvpTier: string = 'Iniciante';
   @type('boolean') displaySkull: boolean = true;
+  @type('number') equippedRing: number = 0;
 }
 

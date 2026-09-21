@@ -971,6 +971,9 @@ export class ThaisCityRoom extends Room<WorldState> {
         if (typeof data.mp === 'number') {
           player.mp = Math.max(0, Math.min(data.mp, player.maxMp));
         }
+        if (typeof (data as any).equippedRing === 'number') {
+          player.equippedRing = (data as any).equippedRing;
+        }
       }
     });
 
@@ -2327,21 +2330,35 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
 
 
-      // Vocation-based HP & MP Regeneration
+      // Vocation-based HP & MP Regeneration (RubinOT Rates - 10 ticks per second)
       const vocName = (player.vocationName || 'Knight') as VocationName;
       try {
         const vocDef = vocationFor(gameContent, vocName);
-        const hpTicks = Math.max(1, vocDef.healthGainTicks ?? 6);
-        const mpTicks = Math.max(1, vocDef.manaGainTicks ?? 3);
+        const hpTicks = Math.max(1, (vocDef.healthGainTicks ?? 4) * 10);
+        const mpTicks = Math.max(1, (vocDef.manaGainTicks ?? 4) * 10);
         if (this.state.serverTick % hpTicks === 0 && player.hp < player.maxHp) {
-          player.hp = Math.min(player.maxHp, player.hp + (vocDef.healthGainAmount ?? 1));
+          player.hp = Math.min(player.maxHp, player.hp + (vocDef.healthGainAmount ?? 20));
         }
         if (this.state.serverTick % mpTicks === 0 && player.mp < player.maxMp) {
-          player.mp = Math.min(player.maxMp, player.mp + (vocDef.manaGainAmount ?? 2));
+          player.mp = Math.min(player.maxMp, player.mp + (vocDef.manaGainAmount ?? 5));
         }
       } catch {
-        if (this.state.serverTick % 3 === 0 && player.mp < player.maxMp) {
-          player.mp = Math.min(player.maxMp, player.mp + 2);
+        if (this.state.serverTick % 40 === 0 && player.mp < player.maxMp) {
+          player.mp = Math.min(player.maxMp, player.mp + 5);
+        }
+      }
+
+      // Independent Ring Regeneration (Life Ring: +2 HP / +8 MP / 6s; Ring of Healing: +6 HP / +24 MP / 6s)
+      const ring = player.equippedRing;
+      if ((ring === 2168 || ring === 2205 || ring === 2214 || ring === 2216) && this.state.serverTick % 60 === 0) {
+        const isRoh = ring === 2214 || ring === 2216;
+        const ringHp = isRoh ? 6 : 2;
+        const ringMp = isRoh ? 24 : 8;
+        if (player.hp < player.maxHp) {
+          player.hp = Math.min(player.maxHp, player.hp + ringHp);
+        }
+        if (player.mp < player.maxMp) {
+          player.mp = Math.min(player.maxMp, player.mp + ringMp);
         }
       }
 

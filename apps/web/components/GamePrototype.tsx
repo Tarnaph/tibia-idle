@@ -2646,16 +2646,19 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
   }, [encounter.events]);
 
-  // Continuously synchronize active character progress (experience & level) with Colyseus
+  // Continuously synchronize active character progress (experience, level & equipped ring) with Colyseus
   const lastSyncedExpRef = useRef<number>(-1);
+  const lastSyncedRingRef = useRef<number>(-1);
   useEffect(() => {
     if (!activeCharacter?.id) return;
     const curExp = Number(activeCharacter.experience || 0);
-    if (curExp !== lastSyncedExpRef.current && curExp > 0) {
+    const curRing = Number(activeCharacter.equipment?.ring || 0);
+    if ((curExp !== lastSyncedExpRef.current && curExp > 0) || curRing !== lastSyncedRingRef.current) {
       lastSyncedExpRef.current = curExp;
-      gameNetwork.sendSyncProgress(curExp, activeCharacter.level || 1);
+      lastSyncedRingRef.current = curRing;
+      gameNetwork.sendSyncProgress(curExp, activeCharacter.level || 1, undefined, undefined, curRing);
     }
-  }, [activeCharacter?.id, activeCharacter?.experience, activeCharacter?.level]);
+  }, [activeCharacter?.id, activeCharacter?.experience, activeCharacter?.level, activeCharacter?.equipment?.ring]);
 
   // Listen to Colyseus server bestiary events
   useEffect(() => {

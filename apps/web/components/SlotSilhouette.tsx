@@ -118,6 +118,7 @@ export function SlotSilhouette({ slot, size = 32 }: SlotSilhouetteProps) {
         </svg>
       );
 
+    case 'ring':
     case 'finger':
       return (
         <svg width={size} height={size} viewBox="0 0 32 32" fill="none" opacity="0.45">

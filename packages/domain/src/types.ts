@@ -12,7 +12,7 @@ import type {
 } from '../../content-schema/src';
 import type { CardinalDirection, GridPosition, RoomState } from './spatial/types';
 
-export type CharacterEquipmentSlot = 'head' | 'armor' | 'legs' | 'boots' | 'leftHand' | 'rightHand';
+export type CharacterEquipmentSlot = 'head' | 'armor' | 'legs' | 'boots' | 'leftHand' | 'rightHand' | 'ring';
 export type CombatSkill = 'fist' | 'club' | 'sword' | 'axe' | 'distance' | 'shielding';
 export type CombatStance = 'offensive' | 'balanced' | 'defensive';
 export type TrainableSkill = CombatSkill | 'magicLevel';
@@ -136,6 +136,7 @@ export interface PartyActorState {
   lastHitTakenAt: number;
   nextManaRegenAt: number;
   nextHealthRegenAt: number;
+  nextRingRegenAt?: number;
   stance?: CombatStance;
   targetDistance?: number;
   targetStrategy?: TargetSelectionStrategy;

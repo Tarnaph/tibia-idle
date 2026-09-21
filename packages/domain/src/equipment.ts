@@ -35,6 +35,7 @@ const armorSlotMap: Partial<Record<CharacterEquipmentSlot, EquipmentDefinition['
   armor: 'armor',
   legs: 'legs',
   boots: 'boots',
+  ring: 'ring',
 };
 
 const handSlots: CharacterEquipmentSlot[] = ['leftHand', 'rightHand'];
@@ -137,7 +138,7 @@ export function unequipCharacterSlot(
 }
 
 export function preferredSlotForItem(item: EquipmentDefinition): CharacterEquipmentSlot {
-  if (item.slot === 'head' || item.slot === 'armor' || item.slot === 'legs' || item.slot === 'boots') {
+  if (item.slot === 'head' || item.slot === 'armor' || item.slot === 'legs' || item.slot === 'boots' || item.slot === 'ring') {
     return item.slot;
   }
   if (item.slot === 'hand') return item.weaponType === 'shield' ? 'rightHand' : 'leftHand';

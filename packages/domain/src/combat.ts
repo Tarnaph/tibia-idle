@@ -110,7 +110,7 @@ function makeActor(character: SessionState['characters'][number], spawn: PartyAc
     nextAttackAt: 0, attackIntervalMs: stats.attackIntervalMs, speed: vocation.baseSpeed + (character.level - 1) * 2 + stats.movementSpeedBonus, nextMoveAt: 0, nextSpellAt: 0,
     spellCooldowns: { ...character.combatState.spellCooldowns }, groupCooldowns: { ...character.combatState.groupCooldowns }, hasteUntil: 0,
     magicShieldUntil: 0, bloodRageUntil: 0, lastHitTakenAt: 0,
-    nextManaRegenAt: vocation.manaGainTicks * 2_000, nextHealthRegenAt: vocation.healthGainTicks * 2_000, pendingAttack: null,
+    nextManaRegenAt: vocation.manaGainTicks * 1_000, nextHealthRegenAt: vocation.healthGainTicks * 1_000, nextRingRegenAt: 6_000, pendingAttack: null,
     stance: character.stance ?? 'offensive', targetDistance: character.targetDistance ?? 1,
   };
 }
@@ -807,6 +807,24 @@ function regenerateParty(state: GameState, content: GameContent): void {
       actor.hp = Math.min(character.maxHp, actor.hp + vocation.healthGainAmount);
       actor.nextHealthRegenAt += healthInterval;
     }
+
+    // Independent Ring Regeneration (Life Ring: +2 HP / +8 MP / 6s; Ring of Healing: +6 HP / +24 MP / 6s)
+    const ringId = character.equipment?.ring;
+    if (ringId === 2168 || ringId === 2205 || ringId === 2214 || ringId === 2216) {
+      const isRoh = ringId === 2214 || ringId === 2216;
+      const ringHp = isRoh ? 6 : 2;
+      const ringMp = isRoh ? 24 : 8;
+      const ringIntervalMs = 6_000;
+      if (typeof actor.nextRingRegenAt !== 'number') {
+        actor.nextRingRegenAt = encounter.elapsedMs + ringIntervalMs;
+      }
+      while (encounter.elapsedMs >= actor.nextRingRegenAt) {
+        actor.hp = Math.min(character.maxHp, actor.hp + ringHp);
+        actor.mana = Math.min(character.maxMana, actor.mana + ringMp);
+        actor.nextRingRegenAt += ringIntervalMs;
+      }
+    }
+
     syncCharacterResources(state, actor);
   }
 }
@@ -3212,8 +3230,9 @@ export function advanceCityAutoSpells(state: GameState, content: GameContent, de
         magicShieldUntil: 0,
         bloodRageUntil: 0,
         lastHitTakenAt: -99_999,
-        nextManaRegenAt: next.encounter.elapsedMs + voc.manaGainTicks * 2000,
-        nextHealthRegenAt: next.encounter.elapsedMs + voc.healthGainTicks * 2000,
+        nextManaRegenAt: next.encounter.elapsedMs + voc.manaGainTicks * 1000,
+        nextHealthRegenAt: next.encounter.elapsedMs + voc.healthGainTicks * 1000,
+        nextRingRegenAt: next.encounter.elapsedMs + 6000,
         pendingAttack: null,
       };
       next.encounter.partyActors.push(actor);

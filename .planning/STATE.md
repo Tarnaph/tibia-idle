@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-21T16:30:00.000Z"
-last_activity: "2026-09-21 — Phase 217: Cooldown/Exhaust Decoupling, Alt Level/XP Persistence, Outfit Isolation & Squad Re-login Preservation concluída e testada com sucesso."
+last_updated: "2026-09-21T17:10:00.000Z"
+last_activity: "2026-09-21 — Phase 218: RubinOT Vocation & Ring Regeneration System (Foodless Idle) concluída e testada com sucesso."
 progress:
-  total_phases: 217
-  completed_phases: 217
-  total_plans: 297
-  completed_plans: 297
+  total_phases: 218
+  completed_phases: 218
+  total_plans: 298
+  completed_plans: 298
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 217 - Cooldown/Exhaust Decoupling, Alt Level/XP Persistence, Outfit Isolation & Squad Re-login Preservation [CONCLUÍDA].
+**Current focus:** Phase 218 - RubinOT Vocation & Ring Regeneration System (Foodless Idle) [CONCLUÍDA].
 
 ## Current Position
 
-Phase: 217 of 217  
-Plan: 1 of 1 in Phase 217  
+Phase: 218 of 218  
+Plan: 1 of 1 in Phase 218  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Desacoplamento total de cooldowns de poções vs magias e runas (regra autêntica Tibia 10.98+ com poções tendo exhaust próprio de 1s e nunca silenciando magias), suporte a leaderCharacterId e sessionId no CharacterService e na API save para herança legítima de contexto em caçadas de alts da mesma conta (Cerberus salvando level 32 sem erro 503 nem 400), isolamento de outfits e montarias de alts para eliminar contaminação cruzada no socket Colyseus do líder, e preservação automática da composição do Squad/Party entre logins via localStorage. 100% testado (13/13 vitest) e 0 erros no typecheck.
+Last activity: 2026-09-21 — Sistema de regeneração RubinOT implementado para todas as vocações (normal a cada 4s: Knight +20 HP/+5 MP, Paladin +10 HP/+10 MP, Mage +5 HP/+20 MP; promovida a cada 3s: Elite Knight +20 HP/+5 MP, Royal Paladin +10 HP/+10 MP, MS/ED +5 HP/+20 MP) e para os anéis Life Ring (+2 HP/+8 MP a cada 6s) e Ring of Healing (+6 HP/+24 MP a cada 6s), operando de forma independente sem exigência de comida no idle. Suporte adicionado ao slot 'ring' no domínio e no inventário, ticks calibrados a 100ms no Colyseus ThaisCityRoom, e 100% de aprovação nos testes (13/13 vitest) e typecheck com 0 erros.
 
 Progress: [██████████] 100%
 

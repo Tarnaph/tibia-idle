@@ -32,10 +32,10 @@ export const NONE_VOCATION_DEFINITION: VocationDefinition = {
   gainHp: 5,
   gainMana: 5,
   gainCap: 10,
-  healthGainTicks: 12,
-  healthGainAmount: 1,
-  manaGainTicks: 6,
-  manaGainAmount: 1,
+  healthGainTicks: 4,
+  healthGainAmount: 5,
+  manaGainTicks: 4,
+  manaGainAmount: 5,
   manaMultiplier: 1.0,
   attackSpeedMs: 2000,
   baseSpeed: 220,
@@ -110,7 +110,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
     currentHp: 150, currentMana: maxMana,
     maxHp: 150, maxMana: maxMana,
     skills: { ...(baseSkills[vocationName] ?? baseSkills.None) }, skillTries: emptyTries(),
-    equipment: { ...starter.equipped },
+    equipment: { ring: null, ...starter.equipped },
     inventory: {
       equipmentIds: [
         2376, 2388, 2398,

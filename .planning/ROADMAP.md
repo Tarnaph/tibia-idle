@@ -3962,6 +3962,18 @@ Plans:
 
 - [x] 217-01-PLAN: Desacoplamento de `groupCooldowns['potion']` de todas as magias e runas em `packages/domain/src/combat.ts`, suporte a `leaderCharacterId` e `sessionId` em `CharacterService.saveCharacterProgress` e na rota `/api/characters/[id]/save`, isolamento de `sendChangeOutfit` em `GamePrototype.tsx` para não alterar o líder quando o alt troca de roupa/montaria, salvamento de cores completas e addons de alts, persistência e restauração do Squad via `localStorage` e suíte de testes dedicada `tests/phase217-exhaust-and-party-persistence.test.ts`.
 
+### Phase 218: RubinOT Vocation & Ring Regeneration System (Foodless Idle)
+
+**Goal:** Implementar o sistema de regeneração idêntico ao RubinOT para todas as vocações (normal a cada 4s: Knight +20 HP/+5 MP, Paladin +10 HP/+10 MP, Mage +5 HP/+20 MP; promovida a cada 3s: Elite Knight +20 HP/+5 MP, Royal Paladin +10 HP/+10 MP, MS/ED +5 HP/+20 MP) e para os anéis Life Ring (+2 HP/+8 MP a cada 6s) e Ring of Healing (+6 HP/+24 MP a cada 6s), operando de forma independente e contínua sem necessidade de comida (foodless idle), integrados com o slot de ring no inventário, no motor de combate e no servidor de cidade Colyseus.
+**Requirements:** `FIX.md` e prompt do usuário.
+**Depends on:** Phase 217
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 218-01-PLAN: Atualização de `content/generated/vocations.json` e `knight-vocation.json` com valores RubinOT, adição de `'ring'` a `CharacterEquipmentSlot` em `types.ts` e `equipment.ts`, suporte a regeneração de Life Ring (2168/2205) e Ring of Healing (2214/2216) a cada 6s em `combat.ts`, calibração dos ticks de regeneração na cidade em `ThaisCityRoom.ts` (10 ticks/s) com suporte a anel equipado, mapeamento no paperdoll de `InventoryWindow.tsx` e `SlotSilhouette.tsx`, sincronização de anel via `GameClientNetworkManager.ts` e `GamePrototype.tsx`, e suíte de testes `tests/phase218-rubinot-regeneration-and-rings.test.ts`.
+
+
 
 
 

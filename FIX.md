@@ -1,19 +1,37 @@
 # CORREÇÕES
 
-## Concluído na Phase 215:
-- [x] **Efeitos de combate e magias:** Corrigido no PixiArena e domain. Ataques com sword do knight agora geram evento visual de sangue (`effectId: 1`) em acertos de dano e faísca de bloqueio de escudo (`effectId: 4`) em bloqueios. Efeitos essenciais de magias (físico 10, cura 12, taunt 13, magias de druid e mísseis) foram incluídos na prioridade do Pixi e contam com fallback resiliente de textura.
-- [x] **Ícone do Cyclops Smith no bestiário:** Extraído lookType 277 canônico do Tibia 10.98 DAT/SPR em 64x64 perfeito (martelo e armadura completos), regenerado sprite no bestiário, thumbnail e atlas de hunt-cyclops-camp.
-- [x] **Exori sem loop de cooldown fantasma:** Em `castAutomaticSpells`, o Exori não dispara no ar quando não há inimigos a 1 SQM de alcance. O cast manual projeta a animação autêntica nos 8 tiles ao redor e consome mana normalmente quando executado.
-- [x] **Carregamento antecipado na tela de loading (Hunts e PvP):** Criada regra oficial em `.agents/rules/hunt-loading-and-assets.md`, módulo `apps/web/lib/huntAssetPreloader.ts` e orquestração no `GamePrototype.tsx`. O jogo agora instancia e carrega o mapa, atlas de hunt e texturas sob o `ExuraLoadingScreen`, garantindo que o jogador chegue ao mapa com tudo renderizado na GPU.
+## Concluído na Phase 218:
+- [x] **Regeneração Base RubinOT (sem exigência de comida):** Normal a cada 4s (Knight +20 HP/+5 MP, Paladin +10 HP/+10 MP, Mage +5 HP/+20 MP) e Promovida a cada 3s (Elite Knight +20 HP/+5 MP, Royal Paladin +10 HP/+10 MP, MS/ED +5 HP/+20 MP) em combate e na cidade.
+- [x] **Regeneração Independente por Anéis (6s ticks):** Life Ring (+2 HP / +8 MP a cada 6s) e Ring of Healing (+6 HP / +24 MP a cada 6s) no slot de anel (`ring`).
+- [x] **Slot de Anel no Paperdoll & Sincronização:** Slot `ring` integrado em `InventoryWindow`, `SlotSilhouette`, `characterHydration`, sincronização via Colyseus WebSocket e suíte de testes dedicada.
 
-## Concluído na Phase 216:
-- [x] **Atlas Unificado de Efeitos e Mísseis de Combate (`combat-fx-atlas`):** Compilação de 1.955 frames (32x32) cobrindo todos os efeitos (1 a 60) e mísseis (1 a 50) em um único atlas de texturas (488KB) com 5.865 aliases (`scripts/build-combat-atlas.mjs`), eliminando requisições HTTP individuais e gargalos de rede.
-- [x] **Resolução Definitiva de Texturas Invisíveis no PixiJS v8:** Solução da falha em que `Texture.from()` retornava `undefined` para texturas fora do cache, fazendo efeitos com vida útil curta (300-500ms) desaparecerem invisíveis. Integrado `Assets.load` do atlas no `PixiArena.tsx` com resolvedor de texturas resiliente multi-tier `getCombatTexture(url, onLoaded)`.
-- [x] **Correção de Coordenadas e Mísseis:** Mísseis de wand/rod e magias passam a iniciar em sua posição correta (`from.x, from.y`) em vez de (0, 0), e os nós de visualEvents (`melee-hit`, `projectile-launched`) agora sincronizam dinamicamente suas texturas frame a frame no ticker da GPU.
+---
 
-## Concluído na Phase 217:
-- [x] **Desacoplamento Completo de Cooldown de Poções vs Magias/Runas (Regra Tibia 10.98+):** No código de combate de domínio (`packages/domain/src/combat.ts`), beber poção atribuía 1000ms a `healing`, `attack` e `support`, além de bloquear spells se `groupCooldowns['potion'] > elapsedMs` e travar `usedPotionThisTick`. Todas as amarras foram removidas: poção possui exhaust independente de 1s e nunca silencia magias ou runas de ataque/cura.
-- [x] **Persistência de Level/XP e Progresso de Alts sem Rejeição de Sessão:** `CharacterService.saveCharacterProgress` e a rota `/api/characters/[id]/save` foram aprimorados para aceitar `leaderCharacterId` e `sessionId`. Alts da mesma conta herdando a sessão do líder de caçada ativa validam seu contexto perante o `ServerCharacterContextRegistry` e o `XpRateLimiter`, reconhecendo caçadas e permitindo que alts (como o Cerberus nos Cyclops) salvem seu level 32 e ganhos de XP sem sofrer `ContextPendingError` ou rate limiting de cidade.
-- [x] **Isolamento Total de Outfits e Montarias de Alts:** Eliminada a contaminação cruzada em que `handleSaveOutfit` e `handleToggleMount` despachavam `gameNetwork.sendChangeOutfit` no socket Colyseus do líder (atribuindo a roupa do alt ao Wolfy). Agora, apenas o personagem principal conectado transmite no WebSocket; os alts persistem diretamente seu outfit completo (`outfit`, `outfitHead`, `outfitBody`, `outfitLegs`, `outfitFeet`, `outfitAddons`, `mount`, `mountActive`) em seu respectivo endpoint de banco de dados.
-- [x] **Preservação Automática da Composição do Squad/Party no Re-login:** A composição dos membros da party agora é persistida no `localStorage` sob a chave do líder (`cavebound_squad_${leaderId}`). Ao selecionar o personagem principal e carregar a conta via `/api/characters`, os membros ativos anteriores (ex: Wolfy + Cerberus) são re-hidratados automaticamente para dentro da sessão de jogo e da party com todos os seus atributos e equipamentos atualizados.
 
+No RubinOT, a regeneração base depende da vocação e se ela está promovida. Segundo a página oficial do servidor:
+
+Vocação	Normal	Promovida
+Knight	+20 HP / +5 MP a cada 4s	+20 HP / +5 MP a cada 3s
+Paladin	+10 HP / +10 MP a cada 4s	+10 HP / +10 MP a cada 3s
+Sorcerer	+5 HP / +20 MP a cada 4s	+5 HP / +20 MP a cada 3s
+Druid	+5 HP / +20 MP a cada 4s	+5 HP / +20 MP a cada 3s
+Monk	+8 HP / +10 MP a cada 4s	+8 HP / +10 MP a cada 3s
+
+Em 1 minuto, por exemplo, um Elite Knight regenera naturalmente aproximadamente 400 HP e 100 mana, porque são 20 ticks de 3 segundos.
+
+Um Master Sorcerer/Elder Druid fica em aproximadamente 100 HP e 400 mana/minuto.
+
+Item	HP	Mana	Por minuto	Duração	Total
+Life Ring	+2 HP / 6s	+8 MP / 6s	20 HP + 80 MP	20 min	400 HP + 1.600 MP
+Ring of Healing	+6 HP / 6s	+24 MP / 6s	60 HP + 240 MP	7min30s	450 HP + 1.800 MP
+
+Então o Ring of Healing é exatamente 3× mais rápido que o Life Ring, só que dura bem menos.
+
+Para implementar no seu idle sem comida, eu manteria justamente o efeito independente:
+
+Life Ring: +2 HP / +8 MP a cada 6 segundos
+Ring of Healing: +6 HP / +24 MP a cada 6 segundos
+
+Isso funciona especialmente bem porque não precisa existir aquela regra do Tibia de estar alimentado para regenerar. O anel simplesmente gera regeneração enquanto estiver equipado.
+
+E tem uma coisa interessante para o Exura: eu não transformaria isso em regeneração por segundo visualmente. Manteria o tick de 6 segundos, porque dá muito mais aquela sensação de Tibia: +8, +8, +8 aparecendo periodicamente em vez da mana subindo continuamente.
