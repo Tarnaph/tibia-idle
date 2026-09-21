@@ -925,7 +925,9 @@ export function consumePotionFromInventory(
 
 export function castAutomaticSpells(state: GameState, content: GameContent, allowOffensive = true): void {
   const encounter = state.encounter;
-  executeKnightChallenge(state, content, encounter);
+  if (allowOffensive) {
+    executeKnightChallenge(state, content, encounter);
+  }
 
   const leaderActor = encounter.partyActors.find((a) => a.alive && (a.characterId === state.session.leaderId || a.characterId === state.session.selectedCharacterId)) ?? encounter.partyActors.find((a) => a.alive);
   const partyKnight = findPartyKnightActor(state);
@@ -1356,6 +1358,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             if (buffActive) continue;
 
             if (isChallenge) {
+              if (!allowOffensive) continue;
               const nearby = encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, actor.position) <= 3);
               if (nearby.length === 0) continue;
               const livingActors = encounter.partyActors.filter((a) => a.alive);
@@ -1516,6 +1519,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
           } else if (spell.group === 'support' && targetActor) {
             const isChallenge = spell.spellId === 93 || spell.words.toLowerCase().includes('exeta') || spell.name.toLowerCase().includes('challenge');
             if (isChallenge) {
+              if (!allowOffensive) continue;
               const nearbyEnemies = encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, actor.position) <= 3);
               for (const enemy of nearbyEnemies) {
                 enemy.targetId = actor.characterId;
@@ -3113,8 +3117,28 @@ export const THAIS_TEMPLE_POSITION = { x: 32369, y: 32241, z: 7 } as const;
 export function leaveHunt(state: GameState): GameState {
   const next = cloneState(state);
   for (const actor of next.encounter.partyActors) syncCharacterResources(next, actor);
-  next.encounter.status = 'completed'; next.encounter.events.push({ type: 'hunt-complete' });
-  addLog(next, `${next.encounter.hunt.name}: sessão encerrada pelo jogador.`); return next;
+  next.encounter.status = 'completed';
+  next.encounter.enemies = [];
+  next.encounter.corpses = [];
+  next.encounter.events = [{ type: 'hunt-complete' }];
+  next.encounter.visualEvents = [];
+
+  for (const actor of next.encounter.partyActors) {
+    actor.targetId = null;
+    actor.path = [];
+    actor.position = { x: THAIS_TEMPLE_POSITION.x, y: THAIS_TEMPLE_POSITION.y, z: THAIS_TEMPLE_POSITION.z };
+    actor.previousPosition = { x: THAIS_TEMPLE_POSITION.x, y: THAIS_TEMPLE_POSITION.y, z: THAIS_TEMPLE_POSITION.z };
+    actor.spellCooldowns = {};
+    actor.groupCooldowns = {};
+  }
+  for (const char of next.session.characters) {
+    char.combatState.targetId = null;
+    char.combatState.spellCooldowns = {};
+    char.combatState.groupCooldowns = {};
+  }
+
+  addLog(next, `${next.encounter.hunt.name}: sessão encerrada pelo jogador.`);
+  return next;
 }
 
 export interface DeathPenaltyOptions {
@@ -3417,6 +3441,8 @@ export function setCharacterTargetStrategy(state: GameState, characterId: string
 export function advanceCityAutoSpells(state: GameState, content: GameContent, deltaMs: number): GameState {
   const next = cloneState(state);
   next.encounter.elapsedMs += deltaMs;
+  next.encounter.enemies = [];
+  next.encounter.corpses = [];
 
   for (const character of next.session.characters) {
     let actor = next.encounter.partyActors.find((a) => a.characterId === character.id);

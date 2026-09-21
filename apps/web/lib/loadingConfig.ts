@@ -44,11 +44,11 @@ export const HUNT_LOADING_CONFIGS: Record<string, HuntLoadingConfig> = {
     curiosities: DRAGON_LAIR_LORE_CURIOSITIES,
   },
   'cyclops-camp': {
-    bgImage: '/images/loading/thais-loading.jpg',
+    bgImage: '/images/loading/cyclops-camp-loading.jpg',
     curiosities: CYCLOPS_LORE_CURIOSITIES,
   },
   'elf-sanctuary': {
-    bgImage: '/images/loading/thais-loading.jpg',
+    bgImage: '/images/loading/elf-sanctuary-loading.jpg',
     curiosities: ELF_LORE_CURIOSITIES,
   },
   'pvp-arena': {

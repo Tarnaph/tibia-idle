@@ -171,7 +171,7 @@ export function ExuraLoadingScreen({
       const effectiveDuration = durationMs;
       const timePct = Math.min(100, (elapsed / effectiveDuration) * 100);
 
-      // Phase 146 & 178: Sincronização autoritativa com o pré-carregamento do jogador ativo
+      // Phase 146 & 178 & 223: Sincronização autoritativa com o pré-carregamento e duração configurada
       const isAssetsComplete = !waitForAssets || assetPreloader.isComplete();
       const assetProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
 
@@ -182,7 +182,8 @@ export function ExuraLoadingScreen({
       } else if (!isAssetsComplete) {
         effectivePct = Math.min(99, Math.max(timePct * 0.4, assetProgressPct));
       } else {
-        effectivePct = Math.max(timePct, assetProgressPct);
+        // Quando os assets estão prontos, o progresso acompanha a duração suave da viagem (timePct)
+        effectivePct = timePct;
       }
 
       const pct = Math.min(100, effectivePct);

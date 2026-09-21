@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-21T19:55:00.000Z"
-last_activity: "2026-09-21 — Conclusão da Phase 222: Persistent Hotkeys & Slot Configurations for Party Alts."
+last_updated: "2026-09-21T20:35:00.000Z"
+last_activity: "2026-09-21 — Conclusão da Phase 223: Dragon Lair Black Screen Fix, City Exeta Res Purge & Cyclops/Elf Loading Screens."
 progress:
-  total_phases: 222
-  completed_phases: 222
-  total_plans: 302
-  completed_plans: 302
+  total_phases: 223
+  completed_phases: 223
+  total_plans: 303
+  completed_plans: 303
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 222 - Concluída com sucesso.
+**Current focus:** Phase 223 - Concluída com sucesso.
 
 ## Current Position
 
-Phase: 222 of 222  
-Plan: 1 of 1 in Phase 222  
+Phase: 223 of 223  
+Plan: 1 of 1 in Phase 223  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Conclusão da persistência permanente e hidratação de hotkeys/condições para alts da party, com resolução de saveVersion e mesclagem não-destrutiva de hotbarJson.
+Last activity: 2026-09-21 — Eliminação de tela preta e loading 0ms no Dragon Lair, purga de resíduos de monstros em leaveHunt e advanceCityAutoSpells, bloqueio de Exeta Res na cidade e inclusão de loading screens para Cyclops Camp e Elf Sanctuary.
 
 
 Progress: [██████████] 100%

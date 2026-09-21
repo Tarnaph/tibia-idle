@@ -115,6 +115,11 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       try {
         app.resize();
       } catch {}
+      requestAnimationFrame(() => {
+        try {
+          app.resize();
+        } catch {}
+      });
     } else {
       if (app.ticker.started) app.ticker.stop();
     }
@@ -721,6 +726,25 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           activeRoom = currentEncounterKey;
           if (state.encounter.hunt?.id) {
             void loadHuntAtlas(state.encounter.hunt.id);
+          }
+          const tileUrls = new Set<string>();
+          for (const tile of state.encounter.room.map.tiles) {
+            for (const serverId of tile.serverItemIds ?? []) {
+              const mapping = visualAssets.mapItems?.[String(serverId)];
+              if (!mapping) continue;
+              if (mapping.frame?.publicUrl) tileUrls.add(mapping.frame.publicUrl);
+              if (mapping.frames) {
+                for (const f of mapping.frames) if (f.publicUrl) tileUrls.add(f.publicUrl);
+              }
+            }
+          }
+          if (tileUrls.size > 0) {
+            void loadBatch(Array.from(tileUrls), 40).then(() => {
+              if (!disposed && appRef.current) {
+                terrainKey = '';
+                rebuildTerrain(state, latestRef.current.debug);
+              }
+            });
           }
           cameraInitialized = false;
           sceneReadyNotified = false;
@@ -1345,7 +1369,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           }
         }
 
-        if ((cameraInitialized || state.encounter.partyActors.length > 0) && !sceneReadyNotified) {
+        if (latestRef.current.active && (cameraInitialized || state.encounter.partyActors.length > 0) && !sceneReadyNotified) {
           sceneReadyNotified = true;
           console.log('[SCENE] PixiArena cenário pronto e primeiro frame renderizado:', performance.now());
           latestRef.current.onSceneReady?.();
@@ -1358,7 +1382,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
 
       app.ticker.add(render);
       syncRef.current = sync; sync(latestRef.current.game, latestRef.current.debug);
-      if ((cameraInitialized || latestRef.current.game.encounter.partyActors.length > 0) && !sceneReadyNotified) {
+      if (latestRef.current.active && (cameraInitialized || latestRef.current.game.encounter.partyActors.length > 0) && !sceneReadyNotified) {
         sceneReadyNotified = true;
         console.log('[SCENE] PixiArena cenário pronto após sync inicial:', performance.now());
         latestRef.current.onSceneReady?.();
@@ -1399,7 +1423,17 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
     return () => { disposed = true; syncRef.current = null; cleanup?.(); };
   }, []);
 
-  useEffect(() => { latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady }; syncRef.current?.(game, debug); }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady]);
+  useEffect(() => {
+    latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady };
+    const app = appRef.current;
+    if (app && active) {
+      if (!app.ticker.started) app.ticker.start();
+      try {
+        app.resize();
+      } catch {}
+    }
+    syncRef.current?.(game, debug);
+  }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady]);
   return (
     <div
       ref={hostRef}

@@ -4027,6 +4027,18 @@ Plans:
 
 - [x] 222-01-PLAN: Persistência e hidratação integral de hotkeys e slot configs para alts da party, envio de `saveVersion` nos saves pontuais de hotbar, inclusão de `hotbar` e `hotbarConfigs` no autosave de alts e mesclagem segura em `characterService.ts`.
 
+### Phase 223: Dragon Lair Black Screen Fix, City Exeta Res Purge & Cyclops/Elf Loading Screens
+
+**Goal:** Resolver em definitivo a tela preta e o loading instantâneo (0ms) na entrada do Dragon Lair, eliminar o loop contínuo de Exeta Res e o erro de salto anômalo de skills na cidade de Thais decorrente de inimigos residuais não purgados ao sair da caçada, e integrar as novas artes canônicas de carregamento para Cyclops Camp e Elf Sanctuary.  
+**Requirements:** `FIX.md`, imagens oficiais do usuário e regras GSD.  
+**Depends on:** Phase 222  
+**Plans:** 1 plan  
+
+Plans:
+
+- [x] 223-01-PLAN: Eliminação de tela preta e loading 0ms no Dragon Lair (`ExuraLoadingScreen` e `PixiArena` batch loading/resize), purga de monstros residuais no `leaveHunt` e bloqueio de Exeta Res com `allowOffensive = false` na cidade, e novas telas de carregamento para Cyclops Camp e Elf Sanctuary.
+
+
 
 
 

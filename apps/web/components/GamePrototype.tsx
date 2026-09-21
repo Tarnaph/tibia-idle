@@ -1446,12 +1446,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     clientErrorLogger.initGlobalHandlers();
   }, []);
 
-  // Phase 131: Preload loading screen artworks immediately on client boot
+  // Phase 131 & 223: Preload loading screen artworks immediately on client boot
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const preloadImages = [
         '/images/loading/thais-loading.jpg',
         '/images/loading/dragon-lair-loading.jpg',
+        '/images/loading/cyclops-camp-loading.jpg',
+        '/images/loading/elf-sanctuary-loading.jpg',
         '/images/loading/loading-bg.jpg',
       ];
       for (const src of preloadImages) {
