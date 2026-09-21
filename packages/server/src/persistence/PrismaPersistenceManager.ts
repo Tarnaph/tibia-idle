@@ -310,6 +310,14 @@ export class PrismaPersistenceManager {
             ...(huntId ? { lastHuntId: huntId } : {}),
           },
         });
+      } else if (typeof this.db?.character?.update === 'function') {
+        await this.db.character.update({
+          where: { id: characterId },
+          data: {
+            isHunting: inHunt,
+            ...(huntId ? { lastHuntId: huntId } : {}),
+          },
+        });
       }
       if (inHunt) {
         if (typeof (this.db as any)?.activeHuntSession?.upsert === 'function') {

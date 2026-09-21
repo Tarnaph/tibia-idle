@@ -126,12 +126,11 @@ export function calculateSkillTriesCost(
 // Em caçada (combate ativo com arma, duplo bloqueio de escudo e rotação sustentada de magia com poções):
 // - Arma: 1 hit a cada 2s com rateSkill 50 e stage 10x = 250 tries/segundo
 // - Escudo: até 2 bloqueios de criaturas por segundo = 500 tries/segundo
-// - Magia ofensiva (Flame Strike / Waves a cada 2s): ~15 mana/s * 25 rateMagic * 10 stage = 3.750 tries/segundo
-// - Magia de cura / suporte (Exura / Exura Gran reativo a cada 1s): ~15 mana/s * 250 = 3.750 tries/segundo
-// - Combos de buff (Haste / Utamo) sustentados com poções de mana contínuas: ~750 tries/segundo
-// Taxa sustentada contínua calibrada para caçada com magia: 9.000 tentativas/segundo
-export const HUNT_MAX_TRIES_PER_SECOND = 9_000;
-// Capacidade de burst em caçada: acomoda até 25 segundos de combate ativo acumulado com atraso de rede (25s * 9.000 = 225.000)
+// - Magia ofensiva (Exori / Flame Strike / Waves a cada 2s): ~115 mana / 2s * 25 rateMagic * 10 stage = ~14.375 tries/segundo
+// - Magia de cura / suporte (Exura / Exura Ico / Exura Gran reativo a cada 1s): ~40 mana/s * 250 = ~10.000 tries/segundo
+// - Rotações contínuas de magias e poções em caçada ativa: calibradas para 40.000 tentativas/segundo
+export const HUNT_MAX_TRIES_PER_SECOND = 40_000;
+// Capacidade de burst em caçada: acomoda até 225.000 tentativas instantâneas
 export const HUNT_MAX_BURST_TRIES = 225_000;
 
 // Fora de caçada / Urbano (dummy de treino público ou residencial em cidade):

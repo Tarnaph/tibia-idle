@@ -248,6 +248,14 @@ export function populateRespawnZone(state: GameState, content: GameContent, zone
     });
   }
   encounter.rngState = rng.state; encounter.enemies.push(...spawned);
+  for (const enemy of spawned) {
+    encounter.visualEvents.push({
+      type: 'spawn-visual',
+      targetId: enemy.id,
+      position: clonePosition(enemy.position),
+      effectId: 11,
+    });
+  }
   zoneState.activeEnemyIds = spawned.map((enemy) => enemy.id); zoneState.lastActivatedAt = encounter.elapsedMs; zoneState.activationCount += 1;
   synchronizeEncounterOccupancy(encounter);
   addLog(state, `${zone.id}: ${spawned.length} criatura(s) despertaram${spawned.some((enemy) => enemy.variant) ? ' · presença rara detectada' : ''}.`);
@@ -421,6 +429,14 @@ export function populatePullAroundParty(state: GameState, content: GameContent, 
 
   encounter.rngState = rng.state;
   encounter.enemies.push(...spawned);
+  for (const enemy of spawned) {
+    encounter.visualEvents.push({
+      type: 'spawn-visual',
+      targetId: enemy.id,
+      position: clonePosition(enemy.position),
+      effectId: 11,
+    });
+  }
 
   if (zoneState) {
     zoneState.activeEnemyIds = spawned.map((e) => e.id);

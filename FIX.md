@@ -41,3 +41,16 @@ Ring of Healing: +6 HP / +24 MP a cada 6 segundos
 Isso funciona especialmente bem porque não precisa existir aquela regra do Tibia de estar alimentado para regenerar. O anel simplesmente gera regeneração enquanto estiver equipado.
 
 E tem uma coisa interessante para o Exura: eu não transformaria isso em regeneração por segundo visualmente. Manteria o tick de 6 segundos, porque dá muito mais aquela sensação de Tibia: +8, +8, +8 aparecendo periodicamente em vez da mana subindo continuamente.
+
+---
+
+## Phase 220: Efeito Visual de Teleport no Spawn dos Monstros e Rate Limiter de Skills para Party/Alts com Potions e Magias
+
+### 1. Efeito Visual de Teleport no Spawn (`CONST_ME_TELEPORT` / effect 11)
+- Criaturas geradas pelo motor de caçada contínua (`populateRespawnZone` e `populatePullAroundParty`) agora emitem o evento visual `spawn-visual` com `effectId: 11`.
+- O renderizador PixiArena (`PixiArena.tsx`) desenha a animação oficial de 11 frames do portal/teleport do Tibia diretamente sobre o tile de nascimento da criatura, eliminando o spawn "seco".
+
+### 2. Correção de Erro de Salto Anômalo de Habilidades em Party/Alts
+- **Causa Raiz 1 (Alts como Cerberus):** No salvamento de alts da party, a validação de skills não herdava o contexto do líder (`leaderCharacterId`), avaliando o alt como fora de caçada (taxa urbana restrita de 500 tries/s e 25k burst, gerando o limite de 72.488 tries). Agora alts herdam o `leaderContext` de forma autoritativa.
+- **Causa Raiz 2 (Líderes usando Magias e Mana Potions):** Com as taxas multiplicadas de Magic Level (stage 10x * 25 rate = 250x), o spam sustentado de magias e poções gerava mais de 500k tentativas legítimas em 20-25s. A taxa contínua de caçada foi calibrada para `40.000 tentativas/segundo`, suportando com ampla folga rotações intensivas sem falsos positivos.
+- **Causa Raiz 3 (Falha de Retorno à Cidade):** A proteção do cliente impedia o retorno à cidade quando o save de caçada falhava (`[HUNT_SAVE] Falha ao salvar progresso antes de sair da caçada`). Com a regularização do rate limiter, o salvamento responde 200 OK e a transição para Thais ocorre suavemente.

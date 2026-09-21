@@ -106,7 +106,7 @@ export class ServerCharacterContextRegistry {
         activeSessionId: local?.activeSessionId,
         lastActiveSessionId: local?.lastActiveSessionId ?? local?.activeSessionId,
         isServiceAvailable: true,
-        isContextKnown: local !== undefined,
+        isContextKnown: true,
       };
     }
 
@@ -188,6 +188,7 @@ export class ServerCharacterContextRegistry {
 
   public static clearAll(): void {
     this.registry.clear();
+    this.isAuthoritativeSource = false;
   }
 
   public static getActiveCount(): number {

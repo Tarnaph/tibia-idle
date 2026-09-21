@@ -3992,6 +3992,22 @@ Plans:
 
 - [x] 219-01-PLAN: Importação de ataques mágicos e ranged em `importMonsters.ts`, fórmulas autênticas de escudo e armadura com quebra no 3º atacante em `combat.ts`, conjuração de spells e ataques à distância por monstros com efeitos visuais, regeneração de catálogo e testes automatizados.
 
+### Phase 220: Efeito Visual de Teleport no Spawn de Monstros e Correção de Rate Limiter de Treino
+
+**Goal:** Implementar o efeito visual clássico de teleport no spawn de monstros e corrigir a rejeição anômala de habilidades em caçadas:
+1. **Efeito Visual de Teleport no Spawn (`CONST_ME_TELEPORT` / effect 11):** Eliminar o spawn "seco" dos monstros emitindo evento visual autoritativo `spawn-visual` no tile de nascimento da criatura, renderizando a animação clássica de 11 frames do portal mágico azul em `PixiArena.tsx`.
+2. **Correção do Rate Limiter de Habilidades para Alts e Rotações Intensivas de Magia:** Herança do contexto de caçada do líder (`leaderContext`) para membros da party (alts como Cerberus) na validação de skills em `characterService.ts`. Calibração do orçamento em caçada em `skillRateLimiter.ts` para 40.000 tentativas/segundo e burst de 600.000 tentativas, acomodando o consumo legítimo acelerado por mana potions e combos de magias multiplicados pelas rates do servidor.
+3. **Testes & Validação:** 100% dos testes passando, zero erros de tipagem e deploy na VPS.
+
+**Requirements:** `FIX.md`, `packages/auth/src/characterService.ts`, `packages/auth/src/skillRateLimiter.ts`, `packages/domain/src/types.ts`, `packages/domain/src/combat.ts`, `apps/web/components/PixiArena.tsx`.
+**Depends on:** Phase 219
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 220-01-PLAN: Efeito de teleport em spawn de monstros no domínio e renderizador PixiJS, herança de contexto de caçada para alts e calibração de orçamento de treino contínuo com poções/magias no RateLimiter.
+
+
 
 
 

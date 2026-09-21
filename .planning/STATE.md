@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-21T17:45:00.000Z"
-last_activity: "2026-09-21 — Phase 219: Calibração Autêntica de Dano Físico de Monstros, Defesa com Quebra de Escudo no 3º Atacante e Magias/Spells de Criaturas concluída e validada com 100% de testes passando."
+last_updated: "2026-09-21T18:30:00.000Z"
+last_activity: "2026-09-21 — Conclusão da Phase 220: Efeito Visual de Teleport no Spawn de Monstros e Correção de Rate Limiter de Treino."
 progress:
-  total_phases: 219
-  completed_phases: 219
-  total_plans: 299
-  completed_plans: 299
+  total_phases: 220
+  completed_phases: 220
+  total_plans: 300
+  completed_plans: 300
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 219 - Calibração Autêntica de Dano Físico de Monstros, Defesa e Magias/Spells de Criaturas [CONCLUÍDA].
+**Current focus:** Phase 220 - Concluída com sucesso.
 
 ## Current Position
 
-Phase: 219 of 219  
-Plan: 1 of 1 in Phase 219  
+Phase: 220 of 220  
+Plan: 1 of 1 in Phase 220  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Implementação do sistema autêntico de dano físico de monstros, defesa com limite de 2 bloqueios de escudo (quebra no 3º atacante), absorção de armadura e magias/spells/ranged attacks de criaturas. 100% testado (15/15 testes passando) e 0 erros de tipagem.
+Last activity: 2026-09-21 — Implementação do efeito visual de teleport (effect-11) no spawn de criaturas e correção de herança de contexto de caçada e orçamentos do RateLimiter de habilidades.
 
 
 Progress: [██████████] 100%

@@ -265,6 +265,7 @@ export type CombatVisualEvent =
   | { type: 'heal-applied'; sourceId: string; targetId: string; effectId: number; id?: string }
   | { type: 'spell-cast-visual'; sourceId: string; targetId: string; effectId: number | null; projectileId: number | null; id?: string }
   | { type: 'creature-died'; creatureId: string; corpseId: number; id?: string }
+  | { type: 'spawn-visual'; targetId?: string; position?: GridPosition; effectId: number; id?: string }
   | { type: 'training-action'; sourceId: string; style: 'melee' | 'distance' | 'magic'; effectId: number; projectileId: number | null; id?: string };
 
 export interface CombatLogEntry { id: number; round: number; message: string }

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, afterAll } from 'vitest';
 import {
   ServerCharacterContextRegistry,
   CharacterService,
@@ -260,6 +260,14 @@ describe('Phase 182.2 - Recuperação Autoritativa de Contexto de Caçada e Prot
     });
     expect(checkWithBaseline.allowed).toBe(true);
     expect(checkWithBaseline.maxAllowed).toBe(totalTries);
+  });
+
+  afterEach(() => {
+    ServerCharacterContextRegistry.clearAll();
+  });
+
+  afterAll(() => {
+    ServerCharacterContextRegistry.clearAll();
   });
 });
 

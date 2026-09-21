@@ -1025,10 +1025,53 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
                 });
               }
             }
-            if (event.type === 'melee-hit' || event.type === 'projectile-hit') {
-              const targetView = views.get(event.targetId);
-              const targetPos = targetView ? targetView.root.position : (actorPosition(state, event.targetId) ? worldPoint(actorPosition(state, event.targetId)!) : null);
-              const mapping = visualAssets.effects[String(event.effectId)];
+            if (event.type === 'spawn-visual') {
+              const targetPos = event.position
+                ? worldPoint(event.position)
+                : (event.targetId && views.get(event.targetId)
+                  ? views.get(event.targetId)!.root.position
+                  : (event.targetId && actorPosition(state, event.targetId)
+                    ? worldPoint(actorPosition(state, event.targetId)!)
+                    : null));
+              const effId = event.effectId || 11;
+              const mapping = visualAssets.effects[String(effId)];
+              if (targetPos && mapping && mapping.frames && mapping.frames.length > 0) {
+                const root = new Container();
+                root.position.set(targetPos.x, targetPos.y);
+                root.zIndex = targetPos.y * 10 + 60;
+                const firstUrl = mapping.frames[0].publicUrl;
+                const effTex = getCombatTexture(firstUrl) || Texture.EMPTY;
+                const sprite = new Sprite(effTex);
+                sprite.anchor.set(0.5);
+                sprite.roundPixels = true;
+                if (sprite.texture === Texture.EMPTY) {
+                  getCombatTexture(firstUrl, (loadedTex) => {
+                    if (!sprite.destroyed) sprite.texture = loadedTex;
+                  });
+                }
+                root.addChild(sprite);
+                effects.addChild(root);
+                timed.push({
+                  root,
+                  sprite,
+                  startedAt: now,
+                  durationMs: Math.max(350, mapping.frames.length * 65),
+                  kind: 'effect',
+                  frames: mapping.frames.map((frame) => frame.publicUrl),
+                });
+              }
+            }
+            if (
+              event.type === 'melee-hit' ||
+              event.type === 'projectile-hit' ||
+              event.type === 'heal-applied' ||
+              (event.type === 'spell-cast-visual' && Boolean(event.effectId))
+            ) {
+              const effId = (event as any).effectId;
+              const targetId = (event as any).targetId;
+              const targetView = targetId ? views.get(targetId) : undefined;
+              const targetPos = targetView ? targetView.root.position : (targetId && actorPosition(state, targetId) ? worldPoint(actorPosition(state, targetId)!) : null);
+              const mapping = effId ? visualAssets.effects[String(effId)] : undefined;
               if (targetPos && mapping && mapping.frames && mapping.frames.length > 0) {
                 const root = new Container();
                 root.position.set(targetPos.x, targetPos.y);
