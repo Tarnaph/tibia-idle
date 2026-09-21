@@ -704,7 +704,6 @@ function executeKnightChallenge(state: GameState, content: GameContent, encounte
   if (knightActor.mana < 30) return;
   if ((knightActor.groupCooldowns['support'] ?? 0) > encounter.elapsedMs) return;
   if ((knightActor.spellCooldowns['93'] ?? 0) > encounter.elapsedMs) return;
-  if ((knightActor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return;
 
   const nonKnightActors = livingActors.filter((a) => a.characterId !== knightActor.characterId);
   const isSolo = nonKnightActors.length === 0;
@@ -729,7 +728,6 @@ function executeKnightChallenge(state: GameState, content: GameContent, encounte
   knightActor.mana -= 30;
   knightActor.groupCooldowns['support'] = encounter.elapsedMs + 2000;
   knightActor.spellCooldowns['93'] = encounter.elapsedMs + 2000;
-  knightActor.groupCooldowns['potion'] = Math.max(knightActor.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
 
   // 1. Fala sobre a cabeça do Knight
   encounter.events.push({
@@ -940,7 +938,7 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
       const isIgnored = (name: string) => ignoredList.length > 0 && ignoredList.includes(name.trim().toLowerCase());
 
       // 1. POTIONS AUTO-TRIGGER
-      if (action.kind === 'potion' && !usedPotionThisTick && !usedSpellThisTick) {
+      if (action.kind === 'potion' && !usedPotionThisTick) {
         const potion = action.potion;
         if ((actor.groupCooldowns['potion'] ?? 0) <= encounter.elapsedMs) {
           let conditionMet = false;
@@ -978,9 +976,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
 
             encounter.rngState = rng.state;
             actor.groupCooldowns['potion'] = encounter.elapsedMs + Math.max(1000, potion.cooldownMs);
-            actor.groupCooldowns['healing'] = Math.max(actor.groupCooldowns['healing'] ?? 0, encounter.elapsedMs + 1000);
-            actor.groupCooldowns['attack'] = Math.max(actor.groupCooldowns['attack'] ?? 0, encounter.elapsedMs + 1000);
-            actor.groupCooldowns['support'] = Math.max(actor.groupCooldowns['support'] ?? 0, encounter.elapsedMs + 1000);
 
             const speechText = potionDetails.fromGold ? `Aaaah... (-${potionDetails.cost}gp)` : 'Aaaah...';
             encounter.events.push({
@@ -1074,7 +1069,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                 targetActor.hp += healed;
                 encounter.rngState = rng.state;
                 actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
-                actor.groupCooldowns['potion'] = Math.max(actor.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
 
                 encounter.events.push({
                   type: 'spell-cast',
@@ -1096,7 +1090,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
                 addLog(state, `${character.name} usou ${rune.name} em ${targetCharacter.name} e curou ${healed}.`);
                 syncCharacterResources(state, targetActor);
                 usedSpellThisTick = true;
-                usedPotionThisTick = true;
               }
             }
           }
@@ -1180,7 +1173,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
               actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
               actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
-              actor.groupCooldowns['potion'] = Math.max(actor.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
 
               const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
 
@@ -1243,14 +1235,13 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               syncCharacterResources(state, actor);
               usedOffensiveActionThisTick = true;
               usedSpellThisTick = true;
-              usedPotionThisTick = true;
             }
           }
         }
       }
 
       // 3. SPELLS AUTO-TRIGGER
-      if (action.kind === 'spell' && !usedSpellThisTick && !usedPotionThisTick) {
+      if (action.kind === 'spell' && !usedSpellThisTick) {
         const spell = action.spell;
         const isOffensive = spell.group === 'attack';
         if (isOffensive && (!allowOffensive || usedOffensiveActionThisTick)) continue;
@@ -1472,7 +1463,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             actor.nextAttackAt = encounter.elapsedMs + spell.groupCooldownMs;
             usedOffensiveActionThisTick = true;
           }
-          actor.groupCooldowns['potion'] = Math.max(actor.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
 
           const spellSpeech = formatSpellWords(spell.words);
           const projectileId = spell.visual.projectileId === 'weapon-type' ? resolveWeaponProjectile(character, content) : spell.visual.projectileId;
@@ -1486,7 +1476,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             addLog(state, `${character.name} usou ${spell.name} e curou ${healed}.`);
             syncCharacterResources(state, targetActor);
             usedSpellThisTick = true;
-            usedPotionThisTick = true;
           } else if (spell.group === 'support' && targetActor) {
             const isChallenge = spell.spellId === 93 || spell.words.toLowerCase().includes('exeta') || spell.name.toLowerCase().includes('challenge');
             if (isChallenge) {
@@ -1531,7 +1520,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               });
               addLog(state, `${character.name} usou Exeta res e desafiou os monstros!`);
               usedSpellThisTick = true;
-              usedPotionThisTick = true;
             } else {
               const duration = spell.formula.durationMs ?? (spell.words.includes('utamo') ? 200_000 : 33_000);
               if (spell.words.includes('utamo')) actor.magicShieldUntil = encounter.elapsedMs + duration;
@@ -1542,7 +1530,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               encounter.events.push({ type: 'spell-visual', sourceId: actor.characterId, targetId: actor.characterId, spellId: spell.spellId, effectId: spell.visual.effectId, projectileId });
               addLog(state, `${character.name} usou ${spell.name}.`);
               usedSpellThisTick = true;
-              usedPotionThisTick = true;
             }
           } else {
             if (spell.area === 'square-1x1') {
@@ -1604,7 +1591,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               addLog(state, `${character.name} usou ${spell.name}.`);
             }
             usedSpellThisTick = true;
-            usedPotionThisTick = true;
           }
           syncCharacterResources(state, actor);
         }
@@ -1637,7 +1623,6 @@ export function triggerManualHotbarAction(
       if (!character.combatState.groupCooldowns) character.combatState.groupCooldowns = {};
 
       if ((character.combatState.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
-      if ((character.combatState.groupCooldowns['healing'] ?? 0) > encounter.elapsedMs) return false;
 
       const potionDetails = { fromGold: false, cost: 0 };
       const consumed = consumePotionFromInventory(state, potion.id, character.name, potionDetails);
@@ -1654,9 +1639,6 @@ export function triggerManualHotbarAction(
         character.currentMana += restoredMana;
       }
       character.combatState.groupCooldowns['potion'] = encounter.elapsedMs + Math.max(1000, potion.cooldownMs);
-      character.combatState.groupCooldowns['healing'] = Math.max(character.combatState.groupCooldowns['healing'] ?? 0, encounter.elapsedMs + 1000);
-      character.combatState.groupCooldowns['attack'] = Math.max(character.combatState.groupCooldowns['attack'] ?? 0, encounter.elapsedMs + 1000);
-      character.combatState.groupCooldowns['support'] = Math.max(character.combatState.groupCooldowns['support'] ?? 0, encounter.elapsedMs + 1000);
       const goldLog = potionDetails.fromGold ? ` (-${potionDetails.cost} gold da Caixa da Party)` : '';
       addLog(state, `${character.name} usou ${potion.name}${goldLog}.`);
       return true;
@@ -1672,12 +1654,10 @@ export function triggerManualHotbarAction(
 
       if ((character.combatState.spellCooldowns[String(spell.spellId)] ?? 0) > encounter.elapsedMs) return false;
       if ((character.combatState.groupCooldowns[spell.group] ?? 0) > encounter.elapsedMs) return false;
-      if ((character.combatState.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
 
       character.currentMana -= spell.mana;
       character.combatState.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + (spell.cooldownMs ?? 1000);
       character.combatState.groupCooldowns[spell.group] = encounter.elapsedMs + (spell.groupCooldownMs ?? 1000);
-      character.combatState.groupCooldowns['potion'] = Math.max(character.combatState.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
 
       if (spell.group === 'healing') {
         const stats = deriveStats(character, content.equipment, vocationFor(content, character.vocation));
@@ -1713,7 +1693,6 @@ export function triggerManualHotbarAction(
   if (action.kind === 'potion') {
     const potion = action.potion;
     if ((actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
-    if ((actor.groupCooldowns['healing'] ?? 0) > encounter.elapsedMs) return false;
 
     const potionDetails = { fromGold: false, cost: 0 };
     const consumed = consumePotionFromInventory(state, potion.id, character.name, potionDetails);
@@ -1739,9 +1718,6 @@ export function triggerManualHotbarAction(
 
     encounter.rngState = rng.state;
     actor.groupCooldowns['potion'] = encounter.elapsedMs + Math.max(1000, potion.cooldownMs);
-    actor.groupCooldowns['healing'] = Math.max(actor.groupCooldowns['healing'] ?? 0, encounter.elapsedMs + 1000);
-    actor.groupCooldowns['attack'] = Math.max(actor.groupCooldowns['attack'] ?? 0, encounter.elapsedMs + 1000);
-    actor.groupCooldowns['support'] = Math.max(actor.groupCooldowns['support'] ?? 0, encounter.elapsedMs + 1000);
 
     const speechText = potionDetails.fromGold ? `Aaaah... (-${potionDetails.cost}gp)` : 'Aaaah...';
     encounter.events.push({
@@ -1776,7 +1752,7 @@ export function triggerManualHotbarAction(
   // 2. Rune manual trigger
   if (action.kind === 'rune') {
     const rune = action.rune;
-    if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
+    if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs) return false;
     const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : null;
     const candidates = lockedTarget ? [lockedTarget] : encounter.enemies.filter((enemy) => enemy.alive);
     const inRange = candidates
@@ -1827,7 +1803,6 @@ export function triggerManualHotbarAction(
     encounter.rngState = rng.state;
     actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
     actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
-    actor.groupCooldowns['potion'] = Math.max(actor.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
     actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
     const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
@@ -1896,7 +1871,6 @@ export function triggerManualHotbarAction(
   if (actor.mana < spell.mana) return false;
   if ((actor.spellCooldowns[String(spell.spellId)] ?? 0) > encounter.elapsedMs) return false;
   if ((actor.groupCooldowns[spell.group] ?? 0) > encounter.elapsedMs) return false;
-  if ((actor.groupCooldowns['potion'] ?? 0) > encounter.elapsedMs) return false;
   const isOffensive = spell.group === 'attack';
   if (isOffensive && (actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs) return false;
 
@@ -1980,7 +1954,6 @@ export function triggerManualHotbarAction(
   }
   actor.spellCooldowns[String(spell.spellId)] = encounter.elapsedMs + spell.cooldownMs;
   actor.groupCooldowns[spell.group] = encounter.elapsedMs + spell.groupCooldownMs;
-  actor.groupCooldowns['potion'] = Math.max(actor.groupCooldowns['potion'] ?? 0, encounter.elapsedMs + 1000);
   if (isOffensive) {
     actor.groupCooldowns['attack'] = encounter.elapsedMs + spell.groupCooldownMs;
     actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;

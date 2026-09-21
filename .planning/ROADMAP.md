@@ -3951,6 +3951,18 @@ Plans:
 
 - [x] 216-01-PLAN: Criação de `scripts/build-combat-atlas.mjs` gerando `combat-fx-atlas.png` (488KB) e `combat-fx-atlas.json` (5865 aliases), carregamento de atlas via `Assets.load` no `PixiArena.tsx`, função `getCombatTexture(url, onLoaded)` resiliente a falhas de cache, correção de coordenadas de projéteis em `addSpellVisual`, associação de `sprite` no `TimedVisual` para atualização dinâmica de frames no ticker, e inclusão em `assetPreloader.ts` e `huntAssetPreloader.ts`.
 
+### Phase 217: Cooldown/Exhaust Decoupling, Alt Level/XP Persistence, Outfit Isolation & Squad Re-login Preservation
+
+**Goal:** Resolver integralmente os dois problemas de gameplay e persistência reportados pelo usuário: (1) Desacoplar por completo os cooldowns de poções vs magias e runas de acordo com a regra autêntica do Tibia 10.98+ (poção possui exhaust independente de 1s e NUNCA trava magias de ataque, cura ou suporte, e vice-versa); (2) Garantir persistência confiável de nível, XP (level 32 nos cyclops) e skills de alts da mesma conta sem rejeição de sessão ou bloqueio por taxa de cidade, isolando outfits de alts contra contaminação cruzada no socket Colyseus do líder, e preservando a composição da party (Squad) ativa entre re-logins.
+**Requirements:** `FIX.md` e prompt do usuário.
+**Depends on:** Phase 216
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 217-01-PLAN: Desacoplamento de `groupCooldowns['potion']` de todas as magias e runas em `packages/domain/src/combat.ts`, suporte a `leaderCharacterId` e `sessionId` em `CharacterService.saveCharacterProgress` e na rota `/api/characters/[id]/save`, isolamento de `sendChangeOutfit` em `GamePrototype.tsx` para não alterar o líder quando o alt troca de roupa/montaria, salvamento de cores completas e addons de alts, persistência e restauração do Squad via `localStorage` e suíte de testes dedicada `tests/phase217-exhaust-and-party-persistence.test.ts`.
+
+
 
 
 

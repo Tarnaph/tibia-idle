@@ -1674,6 +1674,32 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             poolChars.forEach((ch: CharacterState) => map.set(ch.id, ch));
             return Array.from(map.values());
           });
+
+          // Restore squad members active in previous session for this character
+          const savedSquadRaw = typeof window !== 'undefined' ? localStorage.getItem(`cavebound_squad_${userChar.id}`) : null;
+          if (savedSquadRaw) {
+            try {
+              const savedSquadIds = JSON.parse(savedSquadRaw) as string[];
+              if (Array.isArray(savedSquadIds) && savedSquadIds.length > 1) {
+                const restoredAlts = poolChars.filter((pc: CharacterState) => pc.id !== userChar.id && savedSquadIds.includes(pc.id));
+                if (restoredAlts.length > 0) {
+                  setGame((cur) => {
+                    const existingIds = new Set(cur.session.characters.map((c) => c.id));
+                    const toAdd = restoredAlts.filter((m: CharacterState) => !existingIds.has(m.id));
+                    if (toAdd.length === 0) return cur;
+                    return {
+                      ...cur,
+                      session: {
+                        ...cur.session,
+                        characters: [...cur.session.characters, ...toAdd].slice(0, 4),
+                      },
+                    };
+                  });
+                  setPartyMemberIds((prev) => Array.from(new Set([userChar.id, ...prev, ...restoredAlts.map((m: CharacterState) => m.id)])));
+                }
+              }
+            } catch {}
+          }
         }
       })
       .catch((err) => {
@@ -1741,6 +1767,18 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       );
     }
   }, [initialSelection, handleSelectCharacter]);
+
+  // Persist active party squad composition under leader ID for instant session restoration
+  useEffect(() => {
+    const leaderId = game.session.leaderId || game.session.characters[0]?.id;
+    if (!leaderId || typeof window === 'undefined') return;
+    const currentSquadIds = game.session.characters.map((c) => c.id);
+    if (currentSquadIds.length > 0) {
+      try {
+        localStorage.setItem(`cavebound_squad_${leaderId}`, JSON.stringify(currentSquadIds));
+      } catch {}
+    }
+  }, [game.session.characters, game.session.leaderId]);
 
   const leader = leaderOf(game);
   const activeCharacter = selectedCharacterOf(game);
@@ -2157,7 +2195,16 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               vocationName: alt.vocation,
               promotion: alt.promotion,
               outfit: alt.outfit,
+              outfitHead: (alt as any).outfitColors?.head ?? (alt as any).outfitHead ?? 0,
+              outfitBody: (alt as any).outfitColors?.body ?? (alt as any).outfitColors?.primary ?? (alt as any).outfitBody ?? 0,
+              outfitLegs: (alt as any).outfitColors?.legs ?? (alt as any).outfitColors?.secondary ?? (alt as any).outfitLegs ?? 0,
+              outfitFeet: (alt as any).outfitColors?.feet ?? (alt as any).outfitColors?.detail ?? (alt as any).outfitFeet ?? 0,
+              outfitAddons: (alt as any).addons ?? (alt as any).outfitAddons ?? 0,
+              mount: alt.mount || 'none',
+              mountActive: Boolean(alt.mountActive),
               saveVersion: altVersion,
+              sessionId: gameNetwork.LocalPlayerId || activeSessionIdRef.current || undefined,
+              leaderCharacterId: primaryChar.id,
               isHunting: mode === 'hunt' || isTrainingAtDummy,
               lastHuntId: mode === 'hunt' ? (game.encounter.hunt?.id || 'cyclops-camp') : undefined,
             }),
@@ -2173,9 +2220,16 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             if (typeof altJson?.data?.saveVersion === 'number') {
               characterSaveVersionsRef.current.set(alt.id, altJson.data.saveVersion);
             }
+          } else {
+            let errorText = '';
+            try {
+              const errBody = (await altRes.json()) as any;
+              errorText = errBody?.message || errBody?.error || '';
+            } catch {}
+            clientErrorLogger.warn('SAVE_ALT_FAILED', `Falha ao salvar alt ${alt.name} (${alt.id}) status ${altRes.status}: ${errorText}`);
           }
-        } catch {
-          // Alt save error handled
+        } catch (altErr: any) {
+          clientErrorLogger.warn('SAVE_ALT_EXCEPTION', `Exceção ao salvar alt ${alt.name} (${alt.id}): ${altErr?.message || altErr}`);
         }
       }
       return true;
@@ -2398,12 +2452,50 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     outfitDiagnostics.recordSaveCallback(customization, outfitSaveAttemptIdRef.current || undefined);
     outfitDiagnostics.recordNetworkDispatch(outfitSaveAttemptIdRef.current || undefined);
 
-    // Broadcast outfit change to live Colyseus server so all remote players update instantly
-    gameNetwork.sendChangeOutfit(customization);
+    const isPrimaryPlayer = characterId === (latestSaveStateRef.current.activeCharacter?.id || latestSaveStateRef.current.onlineCharacter?.id);
+    if (isPrimaryPlayer) {
+      // Broadcast outfit change to live Colyseus server only for the primary character connected via WebSocket
+      gameNetwork.sendChangeOutfit(customization);
 
-    // Persist permanently to database with unified authoritative state
-    if (saveProgressRef.current) {
-      saveProgressRef.current(false, true).catch(() => {});
+      // Persist permanently to database with unified authoritative state
+      if (saveProgressRef.current) {
+        saveProgressRef.current(false, true).catch(() => {});
+      }
+    } else {
+      // Isolate alt outfits: save directly to alt API endpoint with full colors, addons and mount
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
+      if (token) {
+        const altVersion = characterSaveVersionsRef.current.get(characterId) || 1;
+        fetch(`/api/characters/${characterId}/save`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            outfit: customization.outfit,
+            outfitHead: customization.outfitColors?.head ?? 0,
+            outfitBody: (customization.outfitColors as any)?.body ?? customization.outfitColors?.primary ?? 0,
+            outfitLegs: (customization.outfitColors as any)?.legs ?? customization.outfitColors?.secondary ?? 0,
+            outfitFeet: (customization.outfitColors as any)?.feet ?? customization.outfitColors?.detail ?? 0,
+            outfitAddons: customization.addons ?? 0,
+            mount: customization.mount || 'none',
+            mountActive: Boolean(customization.mountActive),
+            saveVersion: altVersion,
+            sessionId: gameNetwork.LocalPlayerId || activeSessionIdRef.current || undefined,
+            leaderCharacterId: latestSaveStateRef.current.activeCharacter?.id || latestSaveStateRef.current.onlineCharacter?.id,
+          }),
+        })
+          .then((res) => res.json())
+          .then((json: any) => {
+            if (typeof json?.data?.saveVersion === 'number') {
+              characterSaveVersionsRef.current.set(characterId, json.data.saveVersion);
+            }
+          })
+          .catch((err) => {
+            clientErrorLogger.warn('OUTFIT_ALT_SAVE', `Falha ao salvar outfit do alt ${characterId}: ${err?.message || err}`);
+          });
+      }
     }
   }, []);
 
@@ -2471,12 +2563,42 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         targetDir
       ).catch(() => {});
 
-      gameNetwork.sendChangeOutfit({ mount: effectiveMount });
-      gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
-
-      outfitSaveActiveRef.current = true;
-      if (saveProgressRef.current) {
-        saveProgressRef.current(false, true).catch(() => {});
+      const isPrimaryPlayer = target.id === (latestSaveStateRef.current.activeCharacter?.id || latestSaveStateRef.current.onlineCharacter?.id);
+      if (isPrimaryPlayer) {
+        gameNetwork.sendChangeOutfit({ mount: effectiveMount });
+        gameNetwork.sendChangeOutfit({ mountActive: nextMountActive });
+        outfitSaveActiveRef.current = true;
+        if (saveProgressRef.current) {
+          saveProgressRef.current(false, true).catch(() => {});
+        }
+      } else {
+        const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
+        if (token) {
+          const altVersion = characterSaveVersionsRef.current.get(target.id) || 1;
+          fetch(`/api/characters/${target.id}/save`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              mount: effectiveMount,
+              mountActive: nextMountActive,
+              saveVersion: altVersion,
+              sessionId: gameNetwork.LocalPlayerId || activeSessionIdRef.current || undefined,
+              leaderCharacterId: latestSaveStateRef.current.activeCharacter?.id || latestSaveStateRef.current.onlineCharacter?.id,
+            }),
+          })
+            .then((res) => res.json())
+            .then((json: any) => {
+              if (typeof json?.data?.saveVersion === 'number') {
+                characterSaveVersionsRef.current.set(target.id, json.data.saveVersion);
+              }
+            })
+            .catch((err) => {
+              clientErrorLogger.warn('MOUNT_ALT_SAVE', `Falha ao salvar montaria do alt ${target.id}: ${err?.message || err}`);
+            });
+        }
       }
 
       setSaleMessage(nextMountActive ? '🐎 Você montou na sua montaria!' : '🚶 Você desmontou da montaria.');

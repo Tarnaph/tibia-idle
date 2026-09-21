@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-09-20T14:15:00.000Z"
-last_activity: "2026-09-20 — Phase 216: Combat FX Atlas & PixiJS v8 Texture Resolution concluída e testada com sucesso."
+last_updated: "2026-09-21T16:30:00.000Z"
+last_activity: "2026-09-21 — Phase 217: Cooldown/Exhaust Decoupling, Alt Level/XP Persistence, Outfit Isolation & Squad Re-login Preservation concluída e testada com sucesso."
 progress:
-  total_phases: 216
-  completed_phases: 216
-  total_plans: 296
-  completed_plans: 296
+  total_phases: 217
+  completed_phases: 217
+  total_plans: 297
+  completed_plans: 297
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 216 - Combat FX Atlas & PixiJS v8 Texture Resolution [CONCLUÍDA].
+**Current focus:** Phase 217 - Cooldown/Exhaust Decoupling, Alt Level/XP Persistence, Outfit Isolation & Squad Re-login Preservation [CONCLUÍDA].
 
 ## Current Position
 
-Phase: 216 of 216  
-Plan: 1 of 1 in Phase 216  
+Phase: 217 of 217  
+Plan: 1 of 1 in Phase 217  
 Status: Complete ✅  
-Last activity: 2026-09-20 — Criação do atlas unificado de combate (combat-fx-atlas.png de 488KB com 1955 frames de 32x32 e 5865 aliases no combat-fx-atlas.json), resolução da falha crítica do PixiJS v8 onde Texture.from() retornava undefined e deixava sprites invisíveis, ajuste de addSpellVisual, projectile-launched e melee-hit (sangue/block) com getCombatTexture resiliente. 100% testado e validado.
+Last activity: 2026-09-21 — Desacoplamento total de cooldowns de poções vs magias e runas (regra autêntica Tibia 10.98+ com poções tendo exhaust próprio de 1s e nunca silenciando magias), suporte a leaderCharacterId e sessionId no CharacterService e na API save para herança legítima de contexto em caçadas de alts da mesma conta (Cerberus salvando level 32 sem erro 503 nem 400), isolamento de outfits e montarias de alts para eliminar contaminação cruzada no socket Colyseus do líder, e preservação automática da composição do Squad/Party entre logins via localStorage. 100% testado (13/13 vitest) e 0 erros no typecheck.
 
 Progress: [██████████] 100%
 

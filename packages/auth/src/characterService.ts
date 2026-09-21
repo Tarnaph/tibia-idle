@@ -459,7 +459,9 @@ export class CharacterService {
       saveVersion?: number;
       isDeathPenalty?: boolean;
       sessionId?: string;
+      leaderCharacterId?: string;
       isHunting?: boolean;
+      lastHuntId?: string;
       displaySkull?: boolean;
       pvpElo?: number;
       pvpTier?: string;
@@ -496,13 +498,36 @@ export class CharacterService {
         (data as any).gold !== undefined;
 
       if (!options?.isInternal && (isProgressionSave || data.sessionId)) {
-        const context = await ServerCharacterContextRegistry.getContextAsync(characterId);
+        let context = await ServerCharacterContextRegistry.getContextAsync(characterId);
+        let leaderContext: any = null;
+
+        // If this character is an alt saving under an active party leader of the same account:
+        if (data.leaderCharacterId && data.leaderCharacterId !== characterId) {
+          const leaderChar = await this.prisma.character.findUnique({
+            where: { id: data.leaderCharacterId },
+            select: { accountId: true },
+          });
+          if (leaderChar && leaderChar.accountId === existing.accountId) {
+            leaderContext = await ServerCharacterContextRegistry.getContextAsync(data.leaderCharacterId);
+            if (!context.activeSessionId && (data.sessionId || leaderContext.activeSessionId)) {
+              const effectiveSession = data.sessionId || leaderContext.activeSessionId;
+              ServerCharacterContextRegistry.setActivity(characterId, {
+                isHunting: Boolean(data.isHunting ?? leaderContext.isHunting ?? context.isHunting),
+                huntId: data.lastHuntId || (data as any).huntId || leaderContext.huntId || context.huntId,
+                activeSessionId: effectiveSession,
+                lastActiveSessionId: effectiveSession,
+              });
+              context = await ServerCharacterContextRegistry.getContextAsync(characterId);
+            }
+          }
+        }
+
         const activeSession = context.activeSessionId;
         const lastSession = context.lastActiveSessionId;
 
         // Quando o serviço de contexto estiver indisponível:
         // Informação desatualizada de cache NÃO pode autorizar a gravação!
-        if (!context.isServiceAvailable) {
+        if (!context.isServiceAvailable && !leaderContext?.isContextKnown) {
           if (lastSession && data.sessionId !== lastSession) {
             throw new SessionSupersededError(
               `Sessão ${data.sessionId || 'UNKNOWN'} é anterior à última sessão confirmada (${lastSession}) para o personagem ${characterId}. Gravação rejeitada.`,
@@ -515,7 +540,7 @@ export class CharacterService {
         }
 
         if (activeSession) {
-          if (!data.sessionId || data.sessionId !== activeSession) {
+          if (!data.sessionId || (data.sessionId !== activeSession && (!leaderContext || data.sessionId !== leaderContext.activeSessionId))) {
             throw new SessionSupersededError(
               `Sessão ${data.sessionId || 'UNKNOWN'} foi sobreposta pela sessão ativa ${activeSession} para o personagem ${characterId}. Gravação rejeitada para preservar compras, perdas e progresso legítimo.`,
               activeSession
@@ -526,8 +551,8 @@ export class CharacterService {
           // As the authenticated character owner is actively saving progress, adopt the incoming session as the new confirmed
           // session lease in the context registry so legitimate progression and hunt exits are never rejected.
           ServerCharacterContextRegistry.setActivity(characterId, {
-            isHunting: Boolean(data.isHunting ?? context.isHunting),
-            huntId: data.isHunting ? (data as any).huntId || context.huntId : undefined,
+            isHunting: Boolean(data.isHunting ?? context.isHunting ?? leaderContext?.isHunting),
+            huntId: data.lastHuntId || (data as any).huntId || (data.isHunting ? (data as any).huntId || context.huntId : undefined),
             activeSessionId: data.sessionId,
             lastActiveSessionId: data.sessionId,
           });
@@ -620,7 +645,21 @@ export class CharacterService {
         const deltaExp = targetExp - unvalidatedBaseline;
 
         if (deltaExp > 0 && !options?.isInternal && !(data as any).isManualAdminGrant) {
-          const contextResult = await ServerCharacterContextRegistry.getContextAsync(characterId);
+          let contextResult = await ServerCharacterContextRegistry.getContextAsync(characterId);
+          let leaderContext: any = null;
+          if (data.leaderCharacterId && data.leaderCharacterId !== characterId) {
+            leaderContext = await ServerCharacterContextRegistry.getContextAsync(data.leaderCharacterId);
+            if (leaderContext.isContextKnown) {
+              contextResult = {
+                ...contextResult,
+                isContextKnown: true,
+                isServiceAvailable: true,
+                isHunting: Boolean(contextResult.isHunting || leaderContext.isHunting),
+                huntId: contextResult.huntId || leaderContext.huntId,
+              };
+            }
+          }
+
           if (!contextResult.isServiceAvailable || contextResult.isContextKnown === false) {
             throw new ContextPendingError(
               `Contexto do personagem ${characterId} em sincronização ou serviço reiniciando. Salvamento postergado até restabelecimento da sessão.`
@@ -629,17 +668,23 @@ export class CharacterService {
 
           const hasHuntEvidence = Boolean(
             (existing as any)?.lastHuntId ||
+            data.lastHuntId ||
             (data as any)?.lastHuntId ||
             (existing as any)?.isHunting ||
-            contextResult.isHunting
+            contextResult.isHunting ||
+            leaderContext?.isHunting ||
+            leaderContext?.huntId ||
+            data.isHunting
           );
 
           const isHunting = options?.isInternal
             ? Boolean(options?.isHunting)
             : Boolean(
                 contextResult.isHunting ||
+                leaderContext?.isHunting ||
                 (existing as any)?.isHunting ||
-                (data.isHunting && hasHuntEvidence)
+                data.isHunting ||
+                hasHuntEvidence
               );
 
           const lastSavedAtMs = existing.lastSavedAt instanceof Date
