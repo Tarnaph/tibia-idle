@@ -15,16 +15,15 @@ export class PrismaPersistenceManager {
    * Persists a single player's current runtime state to PostgreSQL via Prisma.
    * Uses CharacterSaveLockManager to serialize writes and prevents dirty/concurrent saves.
    */
-  async saveCharacter(player: PlayerState): Promise<void> {
+  async saveCharacter(player: PlayerState, options?: { allowInHunt?: boolean }): Promise<void> {
     if (!player.characterId || player.characterId.startsWith('char-guest')) {
       // Skip mock / guest IDs not in database
       return;
     }
 
-    // Defensive Authority Guard: During an active hunt, the hunt session / client
-    // is the sole authority for character progression, inventory, skills, and state.
-    // Colyseus must NEVER write stale city stats or bump saveVersion during hunts.
-    if (Boolean(player.inHunt) || ServerCharacterContextRegistry.isHunting(player.characterId)) {
+    // Defensive Authority Guard: During an active hunt, the city room must not overwrite hunt stats.
+    // When saved authoritatively from HuntDungeonRoom (allowInHunt: true), persistence is allowed.
+    if (!options?.allowInHunt && (Boolean(player.inHunt) || ServerCharacterContextRegistry.isHunting(player.characterId))) {
       return;
     }
 

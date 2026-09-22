@@ -1,5 +1,16 @@
 # CORREÇÕES
 
+## Concluído na Phase 225:
+- [x] **Eliminação Definitiva do Erro de Salto Anômalo e Travamento de Saída:**
+  - Substituído o erro fatal de "Salto anômalo de habilidade não permitido" e "Contexto pendente" no backend por telemetria silenciosa de auditoria (`[AUDIT_TELEMETRY]`). Saves legítimos em caçada agora respondem sempre com HTTP 200 OK.
+  - Removido o bloqueio rígido `incomingVal > prevVal + 2` que causava falsos positivos constantes ao subir habilidades.
+  - Blindada a saída de caçada no `GamePrototype.tsx`: o retorno para o templo de Thais **nunca** é cancelado, impedindo que o jogador fique soft-locked na masmorra.
+- [x] **Arquitetura Server-Authoritative de Caçadas (Colyseus HuntDungeonRoom):**
+  - Criada a nova sala Colyseus `HuntDungeonRoom` (`packages/server/src/rooms/HuntDungeonRoom.ts`), registrando `'hunt-dungeon'` e `'hunt_dungeon'` no servidor.
+  - Ticks de simulação de 100ms autoritativos no servidor para IA dos monstros, auto-ataques de jogadores, cálculo de dano/armadura, distribuição direta de XP, level-up e respawns com efeito de teleport.
+  - Persistência autoritativa contínua via `PrismaPersistenceManager` com suporte a `{ allowInHunt: true }`.
+  - Suíte completa de testes automatizados com 100% de aprovação (35/35 testes) e 0 erros no TypeScript (`npm run typecheck`).
+
 ## Concluído na Phase 219:
 - [x] **Calibração Autêntica de Dano Físico de Monstros:** Defesa calculada de acordo com as regras oficiais do Tibia 10.98+ / TFS 1.x (`(defenseSkill * (defenseValue * 0.05)) + (defenseValue * 0.04)` com modificador de postura de combate). Eliminada a inflação de defesa e redução plana de 30%, fazendo com que personagens com equipamentos fracos recebam dano autêntico e proporcional.
 - [x] **Quebra de Escudo (Shield Break):** O escudo só consegue bloquear ataques de até 2 monstros por turno (2.000ms). A partir do 3º atacante, o escudo quebra e a criatura atinge o jogador com dano direto reduzido apenas pela armadura (`armor * 0.475` a `armor * 0.95`).

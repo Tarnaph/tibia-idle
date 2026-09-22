@@ -44,13 +44,13 @@ describe('Phase 182.2 - Recuperação Autoritativa de Contexto de Caçada e Prot
 
     const service = new CharacterService(mockPrisma);
 
-    // Cliente envia ganho de +15.000 XP (135.000 total) alegando isHunting: true no payload
+    // Cliente envia ganho de +150.000 XP (270.000 total) alegando isHunting: true no payload
     await expect(
       service.saveCharacterProgress(
         charId,
         {
           level: 20,
-          experience: BigInt(135000),
+          experience: BigInt(270000),
           saveVersion: 10,
           isHunting: true, // tentativa de burlar o orçamento via payload
         } as any,
@@ -58,7 +58,7 @@ describe('Phase 182.2 - Recuperação Autoritativa de Contexto de Caçada e Prot
           isHunting: true, // tentativa de opções de cliente
         }
       )
-    ).rejects.toThrow(/Suspicious XP gain: \+15000 XP exceeds continuous time budget \(max allowed: \+10000\)/);
+    ).rejects.toThrow(/Suspicious XP gain: \+150000 XP exceeds continuous time budget \(max allowed: \+100000\)/);
   });
 
   it('2. Rejeita ganho anômalo de skill quando cliente forja isHunting: true mas servidor registra cidade', async () => {

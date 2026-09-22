@@ -3410,10 +3410,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       saveOk = await saveProgressRef.current?.(false, true);
     }
     if (!saveOk) {
-      console.warn('[GamePrototype] Salvamento final da caçada falhou. Retorno à cidade cancelado para proteger o progresso.');
-      clientErrorLogger.error('HUNT_SAVE', 'Falha ao salvar progresso antes de sair da caçada.', { characterId: activeCharacter?.id });
-      setSaveErrorAlert('Falha ao salvar progresso antes de sair da caçada. Tente novamente.');
-      return;
+      console.warn('[GamePrototype] Salvamento final da caçada falhou ou teve aviso, prosseguindo com retorno seguro à cidade.');
+      clientErrorLogger.error('HUNT_SAVE', 'Falha ao salvar progresso antes de sair da caçada, forçando saída segura.', { characterId: activeCharacter?.id });
     }
 
     gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);

@@ -4049,6 +4049,25 @@ Plans:
 
 - [x] 224-01-PLAN: Priorização de `skeletonMapping` para monstros em `PixiArena.tsx`, cone de onda de fogo direcional em `combat.ts`, exibição de projéteis de monstros na GPU, seleção de alvos secundários para todos os inimigos da sala em runas de área e rotação ininterrupta de Avalanche para Druid.
 
+---
+
+### Phase 225: Arquitetura Server-Authoritative de Caçadas (Colyseus HuntDungeonRoom) & Eliminação Definitiva de Heurísticas Hostis de Save
+
+**Goal:** Implementar a arquitetura MMORPG tradicional (Rota 1) para caçadas no backend com Colyseus e eliminar definitivamente as heurísticas bloqueantes de rate limiter que punem jogadores legítimos:
+1. **Eliminação de Exceções Bloqueantes no Save (`characterService.ts`):** Transformar o `SkillRateLimiter` e `XpRateLimiter` de bloqueadores punitivos (que lançavam erro 400 e prendiam o jogador na caçada) em telemetria silenciosa de auditoria (`[AUDIT_TELEMETRY]`), salvando o progresso do jogador sem interrupções hostis.
+2. **Criação da Sala Colyseus `HuntDungeonRoom`:** Implementar `HuntDungeonRoom.ts` em `packages/server/src/rooms/`, registrando `'hunt-dungeon'` no servidor. A sala executa o loop autoritativo de combate dos monstros e da party com ticks de simulação, sincronizando o estado via Colyseus Schema.
+3. **Persistência Autoritativa sem Dependência do Cliente:** O progresso (XP, vida, mana, drops e skills) é salvo diretamente pelo `PrismaPersistenceManager` do servidor, dispensando envio de totais calculados pelo navegador.
+4. **Suporte Nativo a Party e Futuros World Bosses:** A infraestrutura de salas permite que múltiplos jogadores ingressem na mesma masmorra, compartilhem o combate contra as mesmas criaturas e cooperem em tempo real.
+5. **Validação e Testes:** Suíte de testes abrangente, zero erros no TypeScript (`npm run typecheck`) e script de deploy para a VPS.
+
+**Requirements:** Prompt do usuário, diretrizes MMORPG Server-Authoritative e regras GSD.
+**Depends on:** Phase 224
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 225-01-PLAN: Desarmar bloqueios hostis de save com telemetria silenciosa, criar a sala autoritativa `HuntDungeonRoom` no Colyseus, registrar no servidor e validar suíte de testes.
+
 
 
 

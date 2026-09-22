@@ -677,18 +677,18 @@ describe('Phase 182 - Bloco A: Correção de Progressão, Autoridade na Caçada 
       expect(res1.allowed).toBe(true);
       expect(res1.currentBudget).toBe(140_000);
 
-      // Requisição 2 (t0 + 100ms): em 100ms regenera 0.1s * 9.000 = 900 tentativas. Saldo disponível: 140.900
-      // Consome 85.000 -> Permitida. Saldo restante: 55.900
+      // Requisição 2 (t0 + 100ms): em 100ms regenera 0.1s * 40.000 = 4.000 tentativas. Saldo disponível: 144.000
+      // Consome 85.000 -> Permitida. Saldo restante: 59.000
       const res2 = SkillRateLimiter.consume(charId, triesPerRequest, baseTime + 100, { isHunting: true });
       expect(res2.allowed).toBe(true);
-      expect(res2.currentBudget).toBe(55_900);
+      expect(res2.currentBudget).toBe(59_000);
 
-      // Requisição 3 (t0 + 200ms): em mais 100ms regenera 900 tentativas. Saldo disponível: 56.800
+      // Requisição 3 (t0 + 200ms): em mais 100ms regenera 4.000 tentativas. Saldo disponível: 63.000
       // Tenta consumir 85.000 tentativas (que individualmente cabe com folga em 225.000!).
-      // Como 85.000 > 56.800 disponível, DEVE ser rejeitada por esgotamento acumulado!
+      // Como 85.000 > 63.000 disponível, DEVE ser rejeitada por esgotamento acumulado!
       const res3 = SkillRateLimiter.consume(charId, triesPerRequest, baseTime + 200, { isHunting: true });
       expect(res3.allowed).toBe(false);
-      expect(res3.maxAllowed).toBe(56_800);
+      expect(res3.maxAllowed).toBe(63_000);
     });
 
     it('valida o treino legítimo no dummy urbano (arma + shielding e magia) e garante que o limite urbano não rejeita', async () => {

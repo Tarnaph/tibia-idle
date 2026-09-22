@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-21T21:05:00.000Z"
-last_activity: "2026-09-21 — Conclusão da Phase 224: Skeleton Monster Corpses, Dragon Fire Wave & Complete AoE Runes Resolution."
+last_updated: "2026-09-22T18:16:00.000Z"
+last_activity: "2026-09-22 — Conclusão da Phase 225: Arquitetura Server-Authoritative de Caçadas (Colyseus HuntDungeonRoom) & Eliminação Definitiva de Heurísticas Hostis de Save."
 progress:
-  total_phases: 224
-  completed_phases: 224
-  total_plans: 304
-  completed_plans: 304
+  total_phases: 225
+  completed_phases: 225
+  total_plans: 305
+  completed_plans: 305
   percent: 100
 ---
 
@@ -20,15 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 224 - Concluída com sucesso.
+**Current focus:** Phase 225 - Concluída com sucesso.
 
 ## Current Position
 
-Phase: 224 of 224  
-Plan: 1 of 1 in Phase 224  
+Phase: 225 of 225  
+Plan: 1 of 1 in Phase 225  
 Status: Complete ✅  
-Last activity: 2026-09-21 — Decaimento de corpos de monstros para esqueleto canônico (item 5972), Fire Wave direcional de 8 SQMs para o Dragão com efeito 7 e rugido, projéteis visíveis de monstros na GPU e dano integral em 100% dos monstros para runas de área (Avalanche/GFB).
-
+Last activity: 2026-09-22 — Conclusão da Rota 1 MMORPG: desativação de bloqueios hostis com erro 400 no save por telemetria silenciosa, criação da sala autoritativa HuntDungeonRoom no Colyseus, unblocking de saída de caçadas e suíte de testes 100% aprovada.
 
 Progress: [██████████] 100%
 
