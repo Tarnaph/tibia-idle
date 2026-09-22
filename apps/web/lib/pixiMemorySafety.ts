@@ -18,11 +18,28 @@ export function destroyVisualNode(node: any): void {
       } catch {}
     }
 
-    // Dynamic Text node: destroy texture with { texture: true } so canvas backing store is released
-    if (typeof node.style !== 'undefined' && node._texture) {
+    // Dynamic Text node: in PixiJS v8, node._texture does not exist on Text.
+    // Detect Text, HTMLText and BitmapText instances and destroy texture + textureSource to release WebGL/canvas backing store.
+    const isText =
+      typeof node.style !== 'undefined' ||
+      node.renderPipeId === 'text' ||
+      node.renderPipeId === 'html-text' ||
+      node.isText === true ||
+      (node.constructor && (node.constructor.name === 'Text' || node.constructor.name === 'HTMLText' || node.constructor.name === 'BitmapText'));
+
+    if (isText) {
       try {
-        node.destroy({ texture: true });
-      } catch {}
+        if (node.texture) {
+          try {
+            node.texture.destroy(true);
+          } catch {}
+        }
+        node.destroy({ texture: true, textureSource: true, children: true });
+      } catch {
+        try {
+          node.destroy(true);
+        } catch {}
+      }
       return;
     }
 

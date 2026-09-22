@@ -7047,6 +7047,10 @@ h1, h2, h3, p { margin: 0; }
   color: #d8cbb8;
   padding: 8px;
   font-size: 11px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* ACCOUNT PROFILE CARD */
@@ -7069,17 +7073,18 @@ h1, h2, h3, p { margin: 0; }
   gap: 3px;
   border-bottom: 1px solid #5a4325;
   padding-bottom: 4px;
-  overflow-x: auto;
   width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .metrics-tab-btn {
   background: #1c1512;
   border: 1px solid #3d2b17;
   color: #a09587;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 4px 6px;
+  padding: 4px 3px;
   border-radius: 2px;
   cursor: pointer;
   flex: 1;

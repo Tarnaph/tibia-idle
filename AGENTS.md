@@ -47,4 +47,6 @@ O assistente Antigravity DEVE **sempre utilizar a skill `/gsd`** e o ecossistema
    - Sempre implemente manipulação de `onError` com fallbacks para garantir que nenhum item exiba ícone de interrogação `?` ou imagem quebrada.
    - Consulte a regra completa em `.agents/rules/asset-paths.md`.
 
-
+7. **📋 Diretriz de Triagem e Execução com FIX.md (Anti-Overload & Batching):**
+   - Sempre que o usuário listar múltiplos problemas, ideias ou alterações, o assistente DEVE registrá-los imediatamente no arquivo `FIX.md` para evitar perda de contexto ou tarefas incompletas.
+   - A execução das correções deve ser estruturada em ondas lógicas e ordenadas (1 a 3 tarefas do mesmo subsistema por ciclo), marcando cada item concluído com `[x]` no `FIX.md` após validação estrita em testes e typecheck.

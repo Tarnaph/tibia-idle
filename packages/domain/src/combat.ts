@@ -915,12 +915,12 @@ export function consumePotionFromInventory(
     return true;
   }
 
-  // 3. Em caçadas e testes, se não houver a poção no inventário nem gold, permitir o consumo contínuo automático
+  // 3. Sem a poção no inventário e sem gold suficiente na Caixa da Party: bloquear o consumo
   if (outDetails) {
     outDetails.fromGold = false;
     outDetails.cost = 0;
   }
-  return true;
+  return false;
 }
 
 export function castAutomaticSpells(state: GameState, content: GameContent, allowOffensive = true): void {

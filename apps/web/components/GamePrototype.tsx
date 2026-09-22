@@ -74,7 +74,8 @@ import { WindowManagerProvider, useWindowManager } from './window/WindowManagerC
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
 import { SkillsWindow } from './SkillsWindow';
-import { AdvancedMetricsWindow } from './AdvancedMetricsWindow';
+import { AdvancedMetricsWindow, type HuntAnalyzerData } from './AdvancedMetricsWindow';
+import { HOTBAR_POTIONS, HOTBAR_RUNES, getActionSupplyCost } from '@/packages/domain/src/hotbarActions';
 import { FriendsWindow, type FriendItem } from './window/FriendsWindow';
 import { ChatWindow, type ChatMessageItem, type ChatWindowHandle } from './chat/ChatWindow';
 import { PartyInvitationModal } from './party/PartyInvitationModal';
@@ -357,6 +358,46 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
   const [bossPoints, setBossPoints] = useState<number>(0);
   const [firstKillToast, setFirstKillToast] = useState<string | null>(null);
+
+  // Phase 226: 100% Dynamic Hunt Analyzer State & Title tracking
+  const lastHuntNameRef = useRef<string>('');
+  const [huntAnalyzerData, setHuntAnalyzerData] = useState<HuntAnalyzerData>({
+    huntName: 'Nenhuma caçada ativa',
+    isLive: false,
+    elapsedMs: 0,
+    kills: 0,
+    xpGained: 0,
+    damageDealt: 0,
+    damageTaken: 0,
+    damageByVocation: { knight: 0, druid: 0, sorcerer: 0, paladin: 0 },
+    damageByElement: {},
+    damageTakenByVocation: { knight: 0, druid: 0, sorcerer: 0, paladin: 0 },
+    damageTakenByElement: {},
+    lootGold: 0,
+    lootItems: [],
+    supplyItems: [],
+    totalSupplyCost: 0,
+  });
+
+  const handleResetHuntMetrics = useCallback(() => {
+    setHuntAnalyzerData((prev) => ({
+      ...prev,
+      elapsedMs: 0,
+      kills: 0,
+      xpGained: 0,
+      damageDealt: 0,
+      damageTaken: 0,
+      damageByVocation: { knight: 0, druid: 0, sorcerer: 0, paladin: 0 },
+      damageByElement: {},
+      damageTakenByVocation: { knight: 0, druid: 0, sorcerer: 0, paladin: 0 },
+      damageTakenByElement: {},
+      lootGold: 0,
+      lootItems: [],
+      supplyItems: [],
+      totalSupplyCost: 0,
+    }));
+  }, []);
+
   const [charContextMenu, setCharContextMenu] = useState<{ x: number; y: number; characterId: string } | null>(null);
   const [dummyContextMenu, setDummyContextMenu] = useState<{ dummy: TrainingDummyInfo; x: number; y: number } | null>(null);
   const [receivedPartyInvitation, setReceivedPartyInvitation] = useState<PartyInvitation | null>(null);
@@ -2935,6 +2976,205 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         }
       }
 
+      // Phase 226: Accumulate real-time combat events into the dynamic Hunt Analyzer
+      const currentEvents = next.encounter.events;
+      if (currentEvents && currentEvents.length > 0) {
+        let dDealt = 0;
+        let dTaken = 0;
+        let newKills = 0;
+        let newXp = 0;
+        let newGold = 0;
+        const vocDealt: Record<string, number> = { knight: 0, druid: 0, sorcerer: 0, paladin: 0 };
+        const elemDealt: Record<string, number> = {};
+        const vocTaken: Record<string, number> = { knight: 0, druid: 0, sorcerer: 0, paladin: 0 };
+        const elemTaken: Record<string, number> = {};
+        const newLoot: Array<{ id: number; name: string; count: number; unitValue: number; totalValue: number }> = [];
+        const newSupplies: Array<{ id: number; name: string; count: number; unitCost: number; totalCost: number }> = [];
+
+        for (const ev of currentEvents) {
+          if (ev.type === 'player-attack') {
+            const dmg = ev.damage || 0;
+            if (dmg > 0) {
+              dDealt += dmg;
+              const char = next.session.characters.find((c) => c.id === ev.sourceId);
+              const voc = (char?.vocation?.toLowerCase() || 'knight').includes('druid')
+                ? 'druid'
+                : (char?.vocation?.toLowerCase() || '').includes('sorcerer')
+                ? 'sorcerer'
+                : (char?.vocation?.toLowerCase() || '').includes('paladin')
+                ? 'paladin'
+                : 'knight';
+              vocDealt[voc] = (vocDealt[voc] || 0) + dmg;
+              const elem = ev.element || 'physical';
+              elemDealt[elem] = (elemDealt[elem] || 0) + dmg;
+            }
+          } else if (ev.type === 'spell-cast') {
+            if (!ev.healing) {
+              const amt = ev.amount || 0;
+              const isSourceChar = next.session.characters.some((c) => c.id === ev.sourceId);
+              const isTargetChar = next.session.characters.some((c) => c.id === ev.targetId);
+              if (isSourceChar && amt > 0) {
+                dDealt += amt;
+                const char = next.session.characters.find((c) => c.id === ev.sourceId);
+                const voc = (char?.vocation?.toLowerCase() || 'sorcerer').includes('druid')
+                  ? 'druid'
+                  : (char?.vocation?.toLowerCase() || '').includes('paladin')
+                  ? 'paladin'
+                  : (char?.vocation?.toLowerCase() || '').includes('knight')
+                  ? 'knight'
+                  : 'sorcerer';
+                vocDealt[voc] = (vocDealt[voc] || 0) + amt;
+                const elem = ev.element || 'energy';
+                elemDealt[elem] = (elemDealt[elem] || 0) + amt;
+              } else if (isTargetChar && amt > 0) {
+                dTaken += amt;
+                const char = next.session.characters.find((c) => c.id === ev.targetId);
+                const voc = (char?.vocation?.toLowerCase() || 'knight').includes('druid')
+                  ? 'druid'
+                  : (char?.vocation?.toLowerCase() || '').includes('sorcerer')
+                  ? 'sorcerer'
+                  : (char?.vocation?.toLowerCase() || '').includes('paladin')
+                  ? 'paladin'
+                  : 'knight';
+                vocTaken[voc] = (vocTaken[voc] || 0) + amt;
+                const elem = ev.element || 'energy';
+                elemTaken[elem] = (elemTaken[elem] || 0) + amt;
+              }
+            }
+
+            // Potion or Rune supply consumption
+            const potDef = typeof ev.spellId === 'number'
+              ? HOTBAR_POTIONS.find((p) => p.id === ev.spellId)
+              : ev.speech === 'Aaaah...' ? HOTBAR_POTIONS[0] : null;
+            const runeDef = typeof ev.spellId === 'number' ? HOTBAR_RUNES.find((r) => r.id === ev.spellId) : null;
+            if (potDef) {
+              const cost = getActionSupplyCost(potDef.id);
+              newSupplies.push({
+                id: potDef.id,
+                name: potDef.name,
+                count: 1,
+                unitCost: cost,
+                totalCost: cost,
+              });
+            } else if (runeDef) {
+              const cost = getActionSupplyCost(runeDef.id);
+              newSupplies.push({
+                id: runeDef.id,
+                name: runeDef.name,
+                count: 1,
+                unitCost: cost,
+                totalCost: cost,
+              });
+            }
+          } else if (ev.type === 'enemy-attack') {
+            const dmg = ev.damage || 0;
+            if (dmg > 0) {
+              dTaken += dmg;
+              const char = next.session.characters.find((c) => c.id === ev.targetId);
+              const voc = (char?.vocation?.toLowerCase() || 'knight').includes('druid')
+                ? 'druid'
+                : (char?.vocation?.toLowerCase() || '').includes('sorcerer')
+                ? 'sorcerer'
+                : (char?.vocation?.toLowerCase() || '').includes('paladin')
+                ? 'paladin'
+                : 'knight';
+              vocTaken[voc] = (vocTaken[voc] || 0) + dmg;
+              const elem = ev.element || 'physical';
+              elemTaken[elem] = (elemTaken[elem] || 0) + dmg;
+            }
+          } else if (ev.type === 'loot') {
+            if (ev.itemName === 'Gold Coin') {
+              newGold += ev.amount || 1;
+            } else {
+              const lootItem = next.session.loot.find((it) => it.name === ev.itemName);
+              const itemId = lootItem?.itemId ?? 2148;
+              const unitVal = 100;
+              newLoot.push({
+                id: itemId,
+                name: ev.itemName,
+                count: ev.amount || 1,
+                unitValue: unitVal,
+                totalValue: (ev.amount || 1) * unitVal,
+              });
+            }
+          } else if (ev.type === 'enemy-death') {
+            newKills += 1;
+          } else if (ev.type === 'experience-gained') {
+            newXp += ev.amount || 0;
+          }
+        }
+
+        setHuntAnalyzerData((prev) => {
+          const updatedLootItems = [...prev.lootItems];
+          for (const it of newLoot) {
+            const existing = updatedLootItems.find((e) => e.name === it.name);
+            if (existing) {
+              existing.count += it.count;
+              existing.totalValue += it.totalValue;
+            } else {
+              updatedLootItems.push({ ...it });
+            }
+          }
+
+          const updatedSupplyItems = [...prev.supplyItems];
+          let addedSupplyCost = 0;
+          for (const s of newSupplies) {
+            addedSupplyCost += s.totalCost;
+            const existing = updatedSupplyItems.find((e) => e.name === s.name);
+            if (existing) {
+              existing.count += s.count;
+              existing.totalCost += s.totalCost;
+            } else {
+              updatedSupplyItems.push({ ...s });
+            }
+          }
+
+          const updatedDamageByVoc = { ...prev.damageByVocation };
+          for (const [voc, amt] of Object.entries(vocDealt)) {
+            const k = voc as keyof typeof updatedDamageByVoc;
+            updatedDamageByVoc[k] = (updatedDamageByVoc[k] || 0) + amt;
+          }
+
+          const updatedDamageByElem = { ...prev.damageByElement };
+          for (const [elem, amt] of Object.entries(elemDealt)) {
+            updatedDamageByElem[elem] = (updatedDamageByElem[elem] || 0) + amt;
+          }
+
+          const updatedDamageTakenByVoc = { ...prev.damageTakenByVocation };
+          for (const [voc, amt] of Object.entries(vocTaken)) {
+            const k = voc as keyof typeof updatedDamageTakenByVoc;
+            updatedDamageTakenByVoc[k] = (updatedDamageTakenByVoc[k] || 0) + amt;
+          }
+
+          const updatedDamageTakenByElem = { ...prev.damageTakenByElement };
+          for (const [elem, amt] of Object.entries(elemTaken)) {
+            updatedDamageTakenByElem[elem] = (updatedDamageTakenByElem[elem] || 0) + amt;
+          }
+
+          return {
+            ...prev,
+            elapsedMs: prev.elapsedMs + (delta > 0 ? Math.round(delta) : 120),
+            kills: prev.kills + newKills,
+            xpGained: prev.xpGained + newXp,
+            damageDealt: prev.damageDealt + dDealt,
+            damageTaken: prev.damageTaken + dTaken,
+            damageByVocation: updatedDamageByVoc,
+            damageByElement: updatedDamageByElem,
+            damageTakenByVocation: updatedDamageTakenByVoc,
+            damageTakenByElement: updatedDamageTakenByElem,
+            lootGold: prev.lootGold + newGold,
+            lootItems: updatedLootItems,
+            supplyItems: updatedSupplyItems,
+            totalSupplyCost: prev.totalSupplyCost + addedSupplyCost,
+          };
+        });
+      } else {
+        setHuntAnalyzerData((prev) => ({
+          ...prev,
+          elapsedMs: prev.elapsedMs + (delta > 0 ? Math.round(delta) : 120),
+        }));
+      }
+
       return next;
     });
   }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady, gameNetwork.IsConnected, gameNetwork.IsHuntContextConfirmed]);
@@ -3209,10 +3449,37 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const inventoryEquipment = availableOwnedEquipmentIds(game).flatMap((itemId) => { const item = findEquipment(content.equipment, itemId); return item ? [item] : []; });
   const elapsedMs = mode === 'hunt' ? encounter.elapsedMs : game.session.trainingElapsedMs;
   const totalLoot = game.session.loot.reduce((total, stack) => total + stack.amount, 0);
-  const metrics = calculateSessionRates({ kills: encounter.corpses.length, damageDealt: 0, damageTaken: 0 }, { elapsedMs, xpGained: leader.experience, lootGained: totalLoot, roomsReached: encounter.room.number });
+  const metricsWindowTitle = useMemo(() => {
+    if (mode === 'hunt' && encounter.hunt) {
+      return `Analisador de Caça (${encounter.hunt.name})`;
+    }
+    if (lastHuntNameRef.current) {
+      return `Analisador de Caça (Última hunt: ${lastHuntNameRef.current})`;
+    }
+    return 'Analisador de Caça';
+  }, [mode, encounter.hunt]);
 
   const startSelectedHunt = (huntId: string, pullSize?: HuntPullSize) => {
     const targetHunt = content.hunts.find((h) => h.id === huntId) ?? encounter.hunt;
+    const newHuntName = targetHunt?.name || huntId;
+    lastHuntNameRef.current = newHuntName;
+    setHuntAnalyzerData({
+      huntName: newHuntName,
+      isLive: true,
+      elapsedMs: 0,
+      kills: 0,
+      xpGained: 0,
+      damageDealt: 0,
+      damageTaken: 0,
+      damageByVocation: { knight: 0, druid: 0, sorcerer: 0, paladin: 0 },
+      damageByElement: {},
+      damageTakenByVocation: { knight: 0, druid: 0, sorcerer: 0, paladin: 0 },
+      damageTakenByElement: {},
+      lootGold: 0,
+      lootItems: [],
+      supplyItems: [],
+      totalSupplyCost: 0,
+    });
     setHuntSelectorOpen(false);
     setIsTrainingAtDummy(false);
     setWalkingPath(null);
@@ -3424,6 +3691,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     stopHuntBgm();
     stopDragonLairBgm();
     playCityBgm();
+
+    // Phase 226: Mark hunt analyzer as finalized (last hunt)
+    setHuntAnalyzerData((prev) => ({ ...prev, isLive: false }));
 
     // Phase 102/204: Responsive 2-second Exura loading screen for safe saving and smooth return
     setTransitionLoading({
@@ -4662,8 +4932,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       />
 
       {/* Window 5: Advanced Metrics & Analyzers */}
-      <DraggableWindow id="metrics" icon="📊">
-        <AdvancedMetricsWindow metrics={metrics} gold={game.session.gold} />
+      <DraggableWindow id="metrics" icon="📊" title={metricsWindowTitle}>
+        <AdvancedMetricsWindow
+          data={huntAnalyzerData}
+          gold={game.session.gold}
+          onReset={handleResetHuntMetrics}
+        />
       </DraggableWindow>
 
       {/* Window 6: Combat Log History */}

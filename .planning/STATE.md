@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-22T18:16:00.000Z"
-last_activity: "2026-09-22 — Conclusão da Phase 225: Arquitetura Server-Authoritative de Caçadas (Colyseus HuntDungeonRoom) & Eliminação Definitiva de Heurísticas Hostis de Save."
+last_updated: "2026-09-22T19:55:00.000Z"
+last_activity: "2026-09-22 — Phase 226 Concluída com Sucesso: Estabilidade do Motor Gráfico (Out of Memory & Background Tab), Economia de Poções, Loading Único e Analisador de Caça Dinâmico."
 progress:
-  total_phases: 225
-  completed_phases: 225
-  total_plans: 305
-  completed_plans: 305
+  total_phases: 226
+  completed_phases: 226
+  total_plans: 308
+  completed_plans: 308
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 225 - Concluída com sucesso.
+**Current focus:** Phase 226 Concluída (100%).
 
 ## Current Position
 
-Phase: 225 of 225  
-Plan: 1 of 1 in Phase 225  
+Phase: 226 of 226  
+Plan: 3 of 3 in Phase 226  
 Status: Complete ✅  
-Last activity: 2026-09-22 — Conclusão da Rota 1 MMORPG: desativação de bloqueios hostis com erro 400 no save por telemetria silenciosa, criação da sala autoritativa HuntDungeonRoom no Colyseus, unblocking de saída de caçadas e suíte de testes 100% aprovada.
+Last activity: 2026-09-22 — Conclusão da Phase 226 cobrindo todas as 3 ondas: eliminação do memory leak do PixiJS v8, desacoplamento de loading em abas secundárias, trava de poções sem gold, artes canônicas de loading, unificação em loading único, sincronização de morte visual e Analisador de Caça dinâmico e funcional.
 
 Progress: [██████████] 100%
 
@@ -105,11 +105,15 @@ Progress: [██████████] 100%
 | 182. Correção de Progressão e Recompensas + Otimização das Miniaturas | 2 | - | - | Complete |
 | 182.2. Recuperação Autoritativa de Contexto de Caçada e Prevenção de Deadlock nos Limitadores | 2 | - | - | Complete |
 | 216. Combat FX Atlas & PixiJS v8 Texture Resolution | 1 | - | - | Complete |
+| 225. Arquitetura Server-Authoritative de Caçadas (Colyseus HuntDungeonRoom) & Desarme de Rate Limiters | 1 | - | - | Complete |
+| 226. Estabilidade do Motor Gráfico (Out of Memory & Background Tab), Economia de Poções, Loading Único e Analisador de Caça | 3 | - | - | Complete |
 
 ## Accumulated Context
 
 ### Decisions
 
+- [Phase 226]: Destruição explícita de canvas de Text no PixiJS v8 (`texture.destroy(true)` e `destroy({ texture: true, textureSource: true, children: true })`) eliminando o estouro de memória da aba ("Out of Memory"); desacoplamento do timer de loading no `ExuraLoadingScreen` via `setInterval` e `visibilitychange` impedindo congelamento em abas em segundo plano; bloqueio estrito de consumo de poções quando `session.gold < cost` e sem suprimentos na mochila; artes oficiais de Cyclops Camp e Elf Sanctuary integradas em `public/assets/loading/` e `public/images/loading/`; prefetch de bundle sem duplo loading (0 a 100% contínuo); sincronização de morte visual e aparecimento de esqueleto atrelados ao voo e impacto do projétil/efeito (`pendingImpacts`); e Analisador de Caça dinâmico com loot, suprimentos, dano e DPS reais sem scroll horizontal.
+- [Phase 225]: Conversão de bloqueios hostis de save em telemetria silenciosa de auditoria (`[AUDIT_TELEMETRY]`); criação da sala autoritativa `HuntDungeonRoom` no Colyseus com persistência via `PrismaPersistenceManager`.
 - [Phase 216]: Criação de Atlas Unificado de Combate (`combat-fx-atlas.png` e `.json`) cobrindo todos os efeitos (1 a 60) e mísseis (1 a 50) do Tibia 10.98; resolução da invisibilidade crítica de sprites temporários de combate no PixiJS v8 através de pré-carregamento no `Assets.load` e função utilitária resiliente `getCombatTexture(url, onLoaded)`; posicionamento e alinhamento dos nós visuais de magia (`addSpellVisual`) e visualEvents (`melee-hit`, `projectile-launched`); e integração integral nos preloaders de assets essenciais e de caçadas.
 - [Phase 182.2]: Recuperação autoritativa de contexto de caçada pós-restart reconstruída exclusivamente a partir do banco de dados (`active_hunt_sessions` e `characters.isHunting`), sem confiar em flags arbitrárias do cliente; portão duplo no combate (`IsConnected` e `IsHuntContextConfirmed`) com sincronização de timestamp durante pausas para impedir rajadas compensatórias retroativas de dano ou XP; Session Ownership Guard no `onLeave` impedindo que o término de sessões antigas descarte a caçada assumida por novas sessões; suporte a `baselineTime` nos limitadores `SkillRateLimiter` e `XpRateLimiter` validando deltas acumulados contra o tempo decorrido desde o último salvamento bem-sucedido no banco (`existing.lastSavedAt`), prevenindo deadlocks permanentes decorrentes de salvamentos transitórios atrasados; e preservação do timestamp anterior em caso de rejeição para evitar starvation.
 - [Phase 182]: Reconciliação estritamente monotônica em conflitos OCC 409 com preservação cumulativa de drops e moedas da Party; isolamento do autosave urbano de Thais para jogadores em caçada ativa (`player.inHunt`); e compilação de Thumbnail Atlases consolidados para outfits e montarias.

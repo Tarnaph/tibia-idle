@@ -836,9 +836,10 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           view.label.text = enemy.name;
           view.label.style.fill = isPvPOpponent ? 0xff6666 : enemy.variant?.visualModifier === 'rare-aura' ? 0xd694ff : enemy.variant ? 0xffc857 : 0xe6ded0;
           view.sprite.scale.set(enemy.variant?.scale ?? 1);
-          view.root.visible = enemy.alive;
-          view.sprite.alpha = enemy.alive ? 1 : 0;
-          view.sprite.visible = enemy.alive;
+          const isPendingDeath = !enemy.alive && pendingImpacts.some((p) => p.targetId === enemy.id && now < p.impactAt);
+          view.root.visible = enemy.alive || isPendingDeath;
+          view.sprite.alpha = (enemy.alive || isPendingDeath) ? 1 : 0;
+          view.sprite.visible = enemy.alive || isPendingDeath;
           if (isPvPOpponent) {
             const oppSkull = (enemy as any).pvpSkull || (enemy as any).skull || (typeof (enemy as any).pvpElo === 'number' ? getPvPTierInfo((enemy as any).pvpElo).skull : 'red');
             const hasOppSkull = oppSkull && oppSkull !== 'none';
@@ -897,10 +898,12 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           );
           sprite.roundPixels = true;
           sprite.zIndex = corpse.position.y * 10;
-          const dyingEnemy = state.encounter.enemies.find(
-            (e) => !e.alive && e.position.x === corpse.position.x && e.position.y === corpse.position.y
-          );
-          const pending = dyingEnemy ? pendingImpacts.find((p) => p.targetId === dyingEnemy.id && now < p.impactAt) : null;
+          const targetEnemyId = corpse.id.startsWith('corpse-') ? corpse.id.slice(7) : null;
+          const pending = (targetEnemyId ? pendingImpacts.find((p) => p.targetId === targetEnemyId && now < p.impactAt) : null)
+            ?? pendingImpacts.find((p) => {
+              const dying = state.encounter.enemies.find((candidate) => candidate.id === p.targetId);
+              return dying && !dying.alive && dying.position.x === corpse.position.x && dying.position.y === corpse.position.y && now < p.impactAt;
+            });
           if (pending) {
             (sprite as any).visibleAfter = pending.impactAt;
             sprite.visible = false;
@@ -1258,6 +1261,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           if (enemy && !enemy.alive) {
             const stillFlying = pendingImpacts.some((p) => p.targetId === enemy.id && now < p.impactAt);
             view.root.visible = stillFlying;
+            view.sprite.visible = stillFlying;
+            view.sprite.alpha = stillFlying ? 1 : 0;
           }
         }
 

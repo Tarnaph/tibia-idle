@@ -161,11 +161,25 @@ export function ExuraLoadingScreen({
 
     const startTime = performance.now();
     let animationFrameId: number;
+    let intervalId: NodeJS.Timeout;
     let finishTimeoutId: NodeJS.Timeout;
     let isHandled = false;
 
+    const finish = () => {
+      if (isHandled) return;
+      isHandled = true;
+      cancelAnimationFrame(animationFrameId);
+      clearInterval(intervalId);
+      setProgress(100);
+      setIsFadingOut(true);
+      finishTimeoutId = setTimeout(() => {
+        setIsVisible(false);
+        setIsFadingOut(false);
+        onFinishRef.current?.();
+      }, 350);
+    };
 
-    const tick = (now: number) => {
+    const updateProgress = (now: number) => {
       if (isHandled) return;
       const elapsed = now - startTime;
       const effectiveDuration = durationMs;
@@ -189,26 +203,42 @@ export function ExuraLoadingScreen({
       const pct = Math.min(100, effectivePct);
       setProgress(pct);
 
-      if ((pct < 100 || (!isAssetsComplete && waitForAssets)) && !isTimedOut) {
+      if ((pct >= 100 && (isAssetsComplete || !waitForAssets)) || isTimedOut) {
+        finish();
+      }
+    };
+
+    const tick = (now: number) => {
+      if (isHandled) return;
+      updateProgress(now);
+      if (!isHandled) {
         animationFrameId = requestAnimationFrame(tick);
-      } else {
-        // Recursos essenciais prontos ou tempo limite de segurança atingido
-        isHandled = true;
-        setProgress(100);
-        setIsFadingOut(true);
-        finishTimeoutId = setTimeout(() => {
-          setIsVisible(false);
-          setIsFadingOut(false);
-          onFinishRef.current?.();
-        }, 350);
       }
     };
 
     animationFrameId = requestAnimationFrame(tick);
 
+    // Heartbeat fallback for background/minimized tabs where requestAnimationFrame is paused by browsers
+    intervalId = setInterval(() => {
+      if (isHandled) return;
+      updateProgress(performance.now());
+    }, 100);
+
+    const onVisibilityChange = () => {
+      if (isHandled) return;
+      updateProgress(performance.now());
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange);
+    }
+
     return () => {
       cancelAnimationFrame(animationFrameId);
+      clearInterval(intervalId);
       clearTimeout(finishTimeoutId);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
     };
   }, [active, durationMs, waitForAssets]);
 

@@ -1,25 +1,31 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import {
   TibiaAuthCharacterModal,
   type CharacterItem,
   type AuthAccount,
 } from './auth/TibiaAuthCharacterModal';
-import { ExuraLoadingScreen } from './ExuraLoadingScreen';
 
-// Phase 189: Dynamic import of the heavy 35MB+ Game Engine only when character is selected!
+// Phase 226: Unified single 0% -> 100% loading flow.
+// Pre-warm the heavy game engine bundle while on character select and eliminate the redundant
+// 2.5s loading bar in dynamic(), so GamePrototype's canonical ExuraLoadingScreen is the only one rendered.
 const DynamicGamePrototype = dynamic(
   () => import('./GamePrototype').then((m) => m.GamePrototype),
   {
     ssr: false,
     loading: () => (
-      <ExuraLoadingScreen
-        active={true}
-        durationMs={2500}
-        message="Carregando motor do jogo e mapa de Thais..."
-        bgImage="/images/loading/thais-loading.jpg"
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: '#080403',
+          backgroundImage: 'url(/images/loading/thais-loading.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          zIndex: 999999999,
+        }}
       />
     ),
   }
@@ -31,6 +37,11 @@ export function GameClientLauncher() {
     charItem: CharacterItem;
     acc: AuthAccount;
   } | null>(null);
+
+  // Pre-fetch GamePrototype chunk while player is browsing/selecting character
+  useEffect(() => {
+    void import('./GamePrototype');
+  }, []);
 
   // If no character is selected, show the ultra-lightweight Auth & Character Selection Modal immediately (< 200ms)
   if (!selectedCharacterData) {

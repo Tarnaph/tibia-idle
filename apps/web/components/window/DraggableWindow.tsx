@@ -10,6 +10,7 @@ interface DraggableWindowProps {
   badge?: React.ReactNode;
   className?: string;
   defaultWidth?: number;
+  title?: string;
 }
 
 export function DraggableWindow({
@@ -19,6 +20,7 @@ export function DraggableWindow({
   badge,
   className = '',
   defaultWidth,
+  title,
 }: DraggableWindowProps) {
   const { windows, bringToFront, updatePosition, closeWindow, toggleMinimize } = useWindowManager();
   const windowState = windows[id];
@@ -126,7 +128,7 @@ export function DraggableWindow({
       >
         <div className="window-title-group">
           {icon && <span className="window-icon">{icon}</span>}
-          <span className="window-title">{windowState.title}</span>
+          <span className="window-title">{title ?? windowState.title}</span>
           {badge}
         </div>
         <div className="window-controls">

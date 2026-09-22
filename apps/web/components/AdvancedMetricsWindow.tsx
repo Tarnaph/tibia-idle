@@ -4,14 +4,80 @@ import React, { useState } from 'react';
 import type { SessionMetrics } from '@/packages/presentation/src';
 import { ItemSprite } from './ItemSprite';
 
-interface AdvancedMetricsWindowProps {
-  metrics: SessionMetrics;
-  gold: number;
+export interface HuntAnalyzerItem {
+  id: number;
+  name: string;
+  count: number;
+  unitValue: number;
+  totalValue: number;
+}
+
+export interface HuntAnalyzerSupply {
+  id: number;
+  name: string;
+  count: number;
+  unitCost: number;
+  totalCost: number;
+}
+
+export interface HuntAnalyzerData {
+  huntName: string;
+  isLive: boolean;
+  elapsedMs: number;
+  kills: number;
+  xpGained: number;
+  damageDealt: number;
+  damageTaken: number;
+  damageByVocation: {
+    knight: number;
+    druid: number;
+    sorcerer: number;
+    paladin: number;
+  };
+  damageByElement: Record<string, number>;
+  damageTakenByVocation: {
+    knight: number;
+    druid: number;
+    sorcerer: number;
+    paladin: number;
+  };
+  damageTakenByElement: Record<string, number>;
+  lootGold: number;
+  lootItems: HuntAnalyzerItem[];
+  supplyItems: HuntAnalyzerSupply[];
+  totalSupplyCost: number;
+}
+
+export interface AdvancedMetricsWindowProps {
+  data?: HuntAnalyzerData;
+  metrics?: SessionMetrics;
+  gold?: number;
+  onReset?: () => void;
 }
 
 type MetricsTab = 'hunt' | 'damage' | 'damageTaken' | 'loot' | 'supplies';
 
-export function AdvancedMetricsWindow({ metrics, gold }: AdvancedMetricsWindowProps) {
+const ELEMENT_COLORS: Record<string, string> = {
+  physical: '#95a5a6',
+  fire: '#e67e22',
+  ice: '#3498db',
+  energy: '#9b59b6',
+  earth: '#27ae60',
+  holy: '#f1c40f',
+  death: '#34495e',
+};
+
+const ELEMENT_LABELS: Record<string, string> = {
+  physical: 'Físico',
+  fire: 'Fogo',
+  ice: 'Gelo',
+  energy: 'Energia',
+  earth: 'Terra',
+  holy: 'Sagrado',
+  death: 'Morte',
+};
+
+export function AdvancedMetricsWindow({ data, metrics, gold, onReset }: AdvancedMetricsWindowProps) {
   const [activeTab, setActiveTab] = useState<MetricsTab>('hunt');
 
   const formatDuration = (ms: number) => {
@@ -22,100 +88,167 @@ export function AdvancedMetricsWindow({ metrics, gold }: AdvancedMetricsWindowPr
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const elapsedHours = Math.max(metrics.elapsedMs / (1000 * 60 * 60), 0.001);
-  const lootGold = metrics.lootGained || 0;
-  const supplyCost = Math.round(metrics.kills * 120 + metrics.damageDealt * 0.15);
-  const balance = lootGold - supplyCost;
-  const lootPerHour = Math.round(lootGold / elapsedHours);
-  const supplyPerHour = Math.round(supplyCost / elapsedHours);
+  // Derive dynamic state either from dedicated HuntAnalyzerData or legacy SessionMetrics
+  const elapsedMs = data ? data.elapsedMs : metrics ? metrics.elapsedMs : 0;
+  const elapsedHours = Math.max(elapsedMs / (1000 * 60 * 60), 0.0001);
+  const elapsedSecs = Math.max(elapsedMs / 1000, 1);
 
-  // Sample/Simulated loot items from session
-  const lootItems = [
-    { id: 2470, name: 'Golden Legs', count: 1 },
-    { id: 2400, name: 'Magic Sword', count: 1 },
-    { id: 2160, name: 'Crystal Coin', count: 12 },
-    { id: 2148, name: 'Gold Coin', count: 3500 },
-    { id: 7590, name: 'Great Mana Potion', count: 24 },
-    { id: 2165, name: 'Stealth Ring', count: 2 },
-  ];
+  const kills = data ? data.kills : metrics ? metrics.kills : 0;
+  const xpGained = data ? data.xpGained : metrics ? metrics.xpGained : 0;
+  const xpPerHour = Math.round(xpGained / elapsedHours);
 
-  // Sample supplies consumed
-  const supplyItems = [
-    { id: 7590, name: 'Great Mana Potion', count: Math.max(12, Math.floor(metrics.kills * 3)) },
-    { id: 7588, name: 'Strong Health Potion', count: Math.max(5, Math.floor(metrics.kills * 1.5)) },
-    { id: 2268, name: 'Sudden Death Rune', count: Math.max(10, Math.floor(metrics.kills * 2.5)) },
-    { id: 2544, name: 'Crossbow Arrow', count: Math.max(50, Math.floor(metrics.kills * 8)) },
-  ];
+  const lootGoldOnly = data ? data.lootGold : metrics ? metrics.lootGained : 0;
+  const lootItems = data?.lootItems ?? [];
+  const lootItemsValue = lootItems.reduce((acc, it) => acc + it.totalValue, 0);
+  const totalLootValue = lootGoldOnly + lootItemsValue;
+  const lootPerHour = Math.round(totalLootValue / elapsedHours);
+
+  const supplyItems = data?.supplyItems ?? [];
+  const totalSupplyCost = data ? data.totalSupplyCost : Math.round(kills * 120 + (metrics?.damageDealt ?? 0) * 0.15);
+  const supplyPerHour = Math.round(totalSupplyCost / elapsedHours);
+
+  const balance = totalLootValue - totalSupplyCost;
+
+  const totalDamageDealt = data ? data.damageDealt : metrics ? metrics.damageDealt : 0;
+  const dps = Math.round(totalDamageDealt / elapsedSecs);
+
+  const totalDamageTaken = data ? data.damageTaken : metrics ? metrics.damageTaken : 0;
+  const damageTakenPerSec = Math.round(totalDamageTaken / elapsedSecs);
+
+  const damageByVocation = data?.damageByVocation ?? {
+    knight: Math.round(totalDamageDealt * 0.4),
+    druid: Math.round(totalDamageDealt * 0.25),
+    sorcerer: Math.round(totalDamageDealt * 0.2),
+    paladin: Math.round(totalDamageDealt * 0.15),
+  };
+
+  const damageTakenByVocation = data?.damageTakenByVocation ?? {
+    knight: Math.round(totalDamageTaken * 0.8),
+    druid: Math.round(totalDamageTaken * 0.08),
+    sorcerer: Math.round(totalDamageTaken * 0.06),
+    paladin: Math.round(totalDamageTaken * 0.06),
+  };
+
+  const damageByElement = data?.damageByElement ?? {
+    physical: Math.round(totalDamageDealt * 0.6),
+    fire: Math.round(totalDamageDealt * 0.2),
+    ice: Math.round(totalDamageDealt * 0.2),
+  };
+
+  const damageTakenByElement = data?.damageTakenByElement ?? {
+    physical: Math.round(totalDamageTaken * 0.7),
+    fire: Math.round(totalDamageTaken * 0.15),
+    death: Math.round(totalDamageTaken * 0.15),
+  };
+
+  const huntTitle = data ? (data.isLive ? data.huntName : `Última: ${data.huntName}`) : 'Caçada Ativa';
 
   return (
     <div className="advanced-metrics-container gothic-window-panel">
-      {/* Sub-Header Tab Bar */}
-      <div className="metrics-tab-bar">
-        <button
-          type="button"
-          className={`metrics-tab-btn ${activeTab === 'hunt' ? 'active' : ''}`}
-          onClick={() => setActiveTab('hunt')}
-        >
-          Caça
-        </button>
-        <button
-          type="button"
-          className={`metrics-tab-btn ${activeTab === 'damage' ? 'active' : ''}`}
-          onClick={() => setActiveTab('damage')}
-        >
-          Dano Causado
-        </button>
-        <button
-          type="button"
-          className={`metrics-tab-btn ${activeTab === 'damageTaken' ? 'active' : ''}`}
-          onClick={() => setActiveTab('damageTaken')}
-        >
-          Dano Recebido
-        </button>
-        <button
-          type="button"
-          className={`metrics-tab-btn ${activeTab === 'loot' ? 'active' : ''}`}
-          onClick={() => setActiveTab('loot')}
-        >
-          Loot
-        </button>
-        <button
-          type="button"
-          className={`metrics-tab-btn ${activeTab === 'supplies' ? 'active' : ''}`}
-          onClick={() => setActiveTab('supplies')}
-        >
-          Suprimentos
-        </button>
+      {/* Sub-Header Tab Bar + Reset Button */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', boxSizing: 'border-box' }}>
+        <div className="metrics-tab-bar" style={{ flex: 1 }}>
+          <button
+            type="button"
+            className={`metrics-tab-btn ${activeTab === 'hunt' ? 'active' : ''}`}
+            onClick={() => setActiveTab('hunt')}
+          >
+            Caça
+          </button>
+          <button
+            type="button"
+            className={`metrics-tab-btn ${activeTab === 'damage' ? 'active' : ''}`}
+            onClick={() => setActiveTab('damage')}
+          >
+            Dano
+          </button>
+          <button
+            type="button"
+            className={`metrics-tab-btn ${activeTab === 'damageTaken' ? 'active' : ''}`}
+            onClick={() => setActiveTab('damageTaken')}
+          >
+            Recebido
+          </button>
+          <button
+            type="button"
+            className={`metrics-tab-btn ${activeTab === 'loot' ? 'active' : ''}`}
+            onClick={() => setActiveTab('loot')}
+          >
+            Loot ({lootItems.length})
+          </button>
+          <button
+            type="button"
+            className={`metrics-tab-btn ${activeTab === 'supplies' ? 'active' : ''}`}
+            onClick={() => setActiveTab('supplies')}
+          >
+            Gastos ({supplyItems.length})
+          </button>
+        </div>
+
+        {onReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            style={{
+              background: '#241310',
+              border: '1px solid #7a2820',
+              color: '#ff9c90',
+              fontSize: '8.5px',
+              fontWeight: 800,
+              padding: '3px 6px',
+              borderRadius: '2px',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '2px',
+              transition: 'all 0.15s ease',
+            }}
+            title="Zerar métricas do analisador"
+          >
+            <span>🔄</span>
+            <span>Reset</span>
+          </button>
+        )}
       </div>
 
       {/* Tab Contents */}
       <div className="metrics-content-body">
         {activeTab === 'hunt' && (
           <div className="analyzer-card">
-            <div className="analyzer-title">ANALISADOR DE CAÇA</div>
+            <div className="analyzer-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>ANALISADOR DE CAÇA</span>
+              <span style={{ fontSize: '9px', color: data?.isLive ? '#2ecc71' : '#a09587', fontWeight: 700 }}>
+                {data?.isLive ? '● EM ANDAMENTO' : '○ FINALIZADA'}
+              </span>
+            </div>
             <div className="analyzer-row">
-              <span>Sessão</span>
-              <strong>{formatDuration(metrics.elapsedMs)}</strong>
+              <span>Caçada</span>
+              <strong style={{ color: '#f3e5ab' }}>{huntTitle}</strong>
+            </div>
+            <div className="analyzer-row">
+              <span>Duração</span>
+              <strong>{formatDuration(elapsedMs)}</strong>
             </div>
             <div className="analyzer-row">
               <span>XP/h</span>
-              <strong>{metrics.xpPerHour.toLocaleString('pt-BR')}</strong>
+              <strong>{xpPerHour.toLocaleString('pt-BR')}</strong>
             </div>
             <div className="analyzer-row">
               <span>XP Ganho</span>
-              <strong className="text-gold">{metrics.xpGained.toLocaleString('pt-BR')}</strong>
+              <strong className="text-gold">+{xpGained.toLocaleString('pt-BR')}</strong>
             </div>
             <div className="analyzer-row">
               <span>Abates (Kills)</span>
-              <strong>{metrics.kills}</strong>
+              <strong>{kills} criaturas</strong>
             </div>
             <div className="analyzer-row">
               <span>Loot Total</span>
-              <strong className="text-gold">{lootGold.toLocaleString('pt-BR')} gp</strong>
+              <strong className="text-gold">{totalLootValue.toLocaleString('pt-BR')} gp</strong>
             </div>
             <div className="analyzer-row">
-              <span>Suprimentos</span>
-              <strong className="text-red">{supplyCost.toLocaleString('pt-BR')} gp</strong>
+              <span>Suprimentos Gastos</span>
+              <strong className="text-red">-{totalSupplyCost.toLocaleString('pt-BR')} gp</strong>
             </div>
             <div className="analyzer-row highlight">
               <span>Balanço</span>
@@ -130,45 +263,59 @@ export function AdvancedMetricsWindow({ metrics, gold }: AdvancedMetricsWindowPr
           <div className="analyzer-card">
             <div className="analyzer-title">DANO CAUSADO</div>
             <div className="analyzer-row">
-              <span>Sessão</span>
-              <strong>{formatDuration(metrics.elapsedMs)}</strong>
-            </div>
-            <div className="analyzer-section-label">DPS por Vocação</div>
-            <div className="analyzer-row">
-              <span>EK (Knight)</span>
-              <strong>{Math.round(metrics.approximateDps * 0.35)}/s - {Math.round(metrics.damageDealt * 0.35).toLocaleString('pt-BR')}</strong>
+              <span>Dano Total</span>
+              <strong className="text-gold">{totalDamageDealt.toLocaleString('pt-BR')}</strong>
             </div>
             <div className="analyzer-row">
-              <span>ED (Druid)</span>
-              <strong>{Math.round(metrics.approximateDps * 0.25)}/s - {Math.round(metrics.damageDealt * 0.25).toLocaleString('pt-BR')}</strong>
+              <span>DPS Médio</span>
+              <strong>{dps.toLocaleString('pt-BR')}/s</strong>
             </div>
-            <div className="analyzer-row">
-              <span>RP (Paladin)</span>
-              <strong>{Math.round(metrics.approximateDps * 0.40)}/s - {Math.round(metrics.damageDealt * 0.40).toLocaleString('pt-BR')}</strong>
-            </div>
+            <div className="analyzer-section-label">Dano por Integrante da Party</div>
+            {(['knight', 'druid', 'sorcerer', 'paladin'] as const).map((voc) => {
+              const vocNames: Record<string, string> = {
+                knight: 'Knight (EK)',
+                druid: 'Druid (ED)',
+                sorcerer: 'Sorcerer (MS)',
+                paladin: 'Paladin (RP)',
+              };
+              const dmg = damageByVocation[voc] || 0;
+              const vocDps = Math.round(dmg / elapsedSecs);
+              const pct = totalDamageDealt > 0 ? Math.round((dmg / totalDamageDealt) * 100) : 0;
+              return (
+                <div key={voc} className="analyzer-row">
+                  <span>{vocNames[voc]}</span>
+                  <strong>
+                    {vocDps}/s ({pct}%) - {dmg.toLocaleString('pt-BR')}
+                  </strong>
+                </div>
+              );
+            })}
 
             <div className="analyzer-divider" />
             <div className="analyzer-section-label">Elementos de Dano</div>
-            <div className="analyzer-progress-line">
-              <span className="elem-label físico">Físico</span>
-              <div className="bar-wrapper"><div className="bar-fill physical" style={{ width: '52%' }} /></div>
-              <span>52%</span>
-            </div>
-            <div className="analyzer-progress-line">
-              <span className="elem-label gelo">Gelo</span>
-              <div className="bar-wrapper"><div className="bar-fill ice" style={{ width: '29%' }} /></div>
-              <span>29%</span>
-            </div>
-            <div className="analyzer-progress-line">
-              <span className="elem-label sagrado">Sagrado</span>
-              <div className="bar-wrapper"><div className="bar-fill holy" style={{ width: '14%' }} /></div>
-              <span>14%</span>
-            </div>
-            <div className="analyzer-progress-line">
-              <span className="elem-label morte">Morte</span>
-              <div className="bar-wrapper"><div className="bar-fill death" style={{ width: '5%' }} /></div>
-              <span>5%</span>
-            </div>
+            {Object.entries(damageByElement)
+              .filter(([, amt]) => amt > 0)
+              .map(([elem, amt]) => {
+                const pct = totalDamageDealt > 0 ? Math.round((amt / totalDamageDealt) * 100) : 0;
+                const barColor = ELEMENT_COLORS[elem] || '#e5c04b';
+                const label = ELEMENT_LABELS[elem] || elem;
+                return (
+                  <div key={elem} className="analyzer-progress-line">
+                    <span style={{ width: '54px', color: barColor }}>{label}</span>
+                    <div className="bar-wrapper">
+                      <div className="bar-fill" style={{ width: `${Math.min(100, pct)}%`, background: barColor }} />
+                    </div>
+                    <span style={{ width: '60px', textAlign: 'right' }}>
+                      {pct}% ({amt.toLocaleString('pt-BR')})
+                    </span>
+                  </div>
+                );
+              })}
+            {Object.keys(damageByElement).length === 0 && (
+              <div style={{ color: '#888', fontSize: '9px', textAlign: 'center', padding: '4px 0' }}>
+                Nenhum dano registrado ainda.
+              </div>
+            )}
           </div>
         )}
 
@@ -176,36 +323,59 @@ export function AdvancedMetricsWindow({ metrics, gold }: AdvancedMetricsWindowPr
           <div className="analyzer-card">
             <div className="analyzer-title">DANO RECEBIDO</div>
             <div className="analyzer-row">
-              <span>Sessão</span>
-              <strong>{formatDuration(metrics.elapsedMs)}</strong>
-            </div>
-            <div className="analyzer-section-label">Dano Recebido /s por Vocação</div>
-            <div className="analyzer-row">
-              <span>EK (Knight)</span>
-              <strong>{Math.round((metrics.damageTaken / Math.max(1, metrics.elapsedMs / 1000)) * 0.85)}/s - {Math.round(metrics.damageTaken * 0.85).toLocaleString('pt-BR')}</strong>
+              <span>Dano Recebido Total</span>
+              <strong className="text-red">{totalDamageTaken.toLocaleString('pt-BR')}</strong>
             </div>
             <div className="analyzer-row">
-              <span>ED / RP</span>
-              <strong>{Math.round((metrics.damageTaken / Math.max(1, metrics.elapsedMs / 1000)) * 0.15)}/s - {Math.round(metrics.damageTaken * 0.15).toLocaleString('pt-BR')}</strong>
+              <span>Dano /s Médio</span>
+              <strong>{damageTakenPerSec.toLocaleString('pt-BR')}/s</strong>
             </div>
+            <div className="analyzer-section-label">Dano Recebido por Integrante</div>
+            {(['knight', 'druid', 'sorcerer', 'paladin'] as const).map((voc) => {
+              const vocNames: Record<string, string> = {
+                knight: 'Knight (EK)',
+                druid: 'Druid (ED)',
+                sorcerer: 'Sorcerer (MS)',
+                paladin: 'Paladin (RP)',
+              };
+              const dmg = damageTakenByVocation[voc] || 0;
+              const vocDps = Math.round(dmg / elapsedSecs);
+              const pct = totalDamageTaken > 0 ? Math.round((dmg / totalDamageTaken) * 100) : 0;
+              return (
+                <div key={voc} className="analyzer-row">
+                  <span>{vocNames[voc]}</span>
+                  <strong>
+                    {vocDps}/s ({pct}%) - {dmg.toLocaleString('pt-BR')}
+                  </strong>
+                </div>
+              );
+            })}
 
             <div className="analyzer-divider" />
             <div className="analyzer-section-label">Dano Recebido por Elemento</div>
-            <div className="analyzer-progress-line">
-              <span className="elem-label físico">Físico</span>
-              <div className="bar-wrapper"><div className="bar-fill physical" style={{ width: '65%' }} /></div>
-              <span>65%</span>
-            </div>
-            <div className="analyzer-progress-line">
-              <span className="elem-label morte">Morte</span>
-              <div className="bar-wrapper"><div className="bar-fill death" style={{ width: '28%' }} /></div>
-              <span>28%</span>
-            </div>
-            <div className="analyzer-progress-line">
-              <span className="elem-label fogo">Fogo</span>
-              <div className="bar-wrapper"><div className="bar-fill fire" style={{ width: '7%' }} /></div>
-              <span>7%</span>
-            </div>
+            {Object.entries(damageTakenByElement)
+              .filter(([, amt]) => amt > 0)
+              .map(([elem, amt]) => {
+                const pct = totalDamageTaken > 0 ? Math.round((amt / totalDamageTaken) * 100) : 0;
+                const barColor = ELEMENT_COLORS[elem] || '#e74c3c';
+                const label = ELEMENT_LABELS[elem] || elem;
+                return (
+                  <div key={elem} className="analyzer-progress-line">
+                    <span style={{ width: '54px', color: barColor }}>{label}</span>
+                    <div className="bar-wrapper">
+                      <div className="bar-fill" style={{ width: `${Math.min(100, pct)}%`, background: barColor }} />
+                    </div>
+                    <span style={{ width: '60px', textAlign: 'right' }}>
+                      {pct}% ({amt.toLocaleString('pt-BR')})
+                    </span>
+                  </div>
+                );
+              })}
+            {Object.keys(damageTakenByElement).length === 0 && (
+              <div style={{ color: '#888', fontSize: '9px', textAlign: 'center', padding: '4px 0' }}>
+                Nenhum dano recebido registrado.
+              </div>
+            )}
           </div>
         )}
 
@@ -213,26 +383,48 @@ export function AdvancedMetricsWindow({ metrics, gold }: AdvancedMetricsWindowPr
           <div className="analyzer-card">
             <div className="analyzer-title">ANALISADOR DE LOOT</div>
             <div className="analyzer-row">
-              <span>Sessão</span>
-              <strong>{formatDuration(metrics.elapsedMs)}</strong>
+              <span>Valor Total em Gold</span>
+              <strong className="text-gold">{totalLootValue.toLocaleString('pt-BR')} gp</strong>
             </div>
             <div className="analyzer-row">
-              <span>Valor em Gold</span>
-              <strong className="text-gold">{lootGold.toLocaleString('pt-BR')} gp</strong>
+              <span>Moedas (Gold Coins)</span>
+              <strong className="text-gold">{lootGoldOnly.toLocaleString('pt-BR')} gp</strong>
             </div>
             <div className="analyzer-row">
-              <span>Por hora</span>
+              <span>Rendimento por Hora</span>
               <strong className="text-gold">{lootPerHour.toLocaleString('pt-BR')} gp/h</strong>
             </div>
             <div className="analyzer-divider" />
-            <div className="items-grid-analyser">
-              {lootItems.map((item) => (
-                <div key={item.id} className="analyser-item-slot" title={`${item.name} (${item.count})`}>
-                  <ItemSprite itemId={item.id} label={item.name} />
-                  <span className="item-count-badge">{item.count}</span>
-                </div>
-              ))}
+            <div className="analyzer-section-label" style={{ marginBottom: '4px' }}>
+              Itens Dropados ({lootItems.length})
             </div>
+            {lootItems.length === 0 ? (
+              <div style={{ color: '#888', textAlign: 'center', padding: '12px 0', fontSize: '9.5px' }}>
+                Nenhum item dropado nesta caçada ainda.
+              </div>
+            ) : (
+              <div
+                className="items-grid-analyser"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(38px, 1fr))',
+                  gap: '6px',
+                  maxHeight: '140px',
+                  overflowY: 'auto',
+                }}
+              >
+                {lootItems.map((item) => (
+                  <div
+                    key={`${item.id}-${item.name}`}
+                    className="analyser-item-slot"
+                    title={`${item.name} (${item.count}x) · Total: ${item.totalValue.toLocaleString('pt-BR')} gp`}
+                  >
+                    <ItemSprite itemId={item.id} label={item.name} />
+                    <span className="item-count-badge">{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -240,26 +432,44 @@ export function AdvancedMetricsWindow({ metrics, gold }: AdvancedMetricsWindowPr
           <div className="analyzer-card">
             <div className="analyzer-title">ANALISADOR DE SUPRIMENTOS</div>
             <div className="analyzer-row">
-              <span>Sessão</span>
-              <strong>{formatDuration(metrics.elapsedMs)}</strong>
+              <span>Custo Total em Gold</span>
+              <strong className="text-red">-{totalSupplyCost.toLocaleString('pt-BR')} gp</strong>
             </div>
             <div className="analyzer-row">
-              <span>Valor em Gold</span>
-              <strong className="text-red">{supplyCost.toLocaleString('pt-BR')} gp</strong>
-            </div>
-            <div className="analyzer-row">
-              <span>Por hora</span>
-              <strong className="text-red">{supplyPerHour.toLocaleString('pt-BR')} gp/h</strong>
+              <span>Gasto por Hora</span>
+              <strong className="text-red">-{supplyPerHour.toLocaleString('pt-BR')} gp/h</strong>
             </div>
             <div className="analyzer-divider" />
-            <div className="items-grid-analyser">
-              {supplyItems.map((item) => (
-                <div key={item.id} className="analyser-item-slot" title={`${item.name} (${item.count})`}>
-                  <ItemSprite itemId={item.id} label={item.name} />
-                  <span className="item-count-badge">{item.count}</span>
-                </div>
-              ))}
+            <div className="analyzer-section-label" style={{ marginBottom: '4px' }}>
+              Poções e Runas Gastas ({supplyItems.length})
             </div>
+            {supplyItems.length === 0 ? (
+              <div style={{ color: '#888', textAlign: 'center', padding: '12px 0', fontSize: '9.5px' }}>
+                Nenhum suprimento consumido nesta caçada ainda.
+              </div>
+            ) : (
+              <div
+                className="items-grid-analyser"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(38px, 1fr))',
+                  gap: '6px',
+                  maxHeight: '140px',
+                  overflowY: 'auto',
+                }}
+              >
+                {supplyItems.map((item) => (
+                  <div
+                    key={`${item.id}-${item.name}`}
+                    className="analyser-item-slot"
+                    title={`${item.name} (${item.count}x) · Custo: ${item.totalCost.toLocaleString('pt-BR')} gp`}
+                  >
+                    <ItemSprite itemId={item.id} label={item.name} />
+                    <span className="item-count-badge">{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

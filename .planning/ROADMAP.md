@@ -4068,6 +4068,34 @@ Plans:
 
 - [x] 225-01-PLAN: Desarmar bloqueios hostis de save com telemetria silenciosa, criar a sala autoritativa `HuntDungeonRoom` no Colyseus, registrar no servidor e validar suíte de testes.
 
+---
+
+### Phase 226: Estabilidade do Motor Gráfico (Out of Memory & Background Tab), Economia de Poções, Loading Único e Analisador de Caça
+
+**Goal:** Resolver os gargalos de estabilidade, vazamento de memória e economia levantados nos testes com Knight em Cyclops Camp, unificar a experiência visual de loading e tornar o Analisador de Caça 100% dinâmico e funcional:
+1. **Onda 1 (Estabilidade Crítica & Economia):**
+   - Eliminar o vazamento de memória WebGL/GPU do PixiJS v8 em `pixiMemorySafety.ts` e `PixiArena.tsx` que causava o crash "Out of Memory".
+   - Desacoplar o timer do `ExuraLoadingScreen.tsx` do `requestAnimationFrame`, impedindo que abas em segundo plano congelem a transição de viagem.
+   - Corrigir `consumePotionFromInventory` em `combat.ts`, eliminando o bypass incondicional de consumo grátis de poções com 0 gold.
+2. **Onda 2 (Fidelidade Visual & Loading Único):**
+   - Substituir as imagens de loading de Cyclops Camp e Elf Sanctuary pelas artes oficiais fornecidas pelo usuário.
+   - Unificar o duplo loading (download de script + carregamento do mundo) em um fluxo contínuo de 0% a 100% sem piscar.
+   - Sincronizar a queda e troca para esqueleto do monstro com o impacto da magia/projétil (`delayMs`) e subida do dano.
+3. **Onda 3 (Analisador de Caça Real):**
+   - Remover barra de rolagem horizontal em `AdvancedMetricsWindow.tsx`.
+   - Rastrear loot real, suprimentos reais (com custo em gold debitado), dano causado e recebido reais.
+   - Adicionar cabeçalho contextual da última caçada, botão "Reset" e reset automático ao iniciar caçada.
+
+**Requirements:** Diretriz GSD, estabilidade de cliente, combate determinístico.
+**Depends on:** Phase 225
+**Plans:** 3 plans
+
+Plans:
+
+- [x] 226-01-PLAN: Resolução de memory leak PixiJS v8, descarte de texturas dinâmicas, loading em aba de background e fim do bypass de poções sem gold.
+- [x] 226-02-PLAN: Substituição das artes canônicas de loading (Cyclops e Elfos), unificação do loading em barra contínua única e sincronização de morte visual no impacto de magias.
+- [x] 226-03-PLAN: Analisador de caça (Hunt Analyzer) dinâmico sem scroll horizontal, com loot/suprimentos/dano reais, botão Reset e nome da última hunt.
+
 
 
 
