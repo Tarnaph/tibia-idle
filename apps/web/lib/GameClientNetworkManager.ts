@@ -787,9 +787,9 @@ export class GameClientNetworkManager {
     this.room.send('player:setAvatar', { avatarId });
   }
 
-  sendSyncProgress(experience: number, level: number, hp?: number, mp?: number, equippedRing?: number): void {
+  sendSyncProgress(experience: number, level: number, hp?: number, mp?: number, equippedRing?: number, isHunting?: boolean, lastHuntId?: string): void {
     if (!this.room) return;
-    this.room.send('player:syncProgress', { experience, level, hp, mp, equippedRing });
+    this.room.send('player:syncProgress', { experience, level, hp, mp, equippedRing, isHunting, lastHuntId });
   }
 
   sendPartyRejectHuntProposal(): void {

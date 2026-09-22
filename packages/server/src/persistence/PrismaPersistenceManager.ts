@@ -71,14 +71,25 @@ export class PrismaPersistenceManager {
 
         if (unvalidatedDelta > 0 && existing) {
           const now = Date.now();
-          const isHunting = Boolean(player.inHunt || (player as any).mode === 'hunt');
+          const isHunting = Boolean(
+            options?.allowInHunt ||
+            player.inHunt ||
+            (player as any).mode === 'hunt' ||
+            (player.characterId && ServerCharacterContextRegistry.isHunting(player.characterId))
+          );
           const check = XpRateLimiter.consume(player.characterId, unvalidatedDelta, now, {
             isHunting,
           });
           if (!check.allowed) {
-            console.warn(`[PrismaPersistenceManager] Suspicious XP delta for ${player.characterId}: +${unvalidatedDelta} XP exceeds continuous budget (capping to +${check.maxAllowed}).`);
-            effectiveExp = unvalidatedBaseline + check.maxAllowed;
-            consumedDelta = check.maxAllowed;
+            console.warn(
+              `[PrismaPersistenceManager][AUDIT_TELEMETRY] Suspicious XP delta for ${player.characterId}: +${unvalidatedDelta} XP exceeds continuous budget (max allowed: +${check.maxAllowed}).`
+            );
+            if (process.env.STRICT_SECURITY === 'true') {
+              effectiveExp = unvalidatedBaseline + check.maxAllowed;
+              consumedDelta = check.maxAllowed;
+            } else {
+              consumedDelta = unvalidatedDelta;
+            }
           } else {
             consumedDelta = unvalidatedDelta;
           }

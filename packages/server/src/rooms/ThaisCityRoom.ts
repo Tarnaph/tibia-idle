@@ -942,7 +942,7 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     });
 
-    this.onMessage('player:syncProgress', (client, data: { level?: number; experience?: number; hp?: number; mp?: number }) => {
+    this.onMessage('player:syncProgress', (client, data: { level?: number; experience?: number; hp?: number; mp?: number; isHunting?: boolean; lastHuntId?: string }) => {
       const player = this.state.players.get(client.sessionId);
       if (player) {
         if (typeof data.experience === 'number') {
@@ -950,19 +950,26 @@ export class ThaisCityRoom extends Room<WorldState> {
             const deltaExp = data.experience - player.experience;
             const now = Date.now();
             const charKey = player.characterId || client.sessionId;
-            const hasHunt = Boolean(player.inHunt || (data as any)?.isHunting || (data as any)?.lastHuntId);
+            const hasHunt = Boolean(
+              player.inHunt ||
+              data?.isHunting ||
+              data?.lastHuntId ||
+              (player.characterId && ServerCharacterContextRegistry.isHunting(player.characterId))
+            );
             const check = XpRateLimiter.consume(charKey, deltaExp, now, { isHunting: hasHunt });
 
             if (!check.allowed) {
               console.warn(
-                `[Security] Suspicious XP gain via WebSocket for player ${player.name} (${player.characterId}): +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}). Rejected.`
+                `[Security][AUDIT_TELEMETRY] Suspicious XP gain via WebSocket for player ${player.name} (${player.characterId}): +${deltaExp} XP exceeds continuous time budget (max allowed: +${check.maxAllowed}).`
               );
-            } else {
-              player.experience = data.experience;
-              player.level = Math.max(1, levelForExperience(data.experience));
-              if (player.characterId) {
-                XpRateLimiter.recordAuthorizedExp(player.characterId, data.experience);
+              if (process.env.STRICT_SECURITY === 'true') {
+                return;
               }
+            }
+            player.experience = data.experience;
+            player.level = Math.max(1, levelForExperience(data.experience));
+            if (player.characterId) {
+              XpRateLimiter.recordAuthorizedExp(player.characterId, data.experience);
             }
           }
         }

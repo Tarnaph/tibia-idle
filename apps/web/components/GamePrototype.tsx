@@ -2679,9 +2679,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     if ((curExp !== lastSyncedExpRef.current && curExp > 0) || curRing !== lastSyncedRingRef.current) {
       lastSyncedExpRef.current = curExp;
       lastSyncedRingRef.current = curRing;
-      gameNetwork.sendSyncProgress(curExp, activeCharacter.level || 1, undefined, undefined, curRing);
+      const isCurrentlyHunting = mode === 'hunt' || Boolean((activeCharacter as any)?.inHunt);
+      const huntId = (activeCharacter as any)?.lastHuntId;
+      gameNetwork.sendSyncProgress(curExp, activeCharacter.level || 1, undefined, undefined, curRing, isCurrentlyHunting, huntId);
     }
-  }, [activeCharacter?.id, activeCharacter?.experience, activeCharacter?.level, activeCharacter?.equipment?.ring]);
+  }, [activeCharacter?.id, activeCharacter?.experience, activeCharacter?.level, activeCharacter?.equipment?.ring, mode]);
 
   // Listen to Colyseus server bestiary events
   useEffect(() => {
