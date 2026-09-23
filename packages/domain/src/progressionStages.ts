@@ -80,17 +80,19 @@ import {
 export const isGreenStaminaActive = isGreenStamina;
 
 /**
- * Retorna o multiplicador efetivo de EXP combinando Stage de Nível, Bônus de Stamina Verde e taxa global do servidor.
+ * Retorna o multiplicador efetivo de EXP combinando Stage de Nível, Bônus de Stamina Verde, taxa global do servidor e bônus perpétuo de Bestiário.
  */
 export function getEffectiveExpMultiplier(
   level: number,
   staminaMinutes?: number | null,
-  serverRate: number = 1.0
+  serverRate: number = 1.0,
+  bestiaryBonusPercent: number = 0.0
 ): number {
   const stageMult = getExpStageMultiplier(level);
   const staminaBonus = isGreenStaminaActive(staminaMinutes) ? GREEN_STAMINA_BONUS_MULTIPLIER : 1.0;
   const safeServerRate = Math.max(0.1, serverRate || 1.0);
-  return stageMult * staminaBonus * safeServerRate;
+  const safeBestiaryBonus = Math.max(0, bestiaryBonusPercent || 0.0);
+  return stageMult * staminaBonus * safeServerRate * (1 + safeBestiaryBonus);
 }
 
 /**

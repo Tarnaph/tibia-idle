@@ -3086,9 +3086,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             if (ev.itemName === 'Gold Coin') {
               newGold += ev.amount || 1;
             } else {
-              const lootItem = next.session.loot.find((it) => it.name === ev.itemName);
-              const itemId = lootItem?.itemId ?? 2148;
-              const unitVal = 100;
+              const lootItem = next.session.loot.find((it) => it.name.toLowerCase() === ev.itemName.toLowerCase());
+              const equip = content.equipment.find((eq) => eq.name.toLowerCase() === ev.itemName.toLowerCase());
+              const itemId = lootItem?.itemId ?? equip?.id ?? 2148;
+              const econItem = content.economy.items.find((it) => it.itemId === itemId);
+              const sellInfo = econItem ? preferredSellPrice(econItem) : undefined;
+              const unitVal = sellInfo?.price ?? econItem?.canonicalSellPrice ?? 5;
               newLoot.push({
                 id: itemId,
                 name: ev.itemName,
@@ -3729,24 +3732,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     setMode('training');
     setHuntSelectorOpen(false);
     setIsTrainingAtDummy(false);
-    // Nasce no Templo de Thais (32369, 32241, 7)
+    // Nasce no Templo de Thais (32369, 32241, 7) em pose neutra estática
     setCityPos(THAIS_TEMPLE_POSITION);
-    // Rota solicitada pelo usuário:
-    // Ponto 1: norte até x:32368 y:32215 z:7
-    // Ponto 2: oeste até x:32345 y:32215 z:7
-    // Ponto 3: sul até x:32345 y:32224 z:7 e ficar parado ali
-    setWalkingPath({
-      waypoints: [
-        { x: 32368, y: 32215, z: 7 },
-        { x: 32345, y: 32215, z: 7 },
-        { x: 32345, y: 32224, z: 7 },
-      ],
-      destinationName: 'Frente do Depot de Thais',
-      onArrive: () => {
-        setSaleMessage('Chegou em Thais (32345, 32224, 7). Ande livremente com as setas do teclado!');
-      },
-    });
-    setSaleMessage('Retornou a Thais. Progresso e experiência salvos com sucesso!');
+    setWalkingPath(null);
+    setSaleMessage('Retornou a Thais. Progresso e experiência salvos com sucesso! Ande livremente com as setas do teclado.');
   };
   exitHuntRef.current = exitHunt;
 
@@ -4893,6 +4882,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           staminaMinutes={activeCharacter.staminaMinutes ?? 15}
           maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
           avatarId={(activeCharacter as any).avatarId ?? 1}
+          bestiaryKills={(game.session as any).bestiaryKills || (activeCharacter as any).bestiaryKills}
           onOpenProfile={() => gameModal.openOutfit(activeCharacter.id)}
           onToggleAutoIdle={() => {
             const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);

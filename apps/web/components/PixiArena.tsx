@@ -277,13 +277,14 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         }
       }
 
-      // Current room map items
+      // Current room map items: prioritize primary frames to load initial room instantly (<500ms) without blocking on 1300+ pattern variants
+      let priorityMapItemsCount = 0;
       for (const tile of game.encounter.room.map.tiles) {
         for (const sId of tile.serverItemIds ?? []) {
           const m = visualAssets.mapItems?.[String(sId)];
-          if (m?.frame) priorityUrls.add(m.frame.publicUrl);
-          if (m?.frames) {
-            for (const f of m.frames) priorityUrls.add(f.publicUrl);
+          if (m?.frame && priorityMapItemsCount < 80) {
+            priorityUrls.add(m.frame.publicUrl);
+            priorityMapItemsCount++;
           }
         }
       }
@@ -391,7 +392,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       const spatialDebug = new Container();
       const overlay = new Container();
       const targetReticle = new Graphics();
-      actors.sortableChildren = true; effects.sortableChildren = true;
+      terrain.sortableChildren = true; corpses.sortableChildren = true; actors.sortableChildren = true; effects.sortableChildren = true;
       world.addChild(backing, terrain, corpses, actors, targetReticle, darkSprite, effects, spatialDebug);
       app.stage.addChild(world, overlay);
       const views = new Map<string, ActorView>();
@@ -525,32 +526,45 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             }
             if (!frameToUse) continue;
             const tex = loaded[frameToUse.publicUrl];
+            const isGround = Boolean(
+              (mapping.appearance as any)?.isGround ||
+              (mapping as any).isGround ||
+              (serverId >= 100 && serverId <= 450) ||
+              (serverId >= 4400 && serverId <= 4550)
+            );
+
             if (!tex) {
               const reqUrl = frameToUse.publicUrl;
               void ensureTexture(reqUrl).then((loadedTex) => {
                 if (!loadedTex || disposed) return;
                 const sprite = new Sprite(loadedTex);
-                if (mapping.appearance && (mapping.appearance.width > 1 || mapping.appearance.height > 1)) {
-                  sprite.anchor.set(0, 0);
-                  sprite.position.set(point.x - 16 - (mapping.appearance.width - 1) * 32, point.y - 16 - (mapping.appearance.height - 1) * 32);
-                } else {
-                  sprite.anchor.set(0, 0);
-                  sprite.position.set(point.x - 16, point.y - 16);
-                }
+                const texW = loadedTex.width || frameToUse.width || 32;
+                const texH = loadedTex.height || frameToUse.height || 32;
+                const wTiles = mapping.appearance?.width ?? Math.max(1, Math.round(texW / 32));
+                const hTiles = mapping.appearance?.height ?? Math.max(1, Math.round(texH / 32));
+                sprite.anchor.set(0, 0);
+                sprite.position.set(
+                  point.x - 16 - (wTiles - 1) * 32,
+                  point.y - 16 - (hTiles - 1) * 32
+                );
                 sprite.roundPixels = true;
+                sprite.zIndex = isGround ? 0 : (point.y + 16 + (hTiles > 1 ? 16 : 0));
                 terrain.addChild(sprite);
               });
               continue;
             }
             const sprite = new Sprite(tex);
-            if (mapping.appearance && (mapping.appearance.width > 1 || mapping.appearance.height > 1)) {
-              sprite.anchor.set(0, 0);
-              sprite.position.set(point.x - 16 - (mapping.appearance.width - 1) * 32, point.y - 16 - (mapping.appearance.height - 1) * 32);
-            } else {
-              sprite.anchor.set(0, 0);
-              sprite.position.set(point.x - 16, point.y - 16);
-            }
+            const texW = tex.width || frameToUse.width || 32;
+            const texH = tex.height || frameToUse.height || 32;
+            const wTiles = mapping.appearance?.width ?? Math.max(1, Math.round(texW / 32));
+            const hTiles = mapping.appearance?.height ?? Math.max(1, Math.round(texH / 32));
+            sprite.anchor.set(0, 0);
+            sprite.position.set(
+              point.x - 16 - (wTiles - 1) * 32,
+              point.y - 16 - (hTiles - 1) * 32
+            );
             sprite.roundPixels = true;
+            sprite.zIndex = isGround ? 0 : (point.y + 16 + (hTiles > 1 ? 16 : 0));
             terrain.addChild(sprite);
             rendered = true;
           }
@@ -886,18 +900,22 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
               void ensureTexture(mapping.frame.publicUrl);
               continue;
             }
-            widthTiles = mapping.appearance?.width ?? Math.max(1, Math.round((mapping.frame.width || 32) / 32));
-            heightTiles = mapping.appearance?.height ?? Math.max(1, Math.round((mapping.frame.height || 32) / 32));
+            const texW = tex?.width || mapping.frame.width || 32;
+            const texH = tex?.height || mapping.frame.height || 32;
+            widthTiles = mapping.appearance?.width ?? Math.max(1, Math.round(texW / 32));
+            heightTiles = mapping.appearance?.height ?? Math.max(1, Math.round(texH / 32));
           }
           const sprite = new Sprite(tex);
           const point = worldPoint(corpse.position);
+          const wOffset = (widthTiles - 1) * 32;
+          const hOffset = (heightTiles - 1) * 32;
           sprite.anchor.set(0, 0);
           sprite.position.set(
-            point.x - 16 - (widthTiles - 1) * 32,
-            point.y - 16 - (heightTiles - 1) * 32
+            point.x - 16 - wOffset,
+            point.y - 16 - hOffset
           );
           sprite.roundPixels = true;
-          sprite.zIndex = corpse.position.y * 10;
+          sprite.zIndex = corpse.position.y * 32 + 16;
           const targetEnemyId = corpse.id.startsWith('corpse-') ? corpse.id.slice(7) : null;
           const pending = (targetEnemyId ? pendingImpacts.find((p) => p.targetId === targetEnemyId && now < p.impactAt) : null)
             ?? pendingImpacts.find((p) => {

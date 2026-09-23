@@ -4096,6 +4096,32 @@ Plans:
 - [x] 226-02-PLAN: Substituição das artes canônicas de loading (Cyclops e Elfos), unificação do loading em barra contínua única e sincronização de morte visual no impacto de magias.
 - [x] 226-03-PLAN: Analisador de caça (Hunt Analyzer) dinâmico sem scroll horizontal, com loot/suprimentos/dano reais, botão Reset e nome da última hunt.
 
+---
+
+### Phase 227: Resolução Completa do Lote FIX.md (Exeta Res Hotbar, Bestiário EXP +1%, Memória em Thais, Multi-Tile e Loading de Hunts)
+
+**Goal:** Resolver integralmente os 7 itens catalogados no lote ativo de `FIX.md` através de 3 ondas lógicas:
+1. **Onda 1 (Domínio, Combate e Economia):**
+   - Trava estrita de `Exeta res` (spell 93) para disparar apenas se presente e habilitada na hotbar do Knight.
+   - Bônus perpétuo de Bestiário de +1% de EXP por monstro completo integrado ao multiplicador de estágios e ao HUD do topo.
+   - Paridade de preço real de loot do NPC no Analisador de Caça, substituindo o dummy de 100 gp.
+2. **Onda 2 (Apresentação Urbana e Estabilidade de Memória):**
+   - Correção da animação de passos condicionada estritamente à movimentação física real do `VisualMotionTrack`, eliminando loop estático de caminhada ao retornar a Thais.
+   - Eliminação de memory leaks em `ThaisCityArena.tsx` via `destroyVisualNode` e descarte de texturas de canvas antigas.
+3. **Onda 3 (Renderização Multi-Tile e Carregamento Rápido):**
+   - Ajuste de offsets e displacements para sprites multi-tile de corpos 2x2 (Cyclops) e itens altos (paredes de 64px, escadas), com zIndex ordenado (chão 0, paredes `point.y + 16`).
+   - Carregamento instantâneo de caçadas limitando itens de mapa prioritários a 80 frames e transferindo padrões secundários para streaming assíncrono.
+
+**Requirements:** Diretriz GSD, tipagem estrita (0 erros), 100% de testes aprovados.
+**Depends on:** Phase 226
+**Plans:** 3 plans
+
+Plans:
+
+- [x] 227-01-PLAN: Exeta Res restrito a hotkey, Bestiário perpétuo +1% EXP e paridade de loot real do NPC no Analisador.
+- [x] 227-02-PLAN: Eliminação de falsos passos ao retornar à cidade e blindagem definitiva de texturas em Thais City.
+- [x] 227-03-PLAN: Deslocamento canônico multi-tile de corpos e paredes, e carregamento instantâneo de cenários de hunts.
+
 
 
 

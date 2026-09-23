@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-22T19:55:00.000Z"
-last_activity: "2026-09-22 — Phase 226 Concluída com Sucesso: Estabilidade do Motor Gráfico (Out of Memory & Background Tab), Economia de Poções, Loading Único e Analisador de Caça Dinâmico."
+last_updated: "2026-09-22T21:15:00.000Z"
+last_activity: "2026-09-22 — Phase 227 Concluída com Sucesso: Exeta Res Hotbar Gate, Bestiário Perpétuo (+1% EXP), Paridade de Loot no Analisador, Eliminação de Passos Falsos e Memory Leaks em Thais, Multi-Tile e Loading Instantâneo de Caçadas."
 progress:
-  total_phases: 226
-  completed_phases: 226
-  total_plans: 308
-  completed_plans: 308
+  total_phases: 227
+  completed_phases: 227
+  total_plans: 311
+  completed_plans: 311
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 226 Concluída (100%).
+**Current focus:** Phase 227 Concluída (100%).
 
 ## Current Position
 
-Phase: 226 of 226  
-Plan: 3 of 3 in Phase 226  
+Phase: 227 of 227  
+Plan: 3 of 3 in Phase 227  
 Status: Complete ✅  
-Last activity: 2026-09-22 — Conclusão da Phase 226 cobrindo todas as 3 ondas: eliminação do memory leak do PixiJS v8, desacoplamento de loading em abas secundárias, trava de poções sem gold, artes canônicas de loading, unificação em loading único, sincronização de morte visual e Analisador de Caça dinâmico e funcional.
+Last activity: 2026-09-22 — Conclusão da Phase 227 cobrindo todas as 3 ondas: Exeta Res apenas configurado em hotkeys do Knight, ganho perpétuo de +1% de EXP por monstro concluído no Bestiário, cálculo real de venda de loot no Analisador de Caça, resolução do loop de passos em falso e dos vazamentos de memória em Thais City, renderização canônica multi-tile (Cyclops 2x2, paredes altas e escadas) e carregamento instantâneo de cenários de caçada.
 
 Progress: [██████████] 100%
 

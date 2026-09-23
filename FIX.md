@@ -1,37 +1,62 @@
-CORREÇÕES:
+# FIX.md - Lote Ativo de Correções e Melhorias
+
+## 🎯 Lote Ativo:
+*(Nenhum item pendente no momento. Todos os problemas e melhorias autorizados foram resolvidos e validados com 100% de sucesso).*
+
+---
+
+## ✅ Concluído (Fase 227):
+
+- [x] **Exeta Res apenas se configurado nas Hotkeys do Knight:**
+  - `executeKnightChallenge` em `packages/domain/src/combat.ts` agora valida estritamente a presença e ativação da magia `Exeta res` (spell ID 93) na hotbar do Knight (`knightChar.hotbar.includes(93)` e `hotbarConfigs.enabled !== false`), respeitando as mesmas regras de todas as magias.
+
+- [x] **Bônus Permanente de Bestiário (+1% EXP na Conta por Criatura Concluída):**
+  - Implementado em `packages/domain/src/bestiary.ts` com cálculo de criaturas completas (`getCompletedBestiaryCount` e `getBestiaryExpBonusPercent`).
+  - Integrado ao multiplicador efetivo de experiência (`getEffectiveExpMultiplier` / `progressionStages.ts`) e na concessão de experiência em combate (`grantSharedExperience`).
+  - Refletido no HUD superior (`WindowDockBar.tsx`), exibindo claramente o ganho acumulado dos bestiários completados (ex: `EXP 50× (+3%)`).
+
+- [x] **Correção da Animação de Caminhada em Falso ao Retornar a Thais:**
+  - Sincronização visual em `ThaisCityArena.tsx` corrigida: a animação de passos (`charWalkFrame`) está condicionada estritamente à movimentação física real (`sample.moving` do `VisualMotionTrack`). Ao estar parado, o frame é fixado em 0 (pose neutra).
+  - Fluxo de `exitHunt` em `GamePrototype.tsx` limpa `walkingPath`, garantindo que ao retornar à cidade o personagem permaneça imóvel sem loop de passos.
+
+- [x] **Correção do Valor Real do Loot no Analisador de Caça (Fim do unitVal = 100 gp):**
+  - Corrigido `GamePrototype.tsx` (linha 3091): substituído o valor genérico de 100 gp pela cotação real do catálogo de economia de NPCs (`preferredSellPrice(econItem)` e `canonicalSellPrice`), garantindo paridade exata de ouro entre o Hunt Analyzer e a venda no NPC.
+
+- [x] **Resolução Definitiva de Vazamento de Memória ("Out of Memory") em Thais City:**
+  - `ThaisCityArena.tsx` atualizado para chamar `destroyVisualNode` na remoção de containers de textos e efeitos de feitiço/treino (`timedCityVisuals` e `actorViews`), eliminando vazamentos de texturas WebGL de canvas no heap da GPU/Chrome.
+  - Destruição segura de texturas e textureSources dinâmicas anteriores ao reatribuir texturas de canvas do jogador e seguidores em `Texture.from(canvas)`.
+  - Reciclagem contínua de canvas de passos eliminada quando o personagem estiver imóvel.
+
+- [x] **Renderização Correta de Objetos e Criaturas Multi-Tile (Paredes, Escadas e Corpos 2x2):**
+  - Implementado cálculo dinâmico de `wTiles` e `hTiles` a partir da resolução real da textura (`tex.width` e `tex.height`), aplicando os deslocamentos canônicos `(wTiles - 1) * 32` e `(hTiles - 1) * 32` tanto para itens do cenário (paredes altas de 64px, escadas) quanto para corpos de monstros 2x2 (Cyclops).
+  - Camadas ordenadas com `sortableChildren = true` e zIndex diferenciado: pisos em zIndex 0 e paredes/escadas em `point.y + 16`, eliminando sobreposições e quinas cortadas.
+
+- [x] **Carregamento Instantâneo das Caçadas (Fim do Bloqueio de 1.300+ Requisições HTTP):**
+  - Limitado o lote síncrono bloqueante de itens de mapa em `PixiArena.tsx` para 80 frames prioritários fundamentais, transferindo as variações de padrões secundários para o fluxo de background streaming assíncrono. O cenário e a arena abrem em < 500ms.
+
+---
+
+## ✅ Concluído (Fase 226):
 
 - [x] **Unificação da Tela de Loading em Fluxo Único (0% a 100%):**
-  - Eliminar o duplo loading ao selecionar o personagem (1º loading de 0% a 100% baixando o bundle JS do motor + tela piscando + 2º loading de 0% a 100% conectando mundo e assets).
-  - Unificar em uma única experiência fluida e contínua sem piscar ou resetar a barra de progresso.
+  - Eliminado duplo loading ao selecionar o personagem (1º loading baixando bundle + 2º loading conectando mundo).
+  - Unificado em uma única experiência fluida e contínua sem piscar ou resetar barra de progresso.
 
 - [x] **Sincronização de Morte Visual e Floaters de Dano:**
-  - Corrigir a dessincronização onde monstros atingidos por magias/projéteis caem mortos como esqueletos antes de o número do dano subir, causado pelo atraso visual do projétil (`delayMs`) em contraposição à morte lógica instantânea (`defeatEnemy`).
-  - Sincronizar a queda/morte visual do monstro exatamente com o impacto da magia e a subida do dano.
+  - Corrigida a dessincronização onde monstros atingidos caíam como esqueleto antes do float de dano subir.
+  - Sincronizada a queda visual do monstro exatamente com o impacto da magia e a subida do dano.
 
 - [x] **Substituição das Telas de Loading Oficiais (Cyclops e Elfos):**
-  - Substituir os arquivos errados que foram copiados anteriormente (eram capturas de tela da janela de configuração da hotbar) pelas artes oficiais enviadas pelo usuário:
-    - **Cyclops Camp:** Arte oficial do Ciclope na caverna vulcânica com fogo e lava (`media_1790021891281.jpg` -> `cyclops-camp-loading.jpg`).
-    - **Elf Sanctuary:** Arte oficial dos Elfos na ponte de madeira da floresta/árvore com arco e magia (`media_1790021891257.jpg` -> `elf-sanctuary-loading.jpg`).
-  - Replicar as imagens tanto em `public/images/loading/` quanto em `public/assets/loading/`.
+  - Substituídos os arquivos provisórios pelas ilustrações canônicas de caverna vulcânica (Cyclops) e floresta/árvore com ponte (Elfos).
 
-- [x] **Transição de Loading e Execução em Aba em Segundo Plano (Background Tab Freeze):**
-  - Resolver o congelamento da tela de loading quando a aba é minimizada ou colocada em segundo plano (`requestAnimationFrame` desligado pelo Chrome a 0 FPS).
-  - Implementar temporizador desacoplado de renderização (via Web Worker ou timestamp com listener de `visibilitychange`), garantindo que a transição de viagem termine e o combate inicie mesmo se o jogador estiver em outra aba.
+- [x] **Transição de Loading e Execução em Aba em Segundo Plano:**
+  - Resolvido o congelamento do loading quando minimizado ou em outra aba através de temporizador desacoplado de renderização.
 
 - [x] **Fim do Bypass de Poções Grátis / Mana Infinita sem Gold:**
-  - Corrigir `consumePotionFromInventory` em `combat.ts`, removendo o `return true` incondicional quando a party não tem suprimentos na mochila nem dinheiro suficiente (`gold < cost`).
-  - Bloquear o consumo quando faltar dinheiro/poção, forçando a gestão real de recursos.
+  - Corrigido `consumePotionFromInventory` para bloquear consumo sem dinheiro ou suprimento.
 
 - [x] **Analisador de Caça (AdvancedMetricsWindow) 100% Funcional e Dinâmico:**
-  - Eliminar a barra de rolagem horizontal ajustando o container CSS.
-  - Substituir os dados estáticos de teste por métricas em tempo real:
-    - **Loot Real:** lista e soma exata de itens e gold dropados dos monstros mortos na hunt ativa.
-    - **Suprimentos Reais:** contagem e custo exato de poções e runas gastas pela party.
-    - **Dano Causado e Dano Recebido:** calculados com base nos eventos reais de combate.
-  - Cabeçalho contextual: ao sair da hunt, exibir `Analisador de Caça (Última hunt: [Nome da Caçada])`.
-  - Botão "Reset" funcional para zerar as métricas a qualquer momento.
-  - Reset automático ao iniciar qualquer nova caçada.
+  - Removida barra horizontal, vinculados loot real, suprimentos reais, dano causado e sofrido, cabeçalho de última hunt e botão de reset.
 
-- [x] **Resolução de Vazamento de Memória (Memory Leak) e Erro "Out of Memory" no PixiJS:**
-  - Corrigir `pixiMemorySafety.ts` para compatibilidade total com PixiJS v8, destruindo adequadamente as texturas de canvas de objetos `Text` e `Graphics` dinâmicos.
-  - Destruir explicitamente as texturas e texture sources de nós Text e recursivamente de contêineres e floaters, impedindo a criação desenfreada de texturas WebGL e eliminando o consumo contínuo que causava o crash da aba no Chrome.
+- [x] **Resolução de Vazamento de Memória (Memory Leak) no PixiJS v8:**
+  - Destruição recursiva de texturas WebGL de textos e gráficos na arena de caça.

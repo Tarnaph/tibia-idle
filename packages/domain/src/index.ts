@@ -26,3 +26,4 @@ export * from './progressionStages';
 export * from './imbuements';
 export * from './blessings';
 export * from './pvp';
+export * from './bestiary';

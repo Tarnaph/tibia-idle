@@ -1513,19 +1513,19 @@ export function ThaisCityArena({
             if (remoteMotionTracks.has(id)) {
               remoteMotionTracks.delete(id);
             }
-            view.root.destroy({ children: true });
+            destroyVisualNode(view.root);
             actorViews.delete(id);
           }
         });
 
-        // 4. Update local player character: authentic Tibia walk cycle synchronized with tile movement
+        // 4. Update local player character: authentic Tibia walk cycle synchronized strictly with physical tile movement
         if (localChar) {
           const view = ensureActorView(localChar);
           if (view) {
             const charPixelX = currentPixelX;
             const charPixelY = currentPixelY;
             const charDirection = playerDirection;
-            const charIsMoving = isMoving || Boolean(curWalk);
+            const charIsMoving = isMoving;
 
             view.sprite.scale.x = 1;
             const isMounted = Boolean(localChar.mountActive && localChar.mount && localChar.mount !== 'none');
@@ -1841,10 +1841,18 @@ export function ThaisCityArena({
               );
               if (canvas) {
                 if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
+                  if (view.sprite.texture && view.lastUrl === 'canvas') {
+                    try {
+                      const oldTex = view.sprite.texture;
+                      if (oldTex && oldTex !== Texture.EMPTY) {
+                        oldTex.destroy(true);
+                      }
+                    } catch {}
+                  }
                   view.lastCanvas = canvas;
-                if (isCached) {
-                  view.lastTextureKey = textureKey;
-                }
+                  if (isCached) {
+                    view.lastTextureKey = textureKey;
+                  }
                   const tex = Texture.from(canvas);
                   tex.source.style.scaleMode = 'nearest';
                   (tex.source as any).update?.();
@@ -1985,6 +1993,14 @@ export function ThaisCityArena({
               );
               if (canvas) {
                 if (view.lastCanvas !== canvas || view.lastTextureKey !== textureKey) {
+                  if (view.sprite.texture && view.lastUrl === 'canvas') {
+                    try {
+                      const oldTex = view.sprite.texture;
+                      if (oldTex && oldTex !== Texture.EMPTY) {
+                        oldTex.destroy(true);
+                      }
+                    } catch {}
+                  }
                   view.lastCanvas = canvas;
                   view.lastTextureKey = textureKey;
                   const tex = Texture.from(canvas);
@@ -2246,7 +2262,7 @@ export function ThaisCityArena({
           if (progress >= 1) {
             try {
               if (vis.root.parent) vis.root.parent.removeChild(vis.root);
-              vis.root.destroy({ children: true });
+              destroyVisualNode(vis.root);
             } catch {}
             timedCityVisuals.splice(idx, 1);
             continue;

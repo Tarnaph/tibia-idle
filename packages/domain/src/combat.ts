@@ -9,6 +9,7 @@ import { createSeededRng, rollInteger } from './rng';
 import { calculateBestSpellDirection, getSpellAreaTiles, getMonsterWaveTiles, isDirectionalSpell, spellFormulaRange, type FacingDirection } from './spells';
 import { addTrainingTries } from './training';
 import { getEffectiveExpMultiplier, applySkillTrainingProgress } from './progressionStages';
+import { getBestiaryExpBonusPercent } from './bestiary';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getActionSupplyCost, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { findWandDefinition, canUseWand } from './wands';
 import { assertSpatialIntegrity, directionBetween, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
@@ -528,11 +529,14 @@ export function grantSharedExperience(state: GameState, rawExperience: number, c
   }
 
   const baseShare = sharedExperiencePerCharacter(rawExperience, livingCharacters);
+  const sessionAny = state.session as any;
   for (const character of livingCharacters) {
+    const bestiaryBonus = getBestiaryExpBonusPercent(sessionAny?.bestiaryKills || (character as any)?.bestiaryKills);
     const effectiveMultiplier = getEffectiveExpMultiplier(
       character.level,
       character.staminaMinutes,
-      serverExpRate
+      serverExpRate,
+      bestiaryBonus
     );
     const memberExp = Math.max(1, Math.ceil(baseShare * effectiveMultiplier));
     character.experience += memberExp;
@@ -720,6 +724,23 @@ function executeKnightChallenge(state: GameState, content: GameContent, encounte
 
   const knightChar = state.session.characters.find((c) => c.id === knightActor.characterId);
   if (!knightChar || knightChar.level < 20) return;
+
+  // FIX.md: Exeta res só é usado pelo knight se estiver configurado na hotbar, igual a todas as demais magias
+  const hotbar = knightChar.hotbar ?? [];
+  const hasExetaInHotbar = hotbar.some((id, idx) => {
+    if (id === 93) {
+      const cfg = knightChar.hotbarConfigs?.[idx];
+      return !cfg || cfg.enabled !== false;
+    }
+    const act = findHotbarAction(id, content);
+    if (act?.kind === 'spell' && act.spell.spellId === 93) {
+      const cfg = knightChar.hotbarConfigs?.[idx];
+      return !cfg || cfg.enabled !== false;
+    }
+    return false;
+  });
+  if (!hasExetaInHotbar) return;
+
   if (knightActor.mana < 30) return;
   if ((knightActor.groupCooldowns['support'] ?? 0) > encounter.elapsedMs) return;
   if ((knightActor.spellCooldowns['93'] ?? 0) > encounter.elapsedMs) return;

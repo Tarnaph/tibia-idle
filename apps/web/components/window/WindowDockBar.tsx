@@ -6,7 +6,7 @@ import { useGameModal } from '@/apps/web/contexts/GameModalContext';
 import { AutoIdleButton } from '../AutoIdleButton';
 import { getZoomMultiplier, setZoomMultiplier, resetZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 import type { CharacterState, DerivedStats } from '@/packages/domain/src';
-import { experienceProgress, isGreenStaminaActive, getEffectiveExpMultiplier } from '@/packages/domain/src';
+import { experienceProgress, isGreenStaminaActive, getEffectiveExpMultiplier, getCompletedBestiaryCount, getBestiaryExpBonusPercent } from '@/packages/domain/src';
 import {
   getAudioVolume,
   setAudioVolume,
@@ -54,6 +54,7 @@ interface WindowDockBarProps {
   onOpenRanking?: () => void;
   onOpenPvP?: () => void;
   onOpenDebug?: () => void;
+  bestiaryKills?: Record<string, number>;
 }
 
 export function WindowDockBar({
@@ -72,6 +73,7 @@ export function WindowDockBar({
   staminaMinutes = 15,
   maxStaminaMinutes = 15,
   avatarId = 1,
+  bestiaryKills,
   onOpenProfile,
   onToggleAutoIdle,
   onToggleDebug,
@@ -177,7 +179,15 @@ export function WindowDockBar({
   const cleanCharTitle = (rawAdminTitle && rawAdminTitle !== 'null' && rawAdminTitle !== 'undefined') ? rawAdminTitle : undefined;
   const adminTitle = (cleanCharTitle === 'GOD' || cleanCharTitle === 'GM') ? cleanCharTitle : (isAdmin ? 'GOD' : undefined);
   const isGreenStamina = isGreenStaminaActive(character?.staminaMinutes ?? staminaMinutes);
-  const effectiveExpMult = getEffectiveExpMultiplier(level, character?.staminaMinutes ?? staminaMinutes);
+  const effectiveBestiaryKills = bestiaryKills || (character as any)?.bestiaryKills || {};
+  const bestiaryCompletedCount = getCompletedBestiaryCount(effectiveBestiaryKills);
+  const bestiaryBonusPercent = getBestiaryExpBonusPercent(effectiveBestiaryKills);
+  const effectiveExpMult = getEffectiveExpMultiplier(
+    level,
+    character?.staminaMinutes ?? staminaMinutes,
+    1.0,
+    bestiaryBonusPercent
+  );
 
   const currentHp = character?.currentHp ?? 150;
   const maxHp = character?.maxHp ?? 150;
@@ -376,9 +386,15 @@ export function WindowDockBar({
                 width: 'fit-content',
                 marginTop: '1px',
               }}
-              title={isGreenStamina ? 'Stamina Verde ativa: +50% EXP adicional!' : 'Multiplicador de EXP por estágio de nível'}
+              title={
+                `${isGreenStamina ? 'Stamina Verde ativa: +50% EXP adicional! ' : 'Multiplicador de EXP por estágio de nível. '}${
+                  bestiaryCompletedCount > 0 ? `Bônus permanente de Bestiário: +${bestiaryCompletedCount}% EXP (${bestiaryCompletedCount} monstros concluídos). ` : ''
+                }Multiplicador efetivo: ${Number(effectiveExpMult.toFixed(2))}×.`
+              }
             >
-              {isGreenStamina ? `⚡ EXP ${effectiveExpMult}× (Verde)` : `EXP ${effectiveExpMult}×`}
+              {isGreenStamina
+                ? `⚡ EXP ${Number(effectiveExpMult.toFixed(2))}× (Verde)${bestiaryCompletedCount > 0 ? ` (+${bestiaryCompletedCount}%)` : ''}`
+                : `EXP ${Number(effectiveExpMult.toFixed(2))}×${bestiaryCompletedCount > 0 ? ` (+${bestiaryCompletedCount}%)` : ''}`}
             </div>
           </div>
 

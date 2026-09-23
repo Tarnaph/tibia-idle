@@ -72,10 +72,14 @@ describe('Phase 214: Knight Exeta Res Animation/Visuals and Phantom Cooldown Eli
       }),
     ];
 
-    // Limpa eventos prévios
-    game.encounter.events = [];
+    // Sem Exeta res na hotbar, a IA não deve conjurar a magia
+    knightChar.hotbar = [1]; // Apenas exura
+    castAutomaticSpells(game, content);
+    expect(knightActor.mana).toBe(100);
+    expect(knightActor.spellCooldowns['93']).toBeUndefined();
 
-    // Executa castAutomaticSpells (IA automática do Knight executa executeKnightChallenge)
+    // Com Exeta res na hotbar, deve conjurar com sucesso
+    knightChar.hotbar = [93];
     castAutomaticSpells(game, content);
 
     // 1. Deve ter consumido 30 de mana do Knight
