@@ -26,10 +26,10 @@ describe('Phase 193: Cyclops and Elf Hunts + Map-based Live PvP Arena', () => {
       expect(cyclopsDef?.available).toBe(true);
     });
 
-    it('defines elf-sanctuary in importer with exact FIX.md coordinates [32741, 31298, 7]', () => {
+    it('defines elf-sanctuary in importer with canonical fortress coordinates', () => {
       const elfDef = huntConfigs.find((h) => h.huntId === 'elf-sanctuary');
       expect(elfDef).toBeDefined();
-      expect(elfDef?.center).toEqual([32741, 31298, 7]);
+      expect(elfDef?.center).toEqual([33089, 32155, 7]);
       expect(elfDef?.available).toBe(true);
     });
 

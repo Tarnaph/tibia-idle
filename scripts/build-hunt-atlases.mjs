@@ -93,29 +93,81 @@ async function buildHuntAtlases() {
       }
     }
 
+    // Add map tile items from hunt-regions.json if available
+    const huntRegionsPath = './content/generated/hunt-regions.json';
+    if (fs.existsSync(huntRegionsPath)) {
+      try {
+        const huntRegions = JSON.parse(fs.readFileSync(huntRegionsPath, 'utf8')).regions || [];
+        const region = huntRegions.find((r) => r.huntId === hunt.id);
+        if (region && region.tiles) {
+          const uniqueItemIds = new Set();
+          for (const tile of region.tiles) {
+            for (const id of tile.serverItemIds || []) {
+              uniqueItemIds.add(id);
+            }
+          }
+          console.log(`  Adding map items for ${hunt.id}: ${uniqueItemIds.size} unique item IDs across ${region.tiles.length} tiles`);
+          const mapItems = manifest.mapItems || {};
+          for (const id of uniqueItemIds) {
+            const mapping = mapItems[String(id)];
+            if (!mapping) continue;
+            const frames = mapping.frames && mapping.frames.length > 0 ? mapping.frames : (mapping.frame ? [mapping.frame] : []);
+            for (const f of frames) {
+              if (!f || !f.publicUrl) continue;
+              const localPath = path.resolve('./public', f.publicUrl.replace(/^\//, ''));
+              if (!fs.existsSync(localPath) || seenPaths.has(localPath)) continue;
+              seenPaths.add(localPath);
+              const w = f.width || (mapping.appearance?.width ? mapping.appearance.width * 32 : 32);
+              const h = f.height || (mapping.appearance?.height ? mapping.appearance.height * 32 : 32);
+              const baseName = path.basename(localPath);
+              framesToPack.push({
+                localPath,
+                width: w,
+                height: h,
+                keys: [
+                  f.publicUrl,
+                  f.publicUrl.replace(/^\//, ''),
+                  baseName,
+                  baseName.replace('.png', ''),
+                ],
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`  [WARN] Failed to pack map items for hunt ${hunt.id}:`, err);
+      }
+    }
+
     if (framesToPack.length === 0) {
       console.warn(`  No frames to pack for hunt ${hunt.id}. Skipping.`);
       continue;
     }
 
-    console.log(`  Extruding ${framesToPack.length} frames with 1px border replication...`);
-    const extruded = await Promise.all(
-      framesToPack.map(async (item) => {
-        const extrudedBuffer = await sharp(item.localPath)
-          .extend({ top: 1, bottom: 1, left: 1, right: 1, extendWith: 'copy' })
-          .png()
-          .toBuffer();
-        return {
-          ...item,
-          packedWidth: item.width + 2,
-          packedHeight: item.height + 2,
-          extrudedBuffer,
-        };
-      })
-    );
+    console.log(`  Extruding ${framesToPack.length} frames with 1px border replication in batches...`);
+    const extruded = [];
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < framesToPack.length; i += BATCH_SIZE) {
+      const batch = framesToPack.slice(i, i + BATCH_SIZE);
+      const batchRes = await Promise.all(
+        batch.map(async (item) => {
+          const extrudedBuffer = await sharp(item.localPath)
+            .extend({ top: 1, bottom: 1, left: 1, right: 1, extendWith: 'copy' })
+            .png()
+            .toBuffer();
+          return {
+            ...item,
+            packedWidth: item.width + 2,
+            packedHeight: item.height + 2,
+            extrudedBuffer,
+          };
+        })
+      );
+      extruded.push(...batchRes);
+    }
 
-    // Shelf bin-packing (Atlas width 1024 is plenty for 64x64 frames)
-    const ATLAS_WIDTH = 1024;
+    // Shelf bin-packing (Atlas width 2048 for high frame counts including map tiles)
+    const ATLAS_WIDTH = 2048;
     const sorted = [...extruded].sort((a, b) => b.packedHeight - a.packedHeight || a.localPath.localeCompare(b.localPath));
 
     let currentX = 0;

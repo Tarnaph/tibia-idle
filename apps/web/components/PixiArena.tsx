@@ -277,14 +277,12 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         }
       }
 
-      // Current room map items: prioritize primary frames to load initial room instantly (<500ms) without blocking on 1300+ pattern variants
-      let priorityMapItemsCount = 0;
+      // Current room map items: preload missing items not already loaded from atlas
       for (const tile of game.encounter.room.map.tiles) {
         for (const sId of tile.serverItemIds ?? []) {
           const m = visualAssets.mapItems?.[String(sId)];
-          if (m?.frame && priorityMapItemsCount < 80) {
+          if (m?.frame && !loaded[m.frame.publicUrl]) {
             priorityUrls.add(m.frame.publicUrl);
-            priorityMapItemsCount++;
           }
         }
       }

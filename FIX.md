@@ -5,6 +5,23 @@
 
 ---
 
+## ✅ Concluído (Fase 228):
+
+- [x] **Extração Autoritativa da Fortaleza dos Elfos (Shadowthorn) no RealMap 11:**
+  - Atualizado centro de `elf-sanctuary` para o grande pátio canônico de Shadowthorn (`[33089, 32155, 7]`) em `packages/realmap11-importer/src/importHuntRegions.ts`.
+  - Re-executado o importador, gerando uma arena completa com 776 tiles caminháveis interconectados e anel circular de 6 spawn points para Elfos, Elfos Scouts e Elfos Arcanistas.
+
+- [x] **Empacotamento Completo de Texturas de Caçadas (Texture Atlas para Hunts):**
+  - Atualizado `scripts/build-hunt-atlases.mjs` para incluir os 257 `serverItemIds` únicos dos tiles do mapa no atlas `hunt-elf-sanctuary-atlas.json` e `.png` (1.08 MB com 6.404 aliases de frames).
+  - Otimizado `PixiArena.tsx` para carregar imediatamente os tiles a partir do atlas hunt já injetado em memória, eliminando a sobrecarga de 2.500 requisições HTTP individuais que quebravam o mapa e geravam buracos invisíveis.
+
+- [x] **Fim Definitivo da Caminhada em Falso ao Renascer da Morte (handleRespawnInTemple & exitHunt):**
+  - Removido o agendamento de rota para o Depot em `handleRespawnInTemple` durante o loading de 10s. O personagem agora renasce no Templo estático em pose neutra (`walkingPath = null` e `heldDirectionRef.current = null`).
+  - Limpeza estrita de `heldDirectionRef.current = null` garantida em `exitHunt`.
+
+
+---
+
 ## ✅ Concluído (Fase 227):
 
 - [x] **Exeta Res apenas se configurado nas Hotkeys do Knight:**

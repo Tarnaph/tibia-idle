@@ -1202,8 +1202,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-north-frame-7.png": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 991,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1222,8 +1222,8 @@
     },
     "generated/tibia1098/monster-poison-spider-north-frame-7.png": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 991,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1242,8 +1242,8 @@
     },
     "monster-poison-spider-north-frame-7.png": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 991,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1262,8 +1262,8 @@
     },
     "monster-poison-spider-north-frame-7": {
       "frame": {
-        "x": 1,
-        "y": 67,
+        "x": 991,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1282,8 +1282,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-0.png": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 1057,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1302,8 +1302,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-0.png": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 1057,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1322,8 +1322,8 @@
     },
     "monster-poison-spider-south-frame-0.png": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 1057,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1342,8 +1342,8 @@
     },
     "monster-poison-spider-south-frame-0": {
       "frame": {
-        "x": 67,
-        "y": 67,
+        "x": 1057,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1362,8 +1362,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-1.png": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 1123,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1382,8 +1382,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-1.png": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 1123,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1402,8 +1402,8 @@
     },
     "monster-poison-spider-south-frame-1.png": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 1123,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1422,8 +1422,8 @@
     },
     "monster-poison-spider-south-frame-1": {
       "frame": {
-        "x": 133,
-        "y": 67,
+        "x": 1123,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1442,8 +1442,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1189,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1462,8 +1462,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1189,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1482,8 +1482,8 @@
     },
     "monster-poison-spider-south-frame-2.png": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1189,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1502,8 +1502,8 @@
     },
     "monster-poison-spider-south-frame-2": {
       "frame": {
-        "x": 199,
-        "y": 67,
+        "x": 1189,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1522,8 +1522,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 1255,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1542,8 +1542,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 1255,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1562,8 +1562,8 @@
     },
     "monster-poison-spider-south-frame-3.png": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 1255,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1582,8 +1582,8 @@
     },
     "monster-poison-spider-south-frame-3": {
       "frame": {
-        "x": 265,
-        "y": 67,
+        "x": 1255,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1602,8 +1602,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 1321,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1622,8 +1622,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 1321,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1642,8 +1642,8 @@
     },
     "monster-poison-spider-south-frame-4.png": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 1321,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1662,8 +1662,8 @@
     },
     "monster-poison-spider-south-frame-4": {
       "frame": {
-        "x": 331,
-        "y": 67,
+        "x": 1321,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1682,8 +1682,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 1387,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1702,8 +1702,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 1387,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1722,8 +1722,8 @@
     },
     "monster-poison-spider-south-frame-5.png": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 1387,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1742,8 +1742,8 @@
     },
     "monster-poison-spider-south-frame-5": {
       "frame": {
-        "x": 397,
-        "y": 67,
+        "x": 1387,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1762,8 +1762,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 1453,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1782,8 +1782,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 1453,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1802,8 +1802,8 @@
     },
     "monster-poison-spider-south-frame-6.png": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 1453,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1822,8 +1822,8 @@
     },
     "monster-poison-spider-south-frame-6": {
       "frame": {
-        "x": 463,
-        "y": 67,
+        "x": 1453,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1842,8 +1842,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 1519,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1862,8 +1862,8 @@
     },
     "generated/tibia1098/monster-poison-spider-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 1519,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1882,8 +1882,8 @@
     },
     "monster-poison-spider-south-frame-7.png": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 1519,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1902,8 +1902,8 @@
     },
     "monster-poison-spider-south-frame-7": {
       "frame": {
-        "x": 529,
-        "y": 67,
+        "x": 1519,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1922,8 +1922,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 1585,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1942,8 +1942,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 1585,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1962,8 +1962,8 @@
     },
     "monster-poison-spider-west-frame-0.png": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 1585,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -1982,8 +1982,8 @@
     },
     "monster-poison-spider-west-frame-0": {
       "frame": {
-        "x": 595,
-        "y": 67,
+        "x": 1585,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2002,8 +2002,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 1651,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2022,8 +2022,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 1651,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2042,8 +2042,8 @@
     },
     "monster-poison-spider-west-frame-1.png": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 1651,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2062,8 +2062,8 @@
     },
     "monster-poison-spider-west-frame-1": {
       "frame": {
-        "x": 661,
-        "y": 67,
+        "x": 1651,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2082,8 +2082,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 1717,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2102,8 +2102,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 1717,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2122,8 +2122,8 @@
     },
     "monster-poison-spider-west-frame-2.png": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 1717,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2142,8 +2142,8 @@
     },
     "monster-poison-spider-west-frame-2": {
       "frame": {
-        "x": 727,
-        "y": 67,
+        "x": 1717,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2162,8 +2162,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 1783,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2182,8 +2182,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 1783,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2202,8 +2202,8 @@
     },
     "monster-poison-spider-west-frame-3.png": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 1783,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2222,8 +2222,8 @@
     },
     "monster-poison-spider-west-frame-3": {
       "frame": {
-        "x": 793,
-        "y": 67,
+        "x": 1783,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2242,8 +2242,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1849,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2262,8 +2262,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1849,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2282,8 +2282,8 @@
     },
     "monster-poison-spider-west-frame-4.png": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1849,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2302,8 +2302,8 @@
     },
     "monster-poison-spider-west-frame-4": {
       "frame": {
-        "x": 859,
-        "y": 67,
+        "x": 1849,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2322,8 +2322,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 1915,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2342,8 +2342,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 1915,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2362,8 +2362,8 @@
     },
     "monster-poison-spider-west-frame-5.png": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 1915,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2382,8 +2382,8 @@
     },
     "monster-poison-spider-west-frame-5": {
       "frame": {
-        "x": 925,
-        "y": 67,
+        "x": 1915,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2402,8 +2402,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 1981,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2422,8 +2422,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 1981,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2442,8 +2442,8 @@
     },
     "monster-poison-spider-west-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 1981,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2462,8 +2462,8 @@
     },
     "monster-poison-spider-west-frame-6": {
       "frame": {
-        "x": 1,
-        "y": 133,
+        "x": 1981,
+        "y": 1,
         "w": 64,
         "h": 64
       },
@@ -2482,8 +2482,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-west-frame-7.png": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 1,
+        "y": 67,
         "w": 64,
         "h": 64
       },
@@ -2502,8 +2502,8 @@
     },
     "generated/tibia1098/monster-poison-spider-west-frame-7.png": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 1,
+        "y": 67,
         "w": 64,
         "h": 64
       },
@@ -2522,8 +2522,8 @@
     },
     "monster-poison-spider-west-frame-7.png": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 1,
+        "y": 67,
         "w": 64,
         "h": 64
       },
@@ -2542,8 +2542,8 @@
     },
     "monster-poison-spider-west-frame-7": {
       "frame": {
-        "x": 67,
-        "y": 133,
+        "x": 1,
+        "y": 67,
         "w": 64,
         "h": 64
       },
@@ -2562,8 +2562,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-0.png": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 67,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2582,8 +2582,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-0.png": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 67,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2602,8 +2602,8 @@
     },
     "monster-bug-east-frame-0.png": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 67,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2622,8 +2622,8 @@
     },
     "monster-bug-east-frame-0": {
       "frame": {
-        "x": 133,
-        "y": 133,
+        "x": 67,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2642,8 +2642,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-1.png": {
       "frame": {
-        "x": 167,
-        "y": 133,
+        "x": 101,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2662,8 +2662,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-1.png": {
       "frame": {
-        "x": 167,
-        "y": 133,
+        "x": 101,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2682,8 +2682,8 @@
     },
     "monster-bug-east-frame-1.png": {
       "frame": {
-        "x": 167,
-        "y": 133,
+        "x": 101,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2702,8 +2702,8 @@
     },
     "monster-bug-east-frame-1": {
       "frame": {
-        "x": 167,
-        "y": 133,
+        "x": 101,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2722,8 +2722,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-2.png": {
       "frame": {
-        "x": 201,
-        "y": 133,
+        "x": 135,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2742,8 +2742,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-2.png": {
       "frame": {
-        "x": 201,
-        "y": 133,
+        "x": 135,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2762,8 +2762,8 @@
     },
     "monster-bug-east-frame-2.png": {
       "frame": {
-        "x": 201,
-        "y": 133,
+        "x": 135,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2782,8 +2782,8 @@
     },
     "monster-bug-east-frame-2": {
       "frame": {
-        "x": 201,
-        "y": 133,
+        "x": 135,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2802,8 +2802,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-3.png": {
       "frame": {
-        "x": 235,
-        "y": 133,
+        "x": 169,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2822,8 +2822,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-3.png": {
       "frame": {
-        "x": 235,
-        "y": 133,
+        "x": 169,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2842,8 +2842,8 @@
     },
     "monster-bug-east-frame-3.png": {
       "frame": {
-        "x": 235,
-        "y": 133,
+        "x": 169,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2862,8 +2862,8 @@
     },
     "monster-bug-east-frame-3": {
       "frame": {
-        "x": 235,
-        "y": 133,
+        "x": 169,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2882,8 +2882,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-4.png": {
       "frame": {
-        "x": 269,
-        "y": 133,
+        "x": 203,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2902,8 +2902,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-4.png": {
       "frame": {
-        "x": 269,
-        "y": 133,
+        "x": 203,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2922,8 +2922,8 @@
     },
     "monster-bug-east-frame-4.png": {
       "frame": {
-        "x": 269,
-        "y": 133,
+        "x": 203,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2942,8 +2942,8 @@
     },
     "monster-bug-east-frame-4": {
       "frame": {
-        "x": 269,
-        "y": 133,
+        "x": 203,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2962,8 +2962,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-5.png": {
       "frame": {
-        "x": 303,
-        "y": 133,
+        "x": 237,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -2982,8 +2982,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-5.png": {
       "frame": {
-        "x": 303,
-        "y": 133,
+        "x": 237,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3002,8 +3002,8 @@
     },
     "monster-bug-east-frame-5.png": {
       "frame": {
-        "x": 303,
-        "y": 133,
+        "x": 237,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3022,8 +3022,8 @@
     },
     "monster-bug-east-frame-5": {
       "frame": {
-        "x": 303,
-        "y": 133,
+        "x": 237,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3042,8 +3042,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-6.png": {
       "frame": {
-        "x": 337,
-        "y": 133,
+        "x": 271,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3062,8 +3062,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-6.png": {
       "frame": {
-        "x": 337,
-        "y": 133,
+        "x": 271,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3082,8 +3082,8 @@
     },
     "monster-bug-east-frame-6.png": {
       "frame": {
-        "x": 337,
-        "y": 133,
+        "x": 271,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3102,8 +3102,8 @@
     },
     "monster-bug-east-frame-6": {
       "frame": {
-        "x": 337,
-        "y": 133,
+        "x": 271,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3122,8 +3122,8 @@
     },
     "/generated/tibia1098/monster-bug-east-frame-7.png": {
       "frame": {
-        "x": 371,
-        "y": 133,
+        "x": 305,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3142,8 +3142,8 @@
     },
     "generated/tibia1098/monster-bug-east-frame-7.png": {
       "frame": {
-        "x": 371,
-        "y": 133,
+        "x": 305,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3162,8 +3162,8 @@
     },
     "monster-bug-east-frame-7.png": {
       "frame": {
-        "x": 371,
-        "y": 133,
+        "x": 305,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3182,8 +3182,8 @@
     },
     "monster-bug-east-frame-7": {
       "frame": {
-        "x": 371,
-        "y": 133,
+        "x": 305,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3202,8 +3202,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-0.png": {
       "frame": {
-        "x": 405,
-        "y": 133,
+        "x": 339,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3222,8 +3222,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-0.png": {
       "frame": {
-        "x": 405,
-        "y": 133,
+        "x": 339,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3242,8 +3242,8 @@
     },
     "monster-bug-north-frame-0.png": {
       "frame": {
-        "x": 405,
-        "y": 133,
+        "x": 339,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3262,8 +3262,8 @@
     },
     "monster-bug-north-frame-0": {
       "frame": {
-        "x": 405,
-        "y": 133,
+        "x": 339,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3282,8 +3282,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-1.png": {
       "frame": {
-        "x": 439,
-        "y": 133,
+        "x": 373,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3302,8 +3302,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-1.png": {
       "frame": {
-        "x": 439,
-        "y": 133,
+        "x": 373,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3322,8 +3322,8 @@
     },
     "monster-bug-north-frame-1.png": {
       "frame": {
-        "x": 439,
-        "y": 133,
+        "x": 373,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3342,8 +3342,8 @@
     },
     "monster-bug-north-frame-1": {
       "frame": {
-        "x": 439,
-        "y": 133,
+        "x": 373,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3362,8 +3362,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-2.png": {
       "frame": {
-        "x": 473,
-        "y": 133,
+        "x": 407,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3382,8 +3382,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-2.png": {
       "frame": {
-        "x": 473,
-        "y": 133,
+        "x": 407,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3402,8 +3402,8 @@
     },
     "monster-bug-north-frame-2.png": {
       "frame": {
-        "x": 473,
-        "y": 133,
+        "x": 407,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3422,8 +3422,8 @@
     },
     "monster-bug-north-frame-2": {
       "frame": {
-        "x": 473,
-        "y": 133,
+        "x": 407,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3442,8 +3442,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-3.png": {
       "frame": {
-        "x": 507,
-        "y": 133,
+        "x": 441,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3462,8 +3462,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-3.png": {
       "frame": {
-        "x": 507,
-        "y": 133,
+        "x": 441,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3482,8 +3482,8 @@
     },
     "monster-bug-north-frame-3.png": {
       "frame": {
-        "x": 507,
-        "y": 133,
+        "x": 441,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3502,8 +3502,8 @@
     },
     "monster-bug-north-frame-3": {
       "frame": {
-        "x": 507,
-        "y": 133,
+        "x": 441,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3522,8 +3522,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-4.png": {
       "frame": {
-        "x": 541,
-        "y": 133,
+        "x": 475,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3542,8 +3542,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-4.png": {
       "frame": {
-        "x": 541,
-        "y": 133,
+        "x": 475,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3562,8 +3562,8 @@
     },
     "monster-bug-north-frame-4.png": {
       "frame": {
-        "x": 541,
-        "y": 133,
+        "x": 475,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3582,8 +3582,8 @@
     },
     "monster-bug-north-frame-4": {
       "frame": {
-        "x": 541,
-        "y": 133,
+        "x": 475,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3602,8 +3602,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-5.png": {
       "frame": {
-        "x": 575,
-        "y": 133,
+        "x": 509,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3622,8 +3622,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-5.png": {
       "frame": {
-        "x": 575,
-        "y": 133,
+        "x": 509,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3642,8 +3642,8 @@
     },
     "monster-bug-north-frame-5.png": {
       "frame": {
-        "x": 575,
-        "y": 133,
+        "x": 509,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3662,8 +3662,8 @@
     },
     "monster-bug-north-frame-5": {
       "frame": {
-        "x": 575,
-        "y": 133,
+        "x": 509,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3682,8 +3682,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-6.png": {
       "frame": {
-        "x": 609,
-        "y": 133,
+        "x": 543,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3702,8 +3702,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-6.png": {
       "frame": {
-        "x": 609,
-        "y": 133,
+        "x": 543,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3722,8 +3722,8 @@
     },
     "monster-bug-north-frame-6.png": {
       "frame": {
-        "x": 609,
-        "y": 133,
+        "x": 543,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3742,8 +3742,8 @@
     },
     "monster-bug-north-frame-6": {
       "frame": {
-        "x": 609,
-        "y": 133,
+        "x": 543,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3762,8 +3762,8 @@
     },
     "/generated/tibia1098/monster-bug-north-frame-7.png": {
       "frame": {
-        "x": 643,
-        "y": 133,
+        "x": 577,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3782,8 +3782,8 @@
     },
     "generated/tibia1098/monster-bug-north-frame-7.png": {
       "frame": {
-        "x": 643,
-        "y": 133,
+        "x": 577,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3802,8 +3802,8 @@
     },
     "monster-bug-north-frame-7.png": {
       "frame": {
-        "x": 643,
-        "y": 133,
+        "x": 577,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3822,8 +3822,8 @@
     },
     "monster-bug-north-frame-7": {
       "frame": {
-        "x": 643,
-        "y": 133,
+        "x": 577,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3842,8 +3842,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-0.png": {
       "frame": {
-        "x": 677,
-        "y": 133,
+        "x": 611,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3862,8 +3862,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-0.png": {
       "frame": {
-        "x": 677,
-        "y": 133,
+        "x": 611,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3882,8 +3882,8 @@
     },
     "monster-bug-south-frame-0.png": {
       "frame": {
-        "x": 677,
-        "y": 133,
+        "x": 611,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3902,8 +3902,8 @@
     },
     "monster-bug-south-frame-0": {
       "frame": {
-        "x": 677,
-        "y": 133,
+        "x": 611,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3922,8 +3922,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-1.png": {
       "frame": {
-        "x": 711,
-        "y": 133,
+        "x": 645,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3942,8 +3942,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-1.png": {
       "frame": {
-        "x": 711,
-        "y": 133,
+        "x": 645,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3962,8 +3962,8 @@
     },
     "monster-bug-south-frame-1.png": {
       "frame": {
-        "x": 711,
-        "y": 133,
+        "x": 645,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -3982,8 +3982,8 @@
     },
     "monster-bug-south-frame-1": {
       "frame": {
-        "x": 711,
-        "y": 133,
+        "x": 645,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4002,8 +4002,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-2.png": {
       "frame": {
-        "x": 745,
-        "y": 133,
+        "x": 679,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4022,8 +4022,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-2.png": {
       "frame": {
-        "x": 745,
-        "y": 133,
+        "x": 679,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4042,8 +4042,8 @@
     },
     "monster-bug-south-frame-2.png": {
       "frame": {
-        "x": 745,
-        "y": 133,
+        "x": 679,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4062,8 +4062,8 @@
     },
     "monster-bug-south-frame-2": {
       "frame": {
-        "x": 745,
-        "y": 133,
+        "x": 679,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4082,8 +4082,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-3.png": {
       "frame": {
-        "x": 779,
-        "y": 133,
+        "x": 713,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4102,8 +4102,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-3.png": {
       "frame": {
-        "x": 779,
-        "y": 133,
+        "x": 713,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4122,8 +4122,8 @@
     },
     "monster-bug-south-frame-3.png": {
       "frame": {
-        "x": 779,
-        "y": 133,
+        "x": 713,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4142,8 +4142,8 @@
     },
     "monster-bug-south-frame-3": {
       "frame": {
-        "x": 779,
-        "y": 133,
+        "x": 713,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4162,8 +4162,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-4.png": {
       "frame": {
-        "x": 813,
-        "y": 133,
+        "x": 747,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4182,8 +4182,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-4.png": {
       "frame": {
-        "x": 813,
-        "y": 133,
+        "x": 747,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4202,8 +4202,8 @@
     },
     "monster-bug-south-frame-4.png": {
       "frame": {
-        "x": 813,
-        "y": 133,
+        "x": 747,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4222,8 +4222,8 @@
     },
     "monster-bug-south-frame-4": {
       "frame": {
-        "x": 813,
-        "y": 133,
+        "x": 747,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4242,8 +4242,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-5.png": {
       "frame": {
-        "x": 847,
-        "y": 133,
+        "x": 781,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4262,8 +4262,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-5.png": {
       "frame": {
-        "x": 847,
-        "y": 133,
+        "x": 781,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4282,8 +4282,8 @@
     },
     "monster-bug-south-frame-5.png": {
       "frame": {
-        "x": 847,
-        "y": 133,
+        "x": 781,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4302,8 +4302,8 @@
     },
     "monster-bug-south-frame-5": {
       "frame": {
-        "x": 847,
-        "y": 133,
+        "x": 781,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4322,8 +4322,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-6.png": {
       "frame": {
-        "x": 881,
-        "y": 133,
+        "x": 815,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4342,8 +4342,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-6.png": {
       "frame": {
-        "x": 881,
-        "y": 133,
+        "x": 815,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4362,8 +4362,8 @@
     },
     "monster-bug-south-frame-6.png": {
       "frame": {
-        "x": 881,
-        "y": 133,
+        "x": 815,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4382,8 +4382,8 @@
     },
     "monster-bug-south-frame-6": {
       "frame": {
-        "x": 881,
-        "y": 133,
+        "x": 815,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4402,8 +4402,8 @@
     },
     "/generated/tibia1098/monster-bug-south-frame-7.png": {
       "frame": {
-        "x": 915,
-        "y": 133,
+        "x": 849,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4422,8 +4422,8 @@
     },
     "generated/tibia1098/monster-bug-south-frame-7.png": {
       "frame": {
-        "x": 915,
-        "y": 133,
+        "x": 849,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4442,8 +4442,8 @@
     },
     "monster-bug-south-frame-7.png": {
       "frame": {
-        "x": 915,
-        "y": 133,
+        "x": 849,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4462,8 +4462,8 @@
     },
     "monster-bug-south-frame-7": {
       "frame": {
-        "x": 915,
-        "y": 133,
+        "x": 849,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4482,8 +4482,8 @@
     },
     "/generated/tibia1098/monster-bug-thumb.png": {
       "frame": {
-        "x": 949,
-        "y": 133,
+        "x": 883,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4502,8 +4502,8 @@
     },
     "generated/tibia1098/monster-bug-thumb.png": {
       "frame": {
-        "x": 949,
-        "y": 133,
+        "x": 883,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4522,8 +4522,8 @@
     },
     "monster-bug-thumb.png": {
       "frame": {
-        "x": 949,
-        "y": 133,
+        "x": 883,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4542,8 +4542,8 @@
     },
     "thumb-bug": {
       "frame": {
-        "x": 949,
-        "y": 133,
+        "x": 883,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4562,8 +4562,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-0.png": {
       "frame": {
-        "x": 983,
-        "y": 133,
+        "x": 917,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4582,8 +4582,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-0.png": {
       "frame": {
-        "x": 983,
-        "y": 133,
+        "x": 917,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4602,8 +4602,8 @@
     },
     "monster-bug-west-frame-0.png": {
       "frame": {
-        "x": 983,
-        "y": 133,
+        "x": 917,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4622,8 +4622,8 @@
     },
     "monster-bug-west-frame-0": {
       "frame": {
-        "x": 983,
-        "y": 133,
+        "x": 917,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4642,8 +4642,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-1.png": {
       "frame": {
-        "x": 1,
-        "y": 199,
+        "x": 951,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4662,8 +4662,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-1.png": {
       "frame": {
-        "x": 1,
-        "y": 199,
+        "x": 951,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4682,8 +4682,8 @@
     },
     "monster-bug-west-frame-1.png": {
       "frame": {
-        "x": 1,
-        "y": 199,
+        "x": 951,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4702,8 +4702,8 @@
     },
     "monster-bug-west-frame-1": {
       "frame": {
-        "x": 1,
-        "y": 199,
+        "x": 951,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4722,8 +4722,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-2.png": {
       "frame": {
-        "x": 35,
-        "y": 199,
+        "x": 985,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4742,8 +4742,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-2.png": {
       "frame": {
-        "x": 35,
-        "y": 199,
+        "x": 985,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4762,8 +4762,8 @@
     },
     "monster-bug-west-frame-2.png": {
       "frame": {
-        "x": 35,
-        "y": 199,
+        "x": 985,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4782,8 +4782,8 @@
     },
     "monster-bug-west-frame-2": {
       "frame": {
-        "x": 35,
-        "y": 199,
+        "x": 985,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4802,8 +4802,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-3.png": {
       "frame": {
-        "x": 69,
-        "y": 199,
+        "x": 1019,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4822,8 +4822,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-3.png": {
       "frame": {
-        "x": 69,
-        "y": 199,
+        "x": 1019,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4842,8 +4842,8 @@
     },
     "monster-bug-west-frame-3.png": {
       "frame": {
-        "x": 69,
-        "y": 199,
+        "x": 1019,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4862,8 +4862,8 @@
     },
     "monster-bug-west-frame-3": {
       "frame": {
-        "x": 69,
-        "y": 199,
+        "x": 1019,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4882,8 +4882,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-4.png": {
       "frame": {
-        "x": 103,
-        "y": 199,
+        "x": 1053,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4902,8 +4902,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-4.png": {
       "frame": {
-        "x": 103,
-        "y": 199,
+        "x": 1053,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4922,8 +4922,8 @@
     },
     "monster-bug-west-frame-4.png": {
       "frame": {
-        "x": 103,
-        "y": 199,
+        "x": 1053,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4942,8 +4942,8 @@
     },
     "monster-bug-west-frame-4": {
       "frame": {
-        "x": 103,
-        "y": 199,
+        "x": 1053,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4962,8 +4962,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-5.png": {
       "frame": {
-        "x": 137,
-        "y": 199,
+        "x": 1087,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -4982,8 +4982,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-5.png": {
       "frame": {
-        "x": 137,
-        "y": 199,
+        "x": 1087,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5002,8 +5002,8 @@
     },
     "monster-bug-west-frame-5.png": {
       "frame": {
-        "x": 137,
-        "y": 199,
+        "x": 1087,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5022,8 +5022,8 @@
     },
     "monster-bug-west-frame-5": {
       "frame": {
-        "x": 137,
-        "y": 199,
+        "x": 1087,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5042,8 +5042,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-6.png": {
       "frame": {
-        "x": 171,
-        "y": 199,
+        "x": 1121,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5062,8 +5062,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-6.png": {
       "frame": {
-        "x": 171,
-        "y": 199,
+        "x": 1121,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5082,8 +5082,8 @@
     },
     "monster-bug-west-frame-6.png": {
       "frame": {
-        "x": 171,
-        "y": 199,
+        "x": 1121,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5102,8 +5102,8 @@
     },
     "monster-bug-west-frame-6": {
       "frame": {
-        "x": 171,
-        "y": 199,
+        "x": 1121,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5122,8 +5122,8 @@
     },
     "/generated/tibia1098/monster-bug-west-frame-7.png": {
       "frame": {
-        "x": 205,
-        "y": 199,
+        "x": 1155,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5142,8 +5142,8 @@
     },
     "generated/tibia1098/monster-bug-west-frame-7.png": {
       "frame": {
-        "x": 205,
-        "y": 199,
+        "x": 1155,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5162,8 +5162,8 @@
     },
     "monster-bug-west-frame-7.png": {
       "frame": {
-        "x": 205,
-        "y": 199,
+        "x": 1155,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5182,8 +5182,8 @@
     },
     "monster-bug-west-frame-7": {
       "frame": {
-        "x": 205,
-        "y": 199,
+        "x": 1155,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5202,8 +5202,8 @@
     },
     "/generated/tibia1098/monster-poison-spider-thumb.png": {
       "frame": {
-        "x": 239,
-        "y": 199,
+        "x": 1189,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5222,8 +5222,8 @@
     },
     "generated/tibia1098/monster-poison-spider-thumb.png": {
       "frame": {
-        "x": 239,
-        "y": 199,
+        "x": 1189,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5242,8 +5242,8 @@
     },
     "monster-poison-spider-thumb.png": {
       "frame": {
-        "x": 239,
-        "y": 199,
+        "x": 1189,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5262,8 +5262,8 @@
     },
     "thumb-poison-spider": {
       "frame": {
-        "x": 239,
-        "y": 199,
+        "x": 1189,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5282,8 +5282,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-0.png": {
       "frame": {
-        "x": 273,
-        "y": 199,
+        "x": 1223,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5302,8 +5302,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-0.png": {
       "frame": {
-        "x": 273,
-        "y": 199,
+        "x": 1223,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5322,8 +5322,8 @@
     },
     "monster-spider-east-frame-0.png": {
       "frame": {
-        "x": 273,
-        "y": 199,
+        "x": 1223,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5342,8 +5342,8 @@
     },
     "monster-spider-east-frame-0": {
       "frame": {
-        "x": 273,
-        "y": 199,
+        "x": 1223,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5362,8 +5362,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-1.png": {
       "frame": {
-        "x": 307,
-        "y": 199,
+        "x": 1257,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5382,8 +5382,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-1.png": {
       "frame": {
-        "x": 307,
-        "y": 199,
+        "x": 1257,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5402,8 +5402,8 @@
     },
     "monster-spider-east-frame-1.png": {
       "frame": {
-        "x": 307,
-        "y": 199,
+        "x": 1257,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5422,8 +5422,8 @@
     },
     "monster-spider-east-frame-1": {
       "frame": {
-        "x": 307,
-        "y": 199,
+        "x": 1257,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5442,8 +5442,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-2.png": {
       "frame": {
-        "x": 341,
-        "y": 199,
+        "x": 1291,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5462,8 +5462,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-2.png": {
       "frame": {
-        "x": 341,
-        "y": 199,
+        "x": 1291,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5482,8 +5482,8 @@
     },
     "monster-spider-east-frame-2.png": {
       "frame": {
-        "x": 341,
-        "y": 199,
+        "x": 1291,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5502,8 +5502,8 @@
     },
     "monster-spider-east-frame-2": {
       "frame": {
-        "x": 341,
-        "y": 199,
+        "x": 1291,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5522,8 +5522,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-3.png": {
       "frame": {
-        "x": 375,
-        "y": 199,
+        "x": 1325,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5542,8 +5542,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-3.png": {
       "frame": {
-        "x": 375,
-        "y": 199,
+        "x": 1325,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5562,8 +5562,8 @@
     },
     "monster-spider-east-frame-3.png": {
       "frame": {
-        "x": 375,
-        "y": 199,
+        "x": 1325,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5582,8 +5582,8 @@
     },
     "monster-spider-east-frame-3": {
       "frame": {
-        "x": 375,
-        "y": 199,
+        "x": 1325,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5602,8 +5602,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-4.png": {
       "frame": {
-        "x": 409,
-        "y": 199,
+        "x": 1359,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5622,8 +5622,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-4.png": {
       "frame": {
-        "x": 409,
-        "y": 199,
+        "x": 1359,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5642,8 +5642,8 @@
     },
     "monster-spider-east-frame-4.png": {
       "frame": {
-        "x": 409,
-        "y": 199,
+        "x": 1359,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5662,8 +5662,8 @@
     },
     "monster-spider-east-frame-4": {
       "frame": {
-        "x": 409,
-        "y": 199,
+        "x": 1359,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5682,8 +5682,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-5.png": {
       "frame": {
-        "x": 443,
-        "y": 199,
+        "x": 1393,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5702,8 +5702,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-5.png": {
       "frame": {
-        "x": 443,
-        "y": 199,
+        "x": 1393,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5722,8 +5722,8 @@
     },
     "monster-spider-east-frame-5.png": {
       "frame": {
-        "x": 443,
-        "y": 199,
+        "x": 1393,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5742,8 +5742,8 @@
     },
     "monster-spider-east-frame-5": {
       "frame": {
-        "x": 443,
-        "y": 199,
+        "x": 1393,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5762,8 +5762,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-6.png": {
       "frame": {
-        "x": 477,
-        "y": 199,
+        "x": 1427,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5782,8 +5782,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-6.png": {
       "frame": {
-        "x": 477,
-        "y": 199,
+        "x": 1427,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5802,8 +5802,8 @@
     },
     "monster-spider-east-frame-6.png": {
       "frame": {
-        "x": 477,
-        "y": 199,
+        "x": 1427,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5822,8 +5822,8 @@
     },
     "monster-spider-east-frame-6": {
       "frame": {
-        "x": 477,
-        "y": 199,
+        "x": 1427,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5842,8 +5842,8 @@
     },
     "/generated/tibia1098/monster-spider-east-frame-7.png": {
       "frame": {
-        "x": 511,
-        "y": 199,
+        "x": 1461,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5862,8 +5862,8 @@
     },
     "generated/tibia1098/monster-spider-east-frame-7.png": {
       "frame": {
-        "x": 511,
-        "y": 199,
+        "x": 1461,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5882,8 +5882,8 @@
     },
     "monster-spider-east-frame-7.png": {
       "frame": {
-        "x": 511,
-        "y": 199,
+        "x": 1461,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5902,8 +5902,8 @@
     },
     "monster-spider-east-frame-7": {
       "frame": {
-        "x": 511,
-        "y": 199,
+        "x": 1461,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5922,8 +5922,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-0.png": {
       "frame": {
-        "x": 545,
-        "y": 199,
+        "x": 1495,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5942,8 +5942,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-0.png": {
       "frame": {
-        "x": 545,
-        "y": 199,
+        "x": 1495,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5962,8 +5962,8 @@
     },
     "monster-spider-north-frame-0.png": {
       "frame": {
-        "x": 545,
-        "y": 199,
+        "x": 1495,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -5982,8 +5982,8 @@
     },
     "monster-spider-north-frame-0": {
       "frame": {
-        "x": 545,
-        "y": 199,
+        "x": 1495,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6002,8 +6002,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-1.png": {
       "frame": {
-        "x": 579,
-        "y": 199,
+        "x": 1529,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6022,8 +6022,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-1.png": {
       "frame": {
-        "x": 579,
-        "y": 199,
+        "x": 1529,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6042,8 +6042,8 @@
     },
     "monster-spider-north-frame-1.png": {
       "frame": {
-        "x": 579,
-        "y": 199,
+        "x": 1529,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6062,8 +6062,8 @@
     },
     "monster-spider-north-frame-1": {
       "frame": {
-        "x": 579,
-        "y": 199,
+        "x": 1529,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6082,8 +6082,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-2.png": {
       "frame": {
-        "x": 613,
-        "y": 199,
+        "x": 1563,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6102,8 +6102,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-2.png": {
       "frame": {
-        "x": 613,
-        "y": 199,
+        "x": 1563,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6122,8 +6122,8 @@
     },
     "monster-spider-north-frame-2.png": {
       "frame": {
-        "x": 613,
-        "y": 199,
+        "x": 1563,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6142,8 +6142,8 @@
     },
     "monster-spider-north-frame-2": {
       "frame": {
-        "x": 613,
-        "y": 199,
+        "x": 1563,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6162,8 +6162,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-3.png": {
       "frame": {
-        "x": 647,
-        "y": 199,
+        "x": 1597,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6182,8 +6182,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-3.png": {
       "frame": {
-        "x": 647,
-        "y": 199,
+        "x": 1597,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6202,8 +6202,8 @@
     },
     "monster-spider-north-frame-3.png": {
       "frame": {
-        "x": 647,
-        "y": 199,
+        "x": 1597,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6222,8 +6222,8 @@
     },
     "monster-spider-north-frame-3": {
       "frame": {
-        "x": 647,
-        "y": 199,
+        "x": 1597,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6242,8 +6242,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-4.png": {
       "frame": {
-        "x": 681,
-        "y": 199,
+        "x": 1631,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6262,8 +6262,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-4.png": {
       "frame": {
-        "x": 681,
-        "y": 199,
+        "x": 1631,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6282,8 +6282,8 @@
     },
     "monster-spider-north-frame-4.png": {
       "frame": {
-        "x": 681,
-        "y": 199,
+        "x": 1631,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6302,8 +6302,8 @@
     },
     "monster-spider-north-frame-4": {
       "frame": {
-        "x": 681,
-        "y": 199,
+        "x": 1631,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6322,8 +6322,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-5.png": {
       "frame": {
-        "x": 715,
-        "y": 199,
+        "x": 1665,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6342,8 +6342,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-5.png": {
       "frame": {
-        "x": 715,
-        "y": 199,
+        "x": 1665,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6362,8 +6362,8 @@
     },
     "monster-spider-north-frame-5.png": {
       "frame": {
-        "x": 715,
-        "y": 199,
+        "x": 1665,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6382,8 +6382,8 @@
     },
     "monster-spider-north-frame-5": {
       "frame": {
-        "x": 715,
-        "y": 199,
+        "x": 1665,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6402,8 +6402,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-6.png": {
       "frame": {
-        "x": 749,
-        "y": 199,
+        "x": 1699,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6422,8 +6422,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-6.png": {
       "frame": {
-        "x": 749,
-        "y": 199,
+        "x": 1699,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6442,8 +6442,8 @@
     },
     "monster-spider-north-frame-6.png": {
       "frame": {
-        "x": 749,
-        "y": 199,
+        "x": 1699,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6462,8 +6462,8 @@
     },
     "monster-spider-north-frame-6": {
       "frame": {
-        "x": 749,
-        "y": 199,
+        "x": 1699,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6482,8 +6482,8 @@
     },
     "/generated/tibia1098/monster-spider-north-frame-7.png": {
       "frame": {
-        "x": 783,
-        "y": 199,
+        "x": 1733,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6502,8 +6502,8 @@
     },
     "generated/tibia1098/monster-spider-north-frame-7.png": {
       "frame": {
-        "x": 783,
-        "y": 199,
+        "x": 1733,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6522,8 +6522,8 @@
     },
     "monster-spider-north-frame-7.png": {
       "frame": {
-        "x": 783,
-        "y": 199,
+        "x": 1733,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6542,8 +6542,8 @@
     },
     "monster-spider-north-frame-7": {
       "frame": {
-        "x": 783,
-        "y": 199,
+        "x": 1733,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6562,8 +6562,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-0.png": {
       "frame": {
-        "x": 817,
-        "y": 199,
+        "x": 1767,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6582,8 +6582,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-0.png": {
       "frame": {
-        "x": 817,
-        "y": 199,
+        "x": 1767,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6602,8 +6602,8 @@
     },
     "monster-spider-south-frame-0.png": {
       "frame": {
-        "x": 817,
-        "y": 199,
+        "x": 1767,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6622,8 +6622,8 @@
     },
     "monster-spider-south-frame-0": {
       "frame": {
-        "x": 817,
-        "y": 199,
+        "x": 1767,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6642,8 +6642,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-1.png": {
       "frame": {
-        "x": 851,
-        "y": 199,
+        "x": 1801,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6662,8 +6662,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-1.png": {
       "frame": {
-        "x": 851,
-        "y": 199,
+        "x": 1801,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6682,8 +6682,8 @@
     },
     "monster-spider-south-frame-1.png": {
       "frame": {
-        "x": 851,
-        "y": 199,
+        "x": 1801,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6702,8 +6702,8 @@
     },
     "monster-spider-south-frame-1": {
       "frame": {
-        "x": 851,
-        "y": 199,
+        "x": 1801,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6722,8 +6722,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-2.png": {
       "frame": {
-        "x": 885,
-        "y": 199,
+        "x": 1835,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6742,8 +6742,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-2.png": {
       "frame": {
-        "x": 885,
-        "y": 199,
+        "x": 1835,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6762,8 +6762,8 @@
     },
     "monster-spider-south-frame-2.png": {
       "frame": {
-        "x": 885,
-        "y": 199,
+        "x": 1835,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6782,8 +6782,8 @@
     },
     "monster-spider-south-frame-2": {
       "frame": {
-        "x": 885,
-        "y": 199,
+        "x": 1835,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6802,8 +6802,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-3.png": {
       "frame": {
-        "x": 919,
-        "y": 199,
+        "x": 1869,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6822,8 +6822,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-3.png": {
       "frame": {
-        "x": 919,
-        "y": 199,
+        "x": 1869,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6842,8 +6842,8 @@
     },
     "monster-spider-south-frame-3.png": {
       "frame": {
-        "x": 919,
-        "y": 199,
+        "x": 1869,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6862,8 +6862,8 @@
     },
     "monster-spider-south-frame-3": {
       "frame": {
-        "x": 919,
-        "y": 199,
+        "x": 1869,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6882,8 +6882,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-4.png": {
       "frame": {
-        "x": 953,
-        "y": 199,
+        "x": 1903,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6902,8 +6902,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-4.png": {
       "frame": {
-        "x": 953,
-        "y": 199,
+        "x": 1903,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6922,8 +6922,8 @@
     },
     "monster-spider-south-frame-4.png": {
       "frame": {
-        "x": 953,
-        "y": 199,
+        "x": 1903,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6942,8 +6942,8 @@
     },
     "monster-spider-south-frame-4": {
       "frame": {
-        "x": 953,
-        "y": 199,
+        "x": 1903,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6962,8 +6962,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-5.png": {
       "frame": {
-        "x": 987,
-        "y": 199,
+        "x": 1937,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -6982,8 +6982,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-5.png": {
       "frame": {
-        "x": 987,
-        "y": 199,
+        "x": 1937,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7002,8 +7002,8 @@
     },
     "monster-spider-south-frame-5.png": {
       "frame": {
-        "x": 987,
-        "y": 199,
+        "x": 1937,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7022,8 +7022,8 @@
     },
     "monster-spider-south-frame-5": {
       "frame": {
-        "x": 987,
-        "y": 199,
+        "x": 1937,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7042,8 +7042,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 233,
+        "x": 1971,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7062,8 +7062,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 233,
+        "x": 1971,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7082,8 +7082,8 @@
     },
     "monster-spider-south-frame-6.png": {
       "frame": {
-        "x": 1,
-        "y": 233,
+        "x": 1971,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7102,8 +7102,8 @@
     },
     "monster-spider-south-frame-6": {
       "frame": {
-        "x": 1,
-        "y": 233,
+        "x": 1971,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7122,8 +7122,8 @@
     },
     "/generated/tibia1098/monster-spider-south-frame-7.png": {
       "frame": {
-        "x": 35,
-        "y": 233,
+        "x": 2005,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7142,8 +7142,8 @@
     },
     "generated/tibia1098/monster-spider-south-frame-7.png": {
       "frame": {
-        "x": 35,
-        "y": 233,
+        "x": 2005,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7162,8 +7162,8 @@
     },
     "monster-spider-south-frame-7.png": {
       "frame": {
-        "x": 35,
-        "y": 233,
+        "x": 2005,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7182,8 +7182,8 @@
     },
     "monster-spider-south-frame-7": {
       "frame": {
-        "x": 35,
-        "y": 233,
+        "x": 2005,
+        "y": 67,
         "w": 32,
         "h": 32
       },
@@ -7202,8 +7202,8 @@
     },
     "/generated/tibia1098/monster-spider-thumb.png": {
       "frame": {
-        "x": 69,
-        "y": 233,
+        "x": 1,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7222,8 +7222,8 @@
     },
     "generated/tibia1098/monster-spider-thumb.png": {
       "frame": {
-        "x": 69,
-        "y": 233,
+        "x": 1,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7242,8 +7242,8 @@
     },
     "monster-spider-thumb.png": {
       "frame": {
-        "x": 69,
-        "y": 233,
+        "x": 1,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7262,8 +7262,8 @@
     },
     "thumb-spider": {
       "frame": {
-        "x": 69,
-        "y": 233,
+        "x": 1,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7282,8 +7282,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-0.png": {
       "frame": {
-        "x": 103,
-        "y": 233,
+        "x": 35,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7302,8 +7302,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-0.png": {
       "frame": {
-        "x": 103,
-        "y": 233,
+        "x": 35,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7322,8 +7322,8 @@
     },
     "monster-spider-west-frame-0.png": {
       "frame": {
-        "x": 103,
-        "y": 233,
+        "x": 35,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7342,8 +7342,8 @@
     },
     "monster-spider-west-frame-0": {
       "frame": {
-        "x": 103,
-        "y": 233,
+        "x": 35,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7362,8 +7362,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-1.png": {
       "frame": {
-        "x": 137,
-        "y": 233,
+        "x": 69,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7382,8 +7382,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-1.png": {
       "frame": {
-        "x": 137,
-        "y": 233,
+        "x": 69,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7402,8 +7402,8 @@
     },
     "monster-spider-west-frame-1.png": {
       "frame": {
-        "x": 137,
-        "y": 233,
+        "x": 69,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7422,8 +7422,8 @@
     },
     "monster-spider-west-frame-1": {
       "frame": {
-        "x": 137,
-        "y": 233,
+        "x": 69,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7442,8 +7442,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-2.png": {
       "frame": {
-        "x": 171,
-        "y": 233,
+        "x": 103,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7462,8 +7462,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-2.png": {
       "frame": {
-        "x": 171,
-        "y": 233,
+        "x": 103,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7482,8 +7482,8 @@
     },
     "monster-spider-west-frame-2.png": {
       "frame": {
-        "x": 171,
-        "y": 233,
+        "x": 103,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7502,8 +7502,8 @@
     },
     "monster-spider-west-frame-2": {
       "frame": {
-        "x": 171,
-        "y": 233,
+        "x": 103,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7522,8 +7522,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-3.png": {
       "frame": {
-        "x": 205,
-        "y": 233,
+        "x": 137,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7542,8 +7542,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-3.png": {
       "frame": {
-        "x": 205,
-        "y": 233,
+        "x": 137,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7562,8 +7562,8 @@
     },
     "monster-spider-west-frame-3.png": {
       "frame": {
-        "x": 205,
-        "y": 233,
+        "x": 137,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7582,8 +7582,8 @@
     },
     "monster-spider-west-frame-3": {
       "frame": {
-        "x": 205,
-        "y": 233,
+        "x": 137,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7602,8 +7602,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-4.png": {
       "frame": {
-        "x": 239,
-        "y": 233,
+        "x": 171,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7622,8 +7622,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-4.png": {
       "frame": {
-        "x": 239,
-        "y": 233,
+        "x": 171,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7642,8 +7642,8 @@
     },
     "monster-spider-west-frame-4.png": {
       "frame": {
-        "x": 239,
-        "y": 233,
+        "x": 171,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7662,8 +7662,8 @@
     },
     "monster-spider-west-frame-4": {
       "frame": {
-        "x": 239,
-        "y": 233,
+        "x": 171,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7682,8 +7682,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-5.png": {
       "frame": {
-        "x": 273,
-        "y": 233,
+        "x": 205,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7702,8 +7702,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-5.png": {
       "frame": {
-        "x": 273,
-        "y": 233,
+        "x": 205,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7722,8 +7722,8 @@
     },
     "monster-spider-west-frame-5.png": {
       "frame": {
-        "x": 273,
-        "y": 233,
+        "x": 205,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7742,8 +7742,8 @@
     },
     "monster-spider-west-frame-5": {
       "frame": {
-        "x": 273,
-        "y": 233,
+        "x": 205,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7762,8 +7762,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-6.png": {
       "frame": {
-        "x": 307,
-        "y": 233,
+        "x": 239,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7782,8 +7782,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-6.png": {
       "frame": {
-        "x": 307,
-        "y": 233,
+        "x": 239,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7802,8 +7802,8 @@
     },
     "monster-spider-west-frame-6.png": {
       "frame": {
-        "x": 307,
-        "y": 233,
+        "x": 239,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7822,8 +7822,8 @@
     },
     "monster-spider-west-frame-6": {
       "frame": {
-        "x": 307,
-        "y": 233,
+        "x": 239,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7842,8 +7842,8 @@
     },
     "/generated/tibia1098/monster-spider-west-frame-7.png": {
       "frame": {
-        "x": 341,
-        "y": 233,
+        "x": 273,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7862,8 +7862,8 @@
     },
     "generated/tibia1098/monster-spider-west-frame-7.png": {
       "frame": {
-        "x": 341,
-        "y": 233,
+        "x": 273,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7882,8 +7882,8 @@
     },
     "monster-spider-west-frame-7.png": {
       "frame": {
-        "x": 341,
-        "y": 233,
+        "x": 273,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7902,8 +7902,8 @@
     },
     "monster-spider-west-frame-7": {
       "frame": {
-        "x": 341,
-        "y": 233,
+        "x": 273,
+        "y": 133,
         "w": 32,
         "h": 32
       },
@@ -7925,8 +7925,8 @@
     "image": "hunt-spider-burrow-atlas.png",
     "format": "RGBA8888",
     "size": {
-      "w": 1024,
-      "h": 266
+      "w": 2048,
+      "h": 166
     },
     "scale": 1
   }

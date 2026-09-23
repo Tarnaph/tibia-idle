@@ -80,7 +80,7 @@ export const huntConfigs = [
   { huntId: 'old-crypt', name: 'Old Crypt', monsterName: 'Skeleton', recommendedLevel: 10, center: [32132, 32198, 10] as const, radius: 25, available: true },
   { huntId: 'rotworm-cave', name: 'Rotworm Cave', monsterName: 'Rotworm', recommendedLevel: 12, center: [32336, 31842, 10] as const, radius: 25, available: true },
   { huntId: 'cyclops-camp', name: 'Cyclops Camp', monsterName: 'Cyclops', recommendedLevel: 30, center: [32416, 32041, 8] as const, radius: 25, available: true },
-  { huntId: 'elf-sanctuary', name: 'Elf Fortress', monsterName: 'Elf', recommendedLevel: 25, center: [32741, 31298, 7] as const, radius: 25, available: true },
+  { huntId: 'elf-sanctuary', name: 'Elf Fortress', monsterName: 'Elf', recommendedLevel: 25, center: [33089, 32155, 7] as const, radius: 25, available: true },
   { huntId: 'pvp-arena', name: 'Arena PvP', monsterName: 'Gladiator', recommendedLevel: 1, center: [33136, 32969, 8] as const, radius: 20, available: true },
   { huntId: 'dragon-lair', name: 'Dragon Lair', monsterName: 'Dragon', recommendedLevel: 45, center: [32741, 31294, 11] as const, radius: 25, available: true },
 ];

@@ -3285,18 +3285,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         gameNetwork.sendReturnToCity();
       }
     })();
-    setWalkingPath({
-      waypoints: [
-        { x: 32368, y: 32215, z: 7 },
-        { x: 32345, y: 32215, z: 7 },
-        { x: 32345, y: 32224, z: 7 },
-      ],
-      destinationName: 'Depot de Thais',
-      currentIndex: 0,
-      onArrive: () => {
-        setSaleMessage('Chegou no Depot de Thais.');
-      },
-    });
+    setWalkingPath(null);
+    heldDirectionRef.current = null;
     setSaleMessage('Você morreu e renasceu no Templo de Thais com as penalidades aplicadas.');
   }, [content]);
 
@@ -3735,6 +3725,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     // Nasce no Templo de Thais (32369, 32241, 7) em pose neutra estática
     setCityPos(THAIS_TEMPLE_POSITION);
     setWalkingPath(null);
+    heldDirectionRef.current = null;
     setSaleMessage('Retornou a Thais. Progresso e experiência salvos com sucesso! Ande livremente com as setas do teclado.');
   };
   exitHuntRef.current = exitHunt;
