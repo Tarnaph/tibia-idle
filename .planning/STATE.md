@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-22T23:05:00.000Z"
-last_activity: "2026-09-22 — Phase 228 Concluída com Sucesso: Fortaleza dos Elfos (Shadowthorn) Canônica no RealMap 11, Texture Atlas Completo com 257 Map Items e Fim da Caminhada em Falso pós-Morte."
+last_updated: "2026-09-23T16:15:00.000Z"
+last_activity: "2026-09-23 — Phase 229 Concluída com Sucesso: Restauração Canônica dos Elfos de Yalahar (Foreigner Quarter [32741, 31298, 7]) no RealMap 11 e Texture Atlas Completo com 374 Map Items."
 progress:
-  total_phases: 228
-  completed_phases: 228
-  total_plans: 312
-  completed_plans: 312
+  total_phases: 229
+  completed_phases: 229
+  total_plans: 313
+  completed_plans: 313
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 228 Concluída (100%).
+**Current focus:** Phase 229 Concluída (100%).
 
 ## Current Position
 
-Phase: 228 of 228  
-Plan: 1 of 1 in Phase 228  
+Phase: 229 of 229  
+Plan: 1 of 1 in Phase 229  
 Status: Complete ✅  
-Last activity: 2026-09-22 — Conclusão da Phase 228: Extração das coordenadas canônicas da fortaleza de Shadowthorn [33089, 32155, 7] no RealMap 11 (776 tiles caminháveis e 6 spawn positions circulares), empacotamento integral de 257 itens de mapa no atlas hunt-elf-sanctuary-atlas (1.08 MB com 6.404 aliases), eliminação do gargalo de 2.500 requisições HTTP individuais no PixiArena e fim definitivo da caminhada em falso ao renascer no templo após a morte.
+Last activity: 2026-09-23 — Conclusão da Phase 229: Restauração das coordenadas canônicas dos Elfos de Yalahar [32741, 31298, 7] no RealMap 11 (626 tiles caminháveis e 6 spawn positions circulares), empacotamento integral de 374 itens de mapa no atlas hunt-elf-sanctuary-atlas (1.13 MB com 5.360 aliases), renderização instantânea do pátio e construções de Yalahar no PixiArena e 100% dos testes aprovados.
 
 Progress: [██████████] 100%
 

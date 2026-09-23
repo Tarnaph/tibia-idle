@@ -5,6 +5,15 @@
 
 ---
 
+## ✅ Concluído (Fase 229):
+
+- [x] **Restauração Canônica dos Elfos de Yalahar (Foreigner Quarter [32741, 31298, 7]):**
+  - Restauradas as coordenadas de `elf-sanctuary` para o Foreigner Quarter de Yalahar (`[32741, 31298, 7]`) no RealMap 11, atendendo rigorosamente à especificação original.
+  - Re-executado o importador do RealMap 11 (`importHuntRegions`), gerando 626 tiles caminháveis e 6 spawn positions de Elfos e Elfos Scouts na arena.
+  - Compilado novo Texture Atlas (`hunt-elf-sanctuary-atlas.png` e `.json` com 1.13 MB e 5.360 aliases de frames) contendo integralmente os 374 itens de mapa de Yalahar (pisos, muros de mármore, portais, vegetação e colunas), eliminando requisições HTTP individuais e renderizando o cenário instantaneamente sem falhas ou buracos.
+
+---
+
 ## ✅ Concluído (Fase 228):
 
 - [x] **Extração Autoritativa da Fortaleza dos Elfos (Shadowthorn) no RealMap 11:**

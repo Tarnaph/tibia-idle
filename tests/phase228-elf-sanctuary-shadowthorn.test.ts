@@ -3,29 +3,29 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { huntConfigs } from '../packages/realmap11-importer/src/importHuntRegions';
 
-describe('Phase 228: Canonical Shadowthorn Elf Fortress & Hunt Atlas Packaging', () => {
+describe('Phase 229: Canonical Yalahar Elf Quarter & Hunt Atlas Packaging', () => {
   const root = path.resolve(__dirname, '..');
 
-  it('1. huntConfigs defines elf-sanctuary with canonical Shadowthorn coordinates [33089, 32155, 7]', () => {
+  it('1. huntConfigs defines elf-sanctuary with canonical Yalahar coordinates [32741, 31298, 7]', () => {
     const elfDef = huntConfigs.find((h) => h.huntId === 'elf-sanctuary');
     expect(elfDef).toBeDefined();
-    expect(elfDef?.center).toEqual([33089, 32155, 7]);
+    expect(elfDef?.center).toEqual([32741, 31298, 7]);
     expect(elfDef?.radius).toBe(25);
     expect(elfDef?.available).toBe(true);
   });
 
-  it('2. content/generated/hunt-regions.json contains extracted Shadowthorn fortress with >= 700 walkable tiles', () => {
+  it('2. content/generated/hunt-regions.json contains extracted Yalahar elven quarter with >= 600 walkable tiles', () => {
     const huntRegionsPath = path.join(root, 'content/generated/hunt-regions.json');
     expect(fs.existsSync(huntRegionsPath)).toBe(true);
 
     const data = JSON.parse(fs.readFileSync(huntRegionsPath, 'utf8'));
     const elfRegion = data.regions.find((r: any) => r.huntId === 'elf-sanctuary');
     expect(elfRegion).toBeDefined();
-    expect(elfRegion.sourceCenter).toEqual({ x: 33089, y: 32155, z: 7, radius: 25 });
+    expect(elfRegion.sourceCenter).toEqual({ x: 32741, y: 31298, z: 7, radius: 25 });
     expect(elfRegion.tiles.length).toBe(2601);
 
     const walkableCount = elfRegion.tiles.filter((t: any) => t.walkable).length;
-    expect(walkableCount).toBeGreaterThanOrEqual(700);
+    expect(walkableCount).toBeGreaterThanOrEqual(600);
 
     // Verify circular spawn ring positions
     expect(elfRegion.spawnPositions).toBeDefined();
