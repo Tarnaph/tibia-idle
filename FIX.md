@@ -5,6 +5,22 @@
 
 ---
 
+## ✅ Concluído (Fase 230):
+
+- [x] **Camadas Canônicas de Chão (`tile.groundServerId`) & zIndex 0:**
+  - Identificado todo e qualquer piso base (grama, terra, cascalho, parquê, mármore — inclusive IDs 9000+ de Yalahar) através do atributo canônico `tile.groundServerId`.
+  - Fixado estritamente o `zIndex = 0` para todos os pisos base, eliminando de forma definitiva o problema em que o chão de terra da linha de baixo cobria as cercas e paredes da linha de cima.
+
+- [x] **Ocultação Canônica de Telhados no Térreo (Culling de Roofs Z:7):**
+  - Peças de telhado (`6476..6488`, `9370..9410`, `1098..1140`) descartadas na renderização do piso térreo (Z:7).
+  - Revelado com 100% de fidelidade visual o interior das casas dos elfos (taverna, balcão em L, mesas, cadeiras, caminhas e barris), correspondendo com fidelidade ao mapa original do Tibia.
+
+- [x] **Transições de Bordas Suaves (`zIndex = 1`) & Fundo Sólido para Paliçadas (Item 1026):**
+  - Isoladas as peças de transição de borda (autotiling / borders: `4542..4553`, `4664..4678`, `8432..8445`, `8345..8360`, etc.) no `zIndex = 1`, garantindo que fiquem sobre o piso base mas estritamente sob as paredes e cercas.
+  - Implementado safety net garantindo piso base sob paliçadas e cercas 64x64 (item 1026), eliminando buracos pretos e vazios cortados.
+
+---
+
 ## ✅ Concluído (Fase 229):
 
 - [x] **Restauração Canônica dos Elfos de Yalahar (Foreigner Quarter [32741, 31298, 7]):**

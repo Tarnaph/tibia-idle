@@ -160,6 +160,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 227: Exeta Res Hotbar Gate, Bônus Permanente de Bestiário (+1% EXP), Paridade de Loot no Analisador, Eliminação de Passos Falsos e Memory Leaks em Thais, Multi-Tile e Loading Instantâneo de Caçadas** - Exeta Res apenas se configurado em hotkeys do Knight, ganho perpétuo de +1% de EXP por monstro concluído no Bestiário, cotação real de venda de loot no Analisador de Caça, resolução do loop de passos em falso e dos vazamentos de memória em Thais City, renderização canônica multi-tile (Cyclops 2x2, paredes altas e escadas) e carregamento instantâneo de cenários de caçada.
 - [x] **Phase 228: Fortaleza dos Elfos (Shadowthorn) Canônica, Texture Atlas Completo e Blindagem de Movimento** - Extração das coordenadas canônicas da fortaleza de Shadowthorn [33089, 32155, 7] no RealMap 11 (776 tiles caminháveis e 6 spawn positions circulares), empacotamento integral de 257 itens de mapa no atlas hunt-elf-sanctuary-atlas (1.08 MB com 6.404 aliases), eliminação do gargalo de 2.500 requisições HTTP individuais no PixiArena e fim definitivo da caminhada em falso ao renascer no templo após a morte.
 - [x] **Phase 229: Restauração Canônica dos Elfos de Yalahar e Texture Atlas Completo** - Restauração das coordenadas originais dos Elfos no Foreigner Quarter de Yalahar [32741, 31298, 7] no RealMap 11 (626 tiles caminháveis e 6 spawn positions), empacotamento integral de 374 itens de mapa de Yalahar no atlas hunt-elf-sanctuary-atlas (1.13 MB com 5.360 aliases), eliminação de gargalos HTTP e renderização imediata do pátio e construções no PixiArena.
+- [x] **Phase 230: Camadas Canônicas de Chão, Ocultação de Telhados e Alinhamento de Paliçadas/Bordas no PixiArena** - Identificação de todo piso base por `tile.groundServerId` com `zIndex: 0`, isolamento de bordas de transição em `zIndex: 1`, ocultação de telhados em Z:7 revelando o interior de casas e tavernas, e alinhamento de paliçadas 64x64 sem vazios ou sobreposições.
 
 
 ---
@@ -4124,6 +4125,29 @@ Plans:
 - [x] 227-01-PLAN: Exeta Res restrito a hotkey, Bestiário perpétuo +1% EXP e paridade de loot real do NPC no Analisador.
 - [x] 227-02-PLAN: Eliminação de falsos passos ao retornar à cidade e blindagem definitiva de texturas em Thais City.
 - [x] 227-03-PLAN: Deslocamento canônico multi-tile de corpos e paredes, e carregamento instantâneo de cenários de hunts.
+
+---
+
+### Phase 230: Camadas Canônicas de Chão, Ocultação de Telhados e Alinhamento de Paliçadas/Bordas no PixiArena
+
+**Goal:** Resolver integralmente as distorções visuais de renderização na arena de caçadas (`PixiArena.tsx`):
+1. **Camadas Canônicas de Chão (`tile.groundServerId`) & zIndex 0:**
+   - Identificar todo e qualquer piso base (grama, terra, cascalho, parquê, mármore — inclusive IDs 9000+ de Yalahar) através do atributo canônico `tile.groundServerId`.
+   - Fixar estritamente o `zIndex = 0` para todos os pisos base, impedindo que tiles de terra da linha de baixo cubram cercas, paliçadas e paredes da linha de cima.
+2. **Ocultação Canônica de Telhados no Térreo (Culling de Roofs Z:7):**
+   - Filtrar e ignorar peças de telhado (`6476..6488`, `9370..9410`, `1098..1140`) na renderização do piso térreo (Z:7).
+   - Revelar com 100% de fidelidade visual o interior das casas dos elfos (taverna, balcão em L, mesas, cadeiras, caminhas e barris), exatamente igual ao mapa original do Tibia.
+3. **Transições de Bordas Suaves (`zIndex = 1`) & Fundo Sólido para Paliçadas (Item 1026):**
+   - Isolar as peças de transição de borda (autotiling / borders: `4542..4553`, `4664..4678`, `8432..8445`, `8345..8360`, etc.) no `zIndex = 1`, garantindo que fiquem sobre o piso base mas estritamente sob as paredes e cercas.
+   - Garantir piso base sob paliçadas e cercas 64x64 (item 1026), eliminando buracos pretos e vazios cortados.
+
+**Requirements:** Diretriz GSD, tipagem estrita (0 erros), 100% de aprovação nos testes e deploy direto na VPS.
+**Depends on:** Phase 229
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 230-01-PLAN: Implementar `isRoofItem`, `isGround` por `tile.groundServerId`, `isBorder` com `zIndex: 1`, fundo sólido sob paliçadas e validar suíte de testes.
 
 
 

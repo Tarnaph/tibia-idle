@@ -506,10 +506,39 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           darkCanvas.height = roomH;
           darkTexture.source.resize(roomW, roomH);
         }
+        const isRoofItem = (id: number): boolean => {
+          return (
+            (id >= 6476 && id <= 6488) || // Wooden / thatched roofs
+            (id >= 9370 && id <= 9410) || // Yalahar roofs
+            (id >= 1098 && id <= 1140)    // Classic clay tile roofs
+          );
+        };
+
+        const isBorderItem = (id: number): boolean => {
+          return (
+            (id >= 4542 && id <= 4553) || // Grass-dirt borders
+            (id >= 4609 && id <= 4625) || // Water borders
+            (id >= 4664 && id <= 4678) || // Sand/gravel/paved borders
+            (id >= 8432 && id <= 8445) || // Gravel borders
+            (id >= 8345 && id <= 8360) || // Grass edge transitions
+            (id >= 8140 && id <= 8160) || // Marble/stone borders
+            (id >= 6217 && id <= 6226) || // Walkway borders
+            (id >= 6271 && id <= 6274) || // Stone borders
+            (id >= 5485 && id <= 5495) || // Foliage borders
+            (id >= 3610 && id <= 3623) || // Wood/pavement transitions
+            (id >= 7592 && id <= 7602)    // Town transitions
+          );
+        };
+
         for (const tile of state.encounter.room.map.tiles) {
           const point = worldPoint(tile.position);
-          let rendered = false;
+          let groundRendered = false;
+
           for (const serverId of tile.serverItemIds ?? []) {
+            if (isRoofItem(serverId)) {
+              continue; // Never render roofs on ground floor Z:7 to reveal house interiors
+            }
+
             const mapping = visualAssets.mapItems?.[String(serverId)];
             if (!mapping) {
               if (debug) console.warn(`Unresolved map item ID ${serverId} on tile (${tile.position.x}, ${tile.position.y})`);
@@ -525,11 +554,18 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             if (!frameToUse) continue;
             const tex = loaded[frameToUse.publicUrl];
             const isGround = Boolean(
+              serverId === (tile as any).groundServerId ||
               (mapping.appearance as any)?.isGround ||
               (mapping as any).isGround ||
               (serverId >= 100 && serverId <= 450) ||
               (serverId >= 4400 && serverId <= 4550)
             );
+            const isBorder = !isGround && isBorderItem(serverId);
+            if (isGround) groundRendered = true;
+
+            const wTiles = mapping.appearance?.width ?? Math.max(1, Math.round((tex?.width || frameToUse.width || 32) / 32));
+            const hTiles = mapping.appearance?.height ?? Math.max(1, Math.round((tex?.height || frameToUse.height || 32) / 32));
+            const tileZIndex = isGround ? 0 : (isBorder ? 1 : (point.y + 16 + (hTiles > 1 ? 16 : 0)));
 
             if (!tex) {
               const reqUrl = frameToUse.publicUrl;
@@ -538,33 +574,44 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
                 const sprite = new Sprite(loadedTex);
                 const texW = loadedTex.width || frameToUse.width || 32;
                 const texH = loadedTex.height || frameToUse.height || 32;
-                const wTiles = mapping.appearance?.width ?? Math.max(1, Math.round(texW / 32));
-                const hTiles = mapping.appearance?.height ?? Math.max(1, Math.round(texH / 32));
+                const curWTiles = mapping.appearance?.width ?? Math.max(1, Math.round(texW / 32));
+                const curHTiles = mapping.appearance?.height ?? Math.max(1, Math.round(texH / 32));
                 sprite.anchor.set(0, 0);
                 sprite.position.set(
-                  point.x - 16 - (wTiles - 1) * 32,
-                  point.y - 16 - (hTiles - 1) * 32
+                  point.x - 16 - (curWTiles - 1) * 32,
+                  point.y - 16 - (curHTiles - 1) * 32
                 );
                 sprite.roundPixels = true;
-                sprite.zIndex = isGround ? 0 : (point.y + 16 + (hTiles > 1 ? 16 : 0));
+                sprite.zIndex = tileZIndex;
                 terrain.addChild(sprite);
               });
               continue;
             }
             const sprite = new Sprite(tex);
-            const texW = tex.width || frameToUse.width || 32;
-            const texH = tex.height || frameToUse.height || 32;
-            const wTiles = mapping.appearance?.width ?? Math.max(1, Math.round(texW / 32));
-            const hTiles = mapping.appearance?.height ?? Math.max(1, Math.round(texH / 32));
             sprite.anchor.set(0, 0);
             sprite.position.set(
               point.x - 16 - (wTiles - 1) * 32,
               point.y - 16 - (hTiles - 1) * 32
             );
             sprite.roundPixels = true;
-            sprite.zIndex = isGround ? 0 : (point.y + 16 + (hTiles > 1 ? 16 : 0));
+            sprite.zIndex = tileZIndex;
             terrain.addChild(sprite);
-            rendered = true;
+          }
+
+          // Safety net: ensure base ground is ALWAYS rendered at zIndex 0 so there are never transparent holes
+          if (!groundRendered) {
+            const gId = (tile as any).groundServerId || 103;
+            const gMapping = visualAssets.mapItems?.[String(gId)];
+            const gUrl = gMapping?.frame?.publicUrl || '/generated/tibia1098/items/item-103.png';
+            const gTex = loaded[gUrl] || loaded['/generated/tibia1098/items/item-103.png'];
+            if (gTex) {
+              const groundSprite = new Sprite(gTex);
+              groundSprite.anchor.set(0, 0);
+              groundSprite.position.set(point.x - 16, point.y - 16);
+              groundSprite.roundPixels = true;
+              groundSprite.zIndex = 0;
+              terrain.addChild(groundSprite);
+            }
           }
           if (showDebug) terrain.addChild(new Graphics().rect(point.x - 16, point.y - 16, 32, 32).stroke({ color: tile.walkable ? 0x7cb487 : 0xcf6d65, width: 0.5, alpha: 0.45 }));
         }
