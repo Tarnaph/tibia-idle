@@ -46,7 +46,7 @@ export async function GET(request: Request) {
       }
       return {
         ...c,
-        isPremium: c.account ? Boolean(c.account.isPremium) : (c.isPremium !== undefined ? Boolean(c.isPremium) : true),
+        isPremium: c.account ? Boolean(c.account.isPremium) : Boolean(c.isPremium),
         role: c.account?.role || (c as any).role || 'PLAYER',
         inventoryItems: c.inventory || [],
         addons: c.outfitAddons ?? 0,

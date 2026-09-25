@@ -60,7 +60,7 @@ export class AccountService {
         email: trimmedEmail,
         passwordHash,
         role,
-        isPremium: true,
+        isPremium: false,
         coins: 0,
       },
     });

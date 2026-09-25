@@ -66,4 +66,8 @@ Todos os demais outfits exibem a badge "Loja" em lilás/lavanda (.tibia-card-bad
 - Testes automatizados cobrindo matriz de permissões (phase232-outfit-mount-permissions.test.ts) e transação atômica de troca de materiais (phase233-addon-quest-trade.test.ts) com 100% de aprovação.
 - npm run typecheck: 0 erros de tipagem TypeScript.
 
-
+- [x] 9. Ajuste de Contas de Jogadores para Free Account:
+  * Default do schema Prisma para novas contas definido como `isPremium: false`.
+  * Registro de novos usuários padronizado como Free Account.
+  * Validação autoritativa em rotas da API e serviços (`Boolean(account?.isPremium)`).
+  * Migração de banco de dados executada: todas as contas de jogadores existentes migradas para Free Account, preservando estritamente contas de Administrador/Staff (`role: ADMIN` / `GOD` / `GM`) como Premium.

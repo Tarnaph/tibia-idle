@@ -9,6 +9,7 @@ import {
   isOutfitUnlockedFor,
   isMountUnlockedFor,
   isAddonUnlockedFor,
+  isStaff,
   parseUnlockedAddons,
   parseCompletedQuests,
   normalizeKey,
@@ -589,7 +590,7 @@ export class CharacterService {
 
       const updateData: any = {};
       const userCtx: UserAppearanceContext = {
-        isPremium: existing.account?.isPremium !== false,
+        isPremium: Boolean(existing.account?.isPremium),
         role: existing.account?.role,
         adminTitle: existing.adminTitle,
       };

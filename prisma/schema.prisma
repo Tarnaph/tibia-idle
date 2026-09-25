@@ -14,7 +14,7 @@ model Account {
   role         String      @default("PLAYER")
   coins        Int         @default(0)
   isBanned     Boolean     @default(false)
-  isPremium    Boolean     @default(true)
+  isPremium    Boolean     @default(false)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   characters   Character[]

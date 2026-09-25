@@ -62,6 +62,22 @@ export interface QuestItem {
 
 export const DEFAULT_QUESTS: QuestItem[] = [
   {
+    id: 'citizen-addon-1',
+    name: 'Primeiros Passos de um Cidadão (Addon 1)',
+    levelReq: 1,
+    status: 'available',
+    category: 'Addon de Traje',
+    location: 'Thais (Aventureiro)',
+    description: 'Reúna materiais de criaturas por todo o continente para confeccionar a tradicional mochila do Citizen (Addon 1). Os materiais podem ser entregues diretamente na aba de customização de aparência do seu personagem.',
+    objectives: [
+      { text: '5x Bunch of Troll Hair (Troll em Troll Camp)', done: false },
+      { text: '3x Spider Fangs (Spider em Spider Burrow)', done: false },
+      { text: '50x Bone (Skeleton em Old Crypt)', done: false },
+      { text: '20x Lump of Dirt (Rotworm em Rotworm Cave)', done: false },
+    ],
+    rewards: { xp: '1.500 XP', gp: '0 gp', items: ['Citizen — Addon 1 (Mochila)'] },
+  },
+  {
     id: 'thais-sewers',
     name: 'Infestação nos Esgotos de Thais',
     levelReq: 1,
