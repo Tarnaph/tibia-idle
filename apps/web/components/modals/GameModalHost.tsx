@@ -6,10 +6,12 @@ import { useGameModal } from '../../contexts/GameModalContext';
 import { OutfitModal } from '../OutfitModal';
 import { CyclopediaModal } from '../CyclopediaModal';
 import { CharacterProfileModal } from '../CharacterProfileModal';
+import { GameErrorBoundary } from '../common/GameErrorBoundary';
 
 export interface GameModalHostProps {
   characters: CharacterState[];
   activeCharacterId: string;
+  inventory?: Array<{ id?: string; serverId?: number; itemId?: number; name: string; count?: number; amount?: number }>;
   onSelectCharacter: (characterId: string) => void;
   onSaveOutfit: (
     characterId: string,
@@ -42,6 +44,7 @@ export interface GameModalHostProps {
 export function GameModalHost({
   characters,
   activeCharacterId,
+  inventory,
   onSelectCharacter,
   onSaveOutfit,
   content,
@@ -84,20 +87,23 @@ export function GameModalHost({
     <>
       {/* 1. Outfit & Mount Customization Modal */}
       {isOutfitOpen && (
-        <OutfitModal
-          open={isOutfitOpen}
-          characters={characters}
-          activeCharacterId={targetOutfitCharId}
-          onClose={closeOutfit}
-          onOpenCharacterProfile={(charId) => {
-            closeOutfit();
-            if (charId && charId !== activeCharacterId) {
-              onSelectCharacter(charId);
-            }
-            openProfile(charId);
-          }}
-          onSave={onSaveOutfit}
-        />
+        <GameErrorBoundary fallbackTitle="Erro ao abrir customização de visual" onReset={closeOutfit}>
+          <OutfitModal
+            open={isOutfitOpen}
+            characters={characters}
+            activeCharacterId={targetOutfitCharId}
+            inventory={inventory || (effectiveChar as any)?.inventoryItems}
+            onClose={closeOutfit}
+            onOpenCharacterProfile={(charId) => {
+              closeOutfit();
+              if (charId && charId !== activeCharacterId) {
+                onSelectCharacter(charId);
+              }
+              openProfile(charId);
+            }}
+            onSave={onSaveOutfit}
+          />
+        </GameErrorBoundary>
       )}
 
       {/* 2. Full Cyclopedia & Bestiary Modal */}

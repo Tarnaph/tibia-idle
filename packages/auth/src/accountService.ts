@@ -14,6 +14,8 @@ export interface LoginAccountInput {
   password: string;
 }
 
+import { isAccountPremiumActive } from '@/packages/domain/src/appearancePermissions';
+
 export interface AuthResult {
   token: string;
   account: {
@@ -22,6 +24,7 @@ export interface AuthResult {
     role: AccountRole;
     coins: number;
     isPremium: boolean;
+    premiumUntil?: Date | null;
     createdAt: Date;
   };
 }
@@ -66,11 +69,12 @@ export class AccountService {
     });
 
     const accountRole: AccountRole = account.role === 'ADMIN' ? 'admin' : 'player';
+    const isPrem = isAccountPremiumActive(account);
     const token = createAuthToken({
       accountId: account.id,
       email: account.email,
       role: accountRole,
-      isPremium: account.isPremium,
+      isPremium: isPrem,
     });
 
     return {
@@ -80,7 +84,8 @@ export class AccountService {
         email: account.email,
         role: accountRole,
         coins: account.coins,
-        isPremium: account.isPremium,
+        isPremium: isPrem,
+        premiumUntil: account.premiumUntil,
         createdAt: account.createdAt,
       },
     };
@@ -108,11 +113,12 @@ export class AccountService {
     }
 
     const accountRole: AccountRole = account.role === 'ADMIN' ? 'admin' : account.role === 'GM' ? 'gm' : 'player';
+    const isPrem = isAccountPremiumActive(account);
     const token = createAuthToken({
       accountId: account.id,
       email: account.email,
       role: accountRole,
-      isPremium: account.isPremium,
+      isPremium: isPrem,
     });
 
     return {
@@ -122,7 +128,8 @@ export class AccountService {
         email: account.email,
         role: accountRole,
         coins: account.coins,
-        isPremium: account.isPremium,
+        isPremium: isPrem,
+        premiumUntil: account.premiumUntil,
         createdAt: account.createdAt,
       },
     };
@@ -179,7 +186,8 @@ export class AccountService {
       email: account.email,
       role: accountRole,
       coins: account.coins,
-      isPremium: account.isPremium,
+      isPremium: isAccountPremiumActive(account),
+      premiumUntil: account.premiumUntil,
       isBanned: account.isBanned,
       characters: account.characters.map((c) => ({
         ...c,

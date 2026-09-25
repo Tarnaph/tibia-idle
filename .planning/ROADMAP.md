@@ -162,8 +162,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 229: Restauração Canônica dos Elfos de Yalahar e Texture Atlas Completo** - Restauração das coordenadas originais dos Elfos no Foreigner Quarter de Yalahar [32741, 31298, 7] no RealMap 11 (626 tiles caminháveis e 6 spawn positions), empacotamento integral de 374 itens de mapa de Yalahar no atlas hunt-elf-sanctuary-atlas (1.13 MB com 5.360 aliases), eliminação de gargalos HTTP e renderização imediata do pátio e construções no PixiArena.
 - [x] **Phase 230: Camadas Canônicas de Chão, Ocultação de Telhados e Alinhamento de Paliçadas/Bordas no PixiArena** - Identificação de todo piso base por `tile.groundServerId` com `zIndex: 0`, isolamento de bordas de transição em `zIndex: 1`, ocultação de telhados em Z:7 revelando o interior de casas e tavernas, e alinhamento de paliçadas 64x64 sem vazios ou sobreposições.
 - [x] **Phase 231: Trilhas Sonoras (Cyclops & Elfs) e 4 Novas Caçadas RealMap 11 (Coryms, Giant Spider, Hero e Hydra)** - Vinculação das músicas aos temas de caçada, importação de coordenadas OTBM reais, balanceamento de pulls de dificuldade 1/2/3, thumbnails canônicos de criaturas e geração de Texture Atlases.
-- [ ] **Phase 232: Matriz de Permissões de Outfits, Addons e Montarias (Free, Premium, Loja, GM/GOD)** - Regras autoritativas no servidor para trajes Free, Premium e Loja com selo visual, liberação de montarias por cargo e prevenção de requisições adulteradas.
-- [ ] **Phase 233: Sistema de Missões e Desbloqueio de Addons (Citizen Addon 1) com Interface no OutfitModal (Badge "Quest" e Botão "Trocar")** - Persistência atômica e permanente no Prisma DB, contagem e consumo exato de materiais do inventário, badge "Quest" ao lado de Addon 1/2 no OutfitModal com requisitos e botão "Trocar" funcional.
+- [x] **Phase 232: Matriz de Permissões de Outfits, Addons e Montarias (Free, Premium, Loja, GM/GOD)** - Regras autoritativas no servidor para trajes Free, Premium e Loja com selo visual, liberação de montarias por cargo e prevenção de requisições adulteradas.
+- [x] **Phase 233: Sistema de Missões e Desbloqueio de Addons (Citizen Addon 1) com Interface no OutfitModal (Badge "Quest" e Botão "Trocar")** - Persistência atômica e permanente no Prisma DB, contagem e consumo exato de materiais do inventário, badge "Quest" ao lado de Addon 1/2 no OutfitModal com requisitos e botão "Trocar" funcional.
+- [ ] **Phase 234: Diagnóstico de Seleção de Outfit, Interface Mobile Responsiva (Retrato & Paisagem) e Gestão de Assinatura Premium por Dias no ADMIN** - Resolução definitiva do travamento de seleção no OutfitModal, arquitetura de layout mobile responsivo adaptativo (header com stats, dock bar, D-pad, hotkeys ergonômicas e drawers) e gestão de Premium por dias no painel ADMIN com expiração autoritativa.
 
 ---
 
@@ -4217,6 +4218,35 @@ Plans:
 Plans:
 
 - [x] 233-01-PLAN: Modelagem e persistência de addons conquistados, verificação atômica de inventário, badge "Quest" e botão "Trocar" no OutfitModal, aba Quests e testes E2E.
+
+---
+
+### Phase 234: Interface Mobile Responsiva, Blindagem contra Congelamento no Citizen e Gerenciamento de Premium por Dias no ADMIN
+
+**Goal:** Implementar três subsistemas fundamentais com total autonomia:
+1. **Bug P0 (Freeze ao clicar no Citizen):** Diagnóstico da causa raiz (`TypeError: localInventory is not iterable` por `CharacterState.inventory` ser objeto `{ equipmentIds: [] }`). Blindagem completa com `GameErrorBoundary.tsx`, normalização em `OutfitModal.tsx` (`getSafeInventory`) e tubulação do loot da sessão do jogo em `GamePrototype.tsx`.
+2. **Bloco B (Premium por Dias no ADMIN → Jogadores):**
+   - Modelagem Prisma com campo `premiumUntil DateTime?` no modelo `Account` e modelo de auditoria `AdminAuditLog`.
+   - Endpoint seguro `/api/admin/premium` com autoridade UTC do servidor, cálculo de 24h por dia, extensão de contas ativas, início imediato para Free/vencidos, e revogação a Free.
+   - Componente `AdminPremiumModal.tsx` com previsão dinâmica de vencimento, atalho de +30 dias e confirmação explícita de revogação.
+   - Botão `💎 Premium` na tabela de jogadores em `AdminPanel.tsx`.
+3. **Bloco A (Interface Mobile Responsiva):**
+   - Hook reativo `useResponsiveLayout.ts` com detecção de tela e orientação (retrato e paisagem) sem recarregar tela, perder sessão ou reiniciar caçadas.
+   - `MobileTopBar.tsx`: Cabeçalho compacto com avatar medieval, vocação, nível, HP/MP/XP reais, engrenagem e badge de status.
+   - `MobileMusicBadge.tsx`: Toast musical temporário.
+   - `MobileVirtualDPad.tsx`: D-pad virtual isolado para movimentação urbana em Thais.
+   - `MobileHotkeyBar.tsx`: Barra de hotkeys para toque (>= 44x44px), cooldowns e indicador de chat.
+   - `MobileBottomNav.tsx`: Navegação inferior com 6 abas (Mundo, Personagem, Inventário, Social, Métricas, Menu) e botão seguro "Sair da Caçada".
+   - `MobileMenuDrawer.tsx`: Gaveta deslizante inferior para ações secundárias.
+   - Preservação total de 100% da experiência e componentes desktop.
+
+**Requirements:** Diretriz GSD, tipagem estrita (0 erros), 100% de aprovação nos testes e deploy direto na VPS.
+**Depends on:** Phase 233
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 234-01-PLAN: Blindagem P0 do OutfitModal e GameErrorBoundary, suporte completo a Premium por Dias no banco e painel Admin, e suite de componentes da interface mobile responsiva com testes unitários.
 
 
 

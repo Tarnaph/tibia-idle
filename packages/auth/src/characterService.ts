@@ -10,6 +10,7 @@ import {
   isMountUnlockedFor,
   isAddonUnlockedFor,
   isStaff,
+  isAccountPremiumActive,
   parseUnlockedAddons,
   parseCompletedQuests,
   normalizeKey,
@@ -397,7 +398,7 @@ export class CharacterService {
       where: { accountId },
       orderBy: { level: 'desc' },
       include: {
-        account: { select: { id: true, email: true, role: true, isPremium: true } },
+        account: { select: { id: true, email: true, role: true, isPremium: true, premiumUntil: true } },
         skills: true,
         inventory: true,
         spells: true,
@@ -409,7 +410,7 @@ export class CharacterService {
     return this.prisma.character.findUnique({
       where: { id: characterId },
       include: {
-        account: { select: { id: true, email: true, role: true, isPremium: true } },
+        account: { select: { id: true, email: true, role: true, isPremium: true, premiumUntil: true } },
         skills: true,
         inventory: true,
         depot: true,
@@ -590,9 +591,10 @@ export class CharacterService {
 
       const updateData: any = {};
       const userCtx: UserAppearanceContext = {
-        isPremium: Boolean(existing.account?.isPremium),
+        isPremium: isAccountPremiumActive(existing.account),
         role: existing.account?.role,
         adminTitle: existing.adminTitle,
+        premiumUntil: existing.account?.premiumUntil,
       };
 
       if (data.avatarId !== undefined) updateData.avatarId = data.avatarId;

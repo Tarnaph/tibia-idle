@@ -222,6 +222,7 @@ interface Props {
   open: boolean;
   characters: CharacterState[];
   activeCharacterId: string;
+  inventory?: Array<{ id?: string; serverId?: number; itemId?: number; name?: string; count?: number; amount?: number }>;
   onClose(): void;
   onOpenCharacterProfile?: (characterId: string) => void;
   onSave(
@@ -236,7 +237,7 @@ interface Props {
   ): void;
 }
 
-export function OutfitModal({ open, characters, activeCharacterId, onClose, onOpenCharacterProfile, onSave }: Props) {
+export function OutfitModal({ open, characters, activeCharacterId, inventory: propInventory, onClose, onOpenCharacterProfile, onSave }: Props) {
   const initialChar = characters.find((c) => c.id === (activeCharacterId || characters[0]?.id)) || characters[0];
   const initialOutfit = initialChar ? (initialChar.outfit || initialChar.baseVocation || 'Knight') : 'Knight';
   const initialHasMount = Boolean(initialChar?.mount && initialChar.mount !== 'none');
@@ -246,6 +247,13 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const initialCaps = getOutfitCapabilities(initialOutfit);
   const initialAddons = initialChar?.addons || 0;
   const initialColors = initialChar?.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+
+  const getSafeInventory = (charTarget?: any): Array<{ id?: string; serverId?: number; itemId?: number; name?: string; count?: number; amount?: number }> => {
+    if (propInventory && Array.isArray(propInventory)) return propInventory;
+    if (charTarget?.inventoryItems && Array.isArray(charTarget.inventoryItems)) return charTarget.inventoryItems;
+    if (Array.isArray(charTarget?.inventory)) return charTarget.inventory;
+    return [];
+  };
 
   const [selectedCharId, setSelectedCharId] = useState(activeCharacterId);
   const [topTab, setTopTab] = useState<'character' | 'outfit'>('outfit');
@@ -277,8 +285,8 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
   const [localUnlockedAddons, setLocalUnlockedAddons] = useState<Record<string, number[]>>(() =>
     parseUnlockedAddons(initialChar?.unlockedAddonsJson)
   );
-  const [localInventory, setLocalInventory] = useState<Array<{ id?: string; serverId: number; name: string; count: number }>>(() =>
-    (initialChar as any)?.inventoryItems || (initialChar as any)?.inventory || []
+  const [localInventory, setLocalInventory] = useState<Array<{ id?: string; serverId?: number; itemId?: number; name?: string; count?: number; amount?: number }>>(() =>
+    getSafeInventory(initialChar)
   );
   const [isTradingQuest, setIsTradingQuest] = useState(false);
   const [questFeedback, setQuestFeedback] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -300,17 +308,23 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
 
   const getMaterialCount = (itemId: number) => {
     let total = 0;
+    if (!Array.isArray(localInventory)) return 0;
     for (const it of localInventory) {
-      if (it.serverId === itemId || (it as any).id === itemId) {
-        total += (it.count || 1);
+      if (it && typeof it === 'object') {
+        const matches = it.serverId === itemId || (it as any).id === itemId || it.itemId === itemId;
+        if (matches) {
+          total += (it.count || it.amount || 1);
+        }
       }
     }
     return total;
   };
 
-  const hasAllMaterialsForQuest1 = quest1Def
-    ? quest1Def.materials.every((m) => getMaterialCount(m.itemId) >= m.count)
-    : false;
+  const hasAllMaterialsForQuest1 = Boolean(
+    quest1Def &&
+    Array.isArray(quest1Def.materials) &&
+    quest1Def.materials.every((m) => getMaterialCount(m.itemId) >= m.count)
+  );
 
   const handleTradeQuest = async (questId: string, addonNum: 1 | 2) => {
     if (isTradingQuest) return;
@@ -436,7 +450,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
         setAddon2(caps.hasAddon2 && (addons & 2) !== 0);
         if (char.outfitColors) setColors(char.outfitColors);
         setLocalUnlockedAddons(parseUnlockedAddons(char.unlockedAddonsJson));
-        setLocalInventory((char as any).inventoryItems || (char as any).inventory || []);
+        setLocalInventory(getSafeInventory(char));
         setQuestFeedback(null);
         setPermissionNotice(null);
       }
@@ -834,7 +848,7 @@ export function OutfitModal({ open, characters, activeCharacterId, onClose, onOp
                       {quest1Def.description}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
-                      {quest1Def.materials.map((mat) => {
+                      {Array.isArray(quest1Def.materials) && quest1Def.materials.map((mat) => {
                         const count = getMaterialCount(mat.itemId);
                         const isDone = count >= mat.count;
                         return (

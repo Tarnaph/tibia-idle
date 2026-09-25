@@ -8,6 +8,7 @@ import type { GameUpdateRow, AuthViewer } from '@/packages/auth/src/types';
 import { slugifyUpdateTitle } from '@/packages/updates/src/slug';
 import type { ServerConfig } from '@/packages/server/src/config/ServerConfigManager';
 import type { LogEntry, LogLevel } from '@/packages/server/src/logging/SystemLogger';
+import { AdminPremiumModal } from './AdminPremiumModal';
 
 interface UpdateDraft {
   id: string | null;
@@ -36,6 +37,8 @@ interface PlayerRecord {
   accountEmail: string;
   isBanned: boolean;
   role: string;
+  isPremium?: boolean;
+  premiumUntil?: string | null;
   updatedAt: string;
 }
 
@@ -90,6 +93,7 @@ export function AdminPanel({
   const [viewerCharacter, setViewerCharacter] = useState<any>(null);
   const [onlineAccountsCount, setOnlineAccountsCount] = useState<number>(1);
   const [selectedVocationFilter, setSelectedVocationFilter] = useState<number | 'all'>('all');
+  const [premiumModalPlayer, setPremiumModalPlayer] = useState<PlayerRecord | null>(null);
 
   // Logs state
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -773,10 +777,19 @@ export function AdminPanel({
                         </td>
                         <td style={{ padding: '12px' }}>
                           <div style={{ color: '#ddd' }}>{p.accountEmail}</div>
-                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
                             <span style={{ fontSize: '10px', padding: '2px 6px', background: '#222d3d', color: '#9db8de', borderRadius: '3px' }}>
                               {p.role}
                             </span>
+                            {p.isPremium ? (
+                              <span style={{ fontSize: '10px', padding: '2px 6px', background: '#713f12', border: '1px solid #eab308', color: '#fef08a', borderRadius: '3px', fontWeight: 800 }}>
+                                👑 PREMIUM
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: '10px', padding: '2px 6px', background: '#1e293b', color: '#94a3b8', borderRadius: '3px' }}>
+                                FREE
+                              </span>
+                            )}
                             {p.isBanned ? (
                               <span style={{ fontSize: '10px', padding: '2px 6px', background: '#661b1b', color: '#ff9999', borderRadius: '3px' }}>BANIDO</span>
                             ) : (
@@ -785,10 +798,27 @@ export function AdminPanel({
                           </div>
                         </td>
                         <td style={{ padding: '12px', textAlign: 'right' }}>
-                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                             {/* Actions restricted strictly to GOD */}
                             {roleUpper === 'ADMIN' && (
                               <>
+                                <button
+                                  type="button"
+                                  onClick={() => setPremiumModalPlayer(p)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '11px',
+                                    background: '#543b12',
+                                    border: '1px solid #eab308',
+                                    color: '#fef08a',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                  }}
+                                  title="Gerenciar dias de assinatura Premium desta conta"
+                                >
+                                  💎 Premium
+                                </button>
                                 {isGod ? (
                                   <span style={{ fontSize: '10px', color: '#ffd700', padding: '2px 6px', fontStyle: 'italic' }}>👑 GOD</span>
                                 ) : isGm ? (
@@ -1127,6 +1157,24 @@ export function AdminPanel({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Phase 234: Admin Premium Days Management Modal */}
+      {premiumModalPlayer && (
+        <AdminPremiumModal
+          player={premiumModalPlayer}
+          onClose={() => setPremiumModalPlayer(null)}
+          onSuccess={(updatedAccount) => {
+            setPlayers((prev) =>
+              prev.map((pl) =>
+                pl.accountId === updatedAccount.id
+                  ? { ...pl, isPremium: updatedAccount.isPremium, premiumUntil: updatedAccount.premiumUntil }
+                  : pl
+              )
+            );
+          }}
+          getAuthHeaders={getAuthHeaders}
+        />
       )}
     </main>
   );

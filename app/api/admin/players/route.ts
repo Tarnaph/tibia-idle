@@ -14,6 +14,8 @@ export async function GET(request: Request) {
             email: true,
             role: true,
             isBanned: true,
+            isPremium: true,
+            premiumUntil: true,
           },
         },
       },
@@ -39,6 +41,8 @@ export async function GET(request: Request) {
       accountEmail: c.account?.email || 'N/A',
       isBanned: c.account?.isBanned ?? false,
       role: c.account?.role || 'PLAYER',
+      isPremium: c.account ? (c.account.role === 'ADMIN' || (c.account.isPremium && (!c.account.premiumUntil || c.account.premiumUntil.getTime() > Date.now()))) : false,
+      premiumUntil: c.account?.premiumUntil ? c.account.premiumUntil.toISOString() : null,
       updatedAt: c.updatedAt.toISOString(),
     }));
 

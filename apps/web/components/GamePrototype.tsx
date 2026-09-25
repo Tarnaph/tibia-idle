@@ -73,6 +73,13 @@ import { WorldNavigation } from './WorldNavigation';
 import { WindowManagerProvider, useWindowManager } from './window/WindowManagerContext';
 import { DraggableWindow } from './window/DraggableWindow';
 import { WindowDockBar } from './window/WindowDockBar';
+import { useResponsiveLayout } from './mobile/useResponsiveLayout';
+import { MobileTopBar } from './mobile/MobileTopBar';
+import { MobileMusicBadge } from './mobile/MobileMusicBadge';
+import { MobileVirtualDPad, type MovementDirection } from './mobile/MobileVirtualDPad';
+import { MobileHotkeyBar } from './mobile/MobileHotkeyBar';
+import { MobileBottomNav, type MobileTab } from './mobile/MobileBottomNav';
+import { MobileMenuDrawer, type DrawerCategory } from './mobile/MobileMenuDrawer';
 import { SkillsWindow } from './SkillsWindow';
 import { AdvancedMetricsWindow, type HuntAnalyzerData } from './AdvancedMetricsWindow';
 import { HOTBAR_POTIONS, HOTBAR_RUNES, getActionSupplyCost } from '@/packages/domain/src/hotbarActions';
@@ -356,6 +363,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [trackedBestiaryMonsterId, setTrackedBestiaryMonsterId] = useState<string>('');
   const [isBestiaryTrackerVisible, setIsBestiaryTrackerVisible] = useState<boolean>(true);
   const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
+
+  // Phase 234: Responsive Mobile Layout & Navigation
+  const responsive = useResponsiveLayout();
+  const [mobileActiveTab, setMobileActiveTab] = useState<MobileTab>('world');
+  const [mobileDrawerCategory, setMobileDrawerCategory] = useState<DrawerCategory | null>(null);
   const [bossPoints, setBossPoints] = useState<number>(0);
   const [firstKillToast, setFirstKillToast] = useState<string | null>(null);
 
@@ -4514,6 +4526,62 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
   }, [thaisTileMapZ6, thaisTileMapZ7, isFollowingLeader]);
 
+  const handleMobileDPadMove = useCallback((dir: MovementDirection) => {
+    switch (dir) {
+      case 'north':
+        takeCityStep(0, -1);
+        break;
+      case 'south':
+        takeCityStep(0, 1);
+        break;
+      case 'east':
+        takeCityStep(1, 0);
+        break;
+      case 'west':
+        takeCityStep(-1, 0);
+        break;
+      case 'north-east':
+        takeCityStep(1, -1);
+        break;
+      case 'north-west':
+        takeCityStep(-1, -1);
+        break;
+      case 'south-east':
+        takeCityStep(1, 1);
+        break;
+      case 'south-west':
+        takeCityStep(-1, 1);
+        break;
+    }
+  }, [takeCityStep]);
+
+  const handleSelectMobileTab = useCallback((tab: MobileTab) => {
+    setMobileActiveTab(tab);
+    switch (tab) {
+      case 'world':
+        setMobileDrawerCategory(null);
+        setEquipmentOpen(false);
+        break;
+      case 'character':
+        setMobileDrawerCategory(null);
+        gameModal.openProfile(activeCharacter.id);
+        break;
+      case 'inventory':
+        setMobileDrawerCategory(null);
+        setEquipmentOpen((prev) => !prev);
+        break;
+      case 'social':
+        setMobileDrawerCategory('social');
+        break;
+      case 'metrics':
+        setMobileDrawerCategory('metrics');
+        break;
+      case 'menu':
+        setMobileDrawerCategory('menu');
+        break;
+    }
+  }, [activeCharacter.id, gameModal]);
+
   // Continuous movement loop while arrow keys or WASD are held, strictly paced at normal speed with Web Worker ticker
   const tickHeldKeyboardMove = useCallback(() => {
     if (mode === 'hunt') return;
@@ -4859,51 +4927,65 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         )}
       </div>
 
-      {/* Top HUD Dock Bar */}
+      {/* Top HUD Dock Bar: Mobile Top Bar vs Desktop WindowDockBar */}
       {!showAuthModal && (
-        <WindowDockBar
-          gold={game.session.gold}
-          coins={(onlineAccount as any)?.coins ?? (auth.viewer as any)?.coins ?? 0}
-          accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
-          characterName={activeCharacter.name}
-          character={activeCharacter}
-          stats={activeStats}
-          onlinePlayersCount={uniqueOnlineAccountsCount}
-          debug={debugGrid}
-          isAdmin={isAdmin}
-          isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
-          inHunt={mode === 'hunt'}
-          isTraining={false}
-          staminaMinutes={activeCharacter.staminaMinutes ?? 15}
-          maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
-          avatarId={(activeCharacter as any).avatarId ?? 1}
-          bestiaryKills={(game.session as any).bestiaryKills || (activeCharacter as any).bestiaryKills}
-          onOpenProfile={() => gameModal.openOutfit(activeCharacter.id)}
-          onToggleAutoIdle={() => {
-            const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
-            setGame((cur) => {
-              const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
-              if (char) {
-                (char as any).isAutoIdle = nextEnabled;
-              }
-              return { ...cur };
-            });
-            gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
-          }}
-          onToggleDebug={() => setDebugGrid((value) => !value)}
-          onSelectHunt={() => setHuntSelectorOpen(true)}
-          onOpenParty={() => setPartyModalOpen(true)}
-          onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
-          onOpenShop={() => setShopOpen((prev) => !prev)}
-          onOpenRanking={() => setIsHighscoresModalOpen(true)}
-          onOpenPvP={() => setIsPvPArenaModalOpen(true)}
-          onOpenDebug={() => setIsAdminDebugModalOpen(true)}
-          onOpenCyclopedia={() => gameModal.openCyclopedia()}
-          isMounted={isCharacterMounted(activeCharacter)}
-          onToggleMount={() => handleToggleMount(activeCharacter.id)}
-          onExitGame={() => setIsLogoutModalOpen(true)}
-          onOpenPromotion={() => setIsPromotionModalOpen(true)}
-        />
+        responsive.isMobile ? (
+          <>
+            <MobileTopBar
+              character={activeCharacter}
+              isPremium={Boolean(activeCharacter.isPremium)}
+              avatarUrl={`/assets/avatars/avatar-${(activeCharacter as any).avatarId ?? 1}.png`}
+              isConnected={isConnectedServer}
+              onOpenSettings={() => setMobileDrawerCategory('menu')}
+              onOpenProfile={() => gameModal.openProfile(activeCharacter.id)}
+            />
+            <MobileMusicBadge isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />
+          </>
+        ) : (
+          <WindowDockBar
+            gold={game.session.gold}
+            coins={(onlineAccount as any)?.coins ?? (auth.viewer as any)?.coins ?? 0}
+            accountUsername={auth.viewer?.displayName || onlineAccount?.displayName || 'CONTA'}
+            characterName={activeCharacter.name}
+            character={activeCharacter}
+            stats={activeStats}
+            onlinePlayersCount={uniqueOnlineAccountsCount}
+            debug={debugGrid}
+            isAdmin={isAdmin}
+            isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
+            inHunt={mode === 'hunt'}
+            isTraining={false}
+            staminaMinutes={activeCharacter.staminaMinutes ?? 15}
+            maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
+            avatarId={(activeCharacter as any).avatarId ?? 1}
+            bestiaryKills={(game.session as any).bestiaryKills || (activeCharacter as any).bestiaryKills}
+            onOpenProfile={() => gameModal.openOutfit(activeCharacter.id)}
+            onToggleAutoIdle={() => {
+              const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
+              setGame((cur) => {
+                const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
+                if (char) {
+                  (char as any).isAutoIdle = nextEnabled;
+                }
+                return { ...cur };
+              });
+              gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
+            }}
+            onToggleDebug={() => setDebugGrid((value) => !value)}
+            onSelectHunt={() => setHuntSelectorOpen(true)}
+            onOpenParty={() => setPartyModalOpen(true)}
+            onOpenSkills={() => setSkillsModalOpen((prev) => !prev)}
+            onOpenShop={() => setShopOpen((prev) => !prev)}
+            onOpenRanking={() => setIsHighscoresModalOpen(true)}
+            onOpenPvP={() => setIsPvPArenaModalOpen(true)}
+            onOpenDebug={() => setIsAdminDebugModalOpen(true)}
+            onOpenCyclopedia={() => gameModal.openCyclopedia()}
+            isMounted={isCharacterMounted(activeCharacter)}
+            onToggleMount={() => handleToggleMount(activeCharacter.id)}
+            onExitGame={() => setIsLogoutModalOpen(true)}
+            onOpenPromotion={() => setIsPromotionModalOpen(true)}
+          />
+        )
       )}
 
       {/* Window 1: Classic Skills Window (acessada pelo nome do personagem) */}
@@ -4983,51 +5065,99 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         )}
       </div>
 
-      {/* Persistent Bottom Battle & Action Console HUD matching reference screenshot */}
-      <BottomDock
-        logs={encounter.log}
-        seed={seed}
-        status={encounter.status}
-        character={activeCharacter}
-        actor={currentActor}
-        spells={content.spells}
-        elapsedMs={encounter.elapsedMs}
-        isHunting={mode === 'hunt'}
-        isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
-        onToggleAutoIdle={() => {
-          const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
-          setGame((cur) => {
-            const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
-            if (char) {
-              (char as any).isAutoIdle = nextEnabled;
-            }
-            return { ...cur };
-          });
-          gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
-        }}
-        onExitHunt={exitHunt}
-        onSeed={setSeed}
-        onBegin={beginOrRestart}
-        onReset={resetPrototype}
-        onReorderSpell={reorderSelectedHotbar}
-        onConfigureSlot={setHotbarConfigSlot}
-        onSlotClick={handleManualHotbarAction}
-        onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
-        onOpenDepot={() => setDepotOpen(true)}
-        onOpenQuickSell={() => setQuickSellOpen(true)}
-        onOpenTraining={handleOpenTrainingMenu}
-        onOpenImbuements={() => setImbuingModalOpen(true)}
-        onOpenBlessings={() => setIsBlessingsModalOpen(true)}
-        onOpenRanking={() => setIsHighscoresModalOpen(true)}
-        onOpenPvP={() => setIsPvPArenaModalOpen(true)}
-        onSelectHunt={() => {
-          setHuntSelectorTab('CAÇADAS');
-          setHuntSelectorOpen(true);
-        }}
-        onChangeStance={(stance) => setGame((cur) => setCharacterStance(cur, activeCharacter.id, stance))}
-        onChangeTargetDistance={(dist) => setGame((cur) => setCharacterTargetDistance(cur, activeCharacter.id, dist))}
-        onChangeTargetStrategy={(strat) => setGame((cur) => setCharacterTargetStrategy(cur, activeCharacter.id, strat))}
-      />
+      {/* Phase 234: Mobile Virtual D-Pad, Hotkeys, Dock Navigation & Menu Drawer */}
+      {responsive.isMobile && !showAuthModal && (
+        <>
+          <MobileVirtualDPad
+            onMove={handleMobileDPadMove}
+            disabled={mode === 'hunt' || isFollowingLeader}
+          />
+          <MobileHotkeyBar
+            character={activeCharacter}
+            spells={content.spells}
+            onSlotClick={handleManualHotbarAction}
+            onConfigureSlot={setHotbarConfigSlot}
+            onToggleChat={() => setIsChatMinimized((prev) => !prev)}
+            unreadChatCount={0}
+          />
+          <MobileBottomNav
+            activeTab={mobileActiveTab}
+            onSelectTab={handleSelectMobileTab}
+            isHunting={mode === 'hunt'}
+            onExitHunt={exitHunt}
+          />
+          {mobileDrawerCategory && (
+            <MobileMenuDrawer
+              category={mobileDrawerCategory}
+              onClose={() => setMobileDrawerCategory(null)}
+              onOpenHunts={() => {
+                setHuntSelectorTab('CAÇADAS');
+                setHuntSelectorOpen(true);
+              }}
+              onOpenInventory={() => setEquipmentOpen(true)}
+              onOpenDepot={() => setDepotOpen(true)}
+              onOpenTraining={handleOpenTrainingMenu}
+              onOpenImbuements={() => setImbuingModalOpen(true)}
+              onOpenBlessings={() => setIsBlessingsModalOpen(true)}
+              onOpenRanking={() => setIsHighscoresModalOpen(true)}
+              onOpenPvP={() => setIsPvPArenaModalOpen(true)}
+              onOpenCyclopedia={() => gameModal.openCyclopedia()}
+              onOpenParty={() => setPartyModalOpen(true)}
+              onOpenOutfit={() => gameModal.openOutfit(activeCharacter.id)}
+              onOpenProfile={() => gameModal.openProfile(activeCharacter.id)}
+              onOpenLogout={() => setIsLogoutModalOpen(true)}
+            />
+          )}
+        </>
+      )}
+
+      {/* Persistent Bottom Battle & Action Console HUD on Desktop */}
+      {!responsive.isMobile && (
+        <BottomDock
+          logs={encounter.log}
+          seed={seed}
+          status={encounter.status}
+          character={activeCharacter}
+          actor={currentActor}
+          spells={content.spells}
+          elapsedMs={encounter.elapsedMs}
+          isHunting={mode === 'hunt'}
+          isAutoIdle={(activeCharacter as any).isAutoIdle ?? false}
+          onToggleAutoIdle={() => {
+            const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
+            setGame((cur) => {
+              const char = cur.session.characters.find((c) => c.id === activeCharacter.id);
+              if (char) {
+                (char as any).isAutoIdle = nextEnabled;
+              }
+              return { ...cur };
+            });
+            gameNetwork.sendAutoIdleToggle(nextEnabled, (activeCharacter as any).lastHuntId || 'rat-cellars');
+          }}
+          onExitHunt={exitHunt}
+          onSeed={setSeed}
+          onBegin={beginOrRestart}
+          onReset={resetPrototype}
+          onReorderSpell={reorderSelectedHotbar}
+          onConfigureSlot={setHotbarConfigSlot}
+          onSlotClick={handleManualHotbarAction}
+          onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
+          onOpenDepot={() => setDepotOpen(true)}
+          onOpenQuickSell={() => setQuickSellOpen(true)}
+          onOpenTraining={handleOpenTrainingMenu}
+          onOpenImbuements={() => setImbuingModalOpen(true)}
+          onOpenBlessings={() => setIsBlessingsModalOpen(true)}
+          onOpenRanking={() => setIsHighscoresModalOpen(true)}
+          onOpenPvP={() => setIsPvPArenaModalOpen(true)}
+          onSelectHunt={() => {
+            setHuntSelectorTab('CAÇADAS');
+            setHuntSelectorOpen(true);
+          }}
+          onChangeStance={(stance) => setGame((cur) => setCharacterStance(cur, activeCharacter.id, stance))}
+          onChangeTargetDistance={(dist) => setGame((cur) => setCharacterTargetDistance(cur, activeCharacter.id, dist))}
+          onChangeTargetStrategy={(strat) => setGame((cur) => setCharacterTargetStrategy(cur, activeCharacter.id, strat))}
+        />
+      )}
 
       {/* Modals & Drawers */}
       <InventoryWindow
@@ -5275,6 +5405,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       <GameModalHost
         characters={game.session.characters}
         activeCharacterId={activeCharacter.id}
+        inventory={game.session.loot}
         onSelectCharacter={(charId) => {
           setGame((cur) => selectCharacter(cur, charId));
         }}

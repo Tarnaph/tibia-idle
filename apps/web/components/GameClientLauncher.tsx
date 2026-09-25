@@ -7,6 +7,7 @@ import {
   type CharacterItem,
   type AuthAccount,
 } from './auth/TibiaAuthCharacterModal';
+import { GameErrorBoundary } from './common/GameErrorBoundary';
 
 // Phase 226: Unified single 0% -> 100% loading flow.
 // Pre-warm the heavy game engine bundle while on character select and eliminate the redundant
@@ -65,11 +66,17 @@ export function GameClientLauncher() {
 
   // Once selected, launch GamePrototype with the selected hero and ExuraLoadingScreen security gate
   return (
-    <DynamicGamePrototype
-      initialSelection={selectedCharacterData}
-      onSwitchCharacter={() => {
+    <GameErrorBoundary
+      onReset={() => {
         setSelectedCharacterData(null);
       }}
-    />
+    >
+      <DynamicGamePrototype
+        initialSelection={selectedCharacterData}
+        onSwitchCharacter={() => {
+          setSelectedCharacterData(null);
+        }}
+      />
+    </GameErrorBoundary>
   );
 }

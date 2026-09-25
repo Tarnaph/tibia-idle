@@ -14,6 +14,17 @@ export interface UserAppearanceContext {
   isPremium?: boolean;
   role?: string;
   adminTitle?: string | null;
+  premiumUntil?: Date | string | null;
+}
+
+export function isAccountPremiumActive(acc?: { isPremium?: boolean; role?: string; premiumUntil?: Date | string | null } | null): boolean {
+  if (!acc) return false;
+  if (acc.role === 'ADMIN') return true;
+  if (acc.premiumUntil) {
+    const until = typeof acc.premiumUntil === 'string' ? new Date(acc.premiumUntil) : acc.premiumUntil;
+    return until.getTime() > Date.now();
+  }
+  return Boolean(acc.isPremium);
 }
 
 export const FREE_OUTFIT_KEYS = new Set<string>([

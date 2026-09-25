@@ -15,6 +15,7 @@ model Account {
   coins        Int         @default(0)
   isBanned     Boolean     @default(false)
   isPremium    Boolean     @default(false)
+  premiumUntil DateTime?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   characters   Character[]
@@ -179,5 +180,23 @@ model ActiveHuntSession {
   updatedAt   DateTime @updatedAt
 
   @@map("active_hunt_sessions")
+}
+
+model AdminAuditLog {
+  id            String    @id @default(uuid())
+  adminId       String
+  adminEmail    String
+  targetAccId   String
+  targetEmail   String
+  action        String    // ADD_DAYS, REMOVE_DAYS, SET_FREE, ADD_30_DAYS
+  days          Int       @default(0)
+  previousUntil DateTime?
+  newUntil      DateTime?
+  details       String?
+  createdAt     DateTime  @default(now())
+
+  @@index([targetAccId])
+  @@index([adminId])
+  @@map("admin_audit_logs")
 }
 
