@@ -4292,6 +4292,14 @@ Plans:
 
 - [x] 240-01-PLAN: Implementar o redesign do UnifiedPartyModal e estilos dedicados em globals.css com layout minimalista e testes unitários.
 
+---
+
+- [x] **Phase 241: Retrato da Party com Outfit e Montaria em Réplica Exata, Grande e Centralizado** - Renderização fidedigna da aparência integral do personagem no modal de party (UnifiedPartyModal): extração do outfit real, montaria ativa, cores e addons; centralização e escala dinâmica via detecção de bounding box de pixels não-transparentes no canvas, posicionando o personagem e sua montaria em destaque grande e perfeitamente centralizados na moldura circular.
+
+Plans:
+
+- [x] 241-01-PLAN: Implementar getCharacterAppearance e algoritmo de centralização/escala em CharacterOutfitCanvas em UnifiedPartyModal.tsx, mapear campos no GamePrototype.tsx e estilizar no globals.css com testes unitários.
+
 
 
 

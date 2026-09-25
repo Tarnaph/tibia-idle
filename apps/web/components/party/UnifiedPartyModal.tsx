@@ -4,6 +4,9 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { CharacterState } from '@/packages/domain/src';
 import {
   renderRecoloredOutfit,
+  getRecoloredCanvasSync,
+  normalizeOutfitId,
+  normalizeMountId,
   type OutfitColors,
 } from '@/apps/web/lib/outfitRecolor';
 
@@ -83,6 +86,20 @@ export interface RemotePartyMember {
   isLeader?: boolean;
   isReady?: boolean;
   outfit?: any;
+  mount?: string;
+  mountActive?: boolean;
+  outfitColors?: OutfitColors;
+  addons?: number;
+  gender?: 'male' | 'female';
+}
+
+export interface CharacterAppearance {
+  outfitId: string;
+  gender: 'male' | 'female';
+  colors: OutfitColors;
+  addons: number;
+  mount: string;
+  mountActive: boolean;
 }
 
 export interface UnifiedPartyModalProps {
@@ -111,31 +128,203 @@ export interface UnifiedPartyModalProps {
 }
 
 /**
- * Componente auxiliar para renderizar a miniatura do outfit em canvas com recolor
+ * Extrai a réplica exata da aparência (outfit real, montaria, cores, addons e gênero)
+ */
+export function getCharacterAppearance(
+  char: CharacterState | null | undefined,
+  remote: RemotePartyMember | null | undefined,
+  fallbackVoc: string
+): CharacterAppearance {
+  if (char) {
+    const rawOutfit = char.outfit;
+    const outfitId =
+      (typeof rawOutfit === 'string' && rawOutfit.trim() ? rawOutfit : null) ||
+      (char as any).outfitId ||
+      fallbackVoc.toLowerCase();
+
+    const rawColors = char.outfitColors || (char as any).colors;
+    const colors: OutfitColors = {
+      head: rawColors?.head ?? (char as any).outfitHead ?? 0,
+      primary: rawColors?.primary ?? rawColors?.body ?? (char as any).outfitBody ?? 86,
+      secondary: rawColors?.secondary ?? rawColors?.legs ?? (char as any).outfitLegs ?? 114,
+      detail: rawColors?.detail ?? rawColors?.feet ?? (char as any).outfitFeet ?? 76,
+    };
+
+    const mount = char.mount || (char as any).mountId || 'none';
+    const isMounted = Boolean(char.mountActive && mount && mount !== 'none');
+    const addons = char.addons ?? (char as any).outfitAddons ?? 0;
+    const gender = (char.gender as 'male' | 'female') || 'male';
+
+    return {
+      outfitId,
+      gender,
+      colors,
+      addons,
+      mount,
+      mountActive: isMounted,
+    };
+  }
+
+  if (remote) {
+    const rawOutfit = remote.outfit;
+    const outfitId =
+      typeof rawOutfit === 'string'
+        ? rawOutfit
+        : rawOutfit?.outfitId || rawOutfit?.id || (remote as any).outfitId || fallbackVoc.toLowerCase();
+
+    const rawColors =
+      typeof rawOutfit === 'object' && rawOutfit?.colors
+        ? rawOutfit.colors
+        : remote.outfitColors || (remote as any).colors;
+
+    const colors: OutfitColors = {
+      head: rawColors?.head ?? 0,
+      primary: rawColors?.primary ?? rawColors?.body ?? 86,
+      secondary: rawColors?.secondary ?? rawColors?.legs ?? 114,
+      detail: rawColors?.detail ?? rawColors?.feet ?? 76,
+    };
+
+    const mount =
+      (typeof rawOutfit === 'object' && rawOutfit?.mount) ||
+      remote.mount ||
+      'none';
+    const isMounted = Boolean(
+      (typeof rawOutfit === 'object' && rawOutfit?.mountActive) ||
+      remote.mountActive
+    ) && mount !== 'none';
+
+    const addons =
+      (typeof rawOutfit === 'object' && typeof rawOutfit?.addons === 'number')
+        ? rawOutfit.addons
+        : remote.addons ?? 0;
+
+    const gender = remote.gender || (remote as any).gender || 'male';
+
+    return {
+      outfitId,
+      gender,
+      colors,
+      addons,
+      mount,
+      mountActive: isMounted,
+    };
+  }
+
+  return {
+    outfitId: fallbackVoc.toLowerCase(),
+    gender: 'male',
+    colors: { head: 0, primary: 86, secondary: 114, detail: 76 },
+    addons: 0,
+    mount: 'none',
+    mountActive: false,
+  };
+}
+
+/**
+ * Escala e centraliza o sprite no canvas alvo calculando o bounding box real dos pixels desenhados
+ */
+function drawCenteredAndScaled(
+  sourceCanvas: HTMLCanvasElement,
+  targetCanvas: HTMLCanvasElement
+) {
+  const ctx = targetCanvas.getContext('2d');
+  const srcCtx = sourceCanvas.getContext('2d');
+  if (!ctx || !srcCtx) return;
+
+  const w = sourceCanvas.width;
+  const h = sourceCanvas.height;
+  const imgData = srcCtx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+
+  let minX = w;
+  let maxX = -1;
+  let minY = h;
+  let maxY = -1;
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const alpha = data[(y * w + x) * 4 + 3];
+      if (alpha > 15) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+
+  const dispW = targetCanvas.width;
+  const dispH = targetCanvas.height;
+  ctx.clearRect(0, 0, dispW, dispH);
+
+  if (maxX < minX || maxY < minY) {
+    return;
+  }
+
+  const spriteW = maxX - minX + 1;
+  const spriteH = maxY - minY + 1;
+
+  // Personagem/montaria ocupa ~82% do diâmetro do círculo de forma harmoniosa e grande
+  const availableDiameter = Math.min(dispW, dispH) * 0.82;
+  const scale = Math.min(4.8, Math.max(1.8, availableDiameter / Math.max(spriteW, spriteH)));
+
+  const drawW = Math.round(spriteW * scale);
+  const drawH = Math.round(spriteH * scale);
+  const destX = Math.round((dispW - drawW) / 2);
+  const destY = Math.round((dispH - drawH) / 2);
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sourceCanvas, minX, minY, spriteW, spriteH, destX, destY, drawW, drawH);
+}
+
+/**
+ * Componente auxiliar para renderizar a miniatura do outfit em canvas com recolor e montaria centralizados
  */
 function CharacterOutfitCanvas({
-  outfit,
-  gender = 'male',
+  appearance,
   vocation,
 }: {
-  outfit?: any;
-  gender?: 'male' | 'female';
+  appearance: CharacterAppearance;
   vocation: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [renderFailed, setRenderFailed] = useState(false);
 
   useEffect(() => {
-    if (!canvasRef.current || !outfit) return;
-    const outfitId = outfit.outfitId || outfit.id || vocation;
-    const colors: OutfitColors = outfit.colors || { head: 0, body: 0, legs: 0, feet: 0 };
-    const addons = outfit.addons || 0;
-    const mount = outfit.mount || 'none';
-    const isMounted = Boolean(outfit.mountActive && mount !== 'none');
+    if (!canvasRef.current) return;
+    let isCancelled = false;
+
+    const displayCanvas = canvasRef.current;
+    const norm = normalizeOutfitId(appearance.outfitId || vocation);
+    const colors = appearance.colors;
+    const addons = appearance.addons;
+    const mount = normalizeMountId(appearance.mount || 'none');
+    const isMounted = Boolean(appearance.mountActive && mount !== 'none');
+    const gender = appearance.gender;
+
+    // Fast-path instantâneo síncrono do cache de memória
+    const provCanvas = getRecoloredCanvasSync(
+      norm,
+      gender,
+      'south',
+      0,
+      colors,
+      addons,
+      mount,
+      isMounted
+    );
+    if (provCanvas) {
+      drawCenteredAndScaled(provCanvas, displayCanvas);
+    }
+
+    // Canvas temporário offscreen 64x64 para receber o sprite integral renderizado
+    const offscreen = document.createElement('canvas');
+    offscreen.width = 64;
+    offscreen.height = 64;
 
     renderRecoloredOutfit(
-      canvasRef.current,
-      outfitId,
+      offscreen,
+      norm,
       gender,
       'south',
       0,
@@ -143,13 +332,34 @@ function CharacterOutfitCanvas({
       addons,
       mount,
       isMounted,
-      () => true
-    ).catch(() => {
-      setRenderFailed(true);
-    });
-  }, [outfit, gender, vocation]);
+      () => !isCancelled
+    )
+      .then(() => {
+        if (isCancelled || !canvasRef.current) return;
+        drawCenteredAndScaled(offscreen, canvasRef.current);
+      })
+      .catch((err) => {
+        console.warn('[CharacterOutfitCanvas] render failed:', err);
+        if (!isCancelled) setRenderFailed(true);
+      });
 
-  if (renderFailed || !outfit) {
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    appearance.outfitId,
+    appearance.gender,
+    appearance.colors.head,
+    appearance.colors.primary,
+    appearance.colors.secondary,
+    appearance.colors.detail,
+    appearance.addons,
+    appearance.mount,
+    appearance.mountActive,
+    vocation,
+  ]);
+
+  if (renderFailed) {
     return (
       <div className="party-card-avatar-fallback">
         <span className="party-card-avatar-icon">
@@ -162,8 +372,8 @@ function CharacterOutfitCanvas({
   return (
     <canvas
       ref={canvasRef}
-      width={64}
-      height={64}
+      width={144}
+      height={144}
       className="party-card-outfit-canvas"
     />
   );
@@ -458,8 +668,7 @@ export function UnifiedPartyModal({
                           style={{ borderColor: config.themeColor }}
                         >
                           <CharacterOutfitCanvas
-                            outfit={char?.outfit || remote?.outfit}
-                            gender={char?.gender as any}
+                            appearance={getCharacterAppearance(char, remote, voc)}
                             vocation={voc}
                           />
                         </div>

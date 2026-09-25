@@ -68,3 +68,8 @@
   - [x] Redesenhar os 4 cards de vocação conforme imagem de referência: moldura circular de retrato com nível e tag de líder, descrição concisa de 1 linha para vagas abertas, divisor de diamante ◈ e botão limpo `+ Adicionar`.
   - [x] Cabeçalho compacto com brasão de espadas, título, subtítulo "Monte sua composição ideal para caçar", ícones de formação recomendada e contador `X/4 vagas`.
   - [x] Barra inferior harmoniosa com botões secundários (`Convidar Jogador`, `Autopreencher`), botão primário dourado de destaque (`⚔️ Iniciar Caçada`) e botão de desfazer grupo.
+
+- [x] **Item 13: Retrato do Personagem Grande, Centralizado e com Réplica Exata do Outfit e Montaria (`UnifiedPartyModal.tsx`, `GamePrototype.tsx` & `globals.css`)**
+  - [x] Extrair réplica autêntica completa do personagem: outfit específico (Hunter, Warrior, etc.), montaria ativa (`mount` e `mountActive`), cores customizadas (`outfitColors` / head, body, legs, feet), addons e gênero para personagem ativo, alts da conta e remotos.
+  - [x] Centralização e ampliação automática no círculo: calcular bounding box dos pixels não-transparentes via canvas offscreen para posicionar e escalar o personagem e sua montaria perfeitamente centralizados e destacados na moldura circular de 72px.
+  - [x] Renderização em alta resolução nítida (144x144 canvas em 72px com `image-rendering: pixelated`) sem borrões ou cortes.

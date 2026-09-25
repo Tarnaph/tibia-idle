@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready
-last_updated: "2026-09-25T18:22:00.000Z"
-last_activity: "2026-09-25 — Conclusão da Phase 240: Redesign Minimalista e Compacto do Gerenciador de Party."
+last_updated: "2026-09-25T19:04:00.000Z"
+last_activity: "2026-09-25 — Conclusão da Phase 241: Retrato da Party com Outfit e Montaria em Réplica Exata, Grande e Centralizado."
 progress:
-  total_phases: 240
-  completed_phases: 240
-  total_plans: 324
-  completed_plans: 324
+  total_phases: 241
+  completed_phases: 241
+  total_plans: 325
+  completed_plans: 325
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 240 concluída (Redesign Minimalista e Compacto do Gerenciador de Party).
+**Current focus:** Fase 241 concluída (Retrato da Party com Outfit e Montaria em Réplica Exata, Grande e Centralizado).
 
 ## Current Position
 
-Phase: 240 of 240  
-Plan: 1 of 1 in Phase 240  
+Phase: 241 of 241  
+Plan: 1 of 1 in Phase 241  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 240: Redesign minimalista e compacto do Gerenciador de Party (UnifiedPartyModal) validado com testes unitários e 0 erros de tipagem.
+Last activity: 2026-09-25 — Phase 241: Retrato com outfit real, montaria ativa, cores exatas e centralização dinâmica de bounding box no UnifiedPartyModal validado com testes unitários.
 
 Progress: [██████████] 100%
 

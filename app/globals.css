@@ -8894,6 +8894,15 @@ h1, h2, h3, p { margin: 0; }
   overflow: hidden;
 }
 
+.party-card-outfit-canvas {
+  width: 72px;
+  height: 72px;
+  display: block;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
+  pointer-events: none;
+}
+
 .party-card-circle-lvl {
   position: absolute;
   bottom: -4px;

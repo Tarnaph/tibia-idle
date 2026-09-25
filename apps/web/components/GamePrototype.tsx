@@ -5317,6 +5317,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                   isLeader: m.isLeader,
                   isReady: Boolean((m as any).huntProposalAccepted),
                   outfit: (m as any).outfit,
+                  mount: (m as any).mount,
+                  mountActive: (m as any).mountActive,
+                  outfitColors: (m as any).outfitColors,
+                  addons: (m as any).addons,
+                  gender: (m as any).gender,
                 }))
             : []
         }
@@ -5324,10 +5329,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           !multiplayerParty || multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId
         }
         currentHuntName={game.encounter?.hunt?.name}
-        onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
-        onAddAltToParty={(charId) => handleAddToParty(charId)}
-        onRemoveAltFromParty={(charId) => handleRemoveFromParty(charId)}
-        onInviteRemotePlayer={(name) => handleInviteParty(name)}
+        onSelectActiveCharacter={(id: string) => selectPartyCharacter(id)}
+        onAddAltToParty={(charId: string) => handleAddToParty(charId)}
+        onRemoveAltFromParty={(charId: string) => handleRemoveFromParty(charId)}
+        onInviteRemotePlayer={(name: string) => handleInviteParty(name)}
         onOpenHuntSelector={() => {
           setHuntSelectorTab('CAÇADAS');
           setHuntSelectorOpen(true);
