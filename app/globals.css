@@ -9671,15 +9671,15 @@ h1, h2, h3, p { margin: 0; }
   background: linear-gradient(180deg, #171b25 0%, #11141d 100%);
   border: 1px solid #273042;
   border-radius: 5px;
-  padding: 8px 10px;
+  padding: 7px 9px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
   position: relative;
-  min-height: 88px;
-  max-height: 102px;
+  min-height: 56px;
+  max-height: 68px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -9696,6 +9696,7 @@ h1, h2, h3, p { margin: 0; }
   align-items: center;
   gap: 8px;
   min-width: 0;
+  width: 100%;
 }
 
 .hunt-card-sprite-box {
@@ -9724,6 +9725,14 @@ h1, h2, h3, p { margin: 0; }
   overflow: hidden;
 }
 
+.hunt-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+}
+
 .hunt-card-title {
   font-size: 12px;
   font-weight: 700;
@@ -9732,6 +9741,19 @@ h1, h2, h3, p { margin: 0; }
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.25;
+}
+
+.hunt-card-lvl-badge {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #facc15;
+  background: rgba(202, 138, 4, 0.16);
+  border: 1px solid rgba(202, 138, 4, 0.35);
+  border-radius: 3px;
+  padding: 1px 4px;
+  flex-shrink: 0;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
 }
 
 .hunt-catalog-card:hover .hunt-card-title {

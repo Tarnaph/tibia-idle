@@ -4276,6 +4276,14 @@ Plans:
 
 - [x] 238-01-PLAN: Implementar a reestruturação e estilização do HuntSelector na versão web desktop com grade vertical de 4 colunas compactas, visual temático medieval/ouro, barras condensadas e validação automatizada.
 
+---
+
+- [x] **Phase 239: Limpeza dos Cards do Seletor de Caçadas (Remoção de Solo/Party XP/h e gp/h & Cards Ultra-Compactos)** - Remoção das linhas de estatísticas de Solo, Party, números por hora e recordes dos cards do catálogo e banner de setup, tornando os cards do seletor ultra-compactos, limpos e elegantes com miniatura do monstro, nome da caçada, badge de nível recomendado, criaturas e botão de favorito.
+
+Plans:
+
+- [x] 239-01-PLAN: Remover hunt-card-bottom e recordes numéricos em HuntSelector.tsx e ajustar globals.css para cards compactos e badge de nível recomendado.
+
 
 
 

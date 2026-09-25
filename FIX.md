@@ -57,3 +57,8 @@
   - [x] Janela contida em proporções ideais (`min(840px, 94vw)` e `min(540px, 86vh)`).
   - [x] Micro-grid de 3 colunas para status Solo/Party sem transbordamento (`28px 1fr 1fr`).
   - [x] Identidade visual autêntica TibiaWeb / Cavebound (ardósia medieval, abas douradas/âmbar e tipografia Cinzel).
+
+- [x] **Item 11: Remoção de Informações de Solo/Party e Números/Hora dos Cards de Caçada (`HuntSelector.tsx` & `globals.css`)**
+  - [x] Remover seção de métricas `hunt-card-bottom` (Solo, Party, XP/h, gp/h, Sem recorde ainda) dos cards.
+  - [x] Cards ultra-compactos e limpos com miniatura do monstro, título da caçada, badge de nível recomendado, criaturas e botão de favorito.
+  - [x] Substituir bloco de recordes na tela de setup por dados limpos de requisitos (Nível Mínimo e Recomendado).

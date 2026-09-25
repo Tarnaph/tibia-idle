@@ -763,7 +763,10 @@ export function HuntSelector({
                         />
                       </div>
                       <div className="hunt-card-info">
-                        <div className="hunt-card-title">{hunt.name}</div>
+                        <div className="hunt-card-title-row">
+                          <span className="hunt-card-title">{hunt.name}</span>
+                          <span className="hunt-card-lvl-badge">Lv. {hunt.recommendedLevel || 1}+</span>
+                        </div>
                         <div className="hunt-card-creatures" title={monsterNames}>{monsterNames}</div>
                       </div>
                       <button
@@ -774,29 +777,6 @@ export function HuntSelector({
                       >
                         {isFav ? '★' : '☆'}
                       </button>
-                    </div>
-
-                    <div className="hunt-card-bottom">
-                      {stats ? (
-                        <>
-                          <div className="hunt-card-stat-row">
-                            <span className="hunt-card-stat-label">Solo</span>
-                            <span className="hunt-card-stat-val">{stats.soloXp}</span>
-                            <span className="hunt-card-stat-val">{stats.soloGp}</span>
-                          </div>
-                          {stats.partyXp && (
-                            <div className="hunt-card-stat-row">
-                              <span className="hunt-card-stat-label">Party</span>
-                              <span className="hunt-card-stat-val">{stats.partyXp}</span>
-                              <span className={`hunt-card-stat-val ${stats.partyGp?.startsWith('-') ? 'negative' : ''}`}>
-                                {stats.partyGp}
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="hunt-card-no-record">Sem recorde ainda</div>
-                      )}
                     </div>
                   </div>
                 );
@@ -826,13 +806,11 @@ export function HuntSelector({
 
               <div className="hunt-setup-record-box">
                 <div className="hunt-setup-record-header">
-                  <span>Seu recorde</span>
-                  <span style={{ cursor: 'pointer' }} title="Atualizar histórico">🔄</span>
+                  <span>Requisitos</span>
                 </div>
                 <div className="hunt-setup-record-body">
-                  <span>Solo</span>
-                  <span>{HUNT_STATS_MAP[selectedHunt.id]?.soloXp ?? '10.5K XP/h'}</span>
-                  <span>{HUNT_STATS_MAP[selectedHunt.id]?.soloGp ?? '4.8K gp/h'}</span>
+                  <span>Mínimo: Lv. {selectedHunt.minimumLevel || 1}</span>
+                  <span style={{ color: '#facc15' }}>Recomendado: Lv. {selectedHunt.recommendedLevel || 1}+</span>
                 </div>
               </div>
             </div>

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-25T17:48:00.000Z"
-last_activity: "2026-09-25 — Concluída Phase 238: Redesign do Seletor de Caçadas Web (Layout Vertical Compacto, Identidade TibiaWeb, Zero Scroll Horizontal e Otimização de Espaço)."
+last_updated: "2026-09-25T18:01:00.000Z"
+last_activity: "2026-09-25 — Concluída Phase 239: Limpeza dos Cards do Seletor de Caçadas (Remoção de Solo/Party XP/h e gp/h & Cards Ultra-Compactos)."
 progress:
-  total_phases: 238
-  completed_phases: 238
-  total_plans: 322
-  completed_plans: 322
+  total_phases: 239
+  completed_phases: 239
+  total_plans: 323
+  completed_plans: 323
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 238 Concluída com sucesso (Redesign do Seletor de Caçadas Web Desktop em 4 colunas compactas com identidade TibiaWeb).
+**Current focus:** Fase 239 Concluída com sucesso (Cards do seletor de caçadas ultra-compactos e limpos sem poluição de métricas/hora).
 
 ## Current Position
 
-Phase: 238 of 238  
-Plan: 1 of 1 in Phase 238  
+Phase: 239 of 239  
+Plan: 1 of 1 in Phase 239  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 238: Redesign do seletor de caçadas desktop com grade de 4 colunas verticais, cards compactos e ausência de scroll horizontal concluída e validada.
+Last activity: 2026-09-25 — Phase 239: Remoção concluída de números/hora e informações de Solo/Party dos cards do seletor de caçadas.
 
 Progress: [██████████] 100%
 
