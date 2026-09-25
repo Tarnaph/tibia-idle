@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-25T18:01:00.000Z"
-last_activity: "2026-09-25 — Concluída Phase 239: Limpeza dos Cards do Seletor de Caçadas (Remoção de Solo/Party XP/h e gp/h & Cards Ultra-Compactos)."
+status: ready
+last_updated: "2026-09-25T18:22:00.000Z"
+last_activity: "2026-09-25 — Conclusão da Phase 240: Redesign Minimalista e Compacto do Gerenciador de Party."
 progress:
-  total_phases: 239
-  completed_phases: 239
-  total_plans: 323
-  completed_plans: 323
+  total_phases: 240
+  completed_phases: 240
+  total_plans: 324
+  completed_plans: 324
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 239 Concluída com sucesso (Cards do seletor de caçadas ultra-compactos e limpos sem poluição de métricas/hora).
+**Current focus:** Fase 240 concluída (Redesign Minimalista e Compacto do Gerenciador de Party).
 
 ## Current Position
 
-Phase: 239 of 239  
-Plan: 1 of 1 in Phase 239  
+Phase: 240 of 240  
+Plan: 1 of 1 in Phase 240  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 239: Remoção concluída de números/hora e informações de Solo/Party dos cards do seletor de caçadas.
+Last activity: 2026-09-25 — Phase 240: Redesign minimalista e compacto do Gerenciador de Party (UnifiedPartyModal) validado com testes unitários e 0 erros de tipagem.
 
 Progress: [██████████] 100%
 

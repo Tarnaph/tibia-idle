@@ -62,3 +62,9 @@
   - [x] Remover seção de métricas `hunt-card-bottom` (Solo, Party, XP/h, gp/h, Sem recorde ainda) dos cards.
   - [x] Cards ultra-compactos e limpos com miniatura do monstro, título da caçada, badge de nível recomendado, criaturas e botão de favorito.
   - [x] Substituir bloco de recordes na tela de setup por dados limpos de requisitos (Nível Mínimo e Recomendado).
+
+- [x] **Item 12: Redesign Minimalista do Gerenciador de Party (`UnifiedPartyModal.tsx` & `globals.css`)**
+  - [x] Remover abas "Táticas & Sinergia" e concentrar a interface em um único painel limpo e minimalista.
+  - [x] Redesenhar os 4 cards de vocação conforme imagem de referência: moldura circular de retrato com nível e tag de líder, descrição concisa de 1 linha para vagas abertas, divisor de diamante ◈ e botão limpo `+ Adicionar`.
+  - [x] Cabeçalho compacto com brasão de espadas, título, subtítulo "Monte sua composição ideal para caçar", ícones de formação recomendada e contador `X/4 vagas`.
+  - [x] Barra inferior harmoniosa com botões secundários (`Convidar Jogador`, `Autopreencher`), botão primário dourado de destaque (`⚔️ Iniciar Caçada`) e botão de desfazer grupo.

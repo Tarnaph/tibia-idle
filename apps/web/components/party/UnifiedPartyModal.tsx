@@ -13,6 +13,7 @@ export interface VocationSlotConfig {
   vocation: VocationSlotType;
   title: string;
   roleTitle: string;
+  shortRole: string;
   tacticalTip: string;
   icon: string;
   themeColor: string;
@@ -24,47 +25,51 @@ export interface VocationSlotConfig {
 export const VOCATION_SLOT_CONFIGS: Record<VocationSlotType, VocationSlotConfig> = {
   Knight: {
     vocation: 'Knight',
-    title: 'KNIGHT',
+    title: 'Knight',
     roleTitle: 'Vanguarda & Proteção (Tank)',
+    shortRole: 'Vanguarda e defesa (Tank)',
     tacticalTip: 'Atrai os monstros com Exeta Res, segura o dano físico e protege o grupo na linha de frente.',
     icon: '🛡️',
     themeColor: '#ef4444',
-    bannerBg: 'linear-gradient(180deg, #7f1d1d 0%, #450a0a 100%)',
+    bannerBg: 'linear-gradient(180deg, #7f1d1d 0%, #3b0a0a 100%)',
     borderAccent: '#dc2626',
-    bgGlow: 'rgba(220, 38, 38, 0.25)',
+    bgGlow: 'rgba(220, 38, 38, 0.2)',
   },
   Paladin: {
     vocation: 'Paladin',
-    title: 'PALADIN',
+    title: 'Paladin',
     roleTitle: 'Dano Físico & Sagrado (Ranged DPS)',
+    shortRole: 'DPS híbrido à distância',
     tacticalTip: 'Ataques à distância consistentes com lanças/bestas, apoiando com magias sagradas e cura secundária.',
     icon: '🏹',
     themeColor: '#f59e0b',
-    bannerBg: 'linear-gradient(180deg, #78350f 0%, #451a03 100%)',
+    bannerBg: 'linear-gradient(180deg, #78350f 0%, #3b1704 100%)',
     borderAccent: '#f59e0b',
-    bgGlow: 'rgba(245, 158, 11, 0.25)',
+    bgGlow: 'rgba(245, 158, 11, 0.2)',
   },
   Sorcerer: {
     vocation: 'Sorcerer',
-    title: 'SORCERER',
+    title: 'Sorcerer',
     roleTitle: 'Dano Mágico Ofensivo (Area DPS)',
+    shortRole: 'Dano mágico explosivo',
     tacticalTip: 'Causa explosões de dano massivo em área com feitiços elementais (fogo/energia) e runas de ataque.',
-    icon: '🔮',
+    icon: '🔥',
     themeColor: '#a855f7',
-    bannerBg: 'linear-gradient(180deg, #581c87 0%, #3b0764 100%)',
+    bannerBg: 'linear-gradient(180deg, #581c87 0%, #2e0854 100%)',
     borderAccent: '#9333ea',
-    bgGlow: 'rgba(147, 51, 234, 0.25)',
+    bgGlow: 'rgba(147, 51, 234, 0.2)',
   },
   Druid: {
     vocation: 'Druid',
-    title: 'DRUID',
+    title: 'Druid',
     roleTitle: 'Curador Primário & Suporte Vital (Healer)',
+    shortRole: 'Cura e suporte',
     tacticalTip: 'Foco contínuo em manter o Knight vivo (Exura Sio) e conjurar Mass Healing e magias de gelo/terra.',
     icon: '🌿',
     themeColor: '#10b981',
-    bannerBg: 'linear-gradient(180deg, #064e3b 0%, #022c22 100%)',
+    bannerBg: 'linear-gradient(180deg, #064e3b 0%, #022019 100%)',
     borderAccent: '#10b981',
-    bgGlow: 'rgba(16, 185, 129, 0.25)',
+    bgGlow: 'rgba(16, 185, 129, 0.2)',
   },
 };
 
@@ -148,7 +153,7 @@ function CharacterOutfitCanvas({
     return (
       <div className="party-card-avatar-fallback">
         <span className="party-card-avatar-icon">
-          {vocation === 'Knight' ? '🛡️' : vocation === 'Paladin' ? '🏹' : vocation === 'Sorcerer' ? '🔮' : '🌿'}
+          {vocation === 'Knight' ? '🛡️' : vocation === 'Paladin' ? '🏹' : vocation === 'Sorcerer' ? '🔥' : '🌿'}
         </span>
       </div>
     );
@@ -184,7 +189,6 @@ export function UnifiedPartyModal({
   onLeaveParty,
   onCreateCharacter,
 }: UnifiedPartyModalProps) {
-  const [activeTab, setActiveTab] = useState<'FORMAÇÃO' | 'TÁTICAS'>('FORMAÇÃO');
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteInputName, setInviteInputName] = useState('');
   const [openDropdownVocation, setOpenDropdownVocation] = useState<VocationSlotType | null>(null);
@@ -216,7 +220,7 @@ export function UnifiedPartyModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, createCharModalOpen, inviteModalOpen, openDropdownVocation, onClose]);
 
-  // Lista de alts da conta do jogador (excluindo o personagem principal ativo se já configurado)
+  // Lista de alts da conta do jogador
   const allAccountChars = useMemo(() => {
     if (accountCharacters.length > 0) return accountCharacters;
     return [activeCharacter];
@@ -235,7 +239,6 @@ export function UnifiedPartyModal({
 
   // Mapeamento dos 4 slots
   const slotOccupants = useMemo(() => {
-    const vocations: VocationSlotType[] = ['Knight', 'Paladin', 'Sorcerer', 'Druid'];
     const result: Record<
       VocationSlotType,
       {
@@ -283,7 +286,7 @@ export function UnifiedPartyModal({
           character: char,
           remotePlayer: null,
           source: 'account',
-          isReady: true, // Alts da conta do líder são confirmados automaticamente
+          isReady: true,
         };
       }
     }
@@ -296,15 +299,36 @@ export function UnifiedPartyModal({
     return Object.values(slotOccupants).filter((s) => s.source !== 'empty').length;
   }, [slotOccupants]);
 
-  // Todos prontos para caçada?
-  const allMembersReady = useMemo(() => {
-    const occupied = Object.values(slotOccupants).filter((s) => s.source !== 'empty');
-    if (occupied.length === 0) return false;
-    return occupied.every((s) => s.isReady);
-  }, [slotOccupants]);
+  // Verifica se há alts livres que possam autopreencher vagas vazias
+  const canAutoFill = useMemo(() => {
+    if (!onAddAltToParty) return false;
+    const vocations: VocationSlotType[] = ['Knight', 'Paladin', 'Sorcerer', 'Druid'];
+    return vocations.some((voc) => {
+      if (slotOccupants[voc].source !== 'empty') return false;
+      return allAccountChars.some((c) => {
+        if (c.id === activeCharacter.id) return false;
+        if (partyMemberIds.includes(c.id)) return false;
+        return normalizeVocation(c.baseVocation || c.vocation) === voc;
+      });
+    });
+  }, [allAccountChars, activeCharacter.id, partyMemberIds, slotOccupants, onAddAltToParty]);
 
-  // Bônus de 4 vocações
-  const hasFullPartySynergy = totalOccupied === 4;
+  const handleAutoFill = () => {
+    if (!onAddAltToParty) return;
+    const vocations: VocationSlotType[] = ['Knight', 'Paladin', 'Sorcerer', 'Druid'];
+    for (const voc of vocations) {
+      if (slotOccupants[voc].source === 'empty') {
+        const availableAlt = allAccountChars.find((c) => {
+          if (c.id === activeCharacter.id) return false;
+          if (partyMemberIds.includes(c.id)) return false;
+          return normalizeVocation(c.baseVocation || c.vocation) === voc;
+        });
+        if (availableAlt) {
+          onAddAltToParty(availableAlt.id);
+        }
+      }
+    }
+  };
 
   const handleInviteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -345,284 +369,159 @@ export function UnifiedPartyModal({
         aria-modal="true"
         aria-label="Gerenciador de Party"
       >
-        {/* Top Header Padronizado (Royal Dark Stone / Arena PvP Standard) */}
-        <div
-          style={{
-            padding: '14px 20px',
-            backgroundColor: '#18191b',
-            borderBottom: '1px solid #33363a',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'relative',
-          }}
-        >
-          {/* Abas Superiores */}
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <button
-              type="button"
-              onClick={() => setActiveTab('FORMAÇÃO')}
-              style={{
-                backgroundColor: activeTab === 'FORMAÇÃO' ? '#2d3035' : '#151618',
-                border: `1px solid ${activeTab === 'FORMAÇÃO' ? '#4f535a' : '#282a2e'}`,
-                borderRadius: '4px',
-                color: activeTab === 'FORMAÇÃO' ? '#f3c769' : '#9ca3af',
-                fontSize: '11.5px',
-                fontWeight: activeTab === 'FORMAÇÃO' ? '700' : '600',
-                padding: '6px 14px',
-                cursor: 'pointer',
-                letterSpacing: '0.5px',
-                transition: 'all 0.12s ease',
-              }}
-            >
-              FORMAÇÃO DO TIME
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('TÁTICAS')}
-              style={{
-                backgroundColor: activeTab === 'TÁTICAS' ? '#2d3035' : '#151618',
-                border: `1px solid ${activeTab === 'TÁTICAS' ? '#4f535a' : '#282a2e'}`,
-                borderRadius: '4px',
-                color: activeTab === 'TÁTICAS' ? '#f3c769' : '#9ca3af',
-                fontSize: '11.5px',
-                fontWeight: activeTab === 'TÁTICAS' ? '700' : '600',
-                padding: '6px 14px',
-                cursor: 'pointer',
-                letterSpacing: '0.5px',
-                transition: 'all 0.12s ease',
-              }}
-            >
-              TÁTICAS & SINERGIA
-            </button>
+        {/* Header Minimalista (Reference Image) */}
+        <div className="party-header-compact">
+          <div className="party-header-left">
+            <div className="party-header-crest">
+              <span className="party-header-crest-icon">⚔️</span>
+            </div>
+            <div>
+              <h2 className="party-header-title">Gerenciador de Party</h2>
+              <p className="party-header-subtitle">Monte sua composição ideal para caçar.</p>
+            </div>
           </div>
 
-          {/* Título Central */}
-          <h2
-            style={{
-              margin: 0,
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: '#f3c769',
-              letterSpacing: '1px',
-              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
-              fontFamily: 'Georgia, serif',
-            }}
-          >
-            Gerenciador de Party
-          </h2>
+          <div className="party-header-right">
+            <div className="party-recommended-formation">
+              <span className="party-formation-label">Formação recomendada</span>
+              <div className="party-formation-icons">
+                <span className="formation-icon knight" title="Knight (Tank)">🛡️</span>
+                <span className="formation-icon paladin" title="Paladin (Ranged DPS)">🏹</span>
+                <span className="formation-icon sorcerer" title="Sorcerer (Area DPS)">🔥</span>
+                <span className="formation-icon druid" title="Druid (Healer)">🌿</span>
+              </div>
+            </div>
 
-          {/* Cluster Direito: Sinergia e Fechar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '5px 12px',
-                borderRadius: '4px',
-                backgroundColor: '#151618',
-                border: `1px solid ${hasFullPartySynergy ? '#facc15' : '#33363a'}`,
-                color: hasFullPartySynergy ? '#facc15' : '#9ca3af',
-                fontSize: '11px',
-                fontWeight: 700,
-              }}
-              title={
-                hasFullPartySynergy
-                  ? 'Bônus de 4 Vocações ativo: +20% de Experiência Compartilhada!'
-                  : `Membros no grupo: ${totalOccupied}/4 vagas`
-              }
-            >
-              <span>{hasFullPartySynergy ? '⭐' : '👥'}</span>
-              <span>{hasFullPartySynergy ? 'Bônus 4 Vocações (+20% XP)' : `${totalOccupied}/4 Vagas`}</span>
+            <div className="party-slots-counter-pill" title={`${totalOccupied} de 4 vagas ocupadas`}>
+              <span className="party-slots-icon">👥</span>
+              <span className="party-slots-text">{totalOccupied}/4 vagas</span>
             </div>
 
             <button
               type="button"
+              className="party-close-btn"
               onClick={onClose}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#8b8e93',
-                fontSize: '18px',
-                cursor: 'pointer',
-                lineHeight: 1,
-                padding: '4px',
-                borderRadius: '4px',
-              }}
-              title="Fechar Janela (ESC)"
+              title="Fechar (ESC)"
             >
               ✕
             </button>
           </div>
         </div>
 
-        {/* Corpo do Modal: 4 Cards de Vocações ou Aba de Táticas */}
-        {activeTab === 'FORMAÇÃO' ? (
-          <div className="party-stage-container">
-            <div className="party-cards-grid">
-              {(['Knight', 'Paladin', 'Sorcerer', 'Druid'] as VocationSlotType[]).map((voc) => {
-                const config = VOCATION_SLOT_CONFIGS[voc];
-                const slot = slotOccupants[voc];
-                const isOccupied = slot.source !== 'empty';
-                const char = slot.character;
-                const remote = slot.remotePlayer;
+        {/* 4 Cards de Vocações Compactos */}
+        <div className="party-stage-container">
+          <div className="party-cards-grid">
+            {(['Knight', 'Paladin', 'Sorcerer', 'Druid'] as VocationSlotType[]).map((voc) => {
+              const config = VOCATION_SLOT_CONFIGS[voc];
+              const slot = slotOccupants[voc];
+              const isOccupied = slot.source !== 'empty';
+              const char = slot.character;
+              const remote = slot.remotePlayer;
 
-                // Alts disponíveis desta vocação para preencher a vaga
-                const availableAlts = allAccountChars.filter((c) => {
-                  if (c.id === activeCharacter.id) return false;
-                  if (partyMemberIds.includes(c.id)) return false;
-                  return normalizeVocation(c.baseVocation || c.vocation) === voc;
-                });
+              // Alts disponíveis desta vocação para preencher a vaga
+              const availableAlts = allAccountChars.filter((c) => {
+                if (c.id === activeCharacter.id) return false;
+                if (partyMemberIds.includes(c.id)) return false;
+                return normalizeVocation(c.baseVocation || c.vocation) === voc;
+              });
 
-                const displayName = char ? char.name : remote ? remote.name : null;
-                const displayLevel = char ? char.level : remote ? remote.level : null;
-                const currentHp = char ? (char.currentHp ?? (char as any).health) : remote ? remote.hp : null;
-                const maxHp = char ? (char.maxHp ?? (char as any).maxHealth) : remote ? remote.maxHp : null;
-                const hpPercent =
-                  currentHp && maxHp ? Math.max(0, Math.min(100, Math.round((currentHp / maxHp) * 100))) : 100;
+              const displayName = char ? char.name : remote ? remote.name : null;
+              const displayLevel = char ? char.level : remote ? remote.level : null;
+              const currentHp = char ? (char.currentHp ?? (char as any).health) : remote ? remote.hp : null;
+              const maxHp = char ? (char.maxHp ?? (char as any).maxHealth) : remote ? remote.maxHp : null;
+              const hpPercent =
+                currentHp && maxHp ? Math.max(0, Math.min(100, Math.round((currentHp / maxHp) * 100))) : 100;
 
-                return (
+              return (
+                <div
+                  key={voc}
+                  className={`party-vocation-card ${isOccupied ? 'occupied' : 'empty'} ${slot.source === 'leader' ? 'leader-card' : ''} voc-${voc.toLowerCase()}`}
+                  style={{
+                    borderColor: isOccupied ? config.borderAccent : undefined,
+                  }}
+                >
+                  {/* Card Header Banner */}
                   <div
-                    key={voc}
-                    className={`party-vocation-card ${isOccupied ? 'occupied' : 'empty'} ${slot.source === 'leader' ? 'leader-card' : ''}`}
-                    style={{
-                      borderColor: isOccupied ? config.borderAccent : '#3d4a5d',
-                      boxShadow: isOccupied ? `0 8px 24px rgba(0,0,0,0.8), inset 0 0 16px ${config.bgGlow}` : 'none',
-                    }}
+                    className="party-card-vocation-banner"
+                    style={{ background: config.bannerBg }}
                   >
-                    {/* Top Diamond Ruby Jewel para o líder */}
-                    {slot.source === 'leader' && <div className="hunt-card-gem hunt-card-gem-top" />}
+                    <span className="party-vocation-banner-icon">{config.icon}</span>
+                    <span className="party-vocation-banner-title">{config.title}</span>
+                  </div>
 
-                    {/* Vocation Header Ribbon */}
-                    <div
-                      className="party-card-vocation-banner"
-                      style={{ background: config.bannerBg }}
-                    >
-                      <span className="party-vocation-banner-icon">{config.icon}</span>
-                      <span className="party-vocation-banner-title">{config.title}</span>
-                    </div>
-
-                    {/* Art Box com Outfit / Silhueta */}
-                    <div className="party-card-art-box">
-                      <div className="party-card-art-vignette" />
-
-                      {/* Medalhão de Nível no Canto Superior Esquerdo */}
-                      <div
-                        className="hunt-level-medallion party-card-medallion"
-                        title={displayLevel ? `Nível ${displayLevel}` : 'Vaga Vazia'}
-                      >
-                        <span className="hunt-level-medallion-num">
-                          {displayLevel ?? '+'}
-                        </span>
-                      </div>
-
-                      {/* Badge de Origem no Canto Superior Direito */}
-                      <div className="party-card-origin-pill">
-                        {slot.source === 'leader' && (
-                          <span className="party-badge leader" title="Você (Líder do Grupo)">
-                            ⭐ Líder
-                          </span>
-                        )}
-                        {slot.source === 'account' && (
-                          <span className="party-badge account" title="Personagem Alt da sua conta">
-                            👤 Sua Conta
-                          </span>
-                        )}
-                        {slot.source === 'remote' && (
-                          <span className="party-badge remote" title="Jogador Real Conectado">
-                            🌐 Jogador
-                          </span>
-                        )}
-                        {slot.source === 'empty' && (
-                          <span className="party-badge empty">
-                            ⚪ Disponível
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Centro: Sprite do Personagem ou Silhueta Mística */}
-                      <div className="party-card-portrait-stage">
-                        {isOccupied ? (
+                  {isOccupied ? (
+                    <div className="party-card-occupied-body">
+                      {/* Circular Portrait Frame */}
+                      <div className="party-card-portrait-wrap">
+                        <div
+                          className="party-card-portrait-circle"
+                          style={{ borderColor: config.themeColor }}
+                        >
                           <CharacterOutfitCanvas
                             outfit={char?.outfit || remote?.outfit}
                             gender={char?.gender as any}
                             vocation={voc}
                           />
-                        ) : (
-                          <div className="party-card-empty-silhouette">
-                            <span className="party-empty-silhouette-icon">{config.icon}</span>
-                            <span className="party-empty-silhouette-text">VAGA ABERTA</span>
+                        </div>
+
+                        {/* Level Medallion on bottom-left */}
+                        <div className="party-card-circle-lvl" title={`Nível ${displayLevel}`}>
+                          {displayLevel ?? 1}
+                        </div>
+
+                        {/* Origin Tag on bottom-right */}
+                        {slot.source === 'leader' && (
+                          <div className="party-card-circle-tag leader" title="Líder do Grupo">
+                            ★ Líder
+                          </div>
+                        )}
+                        {slot.source === 'account' && (
+                          <div className="party-card-circle-tag account" title="Personagem Alt">
+                            👤 Sua Conta
+                          </div>
+                        )}
+                        {slot.source === 'remote' && (
+                          <div className="party-card-circle-tag remote" title="Jogador Conectado">
+                            🌐 Jogador
                           </div>
                         )}
                       </div>
-                    </div>
 
-                    {/* Corpo do Card: Nome, Papel Tático, Barras de Status e Prontidão */}
-                    <div className="party-card-body">
-                      {isOccupied ? (
-                        <>
-                          <h4 className="party-card-char-name" title={displayName || ''}>
-                            {displayName}
-                          </h4>
+                      {/* Character Name */}
+                      <div className="party-card-char-name" title={displayName || ''}>
+                        {displayName}
+                      </div>
 
-                          <span className="party-card-role-title" style={{ color: config.themeColor }}>
-                            {config.roleTitle}
-                          </span>
-
-                          {/* Mini Barra de HP */}
-                          <div className="party-card-hp-wrapper">
-                            <div className="party-card-hp-bar">
-                              <div
-                                className="party-card-hp-fill"
-                                style={{ width: `${hpPercent}%` }}
-                              />
-                            </div>
-                            <span className="party-card-hp-text">
-                              {currentHp} / {maxHp} HP ({hpPercent}%)
-                            </span>
-                          </div>
-
-                          {/* Status de Prontidão da Caçada */}
-                          <div className="party-card-readiness-row">
-                            {slot.isReady ? (
-                              <div className="party-readiness-pill ready" title="Confirmado para caçadas em grupo">
-                                <span className="readiness-dot green" />
-                                <span className="readiness-text">PRONTO PARA CAÇAR</span>
-                              </div>
-                            ) : (
-                              <div className="party-readiness-pill pending" title="Aguardando confirmação da proposta">
-                                <span className="readiness-dot yellow" />
-                                <span className="readiness-text">AGUARDANDO ACEITE...</span>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="party-card-empty-desc">
-                          <h4 className="party-card-empty-title">{config.title}</h4>
-                          <span className="party-card-empty-role">{config.roleTitle}</span>
-                          <p className="party-card-tactical-tip">{config.tacticalTip}</p>
+                      {/* Slim HP Bar */}
+                      <div className="party-card-hp-wrapper">
+                        <div className="party-card-hp-bar">
+                          <div className="party-card-hp-fill" style={{ width: `${hpPercent}%` }} />
                         </div>
-                      )}
-                    </div>
+                        <span className="party-card-hp-text">
+                          {currentHp} / {maxHp} HP ({hpPercent}%)
+                        </span>
+                      </div>
 
-                    {/* Rodapé / Ações do Card */}
-                    <div className="party-card-footer-actions">
-                      {slot.source === 'leader' && (
-                        <div className="party-action-note leader">
-                          <span>Você está liderando</span>
+                      {/* Subtle Diamond Divider */}
+                      <div className="party-card-diamond-divider">◈</div>
+
+                      {/* Status Button / Pill */}
+                      <div className="party-card-readiness-row">
+                        <div className="party-readiness-pill ready">
+                          <span className="readiness-dot green" />
+                          <span className="readiness-text">PRONTO PARA CAÇAR</span>
                         </div>
-                      )}
+                      </div>
 
+                      {/* Alt or Remote Actions */}
                       {slot.source === 'account' && (
-                        <div className="party-card-action-group">
+                        <div className="party-card-mini-actions">
                           {onSelectActiveCharacter && (
                             <button
                               type="button"
-                              className="party-btn-secondary"
+                              className="party-btn-micro"
                               onClick={() => onSelectActiveCharacter(char!.id)}
-                              title="Jogar com este personagem diretamente"
+                              title="Tornar este personagem ativo"
                             >
                               Trocar Ativo
                             </button>
@@ -630,9 +529,9 @@ export function UnifiedPartyModal({
                           {onRemoveAltFromParty && (
                             <button
                               type="button"
-                              className="party-btn-danger"
+                              className="party-btn-micro-danger"
                               onClick={() => onRemoveAltFromParty(char!.id)}
-                              title="Desocupar esta vaga"
+                              title="Remover da party"
                             >
                               Remover
                             </button>
@@ -640,170 +539,154 @@ export function UnifiedPartyModal({
                         </div>
                       )}
 
-                      {slot.source === 'remote' && (
-                        <div className="party-card-action-group">
-                          {isPartyLeader && onKickRemotePlayer && (
-                            <button
-                              type="button"
-                              className="party-btn-danger"
-                              onClick={() => onKickRemotePlayer(remote!.id)}
-                              title="Remover jogador do grupo"
-                            >
-                              Expulsar
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {slot.source === 'empty' && (
-                        <div className="party-card-empty-actions">
-                          {availableAlts.length > 0 && onAddAltToParty && (
-                            <div className="party-alt-selector-wrapper">
-                              <button
-                                type="button"
-                                className="party-btn-alt-fill"
-                                onClick={() =>
-                                  setOpenDropdownVocation(openDropdownVocation === voc ? null : voc)
-                                }
-                              >
-                                Preencher com Alt ({availableAlts.length}) ▾
-                              </button>
-
-                              {openDropdownVocation === voc && (
-                                <div className="party-alt-dropdown-menu">
-                                  {availableAlts.map((alt) => (
-                                    <button
-                                      key={alt.id}
-                                      type="button"
-                                      className="party-alt-dropdown-item"
-                                      onClick={() => {
-                                        onAddAltToParty(alt.id);
-                                        setOpenDropdownVocation(null);
-                                      }}
-                                    >
-                                      <span className="party-alt-item-name">{alt.name}</span>
-                                      <span className="party-alt-item-level">Nv. {alt.level}</span>
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                          {onCreateCharacter && (
-                            <button
-                              type="button"
-                              className="party-btn-create-char"
-                              onClick={() => {
-                                setCreateCharVocation(voc);
-                                setCreateCharName('');
-                                setCreateCharError(null);
-                                setCreateCharModalOpen(true);
-                              }}
-                              title={`Criar novo herói ${config.title} na sua conta`}
-                            >
-                              + Criar {config.title}
-                            </button>
-                          )}
-
+                      {slot.source === 'remote' && isPartyLeader && onKickRemotePlayer && (
+                        <div className="party-card-mini-actions">
                           <button
                             type="button"
-                            className="party-btn-invite-slot"
-                            onClick={() => setInviteModalOpen(true)}
+                            className="party-btn-micro-danger"
+                            onClick={() => onKickRemotePlayer(remote!.id)}
+                            title="Remover jogador"
                           >
-                            + Convidar Jogador
+                            Expulsar
                           </button>
                         </div>
                       )}
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          /* Aba TÁTICAS & SINERGIA */
-          <div className="party-tactics-body">
-            <div className="party-tactics-header-card">
-              <h3 className="party-tactics-title">SINERGIA DE 4 VOCAÇÕES DO TIBIA</h3>
-              <p className="party-tactics-desc">
-                Grupos completos com as 4 vocações canônicas recebem <strong>+20% de Experiência Bônus</strong> em todas as caçadas autoritativas, além de habilitar as táticas de combate cooperativas automatizadas.
-              </p>
-            </div>
+                  ) : (
+                    <div className="party-card-empty-body">
+                      {/* Watermark background icon */}
+                      <div className="party-card-watermark-icon">{config.icon}</div>
 
-            <div className="party-tactics-grid">
-              {(['Knight', 'Paladin', 'Sorcerer', 'Druid'] as VocationSlotType[]).map((voc) => {
-                const conf = VOCATION_SLOT_CONFIGS[voc];
-                return (
-                  <div key={voc} className="party-tactic-card">
-                    <div className="party-tactic-card-header" style={{ color: conf.themeColor }}>
-                      <span className="party-tactic-icon">{conf.icon}</span>
-                      <h4 className="party-tactic-name">{conf.title} — {conf.roleTitle}</h4>
+                      {/* Big circular (+) button */}
+                      <button
+                        type="button"
+                        className="party-card-add-circle"
+                        onClick={() => {
+                          if (availableAlts.length > 0) {
+                            setOpenDropdownVocation(openDropdownVocation === voc ? null : voc);
+                          } else if (onCreateCharacter) {
+                            setCreateCharVocation(voc);
+                            setCreateCharName('');
+                            setCreateCharError(null);
+                            setCreateCharModalOpen(true);
+                          } else {
+                            setInviteModalOpen(true);
+                          }
+                        }}
+                        title={`Adicionar ${config.title}`}
+                      >
+                        <span>+</span>
+                      </button>
+
+                      {/* 1-line concise description */}
+                      <div className="party-card-short-role">{config.shortRole}</div>
+
+                      {/* Diamond Divider */}
+                      <div className="party-card-diamond-divider">◈</div>
+
+                      {/* "+ Adicionar" button with dropdown */}
+                      <div className="party-card-add-action-wrap">
+                        <button
+                          type="button"
+                          className="party-btn-add-slot"
+                          onClick={() => {
+                            if (availableAlts.length > 0) {
+                              setOpenDropdownVocation(openDropdownVocation === voc ? null : voc);
+                            } else if (onCreateCharacter) {
+                              setCreateCharVocation(voc);
+                              setCreateCharName('');
+                              setCreateCharError(null);
+                              setCreateCharModalOpen(true);
+                            } else {
+                              setInviteModalOpen(true);
+                            }
+                          }}
+                        >
+                          + Adicionar
+                        </button>
+
+                        {openDropdownVocation === voc && (
+                          <div className="party-alt-dropdown-menu">
+                            <div className="party-dropdown-header">Escolha uma ação</div>
+                            {availableAlts.map((alt) => (
+                              <button
+                                key={alt.id}
+                                type="button"
+                                className="party-alt-dropdown-item"
+                                onClick={() => {
+                                  onAddAltToParty?.(alt.id);
+                                  setOpenDropdownVocation(null);
+                                }}
+                              >
+                                <span className="party-alt-item-name">👤 {alt.name}</span>
+                                <span className="party-alt-item-level">Nv. {alt.level}</span>
+                              </button>
+                            ))}
+                            {onCreateCharacter && (
+                              <button
+                                type="button"
+                                className="party-alt-dropdown-item create"
+                                onClick={() => {
+                                  setCreateCharVocation(voc);
+                                  setCreateCharName('');
+                                  setCreateCharError(null);
+                                  setCreateCharModalOpen(true);
+                                  setOpenDropdownVocation(null);
+                                }}
+                              >
+                                <span>✨ Criar Novo {config.title}</span>
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="party-alt-dropdown-item invite"
+                              onClick={() => {
+                                setInviteModalOpen(true);
+                                setOpenDropdownVocation(null);
+                              }}
+                            >
+                              <span>🌐 Convidar Jogador</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className="party-tactic-text">{conf.tacticalTip}</p>
-                  </div>
-                );
-              })}
-            </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
 
-        {/* Barra de Ações Inferior (Modal Footer) */}
-        <div className="hunt-modal-footer">
-          <div className="hunt-footer-controls">
-            {/* Ação Secundária: Criar Personagem */}
-            {onCreateCharacter && (
-              <button
-                type="button"
-                style={{
-                  backgroundColor: '#27292c',
-                  border: '1px solid #4a4d52',
-                  borderRadius: '4px',
-                  color: '#e2e8f0',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  padding: '8px 14px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
-                onClick={() => {
-                  const emptyVoc = (['Knight', 'Paladin', 'Sorcerer', 'Druid'] as VocationSlotType[]).find(
-                    (v) => slotOccupants[v].source === 'empty'
-                  ) || 'Druid';
-                  setCreateCharVocation(emptyVoc);
-                  setCreateCharName('');
-                  setCreateCharError(null);
-                  setCreateCharModalOpen(true);
-                }}
-                title="Criar novo herói na sua conta para o grupo"
-              >
-                + Criar Personagem
-              </button>
-            )}
-
-            {/* Ação Secundária: Convidar Jogador */}
+        {/* Footer Minimalista (Reference Image) */}
+        <div className="party-footer-compact">
+          <div className="party-footer-left">
             <button
               type="button"
+              className="party-footer-btn-secondary"
               onClick={() => setInviteModalOpen(true)}
-              style={{
-                backgroundColor: '#27292c',
-                border: '1px solid #4a4d52',
-                borderRadius: '4px',
-                color: '#e2e8f0',
-                fontSize: '12px',
-                fontWeight: 600,
-                padding: '8px 14px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-              title="Convidar jogador online para a party"
+              title="Convidar jogador online"
             >
-              + Convidar Jogador
+              <span>👤+</span>
+              <span>Convidar Jogador</span>
             </button>
 
-            {/* Botão Primário Ouro: Propor ou Escolher Caçada */}
             <button
               type="button"
+              className={`party-footer-btn-secondary ${canAutoFill ? 'highlight' : ''}`}
+              onClick={handleAutoFill}
+              disabled={!canAutoFill}
+              title={canAutoFill ? 'Preencher vagas livres com alts disponíveis da conta' : 'Nenhum alt disponível para preencher'}
+            >
+              <span>👥</span>
+              <span>Autopreencher</span>
+            </button>
+          </div>
+
+          <div className="party-footer-center">
+            <button
+              type="button"
+              className="party-start-hunt-gold-btn"
               onClick={() => {
                 if (onOpenHuntSelector) {
                   onClose();
@@ -812,69 +695,39 @@ export function UnifiedPartyModal({
                   onProposeHuntToTeam();
                 }
               }}
-              style={{
-                background: 'linear-gradient(180deg, #eab308 0%, #ca8a04 100%)',
-                border: '1px solid #facc15',
-                borderRadius: '4px',
-                color: '#18191b',
-                fontSize: '13px',
-                fontWeight: 700,
-                padding: '9px 24px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(234, 179, 8, 0.35)',
-                fontFamily: 'Georgia, serif',
-                letterSpacing: '0.5px',
-                transition: 'all 0.15s ease',
-              }}
-              title="Abrir o Seletor de Caçadas para o grupo"
+              title="Iniciar ou escolher caçada para a party"
             >
-              {currentHuntName ? `CAÇADA ATIVA: ${currentHuntName.toUpperCase()}` : 'ESCOLHER CAÇADA EM GRUPO'}
+              <span className="sword-icon">⚔️</span>
+              <span>{currentHuntName ? `Iniciar Caçada (${currentHuntName})` : 'Iniciar Caçada'}</span>
             </button>
+          </div>
 
-            {/* Ação Secundária: Sair da Party ou Desfazer */}
+          <div className="party-footer-right">
             {isPartyLeader ? (
               <button
                 type="button"
+                className="party-footer-btn-disband"
                 onClick={() => {
                   if (onDisbandParty) onDisbandParty();
                   onClose();
                 }}
-                style={{
-                  backgroundColor: '#271717',
-                  border: '1px solid #7f1d1d',
-                  borderRadius: '4px',
-                  color: '#fca5a5',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  padding: '8px 16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
                 title="Desfazer o grupo atual"
               >
-                Desfazer Grupo
+                <span>↺</span>
+                <span>Desfazer Grupo</span>
               </button>
             ) : (
               <button
                 type="button"
+                className="party-footer-btn-disband"
                 onClick={() => {
                   if (onLeaveParty) onLeaveParty();
                   onClose();
                 }}
-                style={{
-                  backgroundColor: '#271717',
-                  border: '1px solid #7f1d1d',
-                  borderRadius: '4px',
-                  color: '#fca5a5',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  padding: '8px 16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
                 title="Sair do grupo atual"
               >
-                Sair da Party
+                <span>🚪</span>
+                <span>Sair da Party</span>
               </button>
             )}
           </div>
@@ -889,91 +742,47 @@ export function UnifiedPartyModal({
         >
           <div className="party-invite-submodal-card party-create-submodal-card">
             <h3 className="party-invite-title">
-              CRIAR NOVO PERSONAGEM: {createCharVocation.toUpperCase()}
+              CRIAR NOVO HERÓI: {createCharVocation.toUpperCase()}
             </h3>
             <p className="party-invite-desc">
-              Crie um novo herói na sua conta para ocupar a vaga de {VOCATION_SLOT_CONFIGS[createCharVocation].roleTitle} na Party.
+              Crie um novo herói na sua conta para ocupar a vaga de {VOCATION_SLOT_CONFIGS[createCharVocation].shortRole} no grupo.
             </p>
 
             <form onSubmit={handleCreateCharSubmit} className="party-invite-form">
-              {/* Seleção rápida de Vocação */}
-              <div className="party-create-vocation-selector">
-                <span className="party-create-label">Vocação do Herói:</span>
-                <div className="party-create-vocation-pills">
-                  {(['Knight', 'Paladin', 'Sorcerer', 'Druid'] as VocationSlotType[]).map((v) => {
-                    const conf = VOCATION_SLOT_CONFIGS[v];
-                    return (
-                      <button
-                        key={v}
-                        type="button"
-                        className={`party-vocation-pill-btn ${createCharVocation === v ? 'active' : ''}`}
-                        onClick={() => {
-                          setCreateCharVocation(v);
-                          setCreateCharError(null);
-                        }}
-                        style={{
-                          borderColor: createCharVocation === v ? conf.themeColor : '#3d4a5d',
-                        }}
-                      >
-                        <span>{conf.icon}</span>
-                        <span>{conf.title}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+              <div className="party-create-gender-row" style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                <button
+                  type="button"
+                  className={`party-gender-toggle ${createCharGender === 'Masculino' ? 'active' : ''}`}
+                  onClick={() => setCreateCharGender('Masculino')}
+                >
+                  ♂ Masculino
+                </button>
+                <button
+                  type="button"
+                  className={`party-gender-toggle ${createCharGender === 'Feminino' ? 'active' : ''}`}
+                  onClick={() => setCreateCharGender('Feminino')}
+                >
+                  ♀ Feminino
+                </button>
               </div>
 
-              {/* Nome do Personagem */}
-              <div className="party-create-field">
-                <span className="party-create-label">Nome do Personagem:</span>
-                <input
-                  type="text"
-                  value={createCharName}
-                  maxLength={18}
-                  onChange={(e) => {
-                    setCreateCharName(e.target.value);
-                    if (createCharError) setCreateCharError(null);
-                  }}
-                  placeholder={`Ex: ${createCharVocation === 'Knight' ? 'Sir Lancelot' : createCharVocation === 'Paladin' ? 'Legolas' : createCharVocation === 'Sorcerer' ? 'Merlin' : 'Malfurion'}`}
-                  className="party-invite-input"
-                  autoFocus
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="Nome do personagem..."
+                value={createCharName}
+                onChange={(e) => setCreateCharName(e.target.value)}
+                maxLength={20}
+                className="party-invite-input"
+                autoFocus
+              />
 
-              {/* Gênero */}
-              <div className="party-create-field">
-                <span className="party-create-label">Gênero:</span>
-                <div className="party-create-gender-row">
-                  <button
-                    type="button"
-                    className={`party-gender-btn ${createCharGender === 'Masculino' ? 'active' : ''}`}
-                    onClick={() => setCreateCharGender('Masculino')}
-                  >
-                    Masculino
-                  </button>
-                  <button
-                    type="button"
-                    className={`party-gender-btn ${createCharGender === 'Feminino' ? 'active' : ''}`}
-                    onClick={() => setCreateCharGender('Feminino')}
-                  >
-                    Feminino
-                  </button>
-                </div>
-              </div>
-
-              {/* Informativo sobre travas de nível */}
-              <div className="party-create-req-hint">
-                <span>⚠️ Requisitos de Nível (Seu Nv. {activeCharacter.level}): Slot 2 (Nv. 70+) · Slot 3 (Nv. 150+) · Slot 4 (Nv. 200+)</span>
-              </div>
-
-              {/* Banner de Erro caso a validação falhe */}
               {createCharError && (
-                <div className="party-create-error-banner">
-                  <span>{createCharError}</span>
+                <div style={{ color: '#ef4444', fontSize: '11px', textAlign: 'center' }}>
+                  {createCharError}
                 </div>
               )}
 
-              <div className="party-invite-actions">
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '6px' }}>
                 <button
                   type="button"
                   className="party-btn-secondary"
@@ -981,8 +790,12 @@ export function UnifiedPartyModal({
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="party-btn-primary">
-                  Criar Personagem
+                <button
+                  type="submit"
+                  className="party-start-hunt-gold-btn"
+                  style={{ padding: '6px 16px', fontSize: '12px' }}
+                >
+                  Criar e Equipar
                 </button>
               </div>
             </form>
@@ -990,7 +803,7 @@ export function UnifiedPartyModal({
         </div>
       )}
 
-      {/* Sub-modal rápido de convite de jogador */}
+      {/* Sub-modal de convite de jogador */}
       {inviteModalOpen && (
         <div
           className="modal-backdrop party-invite-submodal-backdrop"
@@ -999,20 +812,21 @@ export function UnifiedPartyModal({
           <div className="party-invite-submodal-card">
             <h3 className="party-invite-title">CONVIDAR JOGADOR</h3>
             <p className="party-invite-desc">
-              Digite o nome do personagem do jogador online para convidá-lo para sua Party.
+              Digite o nome do personagem online no mundo para enviar um convite de grupo.
             </p>
 
             <form onSubmit={handleInviteSubmit} className="party-invite-form">
               <input
                 type="text"
+                placeholder="Nome do personagem..."
                 value={inviteInputName}
                 onChange={(e) => setInviteInputName(e.target.value)}
-                placeholder="Nome do personagem..."
+                maxLength={25}
                 className="party-invite-input"
                 autoFocus
               />
 
-              <div className="party-invite-actions">
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '6px' }}>
                 <button
                   type="button"
                   className="party-btn-secondary"
@@ -1020,7 +834,11 @@ export function UnifiedPartyModal({
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="party-btn-primary">
+                <button
+                  type="submit"
+                  className="party-start-hunt-gold-btn"
+                  style={{ padding: '6px 16px', fontSize: '12px' }}
+                >
                   Enviar Convite
                 </button>
               </div>

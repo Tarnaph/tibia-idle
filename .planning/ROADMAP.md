@@ -4284,6 +4284,14 @@ Plans:
 
 - [x] 239-01-PLAN: Remover hunt-card-bottom e recordes numéricos em HuntSelector.tsx e ajustar globals.css para cards compactos e badge de nível recomendado.
 
+---
+
+- [x] **Phase 240: Redesign Minimalista e Compacto do Gerenciador de Party** - Redesign do modal de gerenciamento de grupo (UnifiedPartyModal) com estética minimalista e compacta inspirada na imagem de referência: remoção de táticas e sinergia, moldura circular de retrato com nível e distintivo de líder, cards com descrições concisas de 1 linha e botão "+ Adicionar", cabeçalho com brasão e contador de vagas, e barra de ações com botões de Autopreencher e Iniciar Caçada.
+
+Plans:
+
+- [x] 240-01-PLAN: Implementar o redesign do UnifiedPartyModal e estilos dedicados em globals.css com layout minimalista e testes unitários.
+
 
 
 

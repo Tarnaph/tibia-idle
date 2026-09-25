@@ -8624,26 +8624,164 @@ h1, h2, h3, p { margin: 0; }
 }
 
 /* ==========================================================================
-   Phase 168: Modal Unificado de Party no Estilo Medieval do Seletor de Caçadas
+   Phase 240: Redesign Minimalista e Compacto do Gerenciador de Party
+   Fiel à imagem de referência: sem táticas/sinergia, cards circulares,
+   descrição de 1 linha, divisor diamante ◈, botões autopreencher e iniciar caçada.
    ========================================================================== */
 
 .party-selector-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 14, 0.85);
+  backdrop-filter: blur(5px);
   z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hunt-window-container.party-modal-container {
-  width: 960px;
-  max-width: 96vw;
-  height: 680px;
-  max-height: 95vh;
+  width: min(840px, 94vw);
+  max-width: 860px;
+  height: auto;
+  min-height: 480px;
+  max-height: min(560px, 88vh);
+  background: #0f1219;
+  background-image: radial-gradient(ellipse at 50% 0%, #171d29 0%, #0d1017 100%);
+  border: 1.5px solid #3d311d;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(250, 204, 21, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
 }
 
-.party-synergy-badge {
-  background: #0f131a;
-  border: 1.5px solid #d4af37;
-  color: #fde047;
+/* Header Minimalista (Reference Image) */
+.party-header-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid #232c3d;
+  background: #121620;
 }
 
+.party-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.party-header-crest {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #18150c;
+  border: 1px solid #785a22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.party-header-crest-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.party-header-title {
+  margin: 0;
+  font-family: Georgia, 'Cinzel', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #f3c769;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.party-header-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: #7b8ca5;
+  line-height: 1.2;
+}
+
+.party-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.party-recommended-formation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0b0e14;
+  border: 1px solid #1c2433;
+  padding: 4px 10px;
+  border-radius: 5px;
+}
+
+.party-formation-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.party-formation-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.formation-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.party-slots-counter-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #141822;
+  border: 1px solid #273347;
+  border-radius: 5px;
+  color: #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.party-slots-icon {
+  font-size: 12px;
+}
+
+.party-close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: #161b24;
+  border: 1px solid #283347;
+  color: #94a3b8;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.party-close-btn:hover {
+  background: #2a1414;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* 4 Vocation Cards Grid */
 .party-stage-container {
   flex: 1;
   display: flex;
@@ -8651,58 +8789,66 @@ h1, h2, h3, p { margin: 0; }
   justify-content: center;
   padding: 12px 16px;
   overflow: hidden;
+  min-height: 0;
 }
 
 .party-cards-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  gap: 12px;
   width: 100%;
   height: 100%;
-  max-height: 520px;
 }
 
-/* Individual Vocation Card */
 .party-vocation-card {
-  background: linear-gradient(180deg, #181d26 0%, #0d1016 100%);
-  border: 2px solid #544122;
+  background: linear-gradient(180deg, #131722 0%, #0a0d14 100%);
+  border: 1.5px solid #232d3d;
   border-radius: 6px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  box-sizing: border-box;
 }
 
 .party-vocation-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.95);
-}
-
-.party-vocation-card.empty {
-  border-style: dashed;
-  opacity: 0.85;
-}
-
-.party-vocation-card.empty:hover {
-  opacity: 1;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9);
 }
 
 .party-vocation-card.leader-card {
-  border-color: #eab308;
-  box-shadow: 0 0 20px rgba(234, 179, 8, 0.35), 0 8px 24px rgba(0, 0, 0, 0.9);
+  border-color: #ca8a04;
+  box-shadow: 0 0 16px rgba(202, 138, 4, 0.25), 0 8px 24px rgba(0, 0, 0, 0.8);
 }
 
-/* Top Vocation Banner */
+.party-vocation-card.voc-knight {
+  border-color: #7f1d1d;
+}
+.party-vocation-card.voc-paladin {
+  border-color: #78350f;
+}
+.party-vocation-card.voc-sorcerer {
+  border-color: #581c87;
+}
+.party-vocation-card.voc-druid {
+  border-color: #064e3b;
+}
+
+.party-vocation-card.empty {
+  border-style: solid;
+}
+
+/* Card Header Banner */
 .party-card-vocation-banner {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   padding: 6px 8px;
-  border-bottom: 1.5px solid #3d2f19;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .party-vocation-banner-icon {
@@ -8711,184 +8857,116 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .party-vocation-banner-title {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #fce79a;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-}
-
-/* Portrait / Art Area */
-.party-card-art-box {
-  height: 190px;
-  position: relative;
-  overflow: hidden;
-  background: radial-gradient(ellipse at center, #1f2733 0%, #0d1117 80%, #06080b 100%);
-  border-bottom: 1.5px solid #202735;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.party-card-art-vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
-  pointer-events: none;
-}
-
-.party-card-medallion {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 5;
-}
-
-.party-card-origin-pill {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 5;
-}
-
-.party-badge {
-  font-size: 9px;
+  font-family: Georgia, 'Cinzel', serif;
+  font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  padding: 2px 7px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  color: #fce79a;
 }
 
-.party-badge.leader {
-  background: linear-gradient(180deg, #b45309 0%, #78350f 100%);
-  border-color: #facc15;
-  color: #fef08a;
-}
-
-.party-badge.account {
-  background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
-  border-color: #60a5fa;
-  color: #dbeafe;
-}
-
-.party-badge.remote {
-  background: linear-gradient(180deg, #065f46 0%, #022c22 100%);
-  border-color: #34d399;
-  color: #d1fae5;
-}
-
-.party-badge.empty {
-  background: rgba(15, 23, 42, 0.8);
-  border-color: #475569;
-  color: #94a3b8;
-}
-
-.party-card-portrait-stage {
-  width: 80px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 4;
-}
-
-.party-card-outfit-canvas {
-  width: 64px;
-  height: 64px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9));
-}
-
-.party-card-avatar-fallback {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #111620;
-  border: 1.5px solid #544122;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.party-card-avatar-icon {
-  font-size: 28px;
-}
-
-.party-card-empty-silhouette {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  opacity: 0.55;
-  transition: opacity 0.2s ease;
-}
-
-.party-vocation-card:hover .party-card-empty-silhouette {
-  opacity: 0.9;
-}
-
-.party-empty-silhouette-icon {
-  font-size: 38px;
-  filter: grayscale(0.5);
-}
-
-.party-empty-silhouette-text {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #94a3b8;
-}
-
-/* Card Body */
-.party-card-body {
+/* Occupied Card Body */
+.party-card-occupied-body {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 10px;
+  padding: 14px 10px 10px 10px;
+  background: radial-gradient(ellipse at 50% 20%, #171d2b 0%, #0a0d13 100%);
   text-align: center;
-  background: linear-gradient(180deg, #12161f 0%, #0a0c10 100%);
+  box-sizing: border-box;
+}
+
+.party-card-portrait-wrap {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.party-card-portrait-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid #ca8a04;
+  background: radial-gradient(circle, #202838 0%, #0c0f15 80%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+.party-card-circle-lvl {
+  position: absolute;
+  bottom: -4px;
+  left: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #090c12;
+  border: 1.5px solid #ca8a04;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.party-card-circle-tag {
+  position: absolute;
+  bottom: -4px;
+  right: -8px;
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.party-card-circle-tag.leader {
+  background: #ca8a04;
+  color: #111317;
+  border: 1px solid #facc15;
+}
+
+.party-card-circle-tag.account {
+  background: #1e3a8a;
+  color: #dbeafe;
+  border: 1px solid #60a5fa;
+}
+
+.party-card-circle-tag.remote {
+  background: #065f46;
+  color: #d1fae5;
+  border: 1px solid #34d399;
 }
 
 .party-card-char-name {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 13.5px;
+  font-family: Georgia, 'Cinzel', serif;
+  font-size: 14.5px;
   font-weight: 700;
-  color: #fce79a;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-  margin: 0 0 2px 0;
+  color: #f8fafc;
+  margin: 0 0 6px 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
 }
 
-.party-card-role-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  margin-bottom: 6px;
-  display: block;
-}
-
 .party-card-hp-wrapper {
-  width: 100%;
-  margin-bottom: 6px;
+  width: 90%;
+  margin-bottom: 8px;
 }
 
 .party-card-hp-bar {
   width: 100%;
-  height: 6px;
-  background: #231212;
+  height: 5px;
+  background: #2a1010;
   border: 1px solid #4a1d1d;
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .party-card-hp-fill {
@@ -8903,214 +8981,205 @@ h1, h2, h3, p { margin: 0; }
   font-family: monospace;
 }
 
+.party-card-diamond-divider {
+  color: #4a3c25;
+  font-size: 11px;
+  margin: 4px 0 8px 0;
+}
+
 .party-card-readiness-row {
-  margin-top: auto;
-  margin-bottom: 4px;
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .party-readiness-pill {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 5px;
-  padding: 3px 8px;
-  border-radius: 3px;
-  font-size: 9.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .party-readiness-pill.ready {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.12);
   border: 1px solid #10b981;
-  color: #6ee7b7;
+  color: #34d399;
 }
 
 .party-readiness-pill.pending {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(245, 158, 11, 0.12);
   border: 1px solid #f59e0b;
   color: #fde68a;
-  animation: pulse 1.5s infinite alternate;
 }
 
-.readiness-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.readiness-dot.green {
-  background: #10b981;
-  box-shadow: 0 0 6px #10b981;
-}
-
-.readiness-dot.yellow {
-  background: #f59e0b;
-  box-shadow: 0 0 6px #f59e0b;
-}
-
-/* Empty Card Description */
-.party-card-empty-desc {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.party-card-empty-title {
-  font-family: Georgia, serif;
-  font-size: 13px;
-  color: #cbd5e1;
-  margin: 0 0 2px 0;
-}
-
-.party-card-empty-role {
-  font-size: 9.5px;
-  color: #8b9bb4;
-  margin-bottom: 6px;
-}
-
-.party-card-tactical-tip {
-  font-size: 9.5px;
-  line-height: 1.35;
-  color: #64748b;
-  margin: 0;
-}
-
-/* Card Actions / Footer */
-.party-card-footer-actions {
-  padding: 8px;
-  background: #090b0e;
-  border-top: 1px solid #1a2230;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.party-action-note.leader {
-  font-size: 9.5px;
-  color: #eab308;
-  font-weight: 700;
-  text-align: center;
-  padding: 4px;
-}
-
-.party-card-action-group {
+.party-card-mini-actions {
   display: flex;
   gap: 4px;
+  margin-top: 8px;
+  width: 90%;
 }
 
-.party-btn-secondary {
+.party-btn-micro {
   flex: 1;
   background: #141a24;
   border: 1px solid #3d4a5d;
   color: #cbd5e1;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  padding: 5px 6px;
+  padding: 3px 6px;
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.party-btn-secondary:hover {
+.party-btn-micro:hover {
   background: #1f2838;
   border-color: #64748b;
   color: #ffffff;
 }
 
-.party-btn-danger {
+.party-btn-micro-danger {
   background: #231212;
   border: 1px solid #7f1d1d;
   color: #fca5a5;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  padding: 5px 8px;
+  padding: 3px 6px;
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.party-btn-danger:hover {
+.party-btn-micro-danger:hover {
   background: #381515;
   border-color: #dc2626;
   color: #ffffff;
 }
 
-.party-btn-alt-fill {
-  width: 100%;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid #d4af37;
-  color: #fef08a;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 6px 8px;
-  border-radius: 3px;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-  transition: all 0.15s ease;
-}
-
-.party-btn-alt-fill:hover {
-  background: linear-gradient(180deg, #2d3d56 0%, #172238 100%);
-  border-color: #facc15;
-  color: #ffffff;
-}
-
-.party-btn-invite-slot {
-  width: 100%;
-  background: #131720;
-  border: 1px dashed #3d4a5d;
-  color: #94a3b8;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 6px 8px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.party-btn-invite-slot:hover {
-  border-color: #60a5fa;
-  color: #93c5fd;
-  background: #18202d;
-}
-
-/* Alt Selector Dropdown */
-.party-alt-selector-wrapper {
+/* Empty Card Body */
+.party-card-empty-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px;
   position: relative;
-  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
 }
 
+.party-card-watermark-icon {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 64px;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.party-card-add-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #11151e;
+  border: 1.5px solid #3b475e;
+  color: #94a3b8;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 14px;
+}
+
+.party-card-add-circle:hover {
+  background: #1a2233;
+  border-color: #ca8a04;
+  color: #facc15;
+  transform: scale(1.06);
+}
+
+.party-card-short-role {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.party-card-add-action-wrap {
+  position: relative;
+  width: 85%;
+  margin-top: 2px;
+}
+
+.party-btn-add-slot {
+  width: 100%;
+  height: 30px;
+  background: #151b26;
+  border: 1px solid #323d52;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-btn-add-slot:hover {
+  background: #1e2638;
+  border-color: #ca8a04;
+  color: #facc15;
+}
+
+/* Alt Dropdown */
 .party-alt-dropdown-menu {
   position: absolute;
   bottom: calc(100% + 4px);
   left: 0;
   right: 0;
   background: #0d1117;
-  border: 1.5px solid #d4af37;
-  border-radius: 4px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.95);
+  border: 1.5px solid #ca8a04;
+  border-radius: 5px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 30;
-  max-height: 160px;
+  z-index: 50;
+  max-height: 180px;
   overflow-y: auto;
+}
+
+.party-dropdown-header {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #7b8ca5;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  background: #131722;
+  border-bottom: 1px solid #1f2735;
 }
 
 .party-alt-dropdown-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
+  padding: 7px 10px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid #1f2735;
+  border-bottom: 1px solid #1a2230;
   color: #e2e8f0;
-  font-size: 10.5px;
+  font-size: 11px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -9120,89 +9189,118 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .party-alt-dropdown-item:hover {
-  background: #1f293d;
+  background: #1f2838;
+  color: #facc15;
+}
+
+.party-alt-dropdown-item.create {
   color: #fde047;
+  font-weight: 600;
 }
 
-.party-alt-item-name {
-  font-weight: 700;
+.party-alt-dropdown-item.invite {
+  color: #93c5fd;
+  font-weight: 600;
 }
 
-.party-alt-item-level {
-  font-size: 9px;
-  color: #94a3b8;
-}
-
-/* Tactics Tab */
-.party-tactics-body {
-  flex: 1;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  overflow-y: auto;
-}
-
-.party-tactics-header-card {
-  background: #10141d;
-  border: 1.5px solid #d4af37;
-  border-radius: 5px;
-  padding: 12px 16px;
-  text-align: center;
-}
-
-.party-tactics-title {
-  font-family: Georgia, serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: #fce79a;
-  margin: 0 0 6px 0;
-  letter-spacing: 0.8px;
-}
-
-.party-tactics-desc {
-  font-size: 11px;
-  color: #cbd5e1;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.party-tactics-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.party-tactic-card {
-  background: #121722;
-  border: 1px solid #283548;
-  border-radius: 5px;
-  padding: 12px;
-}
-
-.party-tactic-card-header {
+/* Footer Minimalista (Reference Image) */
+.party-footer-compact {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: #0b0e14;
+  border-top: 1px solid #1e2636;
+}
+
+.party-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.party-footer-btn-secondary {
+  height: 34px;
+  padding: 0 14px;
+  background: #141924;
+  border: 1px solid #283347;
+  border-radius: 4px;
+  color: #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-footer-btn-secondary:hover:not(:disabled) {
+  background: #1c2333;
+  border-color: #3b4a66;
+  color: #f8fafc;
+}
+
+.party-footer-btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.party-footer-btn-secondary.highlight {
+  border-color: #ca8a04;
+  color: #fef08a;
+  background: #1c180c;
+}
+
+.party-start-hunt-gold-btn {
+  height: 36px;
+  padding: 0 28px;
+  background: linear-gradient(180deg, #eab308 0%, #ca8a04 100%);
+  border: 1px solid #facc15;
+  border-radius: 4px;
+  color: #111317;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 14px rgba(234, 179, 8, 0.4);
+  font-family: Georgia, 'Cinzel', serif;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  transition: all 0.15s ease;
 }
 
-.party-tactic-icon {
-  font-size: 16px;
+.party-start-hunt-gold-btn:hover {
+  background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+  border-color: #fde047;
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.6);
+  transform: translateY(-1px);
 }
 
-.party-tactic-name {
-  font-family: Georgia, serif;
-  font-size: 12.5px;
-  font-weight: 700;
-  margin: 0;
+.party-start-hunt-gold-btn .sword-icon {
+  font-size: 15px;
 }
 
-.party-tactic-text {
-  font-size: 10.5px;
-  line-height: 1.4;
-  color: #94a3b8;
-  margin: 0;
+.party-footer-btn-disband {
+  height: 34px;
+  padding: 0 14px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 4px;
+  color: #fca5a5;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.party-footer-btn-disband:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
+  color: #ffffff;
 }
 
 /* Submodal de Convite */
