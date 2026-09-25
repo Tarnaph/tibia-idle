@@ -287,11 +287,20 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         }
       }
 
-      // Encounter monsters
+      // Encounter monsters & all hunt species
       for (const enemy of game.encounter.enemies) {
         const mapping = visualAssets.creatures[enemy.monsterId] || ((enemy as any).lookType ? visualAssets.creatures[String((enemy as any).lookType)] : null);
         if (mapping) {
           for (const f of mapping.frames) priorityUrls.add(f.publicUrl);
+        }
+      }
+      if (game.encounter.hunt?.monsters && Array.isArray(game.encounter.hunt.monsters)) {
+        for (const mId of game.encounter.hunt.monsters) {
+          const clean = mId.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          const mMapping = visualAssets.creatures[mId] || visualAssets.creatures[clean];
+          if (mMapping?.frames) {
+            for (const f of mMapping.frames) priorityUrls.add(f.publicUrl);
+          }
         }
       }
 

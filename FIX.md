@@ -73,3 +73,16 @@
   - [x] Extrair réplica autêntica completa do personagem: outfit específico (Hunter, Warrior, etc.), montaria ativa (`mount` e `mountActive`), cores customizadas (`outfitColors` / head, body, legs, feet), addons e gênero para personagem ativo, alts da conta e remotos.
   - [x] Centralização e ampliação automática no círculo: calcular bounding box dos pixels não-transparentes via canvas offscreen para posicionar e escalar o personagem e sua montaria perfeitamente centralizados e destacados na moldura circular de 72px.
   - [x] Renderização em alta resolução nítida (144x144 canvas em 72px com `image-rendering: pixelated`) sem borrões ou cortes.
+
+- [x] **Item 14: Loading Real de Caçadas com Pré-carregamento Integral dos Monstros e Animações (`huntAssetPreloader.ts`, `ExuraLoadingScreen.tsx`, `PixiArena.tsx` & `GamePrototype.tsx`)**
+  - [x] Compilar no `huntAssetPreloader` todos os frames direcionais reais (Norte, Sul, Leste, Oeste) de todos os monstros de cada masmorra (a partir de `tibia1098-combat-assets.json`), além de suportar hunts futuras dinamicamente via `initialHunts`.
+  - [x] Conectar `ExuraLoadingScreen` ao `huntAssetPreloader`: a transição só conclui quando 100% dos monstros, efeitos e mapas daquela hunt estiverem baixados e cacheados em memória.
+  - [x] Pré-aquecer e registrar as texturas no PixiJS para que no Frame 1 da abertura da hunt os monstros já apareçam instantaneamente desenhados e animados, sem atraso ou invisibilidade.
+
+- [x] **Item 15: Correção do Botão ✕ de Remover Monstro do Rastreador de Bestiário (`BestiaryTrackerHUD.tsx` / `BestiaryModal.tsx` / `GamePrototype.tsx`)**
+  - [x] Identificar e corrigir a falha no evento de clique do botão ✕ de remoção individual do rastreador de criaturas.
+  - [x] Garantir que o evento pare a propagação (`e.stopPropagation()` / `e.preventDefault()`), atualize o estado local via `dismissedTrackerMonsterIds` e sincronize a remoção com o backend/Colyseus imediatamente.
+
+- [x] **Item 16: Desfazer Grupo Durante Caçada com Abandono e Retorno Seguro ao Templo (`UnifiedPartyModal.tsx` & `GamePrototype.tsx`)**
+  - [x] Corrigir `onDisbandParty` quando executado durante uma caçada (`mode === 'hunt'`).
+  - [x] Executar o fluxo canônico de encerramento de caçada: limpar os membros da party do estado e do Colyseus, salvar progresso com segurança, reposicionar o jogador seguro no Templo de Thais (`x: 32369, y: 32241, z: 7`), restaurar `mode = 'training'`, parar BGM de caçada e habilitar Thais City normalmente sem travamento.

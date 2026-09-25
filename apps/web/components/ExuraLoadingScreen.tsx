@@ -11,6 +11,7 @@ import {
 } from '@/apps/web/lib/loadingConfig';
 import { onAutoplayBlockedChange, unlockAudio } from '@/apps/web/lib/audioManager';
 import { assetPreloader } from '@/apps/web/lib/assetPreloader';
+import { huntAssetPreloader } from '@/apps/web/lib/huntAssetPreloader';
 
 export {
   THAIS_LORE_CURIOSITIES,
@@ -26,6 +27,10 @@ export interface ExuraLoadingScreenProps {
    * Controls visibility of the loading screen.
    */
   active: boolean;
+  /**
+   * Optional hunt ID to tie loading screen completion strictly to hunt asset preloading.
+   */
+  huntId?: string;
   /**
    * Total duration in milliseconds for the loading bar to fill 0% -> 100%. Default: 10000ms.
    */
@@ -58,6 +63,7 @@ export interface ExuraLoadingScreenProps {
 
 export function ExuraLoadingScreen({
   active,
+  huntId,
   durationMs = 2000,
   message = 'Carregando o mundo de Thais...',
   onFinish,
@@ -130,15 +136,30 @@ export function ExuraLoadingScreen({
     return () => clearInterval(interval);
   }, [active, curiosities, curiosityIntervalMs]);
 
-  // Phase 146: Inscreve o componente ao progresso real do assetPreloader
+  // Phase 146 & 242: Inscreve o componente ao progresso real do assetPreloader e huntAssetPreloader
   useEffect(() => {
-    if (!active || !waitForAssets) return;
-    return assetPreloader.onProgress((state) => {
-      if (state.message) {
-        setPreloaderMessage(state.message);
-      }
-    });
-  }, [active, waitForAssets]);
+    if (!active) return;
+    const unsubGlobal = waitForAssets
+      ? assetPreloader.onProgress((state) => {
+          if (state.message) {
+            setPreloaderMessage(state.message);
+          }
+        })
+      : () => {};
+
+    const unsubHunt = huntId
+      ? huntAssetPreloader.onProgress((state) => {
+          if (state.huntId === huntId && state.message) {
+            setPreloaderMessage(state.message);
+          }
+        })
+      : () => {};
+
+    return () => {
+      unsubGlobal();
+      unsubHunt();
+    };
+  }, [active, waitForAssets, huntId]);
 
   useEffect(() => {
     if (!active) {
@@ -185,13 +206,18 @@ export function ExuraLoadingScreen({
       const effectiveDuration = durationMs;
       const timePct = Math.min(100, (elapsed / effectiveDuration) * 100);
 
-      // Phase 146 & 178 & 223: Sincronização autoritativa com o pré-carregamento e duração configurada
-      const isAssetsComplete = !waitForAssets || assetPreloader.isComplete();
-      const assetProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
+      // Phase 146, 178, 223 & 242: Sincronização autoritativa com o pré-carregamento global E da hunt ativa
+      const isGlobalAssetsComplete = !waitForAssets || assetPreloader.isComplete();
+      const isHuntAssetsComplete = !huntId || huntAssetPreloader.isHuntReady(huntId);
+      const isAssetsComplete = isGlobalAssetsComplete && isHuntAssetsComplete;
 
-      const isTimedOut = elapsed >= effectiveDuration + 2000;
+      const globalProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
+      const huntProgressPct = huntId ? huntAssetPreloader.getHuntProgress(huntId) : 100;
+      const assetProgressPct = Math.min(globalProgressPct, huntProgressPct);
+
+      const isTimedOut = elapsed >= effectiveDuration + 5000;
       let effectivePct: number;
-      if (!waitForAssets || isTimedOut) {
+      if (isTimedOut) {
         effectivePct = timePct;
       } else if (!isAssetsComplete) {
         effectivePct = Math.min(99, Math.max(timePct * 0.4, assetProgressPct));
@@ -203,7 +229,7 @@ export function ExuraLoadingScreen({
       const pct = Math.min(100, effectivePct);
       setProgress(pct);
 
-      if ((pct >= 100 && (isAssetsComplete || !waitForAssets)) || isTimedOut) {
+      if ((pct >= 100 && isAssetsComplete) || isTimedOut) {
         finish();
       }
     };
@@ -608,7 +634,7 @@ export function ExuraLoadingScreen({
               margin: 0,
             }}
           >
-            {(waitForAssets && preloaderMessage) || message} ({Math.round(progress)}%)
+            {((waitForAssets || Boolean(huntId)) && preloaderMessage) || message} ({Math.round(progress)}%)
           </p>
         </div>
       </div>

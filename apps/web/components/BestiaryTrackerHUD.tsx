@@ -377,25 +377,41 @@ export function BestiaryTrackerHUD({
                   </div>
                 </div>
 
-                {/* Individual remove button if more than 1 monster */}
-                {effectiveMonsters.length > 1 && onRemoveMonster && (
+                {/* Individual remove button */}
+                {onRemoveMonster && (
                   <button
                     type="button"
-                    onClick={() => onRemoveMonster(m.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onRemoveMonster(m.id);
+                    }}
                     style={{
                       background: 'none',
                       border: 'none',
                       color: '#6b7280',
-                      fontSize: '11px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
                       cursor: 'pointer',
-                      padding: '2px',
+                      padding: '2px 4px',
                       lineHeight: 1,
+                      borderRadius: '3px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'color 0.15s, background-color 0.15s',
                     }}
                     title={`Remover ${m.name} do rastreador`}
-                    onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#ef4444')}
-                    onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#6b7280')}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.color = '#ef4444';
+                      (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.color = '#6b7280';
+                      (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                    }}
                   >
-                    ×
+                    ✕
                   </button>
                 )}
               </div>

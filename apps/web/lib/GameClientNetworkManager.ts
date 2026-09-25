@@ -712,6 +712,10 @@ export class GameClientNetworkManager {
     this.room.send('party:leave', {});
   }
 
+  sendPartyDisband(): void {
+    this.sendPartyLeave();
+  }
+
   sendPartyHuntSync(huntId: string, seed?: string): void {
     if (!this.room) return;
     this.room.send('party:huntSync', { huntId, seed });

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready
-last_updated: "2026-09-25T19:04:00.000Z"
-last_activity: "2026-09-25 — Conclusão da Phase 241: Retrato da Party com Outfit e Montaria em Réplica Exata, Grande e Centralizado."
+status: complete
+last_updated: "2026-09-25T20:28:00.000Z"
+last_activity: "2026-09-25 — Phase 242 Concluída: Loading Real e Determinístico de Caçadas, Remoção do Bestiário no HUD & Desfazer Grupo com Retorno ao Templo."
 progress:
-  total_phases: 241
-  completed_phases: 241
-  total_plans: 325
-  completed_plans: 325
+  total_phases: 242
+  completed_phases: 242
+  total_plans: 326
+  completed_plans: 326
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 241 concluída (Retrato da Party com Outfit e Montaria em Réplica Exata, Grande e Centralizado).
+**Current focus:** Fase 242 Concluída (Loading Real e Determinístico de Caçadas, Remoção do Bestiário no HUD & Desfazer Grupo com Retorno ao Templo).
 
 ## Current Position
 
-Phase: 241 of 241  
-Plan: 1 of 1 in Phase 241  
+Phase: 242 of 242  
+Plan: 1 of 1 in Phase 242  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 241: Retrato com outfit real, montaria ativa, cores exatas e centralização dinâmica de bounding box no UnifiedPartyModal validado com testes unitários.
+Last activity: 2026-09-25 — Phase 242: Pré-carregamento integral de monstros no huntAssetPreloader, correção de remoção do Bestiário no HUD e abandono seguro de caçada ao desfazer party com retorno ao templo.
 
 Progress: [██████████] 100%
 

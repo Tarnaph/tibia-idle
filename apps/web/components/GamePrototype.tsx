@@ -363,6 +363,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [cyclopediaModalOpen, setCyclopediaModalOpen] = useState(false);
   const [isAdminDebugModalOpen, setIsAdminDebugModalOpen] = useState(false);
   const [trackedBestiaryMonsterId, setTrackedBestiaryMonsterId] = useState<string>('');
+  const [dismissedTrackerMonsterIds, setDismissedTrackerMonsterIds] = useState<string[]>([]);
   const [isBestiaryTrackerVisible, setIsBestiaryTrackerVisible] = useState<boolean>(true);
   const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
 
@@ -1003,6 +1004,13 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const handleDisbandParty = useCallback(() => {
     setPartyMemberIds([]);
     setIsPartyCreated(false);
+    setPartyModalOpen(false);
+
+    if (multiplayerPartyRef.current) {
+      gameNetwork.sendPartyDisband();
+      setMultiplayerParty(null);
+    }
+
     setGame((cur) => {
       const activeId = cur.session.selectedCharacterId || cur.session.characters[0]?.id;
       const solo = cur.session.characters.filter((c) => c.id === activeId);
@@ -1011,10 +1019,17 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         session: {
           ...cur.session,
           characters: solo.length > 0 ? solo : [cur.session.characters[0]],
+          isMultiplayerParty: false,
         },
       };
     });
-  }, []);
+
+    // Phase 242: Se o jogador estiver dentro de uma caçada ao desfazer o grupo, abandona a caçada
+    // e retorna com segurança ao Templo de Thais sem nenhum personagem remanescente no grupo.
+    if (mode === 'hunt') {
+      void exitHuntRef.current?.();
+    }
+  }, [mode]);
 
   const handleAddToParty = useCallback((id: string) => {
     const activeId = game.session.selectedCharacterId || game.session.characters[0]?.id;
@@ -2845,24 +2860,29 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const handleTrackMonster = useCallback((monsterId: string) => {
     const nextId = trackedBestiaryMonsterId === monsterId ? '' : monsterId;
     setTrackedBestiaryMonsterId(nextId);
-    if (nextId) setIsBestiaryTrackerVisible(true);
+    if (nextId) {
+      setIsBestiaryTrackerVisible(true);
+      setDismissedTrackerMonsterIds((prev) => prev.filter((id) => id !== nextId.toLowerCase()));
+    }
     gameNetwork.sendBestiaryTrack(nextId);
   }, [trackedBestiaryMonsterId]);
 
-  // Phase 160: Lista de monstros rastreados no Bestiário (inclui todos os bichos da hunt ativa + monstro fixado)
+  // Phase 160 & 242: Lista de monstros rastreados no Bestiário (inclui todos os bichos da hunt ativa + monstro fixado, respeitando remoções manuais via ✕)
   const trackedMonstersList = useMemo(() => {
     const list: BestiaryMonster[] = [];
     const idsToInclude = new Set<string>();
 
-    // 1. Se estiver caçando, inclui todas as espécies daquela hunt ativa
+    // 1. Se estiver caçando, inclui todas as espécies daquela hunt ativa (exceto se removidas manualmente)
     if (mode === 'hunt' && encounter.hunt?.monsters && Array.isArray(encounter.hunt.monsters)) {
       for (const mId of encounter.hunt.monsters) {
-        if (mId) idsToInclude.add(mId.toLowerCase());
+        if (mId && !dismissedTrackerMonsterIds.includes(mId.toLowerCase())) {
+          idsToInclude.add(mId.toLowerCase());
+        }
       }
     }
 
-    // 2. Inclui qualquer criatura fixada manualmente pelo jogador
-    if (trackedBestiaryMonsterId) {
+    // 2. Inclui qualquer criatura fixada manualmente pelo jogador (exceto se removida)
+    if (trackedBestiaryMonsterId && !dismissedTrackerMonsterIds.includes(trackedBestiaryMonsterId.toLowerCase())) {
       idsToInclude.add(trackedBestiaryMonsterId.toLowerCase());
     }
 
@@ -2877,13 +2897,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
 
     return list;
-  }, [mode, encounter.hunt, trackedBestiaryMonsterId]);
+  }, [mode, encounter.hunt, trackedBestiaryMonsterId, dismissedTrackerMonsterIds]);
 
   useEffect(() => {
     if (mode === 'hunt') {
       setIsBestiaryTrackerVisible(true);
+      setDismissedTrackerMonsterIds([]);
     }
-  }, [mode]);
+  }, [mode, encounter.hunt?.id]);
 
   useEffect(() => {
     if (!levelUpMessage) return;
@@ -5350,6 +5371,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           setMultiplayerParty(null);
           setPartyMemberIds([activeCharacter.id]);
           setSaleMessage('Você saiu da party multiplayer.');
+          if (mode === 'hunt') {
+            void exitHuntRef.current?.();
+          }
         }}
         onCreateCharacter={createMember}
       />
@@ -5361,9 +5385,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           firstKillAlert={firstKillToast}
           onClose={() => setIsBestiaryTrackerVisible(false)}
           onRemoveMonster={(mId) => {
-            if (trackedBestiaryMonsterId && trackedBestiaryMonsterId.toLowerCase() === mId.toLowerCase()) {
-              handleTrackMonster(mId);
+            const lower = mId.toLowerCase();
+            if (trackedBestiaryMonsterId && trackedBestiaryMonsterId.toLowerCase() === lower) {
+              setTrackedBestiaryMonsterId('');
+              gameNetwork.sendBestiaryTrack('');
             }
+            setDismissedTrackerMonsterIds((prev) => (prev.includes(lower) ? prev : [...prev, lower]));
           }}
           onOpenCyclopedia={() => gameModal.openCyclopedia('bestiary')}
         />
@@ -5709,7 +5736,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
       {/* Phase 99/100/102/111: Authentic Exura 10s Cinematic Loading Screen for Login & Transitions */}
       {(() => {
-        const activeHuntId = transitionLoading?.huntId || pendingHuntTransitionRef.current?.huntId;
+        const activeHuntId = transitionLoading?.huntId || pendingHuntTransitionRef.current?.huntId || (mode === 'hunt' ? encounter.hunt?.id : undefined);
         const loadingConfig = getLoadingConfigForHunt(activeHuntId);
 
         const isLoadingActive = initialLoadingActive || Boolean(transitionLoading?.active) || (mode === 'hunt' && !isArenaReady);
@@ -5717,6 +5744,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         return (
           <ExuraLoadingScreen
             active={isLoadingActive}
+            huntId={activeHuntId}
             durationMs={transitionLoading?.durationMs ?? 2000}
             message={
               transitionLoading?.message ||

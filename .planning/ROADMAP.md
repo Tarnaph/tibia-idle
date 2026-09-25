@@ -4296,9 +4296,13 @@ Plans:
 
 - [x] **Phase 241: Retrato da Party com Outfit e Montaria em Réplica Exata, Grande e Centralizado** - Renderização fidedigna da aparência integral do personagem no modal de party (UnifiedPartyModal): extração do outfit real, montaria ativa, cores e addons; centralização e escala dinâmica via detecção de bounding box de pixels não-transparentes no canvas, posicionando o personagem e sua montaria em destaque grande e perfeitamente centralizados na moldura circular.
 
+---
+
+- [x] **Phase 242: Loading Real e Determinístico de Caçadas, Remoção do Bestiário no HUD & Desfazer Grupo com Retorno ao Templo** - Implementação de pré-carregamento real e obrigatório para todas as hunts presentes e futuras (download prévio de todos os frames direcionais de monstros no PixiJS antes de encerrar o ExuraLoadingScreen), correção do botão ✕ de desfixar monstro no HUD do Bestiário, e encerramento limpo da caçada ao clicar em "Desfazer Grupo" com retorno seguro ao Templo de Thais.
+
 Plans:
 
-- [x] 241-01-PLAN: Implementar getCharacterAppearance e algoritmo de centralização/escala em CharacterOutfitCanvas em UnifiedPartyModal.tsx, mapear campos no GamePrototype.tsx e estilizar no globals.css com testes unitários.
+- [x] 242-01-PLAN: Expandir huntAssetPreloader para incluir todos os frames direcionais de monstros via combat-assets.json, sincronizar com ExuraLoadingScreen, corrigir botão ✕ no BestiaryTracker e tratar onDisbandParty durante caçadas em GamePrototype.tsx com testes unitários.
 
 
 
