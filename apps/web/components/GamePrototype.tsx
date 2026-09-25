@@ -2175,7 +2175,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           errorDetail = errData?.message || errData?.error || '';
         } catch {}
         console.error(`[GamePrototype] Falha ao salvar personagem (${res.status}):`, errorDetail);
-        setSaveErrorAlert(errorDetail ? `Falha ao salvar: ${errorDetail}` : 'Falha ao salvar progresso no servidor.');
+        const alertMsg = errorDetail ? `Falha ao salvar: ${errorDetail}` : 'Falha ao salvar progresso no servidor.';
+        setSaveErrorAlert(alertMsg);
+        setTimeout(() => {
+          setSaveErrorAlert((curr) => (curr === alertMsg ? null : curr));
+        }, 8000);
         progressionDiagnostics.recordSaveError(attemptId, res.status, errorDetail || `HTTP ${res.status}`);
         return false;
       }
