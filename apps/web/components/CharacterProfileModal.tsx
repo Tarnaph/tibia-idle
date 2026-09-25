@@ -175,6 +175,7 @@ export function CharacterProfileModal({
           <button
             type="button"
             onClick={onClose}
+            className="character-profile-close-btn"
             style={{
               background: 'rgba(239, 68, 68, 0.15)',
               border: '1px solid rgba(239, 68, 68, 0.4)',
@@ -263,9 +264,11 @@ export function CharacterProfileModal({
 
         {/* Modal Scrollable Body */}
         <div
+          className="character-profile-scroll-body"
           style={{
-            padding: '1.25rem',
+            padding: 'clamp(0.6rem, 2vw, 1.25rem)',
             overflowY: 'auto',
+            overflowX: 'hidden',
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem',
@@ -275,25 +278,29 @@ export function CharacterProfileModal({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
               gap: '1rem',
             }}
           >
             {/* Top-Left: Identity Card with Avatar & Health/Mana/XP bars */}
             <div
+              className="char-identity-card"
               style={{
                 backgroundColor: 'rgba(20, 27, 41, 0.75)',
                 border: '1px solid #293548',
                 borderRadius: '8px',
-                padding: '1rem',
+                padding: 'clamp(0.6rem, 2vw, 1rem)',
                 display: 'flex',
-                gap: '1.2rem',
+                gap: 'clamp(0.6rem, 2vw, 1.2rem)',
                 alignItems: 'center',
                 position: 'relative',
+                minWidth: 0,
+                overflow: 'hidden',
               }}
             >
               {/* Square Avatar Box with edit trigger */}
               <div
+                className="char-avatar-box"
                 style={{
                   position: 'relative',
                   width: '90px',
@@ -448,11 +455,11 @@ export function CharacterProfileModal({
                 </div>
 
                 {/* Health Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '0.75rem', width: '90px', color: '#f87171', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    ❤️ Pontos de vida
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', minWidth: '60px', color: '#f87171', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                    ❤️ Vida
                   </span>
-                  <div style={{ flex: 1, height: '10px', backgroundColor: '#1c1917', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ flex: 1, minWidth: '40px', height: '10px', backgroundColor: '#1c1917', borderRadius: '4px', overflow: 'hidden' }}>
                     <div
                       style={{
                         width: `${Math.min(100, Math.max(0, (activeChar.currentHp / (activeChar.maxHp || 1)) * 100))}%`,
@@ -461,17 +468,17 @@ export function CharacterProfileModal({
                       }}
                     />
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: '#fca5a5', minWidth: '70px', textAlign: 'right', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.72rem', color: '#fca5a5', minWidth: '55px', textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     {activeChar.currentHp.toLocaleString('pt-BR')} / {activeChar.maxHp.toLocaleString('pt-BR')}
                   </span>
                 </div>
 
                 {/* Mana Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '0.75rem', width: '90px', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', minWidth: '60px', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '3px' }}>
                     💧 Mana
                   </span>
-                  <div style={{ flex: 1, height: '10px', backgroundColor: '#1c1917', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ flex: 1, minWidth: '40px', height: '10px', backgroundColor: '#1c1917', borderRadius: '4px', overflow: 'hidden' }}>
                     <div
                       style={{
                         width: `${Math.min(100, Math.max(0, (activeChar.currentMana / (activeChar.maxMana || 1)) * 100))}%`,
@@ -480,17 +487,17 @@ export function CharacterProfileModal({
                       }}
                     />
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: '#93c5fd', minWidth: '70px', textAlign: 'right', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.72rem', color: '#93c5fd', minWidth: '55px', textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     {activeChar.currentMana.toLocaleString('pt-BR')} / {activeChar.maxMana.toLocaleString('pt-BR')}
                   </span>
                 </div>
 
                 {/* Experience Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.75rem', width: '90px', color: '#c084fc', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    ⭐ Experiência
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '0.75rem', minWidth: '60px', color: '#c084fc', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                    ⭐ XP
                   </span>
-                  <div style={{ flex: 1, height: '10px', backgroundColor: '#1c1917', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ flex: 1, minWidth: '40px', height: '10px', backgroundColor: '#1c1917', borderRadius: '4px', overflow: 'hidden' }}>
                     <div
                       style={{
                         width: `${Math.min(100, Math.max(0, expProgressPct))}%`,
@@ -499,7 +506,7 @@ export function CharacterProfileModal({
                       }}
                     />
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: '#d8b4fe', minWidth: '70px', textAlign: 'right', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.72rem', color: '#d8b4fe', minWidth: '45px', textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     {expProgressPct}%
                   </span>
                 </div>

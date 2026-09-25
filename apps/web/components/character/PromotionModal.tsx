@@ -78,23 +78,25 @@ export function PromotionModal({
       <div
         className="promotion-card-window"
         style={{
-          width: '560px',
-          maxWidth: '92vw',
+          width: '520px',
+          maxWidth: '94vw',
+          maxHeight: '90vh',
           backgroundColor: '#131720',
           border: '2px solid #ca8a04',
           borderRadius: '10px',
           boxShadow: '0 16px 48px rgba(0, 0, 0, 0.9), 0 0 24px rgba(202, 138, 4, 0.25)',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
+          overflowY: 'auto',
           color: '#e2e8f0',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Banner */}
+        {/* Header Banner Compacto */}
         <div
+          className="promotion-header"
           style={{
-            padding: '18px',
+            padding: '14px 16px',
             background: 'linear-gradient(180deg, #231f0f 0%, #161a22 100%)',
             borderBottom: '1px solid #3b3318',
             textAlign: 'center',
@@ -104,58 +106,72 @@ export function PromotionModal({
           <button
             type="button"
             onClick={onClose}
+            className="promotion-close-btn"
             style={{
               position: 'absolute',
-              top: '12px',
-              right: '12px',
-              background: 'transparent',
-              border: 'none',
-              color: '#94a3b8',
-              fontSize: '16px',
+              top: '10px',
+              right: '10px',
+              width: '38px',
+              height: '38px',
+              minWidth: '38px',
+              minHeight: '38px',
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '6px',
+              color: '#f87171',
+              fontSize: '18px',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              lineHeight: 1,
+              touchAction: 'manipulation',
             }}
             title="Fechar"
+            aria-label="Fechar Promoção"
           >
             ✕
           </button>
-          <span style={{ fontSize: '28px', display: 'block', marginBottom: '4px' }}>👑</span>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: '20px',
-              color: '#facc15',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              fontWeight: 900,
-              textShadow: '0 2px 8px rgba(250, 204, 21, 0.4)',
-            }}
-          >
-            PROMOÇÃO DE VOCAÇÃO DISPONÍVEL!
-          </h2>
-          <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#94a3b8' }}>
-            Parabéns <strong>{character.name}</strong>! Você atingiu o Nível {PROMOTION_LEVEL} e agora pode ascender a{' '}
-            <strong style={{ color: '#facc15' }}>{promotedTitle}</strong>.
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '20px' }}>👑</span>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: '17px',
+                color: '#facc15',
+                textTransform: 'uppercase',
+                letterSpacing: '0.8px',
+                fontWeight: 900,
+                textShadow: '0 2px 8px rgba(250, 204, 21, 0.4)',
+              }}
+            >
+              PROMOÇÃO DE VOCAÇÃO
+            </h2>
+          </div>
+          <p style={{ margin: '4px 0 0', fontSize: '11.5px', color: '#94a3b8' }}>
+            Parabéns <strong>{character.name}</strong>! Ascenda para{' '}
+            <strong style={{ color: '#facc15' }}>{promotedTitle}</strong> (Nível {PROMOTION_LEVEL}+).
           </p>
         </div>
 
-        {/* Body Content */}
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Hero Preview Card */}
+        {/* Body Content Condensado */}
+        <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Hero Preview Card Compacto */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '16px',
+              gap: '12px',
               backgroundColor: '#1a202c',
               border: '1px solid #334155',
               borderRadius: '8px',
-              padding: '12px 16px',
+              padding: '10px 14px',
             }}
           >
             <div
               style={{
-                width: '60px',
-                height: '60px',
+                width: '50px',
+                height: '50px',
                 borderRadius: '8px',
                 backgroundColor: '#0f172a',
                 border: '2px solid #eab308',
@@ -170,7 +186,7 @@ export function PromotionModal({
               <img
                 src={visual.thumbUrl}
                 alt={promotedTitle}
-                style={{ width: '48px', height: '48px', objectFit: 'contain', imageRendering: 'pixelated' }}
+                style={{ width: '40px', height: '40px', objectFit: 'contain', imageRendering: 'pixelated' }}
                 onError={(e) => {
                   if (e.currentTarget.src !== visual.fallbackThumbUrl && !e.currentTarget.src.endsWith(visual.fallbackThumbUrl)) {
                     e.currentTarget.src = visual.fallbackThumbUrl;
@@ -178,12 +194,12 @@ export function PromotionModal({
                 }}
               />
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <strong style={{ fontSize: '16px', color: '#facc15' }}>{promotedTitle}</strong>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <strong style={{ fontSize: '15px', color: '#facc15' }}>{promotedTitle}</strong>
                 <span
                   style={{
-                    fontSize: '10px',
+                    fontSize: '9.5px',
                     fontWeight: 800,
                     backgroundColor: 'rgba(234, 179, 8, 0.15)',
                     color: '#fef08a',
@@ -196,100 +212,104 @@ export function PromotionModal({
                   FULL ADDONS UNLOCKED
                 </span>
               </div>
-              <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#94a3b8' }}>
-                {visual.addonDesc}. Reconhecimento e prestígio por todo o continente.
+              <p style={{ margin: '3px 0 0', fontSize: '11px', color: '#94a3b8', lineHeight: 1.3 }}>
+                {visual.addonDesc}. Prestígio por todo o continente.
               </p>
             </div>
           </div>
 
-          {/* Benefits Grid */}
+          {/* Benefits Grid Repensado (4 Cards Compactos) */}
           <div>
             <span
               style={{
-                fontSize: '11px',
+                fontSize: '10.5px',
                 fontWeight: 800,
                 color: '#64748b',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 display: 'block',
-                marginBottom: '8px',
+                marginBottom: '6px',
               }}
             >
-              VANTAGENS EXCLUSIVAS DA PROMOÇÃO:
+              VANTAGENS EXCLUSIVAS:
             </span>
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '10px',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '8px',
               }}
             >
               <div
                 style={{
-                  backgroundColor: 'rgba(26, 32, 44, 0.6)',
+                  backgroundColor: 'rgba(26, 32, 44, 0.7)',
                   border: '1px solid #283344',
                   borderRadius: '6px',
-                  padding: '10px',
+                  padding: '8px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '14px' }}>⚡</span>
-                  <strong style={{ fontSize: '12px', color: '#e2e8f0' }}>Regeneração Acelerada</strong>
+                <span style={{ fontSize: '16px', flexShrink: 0 }}>⚡</span>
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ fontSize: '11.5px', color: '#e2e8f0', display: 'block' }}>Regeneração Acelerada</strong>
+                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>HP e Mana recuperam mais rápido</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', lineHeight: '1.4' }}>
-                  Recupere Vida (HP) e Mana muito mais rápido fora de combate.
-                </p>
               </div>
 
               <div
                 style={{
-                  backgroundColor: 'rgba(26, 32, 44, 0.6)',
+                  backgroundColor: 'rgba(26, 32, 44, 0.7)',
                   border: '1px solid #283344',
                   borderRadius: '6px',
-                  padding: '10px',
+                  padding: '8px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '14px' }}>💀</span>
-                  <strong style={{ fontSize: '12px', color: '#e2e8f0' }}>Menor Perda ao Morrer</strong>
+                <span style={{ fontSize: '16px', flexShrink: 0 }}>💀</span>
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ fontSize: '11.5px', color: '#e2e8f0', display: 'block' }}>-30% Perda ao Morrer</strong>
+                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>Menor penalidade de XP e skills</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', lineHeight: '1.4' }}>
-                  Redução de 30% na penalidade de experiência e skills por morte.
-                </p>
               </div>
 
               <div
                 style={{
-                  backgroundColor: 'rgba(26, 32, 44, 0.6)',
+                  backgroundColor: 'rgba(26, 32, 44, 0.7)',
                   border: '1px solid #283344',
                   borderRadius: '6px',
-                  padding: '10px',
+                  padding: '8px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '14px' }}>📜</span>
-                  <strong style={{ fontSize: '12px', color: '#e2e8f0' }}>Magias & Runas Mestre</strong>
+                <span style={{ fontSize: '16px', flexShrink: 0 }}>📜</span>
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ fontSize: '11.5px', color: '#e2e8f0', display: 'block' }}>Magias & Runas Mestre</strong>
+                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>Conjuração de feitiços de elite</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', lineHeight: '1.4' }}>
-                  Poder para conjurar magias avançadas e usar runas de alto escalão.
-                </p>
               </div>
 
               <div
                 style={{
-                  backgroundColor: 'rgba(26, 32, 44, 0.6)',
+                  backgroundColor: 'rgba(26, 32, 44, 0.7)',
                   border: '1px solid #283344',
                   borderRadius: '6px',
-                  padding: '10px',
+                  padding: '8px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '14px' }}>👑</span>
-                  <strong style={{ fontSize: '12px', color: '#e2e8f0' }}>Título de Glória</strong>
+                <span style={{ fontSize: '16px', flexShrink: 0 }}>👑</span>
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ fontSize: '11.5px', color: '#e2e8f0', display: 'block' }}>Título & Reconhecimento</strong>
+                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>Identificação gloriosa na comunidade</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', lineHeight: '1.4' }}>
-                  Identificação gloriosa no chat, perfil e lista de líderes.
-                </p>
               </div>
             </div>
           </div>
@@ -301,20 +321,20 @@ export function PromotionModal({
               justifyContent: 'space-between',
               alignItems: 'center',
               backgroundColor: '#0d1117',
-              padding: '10px 14px',
+              padding: '8px 12px',
               borderRadius: '6px',
               border: '1px solid #1e293b',
             }}
           >
             <div>
-              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>CUSTO DA PROMOÇÃO</span>
-              <strong style={{ fontSize: '14px', color: '#facc15' }}>
+              <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>CUSTO DA PROMOÇÃO</span>
+              <strong style={{ fontSize: '13.5px', color: '#facc15' }}>
                 {PROMOTION_COST.toLocaleString('pt-BR')} Gold Coins
               </strong>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>SEU SALDO ATUAL</span>
-              <strong style={{ fontSize: '14px', color: canAfford ? '#4ade80' : '#ef4444' }}>
+              <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>SEU SALDO ATUAL</span>
+              <strong style={{ fontSize: '13.5px', color: canAfford ? '#4ade80' : '#ef4444' }}>
                 {gold.toLocaleString('pt-BR')} GP
               </strong>
             </div>
@@ -324,19 +344,20 @@ export function PromotionModal({
         {/* Footer Actions */}
         <div
           style={{
-            padding: '14px 20px',
+            padding: '12px 16px',
             backgroundColor: '#0d1117',
             borderTop: '1px solid #1e293b',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            gap: '10px',
           }}
         >
           <button
             type="button"
             onClick={onClose}
             style={{
-              padding: '8px 16px',
+              padding: '8px 14px',
               borderRadius: '6px',
               border: '1px solid #334155',
               backgroundColor: 'transparent',
@@ -359,7 +380,9 @@ export function PromotionModal({
             }}
             disabled={!canAfford}
             style={{
-              padding: '9px 22px',
+              flex: 1,
+              maxWidth: '280px',
+              padding: '9px 16px',
               borderRadius: '6px',
               border: 'none',
               background: canAfford
@@ -371,6 +394,7 @@ export function PromotionModal({
               cursor: canAfford ? 'pointer' : 'not-allowed',
               boxShadow: canAfford ? '0 2px 10px rgba(234, 179, 8, 0.35)' : 'none',
               transition: 'all 0.15s ease',
+              textAlign: 'center',
             }}
           >
             {canAfford ? 'Comprar Promoção (20.000 GP)' : 'Saldo Insuficiente'}

@@ -258,6 +258,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
   const [selectedCharId, setSelectedCharId] = useState(activeCharacterId);
   const [topTab, setTopTab] = useState<'character' | 'outfit'>('outfit');
   const [selectedTab, setSelectedTab] = useState<'outfits' | 'mounts'>('outfits');
+  const [mobileSection, setMobileSection] = useState<'outfits' | 'colors' | 'mounts'>('outfits');
   const [selectedOutfit, setSelectedOutfit] = useState(() => initialOutfit);
   const [selectedMount, setSelectedMount] = useState(() => initialMount);
   const [equippedMount, setEquippedMount] = useState(() => initialEquippedMount);
@@ -808,161 +809,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
               </div>
             )}
 
-            {/* Addon 1 Block */}
-            <div className={`tibia-beveled-check-box ${!currentCaps.hasAddon1 ? 'disabled opacity-50 pointer-events-none' : ''}`}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <label className="tibia-check-label" style={{ cursor: isAddon1Unlocked ? 'pointer' : 'default' }}>
-                  <input
-                    type="checkbox"
-                    checked={addon1 && currentCaps.hasAddon1 && isAddon1Unlocked}
-                    disabled={!currentCaps.hasAddon1 || !isAddon1Unlocked}
-                    onChange={(e) => setAddon1(e.target.checked)}
-                    className="tibia-custom-checkbox"
-                  />
-                  <span className="tibia-check-text">
-                    Addon 1 {!currentCaps.hasAddon1 && '(Indisponível)'}
-                  </span>
-                </label>
-                {currentCaps.hasAddon1 && !isAddon1Unlocked && (
-                  <button
-                    type="button"
-                    className="tibia-addon-quest-badge"
-                    onClick={() => setShowQuest1((p) => !p)}
-                    title="Ver requisitos da missão para liberar este addon"
-                  >
-                    📜 Quest {showQuest1 ? '▲' : '▼'}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Addon 1 Quest Detail Panel */}
-            {currentCaps.hasAddon1 && !isAddon1Unlocked && showQuest1 && (
-              <div className="tibia-addon-quest-panel">
-                {quest1Def ? (
-                  <>
-                    <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#facc15' }}>
-                      {quest1Def.name}
-                    </div>
-                    <div style={{ fontSize: '10.5px', color: '#94a3b8', lineHeight: 1.3 }}>
-                      {quest1Def.description}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
-                      {Array.isArray(quest1Def.materials) && quest1Def.materials.map((mat) => {
-                        const count = getMaterialCount(mat.itemId);
-                        const isDone = count >= mat.count;
-                        return (
-                          <div key={mat.itemId} className="tibia-addon-material-row">
-                            <div className="tibia-addon-mat-info">
-                              <img
-                                src={getCanonicalItemUrl(mat.itemId)}
-                                alt={mat.name}
-                                className="tibia-addon-mat-sprite"
-                                onError={(e) => {
-                                  (e.target as any).style.display = 'none';
-                                }}
-                              />
-                              <span style={{ color: '#e2e8f0' }}>{mat.name}</span>
-                            </div>
-                            <span className={`tibia-addon-mat-count ${isDone ? 'complete' : 'incomplete'}`}>
-                              {count}/{mat.count}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {hasAllMaterialsForQuest1 ? (
-                      <button
-                        type="button"
-                        className="tibia-addon-trade-btn"
-                        disabled={isTradingQuest}
-                        onClick={() => handleTradeQuest(quest1Def.id, 1)}
-                      >
-                        {isTradingQuest ? 'Trocando...' : '⭐ Trocar (Liberar Addon)'}
-                      </button>
-                    ) : (
-                      <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '2px' }}>
-                        Colete os itens restantes nas caçadas de Troll, Spider, Skeleton e Rotworm.
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
-                    Em breve: Missão necessária para conquistar este addon.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Addon 2 Block */}
-            <div className={`tibia-beveled-check-box ${!currentCaps.hasAddon2 ? 'disabled opacity-50 pointer-events-none' : ''}`}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <label className="tibia-check-label" style={{ cursor: isAddon2Unlocked ? 'pointer' : 'default' }}>
-                  <input
-                    type="checkbox"
-                    checked={addon2 && currentCaps.hasAddon2 && isAddon2Unlocked}
-                    disabled={!currentCaps.hasAddon2 || !isAddon2Unlocked}
-                    onChange={(e) => setAddon2(e.target.checked)}
-                    className="tibia-custom-checkbox"
-                  />
-                  <span className="tibia-check-text">
-                    Addon 2 {!currentCaps.hasAddon2 && '(Indisponível)'}
-                  </span>
-                </label>
-                {currentCaps.hasAddon2 && !isAddon2Unlocked && (
-                  <button
-                    type="button"
-                    className="tibia-addon-quest-badge"
-                    onClick={() => setShowQuest2((p) => !p)}
-                    title="Ver requisitos da missão para liberar este addon"
-                  >
-                    📜 Quest {showQuest2 ? '▲' : '▼'}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Addon 2 Quest Detail Panel */}
-            {currentCaps.hasAddon2 && !isAddon2Unlocked && showQuest2 && (
-              <div className="tibia-addon-quest-panel">
-                {quest2Def ? (
-                  <div>{quest2Def.name}</div>
-                ) : (
-                  <div style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
-                    Em breve: Missão necessária para conquistar este addon.
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className={`tibia-beveled-check-box ${!currentCaps.hasMountRider ? 'disabled opacity-50' : ''}`}>
-              <label className="tibia-check-label">
-                <input
-                  type="checkbox"
-                  checked={Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider)}
-                  disabled={!currentCaps.hasMountRider}
-                  onChange={(e) => {
-                    const nextVal = e.target.checked;
-                    setMountActive(nextVal);
-                    if (nextVal) {
-                      const mountToRestore = (equippedMount && equippedMount !== 'none') ? equippedMount : 'donkey';
-                      setSelectedMount(mountToRestore);
-                    } else {
-                      setSelectedMount('none');
-                    }
-                  }}
-                  className="tibia-custom-checkbox"
-                />
-                <span className="tibia-check-text">
-                  {!currentCaps.hasMountRider
-                    ? 'Montaria (Sem suporte neste traje)'
-                    : (!mountActive || selectedMount === 'none')
-                    ? `Montaria (Desativada - ${AVAILABLE_MOUNTS.find((m) => m.id === equippedMount)?.name || equippedMount || 'Donkey'})`
-                    : `Montaria: ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
-                </span>
-              </label>
-            </div>
-
+            {/* Pinned Preview Box (Always at top of preview/customizer) */}
             <div className="tibia-preview-box">
               <div className="tibia-preview-inner">
                 <canvas
@@ -985,54 +832,247 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
               >
                 ⟳
               </button>
+              <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: 'bold', color: '#f3c769', marginTop: '2px', textShadow: '0 1px 2px #000' }}>
+                {AVAILABLE_OUTFITS.find((o) => normalizeOutfitId(o.id) === normalizeOutfitId(selectedOutfit))?.name || selectedOutfit}
+                {Boolean(isMounted && selectedMount !== 'none') && ` · 🐎 ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
+              </div>
             </div>
 
-            <div className="tibia-body-part-tabs">
-              {(
-                [
-                  { id: 'head', label: 'Cabeça' },
-                  { id: 'primary', label: 'Corpo' },
-                  { id: 'secondary', label: 'Pernas' },
-                  { id: 'detail', label: 'Pés' },
-                ] as const
-              ).map((part) => (
-                <button
-                  key={part.id}
-                  type="button"
-                  className={`tibia-body-part-tab ${colorPart === part.id ? 'active' : ''}`}
-                  onClick={() => setColorPart(part.id)}
-                >
-                  {part.label}
-                </button>
-              ))}
+            {/* Mobile Sub-Navigation Tabs (Visible only on mobile <= 768px) */}
+            <div className="tibia-mobile-outfit-tabs">
+              <button
+                type="button"
+                className={`tibia-mobile-outfit-tab ${mobileSection === 'outfits' ? 'active' : ''}`}
+                onClick={() => {
+                  setMobileSection('outfits');
+                  setSelectedTab('outfits');
+                }}
+              >
+                🥋 Trajes
+              </button>
+              <button
+                type="button"
+                className={`tibia-mobile-outfit-tab ${mobileSection === 'colors' ? 'active' : ''}`}
+                onClick={() => setMobileSection('colors')}
+              >
+                🎨 Cores & Addons
+              </button>
+              <button
+                type="button"
+                className={`tibia-mobile-outfit-tab ${mobileSection === 'mounts' ? 'active' : ''}`}
+                onClick={() => {
+                  setMobileSection('mounts');
+                  setSelectedTab('mounts');
+                }}
+              >
+                🐎 Montarias
+              </button>
             </div>
 
-            <div className="tibia-palette-container">
-              <div
-                className="tibia-palette-active-indicator"
-                style={{ backgroundColor: activePartHex }}
-                title={`Cor Ativa: ${activePartHex}`}
-              />
-              <div className="tibia-palette-matrix-19x7">
-                {TIBIA_133_COLORS.map((hex, idx) => {
-                  const isSelected = currentColorIdx === idx;
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      className={`tibia-color-swatch-19x7 ${isSelected ? 'active' : ''}`}
-                      style={{ backgroundColor: hex }}
-                      onClick={() => setColors((prev) => ({ ...prev, [colorPart]: idx }))}
-                      title={`Cor ${idx}: ${hex}`}
+            {/* Addons, Mount rider toggle and Color Palette Controls */}
+            <div className={`tibia-outfit-color-controls ${mobileSection !== 'colors' ? 'mobile-hidden' : ''}`}>
+              {/* Addon 1 Block */}
+              <div className={`tibia-beveled-check-box ${!currentCaps.hasAddon1 ? 'disabled opacity-50 pointer-events-none' : ''}`}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                  <label className="tibia-check-label" style={{ cursor: isAddon1Unlocked ? 'pointer' : 'default' }}>
+                    <input
+                      type="checkbox"
+                      checked={addon1 && currentCaps.hasAddon1 && isAddon1Unlocked}
+                      disabled={!currentCaps.hasAddon1 || !isAddon1Unlocked}
+                      onChange={(e) => setAddon1(e.target.checked)}
+                      className="tibia-custom-checkbox"
                     />
-                  );
-                })}
+                    <span className="tibia-check-text">
+                      Addon 1 {!currentCaps.hasAddon1 && '(Indisponível)'}
+                    </span>
+                  </label>
+                  {currentCaps.hasAddon1 && !isAddon1Unlocked && (
+                    <button
+                      type="button"
+                      className="tibia-addon-quest-badge"
+                      onClick={() => setShowQuest1((p) => !p)}
+                      title="Ver requisitos da missão para liberar este addon"
+                    >
+                      📜 Quest {showQuest1 ? '▲' : '▼'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Addon 1 Quest Detail Panel */}
+              {currentCaps.hasAddon1 && !isAddon1Unlocked && showQuest1 && (
+                <div className="tibia-addon-quest-panel">
+                  {quest1Def ? (
+                    <>
+                      <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#facc15' }}>
+                        {quest1Def.name}
+                      </div>
+                      <div style={{ fontSize: '10.5px', color: '#94a3b8', lineHeight: 1.3 }}>
+                        {quest1Def.description}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
+                        {Array.isArray(quest1Def.materials) && quest1Def.materials.map((mat) => {
+                          const count = getMaterialCount(mat.itemId);
+                          const isDone = count >= mat.count;
+                          return (
+                            <div key={mat.itemId} className="tibia-addon-material-row">
+                              <div className="tibia-addon-mat-info">
+                                <img
+                                  src={getCanonicalItemUrl(mat.itemId)}
+                                  alt={mat.name}
+                                  className="tibia-addon-mat-sprite"
+                                  onError={(e) => {
+                                    (e.target as any).style.display = 'none';
+                                  }}
+                                />
+                                <span style={{ color: '#e2e8f0' }}>{mat.name}</span>
+                              </div>
+                              <span className={`tibia-addon-mat-count ${isDone ? 'complete' : 'incomplete'}`}>
+                                {count}/{mat.count}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {hasAllMaterialsForQuest1 ? (
+                        <button
+                          type="button"
+                          className="tibia-addon-trade-btn"
+                          disabled={isTradingQuest}
+                          onClick={() => handleTradeQuest(quest1Def.id, 1)}
+                        >
+                          {isTradingQuest ? 'Trocando...' : '⭐ Trocar (Liberar Addon)'}
+                        </button>
+                      ) : (
+                        <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '2px' }}>
+                          Colete os itens restantes nas caçadas de Troll, Spider, Skeleton e Rotworm.
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
+                      Em breve: Missão necessária para conquistar este addon.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Addon 2 Block */}
+              <div className={`tibia-beveled-check-box ${!currentCaps.hasAddon2 ? 'disabled opacity-50 pointer-events-none' : ''}`}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                  <label className="tibia-check-label" style={{ cursor: isAddon2Unlocked ? 'pointer' : 'default' }}>
+                    <input
+                      type="checkbox"
+                      checked={addon2 && currentCaps.hasAddon2 && isAddon2Unlocked}
+                      disabled={!currentCaps.hasAddon2 || !isAddon2Unlocked}
+                      onChange={(e) => setAddon2(e.target.checked)}
+                      className="tibia-custom-checkbox"
+                    />
+                    <span className="tibia-check-text">
+                      Addon 2 {!currentCaps.hasAddon2 && '(Indisponível)'}
+                    </span>
+                  </label>
+                  {currentCaps.hasAddon2 && !isAddon2Unlocked && (
+                    <button
+                      type="button"
+                      className="tibia-addon-quest-badge"
+                      onClick={() => setShowQuest2((p) => !p)}
+                      title="Ver requisitos da missão para liberar este addon"
+                    >
+                      📜 Quest {showQuest2 ? '▲' : '▼'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Addon 2 Quest Detail Panel */}
+              {currentCaps.hasAddon2 && !isAddon2Unlocked && showQuest2 && (
+                <div className="tibia-addon-quest-panel">
+                  {quest2Def ? (
+                    <div>{quest2Def.name}</div>
+                  ) : (
+                    <div style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
+                      Em breve: Missão necessária para conquistar este addon.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className={`tibia-beveled-check-box ${!currentCaps.hasMountRider ? 'disabled opacity-50' : ''}`}>
+                <label className="tibia-check-label">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(mountActive && selectedMount !== 'none' && currentCaps.hasMountRider)}
+                    disabled={!currentCaps.hasMountRider}
+                    onChange={(e) => {
+                      const nextVal = e.target.checked;
+                      setMountActive(nextVal);
+                      if (nextVal) {
+                        const mountToRestore = (equippedMount && equippedMount !== 'none') ? equippedMount : 'donkey';
+                        setSelectedMount(mountToRestore);
+                      } else {
+                        setSelectedMount('none');
+                      }
+                    }}
+                    className="tibia-custom-checkbox"
+                  />
+                  <span className="tibia-check-text">
+                    {!currentCaps.hasMountRider
+                      ? 'Montaria (Sem suporte neste traje)'
+                      : (!mountActive || selectedMount === 'none')
+                      ? `Montaria (Desativada - ${AVAILABLE_MOUNTS.find((m) => m.id === equippedMount)?.name || equippedMount || 'Donkey'})`
+                      : `Montaria: ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
+                  </span>
+                </label>
+              </div>
+
+              <div className="tibia-body-part-tabs">
+                {(
+                  [
+                    { id: 'head', label: 'Cabeça' },
+                    { id: 'primary', label: 'Corpo' },
+                    { id: 'secondary', label: 'Pernas' },
+                    { id: 'detail', label: 'Pés' },
+                  ] as const
+                ).map((part) => (
+                  <button
+                    key={part.id}
+                    type="button"
+                    className={`tibia-body-part-tab ${colorPart === part.id ? 'active' : ''}`}
+                    onClick={() => setColorPart(part.id)}
+                  >
+                    {part.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="tibia-palette-container">
+                <div
+                  className="tibia-palette-active-indicator"
+                  style={{ backgroundColor: activePartHex }}
+                  title={`Cor Ativa: ${activePartHex}`}
+                />
+                <div className="tibia-palette-matrix-19x7">
+                  {TIBIA_133_COLORS.map((hex, idx) => {
+                    const isSelected = currentColorIdx === idx;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        className={`tibia-color-swatch-19x7 ${isSelected ? 'active' : ''}`}
+                        style={{ backgroundColor: hex }}
+                        onClick={() => setColors((prev) => ({ ...prev, [colorPart]: idx }))}
+                        title={`Cor ${idx}: ${hex}`}
+                      />
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right Column */}
-          <div className="tibia-outfit-right-col">
+          <div className={`tibia-outfit-right-col ${mobileSection === 'colors' ? 'mobile-hidden' : ''}`}>
             <div className="tibia-subnav-tabs">
               <button
                 type="button"

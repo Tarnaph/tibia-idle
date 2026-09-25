@@ -483,6 +483,7 @@ export function ImbuingModal({
       onClick={onClose}
     >
       <div
+        className="imbuing-modal-window"
         style={{
           width: '780px',
           maxWidth: '96vw',
@@ -527,26 +528,39 @@ export function ImbuingModal({
           <button
             type="button"
             onClick={onClose}
+            className="imbuing-close-btn"
             style={{
               position: 'absolute',
-              right: '16px',
-              background: 'none',
-              border: 'none',
-              color: '#8c95a0',
-              fontSize: '20px',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: '#7f1d1d',
+              border: '1px solid #ef4444',
+              borderRadius: '6px',
+              color: '#fee2e2',
+              fontSize: '18px',
+              fontWeight: 700,
               cursor: 'pointer',
               lineHeight: 1,
+              width: '38px',
+              height: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+              zIndex: 10,
             }}
             title="Fechar"
           >
-            ×
+            ✕
           </button>
         </div>
 
         {/* Modal Body */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div className="imbuing-modal-body" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
           {/* Left Column (Character & Inventory) */}
           <div
+            className="imbuing-left-col"
             style={{
               width: '280px',
               borderRight: '1px solid #33373d',
@@ -904,6 +918,7 @@ export function ImbuingModal({
 
           {/* Right Area (Main workspace) */}
           <div
+            className="imbuing-right-col"
             style={{
               flex: 1,
               backgroundColor: '#232629',

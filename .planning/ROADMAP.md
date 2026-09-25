@@ -4260,6 +4260,14 @@ Plans:
 - [x] 235-01-PLAN: Implementação do chat flutuante mobile, limpeza de badges de debug, redimensionamento do bestiário, grid vertical de caçadas, calibração de zoom e safe area no loading screen.
 - [x] 236-01-PLAN: Redesign mobile completo dos modais, joystick fluido, remoção de coordenadas e botões de fechar ergonômicos.
 
+---
+
+- [x] **Phase 237: Resolução Definitiva dos Modais e Menus Mobile do FIX.md (Seleção de Personagens, Promoção de Vocação, Perfil Sem Scroll Lateral, Outfit Tabulado, Highscores, Caçadas Compactas, Arena PvP, Imbuements & Loading)** - Resolução ponta a ponta dos 8 modais afetados com eliminação universal de scroll horizontal, botões de fechar de 38x38px de alto contraste em todas as telas, cards compactos sem áreas vazias, e layout fluído adaptado para smartphones.
+
+Plans:
+
+- [x] 237-01-PLAN: Implementar a resolução integral dos 8 itens do FIX.md com design responsivo, ausência de scroll horizontal, botões de fechar ergonômicos e validação contínua.
+
 
 
 

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-25T15:27:00.000Z"
-last_activity: "2026-09-25 — Conclusão da Phase 236 (Redesign Completo dos Modais e Menus Mobile, Personagem, Outfit, Inventário, Joystick Fluido & Remoção de Badges de Coordenadas)."
+last_updated: "2026-09-25T16:30:00.000Z"
+last_activity: "2026-09-25 — Phase 237 Concluída: Resolução Definitiva dos Modais e Menus Mobile do FIX.md."
 progress:
-  total_phases: 236
-  completed_phases: 236
-  total_plans: 320
-  completed_plans: 320
+  total_phases: 237
+  completed_phases: 237
+  total_plans: 321
+  completed_plans: 321
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 236 concluída com sucesso.
+**Current focus:** Todas as fases do Roadmap e itens do FIX.md concluídos com sucesso.
 
 ## Current Position
 
-Phase: 236 of 236  
-Plan: 1 of 1 in Phase 236  
+Phase: 237 of 237  
+Plan: 1 of 1 in Phase 237  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 236: Redesign Completo dos Modais e Menus Mobile & Suavização do Joystick Virtual concluídos com 100% dos testes aprovados e 0 erros de tipagem.
+Last activity: 2026-09-25 — Phase 237: 100% dos modais e janelas mobile corrigidos, sem scroll lateral e com botões 38x38px.
 
 Progress: [██████████] 100%
 

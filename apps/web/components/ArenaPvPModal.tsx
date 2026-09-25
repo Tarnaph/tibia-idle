@@ -200,9 +200,11 @@ export function ArenaPvPModal({
       }}
     >
       <div
+        className="arena-pvp-window"
         style={{
           width: '840px',
           maxWidth: '96vw',
+          maxHeight: '92vh',
           backgroundColor: '#1e2022',
           border: '2px solid #4a4d52',
           boxShadow: '0 12px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
@@ -210,8 +212,9 @@ export function ArenaPvPModal({
           display: 'flex',
           flexDirection: 'column',
           userSelect: 'none',
-          borderRadius: '4px',
-          overflow: 'hidden',
+          borderRadius: '6px',
+          overflowY: 'auto',
+          overflowX: 'hidden',
         }}
       >
         {/* Cabeçalho Oficial */}
@@ -240,25 +243,37 @@ export function ArenaPvPModal({
 
           <button
             onClick={onClose}
+            className="arena-close-btn"
             style={{
               position: 'absolute',
-              right: '12px',
-              top: '12px',
-              background: 'transparent',
-              border: 'none',
-              color: '#8b8e93',
+              right: '10px',
+              top: '10px',
+              width: '38px',
+              height: '38px',
+              minWidth: '38px',
+              minHeight: '38px',
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '6px',
+              color: '#f87171',
               fontSize: '18px',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               lineHeight: 1,
+              touchAction: 'manipulation',
             }}
             title="Fechar Janela"
+            aria-label="Fechar Arena"
           >
             ✕
           </button>
         </div>
 
-        {/* Modal Body: Duas Colunas */}
+        {/* Modal Body: Duas Colunas (Responsivo no Mobile) */}
         <div
+          className="arena-modal-body"
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -267,6 +282,7 @@ export function ArenaPvPModal({
         >
           {/* COLUNA ESQUERDA: Classificação, Estatísticas e Histórico */}
           <div
+            className="arena-left-col"
             style={{
               width: '340px',
               borderRight: '1px solid #33363a',
@@ -563,6 +579,7 @@ export function ArenaPvPModal({
 
           {/* COLUNA DIREITA: Ações, Loadout e Táticas */}
           <div
+            className="arena-right-col"
             style={{
               flex: 1,
               padding: '20px 24px',

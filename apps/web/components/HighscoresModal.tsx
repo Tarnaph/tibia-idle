@@ -137,6 +137,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
     >
       {/* Janela Principal: Estilo Arena PvP */}
       <div
+        className="highscores-modal-window"
         style={{
           width: '840px',
           maxWidth: '96vw',
@@ -193,25 +194,37 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
 
           <button
             onClick={onClose}
+            className="highscores-close-btn"
             style={{
               position: 'absolute',
-              right: '12px',
-              top: '12px',
-              background: 'transparent',
-              border: 'none',
-              color: '#8b8e93',
+              right: '10px',
+              top: '10px',
+              width: '38px',
+              height: '38px',
+              minWidth: '38px',
+              minHeight: '38px',
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '6px',
+              color: '#f87171',
               fontSize: '18px',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               lineHeight: 1,
+              touchAction: 'manipulation',
             }}
             title="Fechar Janela"
+            aria-label="Fechar Highscores"
           >
             ✕
           </button>
         </div>
 
-        {/* Modal Body: Duas Colunas */}
+        {/* Modal Body: Duas Colunas (Responsivo 1 Coluna no Mobile) */}
         <div
+          className="highscores-modal-body"
           style={{
             display: 'flex',
             flex: 1,
@@ -220,6 +233,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
         >
           {/* COLUNA ESQUERDA: Abas de Categorias */}
           <div
+            className="highscores-categories-col"
             style={{
               width: '200px',
               borderRight: '1px solid #33363a',
@@ -240,6 +254,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                 <button
                   key={cat.id}
                   type="button"
+                  className="highscores-category-btn"
                   onClick={() => handleCategoryChange(cat.id)}
                   style={{
                     backgroundColor: isActive ? '#2d3035' : '#151618',
@@ -269,6 +284,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
 
           {/* COLUNA DIREITA: Tabela e Controles */}
           <div
+            className="highscores-content-col"
             style={{
               flex: 1,
               display: 'flex',
@@ -280,6 +296,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
           >
             {/* Topo da Coluna Direita: Filtro de Vocação e Descrição */}
             <div
+              className="highscores-toolbar-row"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -316,6 +333,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
 
             {/* Cabeçalho da Tabela */}
             <div
+              className="highscores-table-header"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '48px 1fr 105px 70px 120px',
@@ -333,15 +351,16 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
             >
               <span>#</span>
               <span>NOME</span>
-              <span style={{ textAlign: 'center' }}>VOCACAO</span>
-              <span style={{ textAlign: 'right' }}>LEVEL</span>
-              <span style={{ textAlign: 'right' }}>
+              <span className="highscores-col-voc" style={{ textAlign: 'center' }}>VOCACAO</span>
+              <span className="highscores-col-lvl" style={{ textAlign: 'right' }}>LEVEL</span>
+              <span className="highscores-col-val" style={{ textAlign: 'right' }}>
                 {activeCategory === 'level' ? 'XP TOTAL' : 'HABILIDADE'}
               </span>
             </div>
 
             {/* Linhas da Tabela */}
             <div
+              className="highscores-table-body"
               style={{
                 flex: 1,
                 overflowY: 'auto',
@@ -371,6 +390,7 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                   return (
                     <div
                       key={entry.id}
+                      className="highscores-table-row"
                       style={{
                         display: 'grid',
                         gridTemplateColumns: '48px 1fr 105px 70px 120px',
@@ -407,33 +427,38 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
 
                       {/* Nome do Personagem */}
                       <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        <span
-                          style={{
-                            fontWeight: entry.isCurrentPlayer ? 'bold' : '600',
-                            color: entry.isCurrentPlayer ? '#fef08a' : '#f1f5f9',
-                          }}
-                        >
-                          {entry.characterName}
-                        </span>
-                        {entry.isCurrentPlayer && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <span
                             style={{
-                              marginLeft: '6px',
-                              fontSize: '9.5px',
-                              backgroundColor: 'rgba(245, 158, 11, 0.25)',
-                              color: '#fbbf24',
-                              padding: '1px 5px',
-                              borderRadius: '3px',
-                              border: '1px solid rgba(245, 158, 11, 0.4)',
+                              fontWeight: entry.isCurrentPlayer ? 'bold' : '600',
+                              color: entry.isCurrentPlayer ? '#fef08a' : '#f1f5f9',
                             }}
                           >
-                            VOCE
+                            {entry.characterName}
                           </span>
-                        )}
+                          {entry.isCurrentPlayer && (
+                            <span
+                              style={{
+                                fontSize: '9px',
+                                backgroundColor: 'rgba(245, 158, 11, 0.25)',
+                                color: '#fbbf24',
+                                padding: '1px 4px',
+                                borderRadius: '3px',
+                                border: '1px solid rgba(245, 158, 11, 0.4)',
+                              }}
+                            >
+                              VOCE
+                            </span>
+                          )}
+                        </div>
+                        {/* Subtítulo visível no mobile com Level e Vocação */}
+                        <div className="highscores-mobile-subinfo" style={{ fontSize: '10px', color: '#9ca3af', marginTop: '1px' }}>
+                          Lv. {entry.level} · {entry.vocation}
+                        </div>
                       </div>
 
-                      {/* Vocação */}
-                      <div style={{ textAlign: 'center' }}>
+                      {/* Vocação (Coluna oculta no mobile para caber limpo) */}
+                      <div className="highscores-col-voc" style={{ textAlign: 'center' }}>
                         <span
                           style={{
                             display: 'inline-block',
@@ -450,13 +475,13 @@ export function HighscoresModal({ open, currentCharacterId, onClose }: Highscore
                         </span>
                       </div>
 
-                      {/* Level */}
-                      <div style={{ textAlign: 'right', fontWeight: '600', color: '#e2e8f0' }}>
+                      {/* Level (Coluna oculta no mobile para caber limpo) */}
+                      <div className="highscores-col-lvl" style={{ textAlign: 'right', fontWeight: '600', color: '#e2e8f0' }}>
                         {entry.level}
                       </div>
 
                       {/* Valor da Categoria */}
-                      <div style={{ textAlign: 'right', fontWeight: 'bold', color: '#f3c769' }}>
+                      <div className="highscores-col-val" style={{ textAlign: 'right', fontWeight: 'bold', color: '#f3c769' }}>
                         {entry.displayValue}
                       </div>
                     </div>

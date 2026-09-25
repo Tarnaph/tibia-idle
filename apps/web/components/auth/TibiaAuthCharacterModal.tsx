@@ -658,6 +658,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
 
         {/* Side-by-side Row: LEFT Selection Box & RIGHT Frameless Bard Video */}
         <div
+          className="auth-modal-row-wrapper"
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -669,6 +670,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
         >
           {/* LEFT: Character Selection Modal Box */}
           <div
+            className="auth-card-container"
             style={{
               width: '655px',
               maxWidth: '90vw',
@@ -1179,6 +1181,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                           <div
                             key={char.id}
                             onClick={handleSelectThisChar}
+                            className="auth-char-item-row"
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -1192,7 +1195,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                               userSelect: 'none',
                             }}
                           >
-                            <div>
+                            <div className="auth-char-info">
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <span style={{ fontWeight: 'bold', color: '#ffffff', fontSize: '15px', textShadow: '1px 1px 2px #000' }}>{char.name}</span>
                                 <span
@@ -1216,9 +1219,10 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                                 Level {char.level} | {VOCATION_NAMES[char.vocationId] || 'No Vocation'} | Spawn: Thais Temple
                               </div>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div className="auth-char-action-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <button
                                 type="button"
+                                className="auth-char-delete-btn"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
@@ -1245,6 +1249,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
 
                               <button
                                 type="button"
+                                className="auth-char-enter-btn"
                                 onClick={handleSelectThisChar}
                                 style={{
                                   width: '150px',
@@ -1282,6 +1287,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
 
           {/* RIGHT: Frameless & Larger Bard Character Video with Centered Play Button */}
           <div
+            className="auth-bard-container"
             style={{
               width: '560px',
               height: '600px',

@@ -10718,4 +10718,315 @@ h1, h2, h3, p { margin: 0; }
   }
 }
 
+/* ==========================================================================
+   PHASE 237: COMPLETE MOBILE OVERHAUL - ZERO HORIZONTAL SCROLL & TOUCH BUTTONS
+   Eliminates all viewport clipping, hides desktop-only bloated elements (Bard video),
+   stacks multi-column layouts into responsive single columns, and guarantees
+   prominent 38x38px close buttons on ALL modal dialogues.
+   ========================================================================== */
+
+/* Desktop defaults for Phase 237 elements */
+.tibia-mobile-outfit-tabs {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* 1. Global Zero-Horizontal-Scroll Enforcer */
+  body,
+  .modal-backdrop,
+  .hunt-modal-backdrop,
+  .inventory-window-backdrop,
+  .promotion-modal-backdrop,
+  .tibia-outfit-backdrop {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  /* 2. Universal 38x38px Prominent Touch Close Buttons */
+  .hunt-window-close-btn,
+  .highscores-close-btn,
+  .arena-close-btn,
+  .imbuing-close-btn,
+  .promotion-close-btn,
+  .character-profile-close-btn,
+  .tibia-window-close-btn,
+  .inventory-close-btn {
+    min-width: 38px !important;
+    min-height: 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(239, 68, 68, 0.22) !important;
+    border: 1.5px solid rgba(239, 68, 68, 0.55) !important;
+    color: #fca5a5 !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    line-height: 1 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .hunt-window-close-btn:active,
+  .highscores-close-btn:active,
+  .arena-close-btn:active,
+  .imbuing-close-btn:active,
+  .promotion-close-btn:active,
+  .character-profile-close-btn:active,
+  .tibia-window-close-btn:active,
+  .inventory-close-btn:active {
+    background: rgba(239, 68, 68, 0.45) !important;
+    transform: scale(0.95) !important;
+  }
+
+  /* 3. Character Selection Modal (TibiaAuthCharacterModal) */
+  .auth-modal-row-wrapper {
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .auth-bard-container {
+    display: none !important;
+  }
+
+  .auth-card-container {
+    width: min(94vw, 440px) !important;
+    max-width: 94vw !important;
+    margin: 0 auto !important;
+  }
+
+  .auth-char-item-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  .auth-char-action-group {
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+  }
+
+  .auth-char-enter-btn {
+    flex: 1 !important;
+    height: 38px !important;
+    font-size: 13px !important;
+  }
+
+  .auth-char-delete-btn {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 14px !important;
+    min-width: 38px !important;
+  }
+
+  /* 4. Promotion Modal (PromotionModal) */
+  .promotion-card-window {
+    width: min(94vw, 430px) !important;
+    max-width: 94vw !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  /* 5. Character Profile Modal (CharacterProfileModal) */
+  .character-profile-modal-window {
+    width: min(96vw, 480px) !important;
+    max-width: 96vw !important;
+    max-height: 92vh !important;
+    overflow-x: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  .character-profile-scroll-body {
+    overflow-x: hidden !important;
+    padding: 10px 8px !important;
+  }
+
+  .char-identity-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 6. Outfit Customizer Modal (OutfitModal) */
+  .tibia-outfit-window {
+    width: min(96vw, 480px) !important;
+    max-width: 96vw !important;
+    max-height: 92vh !important;
+    overflow-x: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  .tibia-mobile-outfit-tabs {
+    display: flex !important;
+    gap: 4px !important;
+    padding: 6px 8px !important;
+    background: #161719 !important;
+    border-bottom: 1px solid #2e3238 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .tibia-mobile-outfit-tab {
+    flex: 1 !important;
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    background: #23262a !important;
+    color: #9ca3af !important;
+    border: 1px solid #373b42 !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+  }
+
+  .tibia-mobile-outfit-tab.active {
+    background: #3b2d18 !important;
+    color: #f3c769 !important;
+    border-color: #ca8a04 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 0 8px rgba(202, 138, 4, 0.35) !important;
+  }
+
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  /* 7. Highscores Modal (HighscoresModal) */
+  .highscores-modal-window {
+    width: min(96vw, 540px) !important;
+    max-width: 96vw !important;
+    max-height: 92vh !important;
+    overflow-x: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  .highscores-modal-body {
+    flex-direction: column !important;
+    overflow-x: hidden !important;
+    max-height: calc(92vh - 54px) !important;
+  }
+
+  .highscores-categories-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    border-right: none !important;
+    border-bottom: 1px solid #33363a !important;
+    padding: 8px !important;
+    gap: 6px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .highscores-categories-col > div {
+    display: none !important;
+  }
+
+  .highscores-category-btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+  }
+
+  .highscores-content-col {
+    width: 100% !important;
+    overflow-x: hidden !important;
+    flex: 1 !important;
+  }
+
+  .highscores-table-header,
+  .highscores-table-row {
+    grid-template-columns: 36px 1fr 90px !important;
+    padding: 8px 10px !important;
+  }
+
+  .highscores-col-voc,
+  .highscores-col-lvl {
+    display: none !important;
+  }
+
+  .highscores-mobile-subinfo {
+    display: block !important;
+    font-size: 10px !important;
+    color: #94a3b8 !important;
+    margin-top: 1px !important;
+  }
+
+  /* 8. Arena PvP Modal (ArenaPvPModal) */
+  .arena-pvp-window {
+    width: min(96vw, 540px) !important;
+    max-width: 96vw !important;
+    max-height: 92vh !important;
+    overflow-x: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  .arena-modal-body {
+    flex-direction: column !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .arena-left-col,
+  .arena-right-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-right: none !important;
+  }
+
+  .arena-left-col {
+    border-bottom: 1px solid #33363a !important;
+  }
+
+  /* 9. Imbuing Modal (ImbuingModal) */
+  .imbuing-modal-window {
+    width: min(96vw, 540px) !important;
+    max-width: 96vw !important;
+    max-height: 92vh !important;
+    overflow-x: hidden !important;
+    border-radius: 8px !important;
+  }
+
+  .imbuing-modal-body {
+    flex-direction: column !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .imbuing-left-col,
+  .imbuing-right-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-right: none !important;
+  }
+
+  .imbuing-left-col {
+    border-bottom: 1px solid #33373d !important;
+  }
+
+  /* 10. Safe Area Bottom Inset for Floating HUDs & Loading */
+  .loading-container,
+  .floating-hud,
+  .bestiary-bottom-hud {
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+  }
+}
+
+
 
