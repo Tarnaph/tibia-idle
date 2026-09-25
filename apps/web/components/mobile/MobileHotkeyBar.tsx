@@ -167,46 +167,6 @@ export function MobileHotkeyBar({
           </button>
         );
       })}
-
-      {/* Far Right: Chat toggle button with unread notification dot */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleChat?.();
-        }}
-        style={{
-          position: 'relative',
-          width: '44px',
-          height: '44px',
-          minWidth: '44px',
-          backgroundColor: '#1e293b',
-          border: '1.5px solid #64748b',
-          borderRadius: '6px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.7)',
-        }}
-        title="Abrir / Recolher Chat"
-      >
-        <span style={{ fontSize: '18px' }}>💬</span>
-        {unreadChatCount > 0 && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '4px',
-              right: '4px',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: '#ef4444',
-              boxShadow: '0 0 6px #ef4444',
-            }}
-          />
-        )}
-      </button>
     </div>
   );
 }

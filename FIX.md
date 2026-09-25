@@ -1,3 +1,27 @@
+# FASE 235: REFINAMENTO DE UI/UX MOBILE E LIMPEZA DE INTERFACE (CONCLUÍDA COM SUCESSO ✅)
+
+### Demandas do Usuário & Checklist de Execução:
+- [x] **Onda 1: Chat em Bolinha Flutuante & Ocultação da Barra Desktop no Mobile**
+  - [x] Ocultar a barra de chat desktop fixa (`fixed-chat-dock`) quando `responsive.isMobile`.
+  - [x] Criar botão circular flutuante de chat (`MobileChatBubble.tsx`) com ícone de chat 💬 e indicador de mensagens não lidas, posicionado a `bottom: 124px; left: 12px;` acima das hotkeys.
+  - [x] Ao tocar na bolinha, abrir modal/painel de chat mobile (`MobileChatModal.tsx`) com abas (Local, World, Whispers), histórico rolável, input adaptado ao teclado virtual e botão de fechar (✕).
+- [x] **Onda 2: Remoção do Badge de Debug "RealMap OTBM · Entrada..."**
+  - [x] Remover o badge `🗺️ RealMap OTBM · Entrada: (32102, 32205, 8) · Sala: ...` do jogo (tanto no mobile quanto no desktop/browser).
+- [x] **Onda 3: Bestiário Compacto e Não Obstrutivo no Mobile**
+  - [x] Adaptar `BestiaryTrackerHUD.tsx` para telas móveis: escala reduzida (~195px), sprites de 26px, padding enxuto (4px 6px), lista com max-height 160px e inicialização minimizada por padrão em telas móveis para não obstruir a arena de combate.
+- [x] **Onda 4: Seletor de Caçadas em Lista Vertical com Scroll**
+  - [x] No `HuntSelector.tsx` / `globals.css`: no mobile (`@media (max-width: 768px)`), transformar a grade de caçadas em lista vertical única (`grid-template-columns: 1fr`), com cards de largura total, sem scroll horizontal, permitindo rolagem vertical natural e sem cortar textos ou monstros.
+  - [x] Corrigir fallbacks de imagem em cascata no `HuntSelector.tsx` (`/generated/bestiary/` -> `/generated/tibia1098/monster-*-thumb.png` -> `/generated/tibia1098/monster-*-south-frame-0.png` -> `/assets/monsters/` -> `/images/hunts/` -> fallback final rat).
+  - [x] Rastrear no git todos os sprites e ícones de Corym (`corym-vanguard`, `corym-skirmisher`, `corym-charlatan`) que estavam untracked, eliminando o erro de imagem quebrada no VPS.
+- [x] **Onda 5: Zoom de Câmera Reduzido no Mobile & Safe Area no Loading**
+  - [x] Ajustar o zoom padrão da câmera no mobile para 0.85x no `zoomManager.ts` com chave independente no localStorage (`tibia_camera_zoom_mobile`), proporcionando muito mais campo de visão e folga aos olhos do jogador, mantendo 1.25x no desktop.
+  - [x] No `ExuraLoadingScreen.tsx`, utilizar `100dvh`, `minHeight: -webkit-fill-available` e `paddingBottom: max(4.5rem, calc(2.5rem + env(safe-area-inset-bottom, 20px)))` para evitar corte do texto inferior ("SALVANDO PROGRESSO E...") pela barra do navegador móvel.
+- [x] **Onda 6: Testes Automatizados & Typecheck**
+  - [x] 8 novos testes em `tests/phase235-mobile-ui-polish.test.ts` cobrindo zoom manager, HUD do bestiário, fallback de imagens do HuntSelector e hotkey bar.
+  - [x] 100% de aprovação no Vitest e 0 erros no TypeScript (`npm run typecheck`).
+
+---
+
 # STATUS DA FASE 234: CONCLUÍDA COM SUCESSO (100% VALIDADA E TESTADA)
 
 ### Resumo das Entregas:

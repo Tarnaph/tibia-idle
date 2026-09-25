@@ -740,12 +740,21 @@ export function HuntSelector({
                           alt={hunt.name}
                           onError={(e) => {
                             const target = e.currentTarget;
-                            if (!target.dataset.triedFallback) {
+                            const stage = target.dataset.triedFallback || '0';
+                            if (stage === '0') {
                               target.dataset.triedFallback = '1';
                               target.src = `/generated/tibia1098/monster-${primaryMonster}-thumb.png`;
-                            } else if (target.dataset.triedFallback === '1') {
+                            } else if (stage === '1') {
                               target.dataset.triedFallback = '2';
+                              target.src = `/generated/tibia1098/monster-${primaryMonster}-south-frame-0.png`;
+                            } else if (stage === '2') {
+                              target.dataset.triedFallback = '3';
                               target.src = `/assets/monsters/${primaryMonster}.png`;
+                            } else if (stage === '3') {
+                              target.dataset.triedFallback = '4';
+                              target.src = `/images/hunts/hunt-${hunt.id}.png`;
+                            } else {
+                              target.src = '/generated/bestiary/rat.png';
                             }
                           }}
                         />
@@ -871,12 +880,18 @@ export function HuntSelector({
                             alt={displayName}
                             onError={(e) => {
                               const target = e.currentTarget;
-                              if (!target.dataset.triedFallback) {
+                              const stage = target.dataset.triedFallback || '0';
+                              if (stage === '0') {
                                 target.dataset.triedFallback = '1';
                                 target.src = `/generated/tibia1098/monster-${monsterId}-thumb.png`;
-                              } else if (target.dataset.triedFallback === '1') {
+                              } else if (stage === '1') {
                                 target.dataset.triedFallback = '2';
+                                target.src = `/generated/tibia1098/monster-${monsterId}-south-frame-0.png`;
+                              } else if (stage === '2') {
+                                target.dataset.triedFallback = '3';
                                 target.src = `/assets/monsters/${monsterId}.png`;
+                              } else {
+                                target.src = '/generated/bestiary/rat.png';
                               }
                             }}
                           />

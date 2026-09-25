@@ -80,6 +80,8 @@ import { MobileVirtualDPad, type MovementDirection } from './mobile/MobileVirtua
 import { MobileHotkeyBar } from './mobile/MobileHotkeyBar';
 import { MobileBottomNav, type MobileTab } from './mobile/MobileBottomNav';
 import { MobileMenuDrawer, type DrawerCategory } from './mobile/MobileMenuDrawer';
+import { MobileChatBubble } from './mobile/MobileChatBubble';
+import { MobileChatModal } from './mobile/MobileChatModal';
 import { SkillsWindow } from './SkillsWindow';
 import { AdvancedMetricsWindow, type HuntAnalyzerData } from './AdvancedMetricsWindow';
 import { HOTBAR_POTIONS, HOTBAR_RUNES, getActionSupplyCost } from '@/packages/domain/src/hotbarActions';
@@ -478,6 +480,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [overheadMessages, setOverheadMessages] = useState<CityOverheadMessage[]>([]);
   const chatWindowRef = useRef<ChatWindowHandle>(null);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const [unreadMobileChatCount, setUnreadMobileChatCount] = useState(0);
   const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
   const [isBlessingsModalOpen, setIsBlessingsModalOpen] = useState(false);
   const [isHighscoresModalOpen, setIsHighscoresModalOpen] = useState(false);
@@ -4895,7 +4899,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             }}
           />
         )}
-        {mode === 'hunt' && !showAuthModal && (
+        {mode === 'hunt' && !showAuthModal && !responsive.isMobile && (
           <div className="city-location-hud hunt-location-hud">
             <div className="city-hud-header">
               <span className="city-tag" style={{ background: '#3b1c1c', borderColor: '#7f1d1d', color: '#fca5a5' }}>
@@ -4911,11 +4915,6 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                   const curY = originY + (currentActor?.position.y ?? 25);
                   return `X: ${curX} · Y: ${curY} · Z: ${originZ}`;
                 })()}
-              </span>
-            </div>
-            <div className="city-hud-status">
-              <span className="city-idle-badge" style={{ background: 'rgba(20, 25, 36, 0.85)', borderColor: '#374151' }}>
-                🗺️ RealMap OTBM · Entrada: (32102, 32205, 8) · Sala: {encounter.room.definitionId}
               </span>
             </div>
           </div>
@@ -5025,60 +5024,81 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         </div>
       </DraggableWindow>
 
-      {/* Window 7: Fixed Bottom-Left Tibia 11 Chat Dock */}
-      <div
-        className={`fixed-chat-dock ${isChatMinimized ? 'is-minimized' : ''}`}
-        data-testid="fixed-chat-dock"
-      >
+      {/* Window 7: Fixed Bottom-Left Tibia 11 Chat Dock (Desktop only) */}
+      {!responsive.isMobile && (
         <div
-          className="window-header"
-          onClick={() => setIsChatMinimized((prev) => !prev)}
+          className={`fixed-chat-dock ${isChatMinimized ? 'is-minimized' : ''}`}
+          data-testid="fixed-chat-dock"
         >
-          <div className="window-title-group">
-            <span className="window-icon">💬</span>
-            <span className="window-title">Chat</span>
+          <div
+            className="window-header"
+            onClick={() => setIsChatMinimized((prev) => !prev)}
+          >
+            <div className="window-title-group">
+              <span className="window-icon">💬</span>
+              <span className="window-title">Chat</span>
+            </div>
+            <div className="window-controls">
+              <button
+                type="button"
+                className="window-btn minimize-btn"
+                title={isChatMinimized ? 'Expandir Chat' : 'Minimizar Chat'}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsChatMinimized((prev) => !prev);
+                }}
+              >
+                {isChatMinimized ? '▲' : '▼'}
+              </button>
+            </div>
           </div>
-          <div className="window-controls">
-            <button
-              type="button"
-              className="window-btn minimize-btn"
-              title={isChatMinimized ? 'Expandir Chat' : 'Minimizar Chat'}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsChatMinimized((prev) => !prev);
-              }}
-            >
-              {isChatMinimized ? '▲' : '▼'}
-            </button>
-          </div>
+
+          {!isChatMinimized && (
+            <div className="window-body fixed-chat-body">
+              <ChatWindow
+                ref={chatWindowRef}
+                messages={chatMessages}
+                onSendMessage={handleSendChatMessage}
+                characterName={activeCharacter.name}
+              />
+            </div>
+          )}
         </div>
+      )}
 
-        {!isChatMinimized && (
-          <div className="window-body fixed-chat-body">
-            <ChatWindow
-              ref={chatWindowRef}
-              messages={chatMessages}
-              onSendMessage={handleSendChatMessage}
-              characterName={activeCharacter.name}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Phase 234: Mobile Virtual D-Pad, Hotkeys, Dock Navigation & Menu Drawer */}
+      {/* Phase 234 & 235: Mobile Virtual D-Pad, Floating Chat Bubble & Modal, Hotkeys, Dock Navigation & Menu Drawer */}
       {responsive.isMobile && !showAuthModal && (
         <>
           <MobileVirtualDPad
             onMove={handleMobileDPadMove}
             disabled={mode === 'hunt' || isFollowingLeader}
           />
+          <MobileChatBubble
+            isOpen={isMobileChatOpen}
+            onToggle={() => {
+              setIsMobileChatOpen((prev) => {
+                if (!prev) setUnreadMobileChatCount(0);
+                return !prev;
+              });
+            }}
+            unreadCount={unreadMobileChatCount}
+          />
+          <MobileChatModal
+            isOpen={isMobileChatOpen}
+            onClose={() => {
+              setIsMobileChatOpen(false);
+              setUnreadMobileChatCount(0);
+            }}
+            messages={chatMessages}
+            onSendMessage={handleSendChatMessage}
+            characterName={activeCharacter.name}
+            chatWindowRef={chatWindowRef}
+          />
           <MobileHotkeyBar
             character={activeCharacter}
             spells={content.spells}
             onSlotClick={handleManualHotbarAction}
             onConfigureSlot={setHotbarConfigSlot}
-            onToggleChat={() => setIsChatMinimized((prev) => !prev)}
-            unreadChatCount={0}
           />
           <MobileBottomNav
             activeTab={mobileActiveTab}

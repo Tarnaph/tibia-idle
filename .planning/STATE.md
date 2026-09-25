@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-24T23:25:00.000Z"
-last_activity: "2026-09-24 — Conclusão da Phase 234 (Mobile Responsive Layout, Freeze Fix no Citizen e Gestão de Premium por Dias no ADMIN)."
+last_updated: "2026-09-25T14:30:00.000Z"
+last_activity: "2026-09-25 — Conclusão com sucesso da Phase 235 (Refinamento de UI/UX Mobile, Chat em Bolinha Flutuante, Bestiário Compacto, Remoção de Badges de Debug, Zoom de Câmera 0.85x e Seletor Vertical de Caçadas)."
 progress:
-  total_phases: 234
-  completed_phases: 234
-  total_plans: 318
-  completed_plans: 318
+  total_phases: 235
+  completed_phases: 235
+  total_plans: 319
+  completed_plans: 319
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Todas as fases da Roadmap V1.0 Concluídas.
+**Current focus:** Fase 235 Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 234 of 234  
-Plan: 1 of 1 in Phase 234  
+Phase: 235 of 235  
+Plan: 1 of 1 in Phase 235  
 Status: Complete ✅  
-Last activity: 2026-09-24 — Conclusão da Phase 234: Diagnóstico e Blindagem de Seleção de Outfit (GameErrorBoundary), Interface Mobile Responsiva (Retrato & Paisagem) e Gestão de Assinatura Premium por Dias no ADMIN.
+Last activity: 2026-09-25 — Phase 235: Refinamento de UI/UX Mobile com base nos testes em smartphone real na VPS.
 
 Progress: [██████████] 100%
 

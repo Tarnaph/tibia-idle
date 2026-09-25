@@ -4248,6 +4248,25 @@ Plans:
 
 - [x] 234-01-PLAN: Blindagem P0 do OutfitModal e GameErrorBoundary, suporte completo a Premium por Dias no banco e painel Admin, e suite de componentes da interface mobile responsiva com testes unitários.
 
+---
+
+### Phase 235: Refinamento de UI/UX Mobile (Chat em Bolinha Flutuante, Bestiário Compacto, Remoção de Badges de Debug, Zoom de Câmera e Seletor Vertical de Caçadas)
+
+**Goal:** Aperfeiçoar radicalmente a experiência do usuário móvel com base nos testes reais em smartphone:
+1. **Chat Mobile em Bolinha Flutuante:** Ocultação da barra desktop inferior de chat no mobile e substituição por botão circular flutuante (bolinha com ícone de chat e badge não lidas) posicionado acima das hotkeys. Ao tocar, abre drawer/modal limpo para leitura e envio de mensagens sem sobrepor os controles de jogo.
+2. **Remoção de Badges de Debug:** Eliminar permanentemente o badge `🗺️ RealMap OTBM · Entrada: (32102, 32205, 8) · Sala: ...` que poluía a tela em caçadas tanto no mobile quanto no desktop.
+3. **Bestiário Compacto no Mobile:** Redimensionar o `BestiaryTrackerHUD` em telas móveis (~190-210px), fontes menores e estado minimizado por padrão em caçadas para não bloquear a visão do mapa e combate.
+4. **Seletor de Caçadas em Lista Vertical:** Reformular o `.hunt-catalog-grid` no mobile para uma lista vertical única com scroll down suave (`overflow-y: auto`), com cards 100% de largura, sem scroll horizontal e sem textos cortados.
+5. **Zoom de Câmera & Safe Area:** Calibrar o zoom inicial da câmera móvel para ~0.85x para dar folga de visão ao jogador e atualizar o `ExuraLoadingScreen` para usar `100dvh` e padding inferior seguro com `env(safe-area-inset-bottom)` para não cortar o texto de progresso.
+
+**Requirements:** Diretriz GSD, tipagem estrita (0 erros), testes automatizados e deploy direto na VPS.
+**Depends on:** Phase 234
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 235-01-PLAN: Implementação do chat flutuante mobile, limpeza de badges de debug, redimensionamento do bestiário, grid vertical de caçadas, calibração de zoom e safe area no loading screen.
+
 
 
 

@@ -79,28 +79,29 @@ export function MobileBottomNav({
         );
       })}
 
-      {/* Floating Exit Hunt button when in combat, separate from normal actions */}
+      {/* Floating Exit Hunt button when in combat, separate from normal actions and placed safely above hotkeys */}
       {isHunting && onExitHunt && (
         <button
           type="button"
           onClick={onExitHunt}
           title="Encerrar caçada e retornar a Thais"
           style={{
-            position: 'absolute',
-            top: '-42px',
+            position: 'fixed',
+            bottom: '124px',
             right: '12px',
+            zIndex: 48,
             backgroundColor: '#991b1b',
-            border: '1px solid #ef4444',
+            border: '1.5px solid #ef4444',
             color: '#fff',
             borderRadius: '6px',
-            padding: '6px 12px',
+            padding: '8px 14px',
             fontSize: '11px',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.75)',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
+            gap: '6px',
           }}
         >
           🏃 Sair da Caçada

@@ -28,24 +28,34 @@ export function BestiaryTrackerHUD({
   onOpenCyclopedia,
 }: BestiaryTrackerHUDProps) {
   const [visibleAlert, setVisibleAlert] = useState<string | null>(null);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const [isMinimized, setIsMinimized] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      return true; // Default minimized on mobile so it doesn't block the screen
+    }
+    return false;
+  });
 
   // Position state with default at top-right corner
   const [pos, setPos] = useState<{ x: number; y: number }>(() => {
     if (typeof window !== 'undefined') {
+      const isMob = window.innerWidth <= 768;
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
           if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
             return {
-              x: Math.min(parsed.x, window.innerWidth - 100),
+              x: Math.min(parsed.x, window.innerWidth - (isMob ? 170 : 100)),
               y: Math.min(parsed.y, window.innerHeight - 80),
             };
           }
         }
       } catch {}
       // Default top-right position
+      if (isMob) {
+        return { x: Math.max(8, window.innerWidth - 195), y: 64 };
+      }
       return { x: Math.max(20, window.innerWidth - 275), y: 58 };
     }
     return { x: 1000, y: 58 };
@@ -128,7 +138,7 @@ export function BestiaryTrackerHUD({
         left: `${pos.x}px`,
         top: `${pos.y}px`,
         zIndex: 9999,
-        width: '255px',
+        width: isMobile ? (isMinimized ? 'auto' : '195px') : '255px',
         backgroundColor: '#1b1d20',
         backgroundImage: 'linear-gradient(180deg, #24282e 0%, #17191c 100%)',
         border: '2px solid #3c424d',
@@ -236,7 +246,7 @@ export function BestiaryTrackerHUD({
 
       {/* Body Content (if not minimized) */}
       {!isMinimized && (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? '160px' : '320px', overflowY: 'auto' }}>
           {effectiveMonsters.map((m, idx) => {
             const mId = m.id.toLowerCase();
             const currentKills = Math.max(0, killsById[mId] ?? (effectiveMonsters.length === 1 ? kills : 0));
@@ -249,9 +259,9 @@ export function BestiaryTrackerHUD({
               <div
                 key={m.id}
                 style={{
-                  padding: '7px 10px',
+                  padding: isMobile ? '4px 6px' : '7px 10px',
                   display: 'flex',
-                  gap: '10px',
+                  gap: isMobile ? '6px' : '10px',
                   alignItems: 'center',
                   borderTop: idx > 0 ? '1px solid #23272e' : 'none',
                   backgroundColor: idx % 2 === 1 ? 'rgba(0,0,0,0.12)' : 'transparent',
@@ -262,8 +272,8 @@ export function BestiaryTrackerHUD({
                   onClick={() => onOpenCyclopedia?.(m.id)}
                   title={`Abrir ${m.name} na Cyclopedia`}
                   style={{
-                    width: '38px',
-                    height: '38px',
+                    width: isMobile ? '26px' : '38px',
+                    height: isMobile ? '26px' : '38px',
                     backgroundColor: '#121416',
                     border: '1px solid #2d333b',
                     borderRadius: '3px',
@@ -278,8 +288,8 @@ export function BestiaryTrackerHUD({
                     src={m.spriteUrl}
                     alt={m.name}
                     style={{
-                      maxWidth: '34px',
-                      maxHeight: '34px',
+                      maxWidth: isMobile ? '22px' : '34px',
+                      maxHeight: isMobile ? '22px' : '34px',
                       imageRendering: 'pixelated',
                     }}
                     onError={(e) => {
@@ -312,7 +322,7 @@ export function BestiaryTrackerHUD({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
-                        maxWidth: '110px',
+                        maxWidth: isMobile ? '80px' : '110px',
                       }}
                       title={m.name}
                     >
@@ -326,7 +336,7 @@ export function BestiaryTrackerHUD({
                   {/* Progress Bar */}
                   <div
                     style={{
-                      height: '7px',
+                      height: isMobile ? '5px' : '7px',
                       backgroundColor: '#101214',
                       borderRadius: '2px',
                       border: '1px solid #2d3239',
