@@ -9441,21 +9441,30 @@ h1, h2, h3, p { margin: 0; }
   justify-content: center;
 }
 
+/* ==========================================================================
+   PHASE 238: REDESIGN DO SELETOR DE CAÇADAS (TIBIAWEB COMPACT DESKTOP)
+   Grade de 4 colunas verticais compactas (~92px de altura), proporções elegantes
+   (840px x 540px), cabeçalhos condensados, zero scroll horizontal, tipografia
+   medieval dourada e scrollbar vertical fluida.
+   ========================================================================== */
+
 .hunt-frame-container {
-  width: 900px;
-  max-width: 96vw;
-  height: 640px;
-  max-height: 94vh;
-  background: #1e2022;
-  border: 2px solid #4a4d52;
-  border-radius: 4px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  width: min(840px, 94vw);
+  max-width: 840px;
+  height: min(540px, 86vh);
+  max-height: 560px;
+  background: #13161c;
+  background-image: radial-gradient(ellipse at 50% 0%, #1c222e 0%, #111318 100%);
+  border: 1.5px solid #2e3547;
+  border-radius: 6px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 20px rgba(202, 138, 4, 0.12);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden !important;
   user-select: none;
   font-family: Verdana, Arial, sans-serif;
   color: #cbd5e1;
+  position: relative;
 }
 
 /* Window Title Bar */
@@ -9463,97 +9472,105 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  background: #18191b;
-  border-bottom: 1px solid #33363a;
+  padding: 8px 14px;
+  background: #0e1015;
+  border-bottom: 1px solid #242936;
+  height: 40px;
+  box-sizing: border-box;
 }
 
 .hunt-window-title {
-  font-family: Georgia, serif;
-  font-size: 18px;
+  font-family: Georgia, 'Cinzel', serif;
+  font-size: 15px;
   font-weight: 700;
   color: #f3c769;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.8px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
 }
 
 .hunt-window-close-btn {
-  background: transparent;
-  border: none;
-  color: #8b8e93;
-  width: 24px;
-  height: 24px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  width: 26px;
+  height: 26px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 15px;
+  font-weight: 700;
   line-height: 1;
   transition: all 0.15s ease;
 }
 
 .hunt-window-close-btn:hover {
-  background: #283349;
-  border-color: #4a5b7d;
-  color: #ffffff;
+  background: rgba(239, 68, 68, 0.35);
+  border-color: #ef4444;
+  color: #fee2e2;
+  transform: scale(1.05);
 }
 
 /* 5 Top Activity Tabs */
 .hunt-top-nav-tabs {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
-  padding: 10px 14px 6px 14px;
-  background: #18191b;
-  border-bottom: 1px solid #33363a;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #111319;
+  border-bottom: 1px solid #1f2533;
+  box-sizing: border-box;
 }
 
 .hunt-top-nav-tab {
-  background: #151618;
-  border: 1px solid #282a2e;
+  background: #161922;
+  border: 1px solid #283042;
   border-radius: 4px;
-  color: #9ca3af;
-  font-size: 12px;
+  color: #8b9bb4;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.8px;
-  padding: 7px 4px;
+  letter-spacing: 0.6px;
+  padding: 6px 4px;
   cursor: pointer;
   text-align: center;
   transition: all 0.15s ease;
 }
 
 .hunt-top-nav-tab:hover {
-  background: #25272a;
-  border-color: #3c4046;
-  color: #cbd5e1;
+  background: #1e2433;
+  border-color: #3b4761;
+  color: #e2e8f0;
 }
 
 .hunt-top-nav-tab.active {
-  background: #2d3035;
-  border: 1px solid #4f535a;
-  color: #f3c769;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, #2b2512 0%, #19160c 100%);
+  border: 1px solid #ca8a04;
+  color: #facc15;
+  box-shadow: inset 0 1px 0 rgba(250, 204, 21, 0.2), 0 0 8px rgba(202, 138, 4, 0.25);
 }
 
 /* Subheader bar */
 .hunt-subheader-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 14px;
-  background: #151618;
-  border-bottom: 1px solid #2d3035;
+  gap: 10px;
+  padding: 6px 14px;
+  background: #0d0f14;
+  border-bottom: 1px solid #1b202c;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow-x: hidden !important;
 }
 
 .hunt-sub-btn {
   background: transparent;
   border: none;
   color: #8b9bb4;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 4px;
   transition: all 0.15s ease;
   display: inline-flex;
@@ -9562,25 +9579,26 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-sub-btn:hover {
-  color: #cbd5e1;
-  background: #1b2130;
+  color: #e2e8f0;
+  background: #1a202d;
 }
 
 .hunt-sub-btn.active-favorite {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .hunt-pill-btn {
-  background: #27292c;
-  border: 1.5px solid #4a4d52;
-  color: #f3c769;
-  font-size: 12px;
+  background: #1d2331;
+  border: 1px solid #364259;
+  color: #f1f5f9;
+  font-size: 11px;
   font-weight: 700;
-  padding: 4px 14px;
-  border-radius: 5px;
+  padding: 3px 12px;
+  border-radius: 4px;
   cursor: default;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* Search Bar */
@@ -9588,20 +9606,22 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: #161719;
-  border-bottom: 1px solid #2a2c30;
+  padding: 6px 14px;
+  background: #10131a;
+  border-bottom: 1px solid #1d222e;
+  box-sizing: border-box;
 }
 
 .hunt-search-input-box {
   display: flex;
   align-items: center;
-  background: #121315;
-  border: 1px solid #33363a;
-  border-radius: 5px;
-  padding: 5px 10px;
-  width: 320px;
+  background: #0a0c11;
+  border: 1px solid #232b3a;
+  border-radius: 4px;
+  padding: 4px 8px;
+  width: 250px;
   max-width: 60%;
+  box-sizing: border-box;
 }
 
 .hunt-search-input-box input {
@@ -9609,59 +9629,80 @@ h1, h2, h3, p { margin: 0; }
   border: none;
   outline: none;
   color: #f1f5f9;
-  font-size: 12.5px;
+  font-size: 11.5px;
   margin-left: 6px;
   width: 100%;
 }
 
 .hunt-search-counter {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
   font-weight: 600;
 }
 
-/* Screen 1: 4-Column Card Grid */
+/* Screen 1: 4-Column Card Grid (Downwards Scrolling) */
 .hunt-catalog-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  padding: 12px 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px 14px;
   overflow-y: auto;
+  overflow-x: hidden !important;
   flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.hunt-catalog-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.hunt-catalog-grid::-webkit-scrollbar-track {
+  background: #0d0f14;
+}
+.hunt-catalog-grid::-webkit-scrollbar-thumb {
+  background: #252d3d;
+  border-radius: 3px;
+}
+.hunt-catalog-grid::-webkit-scrollbar-thumb:hover {
+  background: #ca8a04;
 }
 
 .hunt-catalog-card {
-  background: #161719;
-  border: 1.5px solid #2a2c30;
-  border-radius: 6px;
-  padding: 10px;
+  background: linear-gradient(180deg, #171b25 0%, #11141d 100%);
+  border: 1px solid #273042;
+  border-radius: 5px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
   transition: all 0.15s ease;
   position: relative;
-  min-height: 120px;
+  min-height: 88px;
+  max-height: 102px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .hunt-catalog-card:hover {
-  background: #1f2124;
-  border-color: #f3c769;
+  background: linear-gradient(180deg, #1f2533 0%, #141822 100%);
+  border-color: #ca8a04;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 4px 14px rgba(202, 138, 4, 0.22);
 }
 
 .hunt-card-top {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .hunt-card-sprite-box {
-  width: 48px;
-  height: 48px;
-  background: #111214;
-  border: 1px solid #282a2e;
+  width: 38px;
+  height: 38px;
+  background: #0b0d13;
+  border: 1px solid #202738;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -9671,8 +9712,8 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-card-sprite-box img {
-  max-width: 42px;
-  max-height: 42px;
+  max-width: 32px;
+  max-height: 32px;
   object-fit: contain;
   image-rendering: pixelated;
 }
@@ -9680,10 +9721,11 @@ h1, h2, h3, p { margin: 0; }
 .hunt-card-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .hunt-card-title {
-  font-size: 13.5px;
+  font-size: 12px;
   font-weight: 700;
   color: #f1f5f9;
   white-space: nowrap;
@@ -9692,10 +9734,14 @@ h1, h2, h3, p { margin: 0; }
   line-height: 1.25;
 }
 
+.hunt-catalog-card:hover .hunt-card-title {
+  color: #fde047;
+}
+
 .hunt-card-creatures {
-  font-size: 11px;
-  color: #7b8ca5;
-  margin-top: 3px;
+  font-size: 10px;
+  color: #7f8fa6;
+  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9705,12 +9751,13 @@ h1, h2, h3, p { margin: 0; }
 .hunt-star-btn {
   background: transparent;
   border: none;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
-  padding: 0 2px;
+  padding: 2px;
   line-height: 1;
-  color: #4a5871;
+  color: #43526e;
   transition: color 0.15s ease;
+  flex-shrink: 0;
 }
 
 .hunt-star-btn:hover {
@@ -9723,26 +9770,35 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-card-bottom {
-  border-top: 1px solid #202838;
-  margin-top: 8px;
-  padding-top: 6px;
-  font-size: 10.5px;
+  border-top: 1px solid #1c2230;
+  margin-top: 5px;
+  padding-top: 4px;
+  font-size: 9.5px;
+  overflow: hidden;
 }
 
 .hunt-card-stat-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr;
+  gap: 2px;
+  align-items: center;
   line-height: 1.35;
 }
 
 .hunt-card-stat-label {
   color: #64748b;
   font-weight: 700;
+  font-size: 9px;
+  text-transform: uppercase;
 }
 
 .hunt-card-stat-val {
   color: #94a3b8;
   font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hunt-card-stat-val.negative {
@@ -9750,9 +9806,10 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-card-no-record {
-  color: #4b5a71;
+  color: #4b586e;
   font-style: italic;
-  font-size: 10.5px;
+  font-size: 9.5px;
+  padding: 1px 0;
 }
 
 /* Screen 2: Setup View */
@@ -9760,62 +9817,64 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 12px 16px;
+  padding: 10px 14px;
   overflow: hidden;
+  min-height: 0;
 }
 
 .hunt-setup-banner {
-  background: #161719;
-  border: 1.5px solid #2a2c30;
-  border-radius: 6px;
-  padding: 12px 16px;
+  background: #13161f;
+  border: 1px solid #232b3a;
+  border-radius: 5px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .hunt-setup-banner-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  color: #ffffff;
+  color: #f3c769;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: Georgia, 'Cinzel', serif;
 }
 
 .hunt-setup-banner-desc {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #8b9bb4;
-  margin-top: 4px;
-  max-width: 560px;
-  line-height: 1.35;
+  margin-top: 2px;
+  max-width: 500px;
+  line-height: 1.3;
 }
 
 .hunt-setup-record-box {
-  background: #0d1018;
-  border: 1.5px solid #242d40;
-  border-radius: 5px;
-  padding: 7px 12px;
-  min-width: 220px;
+  background: #0b0d13;
+  border: 1px solid #1f2738;
+  border-radius: 4px;
+  padding: 5px 10px;
+  min-width: 180px;
 }
 
 .hunt-setup-record-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   color: #64748b;
   letter-spacing: 0.3px;
 }
 
 .hunt-setup-record-body {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #cbd5e1;
-  margin-top: 3px;
+  margin-top: 2px;
   display: flex;
-  gap: 16px;
+  gap: 12px;
   font-weight: 600;
 }
 
@@ -9823,82 +9882,92 @@ h1, h2, h3, p { margin: 0; }
 .hunt-setup-grid-body {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
   min-height: 0;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .hunt-setup-col {
-  background: #161719;
-  border: 1.5px solid #2a2c30;
-  border-radius: 6px;
-  padding: 12px 14px;
+  background: #13161f;
+  border: 1px solid #232b3a;
+  border-radius: 5px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
 .hunt-setup-section-title {
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 700;
-  color: #cbd5e1;
-  margin-bottom: 8px;
+  color: #f1f5f9;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
 }
 
 .hunt-pull-size-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .hunt-pull-size-tab {
-  background: #151618;
-  border: 1.5px solid #2a2c30;
+  background: #161922;
+  border: 1px solid #283042;
   border-radius: 4px;
-  padding: 7px 4px;
+  padding: 5px 4px;
   text-align: center;
   color: #9ca3af;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   transition: all 0.15s ease;
 }
 
 .hunt-pull-size-tab:hover {
-  background: #25272a;
-  border-color: #3c4046;
+  background: #1e2433;
+  border-color: #3b4761;
   color: #cbd5e1;
 }
 
 .hunt-pull-size-tab.active {
-  background: #2d3035;
-  border: 1.5px solid #4f535a;
-  color: #f3c769;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, #2b2512 0%, #19160c 100%);
+  border: 1px solid #ca8a04;
+  color: #facc15;
+  box-shadow: inset 0 1px 0 rgba(250, 204, 21, 0.15);
 }
 
 .hunt-pull-creatures-list {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
   overflow-y: auto;
-  padding-top: 4px;
+  padding-top: 2px;
+  flex: 1;
+}
+
+.hunt-pull-creatures-list::-webkit-scrollbar {
+  width: 5px;
+}
+.hunt-pull-creatures-list::-webkit-scrollbar-thumb {
+  background: #252d3d;
+  border-radius: 3px;
 }
 
 .hunt-pull-creature-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .hunt-pull-creature-sprite-box {
-  width: 58px;
-  height: 58px;
-  background: #0a0d14;
-  border: 1px solid #232c3f;
+  width: 46px;
+  height: 46px;
+  background: #0a0c11;
+  border: 1px solid #1f2738;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -9906,16 +9975,16 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-pull-creature-sprite-box img {
-  max-width: 50px;
-  max-height: 50px;
+  max-width: 38px;
+  max-height: 38px;
   object-fit: contain;
   image-rendering: pixelated;
 }
 
 .hunt-details-btn {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
-  padding: 2px 6px;
+  padding: 1px 5px;
   background: #151a27;
   border: 1px solid #2a354c;
   color: #8b9bb4;
@@ -9933,11 +10002,11 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-pull-creature-name {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #cbd5e1;
   text-align: center;
-  max-width: 76px;
+  max-width: 68px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -9948,210 +10017,15 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #202738;
-  margin-bottom: 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #1c2230;
+  margin-bottom: 5px;
 }
 
 .hunt-loot-header-actions {
-  display: flex;
-  gap: 14px;
-  font-size: 9.5px;
-  font-weight: 800;
-  color: #64748b;
-  letter-spacing: 0.5px;
-}
-
-.hunt-loot-scroll-list {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.hunt-loot-item-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 4px;
-  border-bottom: 1px solid #1a202d;
-}
-
-.hunt-loot-item-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-}
-
-.hunt-loot-item-sprite-box {
-  width: 28px;
-  height: 28px;
-  background: #0a0d14;
-  border: 1px solid #1f2738;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.hunt-loot-item-sprite-box img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-.hunt-loot-item-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: #e2e8f0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.hunt-loot-rarity {
-  font-size: 10.5px;
-  margin-right: 14px;
-}
-
-.hunt-loot-rarity.comum {
-  color: #8b9bb4;
-}
-
-.hunt-loot-rarity.incomum {
-  color: #38bdf8;
-}
-
-.hunt-loot-rarity.raro {
-  color: #c084fc;
-}
-
-.hunt-loot-rarity.muito-raro {
-  color: #facc15;
-}
-
-.hunt-loot-item-actions {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  justify-content: flex-end;
-  width: 76px;
-  flex-shrink: 0;
-}
-
-.hunt-loot-checkbox {
-  width: 15px;
-  height: 15px;
-  accent-color: #3b82f6;
-  cursor: pointer;
-}
-
-/* Setup Footer */
-.hunt-setup-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 10px;
-  border-top: 1px solid #202738;
-}
-
-.hunt-setup-footer-btn {
-  background: #151925;
-  border: 1.5px solid #263146;
-  border-radius: 4px;
-  color: #cbd5e1;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 14px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  background: linear-gradient(180deg, #1a253c 0%, #0f1626 100%);
-  border: 1.5px solid #3b82f6;
-  color: #60a5fa;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-}
-
-.hunt-pull-creatures-list {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
-  overflow-y: auto;
-  padding-top: 4px;
-}
-
-.hunt-pull-creature-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.hunt-pull-creature-sprite-box {
-  width: 58px;
-  height: 58px;
-  background: #0a0d14;
-  border: 1px solid #232c3f;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hunt-pull-creature-sprite-box img {
-  max-width: 50px;
-  max-height: 50px;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-.hunt-details-btn {
   font-size: 9px;
-  font-weight: 700;
-  padding: 2px 6px;
-  background: #151a27;
-  border: 1px solid #2a354c;
-  color: #8b9bb4;
-  border-radius: 3px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  transition: all 0.15s ease;
-}
-
-.hunt-details-btn:hover {
-  background: #1e283d;
-  border-color: #3b82f6;
-  color: #60a5fa;
-}
-
-.hunt-pull-creature-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: #cbd5e1;
-  text-align: center;
-  max-width: 76px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Loot Table */
-.hunt-loot-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #202738;
-  margin-bottom: 6px;
-}
-
-.hunt-loot-header-actions {
-  display: flex;
-  gap: 14px;
-  font-size: 9.5px;
   font-weight: 800;
   color: #64748b;
   letter-spacing: 0.5px;
@@ -10160,30 +10034,39 @@ h1, h2, h3, p { margin: 0; }
 .hunt-loot-scroll-list {
   flex: 1;
   overflow-y: auto;
-  padding-right: 4px;
+  overflow-x: hidden !important;
+  padding-right: 2px;
+}
+
+.hunt-loot-scroll-list::-webkit-scrollbar {
+  width: 5px;
+}
+.hunt-loot-scroll-list::-webkit-scrollbar-thumb {
+  background: #252d3d;
+  border-radius: 3px;
 }
 
 .hunt-loot-item-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 4px;
-  border-bottom: 1px solid #1a202d;
+  padding: 3px 2px;
+  border-bottom: 1px solid #161b24;
 }
 
 .hunt-loot-item-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   min-width: 0;
 }
 
 .hunt-loot-item-sprite-box {
-  width: 28px;
-  height: 28px;
-  background: #0a0d14;
-  border: 1px solid #1f2738;
+  width: 24px;
+  height: 24px;
+  background: #090b10;
+  border: 1px solid #1a202c;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -10192,14 +10075,14 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-loot-item-sprite-box img {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
   image-rendering: pixelated;
 }
 
 .hunt-loot-item-name {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: #e2e8f0;
   white-space: nowrap;
@@ -10208,39 +10091,28 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .hunt-loot-rarity {
-  font-size: 10.5px;
-  margin-right: 14px;
+  font-size: 9.5px;
+  margin-right: 10px;
 }
 
-.hunt-loot-rarity.comum {
-  color: #8b9bb4;
-}
-
-.hunt-loot-rarity.incomum {
-  color: #38bdf8;
-}
-
-.hunt-loot-rarity.raro {
-  color: #c084fc;
-}
-
-.hunt-loot-rarity.muito-raro {
-  color: #facc15;
-}
+.hunt-loot-rarity.comum { color: #8b9bb4; }
+.hunt-loot-rarity.incomum { color: #38bdf8; }
+.hunt-loot-rarity.raro { color: #c084fc; }
+.hunt-loot-rarity.muito-raro { color: #facc15; }
 
 .hunt-loot-item-actions {
   display: flex;
-  gap: 24px;
+  gap: 18px;
   align-items: center;
   justify-content: flex-end;
-  width: 76px;
+  width: 64px;
   flex-shrink: 0;
 }
 
 .hunt-loot-checkbox {
-  width: 15px;
-  height: 15px;
-  accent-color: #3b82f6;
+  width: 14px;
+  height: 14px;
+  accent-color: #eab308;
   cursor: pointer;
 }
 
@@ -10249,45 +10121,39 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 10px;
-  border-top: 1px solid #202738;
+  padding-top: 8px;
+  border-top: 1px solid #1c2230;
 }
 
 .hunt-setup-footer-btn {
-  background: #27292c;
-  border: 1.5px solid #4a4d52;
+  background: #151922;
+  border: 1px solid #293244;
   border-radius: 4px;
-  color: #e2e8f0;
-  font-size: 12px;
+  color: #94a3b8;
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 5px 12px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .hunt-setup-footer-btn:hover {
-  background: #33363a;
-  border-color: #f3c769;
-  color: #f3c769;
-}
-
-.hunt-setup-footer-btn:hover {
-  background: #1c2333;
-  border-color: #3b4c6c;
-  color: #ffffff;
+  background: #1d2433;
+  border-color: #3b4761;
+  color: #e2e8f0;
 }
 
 .hunt-start-hunt-btn {
   background: linear-gradient(180deg, #eab308 0%, #ca8a04 100%);
   border: 1px solid #facc15;
   border-radius: 4px;
-  color: #18191b;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 7px 22px;
+  color: #111317;
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 6px 20px;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(234, 179, 8, 0.35);
-  font-family: Georgia, serif;
+  font-family: Georgia, 'Cinzel', serif;
   text-shadow: none;
   transition: all 0.15s ease;
 }

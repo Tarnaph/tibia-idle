@@ -51,3 +51,9 @@
 - [x] **Item 9: Refinamento de Loading e Bestiário no Mobile**
   - [x] Safe-area padding no rodapé da tela de loading para não cortar "SALVANDO PROGRESSO".
   - [x] Bestiário flutuante com contenção no mobile e safe-area padding.
+
+- [x] **Item 10: Seletor de Caçadas Web Desktop (`HuntSelector.tsx` & `globals.css`)**
+  - [x] Layout vertical em 4 colunas compactas com rolagem vertical suave (sem scroll horizontal).
+  - [x] Janela contida em proporções ideais (`min(840px, 94vw)` e `min(540px, 86vh)`).
+  - [x] Micro-grid de 3 colunas para status Solo/Party sem transbordamento (`28px 1fr 1fr`).
+  - [x] Identidade visual autêntica TibiaWeb / Cavebound (ardósia medieval, abas douradas/âmbar e tipografia Cinzel).

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-25T16:30:00.000Z"
-last_activity: "2026-09-25 — Phase 237 Concluída: Resolução Definitiva dos Modais e Menus Mobile do FIX.md."
+last_updated: "2026-09-25T17:48:00.000Z"
+last_activity: "2026-09-25 — Concluída Phase 238: Redesign do Seletor de Caçadas Web (Layout Vertical Compacto, Identidade TibiaWeb, Zero Scroll Horizontal e Otimização de Espaço)."
 progress:
-  total_phases: 237
-  completed_phases: 237
-  total_plans: 321
-  completed_plans: 321
+  total_phases: 238
+  completed_phases: 238
+  total_plans: 322
+  completed_plans: 322
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Todas as fases do Roadmap e itens do FIX.md concluídos com sucesso.
+**Current focus:** Fase 238 Concluída com sucesso (Redesign do Seletor de Caçadas Web Desktop em 4 colunas compactas com identidade TibiaWeb).
 
 ## Current Position
 
-Phase: 237 of 237  
-Plan: 1 of 1 in Phase 237  
+Phase: 238 of 238  
+Plan: 1 of 1 in Phase 238  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 237: 100% dos modais e janelas mobile corrigidos, sem scroll lateral e com botões 38x38px.
+Last activity: 2026-09-25 — Phase 238: Redesign do seletor de caçadas desktop com grade de 4 colunas verticais, cards compactos e ausência de scroll horizontal concluída e validada.
 
 Progress: [██████████] 100%
 

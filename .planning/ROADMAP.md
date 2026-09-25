@@ -4268,6 +4268,14 @@ Plans:
 
 - [x] 237-01-PLAN: Implementar a resolução integral dos 8 itens do FIX.md com design responsivo, ausência de scroll horizontal, botões de fechar ergonômicos e validação contínua.
 
+---
+
+- [x] **Phase 238: Redesign do Seletor de Caçadas Web (Layout Vertical Compacto, Identidade TibiaWeb, Zero Scroll Horizontal e Otimização de Espaço)** - Redesign da janela de caçadas no desktop web com proporções elegantes (840x560px), 4 colunas compactas, cards densos com thumbnail, nome, monstros e recordes sem transbordamento, rolagem vertical fluida, eliminação de scroll lateral e identidade visual clássica Tibia medieval.
+
+Plans:
+
+- [x] 238-01-PLAN: Implementar a reestruturação e estilização do HuntSelector na versão web desktop com grade vertical de 4 colunas compactas, visual temático medieval/ouro, barras condensadas e validação automatizada.
+
 
 
 

@@ -37,15 +37,18 @@ interface StatRecord {
 }
 
 const HUNT_STATS_MAP: Record<string, StatRecord> = {
-  'rat-cellars': { soloXp: '4.8K XP/h', soloGp: '3.2K gp/h', partyXp: '9.2K XP/h', partyGp: '-2.2K gp/h' },
+  'rat-cellars': { soloXp: '2.0K XP/h', soloGp: '1.3K gp/h', partyXp: '9.1K XP/h', partyGp: '-15K gp/h' },
+  'spider-burrow': { soloXp: '7.6K XP/h', soloGp: '1.3K gp/h' },
   'troll-camp': { soloXp: '9.7K XP/h', soloGp: '5.1K gp/h' },
+  'old-crypt': { soloXp: '14.2K XP/h', soloGp: '4.8K gp/h' },
+  'rotworm-cave': { soloXp: '37.2K XP/h', soloGp: '8.4K gp/h' },
   'cyclops-camp': { soloXp: '18.5K XP/h', soloGp: '7.8K gp/h' },
   'elf-sanctuary': { soloXp: '24.0K XP/h', soloGp: '11.2K gp/h' },
-  'dragon-lair': { soloXp: '65.0K XP/h', soloGp: '18.0K gp/h' },
+  'dragon-lair': { soloXp: '65.0K XP/h', soloGp: '18.0K gp/h', partyXp: '120.0K XP/h', partyGp: '32.0K gp/h' },
   'corym-mine': { soloXp: '35.0K XP/h', soloGp: '14.5K gp/h' },
   'giant-spider-lair': { soloXp: '48.0K XP/h', soloGp: '16.2K gp/h' },
-  'hero-cave': { soloXp: '85.0K XP/h', soloGp: '22.0K gp/h' },
-  'hydra-lair': { soloXp: '110.0K XP/h', soloGp: '28.0K gp/h' },
+  'hero-cave': { soloXp: '85.0K XP/h', soloGp: '22.0K gp/h', partyXp: '160.0K XP/h', partyGp: '45.0K gp/h' },
+  'hydra-lair': { soloXp: '110.0K XP/h', soloGp: '28.0K gp/h', partyXp: '210.0K XP/h', partyGp: '55.0K gp/h' },
 };
 
 export interface QuestItem {
@@ -704,7 +707,7 @@ export function HuntSelector({
                 <span style={{ color: '#64748b', fontSize: '13px' }}>🔍</span>
                 <input
                   type="text"
-                  placeholder="Buscar uma caçada ou criatura"
+                  placeholder="Buscar caçadas..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
