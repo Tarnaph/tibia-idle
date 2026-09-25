@@ -70,6 +70,18 @@ describe('Phase 185 - Hunt Music by Suffix, Character Selection Video & Dynamic 
       huntId: 'city',
       title: 'Thais Theme',
     },
+    {
+      file: 'Hammer Below - Cyclops.mp3',
+      kebab: 'hammer-below-cyclops.mp3',
+      huntId: 'cyclops-camp',
+      title: 'Hammer Below',
+    },
+    {
+      file: 'Whispers Among the Leaves - Elfs.mp3',
+      kebab: 'whispers-among-the-leaves-elfs.mp3',
+      huntId: 'elf-sanctuary',
+      title: 'Whispers Among the Leaves',
+    },
   ];
 
   it('verifies all 7 audio files and video exist in songs/ and public/', () => {

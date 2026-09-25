@@ -42,6 +42,10 @@ const HUNT_STATS_MAP: Record<string, StatRecord> = {
   'cyclops-camp': { soloXp: '18.5K XP/h', soloGp: '7.8K gp/h' },
   'elf-sanctuary': { soloXp: '24.0K XP/h', soloGp: '11.2K gp/h' },
   'dragon-lair': { soloXp: '65.0K XP/h', soloGp: '18.0K gp/h' },
+  'corym-mine': { soloXp: '35.0K XP/h', soloGp: '14.5K gp/h' },
+  'giant-spider-lair': { soloXp: '48.0K XP/h', soloGp: '16.2K gp/h' },
+  'hero-cave': { soloXp: '85.0K XP/h', soloGp: '22.0K gp/h' },
+  'hydra-lair': { soloXp: '110.0K XP/h', soloGp: '28.0K gp/h' },
 };
 
 export interface QuestItem {

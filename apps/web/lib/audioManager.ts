@@ -81,18 +81,18 @@ export const SPIDERS_THEME_TRACK: MusicTrackInfo & { url: string } = {
 
 export const CYCLOPS_THEME_TRACK: MusicTrackInfo & { url: string } = {
   id: 'cyclops-camp',
-  title: 'Giants of the Stone',
+  title: 'Hammer Below',
   subtitle: 'Cyclops Camp',
   location: 'Planalto dos Ciclopes',
-  url: '/songs/drums-under-stone-trolls.mp3',
+  url: '/songs/hammer-below-cyclops.mp3',
 };
 
 export const ELFS_THEME_TRACK: MusicTrackInfo & { url: string } = {
   id: 'elf-sanctuary',
-  title: 'Whispering Leaves',
+  title: 'Whispers Among the Leaves',
   subtitle: 'Elf Sanctuary',
   location: 'Santuário dos Elfos',
-  url: '/songs/sunset-in-the-village.mp3',
+  url: '/songs/whispers-among-the-leaves-elfs.mp3',
 };
 
 export const HUNT_MUSIC_TRACKS: Record<string, MusicTrackInfo & { url: string }> = {

@@ -18,6 +18,8 @@ const filesToUpload = [
   { local: 'songs/Threads in the Dark - Spiders.mp3', remote: '/root/tibia-idle/public/songs/threads-in-the-dark-spiders.mp3' },
   { local: 'songs/Dragons pride.mp3', remote: '/root/tibia-idle/public/songs/dragons-pride.mp3' },
   { local: 'songs/Sunset in the Village.mp3', remote: '/root/tibia-idle/public/songs/sunset-in-the-village.mp3' },
+  { local: 'songs/Hammer Below - Cyclops.mp3', remote: '/root/tibia-idle/public/songs/hammer-below-cyclops.mp3' },
+  { local: 'songs/Whispers Among the Leaves - Elfs.mp3', remote: '/root/tibia-idle/public/songs/whispers-among-the-leaves-elfs.mp3' },
   // 2. Video
   { local: 'songs/songtibia.webm', remote: '/root/tibia-idle/public/songtibia.webm' },
 ];

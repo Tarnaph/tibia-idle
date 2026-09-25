@@ -23,6 +23,10 @@ export const HUNT_MONSTER_MAPPING: Record<string, string[]> = {
   'cyclops-camp': ['cyclops', 'cyclops-smith'],
   'elf-sanctuary': ['elf', 'elf-scout', 'elf-arcanist'],
   'dragon-lair': ['dragon', 'dragon-lord'],
+  'corym-mine': ['corym-vanguard', 'corym-skirmisher', 'corym-charlatan'],
+  'giant-spider-lair': ['giant-spider', 'tarantula'],
+  'hero-cave': ['hero', 'renegade-knight', 'vicious-squire'],
+  'hydra-lair': ['hydra', 'bog-raider'],
   'pvp-arena': ['Knight', 'Paladin', 'Sorcerer', 'Druid'],
 };
 

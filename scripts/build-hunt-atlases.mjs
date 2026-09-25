@@ -11,6 +11,10 @@ const initialHunts = [
   { id: 'cyclops-camp', monsters: ['cyclops', 'cyclops-smith'] },
   { id: 'elf-sanctuary', monsters: ['elf', 'elf-scout', 'elf-arcanist'] },
   { id: 'dragon-lair', monsters: ['dragon', 'dragon-lord'] },
+  { id: 'corym-mine', monsters: ['corym-vanguard', 'corym-skirmisher', 'corym-charlatan'] },
+  { id: 'giant-spider-lair', monsters: ['giant-spider', 'tarantula'] },
+  { id: 'hero-cave', monsters: ['hero', 'renegade-knight', 'vicious-squire'] },
+  { id: 'hydra-lair', monsters: ['hydra', 'bog-raider'] },
 ];
 
 async function buildHuntAtlases() {

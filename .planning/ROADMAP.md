@@ -161,7 +161,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 228: Fortaleza dos Elfos (Shadowthorn) Canônica, Texture Atlas Completo e Blindagem de Movimento** - Extração das coordenadas canônicas da fortaleza de Shadowthorn [33089, 32155, 7] no RealMap 11 (776 tiles caminháveis e 6 spawn positions circulares), empacotamento integral de 257 itens de mapa no atlas hunt-elf-sanctuary-atlas (1.08 MB com 6.404 aliases), eliminação do gargalo de 2.500 requisições HTTP individuais no PixiArena e fim definitivo da caminhada em falso ao renascer no templo após a morte.
 - [x] **Phase 229: Restauração Canônica dos Elfos de Yalahar e Texture Atlas Completo** - Restauração das coordenadas originais dos Elfos no Foreigner Quarter de Yalahar [32741, 31298, 7] no RealMap 11 (626 tiles caminháveis e 6 spawn positions), empacotamento integral de 374 itens de mapa de Yalahar no atlas hunt-elf-sanctuary-atlas (1.13 MB com 5.360 aliases), eliminação de gargalos HTTP e renderização imediata do pátio e construções no PixiArena.
 - [x] **Phase 230: Camadas Canônicas de Chão, Ocultação de Telhados e Alinhamento de Paliçadas/Bordas no PixiArena** - Identificação de todo piso base por `tile.groundServerId` com `zIndex: 0`, isolamento de bordas de transição em `zIndex: 1`, ocultação de telhados em Z:7 revelando o interior de casas e tavernas, e alinhamento de paliçadas 64x64 sem vazios ou sobreposições.
-
+- [x] **Phase 231: Trilhas Sonoras (Cyclops & Elfs) e 4 Novas Caçadas RealMap 11 (Coryms, Giant Spider, Hero e Hydra)** - Vinculação das músicas aos temas de caçada, importação de coordenadas OTBM reais, balanceamento de pulls de dificuldade 1/2/3, thumbnails canônicos de criaturas e geração de Texture Atlases.
+- [ ] **Phase 232: Matriz de Permissões de Outfits, Addons e Montarias (Free, Premium, Loja, GM/GOD)** - Regras autoritativas no servidor para trajes Free, Premium e Loja com selo visual, liberação de montarias por cargo e prevenção de requisições adulteradas.
+- [ ] **Phase 233: Sistema de Missões e Desbloqueio de Addons (Citizen Addon 1) com Interface no OutfitModal (Badge "Quest" e Botão "Trocar")** - Persistência atômica e permanente no Prisma DB, contagem e consumo exato de materiais do inventário, badge "Quest" ao lado de Addon 1/2 no OutfitModal com requisitos e botão "Trocar" funcional.
 
 ---
 
@@ -4148,6 +4150,74 @@ Plans:
 Plans:
 
 - [x] 230-01-PLAN: Implementar `isRoofItem`, `isGround` por `tile.groundServerId`, `isBorder` com `zIndex: 1`, fundo sólido sob paliçadas e validar suíte de testes.
+
+---
+
+### Phase 231: Trilhas Sonoras (Cyclops & Elfs) e 4 Novas Caçadas RealMap 11 (Coryms, Giant Spider, Hero e Hydra)
+
+**Goal:** Integrar as novas trilhas sonoras e as quatro novas masmorras no RealMap 11 conforme especificado em FIX.md:
+1. **Trilhas Sonoras Temáticas:**
+   - Vincular `Hammer Below - Cyclops.mp3` à caçada de Cyclops.
+   - Vincular `Whispers Among the Leaves - Elfs.mp3` à caçada de Elfs.
+2. **4 Novas Caçadas RealMap 11 com Dificuldades 1, 2 e 3:**
+   - **Coryms:** Local `[33054, 32029, 11]`. D1: Corym Vanguard. D2: Vanguard + Skirmisher. D3: Vanguard + Skirmisher + Charlatan.
+   - **Giant Spider:** Local `[32781, 32299, 7]`. D1: Tarantula + Giant Spider. D2: Giant Spider. D3: Giant Spider.
+   - **Hero:** Local `[33297, 31581, 9]`. D1: Hero. D2: Hero + Renegade Knight. D3: Hero + Renegade Knight + Vicious Squire.
+   - **Hydra:** Local `[33004, 32647, 4]`. D1: Hydra. D2: Hydra + Bog Raider. D3: Hydra + Bog Raider.
+3. **Menu de Caçadas e Texture Atlases:**
+   - Miniaturas canônicas e nítidas para todos os 10 monstros participantes no menu de caçadas e bestiário.
+   - Geração determinística dos Texture Atlases de mapa OTBM para cada masmorra, garantindo renderização instantânea no PixiArena.
+
+**Requirements:** Diretriz GSD, tipagem estrita (0 erros), 100% de aprovação nos testes e deploy direto na VPS.
+**Depends on:** Phase 230
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 231-01-PLAN: Músicas de Cyclops/Elfs, importação das 4 novas regiões OTBM, configuração de rotas/dificuldades no domínio, miniaturas canônicas, geração de texture atlases e deploy na VPS.
+
+---
+
+### Phase 232: Matriz de Permissões de Outfits, Addons e Montarias (Free, Premium, Loja, GM/GOD)
+
+**Goal:** Implementar o controle de acesso autoritativo para trajes, addons e montarias conforme FIX.md:
+1. **Outfits Free:** Citizen, Hunter, Mage, Knight (addons dependem de quests).
+2. **Outfits Premium:** Os 4 Free + Noble, Summoner, Warrior, Barbarian, Druid, Oriental, Pirate, Assassin, Beggar, Wizard, Shaman, Norseman, Nightmare, Jester, Brotherhood, Demon Hunter e Yalaharian.
+3. **Outfits Loja:** Todos os demais trajes ficam visíveis mas bloqueados para Free/Premium, exibindo o selo "Loja" abaixo da miniatura.
+4. **Montarias:** Free (Rented Horse, Donkey), Premium (todas liberadas provisoriamente), GM/GOD (acesso irrestrito a tudo).
+5. **Validação Autoritativa no Servidor:** Impedir requisições adulteradas ou manipulação de cliente nas rotas de save e WebSocket.
+
+**Requirements:** Diretriz GSD, tipagem estrita (0 erros), 100% de aprovação nos testes e deploy direto na VPS.
+**Depends on:** Phase 231
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 232-01-PLAN: Matriz de permissões Free/Premium/Loja/Staff, validação no backend, badges visuais no OutfitModal e testes de segurança.
+
+---
+
+### Phase 233: Sistema de Missões e Desbloqueio de Addons (Citizen Addon 1) com Interface no OutfitModal (Badge "Quest" e Botão "Trocar")
+
+**Goal:** Implementar a primeira missão de addon ("Primeiros Passos de um Cidadão") com interface direta no OutfitModal e na aba Quests:
+1. **Requisitos de Materiais:** Bunch of Troll Hair (10606) x5, Spider Fangs (8859) x3, Bone (2230) x50, Lump of Dirt (10609) x20.
+2. **Interface no OutfitModal:**
+   - Exibir badge "Quest" ao lado de Addon 1 e Addon 2 quando não conquistados.
+   - Ao inspecionar/clicar, exibir quais itens são necessários e quanto o jogador possui na mochila.
+   - Quando possuir todos os itens na mochila, exibir botão "Trocar" que consome os materiais e libera o addon.
+3. **Transação Server-Side Atômica:**
+   - Consumo exato dos materiais do inventário persistido sem perda ou duplicação.
+   - Desbloqueio permanente de `outfitAddons` no personagem (Prisma DB).
+   - Não equipar automaticamente, permitindo escolha livre do jogador.
+
+**Requirements:** Diretriz GSD, tipagem estrita (0 erros), 100% de aprovação nos testes e deploy direto na VPS.
+**Depends on:** Phase 232
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 233-01-PLAN: Modelagem e persistência de addons conquistados, verificação atômica de inventário, badge "Quest" e botão "Trocar" no OutfitModal, aba Quests e testes E2E.
+
 
 
 

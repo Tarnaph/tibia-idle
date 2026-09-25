@@ -83,6 +83,10 @@ export const huntConfigs = [
   { huntId: 'elf-sanctuary', name: 'Elf Fortress', monsterName: 'Elf', recommendedLevel: 25, center: [32741, 31298, 7] as const, radius: 25, available: true },
   { huntId: 'pvp-arena', name: 'Arena PvP', monsterName: 'Gladiator', recommendedLevel: 1, center: [33136, 32969, 8] as const, radius: 20, available: true },
   { huntId: 'dragon-lair', name: 'Dragon Lair', monsterName: 'Dragon', recommendedLevel: 45, center: [32741, 31294, 11] as const, radius: 25, available: true },
+  { huntId: 'corym-mine', name: 'Corym Mine', monsterName: 'Corym Vanguard', recommendedLevel: 40, center: [33054, 32029, 11] as const, radius: 25, available: true },
+  { huntId: 'giant-spider-lair', name: 'Giant Spider Lair', monsterName: 'Giant Spider', recommendedLevel: 50, center: [32781, 32299, 7] as const, radius: 25, available: true },
+  { huntId: 'hero-cave', name: 'Hero Cave', monsterName: 'Hero', recommendedLevel: 70, center: [33297, 31581, 9] as const, radius: 25, available: true },
+  { huntId: 'hydra-lair', name: 'Hydra Lair', monsterName: 'Hydra', recommendedLevel: 80, center: [33004, 32647, 4] as const, radius: 25, available: true },
 ];
 
 export async function importHuntRegions(options: ImportOptions = {}): Promise<HuntRegionCatalog> {

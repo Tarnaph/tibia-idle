@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-last_updated: "2026-09-24T20:30:00.000Z"
-last_activity: "2026-09-24 — Phase 230 Concluída com Sucesso: Camadas Canônicas de Chão (tile.groundServerId com zIndex: 0), Ocultação de Telhados (culling de roofs Z:7) revelando interior de casas e tavernas, e Alinhamento de Paliçadas/Bordas no PixiArena."
+status: in_progress
+last_updated: "2026-09-24T21:10:00.000Z"
+last_activity: "2026-09-24 — Iniciando Phase 231: Trilhas Sonoras (Cyclops & Elfs) e 4 Novas Caçadas RealMap 11 (Coryms, Giant Spider, Hero e Hydra)."
 progress:
-  total_phases: 230
+  total_phases: 233
   completed_phases: 230
-  total_plans: 314
+  total_plans: 317
   completed_plans: 314
-  percent: 100
+  percent: 99
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 230 Concluída (100%).
+**Current focus:** Phase 231 em Execução.
 
 ## Current Position
 
-Phase: 230 of 230  
-Plan: 1 of 1 in Phase 230  
-Status: Complete ✅  
-Last activity: 2026-09-24 — Conclusão da Phase 230: Resolução definitiva das camadas de piso via `tile.groundServerId` (zIndex 0), bordas de transição em zIndex 1, descarte de telhados em Z:7 revelando o interior de casas e tavernas dos elfos de Yalahar, e alinhamento de paliçadas 64x64 sem vazios ou sobreposições.
+Phase: 231 of 233  
+Plan: 1 of 1 in Phase 231  
+Status: In Progress 🚀  
+Last activity: 2026-09-24 — Phase 231: Vinculação de trilhas sonoras (Cyclops e Elfs), importação das 4 regiões OTBM, configuração de rotas e dificuldades, miniaturas de criaturas e Texture Atlases.
 
-Progress: [██████████] 100%
+Progress: [█████████░] 99%
 
 
 

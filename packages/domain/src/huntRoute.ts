@@ -39,6 +39,24 @@ export function getPullSizeMonsterPool(huntId: string, pullSize?: HuntPullSize, 
     if (effective === 'agressivo') return ['dragon', 'dragon-lord'];
     return ['dragon'];
   }
+  if (huntId === 'corym-mine' || huntId.includes('corym')) {
+    if (effective === 'cauteloso') return ['corym-vanguard'];
+    if (effective === 'ousado') return ['corym-vanguard', 'corym-skirmisher'];
+    return ['corym-vanguard', 'corym-skirmisher', 'corym-charlatan'];
+  }
+  if (huntId === 'giant-spider-lair' || huntId.includes('giant-spider')) {
+    if (effective === 'cauteloso') return ['tarantula', 'giant-spider'];
+    return ['giant-spider'];
+  }
+  if (huntId === 'hero-cave' || huntId.includes('hero')) {
+    if (effective === 'cauteloso') return ['hero'];
+    if (effective === 'ousado') return ['hero', 'renegade-knight'];
+    return ['hero', 'renegade-knight', 'vicious-squire'];
+  }
+  if (huntId === 'hydra-lair' || huntId.includes('hydra')) {
+    if (effective === 'cauteloso') return ['hydra'];
+    return ['hydra', 'bog-raider'];
+  }
   return basePool && basePool.length > 0 ? basePool : ['rat'];
 }
 
@@ -51,6 +69,10 @@ const counts: Record<string, Array<[number, number]>> = {
   'cyclops-camp': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 5]],
   'elf-sanctuary': [[2, 3], [2, 4], [3, 4], [3, 5], [4, 5], [4, 6]],
   'dragon-lair': [[1, 2], [2, 3], [2, 3], [3, 4], [3, 4], [3, 5]],
+  'corym-mine': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 5]],
+  'giant-spider-lair': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 5]],
+  'hero-cave': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 5]],
+  'hydra-lair': [[1, 2], [2, 3], [2, 4], [3, 4], [3, 5], [4, 5]],
   'pvp-arena': [[1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]],
 };
 

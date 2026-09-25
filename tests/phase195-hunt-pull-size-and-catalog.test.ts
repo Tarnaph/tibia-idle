@@ -44,6 +44,26 @@ describe('Phase 195: Hunt Pull Size Difficulties & Monster Variants', () => {
     expect(getPullSizeMonsterPool('dragon-lair', 'ousado')).toEqual(['dragon']);
     expect(getPullSizeMonsterPool('dragon-lair', 'agressivo')).toEqual(['dragon', 'dragon-lord']);
 
+    // Coryms: D1 -> vanguard | D2 -> vanguard + skirmisher | D3 -> vanguard + skirmisher + charlatan
+    expect(getPullSizeMonsterPool('corym-mine', 'cauteloso')).toEqual(['corym-vanguard']);
+    expect(getPullSizeMonsterPool('corym-mine', 'ousado')).toEqual(['corym-vanguard', 'corym-skirmisher']);
+    expect(getPullSizeMonsterPool('corym-mine', 'agressivo')).toEqual(['corym-vanguard', 'corym-skirmisher', 'corym-charlatan']);
+
+    // Giant Spider: D1 -> tarantula + giant-spider | D2/D3 -> giant-spider
+    expect(getPullSizeMonsterPool('giant-spider-lair', 'cauteloso')).toEqual(['tarantula', 'giant-spider']);
+    expect(getPullSizeMonsterPool('giant-spider-lair', 'ousado')).toEqual(['giant-spider']);
+    expect(getPullSizeMonsterPool('giant-spider-lair', 'agressivo')).toEqual(['giant-spider']);
+
+    // Hero: D1 -> hero | D2 -> hero + renegade-knight | D3 -> hero + renegade-knight + vicious-squire
+    expect(getPullSizeMonsterPool('hero-cave', 'cauteloso')).toEqual(['hero']);
+    expect(getPullSizeMonsterPool('hero-cave', 'ousado')).toEqual(['hero', 'renegade-knight']);
+    expect(getPullSizeMonsterPool('hero-cave', 'agressivo')).toEqual(['hero', 'renegade-knight', 'vicious-squire']);
+
+    // Hydra: D1 -> hydra | D2/D3 -> hydra + bog-raider
+    expect(getPullSizeMonsterPool('hydra-lair', 'cauteloso')).toEqual(['hydra']);
+    expect(getPullSizeMonsterPool('hydra-lair', 'ousado')).toEqual(['hydra', 'bog-raider']);
+    expect(getPullSizeMonsterPool('hydra-lair', 'agressivo')).toEqual(['hydra', 'bog-raider']);
+
     // Other hunts preserve base monster pool
     expect(getPullSizeMonsterPool('rotworm-cave', 'cauteloso', ['rotworm'])).toEqual(['rotworm']);
     expect(getPullSizeMonsterPool('rotworm-cave', 'agressivo', ['rotworm'])).toEqual(['rotworm']);
