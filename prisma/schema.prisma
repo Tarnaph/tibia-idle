@@ -64,6 +64,8 @@ model Character {
   outfitLegs     Int              @default(0)
   outfitFeet     Int              @default(0)
   outfitAddons   Int              @default(0)
+  unlockedAddonsJson String?
+  completedQuestsJson String?
   mount          String?          @default("none")
   mountActive    Boolean          @default(false)
   posX           Int              @default(32369) // Thais Temple

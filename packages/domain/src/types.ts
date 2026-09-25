@@ -84,6 +84,10 @@ export interface CharacterState {
   targetStrategy?: TargetSelectionStrategy;
   gender?: 'male' | 'female';
   adminTitle?: string;
+  role?: string;
+  unlockedAddonsJson?: string | null;
+  completedQuestsJson?: string | null;
+  inventoryItems?: Array<{ id?: string; slot: string; serverId: number; name: string; count: number }>;
   outfit?: string;
   mount?: string;
   mountActive?: boolean;

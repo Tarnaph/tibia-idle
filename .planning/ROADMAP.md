@@ -4193,7 +4193,7 @@ Plans:
 
 Plans:
 
-- [ ] 232-01-PLAN: Matriz de permissões Free/Premium/Loja/Staff, validação no backend, badges visuais no OutfitModal e testes de segurança.
+- [x] 232-01-PLAN: Matriz de permissões Free/Premium/Loja/Staff, validação no backend, badges visuais no OutfitModal e testes de segurança.
 
 ---
 
@@ -4216,7 +4216,7 @@ Plans:
 
 Plans:
 
-- [ ] 233-01-PLAN: Modelagem e persistência de addons conquistados, verificação atômica de inventário, badge "Quest" e botão "Trocar" no OutfitModal, aba Quests e testes E2E.
+- [x] 233-01-PLAN: Modelagem e persistência de addons conquistados, verificação atômica de inventário, badge "Quest" e botão "Trocar" no OutfitModal, aba Quests e testes E2E.
 
 
 

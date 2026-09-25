@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-09-24T21:10:00.000Z"
-last_activity: "2026-09-24 — Iniciando Phase 231: Trilhas Sonoras (Cyclops & Elfs) e 4 Novas Caçadas RealMap 11 (Coryms, Giant Spider, Hero e Hydra)."
+status: complete
+last_updated: "2026-09-24T21:47:00.000Z"
+last_activity: "2026-09-24 — Conclusão das Phases 232 e 233 (Matriz de Permissões de Outfits/Montarias e Sistema de Addon Quests com Citizen Addon 1 e Botão Trocar)."
 progress:
   total_phases: 233
-  completed_phases: 230
+  completed_phases: 233
   total_plans: 317
-  completed_plans: 314
-  percent: 99
+  completed_plans: 317
+  percent: 100
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 231 em Execução.
+**Current focus:** Todas as fases da Roadmap V1.0 Concluídas.
 
 ## Current Position
 
-Phase: 231 of 233  
-Plan: 1 of 1 in Phase 231  
-Status: In Progress 🚀  
-Last activity: 2026-09-24 — Phase 231: Vinculação de trilhas sonoras (Cyclops e Elfs), importação das 4 regiões OTBM, configuração de rotas e dificuldades, miniaturas de criaturas e Texture Atlases.
+Phase: 233 of 233  
+Plan: 1 of 1 in Phase 233  
+Status: Complete 🚀  
+Last activity: 2026-09-24 — Phase 232 & 233: Matriz de permissões Free/Premium/Loja/Staff, sistema atômico de troca de materiais de missões de addon com botão "Trocar" e interface no OutfitModal.
 
-Progress: [█████████░] 99%
+Progress: [██████████] 100%
 
 
 

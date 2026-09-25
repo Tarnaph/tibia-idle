@@ -27,3 +27,4 @@ export * from './imbuements';
 export * from './blessings';
 export * from './pvp';
 export * from './bestiary';
+export * from './appearancePermissions';

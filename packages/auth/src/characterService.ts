@@ -5,6 +5,16 @@ import { CharacterSaveLockManager } from './characterSaveLock';
 import { XpRateLimiter } from './xpRateLimiter';
 import { SkillRateLimiter, calculateSkillTriesCost } from './skillRateLimiter';
 import { ServerCharacterContextRegistry } from './characterContextRegistry';
+import {
+  isOutfitUnlockedFor,
+  isMountUnlockedFor,
+  isAddonUnlockedFor,
+  parseUnlockedAddons,
+  parseCompletedQuests,
+  normalizeKey,
+  ADDON_QUESTS,
+  type UserAppearanceContext,
+} from '../../domain/src/appearancePermissions';
 
 export class VersionConflictError extends Error {
   public readonly code = 'VERSION_CONFLICT';
@@ -386,6 +396,7 @@ export class CharacterService {
       where: { accountId },
       orderBy: { level: 'desc' },
       include: {
+        account: { select: { id: true, email: true, role: true, isPremium: true } },
         skills: true,
         inventory: true,
         spells: true,
@@ -477,6 +488,7 @@ export class CharacterService {
       const existing = await this.prisma.character.findUnique({
         where: { id: characterId },
         include: {
+          account: true,
           skills: true,
           inventory: true,
           spells: true,
@@ -576,15 +588,73 @@ export class CharacterService {
       }
 
       const updateData: any = {};
+      const userCtx: UserAppearanceContext = {
+        isPremium: existing.account?.isPremium !== false,
+        role: existing.account?.role,
+        adminTitle: existing.adminTitle,
+      };
+
       if (data.avatarId !== undefined) updateData.avatarId = data.avatarId;
-      if (data.outfit !== undefined) updateData.outfit = data.outfit;
+
+      // Validação autoritativa de Outfit
+      if (data.outfit !== undefined) {
+        if (options?.isInternal || isOutfitUnlockedFor(data.outfit, userCtx)) {
+          updateData.outfit = data.outfit;
+        } else {
+          updateData.outfit = existing.outfit;
+        }
+      }
+
       if (data.outfitHead !== undefined) updateData.outfitHead = data.outfitHead;
       if (data.outfitBody !== undefined) updateData.outfitBody = data.outfitBody;
       if (data.outfitLegs !== undefined) updateData.outfitLegs = data.outfitLegs;
       if (data.outfitFeet !== undefined) updateData.outfitFeet = data.outfitFeet;
-      if (data.outfitAddons !== undefined) updateData.outfitAddons = data.outfitAddons;
-      if (data.mount !== undefined) updateData.mount = data.mount;
-      if (data.mountActive !== undefined) updateData.mountActive = data.mountActive;
+
+      // Validação autoritativa de Addons
+      if (data.outfitAddons !== undefined) {
+        if (options?.isInternal || isStaff(userCtx)) {
+          updateData.outfitAddons = data.outfitAddons;
+        } else {
+          const targetOutfit = (data.outfit !== undefined && isOutfitUnlockedFor(data.outfit, userCtx))
+            ? data.outfit
+            : (existing.outfit || 'Citizen');
+          const reqAddons = Number(data.outfitAddons);
+          let allowedAddons = 0;
+          if ((reqAddons & 1) === 1) {
+            if (isAddonUnlockedFor(targetOutfit, 1, existing.unlockedAddonsJson, userCtx)) {
+              allowedAddons |= 1;
+            }
+          }
+          if ((reqAddons & 2) === 2) {
+            if (isAddonUnlockedFor(targetOutfit, 2, existing.unlockedAddonsJson, userCtx)) {
+              allowedAddons |= 2;
+            }
+          }
+          updateData.outfitAddons = allowedAddons;
+        }
+      }
+
+      // Validação autoritativa de Montaria
+      if (data.mount !== undefined) {
+        if (options?.isInternal || isMountUnlockedFor(data.mount, userCtx)) {
+          updateData.mount = data.mount;
+        } else {
+          updateData.mount = 'none';
+        }
+      }
+
+      if (data.mountActive !== undefined) {
+        if (options?.isInternal) {
+          updateData.mountActive = data.mountActive;
+        } else {
+          const effectiveMount = data.mount !== undefined ? updateData.mount : existing.mount;
+          if (data.mountActive && effectiveMount && isMountUnlockedFor(effectiveMount, userCtx) && effectiveMount !== 'none') {
+            updateData.mountActive = true;
+          } else {
+            updateData.mountActive = false;
+          }
+        }
+      }
 
       if (data.bestiaryKills !== undefined) {
         let existingBestiary: Record<string, number> = {};
@@ -1228,4 +1298,128 @@ export class CharacterService {
 
     return { offlineSeconds, triesGained };
   }
+
+  /**
+   * Conclui uma missão de addon de forma atômica e server-authoritative,
+   * consumindo os materiais do inventário persistido e desbloqueando o addon permanentemente.
+   */
+  async tradeAddonQuest(characterId: string, questId: string, accountId?: string) {
+    return CharacterSaveLockManager.withLock(characterId, async () => {
+      return this.prisma.$transaction(async (tx) => {
+        const char = await tx.character.findUnique({
+          where: { id: characterId },
+          include: {
+            account: true,
+            inventory: true,
+          },
+        });
+
+        if (!char) {
+          throw new Error('Personagem não encontrado.');
+        }
+
+        if (accountId && char.accountId !== accountId) {
+          throw new Error('Você não tem permissão para realizar missões neste personagem.');
+        }
+
+        const quest = ADDON_QUESTS.find((q) => q.id === questId);
+        if (!quest) {
+          throw new Error(`Missão '${questId}' não encontrada.`);
+        }
+
+        // Verifica se a missão já foi concluída
+        const completedQuests = parseCompletedQuests(char.completedQuestsJson);
+        if (completedQuests.includes(quest.id)) {
+          throw new Error('Esta missão de addon já foi concluída por este personagem.');
+        }
+
+        // Verifica se o addon já está desbloqueado
+        const unlockedAddons = parseUnlockedAddons(char.unlockedAddonsJson);
+        const outfitNorm = normalizeKey(quest.outfit);
+        const existingAddonList = unlockedAddons[outfitNorm] || [];
+        if (existingAddonList.includes(quest.addon)) {
+          throw new Error('Este addon já está desbloqueado.');
+        }
+
+        // Agrupa e conta os materiais disponíveis no inventário
+        const materialCounts: Record<number, number> = {};
+        for (const mat of quest.materials) {
+          materialCounts[mat.itemId] = 0;
+        }
+
+        for (const item of char.inventory) {
+          if (materialCounts[item.serverId] !== undefined) {
+            materialCounts[item.serverId] += item.count;
+          }
+        }
+
+        // Validação estrita: se faltar qualquer item, rejeita com detalhes
+        const missing: string[] = [];
+        for (const mat of quest.materials) {
+          const available = materialCounts[mat.itemId] || 0;
+          if (available < mat.count) {
+            missing.push(`${mat.name}: possui ${available}/${mat.count}`);
+          }
+        }
+
+        if (missing.length > 0) {
+          throw new Error(`Materiais insuficientes para completar a missão:\n${missing.join(', ')}`);
+        }
+
+        // Consome os materiais exatamente nas quantidades necessárias
+        for (const mat of quest.materials) {
+          let remainingToDeduct = mat.count;
+          const matchingItems = char.inventory
+            .filter((i) => i.serverId === mat.itemId)
+            .sort((a, b) => a.count - b.count);
+
+          for (const it of matchingItems) {
+            if (remainingToDeduct <= 0) break;
+            if (it.count <= remainingToDeduct) {
+              remainingToDeduct -= it.count;
+              await tx.inventoryItem.delete({
+                where: { id: it.id },
+              });
+            } else {
+              await tx.inventoryItem.update({
+                where: { id: it.id },
+                data: { count: it.count - remainingToDeduct },
+              });
+              remainingToDeduct = 0;
+            }
+          }
+        }
+
+        // Atualiza unlockedAddonsJson e completedQuestsJson
+        const updatedAddonList = Array.from(new Set([...existingAddonList, quest.addon]));
+        unlockedAddons[outfitNorm] = updatedAddonList;
+        const updatedCompletedQuests = Array.from(new Set([...completedQuests, quest.id]));
+
+        const updatedChar = await tx.character.update({
+          where: { id: characterId },
+          data: {
+            unlockedAddonsJson: JSON.stringify(unlockedAddons),
+            completedQuestsJson: JSON.stringify(updatedCompletedQuests),
+            saveVersion: char.saveVersion + 1,
+            lastSavedAt: new Date(),
+          },
+          include: {
+            inventory: true,
+            skills: true,
+          },
+        });
+
+        return {
+          success: true,
+          questId: quest.id,
+          rewardName: quest.rewardName,
+          unlockedAddons,
+          completedQuests: updatedCompletedQuests,
+          saveVersion: updatedChar.saveVersion,
+          inventory: updatedChar.inventory,
+        };
+      });
+    });
+  }
 }
+
