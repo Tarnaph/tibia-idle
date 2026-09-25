@@ -92,6 +92,7 @@ export function InventoryWindow({
   });
 
   const handleHeaderPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) return;
     if ((e.target as HTMLElement).closest('button')) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     dragRef.current = {
@@ -179,17 +180,24 @@ export function InventoryWindow({
   };
 
   return (
-    <div
-      className="inventory-window-container floating-window"
-      style={{
-        position: 'fixed',
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        zIndex: 960,
-      }}
-      role="dialog"
-      aria-label="Inventário"
-    >
+    <>
+      {/* Mobile Backdrop Overlay */}
+      <div
+        className="inventory-window-backdrop"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        className="inventory-window-container floating-window"
+        style={{
+          position: 'fixed',
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          zIndex: 960,
+        }}
+        role="dialog"
+        aria-label="Inventário"
+      >
       {/* Draggable Header */}
       <div
         className="inventory-window-header draggable-header"
@@ -401,6 +409,17 @@ export function InventoryWindow({
                 <ellipse cx="16" cy="12" rx="8" ry="3" fill="#ffe082" stroke="#9e7211" strokeWidth="1" />
               </svg>
             </div>
+
+            {/* Mobile Footer Close Button */}
+            <div className="inventory-mobile-close-container">
+              <button
+                type="button"
+                className="inventory-mobile-close-btn"
+                onClick={onClose}
+              >
+                ✕ Fechar Inventário
+              </button>
+            </div>
           </div>
         </div>
 
@@ -459,5 +478,6 @@ export function InventoryWindow({
         />
       )}
     </div>
+    </>
   );
 }

@@ -4860,33 +4860,6 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             squadFollowEnabled={squadFollowCity}
           />
         </div>
-        {mode !== 'hunt' && !showAuthModal && (
-          <div className="city-location-hud">
-            <div className="city-hud-header">
-              <span className="city-tag">CIDADE DE THAIS</span>
-              <span className="city-coords">X: {cityPos.x} · Y: {cityPos.y} · Z: {cityPos.z}</span>
-            </div>
-            <div className="city-hud-status">
-              {isFollowingLeader ? (
-                <span className="city-walking-badge" style={{ borderColor: '#3b82f6', color: '#93c5fd' }}>
-                  👥 Seguindo líder {multiplayerParty?.leaderName} · [Movimento manual bloqueado]
-                </span>
-              ) : walkingPath && walkingPath.waypoints[0] ? (
-                <span className="city-walking-badge">
-                  🚶 Andando sozinho até {walkingPath.destinationName} ({walkingPath.waypoints[0].x}, {walkingPath.waypoints[0].y}, {walkingPath.waypoints[0].z})...
-                </span>
-              ) : isTrainingAtDummy ? (
-                <span className="city-training-badge">
-                  ⚔️ Treinando {activeTrainingSkill} no boneco de treino ({cityPos.x}, {cityPos.y}, {cityPos.z})
-                </span>
-              ) : (
-                <span className="city-idle-badge">
-                  🏛️ Parado em Thais ({cityPos.x}, {cityPos.y}, {cityPos.z}) · [Setas do teclado para andar]
-                </span>
-              )}
-            </div>
-          </div>
-        )}
         {isTrainingAtDummy && mode !== 'hunt' && !showAuthModal && (
           <TrainingProgressHUD
             members={partyTrainingEstimates}
@@ -4898,26 +4871,6 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               setSaleMessage('Treino no boneco finalizado. A party retornou à formação e você pode se movimentar livremente.');
             }}
           />
-        )}
-        {mode === 'hunt' && !showAuthModal && !responsive.isMobile && (
-          <div className="city-location-hud hunt-location-hud">
-            <div className="city-hud-header">
-              <span className="city-tag" style={{ background: '#3b1c1c', borderColor: '#7f1d1d', color: '#fca5a5' }}>
-                ⚔️ CAÇADA: {encounter.hunt?.name || 'Caçada Ativa'}
-              </span>
-              <span className="city-coords">
-                {(() => {
-                  const reg = (content.huntRegions as any[])?.find((r: any) => r.huntId === encounter.hunt?.id);
-                  const originX = reg?.bounds?.x ?? 32077;
-                  const originY = reg?.bounds?.y ?? 32180;
-                  const originZ = reg?.bounds?.z ?? 8;
-                  const curX = originX + (currentActor?.position.x ?? 25);
-                  const curY = originY + (currentActor?.position.y ?? 25);
-                  return `X: ${curX} · Y: ${curY} · Z: ${originZ}`;
-                })()}
-              </span>
-            </div>
-          </div>
         )}
         {levelUpMessage && (
           <div className="tibia-advancement-banner" key={levelUpMessage.timestamp}>

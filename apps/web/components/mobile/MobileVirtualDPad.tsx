@@ -9,41 +9,66 @@ interface MobileVirtualDPadProps {
   disabled?: boolean;
 }
 
+// 240ms provides a comfortable, authentic walking pace without flooding the game loop
+const STEP_CADENCE_MS = 240;
+
 export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPadProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [knobPos, setKnobPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [activeDir, setActiveDir] = useState<MovementDirection | null>(null);
 
   const activeDirRef = useRef<MovementDirection | null>(null);
-  activeDirRef.current = activeDir;
+  const onMoveRef = useRef(onMove);
+  onMoveRef.current = onMove;
 
-  const repeatIntervalRef = useRef<any>(null);
+  const repeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastStepTimeRef = useRef<number>(0);
+  const isPointerDownRef = useRef(false);
 
-  const startRepeating = useCallback((dir: MovementDirection) => {
-    if (repeatIntervalRef.current) clearInterval(repeatIntervalRef.current);
-    onMove(dir);
-    repeatIntervalRef.current = setInterval(() => {
-      if (activeDirRef.current) {
-        onMove(activeDirRef.current);
-      }
-    }, 180);
-  }, [onMove]);
+  const executeStep = useCallback((dir: MovementDirection) => {
+    const now = performance.now();
+    lastStepTimeRef.current = now;
+    onMoveRef.current(dir);
+  }, []);
 
   const stopRepeating = useCallback(() => {
     if (repeatIntervalRef.current) {
       clearInterval(repeatIntervalRef.current);
       repeatIntervalRef.current = null;
     }
+    isPointerDownRef.current = false;
+    activeDirRef.current = null;
     setActiveDir(null);
     setKnobPos({ x: 0, y: 0 });
   }, []);
 
+  const startRepeating = useCallback((dir: MovementDirection) => {
+    if (repeatIntervalRef.current) {
+      clearInterval(repeatIntervalRef.current);
+    }
+    activeDirRef.current = dir;
+    setActiveDir(dir);
+
+    // Initial step: execute immediately if enough time elapsed, otherwise wait
+    const now = performance.now();
+    const timeSinceLast = now - lastStepTimeRef.current;
+    if (timeSinceLast >= STEP_CADENCE_MS) {
+      executeStep(dir);
+    }
+
+    // Steady cadence loop
+    repeatIntervalRef.current = setInterval(() => {
+      if (activeDirRef.current) {
+        executeStep(activeDirRef.current);
+      }
+    }, STEP_CADENCE_MS);
+  }, [executeStep]);
+
   const calculateDirection = (deltaX: number, deltaY: number): MovementDirection | null => {
     const distance = Math.hypot(deltaX, deltaY);
-    if (distance < 12) return null; // Deadzone
+    if (distance < 14) return null; // 14px deadzone for stable finger resting
 
     const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI); // -180 to 180
-    // 0 is East, 90 is South, -90 is North, 180/-180 is West
 
     if (angle >= -22.5 && angle < 22.5) return 'east';
     if (angle >= 22.5 && angle < 67.5) return 'south-east';
@@ -55,7 +80,7 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
     return 'west';
   };
 
-  const handleTouch = (clientX: number, clientY: number) => {
+  const processPointerCoordinates = (clientX: number, clientY: number) => {
     if (disabled || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -64,7 +89,7 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
     const deltaX = clientX - centerX;
     const deltaY = clientY - centerY;
     const distance = Math.hypot(deltaX, deltaY);
-    const maxRadius = rect.width / 2 - 14;
+    const maxRadius = rect.width / 2 - 12;
 
     const clampedRadius = Math.min(distance, maxRadius);
     const angle = Math.atan2(deltaY, deltaX);
@@ -75,32 +100,46 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
     });
 
     const newDir = calculateDirection(deltaX, deltaY);
-    if (newDir !== activeDir) {
-      setActiveDir(newDir);
+
+    if (newDir !== activeDirRef.current) {
       if (newDir) {
-        startRepeating(newDir);
+        if (!repeatIntervalRef.current) {
+          // Started moving from idle: launch steady loop
+          startRepeating(newDir);
+        } else {
+          // Steer smoothly in motion: update direction target without triggering immediate sudden step
+          activeDirRef.current = newDir;
+          setActiveDir(newDir);
+        }
       } else {
+        // Returned to deadzone
         stopRepeating();
       }
     }
   };
 
-  const onTouchStart = (e: React.TouchEvent) => {
+  // Pointer event handlers with pointer capture support
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.stopPropagation();
     if (disabled) return;
-    const touch = e.touches[0];
-    handleTouch(touch.clientX, touch.clientY);
+    isPointerDownRef.current = true;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+    processPointerCoordinates(e.clientX, e.clientY);
   };
 
-  const onTouchMove = (e: React.TouchEvent) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    if (disabled) return;
-    const touch = e.touches[0];
-    handleTouch(touch.clientX, touch.clientY);
+    if (!isPointerDownRef.current || disabled) return;
+    processPointerCoordinates(e.clientX, e.clientY);
   };
 
-  const onTouchEnd = (e: React.TouchEvent) => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     e.stopPropagation();
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
     stopRepeating();
   };
 
@@ -115,21 +154,21 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
   return (
     <div
       ref={containerRef}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-      onTouchCancel={onTouchEnd}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
       style={{
         position: 'absolute',
-        bottom: '120px',
-        left: '18px',
-        width: '130px',
-        height: '130px',
+        bottom: '122px',
+        left: '16px',
+        width: '124px',
+        height: '124px',
         borderRadius: '50%',
-        backgroundColor: 'rgba(15, 23, 42, 0.6)',
-        backdropFilter: 'blur(4px)',
-        border: '2px solid rgba(148, 163, 184, 0.35)',
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.7), inset 0 0 16px rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(15, 23, 42, 0.72)',
+        backdropFilter: 'blur(6px)',
+        border: '2px solid rgba(212, 163, 89, 0.45)',
+        boxShadow: '0 8px 28px rgba(0, 0, 0, 0.8), inset 0 0 16px rgba(0, 0, 0, 0.6)',
         zIndex: 40,
         touchAction: 'none',
         userSelect: 'none',
@@ -137,15 +176,18 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
         alignItems: 'center',
         justifyContent: 'center',
       }}
+      aria-label="Controle Virtual de Movimento"
     >
-      {/* Directional Arrow Indicators matching screenshot */}
+      {/* Cardinal & Diagonal Direction Indicators */}
       <span
         style={{
           position: 'absolute',
-          top: '6px',
-          color: activeDir === 'north' ? '#fde047' : '#94a3b8',
-          fontSize: '14px',
+          top: '5px',
+          color: activeDir?.includes('north') ? '#facc15' : '#64748b',
+          fontSize: '12px',
+          fontWeight: 'bold',
           transition: 'color 0.15s ease',
+          pointerEvents: 'none',
         }}
       >
         ▲
@@ -153,10 +195,12 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
       <span
         style={{
           position: 'absolute',
-          bottom: '6px',
-          color: activeDir === 'south' ? '#fde047' : '#94a3b8',
-          fontSize: '14px',
+          bottom: '5px',
+          color: activeDir?.includes('south') ? '#facc15' : '#64748b',
+          fontSize: '12px',
+          fontWeight: 'bold',
           transition: 'color 0.15s ease',
+          pointerEvents: 'none',
         }}
       >
         ▼
@@ -164,10 +208,12 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
       <span
         style={{
           position: 'absolute',
-          left: '8px',
-          color: activeDir === 'west' ? '#fde047' : '#94a3b8',
-          fontSize: '14px',
+          left: '6px',
+          color: activeDir?.includes('west') ? '#facc15' : '#64748b',
+          fontSize: '12px',
+          fontWeight: 'bold',
           transition: 'color 0.15s ease',
+          pointerEvents: 'none',
         }}
       >
         ◀
@@ -175,35 +221,40 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
       <span
         style={{
           position: 'absolute',
-          right: '8px',
-          color: activeDir === 'east' ? '#fde047' : '#94a3b8',
-          fontSize: '14px',
+          right: '6px',
+          color: activeDir?.includes('east') ? '#facc15' : '#64748b',
+          fontSize: '12px',
+          fontWeight: 'bold',
           transition: 'color 0.15s ease',
+          pointerEvents: 'none',
         }}
       >
         ▶
       </span>
 
-      {/* Floating Thumb Knob */}
+      {/* Floating Center Joystick Thumb Knob */}
       <div
         style={{
-          width: '46px',
-          height: '46px',
+          width: '44px',
+          height: '44px',
           borderRadius: '50%',
-          backgroundColor: '#1e293b',
-          border: '2px solid #64748b',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.6), inset 0 0 6px rgba(255, 255, 255, 0.15)',
-          transform: `translate(${knobPos.x}px, ${knobPos.y}px)`,
-          transition: activeDir ? 'none' : 'transform 0.15s ease-out',
+          backgroundColor: '#1b1d22',
+          border: `2px solid ${activeDir ? '#facc15' : '#64748b'}`,
+          boxShadow: activeDir
+            ? '0 0 14px rgba(250, 204, 21, 0.5), inset 0 0 8px rgba(250, 204, 21, 0.2)'
+            : '0 2px 10px rgba(0, 0, 0, 0.7), inset 0 0 6px rgba(255, 255, 255, 0.1)',
+          transform: `translate3d(${knobPos.x}px, ${knobPos.y}px, 0)`,
+          transition: activeDir ? 'none' : 'transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          pointerEvents: 'none',
         }}
       >
         <div
           style={{
-            width: '12px',
-            height: '12px',
+            width: '14px',
+            height: '14px',
             borderRadius: '50%',
             backgroundColor: activeDir ? '#facc15' : '#475569',
             boxShadow: activeDir ? '0 0 8px #facc15' : 'none',
@@ -213,3 +264,4 @@ export function MobileVirtualDPad({ onMove, disabled = false }: MobileVirtualDPa
     </div>
   );
 }
+

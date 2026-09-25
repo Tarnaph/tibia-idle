@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-25T14:30:00.000Z"
-last_activity: "2026-09-25 — Conclusão com sucesso da Phase 235 (Refinamento de UI/UX Mobile, Chat em Bolinha Flutuante, Bestiário Compacto, Remoção de Badges de Debug, Zoom de Câmera 0.85x e Seletor Vertical de Caçadas)."
+last_updated: "2026-09-25T15:27:00.000Z"
+last_activity: "2026-09-25 — Conclusão da Phase 236 (Redesign Completo dos Modais e Menus Mobile, Personagem, Outfit, Inventário, Joystick Fluido & Remoção de Badges de Coordenadas)."
 progress:
-  total_phases: 235
-  completed_phases: 235
-  total_plans: 319
-  completed_plans: 319
+  total_phases: 236
+  completed_phases: 236
+  total_plans: 320
+  completed_plans: 320
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 235 Concluída com Sucesso.
+**Current focus:** Fase 236 concluída com sucesso.
 
 ## Current Position
 
-Phase: 235 of 235  
-Plan: 1 of 1 in Phase 235  
+Phase: 236 of 236  
+Plan: 1 of 1 in Phase 236  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 235: Refinamento de UI/UX Mobile com base nos testes em smartphone real na VPS.
+Last activity: 2026-09-25 — Phase 236: Redesign Completo dos Modais e Menus Mobile & Suavização do Joystick Virtual concluídos com 100% dos testes aprovados e 0 erros de tipagem.
 
 Progress: [██████████] 100%
 

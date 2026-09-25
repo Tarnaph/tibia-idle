@@ -33,14 +33,16 @@ export function MobileBottomNav({
         bottom: 0,
         left: 0,
         right: 0,
-        height: '56px',
+        height: 'calc(54px + env(safe-area-inset-bottom, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         zIndex: 50,
         backgroundColor: '#090d16',
         borderTop: '1px solid #1e293b',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        padding: '0 4px',
+        paddingLeft: '4px',
+        paddingRight: '4px',
         boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.7)',
         userSelect: 'none',
       }}
@@ -56,7 +58,8 @@ export function MobileBottomNav({
             style={{
               position: 'relative',
               flex: 1,
-              height: '46px',
+              minWidth: 0,
+              height: '44px',
               backgroundColor: isActive ? 'rgba(202, 138, 4, 0.15)' : 'transparent',
               border: isActive ? '1px solid #ca8a04' : '1px solid transparent',
               borderRadius: '6px',
@@ -68,11 +71,23 @@ export function MobileBottomNav({
               cursor: 'pointer',
               color: isActive ? '#fef08a' : '#94a3b8',
               transition: 'all 0.15s ease',
-              padding: '2px 0',
+              padding: '2px 1px',
+              touchAction: 'manipulation',
             }}
           >
-            <span style={{ fontSize: '16px', lineHeight: 1 }}>{t.icon}</span>
-            <span style={{ fontSize: '10px', fontWeight: isActive ? 700 : 500, letterSpacing: '0.2px' }}>
+            <span style={{ fontSize: '15px', lineHeight: 1 }}>{t.icon}</span>
+            <span
+              style={{
+                fontSize: '9.5px',
+                fontWeight: isActive ? 700 : 500,
+                letterSpacing: '0.1px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '100%',
+                lineHeight: 1.1,
+              }}
+            >
               {t.label}
             </span>
           </button>

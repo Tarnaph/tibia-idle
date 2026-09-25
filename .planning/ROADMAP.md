@@ -164,7 +164,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 231: Trilhas Sonoras (Cyclops & Elfs) e 4 Novas Caçadas RealMap 11 (Coryms, Giant Spider, Hero e Hydra)** - Vinculação das músicas aos temas de caçada, importação de coordenadas OTBM reais, balanceamento de pulls de dificuldade 1/2/3, thumbnails canônicos de criaturas e geração de Texture Atlases.
 - [x] **Phase 232: Matriz de Permissões de Outfits, Addons e Montarias (Free, Premium, Loja, GM/GOD)** - Regras autoritativas no servidor para trajes Free, Premium e Loja com selo visual, liberação de montarias por cargo e prevenção de requisições adulteradas.
 - [x] **Phase 233: Sistema de Missões e Desbloqueio de Addons (Citizen Addon 1) com Interface no OutfitModal (Badge "Quest" e Botão "Trocar")** - Persistência atômica e permanente no Prisma DB, contagem e consumo exato de materiais do inventário, badge "Quest" ao lado de Addon 1/2 no OutfitModal com requisitos e botão "Trocar" funcional.
-- [ ] **Phase 234: Diagnóstico de Seleção de Outfit, Interface Mobile Responsiva (Retrato & Paisagem) e Gestão de Assinatura Premium por Dias no ADMIN** - Resolução definitiva do travamento de seleção no OutfitModal, arquitetura de layout mobile responsivo adaptativo (header com stats, dock bar, D-pad, hotkeys ergonômicas e drawers) e gestão de Premium por dias no painel ADMIN com expiração autoritativa.
+- [x] **Phase 234: Diagnóstico de Seleção de Outfit, Interface Mobile Responsiva (Retrato & Paisagem) e Gestão de Assinatura Premium por Dias no ADMIN** - Resolução definitiva do travamento de seleção no OutfitModal, arquitetura de layout mobile responsivo adaptativo (header com stats, dock bar, D-pad, hotkeys ergonômicas e drawers) e gestão de Premium por dias no painel ADMIN com expiração autoritativa.
+- [x] **Phase 235: Refinamento de UI/UX Mobile & Limpeza de Interface** - Barra fixa desktop de chat oculta no mobile, botão circular flutuante de chat ("bolinha" 💬) com modal deslizante, remoção total do badge de debug OTBM, Bestiário compacto e minimizado por padrão no mobile, seletor de caçadas em lista vertical única com scroll, rastreamento dos sprites de Corym no git, zoom mobile padrão de 0.85x e safe-area padding no loading.
+- [ ] **Phase 236: Redesign Completo dos Modais e Menus Mobile, Personagem, Outfit, Inventário, Joystick Fluido & Remoção de Badges de Coordenadas** - Remoção definitiva do balão de coordenadas e textos de caminhada urbana no web/mobile, suavização e pacing contínuo do joystick virtual (D-Pad), redesign mobile touch-friendly de Personagem, Outfit, Inventário e equipamentos corporais, auditoria universal de janelas com fechamento garantido (✕) e botões visíveis sem cortes.
 
 ---
 
@@ -4250,22 +4252,13 @@ Plans:
 
 ---
 
-### Phase 235: Refinamento de UI/UX Mobile (Chat em Bolinha Flutuante, Bestiário Compacto, Remoção de Badges de Debug, Zoom de Câmera e Seletor Vertical de Caçadas)
-
-**Goal:** Aperfeiçoar radicalmente a experiência do usuário móvel com base nos testes reais em smartphone:
-1. **Chat Mobile em Bolinha Flutuante:** Ocultação da barra desktop inferior de chat no mobile e substituição por botão circular flutuante (bolinha com ícone de chat e badge não lidas) posicionado acima das hotkeys. Ao tocar, abre drawer/modal limpo para leitura e envio de mensagens sem sobrepor os controles de jogo.
-2. **Remoção de Badges de Debug:** Eliminar permanentemente o badge `🗺️ RealMap OTBM · Entrada: (32102, 32205, 8) · Sala: ...` que poluía a tela em caçadas tanto no mobile quanto no desktop.
-3. **Bestiário Compacto no Mobile:** Redimensionar o `BestiaryTrackerHUD` em telas móveis (~190-210px), fontes menores e estado minimizado por padrão em caçadas para não bloquear a visão do mapa e combate.
-4. **Seletor de Caçadas em Lista Vertical:** Reformular o `.hunt-catalog-grid` no mobile para uma lista vertical única com scroll down suave (`overflow-y: auto`), com cards 100% de largura, sem scroll horizontal e sem textos cortados.
-5. **Zoom de Câmera & Safe Area:** Calibrar o zoom inicial da câmera móvel para ~0.85x para dar folga de visão ao jogador e atualizar o `ExuraLoadingScreen` para usar `100dvh` e padding inferior seguro com `env(safe-area-inset-bottom)` para não cortar o texto de progresso.
-
-**Requirements:** Diretriz GSD, tipagem estrita (0 erros), testes automatizados e deploy direto na VPS.
-**Depends on:** Phase 234
-**Plans:** 1 plan
+- [x] **Phase 235: Refinamento de UI/UX Mobile (Chat em Bolinha Flutuante, Bestiário Compacto, Remoção de Badges de Debug, Zoom de Câmera e Seletor Vertical de Caçadas)** - Chat flutuante mobile, bestiário compacto, remoção de badges de debug, zoom da câmera em 0.85x e seletor vertical de caçadas.
+- [x] **Phase 236: Redesign Completo dos Modais e Menus Mobile, Personagem, Outfit, Inventário, Joystick Fluido & Remoção de Badges de Coordenadas** - Remoção dos badges de coordenadas/caminhada superior em Thais e hunts, joystick virtual de movimentação fluido com cadência suave de 240ms e pointer capture, redesign mobile do CharacterProfileModal (grid fluida e botões de fechar ampliados), OutfitModal (1 coluna, paleta e preview responsivos), InventoryWindow (centralizado, backdrop, slots 42px e scroll vertical), auditoria universal de janelas com botões de fechar de 38x38px de alto contraste.
 
 Plans:
 
-- [ ] 235-01-PLAN: Implementação do chat flutuante mobile, limpeza de badges de debug, redimensionamento do bestiário, grid vertical de caçadas, calibração de zoom e safe area no loading screen.
+- [x] 235-01-PLAN: Implementação do chat flutuante mobile, limpeza de badges de debug, redimensionamento do bestiário, grid vertical de caçadas, calibração de zoom e safe area no loading screen.
+- [x] 236-01-PLAN: Redesign mobile completo dos modais, joystick fluido, remoção de coordenadas e botões de fechar ergonômicos.
 
 
 

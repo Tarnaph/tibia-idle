@@ -10410,3 +10410,312 @@ h1, h2, h3, p { margin: 0; }
   }
 }
 
+/* ==========================================================================
+   PHASE 236: MOBILE WINDOWS & MENUS COMPREHENSIVE OVERHAUL
+   Ensures all dialogs fit comfortably on mobile viewports, are clearly readable,
+   have centered contained layouts, and feature large touch-friendly close buttons.
+   ========================================================================== */
+
+.inventory-window-backdrop {
+  display: none;
+}
+
+.inventory-mobile-close-container {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* 1. Backdrop for Inventory & Floating Windows */
+  .inventory-window-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(4px);
+    z-index: 959;
+  }
+
+  /* 2. Universal Mobile Window Containers (Centered, Constrained, Scrollable) */
+  .inventory-window-container.floating-window,
+  .shop-window,
+  .depot-window-container,
+  .quicksell-window-container,
+  .tibia-skills-floating-window {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 95vw !important;
+    max-width: 440px !important;
+    max-height: 88dvh !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* 3. Universal High-Contrast, Touch-Friendly Close Buttons (>= 38-44px tap target) */
+  .inventory-close-btn,
+  .tibia-window-close-btn,
+  .tibia-skills-btn-ctrl {
+    min-width: 38px !important;
+    min-height: 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(239, 68, 68, 0.18) !important;
+    border: 1px solid rgba(239, 68, 68, 0.45) !important;
+    color: #f87171 !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    line-height: 1 !important;
+  }
+
+  .inventory-close-btn:active,
+  .tibia-window-close-btn:active,
+  .tibia-skills-btn-ctrl:active {
+    background: rgba(239, 68, 68, 0.35) !important;
+    transform: scale(0.95) !important;
+  }
+
+  /* 4. INVENTORY WINDOW MOBILE OVERHAUL */
+  .inventory-window-body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 10px 12px 16px 12px !important;
+    gap: 12px !important;
+    max-height: calc(88dvh - 54px) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .inventory-paperdoll-column {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .paperdoll-grid {
+    grid-template-columns: repeat(3, 42px) !important;
+    grid-template-rows: repeat(4, 42px) !important;
+    gap: 8px !important;
+    padding: 2px 0 !important;
+    justify-content: center !important;
+  }
+
+  .paperdoll-slot-box {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 6px !important;
+  }
+
+  .capacity-inset-box {
+    width: 100% !important;
+    max-width: 280px !important;
+    margin-top: 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  .inventory-items-column {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .bolsa-grid {
+    grid-template-columns: repeat(6, 38px) !important;
+    grid-template-rows: repeat(2, 38px) !important;
+    gap: 6px !important;
+    justify-content: center !important;
+  }
+
+  .mochila-grid {
+    grid-template-columns: repeat(5, 42px) !important;
+    grid-template-rows: repeat(4, 42px) !important;
+    gap: 6px !important;
+    justify-content: center !important;
+  }
+
+  .inventory-slot-cell {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 5px !important;
+  }
+
+  .mochila-grid .inventory-slot-cell {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .inventory-mobile-close-container {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: center !important;
+    margin-top: 12px !important;
+  }
+
+  .inventory-mobile-close-btn {
+    width: 100% !important;
+    max-width: 280px !important;
+    padding: 10px 16px !important;
+    background: #1e293b !important;
+    border: 1.5px solid #475569 !important;
+    border-radius: 8px !important;
+    color: #e2e8f0 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    text-align: center !important;
+  }
+
+  /* 5. OUTFIT MODAL MOBILE OVERHAUL */
+  .tibia-outfit-window {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    max-height: 92dvh !important;
+    border-radius: 8px !important;
+  }
+
+  .tibia-outfit-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 10px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(92dvh - 110px) !important;
+  }
+
+  .tibia-outfit-left-col {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .tibia-preview-box {
+    margin: 4px auto !important;
+  }
+
+  .tibia-palette-container {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .tibia-palette-matrix-19x7 {
+    gap: 1px !important;
+  }
+
+  .tibia-outfit-right-col {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .tibia-cards-scroll-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    max-height: 240px !important;
+    gap: 8px !important;
+  }
+
+  .tibia-window-footer {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+  }
+
+  .tibia-footer-btn-diag,
+  .tibia-footer-btn-diag-save {
+    display: none !important;
+  }
+
+  .tibia-footer-btn-cancel,
+  .tibia-footer-btn-save {
+    flex: 1 !important;
+    height: 42px !important;
+    font-size: 13.5px !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+  }
+
+  /* 6. SHOP WINDOW MOBILE OVERHAUL */
+  .shop-categories-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .shop-category-card {
+    padding: 6px 4px !important;
+  }
+
+  .shop-category-label {
+    font-size: 9.5px !important;
+  }
+
+  .shop-items-matrix {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .shop-slot-item {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .shop-purchase-panel {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* 7. DEPOT WINDOW MOBILE OVERHAUL */
+  .depot-window-body {
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 10px !important;
+  }
+
+  .depot-storage-pane {
+    width: 100% !important;
+  }
+
+  .depot-grid-container {
+    grid-template-columns: repeat(7, 36px) !important;
+    gap: 4px !important;
+    max-height: 220px !important;
+    overflow-y: auto !important;
+    justify-content: center !important;
+  }
+
+  /* 8. QUICKSELL WINDOW MOBILE OVERHAUL */
+  .quicksell-window-body {
+    padding: 10px !important;
+    max-height: calc(88dvh - 120px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* 9. SKILLS FLOATING WINDOW MOBILE OVERHAUL */
+  .tibia-skills-body {
+    max-height: calc(86dvh - 54px) !important;
+    overflow-y: auto !important;
+    padding: 8px 12px 14px 12px !important;
+    font-size: 11px !important;
+  }
+}
+
+

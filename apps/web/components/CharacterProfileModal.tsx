@@ -122,7 +122,7 @@ export function CharacterProfileModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1rem',
+        padding: 'clamp(0.25rem, 2vw, 1rem)',
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -176,15 +176,24 @@ export function CharacterProfileModal({
             type="button"
             onClick={onClose}
             style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#94a3b8',
-              fontSize: '1.3rem',
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '6px',
+              color: '#f87171',
+              fontSize: '1.25rem',
               cursor: 'pointer',
               lineHeight: 1,
-              padding: '2px 6px',
+              width: '38px',
+              height: '38px',
+              minWidth: '38px',
+              minHeight: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              touchAction: 'manipulation',
             }}
             title="Fechar Ficha do Personagem"
+            aria-label="Fechar Ficha do Personagem"
           >
             ✕
           </button>
@@ -558,7 +567,7 @@ export function CharacterProfileModal({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
               gap: '1rem',
             }}
           >
@@ -860,6 +869,33 @@ export function CharacterProfileModal({
               }}
             >
               Ver o último minuto
+            </button>
+          </div>
+
+          {/* Bottom Close Button for comfortable mobile thumb tap */}
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '0.5rem', paddingBottom: '0.25rem' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                width: '100%',
+                maxWidth: '280px',
+                padding: '10px 16px',
+                backgroundColor: '#1e293b',
+                border: '1.5px solid #475569',
+                borderRadius: '8px',
+                color: '#e2e8f0',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                touchAction: 'manipulation',
+              }}
+            >
+              ✕ Fechar Ficha
             </button>
           </div>
         </div>
