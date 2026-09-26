@@ -62,6 +62,41 @@ export function findRangedApproachTiles(
   ));
 }
 
+export function findCardinalApproachTiles(
+  map: TileMap,
+  focal: GridPosition,
+  desiredRange: number,
+  blocked: ReadonlySet<string> = new Set(),
+  minRange: number = 1
+): GridPosition[] {
+  const result: GridPosition[] = [];
+  const maxRange = Math.max(1, Math.floor(desiredRange));
+  const min = Math.max(1, Math.floor(minRange));
+
+  const dirs = [
+    { dx: 0, dy: -1 }, // North
+    { dx: 0, dy: 1 },  // South
+    { dx: -1, dy: 0 }, // West
+    { dx: 1, dy: 0 },  // East
+  ];
+
+  for (const { dx, dy } of dirs) {
+    for (let d = min; d <= maxRange; d++) {
+      const pos = { x: focal.x + dx * d, y: focal.y + dy * d, z: focal.z };
+      if (isTileWalkable(map, pos) && !blocked.has(positionKey(pos))) {
+        result.push(pos);
+      }
+    }
+  }
+
+  return result.sort((left, right) => (
+    Math.abs(meleeDistance(left, focal) - maxRange) - Math.abs(meleeDistance(right, focal) - maxRange)
+    || meleeDistance(left, focal) - meleeDistance(right, focal)
+    || left.y - right.y || left.x - right.x
+  ));
+}
+
+
 function heuristic(position: GridPosition, goals: GridPosition[]): number {
   return Math.min(...goals.map((goal) => {
     const dx = Math.abs(position.x - goal.x);

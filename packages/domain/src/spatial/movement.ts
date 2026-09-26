@@ -1,5 +1,5 @@
 import type { EnemyState, HuntEncounterState, PartyActorState, TargetSelectionStrategy } from '../types';
-import { findPath, findMeleeApproachTiles, findRangedApproachTiles, isMeleeRange, meleeDistance, surroundingPositions } from './pathfinding';
+import { findPath, findMeleeApproachTiles, findRangedApproachTiles, findCardinalApproachTiles, isMeleeRange, meleeDistance, surroundingPositions } from './pathfinding';
 import type { CardinalDirection, GridPosition } from './types';
 import { buildOccupancyMap, clonePosition, isTileWalkable, positionKey, tileAt } from './tileMap';
 import { createSeededRng, rollInteger } from '../rng';
@@ -88,7 +88,8 @@ function nearestEnemy(
   reserved: ReadonlySet<string>,
   allowedEnemyIds?: Set<string>,
   strategy: TargetSelectionStrategy = 'closest',
-  minRange: number = 1
+  minRange: number = 1,
+  cardinalFocalPoint?: GridPosition
 ) {
   const occupied = occupiedKeys(encounter);
   const candidates = encounter.enemies.filter((enemy) => enemy.alive && (!allowedEnemyIds || allowedEnemyIds.has(enemy.id)));
@@ -102,14 +103,37 @@ function nearestEnemy(
     const directDist = meleeDistance(actor.position, enemy.position);
     const minD = Math.max(1, minRange);
     const maxD = Math.max(minD, range);
-    const alreadyInRange = directDist >= minD && directDist <= maxD;
-    const goals = range <= 1
-      ? findMeleeApproachTiles(encounter.room.map, enemy.position, blocked)
-      : findRangedApproachTiles(encounter.room.map, enemy.position, maxD, blocked, minD);
+
+    const focal = cardinalFocalPoint;
+    const isCardinal = focal ? (actor.position.x === focal.x || actor.position.y === focal.y) : false;
+    const distToFocal = focal ? meleeDistance(actor.position, focal) : directDist;
+    const inRangeOfFocal = focal ? (distToFocal >= minD && distToFocal <= maxD) : false;
+
+    let alreadyInRange = directDist >= minD && directDist <= maxD;
+    if (focal && range > 1) {
+      alreadyInRange = isCardinal && inRangeOfFocal;
+    }
+
+    let goals: GridPosition[];
+    if (range <= 1) {
+      goals = findMeleeApproachTiles(encounter.room.map, enemy.position, blocked);
+    } else if (focal) {
+      const cardinalGoals = findCardinalApproachTiles(encounter.room.map, focal, maxD, blocked, minD);
+      goals = cardinalGoals.length > 0 ? cardinalGoals : findRangedApproachTiles(encounter.room.map, enemy.position, maxD, blocked, minD);
+    } else {
+      goals = findRangedApproachTiles(encounter.room.map, enemy.position, maxD, blocked, minD);
+    }
+
     const fallbackGoals = goals.length === 0 && range <= 1
       ? surroundingPositions(enemy.position).filter((p) => isTileWalkable(encounter.room.map, p))
       : (goals.length === 0 ? findRangedApproachTiles(encounter.room.map, enemy.position, maxD, blocked, 1) : goals);
-    const path = alreadyInRange ? [] : findPath(encounter.room.map, actor.position, fallbackGoals, blocked);
+    
+    let path = alreadyInRange ? [] : findPath(encounter.room.map, actor.position, fallbackGoals, blocked);
+    if (!alreadyInRange && path.length === 0 && focal && range > 1) {
+      const normalGoals = findRangedApproachTiles(encounter.room.map, enemy.position, maxD, blocked, minD);
+      path = findPath(encounter.room.map, actor.position, normalGoals, blocked);
+    }
+
     return {
       enemy,
       path,
@@ -171,7 +195,8 @@ export function movePartyTowardTargets(
   allowedEnemyIds?: Set<string>,
   mainCharacterId?: string,
   targetStrategy: TargetSelectionStrategy = 'closest',
-  minRanges?: Map<string, number>
+  minRanges?: Map<string, number>,
+  cardinalFocalPoints?: Map<string, GridPosition>
 ): void {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
@@ -189,6 +214,7 @@ export function movePartyTowardTargets(
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
     const range = ranges.get(actor.characterId) ?? 1;
     const minRange = minRanges?.get(actor.characterId) ?? 1;
+    const focal = cardinalFocalPoints?.get(actor.characterId);
 
     const activeStrategy = actor.targetStrategy || targetStrategy;
 
@@ -198,7 +224,7 @@ export function movePartyTowardTargets(
     if (encounter.isMultiplayerParty && actor.characterId !== mainActor?.characterId) {
       if (mainTargetEnemy) {
         actor.targetId = mainTargetEnemy.id;
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange, focal);
       } else {
         // Leader has no active target: secondary actor waits and follows leader
         actor.targetId = null;
@@ -232,7 +258,7 @@ export function movePartyTowardTargets(
       const isTooFarKnight = (currentLockedEnemy?.id === 'far-dragon-1' || (activeStrategy === 'closest' && lockedDist >= 10 && currentLockedEnemy?.monsterId === 'dragon')) && encounter.enemies.some((e) => e.alive && meleeDistance(actor.position, e.position) <= 1);
 
       if (currentLockedEnemy && !isTooFarKnight) {
-        selected = nearestEnemy(actor, encounter, range, reserved, new Set([currentLockedEnemy.id]), activeStrategy, minRange);
+        selected = nearestEnemy(actor, encounter, range, reserved, new Set([currentLockedEnemy.id]), activeStrategy, minRange, focal);
         actor.targetId = currentLockedEnemy.id;
         if (isMain) {
           mainTargetId = currentLockedEnemy.id;
@@ -244,10 +270,10 @@ export function movePartyTowardTargets(
         // 2. Se a estratégia for 'closest', busca sempre o monstro mais próximo elegível
         if (activeStrategy === 'closest' || !mainTargetEnemy || actor.characterId === mainActor?.characterId) {
           if (allowedEnemyIds) {
-            selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange);
+            selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange, focal);
           }
           if (!selected) {
-            selected = nearestEnemy(actor, encounter, range, reserved, undefined, 'closest', minRange);
+            selected = nearestEnemy(actor, encounter, range, reserved, undefined, 'closest', minRange, focal);
           }
           if (selected) {
             actor.targetId = selected.enemy.id;
@@ -259,13 +285,13 @@ export function movePartyTowardTargets(
         } else if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
           // Membro secundário seguindo o alvo do líder (quando não for estritamente 'closest')
           const mainDist = meleeDistance(actor.position, mainTargetEnemy.position);
-          const closest = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange)
-            ?? nearestEnemy(actor, encounter, range, reserved, undefined, 'closest', minRange);
+          const closest = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange, focal)
+            ?? nearestEnemy(actor, encounter, range, reserved, undefined, 'closest', minRange, focal);
           if (closest && meleeDistance(actor.position, closest.enemy.position) < mainDist) {
             selected = closest;
             actor.targetId = closest.enemy.id;
           } else {
-            selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange);
+            selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange, focal);
             if (selected) {
               actor.targetId = selected.enemy.id;
             } else if (closest) {
@@ -279,10 +305,10 @@ export function movePartyTowardTargets(
       if (!selected && (!currentLockedEnemy || isTooFarKnight)) {
         // 3. Fallback: seleciona o inimigo mais próximo geral
         if (allowedEnemyIds) {
-          selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange);
+          selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange, focal);
         }
         if (!selected) {
-          selected = nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy, minRange);
+          selected = nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy, minRange, focal);
         }
         actor.targetId = selected?.enemy.id ?? null;
         if (isMain && selected) {

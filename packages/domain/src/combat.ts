@@ -24,7 +24,7 @@ import type {
 import { tickImbuementTime } from './imbuements';
 import { calculateDeathProtection } from './blessings';
 import { findEquipment } from './equipment';
-import type { MonsterDefinition } from '../../content-schema/src';
+import type { MonsterDefinition, SpellDefinition } from '../../content-schema/src';
 import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
 
 export const MOVEMENT_TICK_MS = 120;
@@ -675,16 +675,157 @@ export function defeatEnemy(state: GameState, target: EnemyState, content: GameC
   synchronizeEncounterOccupancy(encounter);
 }
 
+export function getReadyStrikeSpell(
+  character: CharacterState,
+  actor: PartyActorState | undefined,
+  elapsedMs: number,
+  content: GameContent,
+  state?: GameState
+): SpellDefinition | undefined {
+  if (!actor || !actor.alive) return undefined;
+  const vocLower = (character.baseVocation || character.vocation || '').toLowerCase();
+  const isRanged = ['druid', 'sorcerer', 'paladin'].some((v) => vocLower.includes(v));
+  if (!isRanged) return undefined;
+
+  const groupCd = actor.groupCooldowns['attack'] ?? 0;
+  if (groupCd > elapsedMs) return undefined;
+
+  const hotbar = character.hotbar ?? [];
+  for (let slotIndex = 0; slotIndex < hotbar.length; slotIndex++) {
+    const actionId = hotbar[slotIndex];
+    if (typeof actionId !== 'number' || actionId === 0) continue;
+    const action = findHotbarAction(actionId, content);
+    if (!action || action.kind !== 'spell') continue;
+    if (!isHotbarActionUnlocked(character, action)) continue;
+    const slotConfig = character.hotbarConfigs?.[slotIndex];
+    if (slotConfig && slotConfig.enabled === false) continue;
+    const spell = action.spell;
+    // Strike spells (target area, attack group, range < 4, e.g. Exori Flam, Exori Vis, Exori Hur)
+    if (spell.group === 'attack' && spell.area === 'target' && spell.range < 4) {
+      const spellCd = actor.spellCooldowns[String(spell.spellId)] ?? 0;
+      if (spellCd > elapsedMs) continue;
+      if (actor.mana < spell.mana) continue;
+      if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+        const condMet = isHotbarSlotConditionsMet(slotConfig, { actor, character, state });
+        if (!condMet) continue;
+      }
+      return spell;
+    }
+  }
+  return undefined;
+}
+
+export function getReadyWaveSpell(
+  character: CharacterState,
+  actor: PartyActorState | undefined,
+  elapsedMs: number,
+  content: GameContent,
+  state?: GameState
+): SpellDefinition | undefined {
+  if (!actor || !actor.alive) return undefined;
+  const vocLower = (character.baseVocation || character.vocation || '').toLowerCase();
+  const isMage = ['druid', 'sorcerer'].some((v) => vocLower.includes(v));
+  if (!isMage) return undefined;
+
+  const groupCd = actor.groupCooldowns['attack'] ?? 0;
+  if (groupCd > elapsedMs) return undefined;
+
+  const hotbar = character.hotbar ?? [];
+  for (let slotIndex = 0; slotIndex < hotbar.length; slotIndex++) {
+    const actionId = hotbar[slotIndex];
+    if (typeof actionId !== 'number' || actionId === 0) continue;
+    const action = findHotbarAction(actionId, content);
+    if (!action || action.kind !== 'spell') continue;
+    if (!isHotbarActionUnlocked(character, action)) continue;
+    const slotConfig = character.hotbarConfigs?.[slotIndex];
+    if (slotConfig && slotConfig.enabled === false) continue;
+    const spell = action.spell;
+    if (isDirectionalSpell(spell)) {
+      const spellCd = actor.spellCooldowns[String(spell.spellId)] ?? 0;
+      if (spellCd > elapsedMs) continue;
+      if (actor.mana < spell.mana) continue;
+      if (slotConfig && slotConfig.conditions && slotConfig.conditions.length > 0) {
+        const condMet = isHotbarSlotConditionsMet(slotConfig, { actor, character, state });
+        if (!condMet) continue;
+      }
+      return spell;
+    }
+  }
+  return undefined;
+}
+
+export function computeCardinalFocalPoints(
+  state: GameState,
+  content: GameContent
+): Map<string, GridPosition> {
+  const encounter = state.encounter;
+  const cardinalFocalPoints = new Map<string, GridPosition>();
+  const partyKnight = findPartyKnightActor(state);
+
+  // Check if knight is engaged with adjacent monsters (knight's box)
+  let boxCenter: GridPosition | undefined = undefined;
+  if (partyKnight && partyKnight.alive) {
+    const adjacentEnemies = encounter.enemies.filter((e) => e.alive && meleeDistance(e.position, partyKnight.position) <= 1);
+    if (adjacentEnemies.length > 0) {
+      boxCenter = clonePosition(partyKnight.position);
+    }
+  }
+
+  // If no knight with box, check for cluster of 2+ living enemies
+  if (!boxCenter) {
+    const livingEnemies = encounter.enemies.filter((e) => e.alive);
+    if (livingEnemies.length >= 2) {
+      let bestEnemy: EnemyState | undefined;
+      let maxNeighbors = 0;
+      for (const enemy of livingEnemies) {
+        const count = livingEnemies.filter((other) => meleeDistance(other.position, enemy.position) <= 1).length;
+        if (count > maxNeighbors) {
+          maxNeighbors = count;
+          bestEnemy = enemy;
+        }
+      }
+      if (bestEnemy && maxNeighbors >= 2) {
+        boxCenter = clonePosition(bestEnemy.position);
+      }
+    }
+  }
+
+  if (!boxCenter) return cardinalFocalPoints;
+
+  for (const actor of encounter.partyActors) {
+    if (!actor.alive) continue;
+    const char = state.session.characters.find((c) => c.id === actor.characterId);
+    if (!char) continue;
+    const readyWave = getReadyWaveSpell(char, actor, encounter.elapsedMs, content, state);
+    if (readyWave) {
+      cardinalFocalPoints.set(actor.characterId, boxCenter);
+    }
+  }
+
+  return cardinalFocalPoints;
+}
+
 export function attackRange(characterId: string, state: GameState, content: GameContent): number {
   const character = state.session.characters.find((candidate) => candidate.id === characterId);
   if (!character) return 1;
-  if (typeof character.targetDistance === 'number' && character.targetDistance >= 1) {
-    return character.targetDistance;
-  }
   const vocLower = (character.baseVocation || character.vocation || '').toLowerCase();
   const isKnight = vocLower.includes('knight');
   if (isKnight) return 1;
   const isRanged = ['druid', 'sorcerer', 'paladin'].some((v) => vocLower.includes(v));
+
+  // STEP-IN & CAST: Avanço tático para strikes curtos (Exori Flam, Exori Vis, Exori Hur, etc.)
+  if (isRanged && state.encounter) {
+    const actor = state.encounter.partyActors.find((a) => a.characterId === characterId);
+    const readyStrike = getReadyStrikeSpell(character, actor, state.encounter.elapsedMs, content, state);
+    if (readyStrike) {
+      return Math.max(1, readyStrike.range);
+    }
+  }
+
+  if (typeof character.targetDistance === 'number' && character.targetDistance >= 1) {
+    return character.targetDistance;
+  }
+
   if (isRanged) return 4;
   const weapon = getEquippedItems(character, content.equipment).find((item) => ['distance', 'wand'].includes(item.weaponType) || Boolean(findWandDefinition(item.id)));
   if (weapon) {
@@ -694,16 +835,28 @@ export function attackRange(characterId: string, state: GameState, content: Game
   return 1;
 }
 
-export function minTacticalRange(characterId: string, state: GameState): number {
+
+export function minTacticalRange(characterId: string, state: GameState, content?: GameContent): number {
   const character = state.session.characters.find((candidate) => candidate.id === characterId);
   if (!character) return 1;
   const vocLower = (character.baseVocation || character.vocation || '').toLowerCase();
   const isKnight = vocLower.includes('knight');
   if (isKnight) return 1;
   const isRanged = ['druid', 'sorcerer', 'paladin'].some((v) => vocLower.includes(v));
-  if (isRanged) return 3;
+  if (isRanged) {
+    if (content && state.encounter) {
+      const actor = state.encounter.partyActors.find((a) => a.characterId === characterId);
+      const readyStrike = getReadyStrikeSpell(character, actor, state.encounter.elapsedMs, content, state);
+      if (readyStrike && readyStrike.range < 3) {
+        return Math.max(1, readyStrike.range);
+      }
+    }
+    return 3;
+  }
   return 1;
 }
+
+
 
 export function findPartyKnightActor(state: GameState): PartyActorState | undefined {
   return state.encounter.partyActors.find((actor) => {
@@ -2884,10 +3037,11 @@ function advanceSpatialCombat(state: GameState, content: GameContent): void {
   const partyKnight = findPartyKnightActor(state);
   const mainLeadId = partyKnight?.characterId ?? state.session.selectedCharacterId;
   const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-  const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state)]));
+  const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state, content)]));
+  const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
   const activeChar = state.session.characters.find((candidate) => candidate.id === state.session.selectedCharacterId);
   const targetStrategy = activeChar?.targetStrategy ?? 'closest';
-  movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges);
+  movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges, cardinalFocalPoints);
   moveEnemiesTowardParty(encounter);
   recordMovementEvents(encounter);
   castAutomaticSpells(state, content);
@@ -2905,10 +3059,11 @@ function advanceExpedition(state: GameState, content: GameContent): void {
     const partyKnight = findPartyKnightActor(state);
     const mainLeadId = partyKnight?.characterId ?? state.session.selectedCharacterId;
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state)]));
+    const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state, content)]));
+    const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
     const activeChar = state.session.characters.find((candidate) => candidate.id === state.session.selectedCharacterId);
     const targetStrategy = activeChar?.targetStrategy ?? 'closest';
-    movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges);
+    movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges, cardinalFocalPoints);
     moveEnemiesTowardParty(encounter);
     recordMovementEvents(encounter);
     castAutomaticSpells(state, content);
@@ -3036,8 +3191,9 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
     const partyKnight = findPartyKnightActor(state);
     const mainLeadId = partyKnight?.characterId ?? state.session.selectedCharacterId;
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state)]));
-    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds), mainLeadId, undefined, minRanges);
+    const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state, content)]));
+    const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
+    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds), mainLeadId, undefined, minRanges, cardinalFocalPoints);
     const leader = encounter.partyActors.find((actor) => actor.characterId === (partyKnight?.characterId ?? state.session.leaderId) && actor.alive) ?? encounter.partyActors.find((actor) => actor.alive);
     if (leader && leader.path.length === 0 && !encounter.enemies.some((e) => e.alive && meleeDistance(leader.position, e.position) <= (ranges.get(leader.characterId) ?? 1))) {
       movePartyTowardPoint(encounter, objective.target, mainLeadId);
@@ -3054,8 +3210,9 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
     const partyKnight = findPartyKnightActor(state);
     const mainLeadId = partyKnight?.characterId ?? state.session.selectedCharacterId;
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
-    const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state)]));
-    movePartyTowardTargets(encounter, ranges, new Set(visibleEnemies.map((e) => e.id)), mainLeadId, undefined, minRanges);
+    const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state, content)]));
+    const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
+    movePartyTowardTargets(encounter, ranges, new Set(visibleEnemies.map((e) => e.id)), mainLeadId, undefined, minRanges, cardinalFocalPoints);
     moveEnemiesTowardParty(encounter);
     recordMovementEvents(encounter);
     castAutomaticSpells(state, content);

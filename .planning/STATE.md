@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-25T20:28:00.000Z"
-last_activity: "2026-09-25 — Phase 242 Concluída: Loading Real e Determinístico de Caçadas, Remoção do Bestiário no HUD & Desfazer Grupo com Retorno ao Templo."
+last_updated: "2026-09-25T21:38:00.000Z"
+last_activity: "2026-09-25 — Phase 243 Concluída: IA Tática de Posicionamento e Combate (Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box)."
 progress:
-  total_phases: 242
-  completed_phases: 242
-  total_plans: 326
-  completed_plans: 326
+  total_phases: 243
+  completed_phases: 243
+  total_plans: 327
+  completed_plans: 327
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 242 Concluída (Loading Real e Determinístico de Caçadas, Remoção do Bestiário no HUD & Desfazer Grupo com Retorno ao Templo).
+**Current focus:** Fase 243 Concluída (IA Tática de Posicionamento e Combate: Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box).
 
 ## Current Position
 
-Phase: 242 of 242  
-Plan: 1 of 1 in Phase 242  
+Phase: 243 of 243  
+Plan: 1 of 1 in Phase 243  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 242: Pré-carregamento integral de monstros no huntAssetPreloader, correção de remoção do Bestiário no HUD e abandono seguro de caçada ao desfazer party com retorno ao templo.
+Last activity: 2026-09-25 — Phase 243: Implementação de avanço tático (step-in) para strikes e alinhamento em linha reta cardinal de waves para party com Knight na box.
 
 Progress: [██████████] 100%
 
@@ -107,10 +107,13 @@ Progress: [██████████] 100%
 | 216. Combat FX Atlas & PixiJS v8 Texture Resolution | 1 | - | - | Complete |
 | 225. Arquitetura Server-Authoritative de Caçadas (Colyseus HuntDungeonRoom) & Desarme de Rate Limiters | 1 | - | - | Complete |
 | 226. Estabilidade do Motor Gráfico (Out of Memory & Background Tab), Economia de Poções, Loading Único e Analisador de Caça | 3 | - | - | Complete |
+| 243. IA Tática de Posicionamento e Combate (Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box) | 1 | - | - | Complete |
 
 ## Accumulated Context
 
 ### Decisions
+
+- [Phase 243]: Implementação de IA tática avançada para combate no domínio (`combat.ts`, `pathfinding.ts`, `movement.ts`): (1) Step-In & Cast dinâmico para conjuradores e atiradores à distância com magias de strike curto prontas (ex: Exori Flam, Exori Vis, Exori Hur de alcance 3), avançando 1 SQM para disparar a magia e retornando à distância segura de kiting (4) ao entrar em cooldown; (2) Alinhamento cardinal tático para magias de wave/beam de magos com ponto focal na box do Knight ou cluster de monstros, garantindo que o mago se posicione na mesma linha reta (mesmo X ou Y) e dispare varrendo a box inteira sem desperdício de ondas.
 
 - [Phase 226]: Destruição explícita de canvas de Text no PixiJS v8 (`texture.destroy(true)` e `destroy({ texture: true, textureSource: true, children: true })`) eliminando o estouro de memória da aba ("Out of Memory"); desacoplamento do timer de loading no `ExuraLoadingScreen` via `setInterval` e `visibilitychange` impedindo congelamento em abas em segundo plano; bloqueio estrito de consumo de poções quando `session.gold < cost` e sem suprimentos na mochila; artes oficiais de Cyclops Camp e Elf Sanctuary integradas em `public/assets/loading/` e `public/images/loading/`; prefetch de bundle sem duplo loading (0 a 100% contínuo); sincronização de morte visual e aparecimento de esqueleto atrelados ao voo e impacto do projétil/efeito (`pendingImpacts`); e Analisador de Caça dinâmico com loot, suprimentos, dano e DPS reais sem scroll horizontal.
 - [Phase 225]: Conversão de bloqueios hostis de save em telemetria silenciosa de auditoria (`[AUDIT_TELEMETRY]`); criação da sala autoritativa `HuntDungeonRoom` no Colyseus com persistência via `PrismaPersistenceManager`.

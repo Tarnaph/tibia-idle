@@ -86,3 +86,12 @@
 - [x] **Item 16: Desfazer Grupo Durante Caçada com Abandono e Retorno Seguro ao Templo (`UnifiedPartyModal.tsx` & `GamePrototype.tsx`)**
   - [x] Corrigir `onDisbandParty` quando executado durante uma caçada (`mode === 'hunt'`).
   - [x] Executar o fluxo canônico de encerramento de caçada: limpar os membros da party do estado e do Colyseus, salvar progresso com segurança, reposicionar o jogador seguro no Templo de Thais (`x: 32369, y: 32241, z: 7`), restaurar `mode = 'training'`, parar BGM de caçada e habilitar Thais City normalmente sem travamento.
+
+- [x] **Item 17: IA Tática de Posicionamento e Combate: Step-In para Magias de Curto Alcance & Alinhamento Cardinal de Waves com Knight na Box (`combat.ts`, `pathfinding.ts` & `hotbarActions.ts`)**
+  - [x] 1. **Step-In & Cast (Avanço Tático para Strikes e Magias Curtas):**
+    - Quando um conjurador/ranged (Sorcerer, Druid, Paladin) estiver com magia de strike ou alcance curto (como `Exori Flam`, `Exori Vis`, `Exori Hur` com range 3) sem cooldown e com mana suficiente, mas o monstro alvo estiver a 4 passos (alcance da wand/arma), a IA avança 1 SQM em direção ao alvo para entrar no range 3 e disparar a magia.
+    - Após a conjuração, se o monstro tentar se aproximar ou ultrapassar a distância tática segura, a IA mantém o comportamento de kiting/recuo seguro.
+  - [x] 2. **Alinhamento Cardinal Tático para Waves com Knight na Box (Line-up Tático):**
+    - Quando o personagem tiver magia de wave (como `Fire Wave`, `Energy Wave`, `Ice Wave`, `Terra Wave`, etc.) configurada na hotbar e pronta/quase pronta para conjuração:
+    - Se houver um Knight na party engajado com monstros ao redor (box 3x3 ou cluster de inimigos), a IA dos mages procura ativamente se posicionar em linha reta cardinal (mesmo X ou mesmo Y do Knight) a uma distância segura (ex: 2 a 4 SQMs).
+    - Vira na direção do Knight e dispara a wave, atravessando a box inteira do Knight e maximizando o dano em área em 3 a 8 criaturas simultâneas sem desperdiçar ondas no vazio.
