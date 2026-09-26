@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-25T22:05:00.000Z"
-last_activity: "2026-09-25 — Phase 244 Concluída: Blindagem Total de Persistência (Reconciliação de UUID de Alts, Graceful Shutdown no Servidor e Flush Pré-Deploy)."
+last_updated: "2026-09-26T04:46:00.000Z"
+last_activity: "2026-09-26 — Conclusão das 3 Ondas de Refatoração Arquitetural e Otimização Profissional (Fases 245, 246 e 247)."
 progress:
-  total_phases: 244
-  completed_phases: 244
-  total_plans: 328
-  completed_plans: 328
+  total_phases: 247
+  completed_phases: 247
+  total_plans: 331
+  completed_plans: 331
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 244 Concluída (Blindagem Total de Persistência: Reconciliação de UUID de Alts, Graceful Shutdown no Servidor e Flush Pré-Deploy).
+**Current focus:** Fases 245, 246 e 247 Concluídas (3 Ondas: Infraestrutura de Deploy Unificada, Domain Handlers do Servidor Colyseus e Custom Hooks no Frontend).
 
 ## Current Position
 
-Phase: 244 of 244  
-Plan: 1 of 1 in Phase 244  
+Phase: 247 of 247  
+Plan: 1 of 1 in Phase 247  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 244: Reconciliação atômica de UUID de alts em GamePrototype.tsx e addPartyMember, auto-reconciliação em saveProgress, e graceful shutdown com flush de salas ativas no Colyseus e deploy seguro.
+Last activity: 2026-09-26 — Execução bem-sucedida das 3 Ondas com backup prévio: (1) scripts/deploy.mjs e saneamento de mais de 60 arquivos redundantes; (2) Modularização de ThaisCityRoom.ts reduzindo de 2.561 para 1.066 linhas com 5 Domain Handlers; (3) Desacoplamento do GamePrototype.tsx com useHotbarShortcuts e useAutoSave. 100% de testes e typecheck aprovados.
 
 Progress: [██████████] 100%
 

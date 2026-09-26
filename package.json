@@ -22,6 +22,7 @@
     "build:atlases": "node scripts/build-combat-assets.mjs && node scripts/build-collision-map.mjs && node scripts/build-thais-atlas.mjs && node scripts/build-creatures-atlas.mjs && node scripts/build-combat-atlas.mjs",
     "db:backup": "node scripts/backup-sqlite.mjs",
     "setup:assets": "node scripts/ensure-asset-junctions.cjs",
+    "deploy": "node scripts/deploy.mjs",
     "postinstall": "node scripts/patch-http-pipeline.cjs && node scripts/ensure-asset-junctions.cjs"
   },
   "dependencies": {

@@ -64,6 +64,8 @@ import { ExuraLoadingScreen, getLoadingConfigForHunt } from './ExuraLoadingScree
 import { TrainingArena } from './TrainingArena';
 import dynamic from 'next/dynamic';
 import type { CityOverheadMessage } from './ThaisCityArena';
+import { useHotbarShortcuts } from '../hooks/useHotbarShortcuts';
+import { useAutoSave } from '../hooks/useAutoSave';
 
 const ThaisCityArena = dynamic(
   () => import('./ThaisCityArena').then((m) => m.ThaisCityArena),
@@ -4677,48 +4679,41 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
   useGameTicker(tickHeldKeyboardMove, 16, mode !== 'hunt' && !isFollowingLeader);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
-
-      // Phase 126: Esc key toggles the Logout & Switch Character dialog when playing
-      if (e.key === 'Escape' && !showAuthModal) {
+  useHotbarShortcuts({
+    enabled: Boolean(onlineCharacter),
+    onHotbarAction: handleManualHotbarAction,
+    onTurn: (turnDir) => {
+      setCityDirection(turnDir);
+      gameNetwork.sendTurn(turnDir);
+      if (mode === 'hunt') {
+        setGame((cur) => {
+          const actor = cur.encounter.partyActors.find((a) => a.characterId === activeCharacter.id);
+          if (actor) {
+            actor.direction = turnDir;
+          }
+          return { ...cur };
+        });
+      }
+    },
+    onOpenOutfit: () => handleOpenOutfitModal(activeCharacter.id),
+    onToggleMount: () => handleToggleMount(activeCharacter.id),
+    onEscape: () => {
+      if (!showAuthModal) {
         if (isLogoutModalOpen) {
           setIsLogoutModalOpen(false);
           return;
         }
         if (!equipmentOpen && !depotOpen && !shopOpen && !skillsModalOpen && !isProfileModalOpen && !huntSelectorOpen && !outfitModalOpen) {
           setIsLogoutModalOpen(true);
-          return;
         }
       }
+    },
+  });
 
-      // FIX.md Item 8: Girar o corpo no próprio eixo (Ctrl + Direcionais / WASD) sem andar
-      const isTurnArrow = e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
-        e.key === 'w' || e.key === 'W' || e.key === 's' || e.key === 'S' || e.key === 'a' || e.key === 'A' || e.key === 'd' || e.key === 'D';
-
-      if ((e.ctrlKey || e.metaKey) && isTurnArrow) {
-        e.preventDefault();
-        const turnDir: 'north' | 'south' | 'east' | 'west' =
-          (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') ? 'north' :
-          (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') ? 'south' :
-          (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') ? 'west' : 'east';
-
-        setCityDirection(turnDir);
-        gameNetwork.sendTurn(turnDir);
-
-        if (mode === 'hunt') {
-          setGame((cur) => {
-            const actor = cur.encounter.partyActors.find((a) => a.characterId === activeCharacter.id);
-            if (actor) {
-              actor.direction = turnDir;
-            }
-            return { ...cur };
-          });
-        }
-        return;
-      }
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
 
       // Manual movement via arrow keys (and WASD) in city mode
       if (mode !== 'hunt' && !e.ctrlKey && !e.metaKey) {
@@ -4742,32 +4737,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             lastStepTimeRef.current = now;
             takeCityStep(deltaX, deltaY); // Instant step on first key press
           }
-          return;
         }
-      }
-
-      // Hotkey U: Abrir Customização de Outfit / Aparência
-      if ((e.key === 'u' || e.key === 'U') && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        handleOpenOutfitModal(activeCharacter.id);
-        return;
-      }
-
-      // Hotkey Ctrl+R: Montar / Desmontar
-      if ((e.key === 'r' || e.key === 'R') && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        handleToggleMount(activeCharacter.id);
-        return;
-      }
-
-      if (e.key.startsWith('F') && e.key.length <= 3) {
-        const fNum = parseInt(e.key.slice(1), 10);
-        if (fNum >= 1 && fNum <= 12) {
-          e.preventDefault();
-          handleManualHotbarAction(fNum - 1);
-        }
-      } else if (e.key >= '0' && e.key <= '9' && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        const keyNum = e.key === '0' ? 9 : parseInt(e.key, 10) - 1;
-        handleManualHotbarAction(10 + keyNum);
       }
     };
 
@@ -4798,7 +4768,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
     };
-  }, [handleManualHotbarAction, mode, takeCityStep, isFollowingLeader]);
+  }, [mode, takeCityStep, isFollowingLeader, cityStepDurationMs]);
 
   const skillsList = [
     ['Fist', activeCharacter.skills.fist, selectedSkillProgress.fist],

@@ -106,3 +106,25 @@
     - Interceptar sinais `SIGINT` e `SIGTERM` no servidor Node/Colyseus para persistir forçadamente o estado e inventário de todos os jogadores conectados via `flushActiveInstanceSaves` e `flushAllActiveRooms` antes do encerramento do processo.
   - [x] 4. **Rotina de Flush e Graceful Restart nos Scripts de Deploy (`scripts/deploy-phase244-vps.mjs`):**
     - Implementar verificação e `--kill-timeout 10000` pré-restart no PM2 para permitir que conexões e gravações pendentes no banco SQLite/Postgres sejam finalizadas com integridade.
+
+- [x] **Item 19: Onda 1 - Limpeza e Unificação da Infraestrutura de Scripts (`scripts/deploy.mjs`)**
+  - [x] Consolidar os mais de 60 scripts redundantes `deploy-phase*.mjs` em um único script de deploy modular e com suporte a parâmetros (`scripts/deploy.mjs`).
+  - [x] Mover/arquivar scripts de depuração e inspeção obsoletos de fases anteriores em `scripts/archive/` para manter a raiz limpa e organizada.
+  - [x] Validar execução e integridade do pipeline de deploy unificado.
+
+- [x] **Item 20: Onda 2 - Modularização Arquitetural do Servidor Colyseus (`ThaisCityRoom.ts` Domain Handlers)**
+  - [x] Desmembrar o monólito `ThaisCityRoom.ts` (2.561 linhas) em handlers especializados em `packages/server/src/rooms/handlers/`:
+    - `CityMovementHandler.ts`: movimentação, pathing e colisões na cidade.
+    - `CityCombatHandler.ts`: magias, cooldowns, combate e dummies.
+    - `CityChatHandler.ts`: chat local, world e whispers privados.
+    - `CityPvPHandler.ts`: duelo, matchmaking e ranking da arena.
+    - `CityPartyHandler.ts`: grupos, transições de caçada, auto-idle e sincronização.
+  - [x] Preservar 100% dos contratos de mensagens e persistência do Colyseus.
+  - [x] Executar typecheck e suíte completa de testes.
+
+- [x] **Item 21: Onda 3 - Desacoplamento e Performance do Frontend (`GamePrototype.tsx`)**
+  - [x] Extrair responsabilidades de ciclo de vida e estado de `GamePrototype.tsx` (5.834 linhas) em Custom Hooks isolados:
+    - `useAutoSave.ts`: auto-save periódico com reconciliação de UUID e beacon de descarregamento.
+    - `useHotbarShortcuts.ts`: captura de atalhos de teclado (F1-F12, numéricos).
+  - [x] Otimizar renderizações e desacoplar ouvintes de teclado do JSX principal.
+  - [x] Validar testes e typecheck com zero erros.
