@@ -95,3 +95,14 @@
     - Quando o personagem tiver magia de wave (como `Fire Wave`, `Energy Wave`, `Ice Wave`, `Terra Wave`, etc.) configurada na hotbar e pronta/quase pronta para conjuração:
     - Se houver um Knight na party engajado com monstros ao redor (box 3x3 ou cluster de inimigos), a IA dos mages procura ativamente se posicionar em linha reta cardinal (mesmo X ou mesmo Y do Knight) a uma distância segura (ex: 2 a 4 SQMs).
     - Vira na direção do Knight e dispara a wave, atravessando a box inteira do Knight e maximizando o dano em área em 3 a 8 criaturas simultâneas sem desperdiçar ondas no vazio.
+
+- [x] **Item 18: Blindagem Total de Persistência (Reconciliação de UUID de Alts Criados em Jogo, Graceful Shutdown no Servidor e Flush Pré-Deploy)**
+  - [x] 1. **Reconciliação Imediata de UUID de Novos Alts (`GamePrototype.tsx`):**
+    - Em `createMember`, aguardar o retorno da API `/api/characters` (`POST`) e passar o UUID canônico gerado pelo Prisma (`canonicalDbId`) diretamente para `addPartyMember`, inicializando o personagem em `game.session.characters`, `savedPool`, `partyMemberIds` e `characterSaveVersionsRef` com o UUID real desde o nascimento.
+    - Garantir que qualquer save disparado posteriormente pelo loop de autosave utilize o ID real do banco, eliminando o erro 403 silencioso.
+  - [x] 2. **Detecção e Log de Falhas no Autosave de Alts (`GamePrototype.tsx`):**
+    - Tratar erros retornados por `/api/characters/${alt.id}/save` com logs claros no console e auto-reconciliação inteligente via `/api/characters` se o ID for divergente.
+  - [x] 3. **Graceful Shutdown & Save-on-Exit no Servidor Colyseus (`ThaisCityRoom.ts`, `HuntDungeonRoom.ts`, `cli.ts`):**
+    - Interceptar sinais `SIGINT` e `SIGTERM` no servidor Node/Colyseus para persistir forçadamente o estado e inventário de todos os jogadores conectados via `flushActiveInstanceSaves` e `flushAllActiveRooms` antes do encerramento do processo.
+  - [x] 4. **Rotina de Flush e Graceful Restart nos Scripts de Deploy (`scripts/deploy-phase244-vps.mjs`):**
+    - Implementar verificação e `--kill-timeout 10000` pré-restart no PM2 para permitir que conexões e gravações pendentes no banco SQLite/Postgres sejam finalizadas com integridade.

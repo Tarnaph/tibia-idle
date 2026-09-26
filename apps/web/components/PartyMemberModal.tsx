@@ -10,7 +10,7 @@ interface Props {
   open: boolean;
   used: VocationName[];
   onClose(): void;
-  onCreate(name: string, vocation: BaseVocationName, gender?: Gender): string | null;
+  onCreate(name: string, vocation: BaseVocationName, gender?: Gender): string | null | Promise<string | null>;
 }
 
 interface VocationCardData {
@@ -42,14 +42,14 @@ export function PartyMemberModal({ open, used, onClose, onCreate }: Props) {
 
   if (!open) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError('Por favor, informe o nome do personagem.');
       return;
     }
 
-    const result = onCreate(name.trim(), 'None', gender);
+    const result = await onCreate(name.trim(), 'None', gender);
     if (result) {
       setError(result);
     } else {

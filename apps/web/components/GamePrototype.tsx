@@ -2326,6 +2326,45 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               errorText = errBody?.message || errBody?.error || '';
             } catch {}
             clientErrorLogger.warn('SAVE_ALT_FAILED', `Falha ao salvar alt ${alt.name} (${alt.id}) status ${altRes.status}: ${errorText}`);
+
+            // Self-healing: Se o ID do alt for provisório ou não corresponder ao banco (403/404), reconciliar com /api/characters
+            if ((altRes.status === 403 || altRes.status === 404) && token) {
+              try {
+                const charListRes = await fetch('/api/characters', {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                if (charListRes.ok) {
+                  const charListData = (await charListRes.json()) as any;
+                  const matched = charListData?.data?.find(
+                    (c: any) => c.name.toLowerCase() === alt.name.toLowerCase()
+                  );
+                  if (matched && matched.id && matched.id !== alt.id) {
+                    const realId = matched.id;
+                    console.log(`[GamePrototype] Auto-reconciliação de UUID para alt '${alt.name}': ${alt.id} -> ${realId}`);
+                    setGame((curr) => ({
+                      ...curr,
+                      session: {
+                        ...curr.session,
+                        characters: curr.session.characters.map((c) =>
+                          c.id === alt.id ? { ...c, id: realId } : c
+                        ),
+                      },
+                    }));
+                    setSavedPool((prev) =>
+                      prev.map((c) => (c.id === alt.id ? { ...c, id: realId } : c))
+                    );
+                    setPartyMemberIds((prev) =>
+                      prev.map((id) => (id === alt.id ? realId : id))
+                    );
+                    const currVer = characterSaveVersionsRef.current.get(alt.id) || 1;
+                    characterSaveVersionsRef.current.delete(alt.id);
+                    characterSaveVersionsRef.current.set(realId, currVer);
+                  }
+                }
+              } catch (reconcileErr) {
+                console.error('[GamePrototype] Erro ao tentar auto-reconciliar alt com o banco:', reconcileErr);
+              }
+            }
           }
         } catch (altErr: any) {
           clientErrorLogger.warn('SAVE_ALT_EXCEPTION', `Exceção ao salvar alt ${alt.name} (${alt.id}): ${altErr?.message || altErr}`);
@@ -4075,7 +4114,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     setSaleMessage('Protótipo restaurado no Templo de Thais (32369, 32241, 7).');
     setStatsDelta(null);
   };
-  const createMember = (name: string, vocation: BaseVocationName, gender?: 'Masculino' | 'Feminino'): string | null => {
+  const createMember = async (name: string, vocation: BaseVocationName, gender?: 'Masculino' | 'Feminino'): Promise<string | null> => {
     const currentMemberCount = game.session.characters.length;
     const roleUpper = onlineAccount?.role?.toUpperCase() || '';
     const isAdminOrGm = roleUpper === 'ADMIN' || roleUpper === 'GM';
@@ -4113,8 +4152,36 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
 
     const charGender = gender === 'Feminino' ? 'female' : 'male';
+    const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
+
+    let canonicalDbId: string | undefined = undefined;
+
+    // Se autenticado, cria primeiro no banco Prisma para obter o UUID oficial
+    if (token) {
+      const vocIdMap: Record<string, number> = { Sorcerer: 1, Druid: 2, Paladin: 3, Knight: 4, Monk: 4 };
+      try {
+        const res = await fetch('/api/characters', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: cleanName, vocationId: vocIdMap[vocation] || 4, gender: charGender }),
+        });
+        const resData = (await res.json().catch(() => null)) as any;
+        if (!res.ok || !resData?.success || !resData?.data?.id) {
+          const errReason = resData?.error || `Erro HTTP ${res.status}`;
+          return `Não foi possível criar o personagem no servidor: ${errReason}`;
+        }
+        canonicalDbId = resData.data.id;
+      } catch (err: any) {
+        console.error('[createMember] Falha de rede ao persistir personagem:', err);
+        return 'Falha de comunicação com o servidor ao criar personagem.';
+      }
+    }
+
     try {
-      let nextState = addPartyMember(game, cleanName, vocation, content, charGender);
+      let nextState = addPartyMember(game, cleanName, vocation, content, charGender, canonicalDbId);
       if (mode === 'hunt') {
         try {
           nextState = synchronizePartyWithEncounter(nextState, content);
@@ -4137,23 +4204,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           if (prev.includes(createdChar.id) || prev.length >= 4) return prev;
           return [...prev, createdChar.id];
         });
+        characterSaveVersionsRef.current.set(createdChar.id, 1);
         setIsPartyCreated(true);
-      }
-
-      // Persist newly created character to PostgreSQL/SQLite Database under account
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('colyseus_token') || localStorage.getItem('tibia_auth_token')) : null;
-      if (token) {
-        const vocIdMap: Record<string, number> = { Sorcerer: 1, Druid: 2, Paladin: 3, Knight: 4, Monk: 4 };
-        fetch('/api/characters', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ name: name.trim(), vocationId: vocIdMap[vocation] || 4, gender: charGender }),
-        }).catch((err) => {
-          console.warn('Erro ao salvar personagem no banco:', err);
-        });
       }
 
       return null;

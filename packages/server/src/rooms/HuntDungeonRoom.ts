@@ -39,6 +39,15 @@ export interface HuntJoinOptions {
 }
 
 export class HuntDungeonRoom extends Room<WorldState> {
+  public static activeRooms: Set<HuntDungeonRoom> = new Set();
+
+  public static async flushAllActiveRooms(): Promise<void> {
+    console.log(`[HuntDungeonRoom] Executando flush forçado em ${HuntDungeonRoom.activeRooms.size} masmorras ativas...`);
+    for (const room of HuntDungeonRoom.activeRooms) {
+      await room.saveAllPlayers();
+    }
+  }
+
   maxClients = 50;
   public huntId: string = 'cyclops-camp';
   private autoSaveTimer: any = null;
@@ -46,6 +55,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
   private nextEventId: number = 1;
 
   onCreate(options: any) {
+    HuntDungeonRoom.activeRooms.add(this);
     this.setState(new WorldState());
     this.huntId = options.huntId || 'cyclops-camp';
     this.state.regionName = `hunt:${this.huntId}`;
@@ -466,7 +476,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
     }
   }
 
-  private async saveAllPlayers() {
+  public async saveAllPlayers() {
     for (const player of this.state.players.values()) {
       try {
         await persistenceManager.saveCharacter(player, { allowInHunt: true });
@@ -476,9 +486,15 @@ export class HuntDungeonRoom extends Room<WorldState> {
     }
   }
 
-  onDispose() {
+  async onDispose() {
     if (this.autoSaveTimer) clearInterval(this.autoSaveTimer);
     if (this.simulationTimer) clearInterval(this.simulationTimer);
-    console.log(`[HuntDungeonRoom] Masmorra '${this.huntId}' encerrada.`);
+    try {
+      await this.saveAllPlayers();
+    } catch (err) {
+      console.warn(`[HuntDungeonRoom] Erro no flush final de '${this.huntId}':`, err);
+    }
+    HuntDungeonRoom.activeRooms.delete(this);
+    console.log(`[HuntDungeonRoom] Masmorra '${this.huntId}' encerrada com persistência concluída.`);
   }
 }

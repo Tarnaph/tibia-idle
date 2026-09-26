@@ -157,12 +157,19 @@ export function roleForVocation(vocation: VocationName): 'TANK' | 'SUP' | 'DPS' 
   return 'DPS';
 }
 
-export function addPartyMember(state: GameState, name: string, vocation: BaseVocationName, content: GameContent, gender: 'male' | 'female' = 'male'): GameState {
+export function addPartyMember(
+  state: GameState,
+  name: string,
+  vocation: BaseVocationName,
+  content: GameContent,
+  gender: 'male' | 'female' = 'male',
+  explicitId?: string
+): GameState {
   const cleanName = name.trim();
   if (!cleanName) throw new Error('Nome obrigatório.');
   if (state.session.characters.length >= 4) throw new Error('A party já possui 4 membros.');
   const normalized = cleanName.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-');
-  const id = `${vocation.toLowerCase()}-${normalized || state.session.characters.length + 1}`;
+  const id = explicitId || `${vocation.toLowerCase()}-${normalized || state.session.characters.length + 1}`;
   if (state.session.characters.some((character) => character.id === id)) throw new Error('Nome já utilizado.');
   return {
     ...state,

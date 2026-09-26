@@ -124,7 +124,7 @@ export interface UnifiedPartyModalProps {
     name: string,
     vocation: 'Knight' | 'Paladin' | 'Sorcerer' | 'Druid',
     gender?: 'Masculino' | 'Feminino'
-  ) => string | null;
+  ) => string | null | Promise<string | null>;
 }
 
 /**
@@ -549,14 +549,14 @@ export function UnifiedPartyModal({
     }
   };
 
-  const handleCreateCharSubmit = (e: React.FormEvent) => {
+  const handleCreateCharSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!createCharName.trim()) {
       setCreateCharError('Por favor, informe o nome do personagem.');
       return;
     }
     if (!onCreateCharacter) return;
-    const err = onCreateCharacter(createCharName.trim(), createCharVocation, createCharGender);
+    const err = await onCreateCharacter(createCharName.trim(), createCharVocation, createCharGender);
     if (err) {
       setCreateCharError(err);
     } else {

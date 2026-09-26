@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-25T21:38:00.000Z"
-last_activity: "2026-09-25 — Phase 243 Concluída: IA Tática de Posicionamento e Combate (Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box)."
+last_updated: "2026-09-25T22:05:00.000Z"
+last_activity: "2026-09-25 — Phase 244 Concluída: Blindagem Total de Persistência (Reconciliação de UUID de Alts, Graceful Shutdown no Servidor e Flush Pré-Deploy)."
 progress:
-  total_phases: 243
-  completed_phases: 243
-  total_plans: 327
-  completed_plans: 327
+  total_phases: 244
+  completed_phases: 244
+  total_plans: 328
+  completed_plans: 328
   percent: 100
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Fase 243 Concluída (IA Tática de Posicionamento e Combate: Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box).
+**Current focus:** Fase 244 Concluída (Blindagem Total de Persistência: Reconciliação de UUID de Alts, Graceful Shutdown no Servidor e Flush Pré-Deploy).
 
 ## Current Position
 
-Phase: 243 of 243  
-Plan: 1 of 1 in Phase 243  
+Phase: 244 of 244  
+Plan: 1 of 1 in Phase 244  
 Status: Complete ✅  
-Last activity: 2026-09-25 — Phase 243: Implementação de avanço tático (step-in) para strikes e alinhamento em linha reta cardinal de waves para party com Knight na box.
+Last activity: 2026-09-25 — Phase 244: Reconciliação atômica de UUID de alts em GamePrototype.tsx e addPartyMember, auto-reconciliação em saveProgress, e graceful shutdown com flush de salas ativas no Colyseus e deploy seguro.
 
 Progress: [██████████] 100%
 
@@ -108,10 +108,13 @@ Progress: [██████████] 100%
 | 225. Arquitetura Server-Authoritative de Caçadas (Colyseus HuntDungeonRoom) & Desarme de Rate Limiters | 1 | - | - | Complete |
 | 226. Estabilidade do Motor Gráfico (Out of Memory & Background Tab), Economia de Poções, Loading Único e Analisador de Caça | 3 | - | - | Complete |
 | 243. IA Tática de Posicionamento e Combate (Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box) | 1 | - | - | Complete |
+| 244. Blindagem Total de Persistência (Reconciliação de UUID de Alts, Graceful Shutdown no Servidor e Flush Pré-Deploy) | 1 | - | - | Complete |
 
 ## Accumulated Context
 
 ### Decisions
+
+- [Phase 244]: Blindagem total da persistência permanente de personagens e sessões: (1) Reconciliação imediata de UUID na criação de personagens secundários (`createMember` em `GamePrototype.tsx` e `addPartyMember` com `explicitId`), garantindo que o ID cliente seja o UUID canônico do Prisma DB desde o momento do spawn, eliminando erros 403 silenciosos em `/api/characters/[id]/save`; (2) Auto-reconciliação dinâmica no loop de autosave para detectar IDs divergentes e curar o estado local via `/api/characters`; (3) Interceptação de encerramento gracioso (`SIGTERM`/`SIGINT`) no servidor Colyseus (`cli.ts`, `ThaisCityRoom.flushActiveInstanceSaves` e `HuntDungeonRoom.flushAllActiveRooms`) garantindo persistência forçada de todos os jogadores antes de qualquer término de processo; e (4) Deploy com `--kill-timeout 10000` prevenindo encerramentos abruptos durante atualizações.
 
 - [Phase 243]: Implementação de IA tática avançada para combate no domínio (`combat.ts`, `pathfinding.ts`, `movement.ts`): (1) Step-In & Cast dinâmico para conjuradores e atiradores à distância com magias de strike curto prontas (ex: Exori Flam, Exori Vis, Exori Hur de alcance 3), avançando 1 SQM para disparar a magia e retornando à distância segura de kiting (4) ao entrar em cooldown; (2) Alinhamento cardinal tático para magias de wave/beam de magos com ponto focal na box do Knight ou cluster de monstros, garantindo que o mago se posicione na mesma linha reta (mesmo X ou Y) e dispare varrendo a box inteira sem desperdício de ondas.
 

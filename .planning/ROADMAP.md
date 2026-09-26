@@ -167,7 +167,9 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 234: Diagnóstico de Seleção de Outfit, Interface Mobile Responsiva (Retrato & Paisagem) e Gestão de Assinatura Premium por Dias no ADMIN** - Resolução definitiva do travamento de seleção no OutfitModal, arquitetura de layout mobile responsivo adaptativo (header com stats, dock bar, D-pad, hotkeys ergonômicas e drawers) e gestão de Premium por dias no painel ADMIN com expiração autoritativa.
 - [x] **Phase 235: Refinamento de UI/UX Mobile & Limpeza de Interface** - Barra fixa desktop de chat oculta no mobile, botão circular flutuante de chat ("bolinha" 💬) com modal deslizante, remoção total do badge de debug OTBM, Bestiário compacto e minimizado por padrão no mobile, seletor de caçadas em lista vertical única com scroll, rastreamento dos sprites de Corym no git, zoom mobile padrão de 0.85x e safe-area padding no loading.
 - [ ] **Phase 236: Redesign Completo dos Modais e Menus Mobile, Personagem, Outfit, Inventário, Joystick Fluido & Remoção de Badges de Coordenadas** - Remoção definitiva do balão de coordenadas e textos de caminhada urbana no web/mobile, suavização e pacing contínuo do joystick virtual (D-Pad), redesign mobile touch-friendly de Personagem, Outfit, Inventário e equipamentos corporais, auditoria universal de janelas com fechamento garantido (✕) e botões visíveis sem cortes.
-- [ ] **Phase 243: IA Tática de Posicionamento e Combate: Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box** - Avanço tático de 1 SQM para ranged characters ao ter strikes curtos prontos (range 3) em alvos a range 4 com retorno seguro ao kiting em cooldown, e alinhamento em linha reta cardinal (mesmo X/Y) para waves com o Knight na box de monstros maximizando acertos.
+- [x] **Phase 243: IA Tática de Posicionamento e Combate: Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box** - Avanço tático de 1 SQM para ranged characters ao ter strikes curtos prontos (range 3) em alvos a range 4 com retorno seguro ao kiting em cooldown, e alinhamento em linha reta cardinal (mesmo X/Y) para waves com o Knight na box de monstros maximizando acertos.
+- [x] **Phase 244: Blindagem Total de Persistência (Reconciliação de UUID de Alts Criados em Jogo, Graceful Shutdown no Servidor e Flush Pré-Deploy)** - Reconciliação imediata do ID cliente com UUID do Prisma DB em novos alts criados na party, eliminação de 403 silencioso no autosave, telemetria de erro de persistência, graceful shutdown SIGINT/SIGTERM no Colyseus e flush pré-deploy no PM2.
+
 
 
 ---
@@ -4308,11 +4310,19 @@ Plans:
 
 ---
 
-- [ ] **Phase 243: IA Tática de Posicionamento e Combate: Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box** - Inteligência artificial avançada de movimentação e combate tático: conjuradores/ranged avançam 1 SQM (step-in) temporariamente para desferir magias de alcance menor que a arma (como Exori Flam range 3 vs wand range 4/5) e recuam mantendo kiting; e em magias de wave (Fire/Energy/Ice/Terra Wave) os mages buscam alinhamento em linha reta cardinal (mesmo X ou Y) com o Knight e a box de monstros, maximizando o dano em área sem desperdício.
+- [x] **Phase 243: IA Tática de Posicionamento e Combate: Step-In para Strikes & Alinhamento Cardinal de Waves com Knight na Box** - Inteligência artificial avançada de movimentação e combate tático: conjuradores/ranged avançam 1 SQM (step-in) temporariamente para desferir magias de alcance menor que a arma (como Exori Flam range 3 vs wand range 4/5) e recuam mantendo kiting; e em magias de wave (Fire/Energy/Ice/Terra Wave) os mages buscam alinhamento em linha reta cardinal (mesmo X ou Y) com o Knight e a box de monstros, maximizando o dano em área sem desperdício.
 
 Plans:
 
-- [ ] 243-01-PLAN: Implementar avanço tático (step-in) para magias de alcance 3 na IA de combate, alinhar linha de visão cardinal para waves quando houver aglomeração ou Knight na box, validar kiting e cobrir com testes unitários.
+- [x] 243-01-PLAN: Implementar avanço tático (step-in) para magias de alcance 3 na IA de combate, alinhar linha de visão cardinal para waves quando houver aglomeração ou Knight na box, validar kiting e cobrir com testes unitários.
+
+---
+
+- [x] **Phase 244: Blindagem Total de Persistência (Reconciliação de UUID de Alts Criados em Jogo, Graceful Shutdown no Servidor e Flush Pré-Deploy)** - Correção definitiva da persistência de personagens secundários criados em jogo (substituição imediata do ID cliente provisório pelo UUID canônico do Prisma DB em todas as referências da sessão, eliminando erros 403 silenciosos no autosave), tratamento e telemetria de erro na API de save, implementação de hooks de encerramento gracioso (SIGTERM/SIGINT) no servidor Colyseus com persistência forçada de todos os jogadores antes da finalização, e rotina de flush com espera ativa pré-restart no deploy PM2.
+
+Plans:
+
+- [x] 244-01-PLAN: Reconciliação atômica de UUID de novos alts no GamePrototype.tsx, telemetria de erro de save, interceptação de shutdown gracioso no servidor Colyseus com flush de sessões ativas e proteção de deploy.
 
 
 

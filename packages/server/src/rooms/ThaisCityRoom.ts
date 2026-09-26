@@ -57,6 +57,14 @@ export interface JoinOptions {
 
 export class ThaisCityRoom extends Room<WorldState> {
   public static activeInstance: ThaisCityRoom | null = null;
+
+  public static async flushActiveInstanceSaves(): Promise<void> {
+    if (ThaisCityRoom.activeInstance) {
+      console.log('[ThaisCityRoom] Executando flush forçado de salvamento de jogadores em Thais City...');
+      await ThaisCityRoom.activeInstance.performRoomAutoSave();
+    }
+  }
+
   maxClients = 100;
   private autoSaveTimer: any = null;
   private activeSavePromise: Promise<void> | null = null;
@@ -155,7 +163,7 @@ export class ThaisCityRoom extends Room<WorldState> {
     }
   }
 
-  private async performRoomAutoSave(): Promise<void> {
+  public async performRoomAutoSave(): Promise<void> {
     if (this.isDisposed) return;
     this.updateOnlineAccountsCount();
     if (this.activeSavePromise) {
