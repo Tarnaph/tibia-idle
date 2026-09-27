@@ -10,7 +10,8 @@
   - Corrigido `z-index: 100000` no backdrop e `z-index: 100001` na janela em `app/globals.css` e inline em `OutfitModal.tsx`.
   - Definido `max-height: calc(100vh - 24px)`, `overflow: hidden`, `flex-direction: column`, garantindo que o rodapé com os botões Salvar, Cancelar e a paleta de cores nunca fiquem encobertos ou fora da tela.
 
-- [x] **3. Exibição e Seleção de Outfit Feminino para Personagens Femininos:**
-  - Adicionado suporte a `gender` na interface do `OutfitModal`, no `saveCharacterProgress`, na API `/api/characters/[id]/save`, na rede `sendChangeOutfit` e na persistência Prisma.
-  - O modal agora detecta o gênero do personagem e exibe os sprites canônicos femininos (`/generated/outfits/${id}-female-south-f0-base.png`) nos cards e na visualização ao vivo no Canvas, com nomes canônicos femininos (ex: `Noblewoman`).
-  - Adicionado seletor visual de Gênero (♂ Masc / ♀ Fem) no titlebar do modal para troca e customização dinâmica.
+- [x] **3. Exibição Automática de Outfit pelo Gênero do Personagem (Sem Seletor Manual):**
+  - Removido o seletor manual de gênero (♂ Masc / ♀ Fem) do `OutfitModal`.
+  - O modal agora detecta diretamente o gênero canônico do personagem (`activeChar?.gender === 'female' ? 'female' : 'male'`).
+  - Se o personagem for feminino, exibe automaticamente os sprites canônicos femininos (`/generated/outfits/${id}-female-south-f0-base.png`), miniaturas e nomes canônicos (ex: `Noblewoman`). Se for masculino, exibe as versões masculinas.
+

@@ -150,5 +150,22 @@ describe('Phase 250: Default Training Dummy Skills & Outfit Gender Resolution', 
       expect(getOutfitThumbUrl('Citizen', 'female')).toBe('/generated/outfits/citizen-female-south-f0-base.png');
       expect(getOutfitThumbUrl('Hunter', 'female')).toBe('/generated/outfits/hunter-female-south-f0-base.png');
     });
+
+    it('verifies OutfitModal binds strictly to character gender with no manual toggle buttons', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const outfitModalPath = path.resolve(__dirname, '../apps/web/components/OutfitModal.tsx');
+      const content = fs.readFileSync(outfitModalPath, 'utf-8');
+
+      // No manual toggle buttons or state
+      expect(content).not.toContain('tibia-gender-toggle-group');
+      expect(content).not.toContain('tibia-gender-btn');
+      expect(content).not.toContain('setSelectedGender');
+      expect(content).not.toContain('selectedGender');
+
+      // Directly derived from character state
+      expect(content).toContain("const charGender: 'male' | 'female' = activeChar?.gender === 'female' ? 'female' : 'male';");
+    });
   });
 });
+
