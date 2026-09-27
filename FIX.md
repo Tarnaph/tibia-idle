@@ -24,3 +24,18 @@
 - [x] **6. Redesenho UI/UX da Aba Quests (Remover fictícias e Estado 'Em Breve'):**
   - Removido layout de 2 colunas fixas e quests mockadas do `HuntSelector.tsx`.
   - Implementada tela limpa, 100% responsiva em padrão Royal Dark Stone & Dourado Real, com pergaminho glowing, badge "Em Desenvolvimento · Em Breve", cards de destaques futuros e botão de retorno às caçadas.
+
+---
+
+# NOVO BACKLOG DE TRIAGEM & TESTES (Phase 252)
+
+## Sessão & Segurança de Conexão
+- [ ] **1. Trava de Sessão Única e Conexão Concorrente (PC vs Celular / Múltiplas Abas):**
+  - **Problema:** Abrir o jogo ao mesmo tempo no PC e no celular (ou em duas abas) com a mesma conta causa conflito de autosave no Prisma, risco de desync e inconsistência de inventário/XP.
+  - **Solução (Padrão Ouro da Indústria - Kick com Flush de Save):**
+    - No servidor Colyseus (`ThaisCityRoom.ts`), rastrear sessões ativas por `accountId` / `characterId`.
+    - Ao detectar novo login na mesma conta:
+      1. Executar flush/save imediato do estado da sessão anterior no banco via `PrismaPersistenceManager`.
+      2. Enviar evento `DISCONNECTED_CONCURRENT_LOGIN` para a sessão anterior e desconectar o socket antigo (`oldClient.leave(4001)`).
+      3. No frontend desconectado, pausar loops e exibir modal estético Royal Dark Stone: *"Conexão Encerrada: Sua conta foi acessada em outro dispositivo ou aba"* com botões `[Reconectar Aqui]` e `[Voltar ao Início]`.
+      4. Permitir que o novo aparelho (ex: celular) assuma a sessão imediatamente com os dados 100% atualizados e sem fricção.
