@@ -10,6 +10,7 @@ interface MobileMenuDrawerProps {
   onOpenHunts?: () => void;
   onOpenInventory?: () => void;
   onOpenDepot?: () => void;
+  onOpenQuickSell?: () => void;
   onOpenTraining?: () => void;
   onOpenImbuements?: () => void;
   onOpenBlessings?: () => void;
@@ -28,6 +29,7 @@ export function MobileMenuDrawer({
   onOpenHunts,
   onOpenInventory,
   onOpenDepot,
+  onOpenQuickSell,
   onOpenTraining,
   onOpenImbuements,
   onOpenBlessings,
@@ -188,6 +190,19 @@ export function MobileMenuDrawer({
                   <line x1="10" y1="12" x2="14" y2="12" />
                 </svg>
                 Baú do Depot
+              </button>
+              <button
+                type="button"
+                onClick={() => { onClose(); onOpenQuickSell?.(); }}
+                style={drawerButtonStyle}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 19a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v-7H6v7z" />
+                  <path d="M6 12l2-6h8l2 6" />
+                  <path d="M10 6V4a2 2 0 0 1 4 0v2" />
+                  <circle cx="12" cy="15" r="1.5" />
+                </svg>
+                Venda Rápida
               </button>
               <button
                 type="button"

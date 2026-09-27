@@ -5175,7 +5175,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           />
           <MobileQuickSellBubble
             sellableCount={mobileSellableLootCount}
-            onQuickSell={sellLoot}
+            onQuickSell={() => setQuickSellOpen(true)}
             isHunting={mode === 'hunt'}
           />
           <MobileBottomNav
@@ -5194,6 +5194,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               }}
               onOpenInventory={() => setEquipmentOpen(true)}
               onOpenDepot={() => setDepotOpen(true)}
+              onOpenQuickSell={() => setQuickSellOpen(true)}
               onOpenTraining={handleOpenTrainingMenu}
               onOpenImbuements={() => setImbuingModalOpen(true)}
               onOpenBlessings={() => setIsBlessingsModalOpen(true)}

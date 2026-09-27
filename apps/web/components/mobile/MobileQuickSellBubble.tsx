@@ -21,7 +21,15 @@ export function MobileQuickSellBubble({
   return (
     <button
       type="button"
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsPressing(true);
+        setTimeout(() => setIsPressing(false), 200);
+        onQuickSell();
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
         setIsPressing(true);
         setTimeout(() => setIsPressing(false), 200);
         onQuickSell();

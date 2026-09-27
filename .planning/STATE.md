@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-27T00:03:00.000Z"
-last_activity: "2026-09-27 — Conclusão integral da Phase 248: Resolução Completa do FIX.md em 6 Ondas (Itens 22 a 39). Zero emojis, typecheck 0 erros e 100% testado."
+last_updated: "2026-09-27T00:30:00.000Z"
+last_activity: "2026-09-27 — Conclusão da Phase 249: Abertura da Janela de Seleção de Venda Rápida de Loot no Mobile via Botão Flutuante e Menu Hambúrguer."
 progress:
-  total_phases: 248
-  completed_phases: 248
-  total_plans: 332
-  completed_plans: 332
+  total_phases: 249
+  completed_phases: 249
+  total_plans: 333
+  completed_plans: 333
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 248: Resolução Completa do FIX.md Concluída com Sucesso.
+**Current focus:** Phase 249: Venda Rápida de Loot no Mobile Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 248 of 248  
-Plan: 1 of 1 in Phase 248  
+Phase: 249 of 249  
+Plan: 1 of 1 in Phase 249  
 Status: Complete ✅  
-Last activity: 2026-09-27 — Resolução Completa das 6 Ondas do FIX.md (Itens 22 a 39) com validação estrita e typecheck 0 erros.
+Last activity: 2026-09-27 — Abertura da Janela de Seleção de Venda Rápida de Loot no Mobile via Botão Flutuante e Menu Hambúrguer implementada e validada.
 
 Progress: [██████████] 100%
 

@@ -1,7 +1,7 @@
-# FIX.md — Plano de Resolução e Checklist Contínuo (Phase 248)
+# FIX.md — Plano de Resolução e Checklist Contínuo (Phase 249)
 
-## 📌 Status Geral: TODAS AS 6 ONDAS CONCLUÍDAS COM SUCESSO (Phase 248) ✅
-> **Itens de 22 a 39 implementados, validados com typecheck (0 erros) e testados.**
+## 📌 Status Geral: PHASE 249 CONCLUÍDA COM SUCESSO ✅
+> **Abertura da Tela de Loot / Venda Rápida no Mobile via Botão Flutuante e Menu Hambúrguer 100% Implementada e Validada.****
 
 ---
 
@@ -165,3 +165,12 @@
 - [x] **Item 19: Onda 1 - Limpeza e Unificação da Infraestrutura de Scripts (`scripts/deploy.mjs`)**
 - [x] **Item 20: Onda 2 - Modularização Arquitetural do Servidor Colyseus (`ThaisCityRoom.ts` Domain Handlers)**
 - [x] **Item 21: Onda 3 - Desacoplamento e Performance do Frontend (`GamePrototype.tsx`)**
+
+---
+
+## 💎 PHASE 249: Venda Rápida de Loot no Mobile (Abertura de Janela de Seleção):
+- [x] **Item 40: Abertura da Janela de Seleção de Venda Rápida de Loot no Mobile (QuickSellWindow.tsx & GamePrototype.tsx)**
+  - [x] **Diagnóstico da Causa Raiz:** O botão flutuante MobileQuickSellBubble estava recebendo onQuickSell={sellLoot}, que executa venda direta em background sem abrir nenhuma interface. Como no web desktop o botão abre a janela interativa de seleção de itens (QuickSellWindow), o jogador ficava sem resposta visual.
+  - [x] **Conexão ao Modal Interativo:** Atualizar GamePrototype.tsx para passar onQuickSell={() => setQuickSellOpen(true)} para o MobileQuickSellBubble.
+  - [x] **Integração no Menu Hambúrguer:** Adicionar botão com ícone Lineart de saco de moedas/ouro no menu hambúrguer mobile (MobileMenuDrawer.tsx) permitindo acesso alternativo à Venda Rápida.
+  - [x] **Otimização Touch e Z-Index no Mobile:** Assegurar que QuickSellWindow.tsx possua suporte estrito a eventos de toque (onTouchEnd prioritário no botão fechar ✕, nos cards e no botão vender), e overlay com z-index alto (z-index: 100000) para sobrepor com nitidez todo o HUD mobile.

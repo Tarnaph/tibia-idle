@@ -164,12 +164,32 @@ export function QuickSellWindow({
   const formattedTotalPrice = totalPrice.toLocaleString('pt-BR');
 
   return (
-    <div className="inventory-window-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="inventory-window-overlay"
+      style={{ zIndex: 100000 }}
+      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+      onTouchEnd={(e) => {
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+          onClose();
+        }
+      }}
+    >
       <div className="quicksell-window-container" role="dialog" aria-modal="true" aria-label="Venda Rápida">
         {/* Header */}
         <div className="quicksell-window-header">
           <span className="quicksell-header-title">VENDA RÁPIDA</span>
-          <button type="button" className="inventory-close-btn" onClick={onClose} aria-label="Fechar">
+          <button
+            type="button"
+            className="inventory-close-btn"
+            onClick={onClose}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Fechar"
+          >
             ×
           </button>
         </div>
@@ -197,6 +217,11 @@ export function QuickSellWindow({
             <button
               type="button"
               onClick={handleSelectAll}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSelectAll();
+              }}
               style={{
                 background: '#1c2230',
                 border: '1px solid #36445c',
@@ -206,6 +231,7 @@ export function QuickSellWindow({
                 padding: '2px 8px',
                 cursor: 'pointer',
                 fontWeight: 600,
+                touchAction: 'manipulation',
               }}
             >
               Marcar Todos
@@ -213,6 +239,11 @@ export function QuickSellWindow({
             <button
               type="button"
               onClick={handleDeselectAll}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDeselectAll();
+              }}
               style={{
                 background: '#1c2230',
                 border: '1px solid #36445c',
@@ -222,6 +253,7 @@ export function QuickSellWindow({
                 padding: '2px 8px',
                 cursor: 'pointer',
                 fontWeight: 600,
+                touchAction: 'manipulation',
               }}
             >
               Desmarcar Todos
@@ -244,6 +276,7 @@ export function QuickSellWindow({
                 <div
                   key={`quicksell-${itemId}`}
                   className={`quicksell-item-card ${isSelected ? 'selected' : 'unselected'}`}
+                  style={{ touchAction: 'manipulation' }}
                   onClick={() => toggleSelect(itemId)}
                   onMouseEnter={(e) => showGlobalItemTooltip({ itemId, name: stack.name, amount: stack.amount, price: unitPrice }, e)}
                   onMouseMove={(e) => showGlobalItemTooltip({ itemId, name: stack.name, amount: stack.amount, price: unitPrice }, e)}
@@ -280,7 +313,16 @@ export function QuickSellWindow({
           </div>
 
           <div className="quicksell-footer-actions">
-            <button type="button" className="quicksell-btn-cancel" onClick={onClose}>
+            <button
+              type="button"
+              className="quicksell-btn-cancel"
+              onClick={onClose}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}
+            >
               Cancelar
             </button>
             <button
@@ -288,6 +330,13 @@ export function QuickSellWindow({
               className="quicksell-btn-confirm"
               disabled={totalCount === 0}
               onClick={() => {
+                onExecuteSell([...selectedIds]);
+                onClose();
+              }}
+              onTouchEnd={(e) => {
+                if (totalCount === 0) return;
+                e.preventDefault();
+                e.stopPropagation();
                 onExecuteSell([...selectedIds]);
                 onClose();
               }}
