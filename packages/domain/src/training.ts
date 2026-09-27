@@ -168,18 +168,64 @@ export function requiredMagicTries(vocation: VocationDefinition, magicLevel: num
   return magicLevel === 0 ? 0 : Math.floor(1600 * Math.pow(vocation.manaMultiplier, magicLevel - 1));
 }
 
-export function trainingSkillFor(character: CharacterState, content: GameContent): TrainableSkill {
-  const weapon = getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
-  if (weapon?.weaponType === 'sword' || weapon?.weaponType === 'axe' || weapon?.weaponType === 'club' || weapon?.weaponType === 'distance') return weapon.weaponType;
+export function getDefaultTrainingSkill(character: CharacterState, content?: GameContent): TrainableSkill {
   const voc = (character.vocation || character.baseVocation || '').toLowerCase();
-  if (voc.includes('sorcerer') || voc.includes('druid') || weapon?.weaponType === 'wand') return 'magicLevel';
-  if (voc.includes('paladin')) return 'distance';
-  if (character.skills) {
-    const { axe = 0, club = 0, sword = 0 } = character.skills;
-    if (axe > sword && axe > club) return 'axe';
-    if (club > sword && club > axe) return 'club';
+  if (voc.includes('sorcerer') || voc.includes('druid')) {
+    return 'magicLevel';
   }
-  return 'sword';
+  if (voc.includes('paladin')) {
+    return 'distance';
+  }
+
+  // Knight ou vocações de combate corpo a corpo
+  const skills = character.skills || ({} as any);
+  const sword = skills.sword ?? 10;
+  const axe = skills.axe ?? 10;
+  const club = skills.club ?? 10;
+
+  // 1. Prioridade estrita para a skill de maior nível
+  if (axe > sword && axe > club) return 'axe';
+  if (club > sword && club > axe) return 'club';
+  if (sword > axe && sword > club) return 'sword';
+
+  // 2. Se houver empate no nível mais alto, desempata pelos tries
+  const tries = character.skillTries || ({} as any);
+  const swordTries = tries.sword ?? 0;
+  const axeTries = tries.axe ?? 0;
+  const clubTries = tries.club ?? 0;
+
+  const highestScore = Math.max(sword, axe, club);
+  const allCandidates: Array<{ skill: 'sword' | 'axe' | 'club'; val: number; tries: number }> = [
+    { skill: 'sword', val: sword, tries: swordTries },
+    { skill: 'axe', val: axe, tries: axeTries },
+    { skill: 'club', val: club, tries: clubTries },
+  ];
+  const candidates = allCandidates.filter((c) => c.val === highestScore);
+
+  if (candidates.length === 1) {
+    return candidates[0].skill;
+  }
+
+  candidates.sort((a, b) => b.tries - a.tries);
+  if (candidates[0].tries > candidates[1].tries) {
+    return candidates[0].skill;
+  }
+
+  // 3. Se ainda empatar (ex: personagem recém-criado), checa a arma equipada se for melee
+  if (content) {
+    const equippedWeapon = getEquippedItems(character, content.equipment).find((item) =>
+      ['sword', 'axe', 'club'].includes(item.weaponType)
+    );
+    if (equippedWeapon?.weaponType && ['sword', 'axe', 'club'].includes(equippedWeapon.weaponType)) {
+      return equippedWeapon.weaponType as 'sword' | 'axe' | 'club';
+    }
+  }
+
+  return candidates[0]?.skill || 'sword';
+}
+
+export function trainingSkillFor(character: CharacterState, content: GameContent): TrainableSkill {
+  return getDefaultTrainingSkill(character, content);
 }
 
 export function addTrainingTries(character: CharacterState, skill: TrainableSkill, amount: number, vocation: VocationDefinition): TrainableSkill[] {

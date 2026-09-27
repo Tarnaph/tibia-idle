@@ -16,7 +16,7 @@ import {
   setCharacterStance, setCharacterTargetDistance, setCharacterTargetStrategy,
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
-  selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
+  selectedCharacterOf, skillProgress, synchronizePartyWithEncounter, trainingSkillFor, getDefaultTrainingSkill, transferOwnedEquipment, vocationFor, preferredSellPrice, roleForVocation,
   triggerManualHotbarAction, findHotbarAction, respawnInTemple, THAIS_TEMPLE_POSITION, chooseCharacterVocation, getTakenAccountVocations, getHuntWorldEntrance,
   calculateDeathPenaltyReport, type DeathPenaltyReport, buyBlessing, buyAllMissingBlessings,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
@@ -2129,6 +2129,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           hotbar: primaryChar.hotbar,
           hotbarConfigs: primaryChar.hotbarConfigs,
           avatarId: (primaryChar as any).avatarId ?? 1,
+          gender: (primaryChar as any).gender || 'male',
           outfit: primaryChar.outfit,
           outfitHead: primaryChar.outfitColors?.head,
           outfitBody: primaryChar.outfitColors?.primary,
@@ -2330,6 +2331,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               hotbarConfigs: (alt as any).hotbarConfigs,
               vocationName: alt.vocation,
               promotion: alt.promotion,
+              gender: (alt as any).gender || 'male',
               outfit: alt.outfit,
               outfitHead: (alt as any).outfitColors?.head ?? (alt as any).outfitHead ?? 0,
               outfitBody: (alt as any).outfitColors?.body ?? (alt as any).outfitColors?.primary ?? (alt as any).outfitBody ?? 0,
@@ -2548,6 +2550,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     mountActive: boolean;
     addons: number;
     outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+    gender?: 'male' | 'female';
   }) => {
     console.log('[GamePrototype handleSaveOutfit]', { characterId, customization });
     setGame((cur) => ({
@@ -2563,6 +2566,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 mountActive: customization.mountActive,
                 addons: customization.addons,
                 outfitColors: customization.outfitColors,
+                gender: customization.gender || char.gender || 'male',
               }
             : char
         ),
@@ -2579,6 +2583,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         addons: customization.addons,
         outfitAddons: customization.addons,
         outfitColors: customization.outfitColors,
+        gender: customization.gender || prev.gender || 'male',
       } as any;
     });
 
@@ -2594,6 +2599,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               addons: customization.addons,
               outfitAddons: customization.addons,
               outfitColors: customization.outfitColors,
+              gender: customization.gender || char.gender || 'male',
             }
           : char
       );
@@ -2607,6 +2613,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         addons: customization.addons,
         outfitAddons: customization.addons,
         outfitColors: customization.outfitColors,
+        gender: customization.gender || latestSaveStateRef.current.activeCharacter.gender || 'male',
       } as any;
     }
     if (latestSaveStateRef.current.onlineCharacter && latestSaveStateRef.current.onlineCharacter.id === characterId) {
@@ -2618,6 +2625,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         addons: customization.addons,
         outfitAddons: customization.addons,
         outfitColors: customization.outfitColors,
+        gender: customization.gender || latestSaveStateRef.current.onlineCharacter.gender || 'male',
       } as any;
     }
 
@@ -2649,6 +2657,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           },
           body: JSON.stringify({
             outfit: customization.outfit,
+            gender: customization.gender || 'male',
             outfitHead: customization.outfitColors?.head ?? 0,
             outfitBody: (customization.outfitColors as any)?.body ?? customization.outfitColors?.primary ?? 0,
             outfitLegs: (customization.outfitColors as any)?.legs ?? customization.outfitColors?.secondary ?? 0,
@@ -4068,14 +4077,15 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       return;
     }
 
-    const effectiveSkillName = skillName || activeTrainingSkill || (() => {
-      const v = (activeCharacter.vocation || activeCharacter.baseVocation || 'Knight').toLowerCase();
-      if (v.includes('paladin')) return 'Distância';
-      if (v.includes('sorcerer') || v.includes('druid')) return 'Magic Level';
-      const sk = activeCharacter.skills;
-      if (sk.axe > sk.sword && sk.axe > sk.club) return 'Machado';
-      if (sk.club > sk.sword && sk.club > sk.axe) return 'Clube';
-      return 'Espada';
+    const effectiveSkillName = skillName || (() => {
+      const defaultSkill = getDefaultTrainingSkill(activeCharacter, content);
+      switch (defaultSkill) {
+        case 'magicLevel': return 'Magic Level';
+        case 'distance': return 'Distance Fighting';
+        case 'axe': return 'Axe Fighting';
+        case 'club': return 'Club Fighting';
+        default: return 'Sword Fighting';
+      }
     })();
 
     setActiveTrainingSkill(effectiveSkillName);

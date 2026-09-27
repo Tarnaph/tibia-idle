@@ -49,7 +49,14 @@ export function TrainingDummyContextMenu({
       onPointerDown={(e) => e.stopPropagation()}
     >
       <div className="context-menu-title">
-        <span>🎯 Boneco de Treino #{dummy.id}</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f3c766" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+          Boneco de Treino #{dummy.id}
+        </span>
         <small style={{ display: 'block', fontSize: '10px', color: '#a0aab8', fontWeight: 'normal', marginTop: '2px' }}>
           Depot de Thais · Piso Z:7
         </small>
@@ -63,9 +70,15 @@ export function TrainingDummyContextMenu({
           onUse();
           onClose();
         }}
-        style={{ fontWeight: '600', color: '#f3c766' }}
+        style={{ fontWeight: '600', color: '#f3c766', display: 'flex', alignItems: 'center', gap: '6px' }}
       >
-        ⚔️ Usar
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f3c766" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
+          <line x1="13" y1="19" x2="19" y2="13" />
+          <line x1="16" y1="16" x2="20" y2="20" />
+          <line x1="19" y1="21" x2="21" y2="19" />
+        </svg>
+        Usar
       </button>
 
       <div className="context-menu-divider" />
@@ -74,9 +87,13 @@ export function TrainingDummyContextMenu({
         type="button"
         className="context-menu-item"
         onClick={onClose}
-        style={{ color: '#8c95a3' }}
+        style={{ color: '#8c95a3', display: 'flex', alignItems: 'center', gap: '6px' }}
       >
-        ✕ Fechar
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8c95a3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+        Fechar
       </button>
     </div>
   );

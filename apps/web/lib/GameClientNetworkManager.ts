@@ -656,6 +656,7 @@ export class GameClientNetworkManager {
     addons?: number;
     mount?: string;
     mountActive?: boolean;
+    gender?: 'male' | 'female';
   }): void {
     if (!this.room) return;
     this.room.send('changeOutfit', customization);

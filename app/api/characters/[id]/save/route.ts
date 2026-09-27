@@ -73,6 +73,7 @@ export async function POST(
       outfitAddons: body.outfitAddons !== undefined ? Number(body.outfitAddons) : body.addons !== undefined ? Number(body.addons) : undefined,
       mount: body.mount,
       mountActive: body.mountActive !== undefined ? Boolean(body.mountActive) : body.isMounted !== undefined ? Boolean(body.isMounted) : undefined,
+      gender: body.gender === 'female' || body.gender === 'male' ? body.gender : undefined,
       avatarId: body.avatarId,
       skills: body.skills,
       inventory: body.inventory,

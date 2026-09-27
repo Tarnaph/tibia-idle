@@ -21,6 +21,7 @@ export interface GameModalHostProps {
       mountActive: boolean;
       addons: number;
       outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+      gender?: 'male' | 'female';
     }
   ) => void;
   content: GameContent;

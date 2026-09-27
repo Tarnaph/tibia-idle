@@ -5382,16 +5382,18 @@ h1, h2, h3, p { margin: 0; }
    Matches Official Client Layout: Personagem/Outfit, 19x7 Matrix, 4-Col Grid
    ========================================================================= */
 
-.tibia-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 8, 14, 0.78);
-  backdrop-filter: blur(4px);
-  z-index: 999999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
+.tibia-modal-backdrop,
+.tibia-outfit-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(5, 8, 14, 0.85) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 100000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px !important;
+  overflow-y: auto !important;
   animation: tibiaWindowFade 0.18s ease-out;
 }
 
@@ -5401,16 +5403,18 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .tibia-outfit-window {
+  position: relative !important;
+  z-index: 100001 !important;
   width: 980px;
   max-width: 96vw;
-  max-height: 94vh;
+  max-height: calc(100vh - 24px) !important;
   background: #171b26;
   border: 2px solid #283347;
   border-radius: 4px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
   color: #cad5e8;
   font-family: inherit;
   user-select: none;
@@ -5535,6 +5539,8 @@ h1, h2, h3, p { margin: 0; }
   padding: 12px;
   background: #161a25;
   overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Left Column */
@@ -6112,6 +6118,9 @@ h1, h2, h3, p { margin: 0; }
   padding: 8px 14px;
   background: #12151e;
   border-top: 1px solid #232d3f;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
 }
 
 .tibia-footer-btn-cancel {

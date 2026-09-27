@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-27T00:30:00.000Z"
-last_activity: "2026-09-27 — Conclusão da Phase 249: Abertura da Janela de Seleção de Venda Rápida de Loot no Mobile via Botão Flutuante e Menu Hambúrguer."
+last_updated: "2026-09-27T01:15:00.000Z"
+last_activity: "2026-09-27 — Conclusão da Phase 250: Skill Padrão por Vocação nos Dummies de Treino e Correções Críticas do Modal de Outfit (Z-Index de Hotkeys & Suporte Canônico Feminino)."
 progress:
-  total_phases: 249
-  completed_phases: 249
-  total_plans: 333
-  completed_plans: 333
+  total_phases: 250
+  completed_phases: 250
+  total_plans: 334
+  completed_plans: 334
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 249: Venda Rápida de Loot no Mobile Concluída com Sucesso.
+**Current focus:** Phase 250: Skill Padrão por Vocação nos Dummies de Treino e Correções Críticas do Modal de Outfit Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 249 of 249  
-Plan: 1 of 1 in Phase 249  
+Phase: 250 of 250  
+Plan: 1 of 1 in Phase 250  
 Status: Complete ✅  
-Last activity: 2026-09-27 — Abertura da Janela de Seleção de Venda Rápida de Loot no Mobile via Botão Flutuante e Menu Hambúrguer implementada e validada.
+Last activity: 2026-09-27 — Skill Padrão nos Dummies, Z-Index do OutfitModal e Suporte a Personagens Femininos implementados e validados com 100% de sucesso.
 
 Progress: [██████████] 100%
 

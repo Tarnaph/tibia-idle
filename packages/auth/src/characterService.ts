@@ -479,6 +479,7 @@ export class CharacterService {
       displaySkull?: boolean;
       pvpElo?: number;
       pvpTier?: string;
+      gender?: string;
     },
     options?: { isInternal?: boolean; isHunting?: boolean; strictSecurity?: boolean; permissiveTelemetry?: boolean }
   ) {
@@ -658,6 +659,10 @@ export class CharacterService {
             updateData.mountActive = false;
           }
         }
+      }
+
+      if (data.gender === 'male' || data.gender === 'female') {
+        updateData.gender = data.gender;
       }
 
       if (data.bestiaryKills !== undefined) {

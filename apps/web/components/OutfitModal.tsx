@@ -140,6 +140,11 @@ function CardThumbnail({
 }) {
   const [inView, setInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [imgSrc, setImgSrc] = useState(fallback);
+
+  useEffect(() => {
+    setImgSrc(fallback);
+  }, [fallback]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -202,15 +207,16 @@ function CardThumbnail({
       style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <img
-        src={fallback}
+        src={imgSrc}
         alt={alt}
         loading="lazy"
         decoding="async"
         className={className}
         style={{ imageRendering: 'pixelated' }}
-        onError={(e) => {
-          if (fallback && e.currentTarget.src !== fallback && !e.currentTarget.src.endsWith(fallback)) {
-            e.currentTarget.src = fallback;
+        onError={() => {
+          const defaultThumb = `/generated/outfit-thumbs/${id}.png`;
+          if (imgSrc !== defaultThumb) {
+            setImgSrc(defaultThumb);
           }
         }}
       />
@@ -233,6 +239,7 @@ interface Props {
       mountActive: boolean;
       addons: number;
       outfitColors?: { head: number; primary: number; secondary: number; detail: number };
+      gender?: 'male' | 'female';
     }
   ): void;
 }
@@ -277,7 +284,8 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
   const renderGenRef = useRef<number>(0);
 
   const activeChar = characters.find((c) => c.id === selectedCharId) || characters[0];
-  const charGender: 'male' | 'female' = activeChar?.gender === 'female' ? 'female' : 'male';
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female'>(() => (initialChar?.gender === 'female' ? 'female' : 'male'));
+  const charGender: 'male' | 'female' = selectedGender;
   const currentCaps = getOutfitCapabilities(selectedOutfit);
 
   const [outfitAtlasReady, setOutfitAtlasReady] = useState(() => isThumbnailAtlasReady('outfits'));
@@ -436,6 +444,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
       lastSyncedCharRef.current = targetCharId;
       const char = characters.find((c) => c.id === targetCharId) || characters[0];
       if (char) {
+        setSelectedGender(char.gender === 'female' ? 'female' : 'male');
         const outfit = char.outfit || char.baseVocation || 'Knight';
         setSelectedOutfit(outfit);
         const hasMount = Boolean(char.mount && char.mount !== 'none');
@@ -644,9 +653,27 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
     setDirectionIdx((prev) => (prev + 1) % 4);
   };
 
+  // Resolve localized / canon name for outfit based on gender
+  const getOutfitDisplayName = (outfitId: string, gender: 'male' | 'female' = selectedGender): string => {
+    let norm = normalizeOutfitId(outfitId);
+    if (norm === 'noble') norm = 'nobleman';
+    const found = (rawOutfitsJson as any[]).find((o) => normalizeOutfitId(o.id) === norm || normalizeOutfitId(o.name) === norm);
+    if (found) {
+      if (gender === 'female' && found.femaleName) return found.femaleName;
+      if (gender === 'male' && found.maleName) return found.maleName;
+      if (found.name) return found.name;
+    }
+    const classic = CLASSIC_OUTFITS.find((c) => normalizeOutfitId(c.id) === normalizeOutfitId(outfitId));
+    if (classic) return classic.name;
+    return outfitId;
+  };
+
   // Resolve thumbnail for outfit cards based on active character gender
-  const getOutfitThumbUrl = (outfitId: string, gender: 'male' | 'female' = charGender): string => {
+  const getOutfitThumbUrl = (outfitId: string, gender: 'male' | 'female' = selectedGender): string => {
     const idLower = normalizeOutfitId(outfitId);
+    if (gender === 'female') {
+      return `/generated/outfits/${idLower}-female-south-f0-base.png`;
+    }
     return `/generated/outfit-thumbs/${idLower}.png`;
   };
 
@@ -687,6 +714,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
       isMnt,
       effectiveMount,
       addonsVal,
+      gender: selectedGender,
     });
     onSave(effectiveCharId, {
       outfit: selectedOutfit,
@@ -694,6 +722,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
       mountActive: isMnt,
       addons: addonsVal,
       outfitColors: colors,
+      gender: selectedGender,
     });
     onClose();
   };
@@ -709,9 +738,16 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
   return (
     <div
       className="modal-backdrop tibia-outfit-backdrop"
+      style={{ zIndex: 100000 }}
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="tibia-outfit-window" role="dialog" aria-modal="true" aria-label="Aparência do Personagem">
+      <div
+        className="tibia-outfit-window"
+        style={{ zIndex: 100001 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Aparência do Personagem"
+      >
         {/* Title Bar */}
         <div className="tibia-window-titlebar">
           <div className="tibia-titlebar-left">
@@ -733,6 +769,77 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
             >
               ▶
             </button>
+
+            {/* Gender Switcher (♂ Masc / ♀ Fem) */}
+            <div
+              className="tibia-gender-toggle-group"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                marginLeft: '6px',
+                gap: '2px',
+                background: 'rgba(0, 0, 0, 0.45)',
+                padding: '2px 4px',
+                borderRadius: '4px',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedGender('male')}
+                className={`tibia-gender-btn ${selectedGender === 'male' ? 'active' : ''}`}
+                title="Gênero Masculino"
+                style={{
+                  background: selectedGender === 'male' ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
+                  border: selectedGender === 'male' ? '1px solid #38bdf8' : '1px solid transparent',
+                  color: selectedGender === 'male' ? '#38bdf8' : '#94a3b8',
+                  borderRadius: '3px',
+                  padding: '2px 6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  fontWeight: selectedGender === 'male' ? 700 : 400,
+                  lineHeight: '1',
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="10" cy="14" r="5" />
+                  <path d="M19 5h-5" />
+                  <path d="M19 5v5" />
+                  <path d="M13.5 10.5L19 5" />
+                </svg>
+                <span>Masc</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedGender('female')}
+                className={`tibia-gender-btn ${selectedGender === 'female' ? 'active' : ''}`}
+                title="Gênero Feminino"
+                style={{
+                  background: selectedGender === 'female' ? 'rgba(244, 114, 182, 0.25)' : 'transparent',
+                  border: selectedGender === 'female' ? '1px solid #f472b6' : '1px solid transparent',
+                  color: selectedGender === 'female' ? '#f472b6' : '#94a3b8',
+                  borderRadius: '3px',
+                  padding: '2px 6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  fontWeight: selectedGender === 'female' ? 700 : 400,
+                  lineHeight: '1',
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="9" r="5" />
+                  <path d="M12 14v7" />
+                  <path d="M9 18h6" />
+                </svg>
+                <span>Fem</span>
+              </button>
+            </div>
           </div>
           <button
             type="button"
@@ -841,7 +948,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                   ⟳
                 </button>
                 <div style={{ textAlign: 'center', fontSize: '10.5px', fontWeight: 'bold', color: '#f3c769', marginTop: '2px', textShadow: '0 1px 2px #000', padding: '0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {AVAILABLE_OUTFITS.find((o) => normalizeOutfitId(o.id) === normalizeOutfitId(selectedOutfit))?.name || selectedOutfit}
+                  {getOutfitDisplayName(selectedOutfit, selectedGender)}
                   {Boolean(isMounted && selectedMount !== 'none') && ` · ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
                 </div>
               </div>
@@ -1129,6 +1236,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
               {selectedTab === 'outfits' ? (
                 outfitsToDisplay.map((outfit) => {
                   const isSelected = normalizeOutfitId(selectedOutfit) === normalizeOutfitId(outfit.id);
+                  const displayName = getOutfitDisplayName(outfit.id, selectedGender);
                   return (
                     <div
                       key={outfit.id}
@@ -1141,13 +1249,13 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                         <CardThumbnail
                           type="outfits"
                           id={normalizeOutfitId(outfit.id)}
-                          alt={outfit.name}
+                          alt={displayName}
                           className="tibia-card-sprite"
-                          fallback={getOutfitThumbUrl(outfit.id, charGender)}
-                          atlasLoaded={outfitAtlasReady}
+                          fallback={getOutfitThumbUrl(outfit.id, selectedGender)}
+                          atlasLoaded={selectedGender === 'female' ? false : outfitAtlasReady}
                         />
                       </div>
-                      <span className="tibia-card-name">{outfit.name}</span>
+                      <span className="tibia-card-name">{displayName}</span>
                       {(() => {
                         const tier = getOutfitTier(outfit.id);
                         if (tier === 'store') {
