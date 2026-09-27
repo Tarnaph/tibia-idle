@@ -42,12 +42,12 @@ describe('Phase 250: Default Training Dummy Skills & Outfit Gender Resolution', 
       axe: 0,
       distance: 0,
       shielding: 0,
-      fishing: 0,
       magicLevel: 0,
     },
-    equipment: {},
-    inventory: [],
-  };
+    equipment: {} as any,
+    inventory: [] as any,
+  } as unknown as CharacterState;
+
 
   describe('1. Default Training Skill per Vocation & Progression', () => {
     it('selects magicLevel for Sorcerer and Master Sorcerer', () => {
@@ -103,7 +103,7 @@ describe('Phase 250: Default Training Dummy Skills & Outfit Gender Resolution', 
       const knightEquipped: CharacterState = {
         ...baseChar,
         vocation: 'Knight',
-        equipment: { weapon: 'club-weapon' },
+        equipment: { weapon: 'club-weapon' } as any,
       };
       expect(getDefaultTrainingSkill(knightEquipped, dummyContent)).toBe('club');
     });
@@ -112,7 +112,7 @@ describe('Phase 250: Default Training Dummy Skills & Outfit Gender Resolution', 
       const freshKnight: CharacterState = {
         ...baseChar,
         vocation: 'Knight',
-        equipment: {},
+        equipment: {} as any,
       };
       expect(getDefaultTrainingSkill(freshKnight, dummyContent)).toBe('sword');
     });
