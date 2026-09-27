@@ -54,9 +54,9 @@ export function MobileHuntMetricsWidget({
         onClick={() => setMinimized(false)}
         style={{
           position: 'fixed',
-          top: '64px',
+          top: '102px',
           left: '12px',
-          zIndex: 48,
+          zIndex: 56,
           backgroundColor: 'rgba(15, 23, 42, 0.88)',
           backdropFilter: 'blur(8px)',
           border: '1px solid rgba(202, 138, 4, 0.4)',
@@ -101,9 +101,9 @@ export function MobileHuntMetricsWidget({
       data-testid="mobile-metrics-card"
       style={{
         position: 'fixed',
-        top: '64px',
+        top: '102px',
         left: '12px',
-        zIndex: 48,
+        zIndex: 65,
         width: 'calc(100vw - 24px)',
         maxWidth: '320px',
         backgroundColor: 'rgba(15, 23, 42, 0.92)',

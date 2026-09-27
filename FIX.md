@@ -57,3 +57,25 @@
 
 - [x] **8. Resiliência do Ticker de Combate no Mobile:**
   - **Implementado:** O encerramento limpo da sessão concorrente anterior e a persistência atômica evitam a perda de contexto ou desync de conexões que congelavam o ticker de combate no celular.
+
+---
+
+# NOVO BACKLOG DE CORREÇÃO MOBILE & COMBATE (Phase 253)
+
+## 1. Posicionamento do Widget / Pill de Métricas no Mobile
+- [x] **Desobstruir Widget de Métricas e Botão de Caçadas:**
+  - **Implementado:** Em `MobileHuntMetricsWidget.tsx`, reposicionado o pill compacto para `top: 102px; left: 12px; z-index: 56;` e o card expandido para `top: 102px; left: 12px; z-index: 65;`. Agora o widget fica perfeitamente alinhado abaixo do botão circular de caçadas sob o avatar, com visualização 100% livre e foco tátil claro.
+
+## 2. Janela VIP (Amigos) no Mobile: Fim de Abertura Minimizada & Double-Event Touch
+- [x] **Correção do Estado Inicial e Eliminação do Double-Event no Toque:**
+  - **Implementado:** 
+    1. Em `DraggableWindow.tsx`, removido o evento `onTouchEnd` duplicado nos botões `minimize-btn` e `close-btn`, mantendo apenas `onClick` seguro para eliminar o disparo duplo que abria e fechava a janela no mesmo milissegundo.
+    2. Em `WindowManagerContext.tsx`, `openWindow` e `toggleWindow` garantem explicitamente `isMinimized: false`.
+    3. Em `app/globals.css`, ajustadas as regras `@media (max-width: 768px)` para `.draggable-window` abrir centralizada (`top: 10vh; left: 2.5vw; width: 95vw; max-height: 80vh; z-index: 70 !important;`) e se minimizada ficar em `top: 102px; left: 12px; z-index: 55;`, sem encavalar na TopBar nem na mira de caçada.
+
+## 3. Descongelamento e Execução Contínua de Caçadas (Rat Cellars e demais)
+- [x] **Investigação e Resolução de Travamento de Caçadas:**
+  - **Implementado:**
+    1. Em `GameClientNetworkManager.ts`, `sendSetInHunt(true, huntId)` atualiza otimisticamente `isHuntContextConfirmed = true` e notifica os listeners na hora do disparo.
+    2. Em `GamePrototype.tsx`, criado estado reativo `isHuntContextConfirmed` assinado via `onHuntContextReady`.
+    3. No `tickCombat` e `useGameTicker`, removido o bloqueio rígido que travava a simulação caso o ack do WebSocket demorasse alguns frames para responder. A caçada inicia e executa continuamente a 120ms assim que a arena estiver pronta (`isArenaReady && !initialLoadingActive && !transitionLoading?.active`), mantendo o avanço suave e determinístico sem congelamento de monstros ou do personagem.

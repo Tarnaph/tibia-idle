@@ -620,12 +620,16 @@ export class GameClientNetworkManager {
 
   sendSetInHunt(inHunt: boolean, huntId?: string): void {
     this.setHuntContext(inHunt, huntId);
+    this.isHuntContextConfirmed = Boolean(inHunt);
+    this.huntContextReadyListeners.forEach((fn) => fn({ isHunting: Boolean(inHunt), huntId }));
     if (!this.room) return;
     this.room.send('player:setInHunt', { inHunt, huntId });
   }
 
   sendReturnToCity(): void {
     this.setHuntContext(false, undefined);
+    this.isHuntContextConfirmed = false;
+    this.huntContextReadyListeners.forEach((fn) => fn({ isHunting: false }));
     if (!this.room) return;
     this.room.send('player:returnToCity', {});
   }

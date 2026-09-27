@@ -4357,4 +4357,14 @@ Plans:
 - [x] 252-05-PLAN: Onda 5 - Trava de Sessão Única e Kick Concorrente (PC vs Celular)
 - [x] 252-06-PLAN: Onda 6 - Verificação, Testes Vitest, Typecheck e Deploy
 
+---
+
+- [x] **Phase 253: Desobstrução de Métricas Mobile, Correção da Janela VIP (Anti Double-Event Touch) e Descongelamento do Loop de Combate em Caçadas** - Resolução direta dos 3 apontamentos pós-teste do FIX.md: (1) Reposicionar o widget/pill de métricas para não colidir com o botão redondo de caçada sob o avatar; (2) Corrigir a janela VIP para abrir expandida e remover o double-event touch (`onTouchEnd` + `onClick`) que fazia a janela fechar instantaneamente ao tocar na seta; (3) Investigar e eliminar as travas do ticker de combate (`useGameTicker`), garantindo que a caçada de Rat Cellars e demais iniciem e lutem continuamente sem depender de flags pendentes de rede.
+Plans:
+- [x] 253-01-PLAN: Onda 1 - Desobstrução de Métricas (Ajuste de Coordenadas e Z-Index no Mobile)
+- [x] 253-02-PLAN: Onda 2 - Correção da Janela VIP (Amigos): Fim de Abertura Minimizada & Remoção de Double-Event Touch
+- [x] 253-03-PLAN: Onda 3 - Diagnóstico e Descongelamento Completo do Ticker de Combate (Rat Cellars e demais)
+- [x] 253-04-PLAN: Onda 4 - Verificação com Testes Unitários Vitest, Typecheck e Deploy na VPS
+
+
 

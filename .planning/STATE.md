@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-27T18:15:00.000Z"
-last_activity: "2026-09-27 — Conclusão da Phase 252: Experiência Mobile Game-First & Minimalista, Redesign Auth/Char, Kick Concorrente, Fix Spider Burrow e Métricas Compactas (FIX.md)."
+last_updated: "2026-09-27T19:08:00.000Z"
+last_activity: "2026-09-27 — Conclusão da Phase 253: Desobstrução de Métricas Mobile, Correção da Janela VIP (Anti Double-Event Touch) e Descongelamento do Loop de Combate em Caçadas (FIX.md)."
 progress:
-  total_phases: 252
-  completed_phases: 252
-  total_plans: 341
-  completed_plans: 341
+  total_phases: 253
+  completed_phases: 253
+  total_plans: 345
+  completed_plans: 345
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 252: Experiência Mobile Game-First & Minimalista Concluída com Sucesso.
+**Current focus:** Phase 253: Desobstrução de Métricas Mobile, Correção da Janela VIP e Descongelamento de Caçadas Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 252 of 252  
-Plan: 6 of 6 in Phase 252  
+Phase: 253 of 253  
+Plan: 4 of 4 in Phase 253  
 Status: Complete ✅  
-Last activity: 2026-09-27 — Resolução dos 8 itens do FIX.md: áudio mobile canônico único com MobileMusicBadge; correção das coordenadas oficiais da Spider Burrow [32094, 32108, 8] com malha navegável gerada do RealMap 11; ajuste touch e viewport da janela VIP; widget flutuante minimalista de métricas (XP/h, Gold/h, Kills); redesign do Bestiário no padrão Game Menu com cards táteis e barra de abates; redesign mobile da tela de seleção e criação de personagens; trava e kick atômico de sessão concorrente (PC vs Celular).
+Last activity: 2026-09-27 — Resolução direta dos 3 apontamentos pós-teste do FIX.md: (1) Widget de métricas reposicionado para top: 102px sem colidir com a mira da caçada; (2) Janela VIP abre expandida e remoção de onTouchEnd duplicado em DraggableWindow evitando double-event firing instantâneo; (3) Descongelamento do ticker de combate (Rat Cellars e demais caçadas) com avanço contínuo a 120ms e confirmação otimista de contexto.
 
 Progress: [██████████] 100%
 

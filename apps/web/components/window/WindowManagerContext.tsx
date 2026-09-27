@@ -202,10 +202,14 @@ export function WindowManagerProvider({ children }: { children: React.ReactNode 
   const toggleWindow = useCallback((id: WindowId) => {
     setWindows((prev) => {
       if (!prev[id]) return prev;
-      const isOpen = !prev[id].isOpen;
+      const willOpen = !prev[id].isOpen;
       return {
         ...prev,
-        [id]: { ...prev[id], isOpen },
+        [id]: {
+          ...prev[id],
+          isOpen: willOpen,
+          isMinimized: willOpen ? false : prev[id].isMinimized,
+        },
       };
     });
     bringToFront(id);
@@ -216,7 +220,7 @@ export function WindowManagerProvider({ children }: { children: React.ReactNode 
       if (!prev[id]) return prev;
       return {
         ...prev,
-        [id]: { ...prev[id], isOpen: true },
+        [id]: { ...prev[id], isOpen: true, isMinimized: false },
       };
     });
     bringToFront(id);

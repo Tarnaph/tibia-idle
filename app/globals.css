@@ -1301,10 +1301,18 @@ h1, h2, h3, p { margin: 0; }
 @media (max-width: 768px) {
   .draggable-window {
     max-width: 95vw !important;
-    max-height: 85vh !important;
+    max-height: 80vh !important;
     left: 2.5vw !important;
-    top: 7.5vh !important;
+    top: 10vh !important;
     width: 95vw !important;
+    z-index: 70 !important;
+  }
+  .draggable-window.is-minimized {
+    top: 102px !important;
+    left: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    z-index: 55 !important;
   }
   .draggable-window .window-header {
     height: 42px;
@@ -1317,9 +1325,10 @@ h1, h2, h3, p { margin: 0; }
     min-width: 36px;
     font-size: 15px;
     border-radius: 4px;
+    touch-action: manipulation;
   }
   .draggable-window .window-body {
-    max-height: calc(85vh - 42px);
+    max-height: calc(80vh - 42px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }

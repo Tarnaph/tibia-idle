@@ -335,6 +335,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     huntId?: string;
   } | null>(null);
   const [isArenaReady, setIsArenaReady] = useState(false);
+  const [isHuntContextConfirmed, setIsHuntContextConfirmed] = useState(() => gameNetwork.IsHuntContextConfirmed);
   const combatStartedRef = useRef(false);
   const saveProgressRef = useRef<(isDeathPenalty?: boolean, force?: boolean) => Promise<boolean>>(async () => false);
   const activeSessionIdRef = useRef<string>('sess-' + Math.random().toString(36).slice(2, 10));
@@ -1484,6 +1485,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       }
     });
 
+    const unsubHuntReady = gameNetwork.onHuntContextReady((data) => {
+      setIsHuntContextConfirmed(Boolean(data?.isHunting));
+    });
+
     return () => {
       unsubState();
       unsubCombat();
@@ -1499,6 +1504,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       unsubProposalSync();
       unsubProposalRejected();
       unsubPvPDuelEnded();
+      unsubHuntReady();
     };
   }, [mode, content]);
 
@@ -3001,17 +3007,13 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const lastCombatTimeRef = useRef(performance.now());
   const tickCombat = useCallback(() => {
     // Phase 107 & 182: Prevent monsters from moving, attacking, or dealing damage during loading screen or before arena is visible
+    // Phase 253: Loop de combate resiliente - avança a simulação local a 120ms assim que a arena estiver pronta e visível
     if (initialLoadingActive || Boolean(transitionLoading?.active) || !isArenaReady) {
       lastCombatTimeRef.current = performance.now();
       return;
     }
     if (mode !== 'hunt' || encounter.status !== 'running') {
       lastCombatTimeRef.current = performance.now();
-      return;
-    }
-    // Phase 182.2 Dual Gate: Combat only advances when connected AND authoritative hunt context is confirmed
-    if (!gameNetwork.IsConnected || !gameNetwork.IsHuntContextConfirmed) {
-      lastCombatTimeRef.current = performance.now(); // Reset timestamp during pauses to prevent any retrospective burst compensation
       return;
     }
     if (!combatStartedRef.current) {
@@ -3307,9 +3309,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
       return next;
     });
-  }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady, gameNetwork.IsConnected, gameNetwork.IsHuntContextConfirmed]);
+  }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady]);
 
-  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active && gameNetwork.IsConnected && gameNetwork.IsHuntContextConfirmed);
+  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active);
 
   const lastCityAutoSpellsTimeRef = useRef(performance.now());
   const tickCityAutoSpells = useCallback(() => {
