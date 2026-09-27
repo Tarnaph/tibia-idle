@@ -29,7 +29,7 @@ export const initialHunts: HuntDefinition[] = [
   {
     id: 'spider-burrow', name: 'Spider Burrow', displayName: 'Toca Enredada',
     description: 'Caverna orgânica extraída de um spawn real de Spider.', shortDescription: 'Teias cobrem esta toca esquecida.',
-    recommendedLevel: 8, minimumLevel: 1, monsters: ['spider'], rewardProfile: 'xp', status: 'unavailable',
+    recommendedLevel: 8, minimumLevel: 1, monsters: ['spider'], rewardProfile: 'xp', status: 'available',
     roomDefinitions: rooms('spider-burrow'), environment: { regionId: 'spider-burrow', label: 'Caverna úmida', source: 'realmap11-otbm' },
     waves: waves('spider', [2, 2, 3, 3, 3, 4, 4, 5, 5, 0], 'Silkfang', 2),
   },

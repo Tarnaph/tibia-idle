@@ -569,6 +569,7 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
       {/* Floating Audio Control Toggle Button in top-right corner */}
       <button
         type="button"
+        className="auth-floating-audio-toggle"
         onClick={toggleMute}
         title={isMuted ? 'Ativar Áudio do Bardo (SongTibia)' : 'Mutar Áudio'}
         style={{
@@ -1172,18 +1173,14 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h2 style={{ fontSize: '16px', color: '#f3e5ab', margin: 0 }}>Seus Personagens</h2>
-                    {characters.length === 0 ? (
+                    {characters.length < 4 ? (
                       <button
+                        type="button"
                         onClick={() => setIsCreatingChar(true)}
                         style={{
-                          width: '180px',
-                          height: '38px',
-                          backgroundImage: "url('/create-char-btn.png')",
-                          backgroundSize: '100% 100%',
-                          backgroundRepeat: 'no-repeat',
-                          backgroundPosition: 'center',
-                          backgroundColor: 'transparent',
-                          border: 'none',
+                          padding: '6px 14px',
+                          background: 'linear-gradient(180deg, #2b3442 0%, #171d26 100%)',
+                          border: '1px solid #d4a843',
                           color: '#f3e5ab',
                           fontSize: '12px',
                           fontWeight: 'bold',
@@ -1191,15 +1188,15 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          textShadow: '1px 1px 3px #000',
-                          filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.6))',
+                          borderRadius: '4px',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
                         }}
                       >
-                        + Criar Personagem
+                        + Novo Personagem ({characters.length}/4)
                       </button>
                     ) : (
                       <span style={{ fontSize: '11px', color: '#a09886', fontStyle: 'italic' }}>
-                        Heróis adicionais são criados no Squad in-game
+                        Limite máximo da conta atingido (4/4)
                       </span>
                     )}
                   </div>

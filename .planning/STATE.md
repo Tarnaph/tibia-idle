@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-27T16:00:00.000Z"
-last_activity: "2026-09-27 — Conclusão da Phase 251: Refinamentos de UI/UX Mobile & Desktop: Docks, Áudio Rápido, Quests Em Breve e Menu VIP (Itens do FIX.md)."
+last_updated: "2026-09-27T18:15:00.000Z"
+last_activity: "2026-09-27 — Conclusão da Phase 252: Experiência Mobile Game-First & Minimalista, Redesign Auth/Char, Kick Concorrente, Fix Spider Burrow e Métricas Compactas (FIX.md)."
 progress:
-  total_phases: 251
-  completed_phases: 251
-  total_plans: 335
-  completed_plans: 335
+  total_phases: 252
+  completed_phases: 252
+  total_plans: 341
+  completed_plans: 341
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 251: Refinamentos de UI/UX Mobile & Desktop: Docks, Áudio Rápido, Quests Em Breve e Menu VIP (Itens do FIX.md) Concluída com Sucesso.
+**Current focus:** Phase 252: Experiência Mobile Game-First & Minimalista Concluída com Sucesso.
 
 ## Current Position
 
-Phase: 251 of 251  
-Plan: 1 of 1 in Phase 251  
+Phase: 252 of 252  
+Plan: 6 of 6 in Phase 252  
 Status: Complete ✅  
-Last activity: 2026-09-27 — Resolução das 3 ondas de melhorias de UI/UX: remoção de botões de Arena/Bosses não prontos, remoção da aba Mundo no mobile, toggle de áudio na TopBar mobile, VIP Amigos no Drawer, e redesenho responsivo de Quests com tela 'Em Breve'.
+Last activity: 2026-09-27 — Resolução dos 8 itens do FIX.md: áudio mobile canônico único com MobileMusicBadge; correção das coordenadas oficiais da Spider Burrow [32094, 32108, 8] com malha navegável gerada do RealMap 11; ajuste touch e viewport da janela VIP; widget flutuante minimalista de métricas (XP/h, Gold/h, Kills); redesign do Bestiário no padrão Game Menu com cards táteis e barra de abates; redesign mobile da tela de seleção e criação de personagens; trava e kick atômico de sessão concorrente (PC vs Celular).
 
 Progress: [██████████] 100%
 

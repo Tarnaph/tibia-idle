@@ -30,12 +30,30 @@
 # NOVO BACKLOG DE TRIAGEM & TESTES (Phase 252)
 
 ## Sessão & Segurança de Conexão
-- [ ] **1. Trava de Sessão Única e Conexão Concorrente (PC vs Celular / Múltiplas Abas):**
-  - **Problema:** Abrir o jogo ao mesmo tempo no PC e no celular (ou em duas abas) com a mesma conta causa conflito de autosave no Prisma, risco de desync e inconsistência de inventário/XP.
-  - **Solução (Padrão Ouro da Indústria - Kick com Flush de Save):**
-    - No servidor Colyseus (`ThaisCityRoom.ts`), rastrear sessões ativas por `accountId` / `characterId`.
-    - Ao detectar novo login na mesma conta:
-      1. Executar flush/save imediato do estado da sessão anterior no banco via `PrismaPersistenceManager`.
-      2. Enviar evento `DISCONNECTED_CONCURRENT_LOGIN` para a sessão anterior e desconectar o socket antigo (`oldClient.leave(4001)`).
-      3. No frontend desconectado, pausar loops e exibir modal estético Royal Dark Stone: *"Conexão Encerrada: Sua conta foi acessada em outro dispositivo ou aba"* com botões `[Reconectar Aqui]` e `[Voltar ao Início]`.
-      4. Permitir que o novo aparelho (ex: celular) assuma a sessão imediatamente com os dados 100% atualizados e sem fricção.
+- [x] **1. Trava de Sessão Única e Conexão Concorrente (PC vs Celular / Múltiplas Abas):**
+  - **Implementado:** No servidor Colyseus (`ThaisCityRoom.ts`), rastreamento de sessões ativas por `accountId` / `characterId`. Ao detectar conexão concorrente, executa save atômico (`await persistenceManager.saveCharacter`), emite evento `session:duplicate` com `code: 4001` e desliga o socket antigo (`oldClient.leave(4001)`). No frontend, exibe modal estético Royal Dark Stone com botões `[Reconectar Aqui]` e `[Voltar ao Início]`.
+
+## Mobile UX & Telas de Entrada
+- [x] **2. Redesign Completo Mobile: Seleção e Criação de Personagens (`TibiaAuthCharacterModal.tsx`):**
+  - **Implementado:** Vídeo do Bardo e botão de áudio flutuante ocultados no mobile (`<= 768px`) liberando 100% da tela e poupando dados/bateria; caixa rígida de 655px substituída por container responsivo em padrão Royal Dark Stone; cards verticais de personagens com botão largo de toque **"JOGAR"** e botão "+ Novo Personagem"; criação com botões táteis largos de gênero (♂ | ♀) e vocações confortáveis para o polegar.
+
+## Modais, Docks & Widgets no Mobile
+- [x] **3. Correção Crítica da Janela VIP (Amigos) no Mobile (`FriendsWindow.tsx` & `DraggableWindow`):**
+  - **Implementado:** Em `globals.css`, regras `@media (max-width: 768px)` configuram `max-width: 95vw`, `max-height: 85vh`, cabeçalho de 42px e botões de 36x36px com suporte nativo a `onTouchEnd` em `DraggableWindow.tsx`, permitindo fechamento e movimentação responsiva sem cortes de viewport.
+
+- [x] **4. Widget Minimalista de Métricas para Mobile (`MobileHuntMetricsWidget.tsx`):**
+  - **Implementado:** Criado componente flutuante minimalista de jogo para celular com taxa de XP/h, Gold/h e monstros mortos em semi-transparência Royal Dark Stone (`backdropFilter`), recolhível para um pill discreto no topo com 1 toque sem atrapalhar a caçada.
+
+- [x] **5. Redesign Minimalista do Bestiário no Mobile (`CyclopediaModal.tsx` / `Bestiary`):**
+  - **Implementado:** Banner superior com contagem de concluídos e bônus de XP de Bestiário; lista de criaturas responsiva com cards táteis, barra de progresso dourada de abates e estrelas; subview de detalhes do monstro com botão `◀ Voltar` proeminente e colunas adaptativas.
+
+## Diretrizes de Áudio & Notificações
+- [x] **6. Fixar o Banner Menor (`MobileMusicBadge`) como Padrão Oficial Único de Música no Mobile:**
+  - **Implementado:** Restringido `<MusicTrackToast>` grande exclusivamente para desktop (`!responsive.isMobile`), eliminando duplicidade no celular e mantendo o `<MobileMusicBadge>` compacto como o padrão canônico definitivo do mobile.
+
+## Caçadas & Loop de Combate Mobile
+- [x] **7. Correção Definitiva da Caçada de Aranhas (`Spider Burrow`):**
+  - **Implementado:** Coordenadas oficiais `[32094, 32108, 8]`, raio 25, `available: true`, `status: 'available'` integradas em `hunt.ts`, `importHuntRegions.ts` e malha navegável com 6 spawns reais e pisos do RealMap 11 gerados em `content/generated/hunt-regions.json`.
+
+- [x] **8. Resiliência do Ticker de Combate no Mobile:**
+  - **Implementado:** O encerramento limpo da sessão concorrente anterior e a persistência atômica evitam a perda de contexto ou desync de conexões que congelavam o ticker de combate no celular.

@@ -147,6 +147,10 @@ export function CyclopediaModal({
   const totalBestiaryPages = Math.max(1, Math.ceil(filteredMonsters.length / bestiaryPerPage));
   const currentPageMonsters = filteredMonsters.slice((bestiaryPage - 1) * bestiaryPerPage, bestiaryPage * bestiaryPerPage);
 
+  const bestiaryCompletedCount = useMemo(() => {
+    return CANONICAL_BESTIARY_MONSTERS.filter((m) => (bestiaryKills[m.id.toLowerCase()] || 0) >= m.killsNeeded).length;
+  }, [bestiaryKills]);
+
   // --- Filtered Bosstiary Bosses ---
   const filteredBosses = useMemo(() => {
     if (!bossSearch.trim()) return CANONICAL_BOSSTIARY_BOSSES;
@@ -210,6 +214,7 @@ export function CyclopediaModal({
       >
         {/* ===================== TOP TAB HEADER ===================== */}
         <div
+          className="cyclopedia-tabs-header"
           style={{
             padding: '8px 12px',
             backgroundColor: '#1b1e22',
@@ -707,6 +712,31 @@ export function CyclopediaModal({
               {!selectedMonster ? (
                 /* Subview 1: Bestiary Creatures Grid (Screenshot 2) */
                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '10px' }}>
+                  {/* Top Stats Banner */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '6px 12px',
+                      backgroundColor: '#181b20',
+                      border: '1px solid #303742',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                      <span>
+                        <strong style={{ color: '#facc15' }}>Concluídos:</strong>{' '}
+                        <span style={{ color: '#fff', fontWeight: 'bold' }}>{bestiaryCompletedCount}</span> / {CANONICAL_BESTIARY_MONSTERS.length}
+                      </span>
+                      <span>
+                        <strong style={{ color: '#38bdf8' }}>Bônus Bestiário:</strong>{' '}
+                        <span style={{ color: '#4ade80', fontWeight: 'bold' }}>+{(bestiaryCompletedCount * 0.5).toFixed(1)}% XP</span>
+                      </span>
+                    </div>
+                  </div>
+
                   <input
                     type="text"
                     placeholder="Buscar criatura..."
@@ -716,52 +746,30 @@ export function CyclopediaModal({
                       setBestiaryPage(1);
                     }}
                     style={{
-                      height: '28px',
-                      padding: '0 10px',
+                      height: '32px',
+                      padding: '0 12px',
                       backgroundColor: '#181a1d',
                       border: '1px solid #3c434f',
-                      borderRadius: '2px',
+                      borderRadius: '4px',
                       color: '#ffffff',
                       fontSize: '11px',
                       outline: 'none',
                     }}
                   />
 
-                  {/* 5x5 Creatures Grid */}
-                  <div
-                    style={{
-                      flex: 1,
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(5, 1fr)',
-                      gridAutoRows: '130px',
-                      gap: '10px',
-                      overflowY: 'auto',
-                      paddingRight: '4px',
-                    }}
-                  >
+                  {/* Creatures Grid */}
+                  <div className="bestiary-creatures-grid">
                     {currentPageMonsters.map((monster) => {
                       const monsterKey = monster.id.toLowerCase();
                       const currentKills = bestiaryKills[monsterKey] || 0;
                       const isComplete = currentKills >= monster.killsNeeded;
+                      const progressPct = Math.min(100, Math.round((currentKills / monster.killsNeeded) * 100));
 
                       return (
                         <div
                           key={monster.id}
+                          className="bestiary-monster-card"
                           onClick={() => setSelectedMonster(monster)}
-                          style={{
-                            backgroundColor: '#20242a',
-                            border: '1px solid #363d47',
-                            borderRadius: '3px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            padding: '8px',
-                            transition: 'background-color 0.15s',
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2c323b')}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#20242a')}
                         >
                           <img
                             src={monster.spriteUrl}
@@ -769,8 +777,9 @@ export function CyclopediaModal({
                             style={{
                               maxWidth: '44px',
                               maxHeight: '44px',
+                              objectFit: 'contain',
                               imageRendering: 'pixelated',
-                              marginBottom: '6px',
+                              flexShrink: 0,
                             }}
                             onError={(e) => {
                               const clean = (monster.id || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -780,16 +789,22 @@ export function CyclopediaModal({
                               }
                             }}
                           />
-                          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#ffffff', marginBottom: '2px' }}>
-                            {monster.name}
-                          </div>
-                          <div style={{ fontSize: '9px', color: isComplete ? '#f1c40f' : '#9ca3af', marginBottom: '3px' }}>
-                            {isComplete ? 'Completo' : `${formatNumberWithDots(currentKills)} / ${formatNumberWithDots(monster.killsNeeded)}`}
-                          </div>
-                          {/* Stars */}
-                          <div style={{ fontSize: '10px', color: '#f1c40f', letterSpacing: '1px' }}>
-                            {'★'.repeat(monster.stars)}
-                            <span style={{ color: '#444c56' }}>{'☆'.repeat(4 - monster.stars)}</span>
+                          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                              <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {monster.name}
+                              </span>
+                              <div style={{ fontSize: '10px', color: '#f1c40f', letterSpacing: '1px', flexShrink: 0 }}>
+                                {'★'.repeat(monster.stars)}
+                                <span style={{ color: '#444c56' }}>{'☆'.repeat(4 - monster.stars)}</span>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '9.5px', color: isComplete ? '#4ade80' : '#9ca3af', margin: '2px 0' }}>
+                              {isComplete ? '✓ Completo' : `${formatNumberWithDots(currentKills)} / ${formatNumberWithDots(monster.killsNeeded)} kills`}
+                            </div>
+                            <div style={{ height: '4px', backgroundColor: '#141619', borderRadius: '2px', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${progressPct}%`, backgroundColor: isComplete ? '#4ade80' : '#ca8a04' }} />
+                            </div>
                           </div>
                         </div>
                       );
@@ -856,8 +871,27 @@ export function CyclopediaModal({
                 /* Subview 2: Monster Details View (Screenshot 3) */
                 <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {/* Top Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedMonster(null)}
+                        style={{
+                          padding: '5px 10px',
+                          backgroundColor: '#20242a',
+                          border: '1px solid #3c434f',
+                          borderRadius: '4px',
+                          color: '#facc15',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        ◀ Voltar
+                      </button>
                       <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff' }}>
                         {selectedMonster.name}
                       </span>
@@ -893,9 +927,9 @@ export function CyclopediaModal({
                   </div>
 
                   {/* Body layout: Left stats + Right resistances & drops */}
-                  <div style={{ flex: 1, display: 'flex', gap: '24px' }}>
+                  <div className="bestiary-details-columns">
                     {/* Left Column: Sprite, Kills, Stats */}
-                    <div style={{ width: '260px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="bestiary-details-left">
                       <div
                         style={{
                           height: '110px',

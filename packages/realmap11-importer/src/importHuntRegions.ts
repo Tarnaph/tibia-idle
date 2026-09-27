@@ -75,7 +75,7 @@ function skipNode(buf: Buffer, start: number): number {
 
 export const huntConfigs = [
   { huntId: 'rat-cellars', name: 'Rat Cellars', monsterName: 'Rat', recommendedLevel: 1, center: [32102, 32205, 8] as const, radius: 25, available: true },
-  { huntId: 'spider-burrow', name: 'Spider Burrow', monsterName: 'Spider', recommendedLevel: 4, center: [0, 0, 0] as const, radius: 0, available: false },
+  { huntId: 'spider-burrow', name: 'Spider Burrow', monsterName: 'Spider', recommendedLevel: 4, center: [32094, 32108, 8] as const, radius: 25, available: true },
   { huntId: 'troll-camp', name: 'Troll Camp', monsterName: 'Troll', recommendedLevel: 7, center: [32389, 31819, 9] as const, radius: 25, available: true },
   { huntId: 'old-crypt', name: 'Old Crypt', monsterName: 'Skeleton', recommendedLevel: 10, center: [32132, 32198, 10] as const, radius: 25, available: true },
   { huntId: 'rotworm-cave', name: 'Rotworm Cave', monsterName: 'Rotworm', recommendedLevel: 12, center: [32336, 31842, 10] as const, radius: 25, available: true },

@@ -556,9 +556,11 @@ export class ThaisCityRoom extends Room<WorldState> {
         if (oldClient) {
           try {
             oldClient.send('session:duplicate', {
-              message: 'Sua conta foi conectada em outra janela ou dispositivo.',
+              code: 4001,
+              reason: 'CONCURRENT_LOGIN',
+              message: 'Sua conta foi acessada em outro dispositivo ou aba. Esta sessão foi encerrada.',
             });
-            oldClient.leave(4000);
+            oldClient.leave(4001);
           } catch {}
         }
         const existingQueueEntry = this.pvpQueue.get(existingSessionId);
@@ -567,8 +569,10 @@ export class ThaisCityRoom extends Room<WorldState> {
           this.pvpQueue.delete(existingSessionId);
         }
         this.handlePlayerLeaveParty(existingSessionId);
-        if (!existingPlayer.inHunt && !ServerCharacterContextRegistry.isHunting(existingPlayer.characterId)) {
-          void persistenceManager.saveCharacter(existingPlayer);
+        try {
+          await persistenceManager.saveCharacter(existingPlayer);
+        } catch (saveErr) {
+          console.error('[ThaisCityRoom] Erro ao persistir estado de sessão concorrente:', saveErr);
         }
         this.playerExpSync.delete(existingSessionId);
         this.state.players.delete(existingSessionId);

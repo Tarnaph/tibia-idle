@@ -1298,6 +1298,188 @@ h1, h2, h3, p { margin: 0; }
   background: #526052;
 }
 
+@media (max-width: 768px) {
+  .draggable-window {
+    max-width: 95vw !important;
+    max-height: 85vh !important;
+    left: 2.5vw !important;
+    top: 7.5vh !important;
+    width: 95vw !important;
+  }
+  .draggable-window .window-header {
+    height: 42px;
+    min-height: 42px;
+    padding: 0 10px;
+  }
+  .draggable-window .window-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 15px;
+    border-radius: 4px;
+  }
+  .draggable-window .window-body {
+    max-height: calc(85vh - 42px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Phase 252: Mobile Game-First Cyclopedia & Bestiary Styling */
+.bestiary-creatures-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: 130px;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.bestiary-monster-card {
+  background-color: #20242a;
+  border: 1px solid #363d47;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.bestiary-monster-card:hover {
+  background-color: #2c323b;
+}
+
+.bestiary-details-columns {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+}
+
+.bestiary-details-left {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .cyclopedia-window {
+    width: 96vw !important;
+    height: 90vh !important;
+    max-width: 96vw !important;
+    max-height: 90vh !important;
+    border-radius: 8px !important;
+  }
+  .cyclopedia-tabs-header {
+    overflow-x: auto !important;
+    padding: 6px 8px !important;
+    gap: 6px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cyclopedia-tab-btn {
+    flex-shrink: 0;
+    font-size: 11px !important;
+    height: 30px !important;
+    padding: 0 10px !important;
+  }
+  .bestiary-creatures-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding-right: 2px !important;
+  }
+  .bestiary-monster-card {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 10px 12px !important;
+    gap: 12px !important;
+    min-height: 64px !important;
+    border-radius: 6px !important;
+    background-color: #1b1e24 !important;
+    border: 1px solid #313844 !important;
+  }
+  .bestiary-monster-card:active {
+    background-color: #272d37 !important;
+    border-color: #ca8a04 !important;
+  }
+  .bestiary-details-columns {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    gap: 14px !important;
+    padding-bottom: 24px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .bestiary-details-left {
+    width: 100% !important;
+  }
+
+  /* Phase 252: Auth & Character Selection/Creation Mobile Overhaul */
+  .auth-floating-audio-toggle {
+    display: none !important;
+  }
+  .auth-bard-container {
+    display: none !important;
+  }
+  .auth-modal-row-wrapper {
+    flex-direction: column !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+    gap: 0 !important;
+  }
+  .auth-card-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    background-image: none !important;
+    background-color: rgba(18, 22, 28, 0.96) !important;
+    border: 1.5px solid #ca8a04 !important;
+    border-radius: 8px !important;
+    padding: 18px 14px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85) !important;
+    min-height: auto !important;
+  }
+  .auth-char-item-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    background-color: rgba(28, 33, 42, 0.75) !important;
+    border: 1px solid #363d47 !important;
+    border-radius: 6px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 8px !important;
+    gap: 10px !important;
+  }
+  .auth-char-info {
+    width: 100% !important;
+  }
+  .auth-char-action-group {
+    display: flex !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin-top: 4px !important;
+  }
+  .auth-char-enter-btn {
+    flex: 1 !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 4px !important;
+  }
+  .auth-char-delete-btn {
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 14px !important;
+  }
+}
+
 .window-hunt-nav {
   display: flex;
   flex-direction: column;

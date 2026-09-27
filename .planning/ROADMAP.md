@@ -4346,3 +4346,15 @@ Plans:
 Plans:
 - [x] 251-01-PLAN: Implementar e validar ajustes de navegação, docks, áudio mobile, VIP drawer e redesenho responsivo de Quests com testes unitários dedicados e 0 erros de tipagem.
 
+---
+
+- [x] **Phase 252: Experiência Mobile Game-First & Minimalista, Redesign Auth/Char, Kick Concorrente, Fix Spider Burrow e Métricas Compactas (Itens do FIX.md)** - Transformação completa da interface mobile em um jogo RPG limpo e nativo: (1) Áudio mobile canônico único com `MobileMusicBadge` eliminando duplicações; (2) Correção definitiva da caçada Spider Burrow para coordenadas oficiais [32094, 32108, 8] com malha navegável e resiliência de combate; (3) Ajuste de viewport e touch-target da janela VIP/Amigos no mobile; (4) Widget flutuante minimalista de métricas (XP/h, Gold/h, Kills) recolhível com 1 toque; (5) Redesign do Bestiário mobile com cards touch, barra de abates e drawer de detalhes (fraquezas e loot); (6) Redesign completo da tela de seleção e criação de personagens no mobile (ocultação do vídeo bardo, cards verticais com botão JOGAR e formulário touch); (7) Trava de sessão única no Colyseus com auto-save atômico e kick informativo do cliente concorrente.
+Plans:
+- [x] 252-01-PLAN: Onda 1 - Áudio Mobile Canônico, Spider Burrow e Resiliência de Combate
+- [x] 252-02-PLAN: Onda 2 - Janela VIP (Amigos) & Widget Minimalista de Métricas no Mobile
+- [x] 252-03-PLAN: Onda 3 - Redesign do Bestiário Mobile no Padrão Game Menu
+- [x] 252-04-PLAN: Onda 4 - Redesign Mobile da Seleção e Criação de Personagens
+- [x] 252-05-PLAN: Onda 5 - Trava de Sessão Única e Kick Concorrente (PC vs Celular)
+- [x] 252-06-PLAN: Onda 6 - Verificação, Testes Vitest, Typecheck e Deploy
+
+

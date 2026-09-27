@@ -22,7 +22,7 @@ const gameContent = {
       id: 'rat-cellars', name: 'Rat Cellars', description: 'Porão e esgoto.', recommendedLevel: 1, minimumLevel: 1, monsters: ['rat'], rewardProfile: 'xp' as const, status: 'available' as const, roomDefinitions: ['rat-cellars-wave-1'], environment: { regionId: 'rat-cellars', label: 'Porão', source: 'realmap11-otbm' as const }, waves: []
     },
     {
-      id: 'spider-burrow', name: 'Spider Burrow', description: 'Caverna úmida.', recommendedLevel: 4, minimumLevel: 1, monsters: ['spider'], rewardProfile: 'xp' as const, status: 'unavailable' as const, roomDefinitions: ['spider-burrow-wave-1'], environment: { regionId: 'spider-burrow', label: 'Caverna úmida', source: 'realmap11-otbm' as const }, waves: []
+      id: 'spider-burrow', name: 'Spider Burrow', description: 'Caverna úmida.', recommendedLevel: 4, minimumLevel: 1, monsters: ['spider'], rewardProfile: 'xp' as const, status: 'available' as const, roomDefinitions: ['spider-burrow-wave-1'], environment: { regionId: 'spider-burrow', label: 'Caverna úmida', source: 'realmap11-otbm' as const }, waves: []
     },
     {
       id: 'troll-camp', name: 'Troll Camp', description: 'Troll camp.', recommendedLevel: 7, minimumLevel: 1, monsters: ['troll'], rewardProfile: 'xp' as const, status: 'available' as const, roomDefinitions: ['troll-camp-wave-1'], environment: { regionId: 'troll-camp', label: 'Troll camp', source: 'realmap11-otbm' as const }, waves: []
@@ -66,14 +66,16 @@ describe('Phase 84: Hunt Regions Availability and Startup Regression Test', () =
     }
   });
 
-  it('correctly marks spider-burrow as unavailable and prevents room generation', () => {
+  it('validates spider-burrow official coordinates and room generation', () => {
     const hunt = huntById(gameContent.hunts, 'spider-burrow');
     const region = gameContent.huntRegions.find((r) => r.huntId === 'spider-burrow');
-    expect(isHuntAvailable(hunt, region)).toBe(false);
+    expect(isHuntAvailable(hunt, region)).toBe(true);
 
     const entrance = getHuntWorldEntrance('spider-burrow', gameContent);
-    expect(entrance.isWalkable).toBe(false);
+    expect(entrance.isWalkable).toBe(true);
+    expect(entrance.isInsideMap).toBe(true);
 
-    expect(() => roomDefinitionAt(hunt, 0, region)).toThrow(/temporariamente indisponível/);
+    const room = roomDefinitionAt(hunt, 0, region);
+    expect(room.map.tiles.filter((t) => t.walkable).length).toBeGreaterThanOrEqual(8);
   });
 });

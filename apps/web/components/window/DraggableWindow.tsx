@@ -142,6 +142,10 @@ export function DraggableWindow({
               e.stopPropagation();
               toggleMinimize(id);
             }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              toggleMinimize(id);
+            }}
           >
             {windowState.isMinimized ? '▲' : '▼'}
           </button>
@@ -150,6 +154,10 @@ export function DraggableWindow({
             className="window-btn close-btn"
             title="Fechar Janela"
             onClick={(e) => {
+              e.stopPropagation();
+              closeWindow(id);
+            }}
+            onTouchEnd={(e) => {
               e.stopPropagation();
               closeWindow(id);
             }}

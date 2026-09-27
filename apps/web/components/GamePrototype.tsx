@@ -78,6 +78,7 @@ import { WindowDockBar } from './window/WindowDockBar';
 import { useResponsiveLayout } from './mobile/useResponsiveLayout';
 import { MobileTopBar } from './mobile/MobileTopBar';
 import { MobileMusicBadge } from './mobile/MobileMusicBadge';
+import { MobileHuntMetricsWidget } from './mobile/MobileHuntMetricsWidget';
 import { MobileVirtualDPad, type MovementDirection } from './mobile/MobileVirtualDPad';
 import { MobileHotkeyBar } from './mobile/MobileHotkeyBar';
 import { MobileBottomNav, type MobileTab } from './mobile/MobileBottomNav';
@@ -464,7 +465,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   } | null>(null);
   const isCharacterVisible = !initialLoadingActive && !transitionLoading?.active && Boolean(onlineCharacter);
 
-  const { openWindow, closeWindow, toggleWindow, bringToFront } = useWindowManager();
+  const { windows, openWindow, closeWindow, toggleWindow, bringToFront } = useWindowManager();
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
     {
       id: 'welcome-local',
@@ -5056,24 +5057,33 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onPromote={(charId) => handlePromoteCharacter(charId)}
       />
 
-      {/* Window 5: Advanced Metrics & Analyzers */}
-      <DraggableWindow
-        id="metrics"
-        icon={
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="20" x2="18" y2="10" />
-            <line x1="12" y1="20" x2="12" y2="4" />
-            <line x1="6" y1="20" x2="6" y2="14" />
-          </svg>
-        }
-        title={metricsWindowTitle}
-      >
-        <AdvancedMetricsWindow
+      {/* Window 5: Advanced Metrics & Analyzers (Desktop: Draggable full window / Mobile: Minimalist Floating Widget) */}
+      {responsive.isMobile ? (
+        <MobileHuntMetricsWidget
           data={huntAnalyzerData}
-          gold={game.session.gold}
+          isOpen={Boolean(windows.metrics?.isOpen)}
+          onClose={() => closeWindow('metrics')}
           onReset={handleResetHuntMetrics}
         />
-      </DraggableWindow>
+      ) : (
+        <DraggableWindow
+          id="metrics"
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          }
+          title={metricsWindowTitle}
+        >
+          <AdvancedMetricsWindow
+            data={huntAnalyzerData}
+            gold={game.session.gold}
+            onReset={handleResetHuntMetrics}
+          />
+        </DraggableWindow>
+      )}
 
       {/* Window 6: Combat Log History */}
       <DraggableWindow
@@ -5818,8 +5828,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         </div>
       )}
 
-      {/* Phase 104/105: Now Playing Music Track Notification Toast (Slides in from right strictly after loading) */}
-      <MusicTrackToast isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />
+      {/* Phase 104/105: Now Playing Music Track Notification Toast (Desktop only; Mobile uses MobileMusicBadge) */}
+      {!responsive.isMobile && (
+        <MusicTrackToast isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />
+      )}
 
       {/* Phase 126: Canonical Tibia Logout & Character Switch Modal */}
       <LogoutConfirmModal
@@ -5908,23 +5920,128 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         );
       })()}
 
-      {/* Duplicate Session Error Modal Overlay */}
+      {/* Phase 252: Duplicate / Concurrent Session Kick Modal (Royal Dark Stone Standard) */}
       {duplicateSessionError && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
-          <div className="bg-slate-900 border-2 border-amber-500/80 rounded-2xl p-6 max-w-md w-full text-center shadow-2xl space-y-4">
-            <div className="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/60 flex items-center justify-center mx-auto text-amber-400 text-3xl font-bold shadow-inner">
+        <div
+          data-testid="concurrent-session-modal"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999999,
+            backgroundColor: 'rgba(5, 7, 10, 0.88)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+            animation: 'fadeIn 0.25s ease',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#16191f',
+              border: '2px solid #ca8a04',
+              borderRadius: '12px',
+              padding: '24px 20px',
+              maxWidth: '420px',
+              width: '100%',
+              textAlign: 'center',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.95), 0 0 20px rgba(202, 138, 4, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '14px',
+            }}
+          >
+            <div
+              style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(202, 138, 4, 0.15)',
+                border: '1.5px solid #ca8a04',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '26px',
+              }}
+            >
               ⚠️
             </div>
-            <h3 className="text-xl font-bold text-amber-300">Conexão Duplicada Detectada</h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
+
+            <h3
+              style={{
+                fontSize: '18px',
+                fontWeight: 800,
+                color: '#fef08a',
+                margin: 0,
+                letterSpacing: '0.4px',
+                fontFamily: 'Georgia, serif',
+              }}
+            >
+              Conexão Encerrada
+            </h3>
+
+            <p
+              style={{
+                fontSize: '13px',
+                color: '#cbd5e1',
+                lineHeight: '1.5',
+                margin: 0,
+              }}
+            >
               {duplicateSessionError}
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full py-3 px-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition-all shadow-lg active:scale-95"
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                width: '100%',
+                marginTop: '6px',
+              }}
             >
-              Recarregar e Entrar Aqui
-            </button>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)',
+                  border: '1px solid #facc15',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '13px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                  letterSpacing: '0.3px',
+                }}
+              >
+                Reconectar Aqui
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = '/';
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  backgroundColor: '#1e2430',
+                  border: '1px solid #3b4556',
+                  color: '#94a3b8',
+                  fontWeight: 600,
+                  fontSize: '12px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                Voltar ao Início
+              </button>
+            </div>
           </div>
         </div>
       )}
