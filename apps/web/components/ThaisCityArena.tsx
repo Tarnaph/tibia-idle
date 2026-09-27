@@ -159,7 +159,7 @@ export function ThaisCityArena({
   useEffect(() => {
     const app = appRef.current;
     if (!app || !app.ticker) return;
-    if (active) {
+    if (active && !document.hidden) {
       if (!app.ticker.started) app.ticker.start();
       try {
         app.resize();
@@ -167,6 +167,26 @@ export function ThaisCityArena({
     } else {
       if (app.ticker.started) app.ticker.stop();
     }
+
+    const handleVisibility = () => {
+      const curApp = appRef.current;
+      if (!curApp || !curApp.ticker) return;
+      if (document.hidden) {
+        if (curApp.ticker.started) curApp.ticker.stop();
+      } else {
+        if (active && !curApp.ticker.started) {
+          curApp.ticker.start();
+          try {
+            curApp.resize();
+          } catch {}
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [active]);
 
   const latestRef = useRef({
@@ -1450,8 +1470,10 @@ export function ThaisCityArena({
         const cameraScale = 2 * getZoomMultiplier();
         const screenW = Number.isFinite(app.screen.width) && app.screen.width > 0 ? app.screen.width : (typeof window !== 'undefined' ? window.innerWidth : 1920);
         const screenH = Number.isFinite(app.screen.height) && app.screen.height > 0 ? app.screen.height : (typeof window !== 'undefined' ? window.innerHeight : 1080);
+        const isMobileScreen = typeof window !== 'undefined' && window.innerWidth <= 768;
+        const mobileCameraOffset = isMobileScreen ? 1 * TILE_SIZE * cameraScale : 0;
         const targetCamX = screenW / 2 - currentPixelX * cameraScale;
-        const targetCamY = screenH / 2 - currentPixelY * cameraScale;
+        const targetCamY = (screenH / 2 - mobileCameraOffset) - currentPixelY * cameraScale;
         if (!camInitialized || !Number.isFinite(smoothCamX) || !Number.isFinite(smoothCamY)) {
           smoothCamX = targetCamX;
           smoothCamY = targetCamY;
@@ -1764,31 +1786,21 @@ export function ThaisCityArena({
                 view.lastOutfitSignature = outfitSig;
                 view.lastCanvas = undefined;
                 view.lastTextureKey = ''; // Force immediate texture rebind to new appearance
-              }
 
-              outfitDiagnostics.recordArenaState({
-                reactCharOutfit: localChar.outfit,
-                reactCharMount: localChar.mount,
-                reactCharMountActive: localChar.mountActive,
-                reactCharAddons: (localChar as any).addons || (localChar as any).outfitAddons,
-                arenaActiveAppearanceSig: view.activeAppearance?.outfitSig,
-                arenaPendingAppearanceSig: view.pendingAppearance?.outfitSig,
-                arenaAppearanceStatus: view.appearanceState?.status || (view.activeAppearance?.outfitSig === outfitSig ? 'ready' : 'idle'),
-                pixiTextureKey: view.lastTextureKey,
-              }, view.appearanceState?.attemptId || outfitDiagnostics.getLastSaveAttempt()?.attemptId);
+                outfitDiagnostics.recordArenaState({
+                  reactCharOutfit: localChar.outfit,
+                  reactCharMount: localChar.mount,
+                  reactCharMountActive: localChar.mountActive,
+                  reactCharAddons: (localChar as any).addons || (localChar as any).outfitAddons,
+                  arenaActiveAppearanceSig: view.activeAppearance?.outfitSig,
+                  arenaPendingAppearanceSig: undefined,
+                  arenaAppearanceStatus: 'ready',
+                  pixiTextureKey: view.lastTextureKey,
+                }, outfitDiagnostics.getLastSaveAttempt()?.attemptId || outfitDiagnostics.getCurrentAttempt()?.attemptId);
+              }
             } else {
               view.pendingAppearance = null;
               view.appearanceState = undefined;
-              outfitDiagnostics.recordArenaState({
-                reactCharOutfit: localChar.outfit,
-                reactCharMount: localChar.mount,
-                reactCharMountActive: localChar.mountActive,
-                reactCharAddons: (localChar as any).addons || (localChar as any).outfitAddons,
-                arenaActiveAppearanceSig: view.activeAppearance?.outfitSig,
-                arenaPendingAppearanceSig: undefined,
-                arenaAppearanceStatus: 'ready',
-                pixiTextureKey: view.lastTextureKey,
-              }, outfitDiagnostics.getLastSaveAttempt()?.attemptId || outfitDiagnostics.getCurrentAttempt()?.attemptId);
             }
 
             // Current rendered appearance (seamlessly preserves previous complete appearance while new one preloads)

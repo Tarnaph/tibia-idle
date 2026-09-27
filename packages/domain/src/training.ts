@@ -206,13 +206,31 @@ export function skillProgress(character: CharacterState, skill: TrainableSkill, 
 
 export function advanceTraining(state: GameState, content: GameContent, deltaMs: number, targetSkill?: TrainableSkill): GameState {
   if (deltaMs <= 0) return state;
-  const next = structuredClone(state) as GameState;
-  next.session.trainingElapsedMs += deltaMs;
-  next.encounter.events = [];
-  next.encounter.visualEvents = [];
+
+  const nextCharacters = state.session.characters.map((c) => ({
+    ...c,
+    skills: { ...c.skills },
+    skillTries: { ...c.skillTries },
+    trainingState: { ...c.trainingState },
+  }));
+
+  const next: GameState = {
+    ...state,
+    session: {
+      ...state.session,
+      trainingElapsedMs: state.session.trainingElapsedMs + deltaMs,
+      characters: nextCharacters,
+    },
+    encounter: {
+      ...state.encounter,
+      events: [],
+      visualEvents: [],
+    },
+  };
+
   const skillRate = serverConfigManager.getConfig().skillRate ?? 1.0;
 
-  const activeCharId = state.session.selectedCharacterId || state.session.leaderId || state.session.characters[0]?.id;
+  const activeCharId = next.session.selectedCharacterId || next.session.leaderId || next.session.characters[0]?.id;
   const deltaSec = deltaMs / 1000;
   for (const character of next.session.characters) {
     const maxStamina = calculateMaxStamina(character.level);

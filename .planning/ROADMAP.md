@@ -172,6 +172,7 @@ Cavebound é a construção de um MMORPG 2D idle no navegador, trazendo as mecâ
 - [x] **Phase 245: Onda 1 - Limpeza e Unificação da Infraestrutura de Scripts (`scripts/deploy.mjs`)** - Consolidação de mais de 60 scripts redundantes `deploy-phase*.mjs` em um único script de deploy configurável, arquivamento de scripts descartáveis em `scripts/archive/` e validação de pipeline.
 - [x] **Phase 246: Onda 2 - Modularização Arquitetural do Servidor Colyseus (`ThaisCityRoom.ts` Handlers)** - Desmembramento do monólito de 2.561 linhas em handlers especializados em `packages/server/src/rooms/handlers/` (Movement, Combat, Chat, Shop, PvP Arena) preservando contratos e persistência.
 - [x] **Phase 247: Onda 3 - Desacoplamento e Performance do Frontend (`GamePrototype.tsx` Hooks)** - Extração de Custom Hooks reutilizáveis (`useAutoSave`, `useHotbarShortcuts`) e desacoplamento de listeners de teclado.
+- [ ] **Phase 248: Resolução Completa do FIX.md — Mobile, Presença Real, Performance e Overhauls de Telas (6 Ondas)** - Execução sequencial das 6 ondas mapeadas no FIX.md: Presença em Tempo Real, UX e Câmera Mobile, Menus Lineart, Outfits/Imbuements 50/50, Depot/Caçadas em Grid e Estabilidade Crítica (Spider Burrow, Remoção de Sem Vocação, Anti-OOM e Anti-Stutter).
 
 
 
@@ -4326,55 +4327,7 @@ Plans:
 Plans:
 
 - [x] 244-01-PLAN: Reconciliação atômica de UUID de novos alts no GamePrototype.tsx, telemetria de erro de save, interceptação de shutdown gracioso no servidor Colyseus com flush de sessões ativas e proteção de deploy.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---
+- [x] **Phase 248: Resolução Completa das 6 Ondas de Mobile, Presença em Tempo Real, Performance e Estabilidade Crítica (Itens 22 a 39 do FIX.md)** - Resolução integral das 6 ondas de melhorias mobile, ergonomia, persistência e estabilidade: contagem online e sincronização VIP em tempo real; câmera centralizada 1 SQM abaixo e drag & drop estável; botão de caçadas sub-avatar, métricas diretas e bolha de venda rápida com bottom nav 100% Lineart; redesign ergonômico de trajes 50%/50% e imbuements no mobile; overhaul de depot e seletor de caçadas 2 colunas; desbloqueio da Spider Burrow com fallback procedural; remoção de Sem Vocação na criação; modo sleep de tela/aba (visibilitychange) anti-OOM no PixiJS e eliminação de structuredClone no loop de treino.
+Plans:
+- [x] 248-01-PLAN: Executar e validar com 0 erros de tipagem e testes as 6 ondas e itens 22 a 39 do FIX.md com Zero Emojis e sincronização autoritativa.

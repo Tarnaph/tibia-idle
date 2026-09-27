@@ -528,6 +528,10 @@ export function ImbuingModal({
           <button
             type="button"
             onClick={onClose}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              onClose();
+            }}
             className="imbuing-close-btn"
             style={{
               position: 'absolute',
@@ -548,7 +552,8 @@ export function ImbuingModal({
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
-              zIndex: 10,
+              zIndex: 100,
+              touchAction: 'manipulation',
             }}
             title="Fechar"
           >
@@ -557,7 +562,7 @@ export function ImbuingModal({
         </div>
 
         {/* Modal Body */}
-        <div className="imbuing-modal-body" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div className="imbuing-modal-body" style={{ display: 'flex', flex: 1, overflow: 'auto' }}>
           {/* Left Column (Character & Inventory) */}
           <div
             className="imbuing-left-col"
@@ -596,7 +601,12 @@ export function ImbuingModal({
                     }}
                   >
                     <div style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '18px' }}>⚔️</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive ? '#f3d37a' : '#8c95a0'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="14.5" y1="17.5" x2="3" y2="6" />
+                        <line x1="14.5" y1="6.5" x2="3" y2="18" />
+                        <line x1="21" y1="3" x2="18" y2="3" />
+                        <line x1="21" y1="3" x2="21" y2="6" />
+                      </svg>
                     </div>
                     <span
                       style={{
@@ -1171,6 +1181,7 @@ export function ImbuingModal({
 
                     {/* Imbuement Cards Grid */}
                     <div
+                      className="imbuing-cards-grid"
                       style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(4, 1fr)',

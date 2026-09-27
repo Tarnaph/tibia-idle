@@ -10360,11 +10360,11 @@ h1, h2, h3, p { margin: 0; }
     text-align: right !important;
   }
 
-  /* SCREEN 1: Mobile Vertical 1-Column List with down scrolling */
+  /* SCREEN 1: Mobile 2-Column Square Cards Grid */
   .hunt-catalog-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-    padding: 8px 10px 16px 10px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 10px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
@@ -10372,36 +10372,158 @@ h1, h2, h3, p { margin: 0; }
   .hunt-catalog-card {
     width: 100% !important;
     box-sizing: border-box !important;
-    min-height: auto !important;
-    padding: 10px 12px !important;
+    min-height: 125px !important;
+    padding: 12px 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    border-radius: 8px !important;
+    background: #161719 !important;
+    border: 1px solid #2e3238 !important;
+  }
+
+  .hunt-card-top {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .hunt-card-sprite-box {
+    width: 52px !important;
+    height: 52px !important;
+    margin: 0 auto !important;
+    background: #0b0d13 !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .hunt-card-sprite-box img {
+    max-width: 44px !important;
+    max-height: 44px !important;
+    object-fit: contain !important;
+  }
+
+  .hunt-card-info {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .hunt-card-title-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
   }
 
   .hunt-card-title {
-    font-size: 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: 1.25 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .hunt-card-lvl-badge {
+    font-size: 9px !important;
+    display: inline-block !important;
+    margin-top: 2px !important;
   }
 
   .hunt-card-creatures {
-    font-size: 11px !important;
+    display: none !important;
   }
 
-  /* SCREEN 2: Mobile Setup */
+  .hunt-card-bottom {
+    display: none !important;
+  }
+
+  .hunt-star-btn {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+  }
+
+  /* SCREEN 2: Mobile Setup Overhaul */
   .hunt-setup-container {
     padding: 8px 10px !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(88dvh - 54px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
   }
 
   .hunt-setup-banner {
     flex-direction: column !important;
-    gap: 6px !important;
-    padding: 8px 10px !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 10px !important;
   }
 
-  .hunt-pull-size-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+  .hunt-setup-banner-title {
+    font-size: 15px !important;
   }
 
-  .hunt-pull-monsters-section {
+  .hunt-setup-banner-desc {
+    font-size: 11px !important;
+    max-width: 100% !important;
+  }
+
+  .hunt-setup-record-box {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .hunt-setup-grid-body {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  .hunt-setup-col {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  .hunt-pull-size-tabs {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 4px !important;
+  }
+
+  .hunt-pull-size-tab {
+    padding: 6px 2px !important;
+    font-size: 10.5px !important;
+  }
+
+  .hunt-pull-creatures-list {
+    max-height: 180px !important;
+    overflow-y: auto !important;
+  }
+
+  .hunt-setup-footer {
     flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding-top: 8px !important;
+  }
+
+  .hunt-setup-footer button {
+    width: 100% !important;
+    height: 42px !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
   }
 }
 
@@ -10689,6 +10811,40 @@ h1, h2, h3, p { margin: 0; }
     width: 100% !important;
   }
 
+  .depot-character-pane {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    padding: 8px 0 !important;
+  }
+
+  .depot-side-section {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .depot-side-section .container-section-header {
+    width: 100% !important;
+    max-width: 260px !important;
+    justify-content: flex-start !important;
+  }
+
+  .depot-side-section .bolsa-grid {
+    grid-template-columns: repeat(6, 38px) !important;
+    justify-content: center !important;
+    gap: 4px !important;
+  }
+
+  .depot-side-section .mochila-grid {
+    grid-template-columns: repeat(5, 38px) !important;
+    justify-content: center !important;
+    gap: 4px !important;
+  }
+
   .depot-grid-container {
     grid-template-columns: repeat(7, 36px) !important;
     gap: 4px !important;
@@ -10861,6 +11017,97 @@ h1, h2, h3, p { margin: 0; }
     border-radius: 8px !important;
   }
 
+  /* Mobile Outfit 50%/50% Split */
+  .tibia-mobile-top-split {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+    margin-bottom: 8px !important;
+  }
+
+  .tibia-mobile-top-split .tibia-preview-box {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    height: 185px !important;
+    min-height: 185px !important;
+    max-height: 185px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .tibia-mobile-top-split .tibia-preview-inner {
+    flex: 1 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .tibia-mobile-top-split .tibia-preview-sprite.mounted {
+    transform: scale(1.75) !important;
+    max-width: 64px !important;
+    max-height: 64px !important;
+    object-fit: contain !important;
+  }
+
+  .tibia-mobile-top-split .tibia-preview-sprite.on-foot {
+    transform: scale(2.2) !important;
+    max-width: 64px !important;
+    max-height: 64px !important;
+    object-fit: contain !important;
+  }
+
+  .tibia-mobile-top-split .tibia-mobile-outfit-tabs {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    height: 185px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .tibia-mobile-top-split .tibia-mobile-outfit-tab {
+    flex: 1 !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 6px 12px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    background: #23262a !important;
+    color: #9ca3af !important;
+    border: 1px solid #373b42 !important;
+    border-radius: 6px !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+  }
+
+  .tibia-mobile-top-split .tibia-mobile-outfit-tab.active {
+    background: #3b2d18 !important;
+    color: #f3c769 !important;
+    border-color: #ca8a04 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 0 8px rgba(202, 138, 4, 0.35) !important;
+  }
+
+  /* Fallback for regular tibia-mobile-outfit-tabs outside split */
   .tibia-mobile-outfit-tabs {
     display: flex !important;
     gap: 4px !important;
@@ -10891,6 +11138,45 @@ h1, h2, h3, p { margin: 0; }
     border-color: #ca8a04 !important;
     font-weight: 800 !important;
     box-shadow: 0 0 8px rgba(202, 138, 4, 0.35) !important;
+  }
+
+  /* Imbuing Modal Mobile Overhaul */
+  .imbuing-modal-window {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    height: 90vh !important;
+    max-height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .imbuing-modal-body {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .imbuing-left-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #33373d !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  .imbuing-right-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 12px 10px !important;
+    box-sizing: border-box !important;
+    overflow-y: visible !important;
+  }
+
+  .imbuing-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    max-height: none !important;
   }
 
   .mobile-hidden {
@@ -11021,7 +11307,275 @@ h1, h2, h3, p { margin: 0; }
   .bestiary-bottom-hud {
     padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
   }
+
+  /* 11. DEPOT MOBILE OVERHAUL (Onda 5: Previne corte de Bolsa e Mochila à esquerda) */
+  .depot-window-body {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    max-height: calc(88dvh - 54px) !important;
+    padding: 10px !important;
+    gap: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .depot-storage-pane {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .depot-grid-container {
+    justify-content: center !important;
+    margin: 0 auto !important;
+    max-width: 100% !important;
+  }
+
+  .depot-character-pane {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid #232b3a !important;
+    padding-left: 0 !important;
+    padding-top: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .depot-side-section {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .container-section-header {
+    text-align: center !important;
+    margin-bottom: 6px !important;
+    width: 100% !important;
+  }
+
+  .container-grid {
+    display: grid !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+  }
+
+  .bolsa-grid {
+    display: grid !important;
+    grid-template-columns: repeat(6, 36px) !important;
+    gap: 4px !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+  }
+
+  .mochila-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 36px) !important;
+    gap: 4px !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+  }
+
+  /* 12. OUTFIT 50%/50% SPLIT OVERHAUL (Onda 4: Preview Amplo Centralizado + 3 Botões em Coluna) */
+  .tibia-mobile-top-split {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+
+  .tibia-mobile-top-split .tibia-preview-box {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    min-height: 140px !important;
+    background: #0b0e14 !important;
+    border: 1px solid #232b3a !important;
+    border-radius: 6px !important;
+    padding: 8px 4px !important;
+  }
+
+  .tibia-mobile-outfit-tabs {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    justify-content: center !important;
+  }
+
+  .tibia-mobile-outfit-tab {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 10px !important;
+    background: #11141c !important;
+    border: 1.5px solid #2a3344 !important;
+    border-radius: 6px !important;
+    color: #94a3b8 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    transition: all 0.15s ease !important;
+    min-height: 38px !important;
+    text-align: left !important;
+  }
+
+  .tibia-mobile-outfit-tab:hover,
+  .tibia-mobile-outfit-tab.active {
+    background: rgba(202, 138, 4, 0.18) !important;
+    border-color: #ca8a04 !important;
+    color: #fef08a !important;
+    box-shadow: 0 0 8px rgba(202, 138, 4, 0.3) !important;
+  }
+
+  .tibia-subnav-tabs {
+    display: none !important;
+  }
+
+  /* 13. HUNT SETUP MOBILE REORGANIZATION (Onda 5: Setup do Bicho Não Cortado) */
+  .hunt-mobile-setup-header {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 8px !important;
+    background: #13161f !important;
+    border: 1px solid #232b3a !important;
+    border-radius: 6px !important;
+    padding: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .hunt-mobile-setup-top-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .hunt-mobile-primary-sprite-box {
+    width: 64px !important;
+    height: 64px !important;
+    background: #090c12 !important;
+    border: 1.5px solid #2a3547 !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .hunt-mobile-primary-sprite-box img {
+    max-width: 56px !important;
+    max-height: 56px !important;
+    object-fit: contain !important;
+    image-rendering: pixelated !important;
+  }
+
+  .hunt-mobile-pull-selector {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  .hunt-mobile-section-label {
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    color: #ca8a04 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+  }
+
+  .hunt-pull-size-tabs.mobile-tabs {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 4px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .hunt-mobile-meta-box {
+    width: 100% !important;
+    border-top: 1px solid #1c2331 !important;
+    padding-top: 6px !important;
+  }
+
+  .hunt-mobile-title-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  .hunt-mobile-title {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .hunt-mobile-requirements {
+    font-size: 10.5px !important;
+    color: #94a3b8 !important;
+    margin-top: 2px !important;
+  }
+
+  .hunt-mobile-desc {
+    font-size: 10px !important;
+    color: #64748b !important;
+    line-height: 1.35 !important;
+    margin-top: 4px !important;
+  }
+
+  .hunt-setup-banner {
+    display: none !important;
+  }
+
+  .hunt-setup-col:first-child .hunt-pull-size-tabs {
+    display: none !important;
+  }
+
+  .hunt-loot-item-row {
+    padding: 5px 2px !important;
+    gap: 4px !important;
+  }
+
+  .hunt-loot-rarity {
+    margin-right: 4px !important;
+    font-size: 8px !important;
+  }
+
+  .hunt-loot-item-name {
+    font-size: 10px !important;
+    max-width: 120px !important;
+  }
+
+  .hunt-loot-item-actions {
+    gap: 10px !important;
+    width: 48px !important;
+  }
 }
 
-
-
+@media (min-width: 769px) {
+  .tibia-mobile-outfit-tabs {
+    display: none !important;
+  }
+  .hunt-mobile-setup-header {
+    display: none !important;
+  }
+}

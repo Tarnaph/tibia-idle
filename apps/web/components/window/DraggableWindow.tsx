@@ -6,7 +6,7 @@ import { useWindowManager, type WindowId } from './WindowManagerContext';
 interface DraggableWindowProps {
   id: WindowId;
   children: React.ReactNode;
-  icon?: string;
+  icon?: React.ReactNode;
   badge?: React.ReactNode;
   className?: string;
   defaultWidth?: number;
@@ -122,9 +122,11 @@ export function DraggableWindow({
     >
       <div
         className="window-header"
+        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
         <div className="window-title-group">
           {icon && <span className="window-icon">{icon}</span>}

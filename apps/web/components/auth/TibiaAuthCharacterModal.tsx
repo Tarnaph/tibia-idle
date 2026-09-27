@@ -83,6 +83,29 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [charToDelete, setCharToDelete] = useState<CharacterItem | null>(null);
+  const [onlineCount, setOnlineCount] = useState<number>(1);
+
+  // Phase 248: Sincronização do contador de players online em tempo real
+  useEffect(() => {
+    let mounted = true;
+    const fetchOnlineCount = async () => {
+      try {
+        const res = await fetch('/api/online-count', { cache: 'no-store' });
+        if (res.ok) {
+          const data = (await res.json()) as any;
+          if (mounted && typeof data.count === 'number') {
+            setOnlineCount(Math.max(1, data.count));
+          }
+        }
+      } catch {}
+    };
+    fetchOnlineCount();
+    const interval = setInterval(fetchOnlineCount, 8000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Video Audio & Playback State
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -1029,12 +1052,51 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                     </label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                       {[
-                        { id: 4, name: 'Knight', icon: '⚔️', desc: 'Espada, Machado & Escudo' },
-                        { id: 3, name: 'Paladin', icon: '🏹', desc: 'Arco, Lança & Precisão' },
-                        { id: 1, name: 'Sorcerer', icon: '🔮', desc: 'Magia Ofensiva & Varinha' },
-                        { id: 2, name: 'Druid', icon: '🌿', desc: 'Cura, Gelo & Varinha' },
+                        {
+                          id: 4,
+                          name: 'Knight',
+                          desc: 'Espada, Machado & Escudo',
+                          renderIcon: (color: string) => (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                          ),
+                        },
+                        {
+                          id: 3,
+                          name: 'Paladin',
+                          desc: 'Arco, Lança & Precisão',
+                          renderIcon: (color: string) => (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                              <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                          ),
+                        },
+                        {
+                          id: 1,
+                          name: 'Sorcerer',
+                          desc: 'Magia Ofensiva & Varinha',
+                          renderIcon: (color: string) => (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                          ),
+                        },
+                        {
+                          id: 2,
+                          name: 'Druid',
+                          desc: 'Cura, Gelo & Varinha',
+                          renderIcon: (color: string) => (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                            </svg>
+                          ),
+                        },
                       ].map((voc) => {
                         const isSelected = selectedVocation === voc.id;
+                        const iconColor = isSelected ? '#ffd700' : '#888';
                         return (
                           <button
                             key={voc.id}
@@ -1055,7 +1117,9 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                               transition: 'all 0.15s ease',
                             }}
                           >
-                            <span style={{ fontSize: '18px' }}>{voc.icon}</span>
+                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {voc.renderIcon(iconColor)}
+                            </span>
                             <div>
                               <div style={{ fontWeight: 'bold', fontSize: '12px', color: isSelected ? '#ffd700' : '#ddd' }}>
                                 {voc.name}
@@ -1067,29 +1131,6 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
                           </button>
                         );
                       })}
-                    </div>
-                    <div style={{ marginTop: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedVocation(0)}
-                        style={{
-                          width: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          padding: '6px 10px',
-                          backgroundColor: selectedVocation === 0 ? '#1f2530' : 'transparent',
-                          border: selectedVocation === 0 ? '1px solid #4a90e2' : '1px dashed #2b3442',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          color: selectedVocation === 0 ? '#64b5f6' : '#777',
-                          fontSize: '11px',
-                          transition: 'all 0.15s ease',
-                        }}
-                      >
-                        <span>🛡️</span> {selectedVocation === 0 ? '✓ Sem Vocação (Escolher no Templo de Thais)' : 'Sem Vocação (Escolher no Templo de Thais)'}
-                      </button>
                     </div>
                   </div>
 
@@ -1363,8 +1404,19 @@ export function TibiaAuthCharacterModal({ onSelectCharacter, onGoHome, onLogout 
             backdropFilter: 'blur(4px)',
           }}
         >
-          <div style={{ color: '#ffffff', fontSize: '13px', fontWeight: 'bold', textShadow: '1px 1px 3px #000' }}>
-            10 players online
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', fontSize: '13px', fontWeight: 'bold', textShadow: '1px 1px 3px #000' }}>
+            <span
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: '#48c774',
+                boxShadow: '0 0 8px #48c774',
+                display: 'inline-block',
+                animation: 'pulse 2s infinite',
+              }}
+            />
+            <span>{onlineCount} {onlineCount === 1 ? 'player online' : 'players online'}</span>
           </div>
           <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(212, 168, 67, 0.4)' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

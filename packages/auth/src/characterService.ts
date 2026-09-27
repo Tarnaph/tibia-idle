@@ -295,10 +295,11 @@ export class CharacterService {
       throw new Error('O nome do personagem deve ter entre 3 e 20 caracteres e conter apenas letras.');
     }
 
-    const config = VOCATION_CONFIGS[input.vocationId];
-    if (!config) {
-      throw new Error('Vocação selecionada inválida.');
+    if (!input.vocationId || input.vocationId < 1 || input.vocationId > 4 || !VOCATION_CONFIGS[input.vocationId]) {
+      throw new Error('Vocação selecionada inválida. A criação sem vocação foi descontinuada. Escolha uma das 4 vocações canônicas: Knight (4), Paladin (3), Sorcerer (1) ou Druid (2).');
     }
+
+    const config = VOCATION_CONFIGS[input.vocationId];
 
     // Check account existence and character limit
     const account = await this.prisma.account.findUnique({

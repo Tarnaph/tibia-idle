@@ -84,6 +84,7 @@ import { MobileBottomNav, type MobileTab } from './mobile/MobileBottomNav';
 import { MobileMenuDrawer, type DrawerCategory } from './mobile/MobileMenuDrawer';
 import { MobileChatBubble } from './mobile/MobileChatBubble';
 import { MobileChatModal } from './mobile/MobileChatModal';
+import { MobileQuickSellBubble } from './mobile/MobileQuickSellBubble';
 import { SkillsWindow } from './SkillsWindow';
 import { AdvancedMetricsWindow, type HuntAnalyzerData } from './AdvancedMetricsWindow';
 import { HOTBAR_POTIONS, HOTBAR_RUNES, getActionSupplyCost } from '@/packages/domain/src/hotbarActions';
@@ -463,7 +464,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   } | null>(null);
   const isCharacterVisible = !initialLoadingActive && !transitionLoading?.active && Boolean(onlineCharacter);
 
-  const { openWindow, closeWindow, bringToFront } = useWindowManager();
+  const { openWindow, closeWindow, toggleWindow, bringToFront } = useWindowManager();
   const [chatMessages, setChatMessages] = useState<ChatMessageItem[]>([
     {
       id: 'welcome-local',
@@ -604,19 +605,25 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     return () => unsub();
   }, []);
 
-  // Friends System State
+  // Friends System State (Phase 248: Saneamento de mocks e sincronização autoritativa)
   const [friendsList, setFriendsList] = useState<FriendItem[]>(() => {
     if (typeof window === 'undefined') return [];
     try {
       const saved = localStorage.getItem('cavebound_friends_v1');
-      return saved ? JSON.parse(saved) : [
-        { id: 'f-1', name: 'Laron', level: 15, vocation: 'Knight', isOnline: true },
-        { id: 'f-2', name: 'Sirius', level: 22, vocation: 'Sorcerer', isOnline: true },
-      ];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Filtra mocks estáticos legados ('f-1', 'f-2')
+          return parsed.filter((f) => f.id !== 'f-1' && f.id !== 'f-2' && f.name !== 'Laron' && f.name !== 'Sirius');
+        }
+      }
+      return [];
     } catch {
       return [];
     }
   });
+
+  const [friendsRemoteStatus, setFriendsRemoteStatus] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     preloadSfx().catch(() => {});
@@ -628,7 +635,34 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     } catch {}
   }, [friendsList]);
 
-  // Dynamically calculate real-time online status for friends list based on active remote players and session characters
+  // Phase 248: Consulta periódica (10s) da presença real dos amigos no Colyseus / Banco
+  useEffect(() => {
+    if (friendsList.length === 0) return;
+    let mounted = true;
+    const pollFriendsPresence = async () => {
+      const updates: Record<string, boolean> = {};
+      for (const f of friendsList) {
+        try {
+          const res = await fetch(`/api/character-online/${encodeURIComponent(f.name)}`, { cache: 'no-store' });
+          if (res.ok) {
+            const data = (await res.json()) as any;
+            updates[f.name.toLowerCase()] = Boolean(data.isOnline);
+          }
+        } catch {}
+      }
+      if (mounted && Object.keys(updates).length > 0) {
+        setFriendsRemoteStatus((prev) => ({ ...prev, ...updates }));
+      }
+    };
+    pollFriendsPresence();
+    const interval = setInterval(pollFriendsPresence, 10000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [friendsList]);
+
+  // Dynamically calculate real-time online status for friends list based on active remote players and authoritative backend status
   const effectiveFriendsList = useMemo(() => {
     const onlineNames = new Set<string>();
     if (remotePlayers) {
@@ -641,13 +675,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
 
     return friendsList.map((f) => {
-      const isOnlineNow = onlineNames.has(f.name.trim().toLowerCase()) || f.isOnline === true;
+      const lower = f.name.trim().toLowerCase();
+      const isOnlineNow = onlineNames.has(lower) || Boolean(friendsRemoteStatus[lower]);
       return {
         ...f,
         isOnline: isOnlineNow,
       };
     });
-  }, [friendsList, remotePlayers, game.session.characters]);
+  }, [friendsList, remotePlayers, game.session.characters, friendsRemoteStatus]);
 
   // Phase 186 Bloco E: Unique online accounts count across city & hunts without monster or tab duplication
   const uniqueOnlineAccountsCount = useMemo(() => {
@@ -3620,6 +3655,16 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   };
   startSelectedHuntRef.current = startSelectedHunt;
 
+  // Phase 248: Timeout de segurança estrito (máximo 4s) para desbloquear a arena e remover loading screen
+  useEffect(() => {
+    if (mode === 'hunt' && !isArenaReady) {
+      const timer = window.setTimeout(() => {
+        setIsArenaReady(true);
+      }, 4000);
+      return () => window.clearTimeout(timer);
+    }
+  }, [mode, isArenaReady]);
+
   const handleStartPvPDuel = useCallback((matchEvent: PvPMatchFoundEvent) => {
     setIsPvPArenaModalOpen(false);
     setIsTrainingAtDummy(false);
@@ -4634,6 +4679,16 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
   }, [takeCityStep]);
 
+  const mobileSellableLootCount = useMemo(() => {
+    if (!game.session.loot || game.session.loot.length === 0) return 0;
+    const prices = new Map(content.economy.items.map((item) => [item.itemId, preferredSellPrice(item)?.price ?? null]));
+    return game.session.loot.filter((stack) => {
+      if (stack.itemId !== undefined && itemLootPreference(game, stack.itemId).lockSell) return false;
+      const price = stack.itemId === undefined ? null : prices.get(stack.itemId);
+      return price !== null && price !== undefined && price > 0;
+    }).length;
+  }, [game.session.loot, game.session.itemLootPreferences, content.economy.items]);
+
   const handleSelectMobileTab = useCallback((tab: MobileTab) => {
     setMobileActiveTab(tab);
     switch (tab) {
@@ -4653,13 +4708,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         setMobileDrawerCategory('social');
         break;
       case 'metrics':
-        setMobileDrawerCategory('metrics');
+        setMobileDrawerCategory(null);
+        toggleWindow('metrics');
         break;
       case 'menu':
         setMobileDrawerCategory('menu');
         break;
     }
-  }, [activeCharacter.id, gameModal]);
+  }, [activeCharacter.id, gameModal, toggleWindow]);
 
   // Continuous movement loop while arrow keys or WASD are held, strictly paced at normal speed with Web Worker ticker
   const tickHeldKeyboardMove = useCallback(() => {
@@ -4933,6 +4989,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               isConnected={isConnectedServer}
               onOpenSettings={() => setMobileDrawerCategory('menu')}
               onOpenProfile={() => gameModal.openProfile(activeCharacter.id)}
+              onOpenHuntSelector={() => setHuntSelectorOpen(true)}
             />
             <MobileMusicBadge isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />
           </>
@@ -4994,7 +5051,17 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       />
 
       {/* Window 5: Advanced Metrics & Analyzers */}
-      <DraggableWindow id="metrics" icon="📊" title={metricsWindowTitle}>
+      <DraggableWindow
+        id="metrics"
+        icon={
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        }
+        title={metricsWindowTitle}
+      >
         <AdvancedMetricsWindow
           data={huntAnalyzerData}
           gold={game.session.gold}
@@ -5003,7 +5070,17 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       </DraggableWindow>
 
       {/* Window 6: Combat Log History */}
-      <DraggableWindow id="logs" icon="📜">
+      <DraggableWindow
+        id="logs"
+        icon={
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+        }
+      >
         <div className="window-logs-content">
           <div style={{ fontSize: '9px', color: '#9ea49c', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
             <span>Histórico de Combate</span>
@@ -5095,6 +5172,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             spells={content.spells}
             onSlotClick={handleManualHotbarAction}
             onConfigureSlot={setHotbarConfigSlot}
+          />
+          <MobileQuickSellBubble
+            sellableCount={mobileSellableLootCount}
+            onQuickSell={sellLoot}
+            isHunting={mode === 'hunt'}
           />
           <MobileBottomNav
             activeTab={mobileActiveTab}

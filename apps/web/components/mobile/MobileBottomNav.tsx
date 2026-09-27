@@ -17,13 +17,76 @@ export function MobileBottomNav({
   isHunting = false,
   onExitHunt,
 }: MobileBottomNavProps) {
-  const tabs: Array<{ id: MobileTab; label: string; icon: string }> = [
-    { id: 'world', label: 'Mundo', icon: '🎯' },
-    { id: 'character', label: 'Personagem', icon: '🛡️' },
-    { id: 'inventory', label: 'Inventário', icon: '🎒' },
-    { id: 'social', label: 'Social', icon: '👥' },
-    { id: 'metrics', label: 'Métricas', icon: '📊' },
-    { id: 'menu', label: 'Menu', icon: '☰' },
+  const tabs: Array<{
+    id: MobileTab;
+    label: string;
+    renderIcon: (color: string) => React.ReactNode;
+  }> = [
+    {
+      id: 'world',
+      label: 'Mundo',
+      renderIcon: (color) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        </svg>
+      ),
+    },
+    {
+      id: 'character',
+      label: 'Herói',
+      renderIcon: (color) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'inventory',
+      label: 'Inventário',
+      renderIcon: (color) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10z" />
+          <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+          <line x1="8" y1="13" x2="16" y2="13" />
+          <line x1="8" y1="17" x2="16" y2="17" />
+        </svg>
+      ),
+    },
+    {
+      id: 'social',
+      label: 'Social',
+      renderIcon: (color) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
+    },
+    {
+      id: 'metrics',
+      label: 'Métricas',
+      renderIcon: (color) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      ),
+    },
+    {
+      id: 'menu',
+      label: 'Menu',
+      renderIcon: (color) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      ),
+    },
   ];
 
   return (
@@ -50,6 +113,7 @@ export function MobileBottomNav({
     >
       {tabs.map((t) => {
         const isActive = activeTab === t.id;
+        const iconColor = isActive ? '#fef08a' : '#94a3b8';
         return (
           <button
             key={t.id}
@@ -75,7 +139,9 @@ export function MobileBottomNav({
               touchAction: 'manipulation',
             }}
           >
-            <span style={{ fontSize: '15px', lineHeight: 1 }}>{t.icon}</span>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {t.renderIcon(iconColor)}
+            </span>
             <span
               style={{
                 fontSize: '9.5px',
@@ -119,7 +185,12 @@ export function MobileBottomNav({
             gap: '6px',
           }}
         >
-          🏃 Sair da Caçada
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sair da Caçada
         </button>
       )}
     </nav>

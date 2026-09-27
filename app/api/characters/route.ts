@@ -95,10 +95,18 @@ export async function POST(request: Request) {
     const body = (await request.json()) as { name?: string; vocationId?: number | string; gender?: 'male' | 'female' };
     const service = new CharacterService(prisma);
 
+    const vocId = Number(body.vocationId);
+    if (!vocId || vocId < 1 || vocId > 4) {
+      return NextResponse.json(
+        { success: false, error: 'Vocação inválida. A criação sem vocação foi descontinuada. Escolha uma das 4 vocações base canônicas: Knight (4), Paladin (3), Sorcerer (1) ou Druid (2).' },
+        { status: 400 }
+      );
+    }
+
     const character = await service.createCharacter({
       accountId,
       name: body.name || '',
-      vocationId: Number(body.vocationId),
+      vocationId: vocId,
       gender: body.gender === 'female' ? 'female' : 'male',
     });
 

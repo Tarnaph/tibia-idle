@@ -523,7 +523,7 @@ export function HuntSelector({
                         lineHeight: 1.3,
                       }}
                     >
-                      {isTracked ? '📍 ' : ''}{quest.name}
+                      {isTracked ? '[Rastreada] ' : ''}{quest.name}
                     </div>
                     <div style={{ fontSize: '10.5px', color: '#7b8ca5', marginTop: '3px' }}>
                       {quest.category}
@@ -607,7 +607,7 @@ export function HuntSelector({
                             textDecoration: obj.done ? 'line-through' : 'none',
                           }}
                         >
-                          <span style={{ fontSize: '12px' }}>{obj.done ? '✅' : '⚪'}</span>
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: obj.done ? '#4ade80' : '#94a3b8' }}>{obj.done ? '✓' : '○'}</span>
                           <span>{obj.text}</span>
                         </div>
                       ))}
@@ -628,10 +628,10 @@ export function HuntSelector({
                     </div>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '11px', color: '#4ade80', fontWeight: 700 }}>
-                        ⭐ {currentQuest.rewards.xp}
+                        XP: {currentQuest.rewards.xp}
                       </span>
                       <span style={{ fontSize: '11px', color: '#facc15', fontWeight: 700 }}>
-                        🪙 {currentQuest.rewards.gp}
+                        GP: {currentQuest.rewards.gp}
                       </span>
                       {currentQuest.rewards.items.map((it, i) => (
                         <span
@@ -645,7 +645,7 @@ export function HuntSelector({
                             borderRadius: '3px',
                           }}
                         >
-                          🎁 {it}
+                          {it}
                         </span>
                       ))}
                     </div>
@@ -665,7 +665,7 @@ export function HuntSelector({
                       className="hunt-start-hunt-btn"
                       onClick={() => setTrackedQuestId(currentQuest.id)}
                     >
-                      {isTracked ? '📍 Missão Rastreada' : 'Rastrear esta Missão'}
+                      {isTracked ? 'Missão Rastreada' : 'Rastrear esta Missão'}
                     </button>
                   </div>
                 </div>
@@ -704,7 +704,12 @@ export function HuntSelector({
             {/* Search Bar */}
             <div className="hunt-search-bar-row">
               <div className="hunt-search-input-box">
-                <span style={{ color: '#64748b', fontSize: '13px' }}>🔍</span>
+                <span style={{ color: '#64748b', display: 'flex', alignItems: 'center' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </span>
                 <input
                   type="text"
                   placeholder="Buscar caçadas..."
@@ -786,7 +791,71 @@ export function HuntSelector({
         ) : (
           /* SCREEN 2: HUNT SETUP & PULL SIZE */
           <div className="hunt-setup-container">
-            {/* Header Banner */}
+            {/* Mobile-Optimized Setup Header (Onda 5: Menu do Bicho Reorganizado) */}
+            <div className="hunt-mobile-setup-header">
+              <div className="hunt-mobile-setup-top-row">
+                <div className="hunt-mobile-primary-sprite-box">
+                  <img
+                    src={`/generated/bestiary/${selectedHunt.monsters[0] ?? 'rat'}.png`}
+                    alt={selectedHunt.name}
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      target.src = '/generated/bestiary/rat.png';
+                    }}
+                  />
+                </div>
+                <div className="hunt-mobile-pull-selector">
+                  <span className="hunt-mobile-section-label">Tamanho do Pull</span>
+                  <div className="hunt-pull-size-tabs mobile-tabs">
+                    <button
+                      type="button"
+                      className={`hunt-pull-size-tab ${pullSize === 'cauteloso' ? 'active' : ''}`}
+                      onClick={() => setPullSize('cauteloso')}
+                    >
+                      Cauteloso
+                    </button>
+                    <button
+                      type="button"
+                      className={`hunt-pull-size-tab ${pullSize === 'ousado' ? 'active' : ''}`}
+                      onClick={() => setPullSize('ousado')}
+                    >
+                      Ousado
+                    </button>
+                    <button
+                      type="button"
+                      className={`hunt-pull-size-tab ${pullSize === 'agressivo' ? 'active' : ''}`}
+                      onClick={() => setPullSize('agressivo')}
+                    >
+                      Agressivo
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="hunt-mobile-meta-box">
+                <div className="hunt-mobile-title-row">
+                  <span className="hunt-mobile-title">{selectedHunt.name}</span>
+                  <button
+                    type="button"
+                    className={`hunt-star-btn ${favorites.has(selectedHunt.id) ? 'is-fav' : ''}`}
+                    onClick={(e) => toggleFavorite(e, selectedHunt.id)}
+                  >
+                    {favorites.has(selectedHunt.id) ? '★' : '☆'}
+                  </button>
+                </div>
+                <div className="hunt-mobile-requirements">
+                  <span>Mínimo: Lv. {selectedHunt.minimumLevel || 1}</span>
+                  <span style={{ color: '#facc15' }}> · Recomendado: Lv. {selectedHunt.recommendedLevel || 1}+</span>
+                </div>
+                {(selectedHunt.description || selectedHunt.shortDescription) && (
+                  <div className="hunt-mobile-desc">
+                    {selectedHunt.description || selectedHunt.shortDescription}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Header Banner (Desktop) */}
             <div className="hunt-setup-banner">
               <div>
                 <div className="hunt-setup-banner-title">

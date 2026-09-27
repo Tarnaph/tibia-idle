@@ -81,11 +81,19 @@ export function FriendsWindow({
     return () => window.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const onlineFriends = friends.filter((f) => f.isOnline !== false);
-  const offlineFriends = friends.filter((f) => f.isOnline === false);
+  const onlineFriends = friends.filter((f) => f.isOnline === true);
+  const offlineFriends = friends.filter((f) => !f.isOnline);
 
   return (
-    <DraggableWindow id="friends" icon="⭐" defaultWidth={390}>
+    <DraggableWindow
+      id="friends"
+      icon={
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      }
+      defaultWidth={390}
+    >
       <div
         aria-label="Seus Amigos"
         style={{
@@ -118,7 +126,10 @@ export function FriendsWindow({
               opacity: isSearching ? 0.7 : 1,
             }}
           >
-            <span style={{ color: '#64748b', marginRight: '6px', fontSize: '12px' }}>🔍</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
             <input
               type="text"
               value={searchQuery}
@@ -184,7 +195,19 @@ export function FriendsWindow({
               lineHeight: '1.4',
             }}
           >
-            <span style={{ fontSize: '12px' }}>{feedback.type === 'error' ? '⚠️' : '✅'}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {feedback.type === 'error' ? (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              ) : (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </span>
             <span style={{ flex: 1 }}>{feedback.message}</span>
             <span
               onClick={() => setFeedback(null)}
@@ -216,7 +239,7 @@ export function FriendsWindow({
             paddingBottom: '4px',
           }}
         >
-          <span style={{ fontSize: '9px' }}>🟢</span>
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#4ade80', display: 'inline-block', boxShadow: '0 0 4px #22c55e' }} />
           <span>ONLINE ({onlineFriends.length})</span>
         </div>
 
@@ -301,7 +324,7 @@ export function FriendsWindow({
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '3px',
+                    gap: '4px',
                     transition: 'all 0.15s ease',
                   }}
                   onMouseEnter={(e) => {
@@ -315,7 +338,9 @@ export function FriendsWindow({
                     e.currentTarget.style.borderColor = '#4a4d52';
                   }}
                 >
-                  <span>💬</span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
                   <span>Mensagem</span>
                 </button>
               </div>
@@ -340,7 +365,7 @@ export function FriendsWindow({
                   paddingBottom: '4px',
                 }}
               >
-                <span style={{ fontSize: '9px' }}>⚪</span>
+                <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#64748b', display: 'inline-block' }} />
                 <span>OFFLINE ({offlineFriends.length})</span>
               </div>
               {offlineFriends.map((friend) => (
@@ -397,10 +422,12 @@ export function FriendsWindow({
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '3px',
+                        gap: '4px',
                       }}
                     >
-                      <span>💬</span>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
                       <span>Mensagem</span>
                     </button>
                   </div>
@@ -457,7 +484,9 @@ export function FriendsWindow({
                 onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(1.1)')}
                 onMouseLeave={(e) => (e.currentTarget.style.filter = 'none')}
               >
-                <span>💬</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#18191b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
                 <span>Mandar Mensagem</span>
               </button>
 
@@ -476,11 +505,17 @@ export function FriendsWindow({
                   borderRadius: '3px',
                   color: '#f87171',
                   cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#451a1a')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#331515')}
               >
-                ❌
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
           </div>
@@ -563,13 +598,15 @@ export function FriendsWindow({
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '8px',
                 transition: 'background-color 0.1s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#27292c')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              <span>💬</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
               <span>Mandar mensagem para {selectedFriend.name}</span>
             </div>
 
@@ -586,13 +623,16 @@ export function FriendsWindow({
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '8px',
                 transition: 'background-color 0.1s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#27292c')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              <span>❌</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
               <span>Remover dos amigos</span>
             </div>
           </div>

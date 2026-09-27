@@ -109,7 +109,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
   useEffect(() => {
     const app = appRef.current;
     if (!app || !app.ticker) return;
-    if (active) {
+    if (active && !document.hidden) {
       resetSceneReadyRef.current?.();
       if (!app.ticker.started) app.ticker.start();
       try {
@@ -123,6 +123,32 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
     } else {
       if (app.ticker.started) app.ticker.stop();
     }
+
+    const handleVisibility = () => {
+      const curApp = appRef.current;
+      if (!curApp || !curApp.ticker) return;
+      if (document.hidden) {
+        if (curApp.ticker.started) curApp.ticker.stop();
+      } else {
+        if (active && !curApp.ticker.started) {
+          resetSceneReadyRef.current?.();
+          curApp.ticker.start();
+          try {
+            curApp.resize();
+          } catch {}
+          requestAnimationFrame(() => {
+            try {
+              curApp.resize();
+            } catch {}
+          });
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [active]);
 
   useEffect(() => {
@@ -1435,7 +1461,9 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const visualPosition = views.get(target.characterId)?.track.sample(now).renderPosition ?? target.position;
           const point = worldPoint(visualPosition);
           const currentZoomMult = getZoomMultiplier();
-          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y, fixedZoom: 2 * currentZoomMult });
+          const isMobileViewport = typeof window !== 'undefined' && window.innerWidth <= 768;
+          const mobileSqmOffsetY = isMobileViewport ? TILE_SIZE : 0;
+          const desired = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y + mobileSqmOffsetY, fixedZoom: 2 * currentZoomMult });
           camera = cameraInitialized ? smoothWorldCamera(camera, desired, app.ticker.deltaMS) : desired; cameraInitialized = true;
           world.scale.set(camera.zoom); world.position.set(Math.round(app.screen.width / 2 - camera.x * camera.zoom), Math.round(app.screen.height / 2 - camera.y * camera.zoom));
           const debugText = overlay.getChildByLabel('camera-debug') as Text | null;

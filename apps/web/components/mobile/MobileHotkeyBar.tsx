@@ -3,7 +3,8 @@
 import React from 'react';
 import type { CharacterState } from '@/packages/domain/src/types';
 import type { SpellDefinition } from '@/packages/content-schema/src';
-import { getCanonicalItemUrl, getCanonicalSpellUrl } from '@/apps/web/lib/assetPaths';
+import { findHotbarAction } from '@/packages/domain/src';
+import { Tibia11ActionIcon } from '@/apps/web/components/Tibia11ActionIcon';
 
 interface MobileHotkeyBarProps {
   character: CharacterState;
@@ -19,8 +20,6 @@ export function MobileHotkeyBar({
   spells,
   onSlotClick,
   onConfigureSlot,
-  onToggleChat,
-  unreadChatCount = 0,
 }: MobileHotkeyBarProps) {
   const hotbarList: any[] = Array.isArray(character.hotbar)
     ? character.hotbar
@@ -28,13 +27,9 @@ export function MobileHotkeyBar({
     ? (character as any).hotbar.hotbar
     : [];
 
-  // Show 8 hotkey slots + 1 chat toggle slot
+  // Show 8 hotkey slots
   const slotsCount = 8;
   const slots = Array.from({ length: slotsCount }, (_, i) => hotbarList[i] || null);
-
-  const getSpellIcon = (spellId: string) => {
-    return getCanonicalSpellUrl(spellId);
-  };
 
   return (
     <div
@@ -58,21 +53,48 @@ export function MobileHotkeyBar({
       }}
       onClick={(e) => e.stopPropagation()}
     >
-      {slots.map((action, idx) => {
+      {slots.map((rawSlot, idx) => {
         const slotNumber = idx + 1;
-        const isAssigned = Boolean(action);
+        const resolvedAction = rawSlot ? findHotbarAction(rawSlot, { spells } as any) : null;
+        const isAssigned = Boolean(resolvedAction);
 
-        let iconUrl = '';
-        let badgeCount: number | null = null;
+        let iconComponent: React.ReactNode = null;
+        let actionTitle = `Slot ${slotNumber} (Vazio - Toque para configurar)`;
         let isPotionOrRune = false;
 
-        if (action) {
-          if (action.type === 'spell') {
-            iconUrl = getSpellIcon(action.spellId);
-          } else if (action.type === 'item') {
-            iconUrl = getCanonicalItemUrl(action.itemId);
+        if (resolvedAction) {
+          if (resolvedAction.kind === 'spell') {
+            actionTitle = `${resolvedAction.spell.name} (${resolvedAction.spell.words})`;
+            iconComponent = (
+              <Tibia11ActionIcon
+                id={Number(resolvedAction.spell.spellId)}
+                kind="spell"
+                name={resolvedAction.spell.name}
+                size={32}
+              />
+            );
+          } else if (resolvedAction.kind === 'potion') {
             isPotionOrRune = true;
-            badgeCount = action.count ?? action.amount ?? 10;
+            actionTitle = resolvedAction.potion.name;
+            iconComponent = (
+              <Tibia11ActionIcon
+                id={resolvedAction.potion.id}
+                kind="potion"
+                name={resolvedAction.potion.name}
+                size={32}
+              />
+            );
+          } else if (resolvedAction.kind === 'rune') {
+            isPotionOrRune = true;
+            actionTitle = resolvedAction.rune.name;
+            iconComponent = (
+              <Tibia11ActionIcon
+                id={resolvedAction.rune.id}
+                kind="rune"
+                name={resolvedAction.rune.name}
+                size={32}
+              />
+            );
           }
         }
 
@@ -99,7 +121,7 @@ export function MobileHotkeyBar({
               height: '44px',
               minWidth: '44px',
               backgroundColor: '#111827',
-              border: isAssigned ? '1.5px solid #4b5563' : '1px dashed #374151',
+              border: isAssigned ? '1.5px solid #d4a843' : '1px dashed #374151',
               borderRadius: '6px',
               padding: 0,
               display: 'flex',
@@ -107,25 +129,15 @@ export function MobileHotkeyBar({
               justifyContent: 'center',
               cursor: 'pointer',
               overflow: 'hidden',
-              boxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.7)',
+              boxShadow: isAssigned ? '0 0 6px rgba(212, 168, 67, 0.25), inset 0 0 6px rgba(0, 0, 0, 0.7)' : 'inset 0 0 6px rgba(0, 0, 0, 0.7)',
             }}
-            title={isAssigned ? `Atalho ${slotNumber}: ${action.name || action.spellId || 'Item'}` : `Slot ${slotNumber} (Vazio - Toque para configurar)`}
+            title={actionTitle}
           >
-            {isAssigned ? (
+            {isAssigned && iconComponent ? (
               <>
-                <img
-                  src={iconUrl}
-                  alt={action.name || 'Action'}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    objectFit: 'contain',
-                    imageRendering: 'pixelated',
-                  }}
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = '/spells/exura.png';
-                  }}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                  {iconComponent}
+                </div>
 
                 {/* Slot index badge bottom right */}
                 {!isPotionOrRune && (
@@ -138,31 +150,15 @@ export function MobileHotkeyBar({
                       fontWeight: 800,
                       color: '#cbd5e1',
                       textShadow: '0 1px 2px #000',
+                      pointerEvents: 'none',
                     }}
                   >
                     {slotNumber}
                   </span>
                 )}
-
-                {/* Stack count for potions/runes */}
-                {isPotionOrRune && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      bottom: '1px',
-                      right: '2px',
-                      fontSize: '9.5px',
-                      fontWeight: 800,
-                      color: '#fef08a',
-                      textShadow: '0 1px 2px #000',
-                    }}
-                  >
-                    {badgeCount}
-                  </span>
-                )}
               </>
             ) : (
-              <span style={{ fontSize: '18px', color: '#4b5563', fontWeight: 300 }}>+</span>
+              <span style={{ fontSize: '18px', color: '#4b5563', fontWeight: 300, pointerEvents: 'none' }}>+</span>
             )}
           </button>
         );

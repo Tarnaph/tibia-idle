@@ -787,7 +787,14 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                   marginBottom: '4px',
                 }}
               >
-                ⚠️ {permissionNotice}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <span>{permissionNotice}</span>
+                </div>
               </div>
             )}
 
@@ -804,69 +811,85 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                   marginBottom: '4px',
                 }}
               >
-                {questFeedback.type === 'success' ? '🎉 ' : '⚠️ '}
                 {questFeedback.text}
               </div>
             )}
 
-            {/* Pinned Preview Box (Always at top of preview/customizer) */}
-            <div className="tibia-preview-box">
-              <div className="tibia-preview-inner">
-                <canvas
-                  ref={previewCanvasRef}
-                  width={64}
-                  height={64}
-                  className={`tibia-preview-sprite ${isMounted ? 'mounted' : 'on-foot'}`}
-                  style={{
-                    imageRendering: 'pixelated',
-                    width: '64px',
-                    height: '64px',
-                  }}
-                />
+            {/* Split Top Cluster on Mobile: Preview Box (50%) + Navigation Buttons Column (50%) */}
+            <div className="tibia-mobile-top-split">
+              {/* Left Column: Pinned Preview Box (50%) */}
+              <div className="tibia-preview-box">
+                <div className="tibia-preview-inner">
+                  <canvas
+                    ref={previewCanvasRef}
+                    width={64}
+                    height={64}
+                    className={`tibia-preview-sprite ${isMounted ? 'mounted' : 'on-foot'}`}
+                    style={{
+                      imageRendering: 'pixelated',
+                      width: '64px',
+                      height: '64px',
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="tibia-rotate-corner-btn"
+                  onClick={rotateNext}
+                  title="Girar Personagem (⟳)"
+                >
+                  ⟳
+                </button>
+                <div style={{ textAlign: 'center', fontSize: '10.5px', fontWeight: 'bold', color: '#f3c769', marginTop: '2px', textShadow: '0 1px 2px #000', padding: '0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {AVAILABLE_OUTFITS.find((o) => normalizeOutfitId(o.id) === normalizeOutfitId(selectedOutfit))?.name || selectedOutfit}
+                  {Boolean(isMounted && selectedMount !== 'none') && ` · ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
+                </div>
               </div>
-              <button
-                type="button"
-                className="tibia-rotate-corner-btn"
-                onClick={rotateNext}
-                title="Girar Personagem (⟳)"
-              >
-                ⟳
-              </button>
-              <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: 'bold', color: '#f3c769', marginTop: '2px', textShadow: '0 1px 2px #000' }}>
-                {AVAILABLE_OUTFITS.find((o) => normalizeOutfitId(o.id) === normalizeOutfitId(selectedOutfit))?.name || selectedOutfit}
-                {Boolean(isMounted && selectedMount !== 'none') && ` · 🐎 ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
-              </div>
-            </div>
 
-            {/* Mobile Sub-Navigation Tabs (Visible only on mobile <= 768px) */}
-            <div className="tibia-mobile-outfit-tabs">
-              <button
-                type="button"
-                className={`tibia-mobile-outfit-tab ${mobileSection === 'outfits' ? 'active' : ''}`}
-                onClick={() => {
-                  setMobileSection('outfits');
-                  setSelectedTab('outfits');
-                }}
-              >
-                🥋 Trajes
-              </button>
-              <button
-                type="button"
-                className={`tibia-mobile-outfit-tab ${mobileSection === 'colors' ? 'active' : ''}`}
-                onClick={() => setMobileSection('colors')}
-              >
-                🎨 Cores & Addons
-              </button>
-              <button
-                type="button"
-                className={`tibia-mobile-outfit-tab ${mobileSection === 'mounts' ? 'active' : ''}`}
-                onClick={() => {
-                  setMobileSection('mounts');
-                  setSelectedTab('mounts');
-                }}
-              >
-                🐎 Montarias
-              </button>
+              {/* Right Column: 3 Navigation Action Buttons (50%) */}
+              <div className="tibia-mobile-outfit-tabs">
+                <button
+                  type="button"
+                  className={`tibia-mobile-outfit-tab ${mobileSection === 'outfits' ? 'active' : ''}`}
+                  onClick={() => {
+                    setMobileSection('outfits');
+                    setSelectedTab('outfits');
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
+                  </svg>
+                  <span>Trajes</span>
+                </button>
+                <button
+                  type="button"
+                  className={`tibia-mobile-outfit-tab ${mobileSection === 'colors' ? 'active' : ''}`}
+                  onClick={() => setMobileSection('colors')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="13.5" cy="6.5" r=".5" />
+                    <circle cx="17.5" cy="10.5" r=".5" />
+                    <circle cx="8.5" cy="7.5" r=".5" />
+                    <circle cx="6.5" cy="12.5" r=".5" />
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z" />
+                  </svg>
+                  <span>Cores & Addons</span>
+                </button>
+                <button
+                  type="button"
+                  className={`tibia-mobile-outfit-tab ${mobileSection === 'mounts' ? 'active' : ''}`}
+                  onClick={() => {
+                    setMobileSection('mounts');
+                    setSelectedTab('mounts');
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                    <line x1="4" y1="22" x2="4" y2="15" />
+                  </svg>
+                  <span>Montarias</span>
+                </button>
+              </div>
             </div>
 
             {/* Addons, Mount rider toggle and Color Palette Controls */}
@@ -893,7 +916,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                       onClick={() => setShowQuest1((p) => !p)}
                       title="Ver requisitos da missão para liberar este addon"
                     >
-                      📜 Quest {showQuest1 ? '▲' : '▼'}
+                      Quest {showQuest1 ? '▲' : '▼'}
                     </button>
                   )}
                 </div>
@@ -941,7 +964,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                           disabled={isTradingQuest}
                           onClick={() => handleTradeQuest(quest1Def.id, 1)}
                         >
-                          {isTradingQuest ? 'Trocando...' : '⭐ Trocar (Liberar Addon)'}
+                          {isTradingQuest ? 'Trocando...' : 'Trocar (Liberar Addon)'}
                         </button>
                       ) : (
                         <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '2px' }}>
@@ -979,7 +1002,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                       onClick={() => setShowQuest2((p) => !p)}
                       title="Ver requisitos da missão para liberar este addon"
                     >
-                      📜 Quest {showQuest2 ? '▲' : '▼'}
+                      Quest {showQuest2 ? '▲' : '▼'}
                     </button>
                   )}
                 </div>
@@ -1177,7 +1200,10 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                           />
                         ) : (
                           <div className="tibia-card-no-mount-placeholder" title="Sem Montaria">
-                            <span style={{ fontSize: '24px', opacity: 0.85 }}>🚶</span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="5" r="2" />
+                              <path d="M10 22v-6l-2-2V9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5l-2 2v6" />
+                            </svg>
                           </div>
                         )}
                       </div>
@@ -1228,7 +1254,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
               fontWeight: 600,
             }}
           >
-            📋 Copiar Diagnóstico
+            Copiar Diagnóstico
           </button>
           <button
             type="button"
@@ -1259,7 +1285,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
               fontWeight: 600,
             }}
           >
-            💾 Copiar Último Save
+            Copiar Último Save
           </button>
           <button type="button" className="tibia-footer-btn-cancel" onClick={onClose}>
             Cancelar

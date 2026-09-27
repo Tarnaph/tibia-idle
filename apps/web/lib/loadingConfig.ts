@@ -28,6 +28,18 @@ export const PVP_ARENA_LORE_CURIOSITIES: string[] = [
   'Todos os combatentes recebem 100 Health Potions e 100 Mana Potions durante o combate para duelos justos e intensos.',
 ];
 
+export const SPIDER_BURROW_LORE_CURIOSITIES: string[] = [
+  'As aranhas tecem teias densas e grudentas na escuridão das cavernas ao redor de Thais e Rookgaard.',
+  'Cuidado ao pisar em seus ninhos subterrâneos: as Poison Spiders injetam um veneno persistente em aventureiros desprevenidos.',
+  'Teias de aranha resistentes são muito valorizadas por alfaiates e mestres tecelões por todo o continente.',
+];
+
+export const RAT_CELLARS_LORE_CURIOSITIES: string[] = [
+  'Os esgotos e porões de Thais estão repletos de roedores vorazes e agressivos.',
+  'Aventureiros iniciantes costumam treinar suas primeiras armas nas galerias subterrâneas contra ratos de caverna.',
+  'Dizem que queijos velhos atraem ninhadas inteiras diretamente das tocas mais escuras.',
+];
+
 export interface HuntLoadingConfig {
   bgImage: string;
   curiosities: string[];
@@ -39,6 +51,14 @@ export const DEFAULT_HUNT_LOADING_CONFIG: HuntLoadingConfig = {
 };
 
 export const HUNT_LOADING_CONFIGS: Record<string, HuntLoadingConfig> = {
+  'spider-burrow': {
+    bgImage: '/images/hunts/spider-burrow.jpg',
+    curiosities: SPIDER_BURROW_LORE_CURIOSITIES,
+  },
+  'rat-cellars': {
+    bgImage: '/images/hunts/rat-cellars.jpg',
+    curiosities: RAT_CELLARS_LORE_CURIOSITIES,
+  },
   'dragon-lair': {
     bgImage: '/images/loading/dragon-lair-loading.jpg',
     curiosities: DRAGON_LAIR_LORE_CURIOSITIES,

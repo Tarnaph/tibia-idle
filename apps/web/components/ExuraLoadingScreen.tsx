@@ -215,7 +215,7 @@ export function ExuraLoadingScreen({
       const huntProgressPct = huntId ? huntAssetPreloader.getHuntProgress(huntId) : 100;
       const assetProgressPct = Math.min(globalProgressPct, huntProgressPct);
 
-      const isTimedOut = elapsed >= effectiveDuration + 5000;
+      const isTimedOut = elapsed >= Math.min(effectiveDuration + 1500, 4000);
       let effectivePct: number;
       if (isTimedOut) {
         effectivePct = timePct;

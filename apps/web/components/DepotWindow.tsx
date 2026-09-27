@@ -37,17 +37,97 @@ export function DepotWindow({
     return true;
   });
 
-  const filterButtons = [
+  const filterButtons: Array<{ id: string; label: string; icon?: React.ReactNode }> = [
     { id: 'all', label: 'Todos' },
-    { id: 'neck', label: '📿' },
-    { id: 'weapon', label: '⚔️' },
-    { id: 'shield', label: '🛡️' },
-    { id: 'helmet', label: '🪖' },
-    { id: 'armor', label: '🥋' },
-    { id: 'legs', label: '👖' },
-    { id: 'boots', label: '🥾' },
-    { id: 'ring', label: '💍' },
-    { id: 'ammo', label: '🏹' },
+    {
+      id: 'neck',
+      label: 'Colar',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="7" r="4" />
+          <path d="M12 11v4" />
+          <circle cx="12" cy="17" r="2" />
+        </svg>
+      ),
+    },
+    {
+      id: 'weapon',
+      label: 'Arma',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="14.5" y1="17.5" x2="3" y2="6" />
+          <line x1="14.5" y1="6.5" x2="3" y2="18" />
+          <line x1="21" y1="3" x2="18" y2="3" />
+          <line x1="21" y1="3" x2="21" y2="6" />
+        </svg>
+      ),
+    },
+    {
+      id: 'shield',
+      label: 'Escudo',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'helmet',
+      label: 'Elmo',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2a8 8 0 0 0-8 8v6h16v-6a8 8 0 0 0-8-8z" />
+          <line x1="12" y1="16" x2="12" y2="22" />
+        </svg>
+      ),
+    },
+    {
+      id: 'armor',
+      label: 'Armadura',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'legs',
+      label: 'Calça',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 3h12v4l-2 14h-3l-1-10-1 10H8L6 7V3z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'boots',
+      label: 'Botas',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 17l4 4 12-12-4-4L4 17z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'ring',
+      label: 'Anel',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="7" />
+          <path d="M12 5l2-3h-4l2 3" />
+        </svg>
+      ),
+    },
+    {
+      id: 'ammo',
+      label: 'Munição',
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      ),
+    },
   ];
 
   return (
@@ -75,8 +155,10 @@ export function DepotWindow({
                   type="button"
                   className={`depot-filter-btn ${activeFilter === btn.id ? 'active' : ''}`}
                   onClick={() => setActiveFilter(btn.id)}
+                  title={btn.label}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '28px' }}
                 >
-                  {btn.label}
+                  {btn.icon || btn.label}
                 </button>
               ))}
             </div>

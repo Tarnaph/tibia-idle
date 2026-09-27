@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import type { CharacterState } from '@/packages/domain/src/types';
 
 interface MobileTopBarProps {
@@ -9,6 +10,7 @@ interface MobileTopBarProps {
   isConnected?: boolean;
   onOpenSettings?: () => void;
   onOpenProfile?: () => void;
+  onOpenHuntSelector?: () => void;
 }
 
 export function MobileTopBar({
@@ -18,7 +20,39 @@ export function MobileTopBar({
   isConnected = true,
   onOpenSettings,
   onOpenProfile,
+  onOpenHuntSelector,
 }: MobileTopBarProps) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement || (document as any).webkitFullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+      const docEl = document.documentElement as any;
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(() => {});
+      } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      }
+    }
+  };
+
   const currentHp = (character as any)?.currentHp ?? (character as any)?.health ?? 150;
   const maxHp = Math.max(1, (character as any)?.maxHp ?? (character as any)?.maxHealth ?? 150);
   const hpPercent = Math.min(100, Math.max(0, (currentHp / maxHp) * 100));
@@ -55,7 +89,7 @@ export function MobileTopBar({
       }}
     >
       {/* Left: Avatar + Identity + Bars */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0, position: 'relative' }}>
         {/* Avatar Frame */}
         <div
           onClick={onOpenProfile}
@@ -87,6 +121,44 @@ export function MobileTopBar({
           />
         </div>
 
+        {/* Floating Circular Hunt Button directly below the avatar */}
+        {onOpenHuntSelector && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenHuntSelector();
+            }}
+            title="Abrir Mapa de Caçadas"
+            style={{
+              position: 'absolute',
+              top: '52px',
+              left: '5px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: '#0f172a',
+              border: '2px solid #eab308',
+              color: '#facc15',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.8), 0 0 10px rgba(234, 179, 8, 0.35)',
+              cursor: 'pointer',
+              zIndex: 55,
+              transition: 'transform 0.15s ease',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="22" y1="12" x2="18" y2="12" />
+              <line x1="6" y1="12" x2="2" y2="12" />
+              <line x1="12" y1="6" x2="12" y2="2" />
+              <line x1="12" y1="22" x2="12" y2="18" />
+            </svg>
+          </button>
+        )}
+
         {/* Identity & Status Bars */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, minWidth: 0 }}>
           {/* Row 1: Name, Voc/Level, Premium badge */}
@@ -117,13 +189,16 @@ export function MobileTopBar({
                   color: '#fef08a',
                   padding: '1px 5px',
                   borderRadius: '3px',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '2px',
+                  gap: '3px',
                   lineHeight: '1.2',
                 }}
               >
-                👑 PREMIUM
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fef08a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+                </svg>
+                PREMIUM
               </span>
             ) : (
               <span
@@ -178,7 +253,7 @@ export function MobileTopBar({
                 textShadow: '0 1px 2px #000',
               }}
             >
-              <span>❤️</span>
+              <span>HP</span>
               <span>{Math.round(currentHp)} / {maxHp}</span>
             </div>
           </div>
@@ -219,7 +294,7 @@ export function MobileTopBar({
                 textShadow: '0 1px 2px #000',
               }}
             >
-              <span>💧</span>
+              <span>MP</span>
               <span>{Math.round(currentMp)} / {maxMp}</span>
             </div>
           </div>
@@ -251,7 +326,38 @@ export function MobileTopBar({
 
       {/* Right: Quick Action Controls */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-        {/* Settings Button */}
+        {/* Fullscreen Native Toggle Button */}
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          title={isFullscreen ? 'Sair da Tela Cheia' : 'Modo Tela Cheia (Ocultar Barra do Navegador)'}
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            border: '1px solid #ca8a04',
+            background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
+            color: '#fef08a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.4)',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          {isFullscreen ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+            </svg>
+          )}
+        </button>
+
+        {/* Settings / Menu Drawer Button */}
         <button
           type="button"
           onClick={onOpenSettings}
@@ -260,18 +366,21 @@ export function MobileTopBar({
             width: '36px',
             height: '36px',
             borderRadius: '8px',
-            border: '1px solid #ca8a04',
+            border: '1px solid #475569',
             background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
-            color: '#fef08a',
-            fontSize: '16px',
+            color: '#cbd5e1',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.4)',
+            transition: 'all 0.15s ease',
           }}
         >
-          ⚙️
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
         </button>
 
         {/* Network Signal Indicator */}
@@ -287,10 +396,15 @@ export function MobileTopBar({
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.4)',
-            gap: '2px',
+            gap: '4px',
           }}
         >
-          <span style={{ fontSize: '13px' }}>📶</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 20h.01" />
+            <path d="M7 20v-4" />
+            <path d="M12 20v-8" />
+            <path d="M17 20V4" />
+          </svg>
           <span
             style={{
               width: '6px',

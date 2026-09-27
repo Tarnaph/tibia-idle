@@ -57893,7 +57893,7 @@
       "huntId": "spider-burrow",
       "name": "Spider Burrow",
       "monsterName": "Spider",
-      "available": false,
+      "available": true,
       "sourceCenter": {
         "x": 0,
         "y": 0,
