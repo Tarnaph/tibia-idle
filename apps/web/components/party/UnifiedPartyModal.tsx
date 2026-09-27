@@ -25,6 +25,7 @@ export interface VocationSlotConfig {
   bgGlow: string;
 }
 
+// Royal Dark Stone Theme: #18191b (header surface), #f3c769 (gold title), #eab308, #facc15 (gold buttons)
 export const VOCATION_SLOT_CONFIGS: Record<VocationSlotType, VocationSlotConfig> = {
   Knight: {
     vocation: 'Knight',

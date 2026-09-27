@@ -4339,3 +4339,10 @@ Plans:
 - [x] **Phase 250: Skill Padrão por Vocação nos Dummies de Treino e Correções Críticas do Modal de Outfit (Z-Index de Hotkeys & Suporte Canônico Feminino)** - Resolução dos 3 problemas do FIX.md: (1) Seleção automática e autoritativa da skill principal de cada vocação ao treinar nos dummies sem abrir menu (Sorc/Druid -> magicLevel, Paladin -> distance, Knight -> maior entre sword, axe e club com desempate por tries e arma melee equipada); (2) Correção de layout e elevação de z-index do modal de customização de trajes (OutfitModal) para z-index 100000/100001, evitando que a hotbar bloqueie a paleta de cores ou os botões Cancelar/Salvar em resoluções menores; (3) Suporte integral a personagens femininos no OutfitModal com renderização de sprites canônicos femininos nos cards e canvas, nomes canônicos e persistência do gênero no Prisma DB.
 Plans:
 - [x] 250-01-PLAN: Implementar getDefaultTrainingSkill no domain/training, elevar z-index do OutfitModal no CSS e inline, sincronizar gênero e sprites femininos no OutfitModal e GamePrototype, com testes unitários e typecheck 100%.
+
+---
+
+- [x] **Phase 251: Refinamentos de UI/UX Mobile & Desktop: Docks, Áudio Rápido, Quests Em Breve e Menu VIP (Itens do FIX.md)** - Resolução integral das 3 ondas de ajustes de UI/UX: (1) Ocultação dos botões e abas de acesso a Arena PvP e Bosses em docks desktop e drawer mobile até prontidão do sistema; (2) Remoção da aba Mundo do menu inferior mobile para dar mais espaçamento e foco visual às abas essenciais; (3) Substituição do botão duplicado de configurações na TopBar mobile por toggle de som/mudo em tempo real com `audioManager`; (4) Substituição de Inspecionar Herói por VIP (Amigos) no Drawer Social mobile; (5) Restrição das abas de caçadas no mobile a Caçadas e Quests; (6) Redesenho responsivo da aba Quests eliminando o layout amassado e quests fictícias, exibindo tela elegante "Em Breve" em padrão Royal Dark Stone & Ouro Real.
+Plans:
+- [x] 251-01-PLAN: Implementar e validar ajustes de navegação, docks, áudio mobile, VIP drawer e redesenho responsivo de Quests com testes unitários dedicados e 0 erros de tipagem.
+

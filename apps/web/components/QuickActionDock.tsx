@@ -67,15 +67,7 @@ export function QuickActionDock({
         RANKING
       </button>
 
-      <button
-        type="button"
-        className="quick-action-btn btn-pvp"
-        onClick={onOpenPvP}
-        title="Arena PvP Ranqueada"
-        style={{ color: '#f87171', borderColor: '#7f1d1d' }}
-      >
-        ARENA PVP
-      </button>
+
     </nav>
   );
 }

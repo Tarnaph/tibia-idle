@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { CharacterState } from '@/packages/domain/src/types';
+import { isAudioMuted, toggleAudioMuted, onAudioChange } from '@/apps/web/lib/audioManager';
 
 interface MobileTopBarProps {
   character: CharacterState;
@@ -23,6 +24,18 @@ export function MobileTopBar({
   onOpenHuntSelector,
 }: MobileTopBarProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => (typeof window !== 'undefined' ? isAudioMuted() : false));
+
+  useEffect(() => {
+    return onAudioChange((state) => {
+      setIsMuted(state.isMuted);
+    });
+  }, []);
+
+  const handleToggleSound = () => {
+    const next = toggleAudioMuted();
+    setIsMuted(next);
+  };
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -357,18 +370,20 @@ export function MobileTopBar({
           )}
         </button>
 
-        {/* Settings / Menu Drawer Button */}
+        {/* Audio Mute / Unmute Button */}
         <button
           type="button"
-          onClick={onOpenSettings}
-          title="Opções / Menu Rápido"
+          onClick={handleToggleSound}
+          title={isMuted ? 'Desmutar Áudio do Jogo' : 'Mutar Áudio do Jogo'}
           style={{
             width: '36px',
             height: '36px',
             borderRadius: '8px',
-            border: '1px solid #475569',
-            background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
-            color: '#cbd5e1',
+            border: isMuted ? '1px solid #ef4444' : '1px solid #10b981',
+            background: isMuted
+              ? 'linear-gradient(180deg, rgba(239, 68, 68, 0.25) 0%, #0f172a 100%)'
+              : 'linear-gradient(180deg, rgba(16, 185, 129, 0.25) 0%, #0f172a 100%)',
+            color: isMuted ? '#f87171' : '#34d399',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -377,10 +392,19 @@ export function MobileTopBar({
             transition: 'all 0.15s ease',
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
+          {isMuted ? (
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          ) : (
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            </svg>
+          )}
         </button>
 
         {/* Network Signal Indicator */}

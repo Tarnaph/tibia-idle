@@ -15,6 +15,7 @@ interface Props {
   isInCity?: boolean;
   isPartyLeader?: boolean;
   initialTab?: ActiveTab;
+  isMobile?: boolean;
   onClose(): void;
   onSelect(huntId: string, pullSize?: HuntPullSize): void;
   onSelectWithTeam?(huntId: string, huntName: string, pullSize?: HuntPullSize): void;
@@ -26,7 +27,7 @@ interface Props {
 }
 
 export type { ActiveTab };
-type ActiveTab = 'CAÇADAS' | 'TREINO' | 'QUESTS' | 'ARENA' | 'BOSSES';
+type ActiveTab = 'CAÇADAS' | 'TREINO' | 'QUESTS';
 type ViewMode = 'catalog' | 'setup';
 
 interface StatRecord {
@@ -168,6 +169,7 @@ export function HuntSelector({
   isInCity = false,
   isPartyLeader = false,
   initialTab,
+  isMobile,
   onClose,
   onSelect,
   onSelectWithTeam,
@@ -329,21 +331,12 @@ export function HuntSelector({
     onClose();
   };
 
+  const isMobileView = isMobile ?? (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+  const tabList: ActiveTab[] = isMobileView
+    ? (activeTab === 'TREINO' ? ['CAÇADAS', 'TREINO', 'QUESTS'] : ['CAÇADAS', 'QUESTS'])
+    : ['CAÇADAS', 'TREINO', 'QUESTS'];
+
   const handleTabClick = (tab: ActiveTab) => {
-    if (tab === 'ARENA') {
-      onClose();
-      onOpenArena?.();
-      return;
-    }
-    if (tab === 'QUESTS') {
-      setActiveTab('QUESTS');
-      return;
-    }
-    if (tab === 'BOSSES') {
-      if (onOpenBosses) onOpenBosses();
-      else gameModal.openCyclopedia('bosstiary');
-      return;
-    }
     setActiveTab(tab);
   };
 
@@ -381,9 +374,9 @@ export function HuntSelector({
           </button>
         </div>
 
-        {/* 5 Top Activity Tabs */}
+        {/* Top Activity Tabs */}
         <div className="hunt-top-nav-tabs">
-          {(['CAÇADAS', 'TREINO', 'QUESTS', 'ARENA', 'BOSSES'] as ActiveTab[]).map((tab) => (
+          {tabList.map((tab) => (
             <button
               key={tab}
               type="button"
@@ -456,221 +449,180 @@ export function HuntSelector({
             </div>
           </div>
         ) : activeTab === 'QUESTS' ? (
-          /* SCREEN: INLINE QUEST LOG VIEW (ROYAL DARK STONE) */
-          <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-            {/* Left Column: Quests List */}
+          /* SCREEN: INLINE QUEST LOG VIEW (EM BREVE / RESPONSIVE DARK STONE & GOLD) */
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: isMobileView ? '16px 12px' : '32px 20px',
+              backgroundColor: '#111315',
+              backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(202, 138, 4, 0.08) 0%, transparent 70%)',
+            }}
+          >
             <div
               style={{
-                width: '320px',
-                borderRight: '1px solid #33363a',
-                backgroundColor: '#161719',
-                padding: '14px 12px',
+                maxWidth: '560px',
+                width: '100%',
+                backgroundColor: '#181a1d',
+                border: '1px solid #33363a',
+                borderRadius: '8px',
+                padding: isMobileView ? '20px 14px' : '28px 24px',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '8px',
-                overflowY: 'auto',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: '14px',
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
-                Missões Disponíveis & Ativas
+              {/* Glowing Quest Icon */}
+              <div
+                style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(234, 179, 8, 0.12)',
+                  border: '2px solid #ca8a04',
+                  boxShadow: '0 0 20px rgba(202, 138, 4, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#facc15',
+                }}
+              >
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  <path d="M8 7h8" />
+                  <path d="M8 11h6" />
+                </svg>
               </div>
-              {DEFAULT_QUESTS.map((quest) => {
-                const isSelected = selectedQuestId === quest.id;
-                const isTracked = trackedQuestId === quest.id;
-                const statusBadge =
-                  quest.status === 'active'
-                    ? { text: 'EM ANDAMENTO', bg: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }
-                    : quest.status === 'available'
-                    ? { text: 'DISPONÍVEL', bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }
-                    : { text: 'CONCLUÍDA', bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8', border: '1px solid rgba(148, 163, 184, 0.3)' };
 
-                return (
-                  <div
-                    key={quest.id}
-                    onClick={() => setSelectedQuestId(quest.id)}
-                    style={{
-                      backgroundColor: isSelected ? '#27292c' : '#1b1c1e',
-                      border: `1px solid ${isSelected ? '#facc15' : '#282a2e'}`,
-                      borderRadius: '4px',
-                      padding: '10px 12px',
-                      cursor: 'pointer',
-                      transition: 'all 0.12s ease',
-                      boxShadow: isSelected ? '0 0 10px rgba(250, 204, 21, 0.2)' : 'none',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span
-                        style={{
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          padding: '1px 5px',
-                          borderRadius: '3px',
-                          backgroundColor: statusBadge.bg,
-                          color: statusBadge.color,
-                          border: statusBadge.border,
-                        }}
-                      >
-                        {statusBadge.text}
-                      </span>
-                      <span style={{ fontSize: '10px', color: '#9ca3af' }}>Lv. {quest.levelReq}+</span>
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: 'Georgia, serif',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        color: isSelected ? '#f3c769' : '#f1f5f9',
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {isTracked ? '[Rastreada] ' : ''}{quest.name}
-                    </div>
-                    <div style={{ fontSize: '10.5px', color: '#7b8ca5', marginTop: '3px' }}>
-                      {quest.category}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+              {/* Status Badge */}
+              <div
+                style={{
+                  fontSize: '9.5px',
+                  fontWeight: 800,
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase',
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(234, 179, 8, 0.18)',
+                  color: '#fef08a',
+                  border: '1px solid rgba(234, 179, 8, 0.4)',
+                }}
+              >
+                Em Desenvolvimento · Em Breve
+              </div>
 
-            {/* Right Column: Selected Quest Detail */}
-            {(() => {
-              const currentQuest = DEFAULT_QUESTS.find((q) => q.id === selectedQuestId) || DEFAULT_QUESTS[0];
-              const isTracked = trackedQuestId === currentQuest.id;
-
-              return (
-                <div
+              {/* Title & Lore */}
+              <div>
+                <h3
                   style={{
-                    flex: 1,
-                    backgroundColor: '#18191b',
-                    padding: '18px 20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '14px',
-                    overflowY: 'auto',
+                    margin: '0 0 8px 0',
+                    fontFamily: 'Georgia, serif',
+                    fontSize: isMobileView ? '18px' : '22px',
+                    fontWeight: 700,
+                    color: '#f3c769',
+                    letterSpacing: '0.5px',
                   }}
                 >
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <h3
-                        style={{
-                          margin: 0,
-                          fontFamily: 'Georgia, serif',
-                          fontSize: '18px',
-                          fontWeight: 700,
-                          color: '#f3c769',
-                          letterSpacing: '0.5px',
-                        }}
-                      >
-                        {currentQuest.name}
-                      </h3>
-                      <span style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 600 }}>
-                        Requisito: Lv. {currentQuest.levelReq}+
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-                      Categoria: <span style={{ color: '#9ca3af' }}>{currentQuest.category}</span> | Local:{' '}
-                      <span style={{ color: '#9ca3af' }}>{currentQuest.location}</span>
-                    </div>
-                  </div>
+                  Diário de Missões & Quests
+                </h3>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: isMobileView ? '12px' : '13px',
+                    color: '#94a3b8',
+                    lineHeight: '1.6',
+                    maxWidth: '460px',
+                  }}
+                >
+                  As missões canônicas, tarefas narrativas e caçadas lendárias estão sendo elaboradas pelo desenvolvedor. Em breve você poderá aceitar missões de NPCs de Thais, explorar masmorras e conquistar recompensas exclusivas!
+                </p>
+              </div>
 
-                  {/* Lore Description */}
-                  <div
-                    style={{
-                      backgroundColor: '#141517',
-                      border: '1px solid #2a2c30',
-                      borderRadius: '4px',
-                      padding: '12px 14px',
-                      color: '#cbd5e1',
-                      fontSize: '12px',
-                      lineHeight: '1.5',
-                    }}
-                  >
-                    {currentQuest.description}
-                  </div>
-
-                  {/* Objectives */}
-                  <div>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#f3c769', marginBottom: '8px', letterSpacing: '0.5px' }}>
-                      OBJETIVOS DA MISSÃO
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {currentQuest.objectives.map((obj, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontSize: '11.5px',
-                            color: obj.done ? '#64748b' : '#e2e8f0',
-                            textDecoration: obj.done ? 'line-through' : 'none',
-                          }}
-                        >
-                          <span style={{ fontSize: '11px', fontWeight: 700, color: obj.done ? '#4ade80' : '#94a3b8' }}>{obj.done ? '✓' : '○'}</span>
-                          <span>{obj.text}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Rewards Box */}
-                  <div
-                    style={{
-                      backgroundColor: '#141517',
-                      border: '1px solid #2a2c30',
-                      borderRadius: '4px',
-                      padding: '12px 14px',
-                    }}
-                  >
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#facc15', marginBottom: '6px', letterSpacing: '0.5px' }}>
-                      RECOMPENSAS AO COMPLETAR
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '11px', color: '#4ade80', fontWeight: 700 }}>
-                        XP: {currentQuest.rewards.xp}
-                      </span>
-                      <span style={{ fontSize: '11px', color: '#facc15', fontWeight: 700 }}>
-                        GP: {currentQuest.rewards.gp}
-                      </span>
-                      {currentQuest.rewards.items.map((it, i) => (
-                        <span
-                          key={i}
-                          style={{
-                            fontSize: '11px',
-                            color: '#93c5fd',
-                            backgroundColor: '#1b2333',
-                            border: '1px solid #2d3b55',
-                            padding: '2px 6px',
-                            borderRadius: '3px',
-                          }}
-                        >
-                          {it}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Footer Actions */}
-                  <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '10px' }}>
-                    <button
-                      type="button"
-                      className="hunt-setup-footer-btn"
-                      onClick={() => setActiveTab('CAÇADAS')}
-                    >
-                      Voltar para Caçadas
-                    </button>
-                    <button
-                      type="button"
-                      className="hunt-start-hunt-btn"
-                      onClick={() => setTrackedQuestId(currentQuest.id)}
-                    >
-                      {isTracked ? 'Missão Rastreada' : 'Rastrear esta Missão'}
-                    </button>
-                  </div>
+              {/* Upcoming Highlights Grid */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobileView ? '1fr' : 'repeat(3, 1fr)',
+                  gap: '10px',
+                  width: '100%',
+                  marginTop: '4px',
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: '#121416',
+                    border: '1px solid #282a2e',
+                    borderRadius: '6px',
+                    padding: '12px 10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    textAlign: 'center',
+                  }}
+                >
+                  <span style={{ fontSize: '18px' }}>📜</span>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#e2e8f0' }}>Missões de Thais</span>
+                  <span style={{ fontSize: '10px', color: '#64748b' }}>Enredos canônicos e histórias do reino</span>
                 </div>
-              );
-            })()}
+                <div
+                  style={{
+                    backgroundColor: '#121416',
+                    border: '1px solid #282a2e',
+                    borderRadius: '6px',
+                    padding: '12px 10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    textAlign: 'center',
+                  }}
+                >
+                  <span style={{ fontSize: '18px' }}>🎒</span>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#e2e8f0' }}>Tarefas de Addons</span>
+                  <span style={{ fontSize: '10px', color: '#64748b' }}>Colete materiais e forje novos visuais</span>
+                </div>
+                <div
+                  style={{
+                    backgroundColor: '#121416',
+                    border: '1px solid #282a2e',
+                    borderRadius: '6px',
+                    padding: '12px 10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    textAlign: 'center',
+                  }}
+                >
+                  <span style={{ fontSize: '18px' }}>🏆</span>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#e2e8f0' }}>RECOMPENSAS AO COMPLETAR</span>
+                  <span style={{ fontSize: '10px', color: '#64748b' }}>XP, Ouro e itens raros de valor</span>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <button
+                type="button"
+                className="hunt-start-hunt-btn"
+                onClick={() => setActiveTab('CAÇADAS')}
+                style={{
+                  marginTop: '6px',
+                  padding: '9px 24px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Voltar para as Caçadas
+              </button>
+            </div>
           </div>
         ) : view === 'catalog' ? (
           /* SCREEN 1: CATALOG VIEW */

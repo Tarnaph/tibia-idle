@@ -1,17 +1,26 @@
-# MUDANÇAS & CORREÇÕES (Phase 250)
+# PLANO DE CORREÇÕES & AJUSTES DE UI/UX (Phase 251)
 
-- [x] **1. Ao usar diretamente o dummy, começar com a arma/skill principal de cada classe:**
-  - Druid, Sorcerer $\rightarrow$ `magicLevel`
-  - Paladin $\rightarrow$ `distance`
-  - Knight $\rightarrow$ maior nível entre `sword`, `axe` e `club` (desempate por tries, depois por arma melee equipada, fallback para `sword`).
-  - Implementado em `packages/domain/src/training.ts` (`getDefaultTrainingSkill`), `GamePrototype.tsx` e limpos emojis no menu de contexto do dummy com lineart SVG.
+## Onda 1: Navegação & Docks (Mobile / Desktop)
+- [x] **1. Ocultar botões de acesso a "Arena" e "Bosses":**
+  - Removido botão Arena PvP de `WindowDockBar.tsx` e `QuickActionDock.tsx`.
+  - Removido botão Arena PvP de `MobileMenuDrawer.tsx`.
+  - Removidas abas 'ARENA' e 'BOSSES' de `HuntSelector.tsx`.
+- [x] **2. Remover aba "Mundo" do menu inferior mobile:**
+  - Removida a aba 'world' (`Mundo`) de `MobileBottomNav.tsx`, conferindo mais espaçamento e foco visual às 5 abas ativas (`Herói`, `Inventário`, `Social`, `Métricas`, `Menu`).
+  - Tipo `MobileTab` e estado inicial em `GamePrototype.tsx` atualizados para `'character'`.
 
-- [x] **2. Z-Index e Layout do Modal de Outfit (Hotkeys cobrindo botões em telas menores):**
-  - Corrigido `z-index: 100000` no backdrop e `z-index: 100001` na janela em `app/globals.css` e inline em `OutfitModal.tsx`.
-  - Definido `max-height: calc(100vh - 24px)`, `overflow: hidden`, `flex-direction: column`, garantindo que o rodapé com os botões Salvar, Cancelar e a paleta de cores nunca fiquem encobertos ou fora da tela.
+## Onda 2: TopBar & Social Mobile
+- [x] **3. Substituir configurações no topo mobile por botão de Som / Mute:**
+  - Botão de configurações substituído por controle de áudio dinâmico no `MobileTopBar.tsx`.
+  - Integrado com `audioManager` (`toggleAudioMuted()`, `isAudioMuted()`, `onAudioChange()`), com feedback visual em tempo real (ícone e cor verde/vermelho).
+- [x] **4. Ajustar Menu Social no Mobile (Party + VIP Amigos):**
+  - Em `MobileMenuDrawer.tsx`, mantido o botão de "Party / Grupo".
+  - Substituído o botão "Inspecionar Herói" por "VIP (Amigos)", abrindo diretamente a janela de Amigos/VIP (`openWindow('friends')`).
 
-- [x] **3. Exibição Automática de Outfit pelo Gênero do Personagem (Sem Seletor Manual):**
-  - Removido o seletor manual de gênero (♂ Masc / ♀ Fem) do `OutfitModal`.
-  - O modal agora detecta diretamente o gênero canônico do personagem (`activeChar?.gender === 'female' ? 'female' : 'male'`).
-  - Se o personagem for feminino, exibe automaticamente os sprites canônicos femininos (`/generated/outfits/${id}-female-south-f0-base.png`), miniaturas e nomes canônicos (ex: `Noblewoman`). Se for masculino, exibe as versões masculinas.
-
+## Onda 3: Caçadas & Quests Responsivo
+- [x] **5. Restringir abas de Caçadas no Mobile:**
+  - No mobile, o modal de caçadas exibe estritamente as abas `CAÇADAS` e `QUESTS`.
+  - Treino isolado e acessível exclusivamente pelo menu inferior (Menu > Treinamento).
+- [x] **6. Redesenho UI/UX da Aba Quests (Remover fictícias e Estado 'Em Breve'):**
+  - Removido layout de 2 colunas fixas e quests mockadas do `HuntSelector.tsx`.
+  - Implementada tela limpa, 100% responsiva em padrão Royal Dark Stone & Dourado Real, com pergaminho glowing, badge "Em Desenvolvimento · Em Breve", cards de destaques futuros e botão de retorno às caçadas.

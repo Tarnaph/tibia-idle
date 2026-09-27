@@ -372,7 +372,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
   // Phase 234: Responsive Mobile Layout & Navigation
   const responsive = useResponsiveLayout();
-  const [mobileActiveTab, setMobileActiveTab] = useState<MobileTab>('world');
+  const [mobileActiveTab, setMobileActiveTab] = useState<MobileTab>('character');
   const [mobileDrawerCategory, setMobileDrawerCategory] = useState<DrawerCategory | null>(null);
   const [bossPoints, setBossPoints] = useState<number>(0);
   const [firstKillToast, setFirstKillToast] = useState<string | null>(null);
@@ -4702,10 +4702,6 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const handleSelectMobileTab = useCallback((tab: MobileTab) => {
     setMobileActiveTab(tab);
     switch (tab) {
-      case 'world':
-        setMobileDrawerCategory(null);
-        setEquipmentOpen(false);
-        break;
       case 'character':
         setMobileDrawerCategory(null);
         gameModal.openProfile(activeCharacter.id);
@@ -5212,6 +5208,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               onOpenPvP={() => setIsPvPArenaModalOpen(true)}
               onOpenCyclopedia={() => gameModal.openCyclopedia()}
               onOpenParty={() => setPartyModalOpen(true)}
+              onOpenVip={() => openWindow('friends')}
               onOpenOutfit={() => gameModal.openOutfit(activeCharacter.id)}
               onOpenProfile={() => gameModal.openProfile(activeCharacter.id)}
               onOpenLogout={() => setIsLogoutModalOpen(true)}
@@ -5399,6 +5396,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       <HuntSelector
         open={huntSelectorOpen}
         initialTab={huntSelectorTab}
+        isMobile={responsive.isMobile}
         hunts={content.hunts}
         monsters={content.monsters}
         level={leader.level}

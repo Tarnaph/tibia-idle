@@ -827,17 +827,6 @@ export function WindowDockBar({
           </button>
         )}
 
-        {onOpenPvP && (
-          <button
-            type="button"
-            className="huntera-square-btn pvp-btn"
-            onClick={onOpenPvP}
-            title="Arena PvP Ranqueada"
-            style={{ borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.2)', fontSize: '15px' }}
-          >
-            ⚔️
-          </button>
-        )}
 
         <button
           type="button"

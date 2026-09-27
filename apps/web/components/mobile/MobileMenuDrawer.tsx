@@ -18,6 +18,7 @@ interface MobileMenuDrawerProps {
   onOpenPvP?: () => void;
   onOpenCyclopedia?: () => void;
   onOpenParty?: () => void;
+  onOpenVip?: () => void;
   onOpenOutfit?: () => void;
   onOpenProfile?: () => void;
   onOpenLogout?: () => void;
@@ -37,6 +38,7 @@ export function MobileMenuDrawer({
   onOpenPvP,
   onOpenCyclopedia,
   onOpenParty,
+  onOpenVip,
   onOpenOutfit,
   onOpenProfile,
   onOpenLogout,
@@ -154,13 +156,19 @@ export function MobileMenuDrawer({
               </button>
               <button
                 type="button"
-                onClick={() => { onClose(); onOpenProfile?.(); }}
+                onClick={() => {
+                  onClose();
+                  if (onOpenVip) onOpenVip();
+                  else alert('Lista VIP (Amigos) estará disponível em breve!');
+                }}
                 style={drawerButtonStyle}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Inspecionar Herói
+                VIP (Amigos)
               </button>
             </>
           )}
@@ -239,19 +247,6 @@ export function MobileMenuDrawer({
                   <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
                 </svg>
                 Ranking Highscores
-              </button>
-              <button
-                type="button"
-                onClick={() => { onClose(); onOpenPvP?.(); }}
-                style={drawerButtonStyle}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="14.5" y1="17.5" x2="3" y2="6" />
-                  <line x1="14.5" y1="6.5" x2="3" y2="18" />
-                  <line x1="21" y1="3" x2="18" y2="3" />
-                  <line x1="21" y1="3" x2="21" y2="6" />
-                </svg>
-                Arena PvP
               </button>
               <button
                 type="button"

@@ -2,10 +2,10 @@
 
 import React from 'react';
 
-export type MobileTab = 'world' | 'character' | 'inventory' | 'social' | 'metrics' | 'menu';
+export type MobileTab = 'character' | 'inventory' | 'social' | 'metrics' | 'menu';
 
 interface MobileBottomNavProps {
-  activeTab: MobileTab;
+  activeTab?: MobileTab | null;
   onSelectTab: (tab: MobileTab) => void;
   isHunting?: boolean;
   onExitHunt?: () => void;
@@ -22,16 +22,6 @@ export function MobileBottomNav({
     label: string;
     renderIcon: (color: string) => React.ReactNode;
   }> = [
-    {
-      id: 'world',
-      label: 'Mundo',
-      renderIcon: (color) => (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-        </svg>
-      ),
-    },
     {
       id: 'character',
       label: 'Herói',
