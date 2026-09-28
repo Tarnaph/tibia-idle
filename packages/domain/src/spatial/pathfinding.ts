@@ -366,11 +366,17 @@ export function resolveStairsTransition(
  * blocking projectiles/sight between fromPos and toPos.
  */
 export function hasLineOfSight(map: TileMap, fromPos: GridPosition, toPos: GridPosition): boolean {
-  if (fromPos.z !== toPos.z) return false;
+  const fromZ = fromPos.z ?? toPos.z ?? map.z ?? 7;
+  const toZ = toPos.z ?? fromPos.z ?? map.z ?? 7;
+  if (fromZ !== toZ) return false;
   if (fromPos.x === toPos.x && fromPos.y === toPos.y) return true;
 
   const dx = Math.abs(toPos.x - fromPos.x);
   const dy = Math.abs(toPos.y - fromPos.y);
+
+  // Melee / adjacent range (1 tile diagonal or orthogonal) always has clear line of sight
+  if (dx <= 1 && dy <= 1) return true;
+
   const sx = fromPos.x < toPos.x ? 1 : -1;
   const sy = fromPos.y < toPos.y ? 1 : -1;
   let err = dx - dy;
@@ -393,7 +399,7 @@ export function hasLineOfSight(map: TileMap, fromPos: GridPosition, toPos: GridP
       break;
     }
 
-    if (!isTileWalkable(map, { x, y, z: fromPos.z })) {
+    if (!isTileWalkable(map, { x, y, z: fromZ })) {
       return false;
     }
   }

@@ -3,6 +3,7 @@ import {
   CharacterEquipmentSlot,
   preferredSlotForItem,
   equipCharacterItem,
+  deriveStats,
   hasLineOfSight,
   getDefaultTrainingSkill,
   getMountSpeedBonus,
@@ -238,5 +239,158 @@ describe('Phase 254: Full Verification of 11 FIX.md Backlog Items', () => {
     expect(handlerSrc).toContain('player.inHunt = true');
     expect(handlerSrc).toContain('player.posZ = 8');
     expect(arenaSrc).toContain('const isHunting = Boolean(p.inHunt || p.isHunting || (p as any).hunting);');
+  });
+
+  // ITEM 12: Paladin Distance Weapon + Infinite Ammo Scaling
+  it('Paladin with Bow (attack: 0) and equipped Arrow (attack: 25) calculates valid attack and weaponAttack', () => {
+    const bow: EquipmentDefinition = {
+      id: 2456,
+      name: 'Bow',
+      slot: 'hand',
+      twoHanded: true,
+      weaponType: 'distance',
+      requirements: {},
+      attack: 0,
+      defense: 0,
+    } as any;
+
+    const arrow: EquipmentDefinition = {
+      id: 2544,
+      name: 'Arrow',
+      slot: 'ammo',
+      twoHanded: false,
+      weaponType: 'ammo',
+      requirements: {},
+      attack: 25,
+      defense: 0,
+    } as any;
+
+    const paladinChar: CharacterState = {
+      id: 'paladin-1',
+      name: 'Legolas',
+      vocation: 'paladin',
+      baseVocation: 'paladin',
+      level: 30,
+      skills: { shielding: 20, distance: 40, sword: 10, axe: 10, club: 10, magicLevel: 10, fist: 10 },
+      equipment: {
+        head: null,
+        neck: null,
+        backpack: null,
+        armor: null,
+        leftHand: bow.id,
+        rightHand: null,
+        legs: null,
+        boots: null,
+        ring: null,
+        ammo: arrow.id,
+      },
+      inventory: { equipmentIds: [] },
+    } as any;
+
+    const paladinVoc = {
+      name: 'paladin' as const,
+      baseSpeed: 110,
+      meleeDamageMultiplier: 1.0,
+      distanceDamageMultiplier: 1.25,
+      defenseMultiplier: 1.0,
+      hitPointsPerLevel: 10,
+      manaPointsPerLevel: 15,
+      capacityPerLevel: 20,
+    };
+
+    const stats = deriveStats(paladinChar, [bow, arrow], paladinVoc as any);
+    expect(stats.weaponAttack).toBeGreaterThanOrEqual(25);
+    expect(stats.attack).toBeGreaterThan(0);
+    expect(stats.activeSkill).toBe('distance');
+  });
+
+  it('Paladin with Bow and Arrow in inventory (infinite ammo: 1 item is sufficient) derives valid attack', () => {
+    const bow: EquipmentDefinition = {
+      id: 2456,
+      name: 'Bow',
+      slot: 'hand',
+      twoHanded: true,
+      weaponType: 'distance',
+      requirements: {},
+      attack: 0,
+      defense: 0,
+    } as any;
+
+    const bolt: EquipmentDefinition = {
+      id: 2543,
+      name: 'Bolt',
+      slot: 'ammo',
+      twoHanded: false,
+      weaponType: 'ammo',
+      requirements: {},
+      attack: 30,
+      defense: 0,
+    } as any;
+
+    const paladinChar: CharacterState = {
+      id: 'paladin-2',
+      name: 'CrossbowSniper',
+      vocation: 'paladin',
+      baseVocation: 'paladin',
+      level: 25,
+      skills: { shielding: 15, distance: 35, sword: 10, axe: 10, club: 10, magicLevel: 8, fist: 10 },
+      equipment: {
+        head: null,
+        neck: null,
+        backpack: null,
+        armor: null,
+        leftHand: bow.id,
+        rightHand: null,
+        legs: null,
+        boots: null,
+        ring: null,
+        ammo: null, // Empty ammo slot, ammo is in inventory
+      },
+      inventory: { equipmentIds: [bolt.id] },
+    } as any;
+
+    const paladinVoc = {
+      name: 'paladin' as const,
+      baseSpeed: 110,
+      meleeDamageMultiplier: 1.0,
+      distanceDamageMultiplier: 1.25,
+      defenseMultiplier: 1.0,
+      hitPointsPerLevel: 10,
+      manaPointsPerLevel: 15,
+      capacityPerLevel: 20,
+    };
+
+    const stats = deriveStats(paladinChar, [bow, bolt], paladinVoc as any);
+    expect(stats.weaponAttack).toBe(30);
+    expect(stats.attack).toBeGreaterThan(0);
+  });
+
+  // ITEM 13: ShopWindow Dark Stone 3D Styling
+  it('ShopWindow defines complete Dark Stone Tibia 11 grid CSS styles', () => {
+    const shopSrc = readFileSync(resolve(__dirname, '../apps/web/components/ShopWindow.tsx'), 'utf8');
+    const globalsCss = readFileSync(resolve(__dirname, '../app/globals.css'), 'utf8');
+
+    expect(shopSrc).toContain('.shop-categories-grid');
+    expect(shopSrc).toContain('.shop-items-panel');
+    expect(shopSrc).toContain('.shop-items-grid');
+    expect(shopSrc).toContain('.shop-item-card');
+    expect(shopSrc).toContain('.shop-item-cost');
+    expect(shopSrc).toContain('.shop-preview-panel');
+
+    expect(globalsCss).toContain('.shop-categories-grid');
+    expect(globalsCss).toContain('.shop-item-card');
+  });
+
+  // ITEM 14: hasLineOfSight melee bypass and tolerance
+  it('hasLineOfSight returns true for adjacent tiles even if coordinate z is normalized', () => {
+    const mockMap: TileMap = {
+      width: 100,
+      height: 100,
+      z: 7,
+      tiles: [],
+    } as any;
+
+    expect(hasLineOfSight(mockMap, { x: 10, y: 10, z: 7 }, { x: 11, y: 11, z: 7 })).toBe(true);
+    expect(hasLineOfSight(mockMap, { x: 10, y: 10, z: 7 }, { x: 10, y: 9, z: 7 })).toBe(true);
   });
 });

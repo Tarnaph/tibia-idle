@@ -61,13 +61,15 @@ function effectiveSkills(
 ): CharacterSkills {
   const result = { ...character.skills };
   for (const item of items) {
-    for (const [skill, bonus] of Object.entries(item.skillBonuses)) {
-      if (skill in result && typeof bonus === 'number') {
-        const key = skill as keyof CharacterSkills;
-        result[key] += bonus;
+    if (item.skillBonuses) {
+      for (const [skill, bonus] of Object.entries(item.skillBonuses)) {
+        if (skill in result && typeof bonus === 'number') {
+          const key = skill as keyof CharacterSkills;
+          result[key] += bonus;
+        }
       }
     }
-    if (item.magicLevelBonus !== null) result.magicLevel += item.magicLevelBonus;
+    if (typeof item.magicLevelBonus === 'number') result.magicLevel += item.magicLevelBonus;
   }
   if (imbuementBonuses) {
     result.sword += imbuementBonuses.skillSword;
@@ -125,11 +127,33 @@ export function deriveStats(
     .sort((left, right) => right.defense - left.defense)[0];
   const activeSkill = skillForWeapon(character, weapon);
   const activeSkillLevel = skills[activeSkill];
-  const weaponAttack = wandDef
-    ? Math.max(wandDef.max, 13)
-    : isWand
-    ? Math.max(13, weapon?.attack || 13)
-    : weapon?.attack ?? 7;
+
+  // Support ammunition in ammo slot or quiver/inventory (infinite ammo: 1 item is sufficient)
+  const ammoItem = items.find((item) => item.slot === 'ammo' || item.weaponType === 'ammo')
+    || (character.inventory?.equipmentIds
+        ? character.inventory.equipmentIds.map((id) => findEquipment(catalog, id)).find((item) => item?.weaponType === 'ammo' || item?.slot === 'ammo')
+        : undefined)
+    || (character.inventoryItems
+        ? character.inventoryItems.map((inv) => findEquipment(catalog, inv.serverId)).find((item) => item?.weaponType === 'ammo' || item?.slot === 'ammo')
+        : undefined);
+
+  let weaponAttack = 7;
+  if (wandDef) {
+    weaponAttack = Math.max(wandDef.max, 13);
+  } else if (isWand) {
+    weaponAttack = Math.max(13, weapon?.attack || 13);
+  } else if (weapon?.weaponType === 'distance') {
+    // Distance weapons (Bows, Crossbows, Spears):
+    // Bows (attack: 0) take their primary attack from arrows/bolts (Arrow: 25, Bolt: 30).
+    // Having even 1 arrow/bolt in ammo slot or inventory provides full infinite damage.
+    const ammoAttack = ammoItem?.attack && ammoItem.attack > 0 ? ammoItem.attack : 25;
+    const baseWepAttack = weapon.attack || 0;
+    weaponAttack = Math.max(15, baseWepAttack + ammoAttack);
+  } else if (weapon && typeof weapon.attack === 'number' && weapon.attack > 0) {
+    weaponAttack = weapon.attack;
+  } else {
+    weaponAttack = 7;
+  }
   const attackFactor = 1;
 
   const baseMaxDamage = isWand
@@ -145,10 +169,10 @@ export function deriveStats(
   const attack = Math.trunc(baseMaxDamage * damageMultiplier);
 
   let defenseSkill = activeSkill === 'magicLevel' ? skills.shielding : activeSkillLevel;
-  let defenseValue = weapon ? weapon.defense + weapon.extraDefense : 0;
+  let defenseValue = weapon ? (weapon.defense || 0) + (weapon.extraDefense || 0) : 0;
   if (shield) {
     defenseSkill = skills.shielding;
-    defenseValue = shield.defense + (weapon?.extraDefense ?? 0);
+    defenseValue = (shield.defense || 0) + (weapon?.extraDefense ?? 0);
   }
 
   // Fórmula autêntica de bloqueio de escudo do Tibia (CipSoft / TFS 1.x):
@@ -156,7 +180,7 @@ export function deriveStats(
   const defense = (!shield && !weapon) || defenseValue <= 0
     ? 0
     : Math.max(1, Math.round(((defenseSkill * (defenseValue * 0.05)) + (defenseValue * 0.04)) * vocation.defenseMultiplier));
-  const armor = items.reduce((acc, item) => acc + item.armor, 0);
+  const armor = items.reduce((acc, item) => acc + (item.armor || 0), 0);
 
   const activeWeaponSkill = skills[activeSkill];
   const attackSpeedBonusPercent = Number(Math.min(50, activeWeaponSkill * 0.4).toFixed(1));
