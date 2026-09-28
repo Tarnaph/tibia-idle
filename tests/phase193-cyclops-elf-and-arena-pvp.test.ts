@@ -19,17 +19,17 @@ import path from 'path';
 
 describe('Phase 193: Cyclops and Elf Hunts + Map-based Live PvP Arena', () => {
   describe('1. Hunt Coordinates and Map Extraction', () => {
-    it('defines cyclops-camp in importer with exact FIX.md coordinates [32416, 32041, 8]', () => {
+    it('defines cyclops-camp in importer with unified cave coordinates [32947, 32476, 9]', () => {
       const cyclopsDef = huntConfigs.find((h) => h.huntId === 'cyclops-camp');
       expect(cyclopsDef).toBeDefined();
-      expect(cyclopsDef?.center).toEqual([32416, 32041, 8]);
+      expect(cyclopsDef?.center).toEqual([32947, 32476, 9]);
       expect(cyclopsDef?.available).toBe(true);
     });
 
-    it('defines elf-sanctuary in importer with canonical Yalahar coordinates [32741, 31298, 7]', () => {
+    it('defines elf-sanctuary in importer with unified cave coordinates [32947, 32476, 9]', () => {
       const elfDef = huntConfigs.find((h) => h.huntId === 'elf-sanctuary');
       expect(elfDef).toBeDefined();
-      expect(elfDef?.center).toEqual([32741, 31298, 7]);
+      expect(elfDef?.center).toEqual([32947, 32476, 9]);
       expect(elfDef?.available).toBe(true);
     });
 

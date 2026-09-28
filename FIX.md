@@ -204,3 +204,13 @@
 - [x] **Correção dos Projéteis - Flecha com Ponta Correta & Prioridade de Spear (`assetPaths.ts`, `equipment.ts`, `PixiArena.tsx`):**
   - **Flecha sem ponta invertida:** Mapeamento do padrão matricial 3x3 do Tibia (`pattern.x`, `pattern.y`), garantindo que flechas atiradas para o Sul voem apontando para o Sul.
   - **Spear na mão do Paladin:** Spear equipada na mão tem prioridade sobre munições na mochila, arremessando a lança física com seu projétil próprio em vez de transformar o ataque em magia.
+
+## 15. Fase 256: Unificação das Caçadas em Caverna Fechada & Visibilidade Garantida em Thais
+- [x] **Unificação de Todas as Caçadas na Caverna Central (`x: 32947, y: 32476, z: 9`):**
+  - Todas as 12 caçadas convencionais (`rat-cellars`, `cyclops-camp`, `dragon-lair`, etc.) foram unificadas para a caverna subterrânea compacta do RealMap 11, cercada por paredes rochosas intransponíveis.
+  - Fim definitivo da caminhada automática em direção a blocos pretos/vazios do mapa.
+  - Instanciamento absoluto: jogadores em caçadas ficam em suas instâncias isoladas no PixiArena e nunca se veem nem interferem uns nos outros durante a caçada.
+- [x] **Garantia de Visibilidade Mútua e Sincronização em Thais (`ThaisCityRoom.ts`, `ThaisCityArena.tsx`):**
+  - **Normalização no `onJoin` do Servidor:** Jogadores conectando-se ao jogo entram rigorosamente no chão da cidade (`z: 7, inHunt: false`), limpando flags obsoletas de caçadas no banco de dados.
+  - **Fim da Ocultação Indesejada na Cidade (`ThaisCityArena.tsx`):** Jogadores remotos no piso urbano (`z: 7` ou `z: 6`) não são mais descartados por flags de caçada antigas; a renderização do PIXI exibe todos os jogadores presentes no mesmo andar.
+  - Visibilidade mútua garantida e context menu / inspeção ativos para qualquer jogador em Thais.

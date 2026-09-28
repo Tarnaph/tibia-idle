@@ -199,6 +199,9 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.isWalking = false;
     player.lastStepTime = 0;
     this.updatePlayerHuntContext(player, false);
+    if (player.characterId) {
+      void persistenceManager.saveCharacter(player).catch(() => {});
+    }
   }
 
   onCreate(options: any) {
@@ -494,21 +497,16 @@ export class ThaisCityRoom extends Room<WorldState> {
     player.isAutoIdle = loadedIsAutoIdle ?? false;
     player.lastHuntId = loadedLastHuntId || 'rat-cellars';
 
-    // Authoritatively reconstruct active hunt context from persistent server record, dbChar or options
-    const activeHuntRecord = await persistenceManager.getActiveHuntSession(charId);
+    // Authoritatively reconstruct active hunt context ONLY if options explicitly requested it
+    // (e.g. client reconnecting mid-hunt with inHunt: true or explicit hunt entrance).
+    // When connecting normally to ThaisCityRoom, player always spawns on Thais City ground floor (z: 7).
     let isConfirmedHunting = false;
     let confirmedHuntId: string | undefined = undefined;
 
-    if (activeHuntRecord && activeHuntRecord.isHunting) {
-      // Confirmed active hunt survived process restart or network disconnection
+    if ((options as any)?.inHunt === true) {
+      const activeHuntRecord = await persistenceManager.getActiveHuntSession(charId);
       isConfirmedHunting = true;
-      confirmedHuntId = activeHuntRecord.huntId;
-    } else if (loadedIsHunting) {
-      isConfirmedHunting = true;
-      confirmedHuntId = loadedLastHuntId || 'rat-cellars';
-    } else if ((options as any).inHunt) {
-      isConfirmedHunting = true;
-      confirmedHuntId = (options as any).huntId || loadedLastHuntId || 'rat-cellars';
+      confirmedHuntId = (options as any).huntId || activeHuntRecord?.huntId || loadedLastHuntId || 'rat-cellars';
     }
 
     if (isConfirmedHunting && confirmedHuntId) {
@@ -530,8 +528,10 @@ export class ThaisCityRoom extends Room<WorldState> {
         client.send('server:huntContextReady', { isHunting: true, huntId: confirmedHuntId });
       }
     } else {
+      player.inHunt = false;
+      player.lastHuntId = '';
       this.updatePlayerHuntContext(player, false);
-      // Phase 255: Authoritative Urban Normalization:
+      // Phase 255/256: Authoritative Urban Normalization:
       // If the player is in Thais City, ensure posZ is 7 and coordinates are inside Thais.
       // If DB had stale cave/subterranean/out-of-bounds coordinates (posZ !== 7 or outside Thais box),
       // normalize them immediately to Thais Temple (32369, 32241, 7)!
@@ -544,6 +544,9 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
       if (typeof client.send === 'function') {
         client.send('server:huntContextReady', { isHunting: false });
+      }
+      if (player.characterId) {
+        void persistenceManager.saveCharacter(player).catch(() => {});
       }
     }
     (player as any).bestiaryKills = loadedBestiaryKills;

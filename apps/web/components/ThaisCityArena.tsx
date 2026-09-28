@@ -832,14 +832,14 @@ export function ThaisCityArena({
           const myId = latestRef.current.localPlayerId;
           latestRef.current.remotePlayers.forEach((p, key) => {
             if (matchedPlayer) return;
-            if (p.inHunt) return;
+            const pZ = typeof p.z === 'number' ? p.z : (typeof p.posZ === 'number' ? p.posZ : 7);
+            if (pZ !== activeZ) return;
             if (
               key === myId ||
               p.id === myId ||
               (gameNetwork.LocalPlayerId && p.id === gameNetwork.LocalPlayerId) ||
               curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()))
             ) return;
-            if ((p.z ?? 7) !== activeZ) return;
             const px = (p.x ?? 32369) * TILE_SIZE + 16;
             const py = (p.y ?? 32241) * TILE_SIZE + 16;
             const dx = worldX - px;
@@ -936,6 +936,7 @@ export function ThaisCityArena({
           }
         }
 
+        const activeZ = (latestRef.current.cityPos?.z === 6 || latestRef.current.cityPos?.z === 7) ? latestRef.current.cityPos.z : 7;
         const curChars = latestRef.current.characters;
         let matchedCharId: string | undefined;
         for (let idx = 0; idx < curChars.length; idx++) {
@@ -955,7 +956,8 @@ export function ThaisCityArena({
           const myId = latestRef.current.localPlayerId;
           latestRef.current.remotePlayers.forEach((p, key) => {
             if (matchedCharId) return;
-            if (p.inHunt) return;
+            const pZ = typeof p.z === 'number' ? p.z : (typeof p.posZ === 'number' ? p.posZ : 7);
+            if (pZ !== activeZ) return;
             if (
               key === myId ||
               p.id === myId ||
@@ -1552,10 +1554,12 @@ export function ThaisCityArena({
               (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
               (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
               curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
-            // Phase 254/255: Strict Anti-Clone Filter: exclude any remote player who is actively hunting
-            const isHunting = Boolean(p.inHunt || p.isHunting || (p as any).hunting);
-            const isOutsideThais = isHunting && ((typeof p.z === 'number' && p.z > 7) || (typeof p.posZ === 'number' && p.posZ > 7));
-            if (isLocal || isHunting || isOutsideThais) return;
+            if (isLocal) return;
+            // Phase 256: Thais City Visibility Guarantee:
+            // Remote players on city surface floors (z: 7 or 6) are ALWAYS visible to each other.
+            // Exclude only if genuinely underground / in hunt cave (z > 7).
+            const pZ = typeof p.z === 'number' ? p.z : (typeof p.posZ === 'number' ? p.posZ : 7);
+            if (pZ > 7) return;
             const pCharId = p.characterId || p.id;
             if (seenRemoteKeys.has(pCharId)) return;
             seenRemoteKeys.add(pCharId);
@@ -2440,7 +2444,9 @@ export function ThaisCityArena({
               (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
               (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
               curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
-            if (isLocal || p.inHunt) return; // Skip rendering local player or players in hunt
+            if (isLocal) return;
+            const pZ = typeof p.z === 'number' ? p.z : (typeof p.posZ === 'number' ? p.posZ : 7);
+            if (pZ > 7) return; // Skip rendering remote players physically underground/in hunt
             const pCharId = p.characterId || p.id;
             if (renderedRemotes.has(pCharId)) return;
             renderedRemotes.add(pCharId);
@@ -2500,9 +2506,9 @@ export function ThaisCityArena({
               }
             }
 
-            const rZ = !p.inHunt ? 7 : (p.z ?? (p as any).posZ ?? 7);
-            const pTargetX = !p.inHunt && (p.x < 32280 || p.x > 32430) ? 32369 : (p.x ?? 32369);
-            const pTargetY = !p.inHunt && (p.y < 32170 || p.y > 32290) ? 32241 : (p.y ?? 32241);
+            const rZ = typeof p.z === 'number' ? p.z : (typeof p.posZ === 'number' ? p.posZ : 7);
+            const pTargetX = (p.x < 32280 || p.x > 32430) ? 32369 : (p.x ?? 32369);
+            const pTargetY = (p.y < 32170 || p.y > 32290) ? 32241 : (p.y ?? 32241);
             const targetTile = { x: pTargetX, y: pTargetY, z: rZ };
             let rState = remoteMotionTracks.get(p.id);
             if (!rState) {
@@ -2527,7 +2533,7 @@ export function ThaisCityArena({
             const dir = sample.direction || p.direction || 'south';
             const isMoving = sample.moving || p.isMoving;
 
-            view.root.visible = !p.inHunt && rZ === curPos.z;
+            view.root.visible = rZ === curPos.z;
             if (!view.root.visible) return;
 
             const rNormOutfit = normalizeOutfitId(outfitKey);

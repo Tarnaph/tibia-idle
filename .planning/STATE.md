@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-28T16:58:00.000Z"
-last_activity: "2026-09-28 — Conclusão da Phase 255: Teto Ilimitado de Loot, Sincronia de Multiplayer Thais, Nova Regra de Morte Sem Bless (Loot Bag) e Correção de Projéteis."
+last_updated: "2026-09-28T17:35:00.000Z"
+last_activity: "2026-09-28 — Conclusão da Phase 256: Unificação de Caçadas em Caverna Fechada (x: 32947, y: 32476, z: 9), Instâncias Isoladas de Caçada e Garantia de Visibilidade Mútua em Thais."
 progress:
-  total_phases: 255
-  completed_phases: 255
-  total_plans: 355
-  completed_plans: 355
+  total_phases: 256
+  completed_phases: 256
+  total_plans: 356
+  completed_plans: 356
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 255: Teto Ilimitado de Loot, Sincronia de Multiplayer Thais, Nova Regra de Morte Sem Bless (Loot Bag) e Correção de Projéteis.
+**Current focus:** Phase 256: Unificação de Caçadas em Caverna Fechada, Instâncias Isoladas de Caçada e Garantia de Visibilidade Mútua em Thais.
 
 ## Current Position
 
-Phase: 255 of 255  
-Plan: 5 of 5 in Phase 255  
+Phase: 256 of 256  
+Plan: 1 of 1 in Phase 256  
 Status: Complete ✅  
-Last activity: 2026-09-28 — Concluídas todas as 5 ondas da Phase 255.
+Last activity: 2026-09-28 — Concluída a Phase 256 com unificação das coordenadas de hunt e garantia de visibilidade na cidade.
 
 Progress: [██████████] 100.0%
 
