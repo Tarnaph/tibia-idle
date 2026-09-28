@@ -1,5 +1,6 @@
 import type { ProgressionSkill, VocationDefinition } from '../../content-schema/src';
 import { getEquippedItems } from './derivedStats';
+import { findEquipment, resolveDistanceProjectileId } from './equipment';
 import { vocationFor } from './party';
 import type { CharacterState, GameContent, GameState, TrainableSkill } from './types';
 import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
@@ -106,13 +107,20 @@ export function resolveTrainingVisualAction(
   content?: GameContent
 ): TrainingVisualAction {
   const vocation: string = character.vocation || character.baseVocation || '';
-  const equippedWeapon = content ? getEquippedItems(character, content.equipment).find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType)) : undefined;
+  const equippedItems = content ? getEquippedItems(character, content.equipment) : [];
+  const equippedWeapon = equippedItems.find((item) => ['sword', 'axe', 'club', 'distance', 'wand'].includes(item.weaponType));
+  const ammoItem = equippedItems.find((item) => item.slot === 'ammo' || item.weaponType === 'ammo')
+    || (content && character.inventory?.equipmentIds
+        ? character.inventory.equipmentIds.map((id) => findEquipment(content.equipment, id)).find((item) => item?.weaponType === 'ammo' || item?.slot === 'ammo')
+        : undefined)
+    || (content && character.inventoryItems
+        ? character.inventoryItems.map((inv) => findEquipment(content.equipment, inv.serverId)).find((item) => item?.weaponType === 'ammo' || item?.slot === 'ammo')
+        : undefined);
 
   if (skill === 'distance' || vocation === 'Paladin' || vocation === 'Royal Paladin') {
-    const isSpear = equippedWeapon?.name.toLowerCase().includes('spear');
     return {
       style: 'distance',
-      projectileId: isSpear ? 28 : 3, // CONST_ANI_ARROW (3) ou CONST_ANI_ETHEREALSPEAR (28)
+      projectileId: resolveDistanceProjectileId(equippedWeapon, ammoItem),
       effectId: 10,                   // CONST_ME_HITAREA (10 - impacto físico de flecha/lança no dummy)
     };
   }

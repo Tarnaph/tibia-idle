@@ -23,7 +23,7 @@ import type {
 } from './types';
 import { tickImbuementTime } from './imbuements';
 import { calculateDeathProtection } from './blessings';
-import { findEquipment } from './equipment';
+import { findEquipment, resolveDistanceProjectileId } from './equipment';
 import type { MonsterDefinition, SpellDefinition } from '../../content-schema/src';
 import { serverConfigManager } from '../../server/src/config/ServerConfigManager';
 
@@ -2468,6 +2468,24 @@ function playerAttacks(state: GameState, content: GameContent): void {
     encounter.rngState = rng.state;
 
     const ranged = range > 1;
+    const equippedItems = getEquippedItems(character, content.equipment);
+    const ammoItem = equippedItems.find((item) => item.slot === 'ammo' || item.weaponType === 'ammo')
+      || (character.inventory?.equipmentIds
+          ? character.inventory.equipmentIds.map((id) => findEquipment(content.equipment, id)).find((item) => item?.weaponType === 'ammo' || item?.slot === 'ammo')
+          : undefined)
+      || (character.inventoryItems
+          ? character.inventoryItems.map((inv) => findEquipment(content.equipment, inv.serverId)).find((item) => item?.weaponType === 'ammo' || item?.slot === 'ammo')
+          : undefined);
+
+    let projectileId: number | undefined = wandDef?.projectileId;
+    if (!projectileId && ranged) {
+      if (stats.weaponName.toLowerCase().includes('wand')) {
+        projectileId = 5;
+      } else {
+        projectileId = resolveDistanceProjectileId(equippedWeapon, ammoItem);
+      }
+    }
+
     actor.pendingAttack = {
       targetId: target.id,
       impactAt: encounter.elapsedMs + 180,
@@ -2478,18 +2496,13 @@ function playerAttacks(state: GameState, content: GameContent): void {
       ranged,
       element: wandDef?.element,
       effectId: wandDef?.effectId,
-      projectileId: wandDef?.projectileId,
+      projectileId,
       isCritical,
       lifeLeechPercent: stats.lifeLeechPercent,
       manaLeechPercent: stats.manaLeechPercent,
     };
     encounter.visualEvents.push({ type: 'basic-attack-started', sourceId: character.id, targetId: target.id, ranged });
-    if (ranged) {
-      // Legacy visual parity checks:
-      // nameLower.includes('vortex') -> projectileId = 4, effectId = 11
-      // nameLower.includes('draconia') -> effectId = 15
-      // nameLower.includes('cosmic')
-      const projectileId = wandDef ? wandDef.projectileId : (stats.weaponName.toLowerCase().includes('wand') ? 5 : 28);
+    if (ranged && projectileId) {
       encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId });
     }
     actor.attackIntervalMs = stats.attackIntervalMs;

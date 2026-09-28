@@ -445,3 +445,92 @@ export function equipItemFromContainer(
     },
   };
 }
+
+/**
+ * Resolves the authentic Tibia projectile ID (1-50) for distance weapons and ammunition.
+ *
+ * Tibia Projectile Constants:
+ * - CONST_ANI_SPEAR: 1
+ * - CONST_ANI_BOLT: 2
+ * - CONST_ANI_ARROW: 3
+ * - CONST_ANI_POISONARROW: 6
+ * - CONST_ANI_BURSTARROW: 7
+ * - CONST_ANI_THROWINGSTAR: 8
+ * - CONST_ANI_THROWINGKNIFE: 9
+ * - CONST_ANI_SMALLSTONE: 10
+ * - CONST_ANI_POWERBOLT: 14
+ * - CONST_ANI_INFERNALBOLT: 16
+ * - CONST_ANI_HUNTINGSPEAR: 17
+ * - CONST_ANI_ENCHANTEDSPEAR: 18
+ * - CONST_ANI_REDSTAR / ASSASSINSTAR: 19
+ * - CONST_ANI_GREENSTAR: 20
+ * - CONST_ANI_ROYALSPEAR: 21
+ * - CONST_ANI_SNIPERARROW: 22
+ * - CONST_ANI_ONYXARROW: 23
+ * - CONST_ANI_PIERCINGBOLT: 24
+ * - CONST_ANI_ETHEREALSPEAR: 28 (Spells like Exori Con)
+ * - CONST_ANI_FLASHARROW: 33
+ * - CONST_ANI_FLAMMINGARROW: 34
+ * - CONST_ANI_SHIVERARROW: 35
+ * - CONST_ANI_EARTHARROW: 40
+ * - CONST_ANI_TARSALARROW: 44
+ * - CONST_ANI_VORTEXBOLT: 45
+ * - CONST_ANI_DRILLBOLT: 47
+ * - CONST_ANI_PRISMATICBOLT: 48
+ * - CONST_ANI_CRYSTALLINEARROW: 49
+ */
+export function resolveDistanceProjectileId(
+  weapon?: EquipmentDefinition | null,
+  ammo?: EquipmentDefinition | null,
+): number {
+  // 1. Check ammunition first (Arrows, Bolts, Special ammo)
+  if (ammo) {
+    const ammoName = (ammo.name || '').toLowerCase();
+    if (ammoName.includes('poison arrow')) return 6;
+    if (ammoName.includes('burst arrow')) return 7;
+    if (ammoName.includes('sniper arrow')) return 22;
+    if (ammoName.includes('onyx arrow')) return 23;
+    if (ammoName.includes('flash arrow')) return 33;
+    if (ammoName.includes('flaming arrow') || ammoName.includes('flamming arrow')) return 34;
+    if (ammoName.includes('shiver arrow')) return 35;
+    if (ammoName.includes('earth arrow') || ammoName.includes('envenomed arrow')) return 40;
+    if (ammoName.includes('tarsal arrow')) return 44;
+    if (ammoName.includes('crystalline arrow')) return 49;
+    if (ammoName.includes('arrow')) return 3;
+
+    if (ammoName.includes('power bolt')) return 14;
+    if (ammoName.includes('infernal bolt')) return 16;
+    if (ammoName.includes('piercing bolt')) return 24;
+    if (ammoName.includes('vortex bolt')) return 45;
+    if (ammoName.includes('drill bolt')) return 47;
+    if (ammoName.includes('prismatic bolt')) return 48;
+    if (ammoName.includes('bolt')) return 2;
+
+    if (ammoName.includes('small stone')) return 10;
+    if (ammoName.includes('snowball')) return 13;
+  }
+
+  // 2. Thrown distance weapons (Spears, Throwing Stars/Knives, Stones)
+  if (weapon) {
+    const wepName = (weapon.name || '').toLowerCase();
+    if (wepName.includes('hunting spear')) return 17;
+    if (wepName.includes('enchanted spear')) return 18;
+    if (wepName.includes('royal spear')) return 21;
+    if (wepName.includes('spear')) return 1;
+
+    if (wepName.includes('assassin star') || wepName.includes('red star')) return 19;
+    if (wepName.includes('green star')) return 20;
+    if (wepName.includes('throwing star') || wepName.includes('star')) return 8;
+    if (wepName.includes('throwing knife') || wepName.includes('knife')) return 9;
+    if (wepName.includes('small stone')) return 10;
+
+    // Crossbow weapons default to standard Bolt (2)
+    if (wepName.includes('crossbow') || wepName.includes('arbalest')) return 2;
+    // Bow weapons default to standard Arrow (3)
+    if (wepName.includes('bow')) return 3;
+  }
+
+  // Default fallback for distance attacks: standard Arrow (3)
+  return 3;
+}
+

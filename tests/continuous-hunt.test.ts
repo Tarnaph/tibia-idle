@@ -70,7 +70,7 @@ describe('continuous regressions and visuals', () => {
     let game = createIdleGame('training-visuals', content); game = addPartyMember(game, 'Lyra', 'Paladin', content); game = addPartyMember(game, 'Mira', 'Sorcerer', content);
     const next = advanceTraining(game, content, 20_000);
     expect(next.encounter.visualEvents.some((event) => event.type === 'training-action' && event.style === 'melee')).toBe(true);
-    expect(next.encounter.visualEvents.some((event) => event.type === 'training-action' && event.style === 'distance' && event.projectileId === 28)).toBe(true);
+    expect(next.encounter.visualEvents.some((event) => event.type === 'training-action' && event.style === 'distance' && (event.projectileId === 1 || event.projectileId === 28))).toBe(true);
     expect(next.encounter.visualEvents.some((event) => event.type === 'training-action' && event.style === 'magic' && (event.effectId === 13 || event.effectId === 12))).toBe(true);
   });
 
@@ -85,7 +85,7 @@ describe('continuous regressions and visuals', () => {
     const paladin = ranged.encounter.partyActors.find((actor) => actor.characterId.includes('paladin'))!; const target = ranged.encounter.enemies[0];
     const distanceTile = ranged.encounter.room.map.tiles.find((tile) => tile.walkable && Math.abs(tile.position.x - paladin.position.x) + Math.abs(tile.position.y - paladin.position.y) === 2 && !ranged.encounter.partyActors.some((actor) => positionKey(actor.position) === positionKey(tile.position)))!;
     target.position = { ...distanceTile.position }; target.previousPosition = { ...distanceTile.position };
-    ranged = advanceCombat(ranged, content, 120); expect(ranged.encounter.visualEvents).toContainEqual(expect.objectContaining({ type: 'projectile-launched', sourceId: paladin.characterId, projectileId: 28 }));
+    ranged = advanceCombat(ranged, content, 120); expect(ranged.encounter.visualEvents).toContainEqual(expect.objectContaining({ type: 'projectile-launched', sourceId: paladin.characterId, projectileId: 1 }));
   });
 
   it('keeps fixed zoom and framing stable across resize', () => {

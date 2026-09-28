@@ -170,12 +170,18 @@
   - **Filtro Rigoroso na Arena de Thais (`ThaisCityArena.tsx`):** Filtra e descarta qualquer jogador remoto com `inHunt === true` ou `posZ > 7`, garantindo que jogadores em masmorra não manifestem clones parados no Templo de Thais.
   - **Isolamento Total:** Extinção de duplicação visual e paridade estrita de estado entre cliente e servidor Colyseus.
 
-## 12. Ataque do Paladin & Sistema de Munição Infinita (Bow & Ammo Scaling)
+## 12. Ataque do Paladin & Sistema de Munição Infinita com Projéteis Autênticos
 - [x] **Cálculo de Dano de Distância & Munição Integrada (`derivedStats.ts`):**
   - **Detecção de Munição:** Detecta flechas/bolts equipados no slot `ammo` ou no inventário/quiver (`character.inventory.equipmentIds` ou `inventoryItems`).
   - **Fórmula Autêntica de Arco + Flecha:** Como o arco base possui ataque 0, o poder ofensivo é somado ao ataque da munição (`baseWepAttack + ammoAttack`, e.g. 0 + 25 = 25 de poder de arma).
   - **Munição Infinita:** Ter 1 única flecha ou virote no slot ou inventário garante ataques à distância infinitos sem nunca gastar ou consumir o item.
   - **Resiliência de Linha de Visão (`pathfinding.ts`):** `hasLineOfSight` possui tolerância para alcance corpo-a-corpo adjacente (`dx <= 1 && dy <= 1`) e normalização do plano `z`, prevenindo travamentos de ataque do Paladin.
+- [x] **Animações Autênticas de Projétil Tibiano por Munição e Arma de Arremesso (`equipment.ts`, `combat.ts`, `training.ts`):**
+  - **Fim do Projétil Azul Genérico (`projectileId: 28` Ethereal Spear):** Substituição do fallback estático pelo resolvedor canônico `resolveDistanceProjectileId`.
+  - **Flechas Específicas:** Arrow (3), Poison Arrow (6), Burst Arrow (7), Sniper Arrow (22), Onyx Arrow (23), Flash Arrow (33), Flaming Arrow (34), Shiver Arrow (35), Earth Arrow (40), Tarsal Arrow (44), Crystalline Arrow (49).
+  - **Virotes Específicos:** Bolt (2), Power Bolt (14), Infernal Bolt (16), Piercing Bolt (24), Vortex Bolt (45), Drill Bolt (47), Prismatic Bolt (48).
+  - **Armas de Arremesso Específicas:** Spear (1), Hunting Spear (17), Enchanted Spear (18), Royal Spear (21), Assassin Star (19), Throwing Star (8), Throwing Knife (9), Small Stone (10).
+  - **Integração em Combate e Bonecos de Treino:** Tanto os encontros de caçada (`combat.ts`) quanto o treino com dummies (`training.ts`) agora disparam os sprites e frames direcionais autênticos de cada arma/munição.
 
 ## 13. Interface da Loja da Cidade em Grade Dark Stone 3D (`ShopWindow.tsx` & `globals.css`)
 - [x] **Estilização Completa e Layout Dark Stone Tibia 11:**

@@ -9,6 +9,8 @@ import {
   getMountSpeedBonus,
   resolveItemSellPrice,
   sellShopItem,
+  resolveDistanceProjectileId,
+  resolveTrainingVisualAction,
 } from '../packages/domain/src';
 import type { CharacterState, GameContent, GameState, TileMap } from '../packages/domain/src';
 import type { EquipmentDefinition } from '../packages/content-schema/src';
@@ -392,5 +394,76 @@ describe('Phase 254: Full Verification of 11 FIX.md Backlog Items', () => {
 
     expect(hasLineOfSight(mockMap, { x: 10, y: 10, z: 7 }, { x: 11, y: 11, z: 7 })).toBe(true);
     expect(hasLineOfSight(mockMap, { x: 10, y: 10, z: 7 }, { x: 10, y: 9, z: 7 })).toBe(true);
+  });
+
+  // ITEM 15: Authentic Distance Projectile Resolution (Arrows, Bolts, Spears, Thrown)
+  it('resolveDistanceProjectileId resolves authentic Tibia projectile IDs for all distance ammo and weapons', () => {
+    // Arrows
+    expect(resolveDistanceProjectileId(null, { name: 'Arrow' } as any)).toBe(3);
+    expect(resolveDistanceProjectileId(null, { name: 'Poison Arrow' } as any)).toBe(6);
+    expect(resolveDistanceProjectileId(null, { name: 'Burst Arrow' } as any)).toBe(7);
+    expect(resolveDistanceProjectileId(null, { name: 'Sniper Arrow' } as any)).toBe(22);
+    expect(resolveDistanceProjectileId(null, { name: 'Onyx Arrow' } as any)).toBe(23);
+    expect(resolveDistanceProjectileId(null, { name: 'Flash Arrow' } as any)).toBe(33);
+    expect(resolveDistanceProjectileId(null, { name: 'Flaming Arrow' } as any)).toBe(34);
+    expect(resolveDistanceProjectileId(null, { name: 'Shiver Arrow' } as any)).toBe(35);
+    expect(resolveDistanceProjectileId(null, { name: 'Earth Arrow' } as any)).toBe(40);
+    expect(resolveDistanceProjectileId(null, { name: 'Tarsal Arrow' } as any)).toBe(44);
+    expect(resolveDistanceProjectileId(null, { name: 'Crystalline Arrow' } as any)).toBe(49);
+
+    // Bolts
+    expect(resolveDistanceProjectileId(null, { name: 'Bolt' } as any)).toBe(2);
+    expect(resolveDistanceProjectileId(null, { name: 'Power Bolt' } as any)).toBe(14);
+    expect(resolveDistanceProjectileId(null, { name: 'Infernal Bolt' } as any)).toBe(16);
+    expect(resolveDistanceProjectileId(null, { name: 'Piercing Bolt' } as any)).toBe(24);
+    expect(resolveDistanceProjectileId(null, { name: 'Vortex Bolt' } as any)).toBe(45);
+    expect(resolveDistanceProjectileId(null, { name: 'Drill Bolt' } as any)).toBe(47);
+    expect(resolveDistanceProjectileId(null, { name: 'Prismatic Bolt' } as any)).toBe(48);
+
+    // Thrown Weapons
+    expect(resolveDistanceProjectileId({ name: 'Spear' } as any, null)).toBe(1);
+    expect(resolveDistanceProjectileId({ name: 'Hunting Spear' } as any, null)).toBe(17);
+    expect(resolveDistanceProjectileId({ name: 'Enchanted Spear' } as any, null)).toBe(18);
+    expect(resolveDistanceProjectileId({ name: 'Royal Spear' } as any, null)).toBe(21);
+    expect(resolveDistanceProjectileId({ name: 'Assassin Star' } as any, null)).toBe(19);
+    expect(resolveDistanceProjectileId({ name: 'Throwing Star' } as any, null)).toBe(8);
+    expect(resolveDistanceProjectileId({ name: 'Throwing Knife' } as any, null)).toBe(9);
+    expect(resolveDistanceProjectileId({ name: 'Small Stone' } as any, null)).toBe(10);
+
+    // Weapon fallbacks when no ammo specified
+    expect(resolveDistanceProjectileId({ name: 'Bow' } as any, null)).toBe(3);
+    expect(resolveDistanceProjectileId({ name: 'Crossbow' } as any, null)).toBe(2);
+    expect(resolveDistanceProjectileId({ name: 'Royal Crossbow' } as any, null)).toBe(2);
+    expect(resolveDistanceProjectileId({ name: 'Composite Hornbow' } as any, null)).toBe(3);
+  });
+
+  it('resolveTrainingVisualAction resolves authentic projectile for distance fighters based on gear', () => {
+    const paladinWithBow: CharacterState = {
+      id: 'p1',
+      vocation: 'Paladin',
+      equipment: { leftHand: 2456, ammo: 2544 },
+    } as any;
+
+    const dummyContent: GameContent = {
+      equipment: [
+        { id: 2456, name: 'Bow', weaponType: 'distance', slot: 'hand' },
+        { id: 2544, name: 'Arrow', weaponType: 'ammo', slot: 'ammo' },
+        { id: 2389, name: 'Spear', weaponType: 'distance', slot: 'hand' },
+      ],
+    } as any;
+
+    const bowAction = resolveTrainingVisualAction(paladinWithBow, 'distance', dummyContent);
+    expect(bowAction.style).toBe('distance');
+    expect(bowAction.projectileId).toBe(3); // Arrow
+
+    const paladinWithSpear: CharacterState = {
+      id: 'p2',
+      vocation: 'Paladin',
+      equipment: { leftHand: 2389, ammo: null },
+    } as any;
+
+    const spearAction = resolveTrainingVisualAction(paladinWithSpear, 'distance', dummyContent);
+    expect(spearAction.style).toBe('distance');
+    expect(spearAction.projectileId).toBe(1); // Spear
   });
 });
