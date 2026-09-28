@@ -1067,13 +1067,12 @@ export class CharacterService {
           }
 
           const count = Number(eq.count ?? 1);
-          const maxCount = isGoldSlot ? 1_000_000_000 : 100;
+          const meta = catalog.get(eq.serverId);
+          const isAmmo = meta?.weaponType === 'ammo' || meta?.slot === 'ammo' || normalizedSlot === 'ammo';
+          const maxCount = (isContainerSlot || isGoldSlot || isAmmo) ? 1_000_000_000 : 100;
           if (!options?.isInternal && (count > maxCount || count < 1)) {
             throw new Error(`Quantidade ${count} do item ${eq.name || eq.serverId} fora dos limites permitidos (1-${maxCount}).`);
           }
-
-          const meta = catalog.get(eq.serverId);
-          const isAmmo = meta?.weaponType === 'ammo' || meta?.slot === 'ammo';
 
           // Slots de armadura pura nunca empilham
           if (NON_WEAPON_BODY_SLOTS.has(normalizedSlot) && count > 1) {
@@ -1167,10 +1166,11 @@ export class CharacterService {
           const sanitizedItems = data.inventory.map((eq) => {
             const slot = typeof eq.slot === 'string' ? eq.slot.toLowerCase() : 'backpack';
             const meta = catalog.get(eq.serverId);
-            const isAmmo = meta?.weaponType === 'ammo' || meta?.slot === 'ammo';
+            const isAmmo = meta?.weaponType === 'ammo' || meta?.slot === 'ammo' || slot === 'ammo';
             const isCurrency = slot === 'gold' || eq.serverId === 2148 || eq.serverId === 2152 || eq.serverId === 2160;
+            const isContainer = slot.startsWith('backpack') || slot.startsWith('bag') || slot.startsWith('loot');
             const isNonAmmoEquip = ['head', 'armor', 'legs', 'boots', 'feet', 'necklace', 'ring', 'left', 'right', 'lefthand', 'righthand'].includes(slot) && !isAmmo;
-            const maxCount = isNonAmmoEquip ? 1 : isCurrency || options?.isInternal ? 1_000_000_000 : 100;
+            const maxCount = isNonAmmoEquip ? 1 : (isCurrency || isContainer || isAmmo || options?.isInternal) ? 1_000_000_000 : 100;
             return {
               characterId,
               slot: eq.slot || 'backpack',

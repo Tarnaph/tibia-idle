@@ -182,15 +182,16 @@ export function deriveStats(
     : Math.max(1, Math.round(((defenseSkill * (defenseValue * 0.05)) + (defenseValue * 0.04)) * vocation.defenseMultiplier));
   const armor = items.reduce((acc, item) => acc + (item.armor || 0), 0);
 
-  const activeWeaponSkill = skills[activeSkill];
-  const attackSpeedBonusPercent = Number(Math.min(50, activeWeaponSkill * 0.4).toFixed(1));
-  const attackIntervalMs = Math.round(2000 / (1 + attackSpeedBonusPercent / 100));
+  // Skill-based physical speed & interval reductions (uses character's highest physical fighting skill)
+  const physicalSkillLevel = Math.max(skills.sword, skills.axe, skills.club, skills.distance, skills.fist);
+  const attackSpeedBonusPercent = Number((physicalSkillLevel * 0.4).toFixed(1));
+  const attackIntervalMs = Math.max(1000, Math.round(vocation.attackSpeedMs * (1 - attackSpeedBonusPercent / 100)));
 
   const mountBonus = getMountSpeedBonus((character as any).mount, (character as any).mountActive);
-  const movementSpeedBonus = (character.skills.fist * 0.25) + imbuementBonuses.speed + mountBonus;
-  const magicDamageResistancePercent = Number(Math.min(25, skills.magicLevel * 0.5).toFixed(1));
+  const movementSpeedBonus = Math.floor(physicalSkillLevel * 0.8) + imbuementBonuses.speed + mountBonus;
+  const magicDamageResistancePercent = Number(Math.min(40, skills.magicLevel * 0.4).toFixed(1));
   const itemPhysicalProtection = items.reduce((acc, item) => acc + (item.elementalAbsorption?.physical ?? 0), 0);
-  const physicalDamageMitigationPercent = Number(Math.min(50, itemPhysicalProtection).toFixed(1));
+  const physicalDamageMitigationPercent = Number(Math.min(50, (skills.shielding * 0.3) + itemPhysicalProtection).toFixed(1));
 
 
   return {

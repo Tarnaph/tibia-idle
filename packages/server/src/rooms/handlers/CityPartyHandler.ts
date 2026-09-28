@@ -463,6 +463,7 @@ export class CityPartyHandler {
       const p = this.room.state.players.get(sessionId);
       return {
         sessionId,
+        characterId: p?.characterId || '',
         name: p?.name || 'Unknown',
         vocation: p?.vocationName || 'Knight',
         level: p?.level || 1,
@@ -472,6 +473,16 @@ export class CityPartyHandler {
         y: p?.posY || 32241,
         z: p?.posZ || 7,
         isLeader: sessionId === party.leaderSessionId,
+        outfit: p?.outfit || 'Warrior',
+        outfitColors: {
+          head: p?.outfitHead ?? 0,
+          primary: p?.outfitBody ?? 0,
+          secondary: p?.outfitLegs ?? 0,
+          detail: p?.outfitFeet ?? 0,
+        },
+        mount: p?.mount || '',
+        mountActive: Boolean(p?.mountActive),
+        inHunt: Boolean(p?.inHunt),
       };
     });
 

@@ -18,7 +18,7 @@ import {
 
 interface SellEntry {
   container: 'backpack' | 'bag';
-  containerLabel: 'Mochila' | 'Bolsa';
+  containerLabel: 'Loot Bag' | 'Mochila';
   itemId: number;
   name: string;
   amount: number;
@@ -171,14 +171,14 @@ export function ShopWindow({
     return 5;
   };
 
-  // Build sell list from Mochila and Bolsa
+  // Build sell list from Loot Bag and Mochila
   const sellEntries = useMemo(() => {
     const list: SellEntry[] = [];
     backpackItems.forEach((stack) => {
       if (stack && stack.itemId !== undefined && stack.amount > 0) {
         list.push({
           container: 'backpack',
-          containerLabel: 'Mochila',
+          containerLabel: 'Loot Bag',
           itemId: stack.itemId,
           name: stack.name,
           amount: stack.amount,
@@ -190,7 +190,7 @@ export function ShopWindow({
       if (stack && stack.itemId !== undefined && stack.amount > 0) {
         list.push({
           container: 'bag',
-          containerLabel: 'Bolsa',
+          containerLabel: 'Mochila',
           itemId: stack.itemId,
           name: stack.name,
           amount: stack.amount,
@@ -858,12 +858,12 @@ export function ShopWindow({
           </>
         ) : (
           /* ========================================================= */
-          /* ABA VENDER (ITENS DA MOCHILA E DA BOLSA)                  */
+          /* ABA VENDER (ITENS DA LOOT BAG E DA MOCHILA)                */
           /* ========================================================= */
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>
-                Selecione um item da sua mochila ou bolsa para vender diretamente:
+                Selecione um item da sua mochila ou loot bag para vender diretamente:
               </span>
               <span style={{ fontSize: '11px', color: '#64748b' }}>
                 {sellEntries.length} itens disponíveis
@@ -940,7 +940,7 @@ export function ShopWindow({
                 })}
                 {sellEntries.length === 0 && (
                   <div className="shop-empty-state">
-                    Sua mochila e bolsa estão vazias no momento.
+                    Sua mochila e loot bag estão vazias no momento.
                   </div>
                 )}
               </div>

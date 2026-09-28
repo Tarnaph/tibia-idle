@@ -58,8 +58,8 @@ export class CityMovementHandler {
       const player = this.room.state.players.get(client.sessionId);
       if (!player) return;
       const isAdmin = player.role === 'ADMIN' || player.adminTitle === 'GOD' || player.adminTitle === 'GM';
-      const isThaisReturn = (data.x === 32369 && data.y === 32241) || (data.z === 7 && typeof data.x === 'number' && typeof data.y === 'number');
-      if ((isAdmin || isThaisReturn) && typeof data.x === 'number' && typeof data.y === 'number') {
+      const isThaisTemple = data.x === 32369 && data.y === 32241;
+      if ((isAdmin || isThaisTemple) && typeof data.x === 'number' && typeof data.y === 'number') {
         player.posX = data.x;
         player.posY = data.y;
         player.posZ = data.z ?? 7;
@@ -103,10 +103,12 @@ export class CityMovementHandler {
     // If client provided matching nearby single-step coordinates, reconcile directly
     if (typeof clientX === 'number' && typeof clientY === 'number') {
       const dist = Math.hypot(clientX - player.posX, clientY - player.posY);
-      if (dist <= 1.5) {
+      const isClientInThais = clientX >= 32280 && clientX <= 32430 && clientY >= 32170 && clientY <= 32290;
+      const isPlayerDesynced = player.posZ !== 7 || player.posX < 32280 || player.posX > 32430 || player.posY < 32170 || player.posY > 32290;
+      if (dist <= 1.5 || (isClientInThais && isPlayerDesynced)) {
         targetX = clientX;
         targetY = clientY;
-        if (typeof clientZ === 'number') targetZ = clientZ;
+        targetZ = 7;
       }
     }
 
@@ -115,10 +117,12 @@ export class CityMovementHandler {
       return; // Out of bounds
     }
 
+    targetZ = 7; // In Thais City room, ground level floor is strictly 7
     player.direction = direction;
     player.posX = targetX;
     player.posY = targetY;
-    player.posZ = targetZ;
+    player.posZ = 7;
+    player.inHunt = false;
     player.isWalking = true;
     player.lastStepTime = now;
 

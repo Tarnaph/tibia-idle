@@ -483,7 +483,24 @@ export function resolveDistanceProjectileId(
   weapon?: EquipmentDefinition | null,
   ammo?: EquipmentDefinition | null,
 ): number {
-  // 1. Check ammunition first (Arrows, Bolts, Special ammo)
+  // 1. Thrown distance weapons equipped in hand (Spears, Stars, Stones) ALWAYS take priority over backpack ammo
+  if (weapon) {
+    const wepName = (weapon.name || '').toLowerCase();
+    if (wepName.includes('hunting spear')) return 17;
+    if (wepName.includes('enchanted spear')) return 18;
+    if (wepName.includes('royal spear')) return 21;
+    if (wepName.includes('glooth spear')) return 49;
+    if (wepName.includes('spear')) return 1;
+
+    if (wepName.includes('assassin star') || wepName.includes('red star')) return 19;
+    if (wepName.includes('green star')) return 20;
+    if (wepName.includes('throwing star') || wepName.includes('star')) return 8;
+    if (wepName.includes('throwing knife') || wepName.includes('knife')) return 9;
+    if (wepName.includes('small stone')) return 10;
+    if (wepName.includes('snowball')) return 13;
+  }
+
+  // 2. Bow/Crossbow ammunition (Arrows, Bolts, Special ammo)
   if (ammo) {
     const ammoName = (ammo.name || '').toLowerCase();
     if (ammoName.includes('poison arrow')) return 6;
@@ -510,20 +527,9 @@ export function resolveDistanceProjectileId(
     if (ammoName.includes('snowball')) return 13;
   }
 
-  // 2. Thrown distance weapons (Spears, Throwing Stars/Knives, Stones)
+  // 3. Fallback for Bows/Crossbows without explicit ammo
   if (weapon) {
     const wepName = (weapon.name || '').toLowerCase();
-    if (wepName.includes('hunting spear')) return 17;
-    if (wepName.includes('enchanted spear')) return 18;
-    if (wepName.includes('royal spear')) return 21;
-    if (wepName.includes('spear')) return 1;
-
-    if (wepName.includes('assassin star') || wepName.includes('red star')) return 19;
-    if (wepName.includes('green star')) return 20;
-    if (wepName.includes('throwing star') || wepName.includes('star')) return 8;
-    if (wepName.includes('throwing knife') || wepName.includes('knife')) return 9;
-    if (wepName.includes('small stone')) return 10;
-
     // Crossbow weapons default to standard Bolt (2)
     if (wepName.includes('crossbow') || wepName.includes('arbalest')) return 2;
     // Bow weapons default to standard Arrow (3)

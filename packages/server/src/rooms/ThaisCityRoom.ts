@@ -531,6 +531,17 @@ export class ThaisCityRoom extends Room<WorldState> {
       }
     } else {
       this.updatePlayerHuntContext(player, false);
+      // Phase 255: Authoritative Urban Normalization:
+      // If the player is in Thais City, ensure posZ is 7 and coordinates are inside Thais.
+      // If DB had stale cave/subterranean/out-of-bounds coordinates (posZ !== 7 or outside Thais box),
+      // normalize them immediately to Thais Temple (32369, 32241, 7)!
+      if (player.posZ !== 7 || player.posX < 32280 || player.posX > 32430 || player.posY < 32170 || player.posY > 32290) {
+        player.posX = 32369;
+        player.posY = 32241;
+        player.posZ = 7;
+        player.isWalking = false;
+        player.lastStepTime = 0;
+      }
       if (typeof client.send === 'function') {
         client.send('server:huntContextReady', { isHunting: false });
       }

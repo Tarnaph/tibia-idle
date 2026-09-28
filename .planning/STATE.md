@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-28T13:55:00.000Z"
-last_activity: "2026-09-28 — Conclusão com 100% de sucesso da Phase 254: Resolução dos 11 Itens Críticos do FIX.md (UI Dark Stone Tibia, Anti-Clone, Loja Flutuante, Slots Canônicos, Combat Fixes e Anti-OOM AFK)."
+last_updated: "2026-09-28T16:58:00.000Z"
+last_activity: "2026-09-28 — Conclusão da Phase 255: Teto Ilimitado de Loot, Sincronia de Multiplayer Thais, Nova Regra de Morte Sem Bless (Loot Bag) e Correção de Projéteis."
 progress:
-  total_phases: 254
-  completed_phases: 254
-  total_plans: 350
-  completed_plans: 350
-  percent: 100
+  total_phases: 255
+  completed_phases: 255
+  total_plans: 355
+  completed_plans: 355
+  percent: 100.0
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 254: Resolução dos 11 Itens Críticos do FIX.md (UI Dark Stone Tibia, Anti-Clone, Loja Flutuante, Slots Canônicos, Combat Fixes e Anti-OOM AFK).
+**Current focus:** Phase 255: Teto Ilimitado de Loot, Sincronia de Multiplayer Thais, Nova Regra de Morte Sem Bless (Loot Bag) e Correção de Projéteis.
 
 ## Current Position
 
-Phase: 254 of 254  
-Plan: 5 of 5 in Phase 254  
+Phase: 255 of 255  
+Plan: 5 of 5 in Phase 255  
 Status: Complete ✅  
-Last activity: 2026-09-28 — Todos os 11 itens do FIX.md concluídos, testados e validados no servidor.
+Last activity: 2026-09-28 — Concluídas todas as 5 ondas da Phase 255.
 
-Progress: [██████████] 100%
+Progress: [██████████] 100.0%
 
 
 

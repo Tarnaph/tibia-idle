@@ -18,6 +18,7 @@ import { gameNetwork } from '@/apps/web/lib/GameClientNetworkManager';
 import { ALL_SPELL_ICON_URLS, resolveActionImagePath } from './Tibia11ActionIcon';
 import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 import { destroyVisualNode, safelyDestroyPixiApp } from '@/apps/web/lib/pixiMemorySafety';
+import { resolveMissileFrame } from '@/apps/web/lib/assetPaths';
 
 export interface CityOverheadMessage {
   id: string;
@@ -483,9 +484,8 @@ export function ThaisCityArena({
           flightDurationMs = 280;
           const mMapping = fxAssets.missiles[String(projectileId)];
           if (mMapping && mMapping.frames && mMapping.frames.length > 0) {
-            const dirFrames = mMapping.frames.filter((f: any) => f.direction === dir);
-            const framesToUse = dirFrames.length > 0 ? dirFrames : mMapping.frames;
-            const firstUrl = framesToUse[0].publicUrl;
+            const frame = resolveMissileFrame(mMapping, dir);
+            const firstUrl = frame ? frame.publicUrl : mMapping.frames[0].publicUrl;
             const initialTex = atlasTextures[firstUrl] || loaded[firstUrl] || Texture.EMPTY;
             const sp = new Sprite(initialTex);
             sp.anchor.set(0.5);
@@ -510,7 +510,7 @@ export function ThaisCityArena({
               kind: 'missile',
               from: fromPx,
               to: toPx,
-              frames: framesToUse.map((f: { publicUrl: string }) => f.publicUrl),
+              frames: [firstUrl],
             });
           }
         }
@@ -1552,9 +1552,9 @@ export function ThaisCityArena({
               (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
               (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
               curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
-            // Phase 254: Strict Anti-Clone Filter: exclude any remote player who is in hunt or outside Thais floor 7
+            // Phase 254/255: Strict Anti-Clone Filter: exclude any remote player who is actively hunting
             const isHunting = Boolean(p.inHunt || p.isHunting || (p as any).hunting);
-            const isOutsideThais = (typeof p.z === 'number' && p.z > 7) || (typeof p.posZ === 'number' && p.posZ > 7);
+            const isOutsideThais = isHunting && ((typeof p.z === 'number' && p.z > 7) || (typeof p.posZ === 'number' && p.posZ > 7));
             if (isLocal || isHunting || isOutsideThais) return;
             const pCharId = p.characterId || p.id;
             if (seenRemoteKeys.has(pCharId)) return;
@@ -2129,13 +2129,15 @@ export function ThaisCityArena({
             if (ev.type === 'projectile-launched') {
               const mMapping = fxAssets.missiles[String(ev.projectileId)];
               if (mMapping && mMapping.frames.length > 0) {
-                const fUrl = mMapping.frames[0].publicUrl;
+                const fromPx = { x: currentPixelX, y: currentPixelY };
+                const toPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
+                const dir = getMissileDirection(toPx.x - fromPx.x, toPx.y - fromPx.y);
+                const frame = resolveMissileFrame(mMapping, dir);
+                const fUrl = frame ? frame.publicUrl : mMapping.frames[0].publicUrl;
                 if (loaded[fUrl]) {
                   const sp = new Sprite(loaded[fUrl]);
                   sp.anchor.set(0.5);
                   effectsLayer.addChild(sp);
-                  const fromPx = { x: currentPixelX, y: currentPixelY };
-                  const toPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
                   timedCityVisuals.push({
                     root: sp,
                     startedAt: now,
@@ -2172,16 +2174,19 @@ export function ThaisCityArena({
               if (projectileId) {
                 const mMapping = fxAssets.missiles[String(projectileId)];
                 if (mMapping && mMapping.frames.length > 0) {
-                  const fUrl = mMapping.frames[0].publicUrl;
+                  let toPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
+                  if ('targetPosition' in ev && (ev as any).targetPosition) {
+                    const tp = (ev as any).targetPosition;
+                    toPx = { x: tp.x * TILE_SIZE + 16, y: tp.y * TILE_SIZE + 16 };
+                  }
+                  const fromPx = { x: currentPixelX, y: currentPixelY };
+                  const dir = getMissileDirection(toPx.x - fromPx.x, toPx.y - fromPx.y);
+                  const frame = resolveMissileFrame(mMapping, dir);
+                  const fUrl = frame ? frame.publicUrl : mMapping.frames[0].publicUrl;
                   if (loaded[fUrl]) {
                     const sp = new Sprite(loaded[fUrl]);
                     sp.anchor.set(0.5);
                     effectsLayer.addChild(sp);
-                    let toPx = { x: dummyPos.x * TILE_SIZE + 16, y: dummyPos.y * TILE_SIZE + 16 };
-                    if ('targetPosition' in ev && (ev as any).targetPosition) {
-                      const tp = (ev as any).targetPosition;
-                      toPx = { x: tp.x * TILE_SIZE + 16, y: tp.y * TILE_SIZE + 16 };
-                    }
                     timedCityVisuals.push({
                       root: sp,
                       startedAt: now,
@@ -2495,7 +2500,10 @@ export function ThaisCityArena({
               }
             }
 
-            const targetTile = { x: p.x ?? 32369, y: p.y ?? 32241, z: p.z ?? 7 };
+            const rZ = !p.inHunt ? 7 : (p.z ?? (p as any).posZ ?? 7);
+            const pTargetX = !p.inHunt && (p.x < 32280 || p.x > 32430) ? 32369 : (p.x ?? 32369);
+            const pTargetY = !p.inHunt && (p.y < 32170 || p.y > 32290) ? 32241 : (p.y ?? 32241);
+            const targetTile = { x: pTargetX, y: pTargetY, z: rZ };
             let rState = remoteMotionTracks.get(p.id);
             if (!rState) {
               rState = {
@@ -2519,7 +2527,7 @@ export function ThaisCityArena({
             const dir = sample.direction || p.direction || 'south';
             const isMoving = sample.moving || p.isMoving;
 
-            view.root.visible = !p.inHunt && (p.z ?? (p as any).posZ ?? 7) === curPos.z;
+            view.root.visible = !p.inHunt && rZ === curPos.z;
             if (!view.root.visible) return;
 
             const rNormOutfit = normalizeOutfitId(outfitKey);

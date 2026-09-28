@@ -89,9 +89,9 @@ export function calculateDeathProtection(blessings: number[] = []): DeathProtect
       blessingsCount: 0,
       lossReductionPercent: 0,
       effectiveLossRatio: 1.0,
-      equipLossChancePercent: 10,
+      equipLossChancePercent: 0,
       summaryText: 'Você não tem nenhuma blessing.',
-      detailsText: '0% da perda da morte perdoada · 10% de chance de perder cada item equipado',
+      detailsText: '0% da perda perdoada · Itens da Loot Bag serão perdidos ao morrer (Mochila e Equipamentos 100% protegidos)',
     };
   }
 
@@ -102,22 +102,21 @@ export function calculateDeathProtection(blessings: number[] = []): DeathProtect
       effectiveLossRatio: 0.60,
       equipLossChancePercent: 0,
       summaryText: 'Você está totalmente abençoado.',
-      detailsText: '40% da perda da morte perdoada · 0% de chance de perder cada item equipado',
+      detailsText: '40% da perda da morte perdoada · Loot Bag 100% protegida contra perdas',
     };
   }
 
-  // 1 a 4 blessings: proporcional (8% de redução e -2% chance de perda por blessing)
+  // 1 a 4 blessings: proporcional (8% de redução por blessing)
   const lossReductionPercent = count * 8;
   const effectiveLossRatio = Math.max(0.60, (100 - lossReductionPercent) / 100);
-  const equipLossChancePercent = Math.max(0, 10 - count * 2);
 
   return {
     blessingsCount: count,
     lossReductionPercent,
     effectiveLossRatio,
-    equipLossChancePercent,
+    equipLossChancePercent: 0,
     summaryText: `Você tem ${count} de 5 blessings.`,
-    detailsText: `${lossReductionPercent}% da perda da morte perdoada · ${equipLossChancePercent}% de chance de perder cada item equipado`,
+    detailsText: `${lossReductionPercent}% da perda da morte perdoada · Loot Bag desprotegida (requer 5 bênçãos completas)`,
   };
 }
 

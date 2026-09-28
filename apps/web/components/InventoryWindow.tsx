@@ -279,13 +279,13 @@ export function InventoryWindow({
             </div>
           </div>
 
-          {/* Right Column: Bolsa & Mochila */}
+          {/* Right Column: Mochila & Loot Bag */}
           <div className="inventory-items-column">
-            {/* 1. Bolsa (12 slots: 2x6) */}
+            {/* 1. Mochila (12 slots: 2x6) */}
             <div className="container-section bolsa-section">
               <div className="container-section-header">
-                <span className="container-title">Bolsa</span>
-                <span className="container-help-icon" title="A Bolsa guarda itens protegidos que não são vendidos na Venda Rápida.">?</span>
+                <span className="container-title">Mochila</span>
+                <span className="container-help-icon" title="A Mochila guarda itens pessoais protegidos contra perda na morte.">?</span>
               </div>
               <div
                 className="container-grid bolsa-grid"
@@ -346,10 +346,11 @@ export function InventoryWindow({
 
             <div className="container-section-divider" />
 
-            {/* 2. Mochila (20 slots: 4x5) */}
+            {/* 2. Loot Bag (20 slots: 4x5) */}
             <div className="container-section mochila-section">
               <div className="container-section-header">
-                <span className="container-title">Mochila</span>
+                <span className="container-title">Loot Bag</span>
+                <span className="container-help-icon" title="A Loot Bag guarda os itens obtidos na caçada. Se morrer sem 5 bênçãos, seus itens são perdidos!">?</span>
               </div>
               <div
                 className="container-grid mochila-grid"

@@ -44,7 +44,7 @@ describe('Phase 190 - Blessings Domain & Protection Mechanics', () => {
     expect(report.blessingsCount).toBe(0);
     expect(report.lossReductionPercent).toBe(0);
     expect(report.effectiveLossRatio).toBe(1.0);
-    expect(report.equipLossChancePercent).toBe(10);
+    expect(report.equipLossChancePercent).toBe(0);
     expect(report.summaryText).toBe('Você não tem nenhuma blessing.');
   });
 
@@ -62,13 +62,13 @@ describe('Phase 190 - Blessings Domain & Protection Mechanics', () => {
     expect(r1.blessingsCount).toBe(1);
     expect(r1.lossReductionPercent).toBe(8);
     expect(r1.effectiveLossRatio).toBe(0.92);
-    expect(r1.equipLossChancePercent).toBe(8);
+    expect(r1.equipLossChancePercent).toBe(0);
 
     const r3 = calculateDeathProtection([1, 2, 3]);
     expect(r3.blessingsCount).toBe(3);
     expect(r3.lossReductionPercent).toBe(24);
     expect(r3.effectiveLossRatio).toBe(0.76);
-    expect(r3.equipLossChancePercent).toBe(4);
+    expect(r3.equipLossChancePercent).toBe(0);
   });
 
   it('calculates missing blessings and costs', () => {

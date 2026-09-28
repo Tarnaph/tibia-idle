@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CharacterService, ServerCharacterContextRegistry, SkillRateLimiter } from '../packages/auth/src';
 import { HuntDungeonRoom } from '../packages/server/src/rooms/HuntDungeonRoom';
+import { PlayerState } from '../packages/server/src';
 import { persistenceManager } from '../packages/server/src/persistence/PrismaPersistenceManager';
 
 describe('Phase 225: Server-Authoritative Hunts & Save Telemetry Resolution', () => {
@@ -183,24 +184,23 @@ describe('Phase 225: Server-Authoritative Hunts & Save Telemetry Resolution', ()
 
       // Add test player directly
       const mockClient: any = { sessionId: 'sess_hero', send: vi.fn() };
-      const player: any = {
-        id: 'sess_hero',
-        characterId: 'char_hero',
-        name: 'Hero',
-        level: 1,
-        experience: 0,
-        hp: 150,
-        maxHp: 150,
-        attackPower: 50,
-        armorPower: 10,
-        defensePower: 15,
-        lastAttackTime: 0,
-        posX: 32000,
-        posY: 32000,
-        posZ: 8,
-        targetId: '',
-        vocationName: 'Knight',
-      };
+      const player = new PlayerState();
+      player.id = 'sess_hero';
+      player.characterId = 'char_hero';
+      player.name = 'Hero';
+      player.level = 1;
+      player.experience = 0;
+      player.hp = 150;
+      player.maxHp = 150;
+      player.attackPower = 50;
+      player.armorPower = 10;
+      player.defensePower = 15;
+      player.lastAttackTime = 0;
+      player.posX = 32000;
+      player.posY = 32000;
+      player.posZ = 8;
+      player.targetId = '';
+      player.vocationName = 'Knight';
       room.state.players.set('sess_hero', player);
 
       const rat = Array.from(room.state.monsters.values())[0];
@@ -229,17 +229,16 @@ describe('Phase 225: Server-Authoritative Hunts & Save Telemetry Resolution', ()
       room.onCreate({ huntId: 'cyclops-camp' });
 
       const mockClient: any = { sessionId: 'sess_leaving', send: vi.fn() };
-      const player: any = {
-        id: 'sess_leaving',
-        characterId: 'char_leaving',
-        name: 'Leaver',
-        level: 20,
-        experience: 150000,
-        hp: 400,
-        maxHp: 400,
-        inHunt: true,
-        lastHuntId: 'cyclops-camp',
-      };
+      const player = new PlayerState();
+      player.id = 'sess_leaving';
+      player.characterId = 'char_leaving';
+      player.name = 'Leaver';
+      player.level = 20;
+      player.experience = 150000;
+      player.hp = 400;
+      player.maxHp = 400;
+      player.inHunt = true;
+      player.lastHuntId = 'cyclops-camp';
       room.state.players.set('sess_leaving', player);
       ServerCharacterContextRegistry.setActivity('char_leaving', { isHunting: true, huntId: 'cyclops-camp' });
 

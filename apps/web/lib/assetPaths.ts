@@ -89,3 +89,42 @@ export function getCanonicalHuntUrl(huntId: string): string {
 export function getCanonicalAvatarUrl(avatarId: number = 1): string {
   return `/images/avatars/avatar-${avatarId}.png`;
 }
+
+/**
+ * Matriz canônica de coordenadas 3x3 para cada uma das 8 direções de projéteis (missiles) no Tibia:
+ * x: 0 (West), 1 (Center), 2 (East)
+ * y: 0 (North), 1 (Center), 2 (South)
+ */
+export const MISSILE_DIRECTION_PATTERNS: Record<string, { x: number; y: number }> = {
+  'north-west': { x: 0, y: 0 },
+  'north':      { x: 1, y: 0 },
+  'north-east': { x: 2, y: 0 },
+  'west':       { x: 0, y: 1 },
+  'east':       { x: 2, y: 1 },
+  'south-west': { x: 0, y: 2 },
+  'south':      { x: 1, y: 2 },
+  'south-east': { x: 2, y: 2 },
+};
+
+/**
+ * Resolve o frame exato do projétil a partir do mapeamento de assets e da direção do voo.
+ * Garante que a ponta da flecha/spear/bolt nunca fique invertida ou de costas para o atirador.
+ */
+export function resolveMissileFrame<T extends { direction?: string; pattern?: { x: number; y: number }; publicUrl: string }>(
+  mapping?: { frames?: T[] } | null,
+  direction?: string
+): T | undefined {
+  if (!mapping || !mapping.frames || mapping.frames.length === 0) return undefined;
+  if (direction) {
+    const targetPattern = MISSILE_DIRECTION_PATTERNS[direction];
+    if (targetPattern) {
+      const matched = mapping.frames.find(
+        (f) => f.pattern && f.pattern.x === targetPattern.x && f.pattern.y === targetPattern.y
+      );
+      if (matched) return matched;
+    }
+    const matchedByDir = mapping.frames.find((f) => f.direction === direction);
+    if (matchedByDir) return matchedByDir;
+  }
+  return mapping.frames[0];
+}

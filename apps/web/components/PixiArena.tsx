@@ -13,6 +13,7 @@ import { getZoomMultiplier, onZoomChange } from '@/apps/web/lib/zoomManager';
 import { playPhysicalAttack, playMagicSpell, playPlayerDeath } from '@/apps/web/lib/soundEffects';
 import { destroyVisualNode, safelyDestroyPixiApp } from '@/apps/web/lib/pixiMemorySafety';
 import { ESSENTIAL_COMBAT_EFFECT_IDS, ESSENTIAL_COMBAT_MISSILE_IDS } from '@/apps/web/lib/huntAssetPreloader';
+import { resolveMissileFrame } from '@/apps/web/lib/assetPaths';
 
 interface PixiArenaProps {
   game: GameState;
@@ -717,7 +718,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         if (projectileId !== null) {
           const mapping = visualAssets.missiles[String(projectileId)];
           const direction = projectileDirection(from, to);
-          const frame = mapping?.frames.find((candidate) => candidate.direction === direction) ?? mapping?.frames[0];
+          const frame = resolveMissileFrame(mapping, direction);
           if (frame) {
             const initialTex = getCombatTexture(frame.publicUrl) || Texture.EMPTY;
             const sprite = new Sprite(initialTex);
@@ -1143,7 +1144,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
               const mapping = visualAssets.missiles[String(event.projectileId)];
               if (from && to && mapping && mapping.frames && mapping.frames.length > 0) {
                 const direction = projectileDirection(from, to);
-                const frame = mapping.frames.find((candidate) => candidate.direction === direction) ?? mapping.frames[0];
+                const frame = resolveMissileFrame(mapping, direction);
+                if (!frame) continue;
                 const tex = getCombatTexture(frame.publicUrl) || Texture.EMPTY;
                 const sprite = new Sprite(tex);
                 sprite.anchor.set(0.5);

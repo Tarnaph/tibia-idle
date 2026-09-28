@@ -2503,6 +2503,10 @@ function playerAttacks(state: GameState, content: GameContent): void {
     };
     encounter.visualEvents.push({ type: 'basic-attack-started', sourceId: character.id, targetId: target.id, ranged });
     if (ranged && projectileId) {
+      // Legacy visual parity checks:
+      // nameLower.includes('vortex') -> projectileId = 4, effectId = 11
+      // nameLower.includes('draconia') -> effectId = 15
+      // nameLower.includes('cosmic')
       encounter.visualEvents.push({ type: 'projectile-launched', sourceId: character.id, targetId: target.id, projectileId });
     }
     actor.attackIntervalMs = stats.attackIntervalMs;
@@ -3506,8 +3510,10 @@ export function calculateDeathPenaltyReport(
     }
   }
 
-  const lostLoot: LostLootItemDetail[] = loseLootEnabled
-    ? sessionLoot.map((item) => ({
+  const shouldLoseLoot = loseLootEnabled && protection.blessingsCount < 5;
+  const safeLoot = Array.isArray(sessionLoot) ? sessionLoot : [];
+  const lostLoot: LostLootItemDetail[] = shouldLoseLoot
+    ? safeLoot.map((item) => ({
         itemId: item.itemId,
         name: item.name,
         amount: item.amount,
@@ -3516,24 +3522,8 @@ export function calculateDeathPenaltyReport(
 
   const totalLootItemsLost = lostLoot.reduce((sum, item) => sum + item.amount, 0);
 
-  // Equipment loss based on blessings protection
+  // Regra Nova: Equipamentos e Mochila são 100% protegidos contra perda na morte
   const lostEquipment: LostEquipmentItemDetail[] = [];
-  if (protection.equipLossChancePercent > 0 && character.equipment) {
-    const equipKeys = Object.keys(character.equipment) as CharacterEquipmentSlot[];
-    for (const slot of equipKeys) {
-      const itemId = character.equipment[slot];
-      if (itemId) {
-        if (Math.random() * 100 < protection.equipLossChancePercent) {
-          const itemDef = options?.content?.equipment ? findEquipment(options.content.equipment, itemId) : undefined;
-          lostEquipment.push({
-            slot,
-            itemId,
-            name: itemDef?.name || `Item #${itemId}`,
-          });
-        }
-      }
-    }
-  }
 
   return {
     expPercent,
@@ -3609,16 +3599,7 @@ export function respawnInTemple(
       }
     }
 
-    // 3. Equipment Loss if without full blessings
-    if (protection.equipLossChancePercent > 0 && character.equipment) {
-      const equipKeys = Object.keys(character.equipment) as CharacterEquipmentSlot[];
-      for (const slot of equipKeys) {
-        const itemId = character.equipment[slot];
-        if (itemId && Math.random() * 100 < protection.equipLossChancePercent) {
-          character.equipment[slot] = null;
-        }
-      }
-    }
+    // 3. Equipment & Mochila: 100% seguros contra perda na morte (sempre preservados)
 
     // 4. Always consume ALL blessings upon death
     character.blessings = [];
@@ -3630,9 +3611,11 @@ export function respawnInTemple(
     character.combatState.groupCooldowns = {};
   }
 
-  // 5. Loot Penalty: lose accumulated hunt loot if enabled (default true)
+  // 5. Loot Bag Penalty: sem full blessings (5), perde APENAS o que está na Loot Bag (session.loot)
+  // Mochila (session.bag) e equipamentos continuam 100% intactos!
   let lostLootCount = 0;
-  if (loseLoot && next.session.loot && next.session.loot.length > 0) {
+  const losesLootBag = loseLoot && totalBlessingsConsumed < 5;
+  if (losesLootBag && next.session.loot && next.session.loot.length > 0) {
     lostLootCount = next.session.loot.reduce((sum, item) => sum + item.amount, 0);
     next.session.loot = [];
   }
@@ -3648,7 +3631,8 @@ export function respawnInTemple(
   next.encounter.status = 'completed';
   next.encounter.events.push({ type: 'hunt-complete' });
   const blessingsMsg = totalBlessingsConsumed > 0 ? ` (${totalBlessingsConsumed} blessings consumidas)` : ' (sem blessings)';
-  addLog(next, `Alas! Você morreu e renasceu no Templo de Thais. Penalidade calculada${blessingsMsg}${loseLoot ? `, e o loot da caçada foi perdido (${lostLootCount} itens)` : ''}.`);
+  const lootLossMsg = lostLootCount > 0 ? `, e o conteúdo da Loot Bag foi perdido (${lostLootCount} itens)` : '';
+  addLog(next, `Alas! Você morreu e renasceu no Templo de Thais. Penalidade calculada${blessingsMsg}${lootLossMsg}. Sua Mochila e equipamentos foram preservados.`);
   return next;
 }
 

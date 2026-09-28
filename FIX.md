@@ -189,3 +189,18 @@
   - **Cards de Equipamentos/Itens em Grade:** Layout com `grid-template-columns: repeat(auto-fill, minmax(130px, 1fr))`, fundo escurecido `#131822`, bordas refinadas `#232d3f`, caixa de sprite centralizada e espaçamento adequado.
   - **Badge de Preço Destacado:** `shop-item-cost` formatado como badge dourado arredondado com fundo suave e borda dourada, eliminando a junção de texto com o nome do item.
   - **Painel Inferior de Compra/Venda:** Stepper de quantidade com botões estéticos e botão de ação com gradiente e sombra projetada.
+
+## 14. Fase 255: Pilhas Sem Teto, Sincronia Multiplayer, Mochila vs Loot Bag e Projéteis Autênticos
+- [x] **Pilha Ilimitada em Containers e Inventário (`characterService.ts`):**
+  - Removido o teto artificial de 1-100 itens por slot para containers (`bag`, `loot`), munições e ouro, permitindo até 1.000.000.000 (1 bilhão) de unidades persistidas sem perda ou truncation.
+- [x] **Sincronização Multiplayer em Thais (`ThaisCityRoom.ts`, `CityMovementHandler.ts`, `ThaisCityArena.tsx`):**
+  - Resolução de desincronização e visibilidade assimétrica (Warriot e Caos lado a lado no templo).
+  - Coordenadas urbanas e flags de hunt agora são normalizadas autoritativamente no servidor Colyseus.
+- [x] **Renomeação dos Compartimentos & Nova Regra de Morte MMORPG (`InventoryWindow.tsx`, `DepotWindow.tsx`, `ShopWindow.tsx`, `combat.ts`, `blessings.ts`):**
+  - "Bolsa" (12 slots) renomeada para **"Mochila"** (itens pessoais 100% seguros).
+  - "Mochila" inferior (20 slots) renomeada para **"Loot Bag"** (drops de caçada).
+  - **Regra de Morte:** Ao morrer sem bless, o jogador perde **APENAS o que estiver na Loot Bag (`session.loot`)**. Mochila e equipamentos equipados permanecem 100% protegidos.
+  - Com as 5 bênçãos completas, a Loot Bag também fica 100% protegida.
+- [x] **Correção dos Projéteis - Flecha com Ponta Correta & Prioridade de Spear (`assetPaths.ts`, `equipment.ts`, `PixiArena.tsx`):**
+  - **Flecha sem ponta invertida:** Mapeamento do padrão matricial 3x3 do Tibia (`pattern.x`, `pattern.y`), garantindo que flechas atiradas para o Sul voem apontando para o Sul.
+  - **Spear na mão do Paladin:** Spear equipada na mão tem prioridade sobre munições na mochila, arremessando a lança física com seu projétil próprio em vez de transformar o ataque em magia.

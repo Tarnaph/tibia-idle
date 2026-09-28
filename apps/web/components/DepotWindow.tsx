@@ -199,12 +199,12 @@ export function DepotWindow({
             </div>
           </div>
 
-          {/* Right Pane: Bolsa & Mochila */}
+          {/* Right Pane: Mochila & Loot Bag */}
           <div className="depot-character-pane">
-            {/* Bolsa */}
+            {/* Mochila */}
             <div className="depot-side-section">
               <div className="container-section-header">
-                <span className="container-title">Bolsa</span>
+                <span className="container-title">Mochila</span>
               </div>
               <div className="container-grid bolsa-grid">
                 {Array.from({ length: 12 }).map((_, index) => {
@@ -232,10 +232,10 @@ export function DepotWindow({
 
             <div className="container-section-divider" />
 
-            {/* Mochila */}
+            {/* Loot Bag */}
             <div className="depot-side-section">
               <div className="container-section-header">
-                <span className="container-title">Mochila</span>
+                <span className="container-title">Loot Bag</span>
               </div>
               <div className="container-grid mochila-grid">
                 {Array.from({ length: 20 }).map((_, index) => {

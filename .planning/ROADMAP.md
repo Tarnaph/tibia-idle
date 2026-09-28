@@ -4376,6 +4376,17 @@ Plans:
 - [x] 254-04-PLAN: Onda 4 - Multiplayer, Performance, Montarias & Anti-Clone (Itens 3, 10, 11: Sincronia Thais Bidirecional, Montarias + Velocidade + AFK Anti-OOM, Mútua Exclusão Cidade/Hunt)
 - [x] 254-05-PLAN: Onda 5 - Verificação de Regressão, Suíte de Testes Vitest, Typecheck e Atualização do Servidor
 
+---
+
+- [x] **Phase 255: Teto Ilimitado de Loot, Sincronia de Multiplayer Thais, Nova Regra de Morte Sem Bless (Loot Bag) e Correção de Projéteis** - Resolução de 4 frentes críticas: (1) Liberação do teto de stack para itens em slots de contêiner e mochila de loot no backend (`characterService.ts`), permitindo até 1.000.000.000 de unidades para caçadas contínuas/idle sem erros de autosave; (2) Normalização autoritativa de coordenadas e andar urbano em Thais (`ThaisCityRoom.ts`, `CityMovementHandler.ts`), garantindo `posZ: 7` no templo ao conectar ou retornar de hunts e sincronização multiplayer mútua perfeita entre todos os jogadores; (3) Renomeação dos compartimentos para "Mochila" (pessoal segura) e "Loot Bag" (coleta de caçada), com nova regra de Death Penalty: ao morrer sem bless, perde-se exclusivamente o conteúdo da Loot Bag, mantendo a Mochila e os equipamentos do Inventário 100% protegidos; (4) Correção canônica de animações de projéteis: orientação correta das flechas para todos os 8 eixos (eliminando flechas disparadas de ré) e prioridade/sprite autêntico da Spear arremessável sem virar magia.
+Plans:
+- [x] 255-01-PLAN: Onda 1 - Teto Ilimitado de Stack no Backend para Loot e Contêineres (characterService.ts)
+- [x] 255-02-PLAN: Onda 2 - Normalização de Coordenadas Urbanas e Sincronia Multiplayer Bidirecional em Thais
+- [x] 255-03-PLAN: Onda 3 - Renomeação para Mochila & Loot Bag e Nova Regra de Morte Sem Bless (Perda Exclusiva da Loot Bag)
+- [x] 255-04-PLAN: Onda 4 - Orientação Correta das Flechas (8 Eixos) e Projétil Canônico de Spear sem Magia
+- [x] 255-05-PLAN: Onda 5 - Testes Vitest, Validação Typecheck 100%, Documentação e Deploy na VPS
+
+
 
 
 

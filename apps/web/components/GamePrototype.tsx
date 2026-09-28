@@ -1899,6 +1899,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         mountActive: userChar.mountActive,
         inHunt: Boolean((charItem as any).isHunting),
         huntId: (charItem as any).lastHuntId,
+        x: (charItem as any).isHunting ? undefined : ((charItem as any).posX ?? 32369),
+        y: (charItem as any).isHunting ? undefined : ((charItem as any).posY ?? 32241),
+        z: (charItem as any).isHunting ? undefined : 7,
       })
       .then(() => {
         setIsConnectedServer(true);
