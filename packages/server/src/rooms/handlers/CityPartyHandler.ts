@@ -9,9 +9,85 @@ export class CityPartyHandler {
 
   public register(): void {
     // Party multiplayer messages
-    this.room.onMessage('party:invite', (client) => {
-      client.send('party:error', {
-        message: 'O sistema de convites de party entre jogadores reais está temporariamente desativado.',
+    this.room.onMessage('party:invite', (client, data: { targetName?: string; targetSessionId?: string }) => {
+      const inviter = this.room.state.players.get(client.sessionId);
+      if (!inviter) return;
+
+      const inviterLeaderId = this.room.playerPartyLeader.get(client.sessionId);
+      if (inviterLeaderId && inviterLeaderId !== client.sessionId) {
+        client.send('party:error', {
+          message: 'Apenas o líder da party pode convidar novos membros.',
+        });
+        return;
+      }
+
+      const party = inviterLeaderId ? this.room.parties.get(inviterLeaderId) : null;
+      if (party && party.memberSessionIds.length >= 4) {
+        client.send('party:error', {
+          message: 'A party já está cheia (máximo de 4 integrantes).',
+        });
+        return;
+      }
+
+      let targetClient: Client | undefined;
+      let targetPlayer: any | undefined;
+
+      if (data?.targetSessionId) {
+        targetClient = this.room.clients.find((c) => c.sessionId === data.targetSessionId);
+        targetPlayer = this.room.state.players.get(data.targetSessionId);
+      } else if (data?.targetName) {
+        const query = data.targetName.trim().toLowerCase();
+        for (const [sId, p] of this.room.state.players.entries()) {
+          if (p.name && p.name.trim().toLowerCase() === query) {
+            targetClient = this.room.clients.find((c) => c.sessionId === sId);
+            targetPlayer = p;
+            break;
+          }
+        }
+      }
+
+      if (!targetClient || !targetPlayer) {
+        client.send('party:error', {
+          message: `Jogador "${data?.targetName || 'alvo'}" não encontrado ou não está online na cidade de Thais.`,
+        });
+        return;
+      }
+
+      if (targetClient.sessionId === client.sessionId) {
+        client.send('party:error', {
+          message: 'Você não pode convidar a si mesmo para a party.',
+        });
+        return;
+      }
+
+      // Verifica se o alvo já faz parte desta party
+      if (party && party.memberSessionIds.includes(targetClient.sessionId)) {
+        client.send('party:error', {
+          message: `${targetPlayer.name} já faz parte da sua party.`,
+        });
+        return;
+      }
+
+      // Verifica se o alvo já é líder ou membro de outra party
+      const targetLeaderId = this.room.playerPartyLeader.get(targetClient.sessionId);
+      if (targetLeaderId) {
+        client.send('party:error', {
+          message: `${targetPlayer.name} já pertence a outra party.`,
+        });
+        return;
+      }
+
+      // Envia o convite para o jogador alvo
+      targetClient.send('party:invitationReceived', {
+        inviterSessionId: client.sessionId,
+        inviterName: inviter.name,
+        inviterLevel: inviter.level,
+        inviterVocationId: inviter.vocationId,
+      });
+
+      // Confirma o envio para o líder
+      client.send('party:inviteSent', {
+        targetName: targetPlayer.name,
       });
     });
 
@@ -31,6 +107,13 @@ export class CityPartyHandler {
         };
         this.room.parties.set(leaderId, party);
         this.room.playerPartyLeader.set(leaderId, leaderId);
+      }
+
+      if (party.memberSessionIds.length >= 4) {
+        client.send('party:error', {
+          message: 'A party atingiu a capacidade máxima de 4 membros.',
+        });
+        return;
       }
 
       if (!party.memberSessionIds.includes(client.sessionId)) {

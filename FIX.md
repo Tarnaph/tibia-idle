@@ -32,3 +32,22 @@
   - Disparo de `gameNetwork.sendTurn` no `keydown` (inclusive Ctrl+setas/WASD para virar no mesmo quadrado), em `takeCityStep` e no `tickWalking`.
 - [x] **11. Sincronização e Renderização Imediata em ThaisCityArena:**
   - Atualizada a resolução de direção em `ThaisCityArena.tsx` para priorizar `p.direction` do servidor quando o player remoto estiver parado, resetando a orientação da trilha visual em tempo real.
+
+## Onda 6: Sistema de Convites de Party Multiplayer em Thais City (Colyseus)
+- [x] **12. Reativação e Resolução do Convite de Party entre Jogadores Reais:**
+  - Reativar o handler `party:invite` em `packages/server/src/rooms/handlers/CityPartyHandler.ts`.
+  - Localizar o jogador alvo conectado em Thais City pelo nome (`targetName`), validando se está online, se não é o próprio jogador e se o grupo não atingiu o limite de 4 membros.
+  - Disparar mensagem de rede `targetClient.send('party:invitationReceived', ...)` contendo dados do líder (nome, vocação, nível).
+  - Integrar com o modal de aceite existente no cliente (`PartyInvitationModal`), sincronizando a party em tempo real para ambos os jogadores (`party:sync`).
+
+## Onda 7: Desacoplamento do Auto-Ataque de Armas (Bows/Arrows, Wands, Melee) e Magias Ofensivas
+- [x] **13. Auto-Ataque Concorrente com Magias Ofensivas e Runas (Tibia Canônico):**
+  - Em `packages/domain/src/combat.ts` (`castAutomaticSpells` e `triggerManualHotbarAction`), remover o travamento e adiamento de `actor.nextAttackAt` e `actor.groupCooldowns['attack']` ao disparar magias ofensivas ou usar runas.
+  - Manter o relógio de auto-ataque da arma (`nextAttackAt`) rodando de forma estritamente independente a cada 2,0 segundos (cadência da arma).
+  - Permitir que Paladinos atirem flechas/bolts simultaneamente com magias de ataque (*Exori Con*, *Exori San*), Mages disparem Wands/Rods junto com magias (*Exori Flam/Vis/Mort*) e Knights desferam golpes físicos em conjunto com *Exori*, disparando projéteis e danos em paralelo no mesmo turno.
+
+## Onda 8: Transição Perfeita de Caçada em Grupo para o Seguidor e Zero Clones
+- [x] **14. Transição Perfeita de Caçada em Grupo para o Seguidor e Zero Clones:**
+  - Em `GamePrototype.tsx`, ao concluir o loading de transição (`onFinish`), acionar `setMode('hunt')` e `restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId)` para o seguidor.
+  - Garantir que ambos os jogadores compartilhem a mesma seed de caçada, vejam todos os membros na `PixiArena.tsx` com o Knight liderando o combate na linha de frente (1 sqm) e os atacantes à distância (3+ sqm).
+  - Preservar o isolamento urbano (`posZ: 8` e `inHunt: true`) durante a caçada e restaurar ambos ao templo de Thais (`32369, 32241, 7`) no término ou saída do grupo.

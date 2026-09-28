@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-28T19:40:00.000Z"
-last_activity: "2026-09-28 — Conclusão integral da Phase 257: Nameplate Centralizado, Extinção de Rotworm na Cidade, Drop Rate 5x, Trava de Itens (Lock/Unlock) na Loot Bag com Cadeado Cinza, Auto-Venda 10m, Cooldown 2m na Venda Rápida e Sincronização em Tempo Real de Direção do Corpo."
+last_updated: "2026-09-28T20:21:00.000Z"
+last_activity: "2026-09-28 — Conclusão integral da Phase 258: Convites de Party Multiplayer em Thais, Desacoplamento de Armas e Magias (Flecha + Magia simultâneo), Transição de Hunt Fluida para Seguidor e Zero Clones em Thais."
 progress:
-  total_phases: 257
-  completed_phases: 257
-  total_plans: 362
-  completed_plans: 362
+  total_phases: 258
+  completed_phases: 258
+  total_plans: 366
+  completed_plans: 366
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 257: Auto-Venda Periódica, Trava de Itens Loot Bag, Drop Rate 5x, Sincronia de Direção e Correções Visuais Concluídas com Sucesso.
+**Current focus:** Phase 258: Convites de Party Multiplayer em Thais, Transição Contínua para Hunt em Grupo (Sem Clones) e Desacoplamento do Auto-Ataque com Magias Concluídas.
 
 ## Current Position
 
-Phase: 257 of 257  
-Plan: 6 of 6 in Phase 257  
+Phase: 258 of 258  
+Plan: 4 of 4 in Phase 258  
 Status: Complete 🚀  
-Last activity: 2026-09-28 — Finalizada a Phase 257 com 100% de cobertura e aprovação em testes Vitest e typecheck TypeScript sem erros.
+Last activity: 2026-09-28 — Finalizada a Phase 258 com 100% de cobertura e aprovação em testes Vitest e typecheck TypeScript com 0 erros.
 
 Progress: [██████████] 100.0%
 

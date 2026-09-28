@@ -1374,7 +1374,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
               encounter.rngState = rng.state;
               actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
               actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
-              actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
               const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
 
@@ -1660,7 +1659,6 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
           if (isOffensive) {
             actor.groupCooldowns['attack'] = encounter.elapsedMs + spell.groupCooldownMs;
             actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;
-            actor.nextAttackAt = encounter.elapsedMs + spell.groupCooldownMs;
             usedOffensiveActionThisTick = true;
           }
 
@@ -2003,7 +2001,6 @@ export function triggerManualHotbarAction(
     encounter.rngState = rng.state;
     actor.groupCooldowns['rune'] = encounter.elapsedMs + rune.cooldownMs;
     actor.groupCooldowns['attack'] = encounter.elapsedMs + rune.cooldownMs;
-    actor.nextAttackAt = encounter.elapsedMs + rune.cooldownMs;
 
     const impactDelay = rune.projectileId > 0 ? RUNE_PROJECTILE_FLIGHT_MS : 0;
 
@@ -2160,7 +2157,6 @@ export function triggerManualHotbarAction(
   if (isOffensive) {
     actor.groupCooldowns['attack'] = encounter.elapsedMs + spell.groupCooldownMs;
     actor.groupCooldowns['rune'] = encounter.elapsedMs + spell.groupCooldownMs;
-    actor.nextAttackAt = encounter.elapsedMs + spell.groupCooldownMs;
   }
 
   const spellSpeech = formatSpellWords(spell.words);
@@ -2363,7 +2359,7 @@ function playerAttacks(state: GameState, content: GameContent): void {
       }
     }
     if (actor.pendingAttack) continue;
-    if (encounter.elapsedMs < actor.nextAttackAt || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs) continue;
+    if (encounter.elapsedMs < actor.nextAttackAt) continue;
 
     const isFocusLead = !isParty || actor.characterId === focusLeadActor?.characterId;
     const isKnightActor = Boolean(partyKnight && actor.characterId === partyKnight.characterId);
@@ -2512,8 +2508,6 @@ function playerAttacks(state: GameState, content: GameContent): void {
     actor.attackIntervalMs = stats.attackIntervalMs;
     actor.speed = vocationFor(content, character.vocation).baseSpeed + (character.level - 1) * 2 + stats.movementSpeedBonus;
     actor.nextAttackAt = encounter.elapsedMs + stats.attackIntervalMs;
-    actor.groupCooldowns['attack'] = encounter.elapsedMs + stats.attackIntervalMs;
-    actor.groupCooldowns['rune'] = encounter.elapsedMs + stats.attackIntervalMs;
   }
 }
 

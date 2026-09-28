@@ -6157,6 +6157,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
                   gameNetwork.sendPartyHuntSync(pending.huntId, pending.nextSeed);
                 }
+                if (modeRef.current !== 'hunt') {
+                  setGame((current) => restartHunt(prepareHuntCharactersRef.current(current), pending.nextSeed, content, pending.huntId, pending.pullSize ?? 'cauteloso'));
+                  setMode('hunt');
+                }
                 setSaleMessage(pending.pvpMatch ? `⚔️ Duelo de Arena contra ${pending.pvpMatch.opponent.name} iniciado!` : `Você viajou para ${pending.targetHunt.name}!`);
                 lastCombatTimeRef.current = performance.now();
 

@@ -4404,3 +4404,13 @@ Plans:
 - [x] 257-04-PLAN: Onda 4 - Auto-Venda de Loot a Cada 10 Minutos e Cooldown de 2 Minutos na Venda Rápida
 - [x] 257-05-PLAN: Onda 5 - Sincronização em Tempo Real da Direção/Orientação do Jogador em Thais (Colyseus)
 - [x] 257-06-PLAN: Onda 6 - Verificação com Testes Vitest, Typecheck, Atualização do FIX.md e Deploy na VPS
+
+---
+
+- [x] **Phase 258: Convites de Party Multiplayer em Thais, Transição Contínua para Hunt em Grupo (Sem Clones) e Desacoplamento do Auto-Ataque com Magias** - Resolução de 3 frentes prioritárias do FIX.md: (1) Reativação do sistema autoritativo de convites de party entre jogadores reais (`party:invite` no Colyseus `CityPartyHandler.ts`) com busca por nome na cidade, checagem de vagas (máx 4) e envio do modal de aceitação (`PartyInvitationModal`); (2) Desacoplamento canônico do auto-ataque com armas (Bows/Crossbows com flechas/bolts, Wands/Rods e armas Melee) em `packages/domain/src/combat.ts`, eliminando a trava de `nextAttackAt` ao soltar magias e permitindo ataques simultâneos de arma e magia no mesmo turno; (3) Transição fluida de caçada para seguidores na conclusão da tela de loading (`onFinish`), compartilhamento da mesma seed com IA tática de grupo (Knight na frente, Paladin/Mages atrás), e isolamento total de clones urbanos em Thais (`inHunt: true` e `posZ: 8`) com retorno seguro ao templo.
+Plans:
+- [x] 258-01-PLAN: Onda 1 - Reativação Autoritativa de Convites de Party Multiplayer (`CityPartyHandler.ts`) com Validação e Notificações
+- [x] 258-02-PLAN: Onda 2 - Desacoplamento de Armas e Magias: Auto-Ataque Concorrente com Flechas/Wands/Melee e Magias Ofensivas no Combate (`packages/domain/src/combat.ts`)
+- [x] 258-03-PLAN: Onda 3 - Transição Perfeita de Caçada em Grupo: Acionamento da Caçada para Seguidor no Loading, IA Tática com Knight na Frente e Retorno sem Clones
+- [x] 258-04-PLAN: Onda 4 - Testes Vitest Automatizados, Validação de Tipos (Typecheck), Atualização do FIX.md e Deploy na VPS
+
