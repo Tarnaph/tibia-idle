@@ -6,6 +6,7 @@ import {
   createIdleGame,
   restartHunt,
   triggerManualHotbarAction,
+  hasLineOfSight,
 } from '../packages/domain/src';
 import { content } from './fixture';
 
@@ -19,7 +20,12 @@ describe('Phase 96: Rune Damage and Visual Impact Synchronization', () => {
     sorcerer.hotbar = [2268]; // Sudden Death Rune
 
     const hunting = restartHunt(game, 'test-p96-sd', content, 'rat-cellars');
+    const actor = hunting.encounter.partyActors.find((a) => a.characterId === sorcerer.id)!;
     const enemy = hunting.encounter.enemies.find((e) => e.alive)!;
+    const walkableTile = hunting.encounter.room.map.tiles.find(
+      (t) => t.walkable && Math.abs(t.position.x - actor.position.x) + Math.abs(t.position.y - actor.position.y) === 2 && hasLineOfSight(hunting.encounter.room.map, actor.position, t.position)
+    );
+    if (walkableTile) enemy.position = { ...walkableTile.position };
 
     const triggered = triggerManualHotbarAction(hunting, sorcerer.id, 2268, content);
     expect(triggered).toBe(true);
@@ -51,10 +57,13 @@ describe('Phase 96: Rune Damage and Visual Impact Synchronization', () => {
 
     // Ensure enemies are adjacent to each other within 3x3 blast radius
     const primary = aliveEnemies[0];
-    primary.position = { x: actor.position.x + 2, y: actor.position.y, z: actor.position.z };
+    const walkableTile = hunting.encounter.room.map.tiles.find(
+      (t) => t.walkable && Math.abs(t.position.x - actor.position.x) + Math.abs(t.position.y - actor.position.y) === 2 && hasLineOfSight(hunting.encounter.room.map, actor.position, t.position)
+    );
+    if (walkableTile) primary.position = { ...walkableTile.position };
 
-    if (aliveEnemies.length > 1) {
-      aliveEnemies[1].position = { x: primary.position.x + 1, y: primary.position.y, z: primary.position.z };
+    if (aliveEnemies.length > 1 && walkableTile) {
+      aliveEnemies[1].position = { ...walkableTile.position };
     }
 
     const triggered = triggerManualHotbarAction(hunting, sorcerer.id, 2304, content);
@@ -85,7 +94,10 @@ describe('Phase 96: Rune Damage and Visual Impact Synchronization', () => {
 
     const aliveEnemies = hunting.encounter.enemies.filter((e) => e.alive);
     const primary = aliveEnemies[0];
-    primary.position = { x: actor.position.x + 2, y: actor.position.y, z: actor.position.z };
+    const walkableTile = hunting.encounter.room.map.tiles.find(
+      (t) => t.walkable && Math.abs(t.position.x - actor.position.x) + Math.abs(t.position.y - actor.position.y) === 2 && hasLineOfSight(hunting.encounter.room.map, actor.position, t.position)
+    );
+    if (walkableTile) primary.position = { ...walkableTile.position };
 
     const triggered = triggerManualHotbarAction(hunting, druid.id, 2274, content);
     expect(triggered).toBe(true);

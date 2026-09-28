@@ -55,6 +55,8 @@ interface WindowDockBarProps {
   onOpenPvP?: () => void;
   onOpenDebug?: () => void;
   bestiaryKills?: Record<string, number>;
+  isBestiaryTrackerOpen?: boolean;
+  onToggleBestiaryTracker?: () => void;
 }
 
 export function WindowDockBar({
@@ -90,6 +92,8 @@ export function WindowDockBar({
   onToggleMount,
   onExitGame,
   onOpenPromotion,
+  isBestiaryTrackerOpen = false,
+  onToggleBestiaryTracker,
 }: WindowDockBarProps) {
   const { windows, toggleWindow, resetLayout } = useWindowManager();
   const gameModal = useGameModal();
@@ -398,24 +402,25 @@ export function WindowDockBar({
             </div>
           </div>
 
-          {/* Character Inspect Card Popover */}
+          {/* Character Inspect Card Popover - Authentic Tibia 11 Dark Stone */}
           {isInspectOpen && (
             <div
-              className="huntera-inspect-popover"
+              className="tibia-inspect-popover huntera-inspect-popover"
               data-testid="huntera-inspect-popover"
               style={{
                 position: 'absolute',
                 top: 'calc(100% + 8px)',
                 left: '0',
-                width: '300px',
-                background: '#10141e',
-                border: '1px solid #232c3d',
-                borderRadius: '8px',
-                boxShadow: '0 16px 36px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05)',
-                padding: '16px',
+                width: '310px',
+                background: 'linear-gradient(180deg, #25282f 0%, #191c20 100%)',
+                border: '2px solid #3c424d',
+                borderRadius: '4px',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.95), inset 1px 1px 0 rgba(255, 255, 255, 0.12), inset -1px -1px 0 rgba(0, 0, 0, 0.8)',
+                padding: '14px',
                 zIndex: 9999,
                 animation: 'popoverFadeIn 0.15s ease-out forwards',
                 cursor: 'pointer',
+                fontFamily: 'Verdana, Tahoma, sans-serif',
               }}
               onClick={() => {
                 if (onOpenProfile) onOpenProfile();
@@ -424,44 +429,50 @@ export function WindowDockBar({
               title="Clique para abrir a Janela Completa de Habilidades"
             >
               {/* Title & Status */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', borderBottom: '1px solid #2d323b', paddingBottom: '8px' }}>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '6px', textShadow: '1px 1px 0 #000' }}>
                   {adminTitle && (adminTitle === 'GOD' || adminTitle === 'GM') && (
-                    <span style={{ color: '#ffd700', fontWeight: 800, fontSize: '14px', textShadow: '0 0 8px rgba(255, 215, 0, 0.6)' }}>
+                    <span style={{ color: '#ffd700', fontWeight: 800, fontSize: '13px', textShadow: '0 0 8px rgba(255, 215, 0, 0.6)' }}>
                       [{adminTitle}]
                     </span>
                   )}
                   {charName}
                 </div>
 
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#6bb3f2', letterSpacing: '0.04em' }}>
-                  {vocationName} <span style={{ color: '#4a85ba' }}>LV</span> {level}
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#f3b749', letterSpacing: '0.04em', textShadow: '1px 1px 0 #000' }}>
+                  {vocationName} <span style={{ color: '#a0aab8' }}>LV</span> {level}
                 </div>
-                <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
-                  {isPremium ? 'PREMIUM' : 'GRÁTIS'}
+                <div style={{ fontSize: '9px', fontWeight: 800, color: isPremium ? '#4ade80' : '#94a3b8', letterSpacing: '0.06em' }}>
+                  {isPremium ? 'CONTA PREMIUM' : 'CONTA FREE'}
                 </div>
               </div>
 
-              {/* Progress Bars (HP, Mana, XP) */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '12px' }}>
+              {/* Progress Bars (HP, Mana, XP) - Canonical Tibia 11 Style */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
                 {/* HP Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#a0aab8', width: '32px' }}>HP</span>
                   <div
                     style={{
                       flex: 1,
-                      height: '9px',
-                      background: '#161c27',
-                      border: '1px solid #263245',
-                      borderRadius: '5px',
+                      height: '11px',
+                      background: '#0d0f12',
+                      border: '1px solid #14171a',
+                      borderRadius: '2px',
                       overflow: 'hidden',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.85)',
                     }}
                   >
                     <div
                       style={{
                         height: '100%',
                         width: `${hpPercent}%`,
-                        background: 'linear-gradient(90deg, #d33c5e 0%, #e85577 100%)',
-                        borderRadius: '5px',
+                        background: hpPercent > 50
+                          ? 'linear-gradient(180deg, #00e600 0%, #009900 100%)'
+                          : hpPercent > 20
+                          ? 'linear-gradient(180deg, #f59e0b 0%, #b45309 100%)'
+                          : 'linear-gradient(180deg, #ef4444 0%, #991b1b 100%)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
                         transition: 'width 0.2s ease',
                       }}
                     />
@@ -469,10 +480,11 @@ export function WindowDockBar({
                   <span
                     style={{
                       fontSize: '11px',
-                      fontWeight: 600,
-                      color: '#8b9cb5',
-                      minWidth: '78px',
+                      fontWeight: 700,
+                      color: '#e2e8f0',
+                      minWidth: '82px',
                       textAlign: 'right',
+                      textShadow: '1px 1px 0 #000',
                     }}
                   >
                     {currentHp.toLocaleString('pt-BR')} / {maxHp.toLocaleString('pt-BR')}
@@ -480,23 +492,25 @@ export function WindowDockBar({
                 </div>
 
                 {/* Mana Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#a0aab8', width: '32px' }}>MP</span>
                   <div
                     style={{
                       flex: 1,
-                      height: '9px',
-                      background: '#161c27',
-                      border: '1px solid #263245',
-                      borderRadius: '5px',
+                      height: '11px',
+                      background: '#0d0f12',
+                      border: '1px solid #14171a',
+                      borderRadius: '2px',
                       overflow: 'hidden',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.85)',
                     }}
                   >
                     <div
                       style={{
                         height: '100%',
                         width: `${manaPercent}%`,
-                        background: 'linear-gradient(90deg, #3867b3 0%, #4b7dd6 100%)',
-                        borderRadius: '5px',
+                        background: 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)',
                         transition: 'width 0.2s ease',
                       }}
                     />
@@ -504,10 +518,11 @@ export function WindowDockBar({
                   <span
                     style={{
                       fontSize: '11px',
-                      fontWeight: 600,
-                      color: '#8b9cb5',
-                      minWidth: '78px',
+                      fontWeight: 700,
+                      color: '#e2e8f0',
+                      minWidth: '82px',
                       textAlign: 'right',
+                      textShadow: '1px 1px 0 #000',
                     }}
                   >
                     {currentMana.toLocaleString('pt-BR')} / {maxMana.toLocaleString('pt-BR')}
@@ -515,23 +530,25 @@ export function WindowDockBar({
                 </div>
 
                 {/* XP Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#a0aab8', width: '32px' }}>XP</span>
                   <div
                     style={{
                       flex: 1,
-                      height: '9px',
-                      background: '#161c27',
-                      border: '1px solid #263245',
-                      borderRadius: '5px',
+                      height: '11px',
+                      background: '#0d0f12',
+                      border: '1px solid #14171a',
+                      borderRadius: '2px',
                       overflow: 'hidden',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.85)',
                     }}
                   >
                     <div
                       style={{
                         height: '100%',
                         width: `${xpPercent}%`,
-                        background: 'linear-gradient(90deg, #b88628 0%, #e5a93c 100%)',
-                        borderRadius: '5px',
+                        background: 'linear-gradient(180deg, #facc15 0%, #ca8a04 100%)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35)',
                         transition: 'width 0.2s ease',
                       }}
                     />
@@ -539,10 +556,11 @@ export function WindowDockBar({
                   <span
                     style={{
                       fontSize: '11px',
-                      fontWeight: 600,
-                      color: '#8b9cb5',
-                      minWidth: '78px',
+                      fontWeight: 700,
+                      color: '#facc15',
+                      minWidth: '82px',
                       textAlign: 'right',
+                      textShadow: '1px 1px 0 #000',
                     }}
                   >
                     {xpPercent.toFixed(1)}%
@@ -550,74 +568,70 @@ export function WindowDockBar({
                 </div>
               </div>
 
-              {/* Divider */}
-              <div style={{ height: '1px', background: '#1c2433', margin: '12px 0 10px 0' }} />
-
-              {/* Skills Grid (7 Skills) */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* Skills Grid with Real Tibia Sprites (No Emojis) */}
+              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #2d323b', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.04em' }}>HABILIDADES</div>
+                
                 {/* Row 1: Fist, Club, Sword, Axe */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Fist Fighting">
-                    <span style={{ fontSize: '13px' }}>✊</span>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.fist}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }} title="Fist Fighting">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v3" />
+                      <circle cx="16" cy="18" r="4" />
+                    </svg>
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{skills.fist}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Club Fighting">
-                    <span style={{ fontSize: '13px' }}>🔨</span>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.club}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }} title="Club Fighting">
+                    <img src="/assets/items/item-2398.png" alt="Club" style={{ width: '16px', height: '16px', imageRendering: 'pixelated' }} />
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{skills.club}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Sword Fighting">
-                    <span style={{ fontSize: '13px' }}>⚔️</span>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.sword}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }} title="Sword Fighting">
+                    <img src="/assets/items/item-2376.png" alt="Sword" style={{ width: '16px', height: '16px', imageRendering: 'pixelated' }} />
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{skills.sword}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Axe Fighting">
-                    <span style={{ fontSize: '13px' }}>🪓</span>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.axe}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }} title="Axe Fighting">
+                    <img src="/assets/items/item-2387.png" alt="Axe" style={{ width: '16px', height: '16px', imageRendering: 'pixelated' }} />
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{skills.axe}</span>
                   </div>
                 </div>
 
                 {/* Row 2: Distance, Shielding, Magic Level */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Distance Fighting">
-                    <span style={{ fontSize: '13px' }}>🏹</span>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.distance}</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }} title="Distance Fighting">
+                    <img src="/assets/items/item-2456.png" alt="Bow" style={{ width: '16px', height: '16px', imageRendering: 'pixelated' }} />
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{skills.distance}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Shielding">
-                    <span style={{ fontSize: '13px' }}>🛡️</span>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.shielding}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }} title="Shielding">
+                    <img src="/assets/items/item-2516.png" alt="Shield" style={{ width: '16px', height: '16px', imageRendering: 'pixelated' }} />
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{skills.shielding}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} title="Magic Level">
-                    <span style={{ fontSize: '13px' }}>🔮</span>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>{skills.magicLevel}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }} title="Magic Level">
+                    <img src="/assets/items/item-2182.png" alt="Magic Level" style={{ width: '16px', height: '16px', imageRendering: 'pixelated' }} />
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{skills.magicLevel}</span>
                   </div>
                 </div>
               </div>
-
-              {/* Divider */}
-              <div style={{ height: '1px', background: '#1c2433', margin: '12px 0 10px 0' }} />
 
               {/* Combat Stats Summary (3 Columns: DANO, ARMADURA, DEFESA) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '6px', textAlign: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#f3b749' }}>{damageRangeStr}</div>
-                  <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>DANO</div>
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #2d323b', display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '6px', textAlign: 'center' }}>
+                <div style={{ padding: '4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#f3b749', textShadow: '1px 1px 0 #000' }}>{damageRangeStr}</div>
+                  <div style={{ fontSize: '8px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.05em' }}>DANO</div>
                 </div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#f8fafc' }}>{armorVal}</div>
-                  <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>ARMADURA</div>
+                <div style={{ padding: '4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{armorVal}</div>
+                  <div style={{ fontSize: '8px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.05em' }}>ARMADURA</div>
                 </div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#f8fafc' }}>{defenseVal}</div>
-                  <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>DEFESA</div>
+                <div style={{ padding: '4px', background: '#14161a', border: '1px solid #292e37', borderRadius: '3px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc', textShadow: '1px 1px 0 #000' }}>{defenseVal}</div>
+                  <div style={{ fontSize: '8px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.05em' }}>DEFESA</div>
                 </div>
               </div>
 
-              {/* Divider */}
-              <div style={{ height: '1px', background: '#1c2433', margin: '12px 0 10px 0' }} />
-
               {/* Bottom Extra Info: Bestiary & Exp Share */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #2d323b', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', letterSpacing: '0.04em' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.04em' }}>
                     DANO BESTIÁRIO
                   </span>
                   <span style={{ fontSize: '11px', fontWeight: 800, color: '#f3b749' }}>
@@ -625,7 +639,7 @@ export function WindowDockBar({
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', letterSpacing: '0.04em' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.04em' }}>
                     COMPARTILHAR EXP
                   </span>
                   <span style={{ fontSize: '11px', fontWeight: 800, color: '#f8fafc' }}>
@@ -637,7 +651,7 @@ export function WindowDockBar({
               {/* Promotion Section (Level 20+) */}
               {character && character.level >= 20 && (
                 <>
-                  <div style={{ height: '1px', background: '#1c2433', margin: '10px 0 8px 0' }} />
+                  <div style={{ height: '1px', background: '#2d323b', margin: '10px 0 8px 0' }} />
                   {!character.promotion ? (
                     <button
                       type="button"
@@ -648,7 +662,7 @@ export function WindowDockBar({
                       style={{
                         width: '100%',
                         padding: '7px 10px',
-                        borderRadius: '4px',
+                        borderRadius: '3px',
                         border: '1px solid #ca8a04',
                         background: 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)',
                         color: '#ffffff',
@@ -664,7 +678,9 @@ export function WindowDockBar({
                         transition: 'all 0.15s ease',
                       }}
                     >
-                      <span>👑</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />
+                      </svg>
                       <span>PROMOVER VOCAÇÃO (20.000 GP)</span>
                     </button>
                   ) : (
@@ -675,11 +691,11 @@ export function WindowDockBar({
                         alignItems: 'center',
                         backgroundColor: 'rgba(34, 197, 94, 0.12)',
                         padding: '5px 8px',
-                        borderRadius: '4px',
+                        borderRadius: '3px',
                         border: '1px solid rgba(34, 197, 94, 0.3)',
                       }}
                     >
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#86efac' }}>👑 STATUS</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#86efac' }}>STATUS</span>
                       <span style={{ fontSize: '11px', fontWeight: 800, color: '#4ade80' }}>Vocação Promovida</span>
                     </div>
                   )}
@@ -726,7 +742,7 @@ export function WindowDockBar({
 
       {/* Right Cluster: Shop Button, Auto-Idle and Utility Actions Grid */}
       <div className="huntera-right-cluster">
-        {/* Golden Shop Button */}
+        {/* Pure Text LOJA Button (Item 2: sem ícones, tipografia limpa) */}
         <button
           type="button"
           className="huntera-shop-btn"
@@ -735,13 +751,14 @@ export function WindowDockBar({
             else toggleWindow('equipment');
           }}
           title="Abrir Loja de Itens da Cidade"
+          style={{
+            padding: '6px 14px',
+            fontWeight: 900,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <path d="M16 10a4 4 0 0 1-8 0" />
-          </svg>
-          <span className="shop-label">Loja</span>
+          <span className="shop-label" style={{ fontSize: '12px', fontWeight: 900 }}>LOJA</span>
         </button>
 
         {/* Auto-Idle Button */}
@@ -814,6 +831,25 @@ export function WindowDockBar({
           </svg>
         </button>
 
+        {/* Bestiary Tracker Toggle Button (Item 1: Lineart cabeça de monstro ao lado de métricas) */}
+        <button
+          type="button"
+          className={`huntera-square-btn bestiary-tracker-btn ${isBestiaryTrackerOpen ? 'active' : ''}`}
+          onClick={onToggleBestiaryTracker}
+          title="Rastreador de Bestiário na Tela"
+          style={{
+            borderColor: isBestiaryTrackerOpen ? '#22c55e' : undefined,
+            backgroundColor: isBestiaryTrackerOpen ? 'rgba(34, 197, 94, 0.18)' : undefined,
+            color: isBestiaryTrackerOpen ? '#4ade80' : undefined,
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 10h.01" />
+            <path d="M15 10h.01" />
+            <path d="M8 15s1.5 2 4 2 4-2 4-2" />
+          </svg>
+        </button>
 
         {onOpenRanking && (
           <button
@@ -821,12 +857,18 @@ export function WindowDockBar({
             className="huntera-square-btn ranking-btn"
             onClick={onOpenRanking}
             title="Highscores e Ranking Geral"
-            style={{ borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.2)', fontSize: '15px' }}
+            style={{ borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.15)' }}
           >
-            🏆
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2" />
+              <path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2" />
+              <path d="M4 22h16" />
+              <path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-2.34" />
+              <path d="M18 17c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1v-2.34" />
+              <path d="M6 3h12v7a6 6 0 0 1-12 0V3z" />
+            </svg>
           </button>
         )}
-
 
         <button
           type="button"
@@ -836,9 +878,25 @@ export function WindowDockBar({
             else gameModal.openCyclopedia();
           }}
           title="Cyclopedia (Items, Bestiary, Bosstiary, Boss Points, Character)"
-          style={{ borderColor: '#f1c40f', backgroundColor: 'rgba(241, 196, 15, 0.18)', fontSize: '15px' }}
+          style={{ borderColor: '#f1c40f', backgroundColor: 'rgba(241, 196, 15, 0.15)' }}
         >
-          📖
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f1c40f" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className="huntera-square-btn outfit-btn"
+          onClick={onOpenOutfit}
+          title="Customizar Aparência / Outfit & Montaria"
+          style={{ borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.15)' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
         </button>
 
         {isAdmin && (
@@ -866,7 +924,9 @@ export function WindowDockBar({
                   cursor: 'pointer',
                 }}
               >
-                <span>🛠️</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </svg>
                 <span>Debug</span>
                 {errorCount > 0 && (
                   <span
@@ -894,7 +954,9 @@ export function WindowDockBar({
               title="Painel de Administração (/admin)"
               style={{ borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
             >
-              🛡️
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
             </a>
           </>
         )}
@@ -917,12 +979,12 @@ export function WindowDockBar({
           {isMenuOpen && (
             <div className="huntera-menu-dropdown">
               <div className="menu-header">
-                <span>⚙️ Opções & Câmera</span>
+                <span>Opções & Câmera</span>
                 <button type="button" className="close-menu-btn" onClick={() => setIsMenuOpen(false)}>×</button>
               </div>
 
               <div className="menu-section">
-                <div className="menu-section-title">🔍 Zoom da Câmera</div>
+                <div className="menu-section-title">Zoom da Câmera</div>
                 <div className="zoom-controls-row">
                   <button
                     type="button"
@@ -965,16 +1027,18 @@ export function WindowDockBar({
                   className="zoom-reset-btn"
                   onClick={() => resetZoomMultiplier()}
                 >
-                  ↺ Resetar Zoom (Padrão 125%)
+                  Resetar Zoom (Padrão 125%)
                 </button>
               </div>
 
               {/* Phase 103: Audio & Volume Section inside Hamburger Menu */}
               <div className="menu-section" style={{ marginTop: '12px', borderTop: '1px solid #3d403c', paddingTop: '10px' }}>
-                <div className="menu-section-title">🔊 Volume & Áudio</div>
+                <div className="menu-section-title">Volume & Áudio</div>
 
                 <div className="audio-controls-row">
-                  <span className="audio-icon-label">{audioState.isMuted ? '🔇' : '🔊'}</span>
+                  <span className="audio-icon-label" style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8' }}>
+                    {audioState.isMuted ? 'MUTE' : 'VOL'}
+                  </span>
                   <input
                     type="range"
                     min="0"
@@ -1036,7 +1100,7 @@ export function WindowDockBar({
                     transition: 'background-color 0.2s',
                   }}
                 >
-                  {audioState.isMuted ? '🔇 Som Desligado (Clique para Ligar)' : '🔊 Som Ligado (Clique para Desligar)'}
+                  {audioState.isMuted ? 'Som Desligado (Clique para Ligar)' : 'Som Ligado (Clique para Desligar)'}
                 </button>
 
                 <div
@@ -1045,14 +1109,14 @@ export function WindowDockBar({
                   style={{ cursor: !inHunt ? 'pointer' : 'default' }}
                   title="Clique para exibir a notificação de música tocando"
                 >
-                  <span>🎵</span>
+                  <span style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 800 }}>AUDIO:</span>
                   <span>{inHunt ? 'Trilha pausada (Em Caçada)' : 'Thais Theme (Sunset in the Village)'}</span>
                 </div>
               </div>
 
               {/* Window Layout Reset */}
               <div className="menu-section" style={{ marginTop: '12px', borderTop: '1px solid #3d403c', paddingTop: '10px' }}>
-                <div className="menu-section-title">🪟 Layout da Interface</div>
+                <div className="menu-section-title">Layout da Interface</div>
                 <button
                   type="button"
                   className="zoom-reset-btn"

@@ -9,9 +9,11 @@ interface MobileTopBarProps {
   isPremium?: boolean;
   avatarUrl?: string;
   isConnected?: boolean;
+  isBestiaryOpen?: boolean;
   onOpenSettings?: () => void;
   onOpenProfile?: () => void;
   onOpenHuntSelector?: () => void;
+  onToggleBestiary?: () => void;
 }
 
 export function MobileTopBar({
@@ -19,9 +21,11 @@ export function MobileTopBar({
   isPremium = false,
   avatarUrl = '/assets/avatars/avatar-1.png',
   isConnected = true,
+  isBestiaryOpen = false,
   onOpenSettings,
   onOpenProfile,
   onOpenHuntSelector,
+  onToggleBestiary,
 }: MobileTopBarProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMuted, setIsMuted] = useState(() => (typeof window !== 'undefined' ? isAudioMuted() : false));
@@ -168,6 +172,45 @@ export function MobileTopBar({
               <line x1="6" y1="12" x2="2" y2="12" />
               <line x1="12" y1="6" x2="12" y2="2" />
               <line x1="12" y1="22" x2="12" y2="18" />
+            </svg>
+          </button>
+        )}
+
+        {/* Floating Circular Bestiary Tracker Button directly below the hunt button */}
+        {onToggleBestiary && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleBestiary();
+            }}
+            title="Rastreador de Bestiário na Tela"
+            style={{
+              position: 'absolute',
+              top: '94px',
+              left: '5px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: isBestiaryOpen ? '#0f291e' : '#0f172a',
+              border: isBestiaryOpen ? '2px solid #22c55e' : '2px solid #475569',
+              color: isBestiaryOpen ? '#4ade80' : '#94a3b8',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: isBestiaryOpen
+                ? '0 4px 12px rgba(0, 0, 0, 0.8), 0 0 10px rgba(34, 197, 94, 0.4)'
+                : '0 4px 12px rgba(0, 0, 0, 0.8)',
+              cursor: 'pointer',
+              zIndex: 55,
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9 10h.01" />
+              <path d="M15 10h.01" />
+              <path d="M8 15s1.5 2 4 2 4-2 4-2" />
             </svg>
           </button>
         )}

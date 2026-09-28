@@ -36,6 +36,9 @@ const armorSlotMap: Partial<Record<CharacterEquipmentSlot, EquipmentDefinition['
   legs: 'legs',
   boots: 'boots',
   ring: 'ring',
+  neck: 'necklace',
+  backpack: 'backpack',
+  ammo: 'ammo',
 };
 
 const handSlots: CharacterEquipmentSlot[] = ['leftHand', 'rightHand'];
@@ -96,14 +99,13 @@ export function equipCharacterItem(
     const currentOther = findEquipment(catalog, next.equipment[otherSlot]);
 
     if (item.twoHanded) {
-      next.equipment.leftHand = item.id;
-      next.equipment.rightHand = item.id;
+      next.equipment[slot] = item.id;
+      next.equipment[otherSlot] = null;
       return { ok: true, character: next };
     }
 
     if (currentOther?.twoHanded) {
-      next.equipment.leftHand = null;
-      next.equipment.rightHand = null;
+      next.equipment[otherSlot] = null;
     }
 
     for (const handSlot of handSlots) {
@@ -137,12 +139,15 @@ export function unequipCharacterSlot(
   return next;
 }
 
-export function preferredSlotForItem(item: EquipmentDefinition): CharacterEquipmentSlot {
+export function preferredSlotForItem(item: EquipmentDefinition): CharacterEquipmentSlot | null {
   if (item.slot === 'head' || item.slot === 'armor' || item.slot === 'legs' || item.slot === 'boots' || item.slot === 'ring') {
     return item.slot;
   }
+  if (item.slot === 'necklace') return 'neck';
+  if (item.slot === 'backpack') return 'backpack';
+  if (item.slot === 'ammo') return 'ammo';
   if (item.slot === 'hand') return item.weaponType === 'shield' ? 'rightHand' : 'leftHand';
-  return 'leftHand';
+  return null;
 }
 
 export function availableOwnedEquipmentIds(state: GameState): number[] {
@@ -194,10 +199,12 @@ export function transferOwnedEquipment(
   if (!item) return { ok: false, state, error: `Unknown equipment ${itemId}.` };
 
   if (target.kind === 'auto-slot') {
+    const slot = preferredSlotForItem(item);
+    if (!slot) return { ok: false, state, error: `${item.name} cannot be equipped.` };
     return transferOwnedEquipment(
       state,
       source,
-      { kind: 'slot', slot: preferredSlotForItem(item) },
+      { kind: 'slot', slot },
       content,
     );
   }
@@ -325,6 +332,7 @@ export function equipItemFromContainer(
   characterId: string,
   itemId: number,
   content: GameContent,
+  requestedSlot?: CharacterEquipmentSlot,
 ): GameState {
   const character = state.session.characters.find((c) => c.id === characterId);
   if (!character) return state;
@@ -332,8 +340,20 @@ export function equipItemFromContainer(
   const itemDef = findEquipment(content.equipment, itemId);
   if (!itemDef) return state;
 
-  const targetSlot = preferredSlotForItem(itemDef);
+  let targetSlot: CharacterEquipmentSlot | null = null;
+  if (requestedSlot) {
+    if (!isCompatibleEquipmentSlot(itemDef, requestedSlot)) {
+      return state;
+    }
+    targetSlot = requestedSlot;
+  } else {
+    targetSlot = preferredSlotForItem(itemDef);
+  }
   if (!targetSlot) return state;
+
+  if (!meetsRequirements(character, itemDef)) {
+    return state;
+  }
 
   const bag = [...(state.session.bag ?? [])];
   const loot = [...state.session.loot];
@@ -344,6 +364,22 @@ export function equipItemFromContainer(
   if (bagIndex === -1 && lootIndex === -1) {
     return state;
   }
+
+  const pushStackToInventory = (idToReturn: number) => {
+    const prevDef = findEquipment(content.equipment, idToReturn);
+    const prevStack: LootStack = {
+      itemId: idToReturn,
+      name: prevDef?.name ?? `Item #${idToReturn}`,
+      amount: 1,
+    };
+    if (bag.length < 12) {
+      bag.push(prevStack);
+    } else {
+      const existingInLoot = loot.find((s) => s.itemId === idToReturn);
+      if (existingInLoot) existingInLoot.amount += 1;
+      else loot.push(prevStack);
+    }
+  };
 
   if (bagIndex !== -1) {
     if (bag[bagIndex].amount > 1) {
@@ -359,28 +395,40 @@ export function equipItemFromContainer(
     }
   }
 
-  const previousItemId = (character.equipment as Record<string, number | null>)[targetSlot];
+  const updatedEquipment: Record<CharacterEquipmentSlot, number | null> = { ...character.equipment };
+
+  const previousItemId = updatedEquipment[targetSlot];
   if (previousItemId !== null && previousItemId !== undefined) {
-    const prevDef = findEquipment(content.equipment, previousItemId);
-    const prevStack: LootStack = {
-      itemId: previousItemId,
-      name: prevDef?.name ?? `Item #${previousItemId}`,
-      amount: 1,
-    };
-    if (bag.length < 12) {
-      bag.push(prevStack);
-    } else {
-      const existingInLoot = loot.find((s) => s.itemId === previousItemId);
-      if (existingInLoot) existingInLoot.amount += 1;
-      else loot.push(prevStack);
+    pushStackToInventory(previousItemId);
+    updatedEquipment[targetSlot] = null;
+  }
+
+  if (itemDef.slot === 'hand') {
+    const otherSlot: CharacterEquipmentSlot = targetSlot === 'leftHand' ? 'rightHand' : 'leftHand';
+    const otherItemId = updatedEquipment[otherSlot];
+    if (otherItemId !== null && otherItemId !== undefined) {
+      const otherDef = findEquipment(content.equipment, otherItemId);
+      if (itemDef.twoHanded || otherDef?.twoHanded) {
+        pushStackToInventory(otherItemId);
+        updatedEquipment[otherSlot] = null;
+      } else {
+        const sameCategoryInOtherHand =
+          (itemDef.weaponType === 'shield' && otherDef?.weaponType === 'shield') ||
+          (isMeleeWeapon(itemDef) && isMeleeWeapon(otherDef));
+        if (sameCategoryInOtherHand) {
+          pushStackToInventory(otherItemId);
+          updatedEquipment[otherSlot] = null;
+        }
+      }
     }
   }
+
+  updatedEquipment[targetSlot] = itemId;
 
   const equipmentIds = character.inventory.equipmentIds.includes(itemId)
     ? character.inventory.equipmentIds
     : [...character.inventory.equipmentIds, itemId];
 
-  const updatedEquipment = { ...character.equipment, [targetSlot]: itemId };
   const updatedCharacter = {
     ...character,
     equipment: updatedEquipment,

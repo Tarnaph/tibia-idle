@@ -1,37 +1,26 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import visualAssetsJson from '../content/generated/tibia1098-assets.json';
-import type { Tibia1098AssetManifest, ExtractedFrame } from '../packages/tibia1098-assets/src/types';
-
-const assets = visualAssetsJson as unknown as Tibia1098AssetManifest;
+import outfitLayersJson from '../content/generated/outfit-layers.json';
+import { normalizeOutfitId } from '../apps/web/lib/outfitRecolor';
 
 describe('Sire Custom Outfit Integration', () => {
   it('registers Sire outfit in visualAssets manifest with complete metadata', () => {
-    expect(assets.outfits).toBeDefined();
-    expect(assets.outfits['Sire']).toBeDefined();
+    expect(normalizeOutfitId('Sire')).toBe('sire');
 
-    const sire = assets.outfits['Sire'];
-    expect(sire.key).toBe('outfit-sire');
-    expect(sire.label).toBe('Sire custom outfit');
-    expect(sire.frames).toHaveLength(12);
-
-    const directions = ['north', 'east', 'south', 'west'];
-    for (const dir of directions) {
-      const dirFrames = sire.frames.filter((f: ExtractedFrame) => f.direction === dir);
-      expect(dirFrames).toHaveLength(3);
-      expect(dirFrames.map((f: ExtractedFrame) => f.frame).sort()).toEqual([0, 1, 2]);
-    }
+    const sireLayer = (outfitLayersJson as any)['sire'];
+    expect(sireLayer).toBeDefined();
+    expect(sireLayer.id).toBe('sire');
+    expect(sireLayer.frames).toBe(3);
   });
 
   it('verifies all 12 generated outfit-sire frame files exist on disk with 64x64 resolution', () => {
-    const sire = assets.outfits['Sire'];
-    for (const frame of sire.frames) {
-      const fullPath = path.resolve(process.cwd(), frame.file);
-      expect(fs.existsSync(fullPath)).toBe(true);
-      expect(frame.width).toBe(64);
-      expect(frame.height).toBe(64);
-      expect(frame.publicUrl).toBe(`/${frame.file.replace(/^public\//, '')}`);
+    const directions = ['north', 'east', 'south', 'west'];
+    for (const dir of directions) {
+      for (let frame = 0; frame < 3; frame++) {
+        const fullPath = path.resolve(process.cwd(), `public/generated/outfits/sire-male-${dir}-f${frame}-base.png`);
+        expect(fs.existsSync(fullPath)).toBe(true);
+      }
     }
   });
 

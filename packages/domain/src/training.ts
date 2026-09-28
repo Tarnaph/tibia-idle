@@ -177,18 +177,27 @@ export function getDefaultTrainingSkill(character: CharacterState, content?: Gam
     return 'distance';
   }
 
-  // Knight ou vocações de combate corpo a corpo
+  // 1. Se houver arma melee equipada (sword, axe, club), ela tem prioridade absoluta
+  if (content) {
+    const equippedWeapon = getEquippedItems(character, content.equipment).find((item) =>
+      ['sword', 'axe', 'club'].includes(item.weaponType)
+    );
+    if (equippedWeapon?.weaponType && ['sword', 'axe', 'club'].includes(equippedWeapon.weaponType)) {
+      return equippedWeapon.weaponType as 'sword' | 'axe' | 'club';
+    }
+  }
+
+  // 2. Se desarmado, prioriza a skill de maior nível
   const skills = character.skills || ({} as any);
   const sword = skills.sword ?? 10;
   const axe = skills.axe ?? 10;
   const club = skills.club ?? 10;
 
-  // 1. Prioridade estrita para a skill de maior nível
   if (axe > sword && axe > club) return 'axe';
   if (club > sword && club > axe) return 'club';
   if (sword > axe && sword > club) return 'sword';
 
-  // 2. Se houver empate no nível mais alto, desempata pelos tries
+  // 3. Se houver empate no nível mais alto, desempata pelos tries
   const tries = character.skillTries || ({} as any);
   const swordTries = tries.sword ?? 0;
   const axeTries = tries.axe ?? 0;
@@ -209,16 +218,6 @@ export function getDefaultTrainingSkill(character: CharacterState, content?: Gam
   candidates.sort((a, b) => b.tries - a.tries);
   if (candidates[0].tries > candidates[1].tries) {
     return candidates[0].skill;
-  }
-
-  // 3. Se ainda empatar (ex: personagem recém-criado), checa a arma equipada se for melee
-  if (content) {
-    const equippedWeapon = getEquippedItems(character, content.equipment).find((item) =>
-      ['sword', 'axe', 'club'].includes(item.weaponType)
-    );
-    if (equippedWeapon?.weaponType && ['sword', 'axe', 'club'].includes(equippedWeapon.weaponType)) {
-      return equippedWeapon.weaponType as 'sword' | 'axe' | 'club';
-    }
   }
 
   return candidates[0]?.skill || 'sword';
@@ -327,12 +326,18 @@ export function advanceTraining(state: GameState, content: GameContent, deltaMs:
         next.encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
       }
     }
+    const isPaladin = (character.vocation || character.baseVocation || '').toLowerCase().includes('paladin');
     const hasShield = getEquippedItems(character, content.equipment).some((item) => item.weaponType === 'shield');
-    if (hasShield) {
+    const trainsShielding = hasShield || (isPaladin && skill === 'distance');
+    if (trainsShielding) {
       character.trainingState.shieldingRemainderMs += deltaMs;
       const shieldActions = Math.floor(character.trainingState.shieldingRemainderMs / 4000);
       character.trainingState.shieldingRemainderMs %= 4000;
-      if (shieldActions > 0) applySkillTrainingProgress(character, 'shielding', shieldActions, vocation, content.rateSkill, skillRate);
+      if (shieldActions > 0) {
+        for (const advanced of applySkillTrainingProgress(character, 'shielding', shieldActions, vocation, content.rateSkill, skillRate)) {
+          next.encounter.events.push({ type: 'skill-up', characterId: character.id, skill: advanced, level: character.skills[advanced] });
+        }
+      }
     }
   }
   return next;

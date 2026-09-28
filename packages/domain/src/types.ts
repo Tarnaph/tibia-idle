@@ -12,7 +12,17 @@ import type {
 } from '../../content-schema/src';
 import type { CardinalDirection, GridPosition, RoomState } from './spatial/types';
 
-export type CharacterEquipmentSlot = 'head' | 'armor' | 'legs' | 'boots' | 'leftHand' | 'rightHand' | 'ring';
+export type CharacterEquipmentSlot =
+  | 'head'
+  | 'neck'
+  | 'backpack'
+  | 'armor'
+  | 'leftHand'
+  | 'rightHand'
+  | 'legs'
+  | 'boots'
+  | 'ring'
+  | 'ammo';
 export type CombatSkill = 'fist' | 'club' | 'sword' | 'axe' | 'distance' | 'shielding';
 export type CombatStance = 'offensive' | 'balanced' | 'defensive';
 export type TrainableSkill = CombatSkill | 'magicLevel';

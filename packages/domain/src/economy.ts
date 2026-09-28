@@ -427,5 +427,65 @@ export function useTestConsumable(
   return { ok: true, state: effect.state, message: effect.message };
 }
 
+export function resolveItemSellPrice(itemId: number, content: GameContent): number {
+  const economy = content.economy.items.find((candidate) => candidate.itemId === itemId);
+  const econPrice = economy && Array.isArray(economy.offers) ? preferredSellPrice(economy)?.price : null;
+  if (econPrice !== null && econPrice !== undefined && econPrice > 0) {
+    return econPrice;
+  }
+  const equip = content.equipment.find((e) => e.id === itemId);
+  if (equip) {
+    return Math.max(10, (equip.requirements?.level ?? 1) * 15);
+  }
+  return 5;
+}
+
+export interface SellShopItemResult {
+  ok: boolean;
+  state: GameState;
+  goldEarned: number;
+  message?: string;
+  error?: string;
+}
+
+export function sellShopItem(
+  state: GameState,
+  container: 'backpack' | 'bag',
+  itemId: number,
+  quantity: number,
+  unitPrice: number,
+): SellShopItemResult {
+  if (quantity <= 0) return { ok: false, state, goldEarned: 0, error: 'Quantidade inválida.' };
+  const items = container === 'bag' ? [...(state.session.bag ?? [])] : [...state.session.loot];
+  const itemIndex = items.findIndex((i) => i.itemId === itemId);
+  if (itemIndex === -1) {
+    return { ok: false, state, goldEarned: 0, error: 'Item não encontrado no inventário.' };
+  }
+  const stack = items[itemIndex];
+  if (stack.amount < quantity) {
+    return { ok: false, state, goldEarned: 0, error: 'Quantidade insuficiente.' };
+  }
+
+  if (stack.amount === quantity) {
+    items.splice(itemIndex, 1);
+  } else {
+    items[itemIndex] = { ...stack, amount: stack.amount - quantity };
+  }
+
+  const goldEarned = unitPrice * quantity;
+  const nextSession = {
+    ...state.session,
+    gold: state.session.gold + goldEarned,
+    ...(container === 'bag' ? { bag: items } : { loot: items }),
+  };
+
+  return {
+    ok: true,
+    state: { ...state, session: nextSession },
+    goldEarned,
+    message: `Vendeu ${quantity}x ${stack.name} por ${goldEarned.toLocaleString('pt-BR')} gold.`,
+  };
+}
+
 
 

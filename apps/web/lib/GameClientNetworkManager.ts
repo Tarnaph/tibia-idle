@@ -37,6 +37,7 @@ export interface RemotePlayerSnapshot {
   pvpElo?: number;
   pvpTier?: string;
   displaySkull?: boolean;
+  isAfk?: boolean;
 }
 
 export interface NetworkCombatEvent {
@@ -605,6 +606,7 @@ export class GameClientNetworkManager {
       mount,
       mountActive,
       inHunt: Boolean(player.inHunt),
+      isAfk: Boolean((player as any).isAfk),
       avatarId: Number(player.avatarId ?? 1),
       accountId: player.accountId || '',
       isMonster: false,
@@ -616,6 +618,11 @@ export class GameClientNetworkManager {
 
   private notifyStateChange(): void {
     this.stateListeners.forEach((fn) => fn(new Map(this.playersMap)));
+  }
+
+  sendSetAfk(isAfk: boolean): void {
+    if (!this.room) return;
+    this.room.send('player:setAfk', { isAfk: Boolean(isAfk) });
   }
 
   sendSetInHunt(inHunt: boolean, huntId?: string): void {

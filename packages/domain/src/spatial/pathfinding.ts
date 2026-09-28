@@ -360,3 +360,45 @@ export function resolveStairsTransition(
   return null;
 }
 
+/**
+ * Canonical Tibia Line of Sight (LOS) check.
+ * Verifies if there are any non-walkable solid tiles (walls, closed doors, obstacles)
+ * blocking projectiles/sight between fromPos and toPos.
+ */
+export function hasLineOfSight(map: TileMap, fromPos: GridPosition, toPos: GridPosition): boolean {
+  if (fromPos.z !== toPos.z) return false;
+  if (fromPos.x === toPos.x && fromPos.y === toPos.y) return true;
+
+  const dx = Math.abs(toPos.x - fromPos.x);
+  const dy = Math.abs(toPos.y - fromPos.y);
+  const sx = fromPos.x < toPos.x ? 1 : -1;
+  const sy = fromPos.y < toPos.y ? 1 : -1;
+  let err = dx - dy;
+
+  let x = fromPos.x;
+  let y = fromPos.y;
+
+  while (x !== toPos.x || y !== toPos.y) {
+    const e2 = 2 * err;
+    if (e2 > -dy) {
+      err -= dy;
+      x += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y += sy;
+    }
+
+    if (x === toPos.x && y === toPos.y) {
+      break;
+    }
+
+    if (!isTileWalkable(map, { x, y, z: fromPos.z })) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+

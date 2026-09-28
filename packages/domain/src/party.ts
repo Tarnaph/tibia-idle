@@ -110,7 +110,7 @@ export function createCharacter(id: string, name: string, vocationName: BaseVoca
     currentHp: 150, currentMana: maxMana,
     maxHp: 150, maxMana: maxMana,
     skills: { ...(baseSkills[vocationName] ?? baseSkills.None) }, skillTries: emptyTries(),
-    equipment: { ring: null, ...starter.equipped },
+    equipment: { ring: null, neck: null, backpack: null, ammo: null, ...starter.equipped },
     inventory: {
       equipmentIds: [
         2376, 2388, 2398,

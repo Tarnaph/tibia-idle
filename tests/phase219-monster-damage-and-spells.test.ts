@@ -52,7 +52,7 @@ describe('Phase 219: Authentic Monster Damage, Shield Defense & Creature Spells'
     gameWeak.encounter.room.phase = 'combat';
     gameWeak.encounter.room.phaseTicks = 0;
     const weakChar = gameWeak.session.characters[0];
-    weakChar.equipment = { head: null, armor: 2467, legs: null, boots: null, leftHand: null, rightHand: null, ring: null }; // Leather Armor (armor 4)
+    weakChar.equipment = { head: null, armor: 2467, legs: null, boots: null, leftHand: null, rightHand: null, ring: null, neck: null, backpack: null, ammo: null }; // Leather Armor (armor 4)
     const weakActor = gameWeak.encounter.partyActors[0];
     weakActor.hp = 1000;
 
@@ -60,7 +60,7 @@ describe('Phase 219: Authentic Monster Damage, Shield Defense & Creature Spells'
     gameStrong.encounter.room.phase = 'combat';
     gameStrong.encounter.room.phaseTicks = 0;
     const strongChar = gameStrong.session.characters[0];
-    strongChar.equipment = { head: 2457, armor: 2476, legs: 2477, boots: null, leftHand: null, rightHand: null, ring: null }; // Steel Helmet (6) + Knight Armor (12) + Knight Legs (8) = 26
+    strongChar.equipment = { head: 2457, armor: 2476, legs: 2477, boots: null, leftHand: null, rightHand: null, ring: null, neck: null, backpack: null, ammo: null }; // Steel Helmet (6) + Knight Armor (12) + Knight Legs (8) = 26
     const strongActor = gameStrong.encounter.partyActors[0];
     strongActor.hp = 1000;
 

@@ -27,6 +27,7 @@ import {
   isOutfitUnlockedFor,
   getMountTier,
   isMountUnlockedFor,
+  getMountSpeedBonus,
   isStaff,
   isAddonUnlockedFor,
   getAddonQuestFor,
@@ -229,6 +230,8 @@ interface Props {
   characters: CharacterState[];
   activeCharacterId: string;
   inventory?: Array<{ id?: string; serverId?: number; itemId?: number; name?: string; count?: number; amount?: number }>;
+  gold?: number;
+  onBuyMount?: (mountId: string) => Promise<boolean> | boolean;
   onClose(): void;
   onOpenCharacterProfile?: (characterId: string) => void;
   onSave(
@@ -244,7 +247,7 @@ interface Props {
   ): void;
 }
 
-export function OutfitModal({ open, characters, activeCharacterId, inventory: propInventory, onClose, onOpenCharacterProfile, onSave }: Props) {
+export function OutfitModal({ open, characters, activeCharacterId, inventory: propInventory, gold = 0, onBuyMount, onClose, onOpenCharacterProfile, onSave }: Props) {
   const initialChar = characters.find((c) => c.id === (activeCharacterId || characters[0]?.id)) || characters[0];
   const initialOutfit = initialChar ? (initialChar.outfit || initialChar.baseVocation || 'Knight') : 'Knight';
   const initialHasMount = Boolean(initialChar?.mount && initialChar.mount !== 'none');
@@ -301,6 +304,7 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
   const [showQuest1, setShowQuest1] = useState(false);
   const [showQuest2, setShowQuest2] = useState(false);
   const [permissionNotice, setPermissionNotice] = useState<string | null>(null);
+  const [buyingMountId, setBuyingMountId] = useState<string | null>(null);
 
   const userCtx: UserAppearanceContext = {
     isPremium: Boolean(activeChar?.isPremium),
@@ -733,6 +737,22 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
     ? AVAILABLE_OUTFITS.filter((o) => isCharPremium || !o.isPremium || o.id === activeChar.outfit)
     : AVAILABLE_OUTFITS;
 
+  const displayedMounts = React.useMemo(() => {
+    return [...AVAILABLE_MOUNTS].sort((a, b) => {
+      if (a.id === 'none') return -1;
+      if (b.id === 'none') return 1;
+      const aAllowed = isMountUnlockedFor(a.id, userCtx, activeChar?.completedQuestsJson);
+      const bAllowed = isMountUnlockedFor(b.id, userCtx, activeChar?.completedQuestsJson);
+      if (aAllowed && !bAllowed) return -1;
+      if (!aAllowed && bAllowed) return 1;
+      const aTier = getMountTier(a.id);
+      const bTier = getMountTier(b.id);
+      if (aTier === 'free' && bTier !== 'free') return -1;
+      if (aTier !== 'free' && bTier === 'free') return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [userCtx, activeChar?.completedQuestsJson]);
+
   return (
     <div
       className="modal-backdrop tibia-outfit-backdrop"
@@ -878,6 +898,42 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                   {getOutfitDisplayName(selectedOutfit, charGender)}
                   {Boolean(isMounted && selectedMount !== 'none') && ` · ${AVAILABLE_MOUNTS.find((m) => m.id === selectedMount)?.name || selectedMount}`}
                 </div>
+                {selectedTab === 'mounts' && selectedMount !== 'none' && !isMountUnlockedFor(selectedMount, userCtx, activeChar?.completedQuestsJson) && (
+                  <button
+                    type="button"
+                    disabled={buyingMountId === selectedMount}
+                    onClick={async () => {
+                      if (onBuyMount) {
+                        setBuyingMountId(selectedMount);
+                        try {
+                          const ok = await onBuyMount(selectedMount);
+                          if (ok) {
+                            setEquippedMount(selectedMount);
+                            setMountActive(true);
+                            setPermissionNotice(`Montaria adquirida por 20.000 GP!`);
+                          }
+                        } finally {
+                          setBuyingMountId(null);
+                        }
+                      }
+                    }}
+                    style={{
+                      marginTop: '4px',
+                      padding: '4px 8px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      backgroundColor: '#1b3b22',
+                      border: '1px solid #4ade80',
+                      borderRadius: '4px',
+                      color: '#86efac',
+                      cursor: 'pointer',
+                      width: '100%',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {buyingMountId === selectedMount ? 'Comprando...' : 'Comprar por 20.000 GP'}
+                  </button>
+                )}
               </div>
 
               {/* Right Column: 3 Navigation Action Buttons (50%) */}
@@ -1197,12 +1253,12 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                   );
                 })
               ) : (
-                AVAILABLE_MOUNTS.map((mount) => {
+                displayedMounts.map((mount) => {
                   const isCardActive = mount.id === 'none'
                     ? (!mountActive || selectedMount === 'none')
                     : (mountActive && normalizeMountId(selectedMount) === normalizeMountId(mount.id));
                   const mountTier = getMountTier(mount.id);
-                  const isMountAllowed = isMountUnlockedFor(mount.id, userCtx);
+                  const isMountAllowed = isMountUnlockedFor(mount.id, userCtx, activeChar?.completedQuestsJson);
 
                   return (
                     <div
@@ -1214,7 +1270,10 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                           setMountActive(false);
                           setPermissionNotice(null);
                         } else if (!isMountAllowed) {
-                          setPermissionNotice(`A montaria "${mount.name}" é exclusiva para jogadores com conta Premium.`);
+                          setEquippedMount(mount.id);
+                          setSelectedMount(mount.id);
+                          setMountActive(true);
+                          setPermissionNotice(`Montaria "${mount.name}" (${mountTier === 'store' ? 'Loja (+60 Speed)' : 'Premium (+40 Speed)'}) pode ser adquirida por 20.000 GP.`);
                         } else {
                           setEquippedMount(mount.id);
                           setSelectedMount(mount.id);
@@ -1243,12 +1302,55 @@ export function OutfitModal({ open, characters, activeCharacterId, inventory: pr
                         )}
                       </div>
                       <span className="tibia-card-name">{mount.name}</span>
-                      {mount.id === 'none' ? (
-                        <span className="tibia-card-badge-free">A pé</span>
-                      ) : mountTier === 'free' ? (
-                        <span className="tibia-card-badge-free">Básico</span>
-                      ) : (
-                        <span className="tibia-card-badge-premium">Premium</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {mount.id === 'none' ? (
+                          <span className="tibia-card-badge-free">A pé</span>
+                        ) : mountTier === 'store' ? (
+                          <span className="tibia-card-badge-store">Loja · +60 Spd</span>
+                        ) : mountTier === 'premium' ? (
+                          <span className="tibia-card-badge-premium">Premium · +40 Spd</span>
+                        ) : (
+                          <span className="tibia-card-badge-free">Básico · +20 Spd</span>
+                        )}
+                      </div>
+                      {!isMountAllowed && mount.id !== 'none' && (
+                        <button
+                          type="button"
+                          disabled={buyingMountId === mount.id}
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (onBuyMount) {
+                              setBuyingMountId(mount.id);
+                              try {
+                                const ok = await onBuyMount(mount.id);
+                                if (ok) {
+                                  setEquippedMount(mount.id);
+                                  setSelectedMount(mount.id);
+                                  setMountActive(true);
+                                  setPermissionNotice(`Montaria ${mount.name} adquirida por 20.000 GP!`);
+                                }
+                              } finally {
+                                setBuyingMountId(null);
+                              }
+                            }
+                          }}
+                          style={{
+                            marginTop: '4px',
+                            padding: '3px 4px',
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            backgroundColor: '#1b3b22',
+                            border: '1px solid #4ade80',
+                            borderRadius: '3px',
+                            color: '#86efac',
+                            cursor: 'pointer',
+                            width: '100%',
+                            textAlign: 'center',
+                          }}
+                          title="Comprar por 20.000 Gold"
+                        >
+                          {buyingMountId === mount.id ? 'Comprando...' : 'Comprar 20k GP'}
+                        </button>
                       )}
                     </div>
                   );

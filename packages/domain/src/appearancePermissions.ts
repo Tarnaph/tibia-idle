@@ -8,7 +8,7 @@
  */
 
 export type OutfitTier = 'free' | 'premium' | 'store';
-export type MountTier = 'free' | 'premium';
+export type MountTier = 'free' | 'premium' | 'store';
 
 export interface UserAppearanceContext {
   isPremium?: boolean;
@@ -67,6 +67,29 @@ export const FREE_MOUNT_KEYS = new Set<string>([
   'donkey',
   'donkey_rider_south',
   '133',
+  'war horse',
+  'war-horse',
+  'war_horse',
+]);
+
+export const STORE_MOUNT_KEYS = new Set<string>([
+  'shadow draptor',
+  'shadow-draptor',
+  'crimson ray',
+  'crimson-ray',
+  'steelbeak',
+  'armoured war horse',
+  'armoured-war-horse',
+  'neon sparkid',
+  'neon-sparkid',
+  'vortexion',
+  'glacier viper',
+  'copper fly',
+  'bog darter',
+  'tempest',
+  'void gorehound',
+  'silver neck',
+  'spectral horse',
 ]);
 
 export function normalizeKey(str: string): string {
@@ -102,17 +125,44 @@ export function isOutfitUnlockedFor(outfitNameOrId: string, ctx?: UserAppearance
 
 export function getMountTier(mountNameOrId: string): MountTier {
   const norm = normalizeKey(mountNameOrId);
-  if (FREE_MOUNT_KEYS.has(norm) || FREE_MOUNT_KEYS.has(mountNameOrId.toLowerCase().trim())) {
+  const noSpace = norm.replace(/\s+/g, '');
+  if (STORE_MOUNT_KEYS.has(norm) || STORE_MOUNT_KEYS.has(noSpace)) {
+    return 'store';
+  }
+  if (FREE_MOUNT_KEYS.has(norm) || FREE_MOUNT_KEYS.has(noSpace) || FREE_MOUNT_KEYS.has(mountNameOrId.toLowerCase().trim())) {
     return 'free';
   }
   return 'premium';
 }
 
-export function isMountUnlockedFor(mountNameOrId: string, ctx?: UserAppearanceContext): boolean {
+export function isMountUnlockedFor(
+  mountNameOrId: string,
+  ctx?: UserAppearanceContext,
+  completedQuestsJson?: string | null
+): boolean {
+  if (!mountNameOrId || mountNameOrId === 'none') return true;
   if (isStaff(ctx)) return true;
   const tier = getMountTier(mountNameOrId);
   if (tier === 'free') return true;
-  return !!ctx?.isPremium;
+  if (completedQuestsJson) {
+    const quests = parseCompletedQuests(completedQuestsJson);
+    const norm = normalizeKey(mountNameOrId);
+    if (quests.includes(`mount:${norm}`) || quests.includes(`mount:${mountNameOrId.toLowerCase().trim()}`)) {
+      return true;
+    }
+  }
+  if (tier === 'premium') return Boolean(ctx?.isPremium);
+  return false;
+}
+
+export function getMountSpeedBonus(mountNameOrId?: string | null, mountActive?: boolean): number {
+  if (!mountActive || !mountNameOrId || mountNameOrId === 'none') {
+    return 0;
+  }
+  const tier = getMountTier(mountNameOrId);
+  if (tier === 'store') return 60;
+  if (tier === 'premium') return 40;
+  return 20; // free tier
 }
 
 export function parseUnlockedAddons(unlockedAddonsJson?: string | null): Record<string, number[]> {

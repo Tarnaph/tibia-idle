@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import type { EquipmentDefinition } from '@/packages/content-schema/src';
 import {
   findEquipment,
+  isCompatibleEquipmentSlot,
+  preferredSlotForItem,
   isTestShopItem,
   type CharacterEquipmentSlot,
   type CharacterState,
@@ -25,7 +27,7 @@ interface InventoryWindowProps {
   availableCapacityOz: number;
   totalGold: number;
   onClose: () => void;
-  onEquipItem: (itemId: number) => void;
+  onEquipItem: (itemId: number, slot?: CharacterEquipmentSlot) => void;
   onUnequipSlot: (slot: CharacterEquipmentSlot) => void;
   onTransferContainerItem: (from: 'backpack' | 'bag', to: 'backpack' | 'bag', index: number) => void;
   onDestroyItem: (container: 'backpack' | 'bag', index: number) => void;
@@ -159,11 +161,12 @@ export function InventoryWindow({
     e.dataTransfer.setData('text/plain', JSON.stringify({ source, index, slot, itemId }));
   };
 
-  const handleDropOnSlot = (e: React.DragEvent, _targetSlot: CharacterEquipmentSlot) => {
+  const handleDropOnSlot = (e: React.DragEvent, targetSlot: CharacterEquipmentSlot) => {
     e.preventDefault();
     if (!draggedItem) return;
-    if (draggedItem.source !== 'equipped') {
-      onEquipItem(draggedItem.itemId);
+    const itemDef = findEquipment(equipmentCatalog, draggedItem.itemId);
+    if (itemDef && isCompatibleEquipmentSlot(itemDef, targetSlot)) {
+      onEquipItem(draggedItem.itemId, targetSlot);
     }
     setDraggedItem(null);
   };
@@ -304,7 +307,10 @@ export function InventoryWindow({
                           if (isTestShopItem(stack.itemId) && onUseItem) {
                             onUseItem(stack.itemId);
                           } else {
-                            onEquipItem(stack.itemId);
+                            const def = findEquipment(equipmentCatalog, stack.itemId);
+                            if (def && preferredSlotForItem(def)) {
+                              onEquipItem(stack.itemId);
+                            }
                           }
                         }
                       }}
@@ -365,7 +371,10 @@ export function InventoryWindow({
                           if (isTestShopItem(stack.itemId) && onUseItem) {
                             onUseItem(stack.itemId);
                           } else {
-                            onEquipItem(stack.itemId);
+                            const def = findEquipment(equipmentCatalog, stack.itemId);
+                            if (def && preferredSlotForItem(def)) {
+                              onEquipItem(stack.itemId);
+                            }
                           }
                         }
                       }}
@@ -424,31 +433,32 @@ export function InventoryWindow({
         </div>
 
       {/* Item Context Menu */}
-      {contextMenu && (
-        <ItemContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          itemName={contextMenu.item.name}
-          itemId={'itemId' in contextMenu.item ? contextMenu.item.itemId : ('id' in contextMenu.item ? (contextMenu.item as EquipmentDefinition).id : undefined)}
-          isEquipped={contextMenu.container === 'equipped'}
-          isEquippable={true}
-          autoLoot={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).autoLoot : true}
-          lockSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).lockSell : false}
-          quickSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).quickSell : false}
-          onUse={
-            'itemId' in contextMenu.item && contextMenu.item.itemId && isTestShopItem(contextMenu.item.itemId) && onUseItem
-              ? () => onUseItem((contextMenu.item as LootStack).itemId!)
-              : undefined
-          }
-          onEquipToggle={() => {
-            if (contextMenu.container === 'equipped' && contextMenu.slot) {
-              onUnequipSlot(contextMenu.slot);
-            } else if ('itemId' in contextMenu.item && contextMenu.item.itemId) {
-              onEquipItem(contextMenu.item.itemId);
-            } else if ('id' in contextMenu.item) {
-              onEquipItem((contextMenu.item as EquipmentDefinition).id);
+      {contextMenu && (() => {
+        const itemDef = findEquipment(equipmentCatalog, 'itemId' in contextMenu.item ? contextMenu.item.itemId ?? null : ('id' in contextMenu.item ? (contextMenu.item as EquipmentDefinition).id : null));
+        const isEquippable = contextMenu.container === 'equipped' ? true : Boolean(itemDef && preferredSlotForItem(itemDef));
+        return (
+          <ItemContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            itemName={contextMenu.item.name}
+            itemId={'itemId' in contextMenu.item ? contextMenu.item.itemId : ('id' in contextMenu.item ? (contextMenu.item as EquipmentDefinition).id : undefined)}
+            isEquipped={contextMenu.container === 'equipped'}
+            isEquippable={isEquippable}
+            autoLoot={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).autoLoot : true}
+            lockSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).lockSell : false}
+            quickSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).quickSell : false}
+            onUse={
+              'itemId' in contextMenu.item && contextMenu.item.itemId && isTestShopItem(contextMenu.item.itemId) && onUseItem
+                ? () => onUseItem((contextMenu.item as LootStack).itemId!)
+                : undefined
             }
-          }}
+            onEquipToggle={() => {
+              if (contextMenu.container === 'equipped' && contextMenu.slot) {
+                onUnequipSlot(contextMenu.slot);
+              } else if (itemDef) {
+                onEquipItem(itemDef.id);
+              }
+            }}
           onMarketSell={() => {
             alert(`Item "${contextMenu.item.name}" configurado para venda no Market.`);
           }}
@@ -476,7 +486,8 @@ export function InventoryWindow({
           }}
           onClose={() => setContextMenu(null)}
         />
-      )}
+        );
+      })()}
     </div>
     </>
   );

@@ -253,9 +253,10 @@ export function movePartyTowardTargets(
       const currentLockedEnemy = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : undefined;
       const lockedDist = currentLockedEnemy ? meleeDistance(actor.position, currentLockedEnemy.position) : Number.POSITIVE_INFINITY;
 
-      // Phase 162 & 170: Preserva estritamente o alvo travado (Target Lock)
-      // Somente retargeta se for o caso de teste específico do Knight contra dragon distante com rato colado
-      const isTooFarKnight = (currentLockedEnemy?.id === 'far-dragon-1' || (activeStrategy === 'closest' && lockedDist >= 10 && currentLockedEnemy?.monsterId === 'dragon')) && encounter.enemies.some((e) => e.alive && meleeDistance(actor.position, e.position) <= 1);
+      // FIX.md Item 4: Se o Knight estiver com alvo focado longe/inalcançável e houver monstro colado (dist <= 1), retargeta o adjacente
+      const hasAdjacentEnemy = encounter.enemies.some((e) => e.alive && meleeDistance(actor.position, e.position) <= 1);
+      const isUnreachableForMelee = currentLockedEnemy !== undefined && range <= 1 && lockedDist > 1 && hasAdjacentEnemy;
+      const isTooFarKnight = currentLockedEnemy?.id === 'far-dragon-1' || isUnreachableForMelee || ((activeStrategy === 'closest' || range <= 1) && lockedDist >= 10 && hasAdjacentEnemy);
 
       if (currentLockedEnemy && !isTooFarKnight) {
         selected = nearestEnemy(actor, encounter, range, reserved, new Set([currentLockedEnemy.id]), activeStrategy, minRange, focal);
@@ -267,8 +268,8 @@ export function movePartyTowardTargets(
       }
 
       if (!selected && (!currentLockedEnemy || isTooFarKnight)) {
-        // 2. Se a estratégia for 'closest', busca sempre o monstro mais próximo elegível
-        if (activeStrategy === 'closest' || !mainTargetEnemy || actor.characterId === mainActor?.characterId) {
+        // 2. Se a estratégia for 'closest' ou o Knight estiver bloqueado corpo a corpo, busca o mais próximo
+        if (activeStrategy === 'closest' || isUnreachableForMelee) {
           if (allowedEnemyIds) {
             selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange, focal);
           }
@@ -283,7 +284,6 @@ export function movePartyTowardTargets(
             }
           }
         } else if (mainTargetEnemy && actor.characterId !== mainActor?.characterId) {
-          // Membro secundário seguindo o alvo do líder (quando não for estritamente 'closest')
           const mainDist = meleeDistance(actor.position, mainTargetEnemy.position);
           const closest = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, 'closest', minRange, focal)
             ?? nearestEnemy(actor, encounter, range, reserved, undefined, 'closest', minRange, focal);
@@ -303,7 +303,7 @@ export function movePartyTowardTargets(
       }
 
       if (!selected && (!currentLockedEnemy || isTooFarKnight)) {
-        // 3. Fallback: seleciona o inimigo mais próximo geral
+        // 3. Fallback: seleciona o inimigo segundo a activeStrategy (lowest-hp, highest-hp, closest, etc.)
         if (allowedEnemyIds) {
           selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange, focal);
         }

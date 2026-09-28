@@ -92,8 +92,6 @@ export function BestiaryTrackerHUD({
     monsters && monsters.length > 0 ? monsters : monster ? [monster] : []
   ).filter(Boolean);
 
-  if (effectiveMonsters.length === 0) return null;
-
   // Pointer drag handlers
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest('button')) return;
@@ -167,7 +165,9 @@ export function BestiaryTrackerHUD({
             animation: 'fadeIn 0.3s ease-in-out',
           }}
         >
-          <span style={{ fontSize: '13px' }}>✨</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
           <span>{visibleAlert}</span>
         </div>
       )}
@@ -195,11 +195,44 @@ export function BestiaryTrackerHUD({
           style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           title="Clique e arraste para posicionar a janela"
         >
-          <span style={{ color: '#f39c12', fontSize: '12px' }}>📖</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f0ad4e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 10h.01" />
+            <path d="M15 10h.01" />
+            <path d="M8 15s1.5 2 4 2 4-2 4-2" />
+          </svg>
           <span>Bestiário ({effectiveMonsters.length})</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {/* Add / Open Cyclopedia Button (+) */}
+          {onOpenCyclopedia && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenCyclopedia();
+              }}
+              style={{
+                background: 'rgba(240, 173, 78, 0.15)',
+                border: '1px solid #ca8a04',
+                color: '#facc15',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                padding: '0 6px',
+                lineHeight: '16px',
+                borderRadius: '2px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              title="Abrir Cyclopedia para rastrear monstros"
+            >
+              +
+            </button>
+          )}
+
           {/* Minimize / Expand button */}
           <button
             type="button"
@@ -246,6 +279,43 @@ export function BestiaryTrackerHUD({
 
       {/* Body Content (if not minimized) */}
       {!isMinimized && (
+        effectiveMonsters.length === 0 ? (
+          <div
+            style={{
+              padding: '16px 12px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px',
+              color: '#94a3b8',
+              fontSize: '11px',
+            }}
+          >
+            <span style={{ color: '#cbd5e1', fontWeight: 600 }}>Comece a rastrear monstros</span>
+            <button
+              type="button"
+              onClick={() => onOpenCyclopedia?.()}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '5px 12px',
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#facc15',
+                background: 'linear-gradient(180deg, #2b3038 0%, #1c1f24 100%)',
+                border: '1px solid #ca8a04',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+              }}
+            >
+              <span style={{ fontWeight: 900 }}>+</span>
+              <span>Abrir Bestiário</span>
+            </button>
+          </div>
+        ) : (
         <div style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? '160px' : '320px', overflowY: 'auto' }}>
           {effectiveMonsters.map((m, idx) => {
             const mId = m.id.toLowerCase();
@@ -418,6 +488,7 @@ export function BestiaryTrackerHUD({
             );
           })}
         </div>
+        )
       )}
     </aside>
   );

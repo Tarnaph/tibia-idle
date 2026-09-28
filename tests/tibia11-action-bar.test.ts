@@ -54,6 +54,7 @@ describe('Phase 17: Tibia 11 Migration, Potions, Runes and Action Bar', () => {
 
     // Equip Supreme Health Potion (id 26031) in slot 0
     knight.hotbar = [26031];
+    game.session.gold = 50_000;
     const hunting = restartHunt(game, 'tibia11-supreme-test', content, 'rat-cellars');
 
     const actor = hunting.encounter.partyActors.find((a) => a.characterId === knight.id)!;
@@ -75,6 +76,7 @@ describe('Phase 17: Tibia 11 Migration, Potions, Runes and Action Bar', () => {
     mage.maxMana = 1500;
 
     mage.hotbar = [26029]; // Ultimate Mana Potion
+    game.session.gold = 50_000;
     const hunting = restartHunt(game, 'tibia11-ump-test', content, 'rat-cellars');
 
     const actor = hunting.encounter.partyActors.find((a) => a.characterId === mage.id)!;

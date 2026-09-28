@@ -48,6 +48,7 @@ describe('Phase 81 - Emergency Auto-Potion & Auto Hotbar System', () => {
     actor.hp = 10;
     character.maxHp = 200;
     character.hotbar = [7618]; // Hotbar has potion configured
+    game.session.loot = [{ itemId: 7618, name: 'Health Potion', amount: 5 }];
 
     // Enemy deals 30 damage, which is lethal (10 - 30 <= 0)
     const lethalDamage = 30;

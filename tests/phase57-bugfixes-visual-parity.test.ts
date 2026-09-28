@@ -191,7 +191,7 @@ describe('Phase 57: Bug Fixes & Visual Parity (Offensive Exhaust, Wand VFX, Part
     expect(partyModalSrc).toContain('RECUSAR');
 
     // Image 3: Hunt Selector leader team button
-    expect(huntSelectorSrc).toContain('Iniciar com o time');
+    expect(huntSelectorSrc).toContain('Iniciar com time');
 
     // Images 4 & 5: Group Hunt Approval Modal
     expect(huntModalSrc).toContain('CONVITE DE CAÇADA EM GRUPO');

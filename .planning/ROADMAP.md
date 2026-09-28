@@ -4366,5 +4366,16 @@ Plans:
 - [x] 253-03-PLAN: Onda 3 - Diagnóstico e Descongelamento Completo do Ticker de Combate (Rat Cellars e demais)
 - [x] 253-04-PLAN: Onda 4 - Verificação com Testes Unitários Vitest, Typecheck e Deploy na VPS
 
+---
+
+- [x] **Phase 254: Resolução dos 11 Itens Críticos do FIX.md (UI Dark Stone Tibia, Anti-Clone, Loja Flutuante, Slots Canônicos, Combat Fixes e Anti-OOM AFK)** - Resolução integral dos 11 itens críticos listados em `FIX.md`: (1) Botão do rastreador de bestiário no dock desktop e mobile com empty state e atalho `+` para Cyclopedia; (2) Erradicação completa de emojis em docks e abas de chat por SVGs e texto puro; (3) Sincronização mútua bidirecional em Thais com fidelidade total de outfits/montarias sem placeholders; (4) Progressão rápida de Distance e avanço de Shielding para Paladinos treinando com arco; (5) Habilitação completa dos slots paperdoll de munição (ammo), colar (neck), anel (ring) e mochila (backpack); (6) Autodefesa melee contra alvos adjacentes ao travar e checagem de linha de visão (LOS) contra paredes para flechas e magias; (7) Redesign Dark Stone Tibia 11/12 para HUD, popover de personagem, barras canônicas verde/azul/ouro e sprites de armas; (8) Exclusividade estrita de slots de equipamento eliminando equipar itens inválidos e bloqueio de 2 mãos; (9) Loja da cidade flutuante/arrastável (`position: fixed`) com abas COMPRAR e VENDER manual de mochila/bolsa; (10) Menu de montarias com disponíveis primeiro, compra por 20.000 GP, velocidade escalonada (+20/+40/+60) e sistema AFK com anti-OOM PixiJS; (11) Eliminação definitiva de clone/fantasma em Thais durante caçadas com mútua exclusão absoluta cidade/hunt.
+Plans:
+- [x] 254-01-PLAN: Onda 1 - UI, Iconografia & Dark Stone Theme (Itens 1, 2, 7: Bestiário Dock/Mobile, Fim dos Emojis, Tibia 11 Dark Stone Inspect Card)
+- [x] 254-02-PLAN: Onda 2 - Slots Canônicos, Exclusividade & Loja Flutuante (Itens 5, 8, 9: Paperdoll Ammo/Neck/Ring/Backpack, Anti-Exploit Slots, Loja Comprar/Vender)
+- [x] 254-03-PLAN: Onda 3 - Combate, Vocações & Linha de Visão (Itens 4, 6: Distance & Paladin Shielding com Arco, Retargeting Adjacente Melee, Raycasting LOS contra Paredes)
+- [x] 254-04-PLAN: Onda 4 - Multiplayer, Performance, Montarias & Anti-Clone (Itens 3, 10, 11: Sincronia Thais Bidirecional, Montarias + Velocidade + AFK Anti-OOM, Mútua Exclusão Cidade/Hunt)
+- [x] 254-05-PLAN: Onda 5 - Verificação de Regressão, Suíte de Testes Vitest, Typecheck e Atualização do Servidor
+
+
 
 

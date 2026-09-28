@@ -12,7 +12,7 @@ import type { BaseVocationName, EquipmentCatalog, EquipmentDefinition, HuntRegio
 import {
   addPartyMember, advanceCombat, advanceCityAutoSpells, advanceTraining, availableOwnedEquipmentIds, createIdleGame, createCharacter, calculateStatsForLevel,
   characterCapacity, deriveStats, experienceForLevel, experienceProgress, levelForExperience, findEquipment, initialHunts, inventoryWeight, itemLootPreference, leaderOf, leaveHunt, restartHunt, sellAllLoot, sellLootStack, updateItemLootPreference,
-  transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem, useTestConsumable,
+  transferItemBetweenContainers, destroyContainerItem, executeQuickSell, buyShopItem, sellShopItem, useTestConsumable,
   setCharacterStance, setCharacterTargetDistance, setCharacterTargetStrategy,
   unequipSlotToBag, equipItemFromContainer, setActorTarget, removePartyMember,
   PROMOTION_COST, PROMOTION_LEVEL, promoteCharacter, promotedVocationFor, reorderHotbar, selectCharacter,
@@ -21,6 +21,7 @@ import {
   calculateDeathPenaltyReport, type DeathPenaltyReport, buyBlessing, buyAllMissingBlessings,
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate, type TrainingDummyInfo,
+  getMountSpeedBonus, parseCompletedQuests, normalizeKey,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState, type EnemyState, type HuntPullSize,
 } from '@/packages/domain/src';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
@@ -371,6 +372,50 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [dismissedTrackerMonsterIds, setDismissedTrackerMonsterIds] = useState<string[]>([]);
   const [isBestiaryTrackerVisible, setIsBestiaryTrackerVisible] = useState<boolean>(true);
   const [bestiaryKills, setBestiaryKills] = useState<Record<string, number>>({});
+  const [isAfk, setIsAfk] = useState(false);
+  const lastUserActionTimeRef = useRef<number>(Date.now());
+
+  // Phase 254: Smart AFK Mode, Idle Power Saver & Memory Leak Prevention
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      lastUserActionTimeRef.current = Date.now();
+      setIsAfk((prev) => {
+        if (prev) {
+          gameNetwork.sendSetAfk(false);
+          return false;
+        }
+        return false;
+      });
+    };
+
+    window.addEventListener('mousemove', handleUserInteraction, { passive: true });
+    window.addEventListener('mousedown', handleUserInteraction, { passive: true });
+    window.addEventListener('keydown', handleUserInteraction, { passive: true });
+    window.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    window.addEventListener('scroll', handleUserInteraction, { passive: true });
+
+    const afkInterval = window.setInterval(() => {
+      const isIdle = Date.now() - lastUserActionTimeRef.current > 120_000 || document.hidden;
+      if (isIdle) {
+        setIsAfk((prev) => {
+          if (!prev) {
+            gameNetwork.sendSetAfk(true);
+            return true;
+          }
+          return prev;
+        });
+      }
+    }, 5000);
+
+    return () => {
+      window.removeEventListener('mousemove', handleUserInteraction);
+      window.removeEventListener('mousedown', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('scroll', handleUserInteraction);
+      window.clearInterval(afkInterval);
+    };
+  }, []);
 
   // Phase 234: Responsive Mobile Layout & Navigation
   const responsive = useResponsiveLayout();
@@ -1921,7 +1966,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const activeCharacter = selectedCharacterOf(game);
   const encounter = game.encounter;
   const combinedCityVisualEvents = useMemo(() => {
-    return [...(encounter.events || []), ...(encounter.visualEvents || [])] as any;
+    const raw = [...(encounter.events || []), ...(encounter.visualEvents || [])];
+    return (raw.length > 30 ? raw.slice(-30) : raw) as any;
   }, [encounter.events, encounter.visualEvents]);
   const activeStats = deriveStats(activeCharacter, content.equipment, vocationFor(content, activeCharacter.vocation));
   const statsById = useMemo(() => new Map(game.session.characters.map((character) => [
@@ -2456,13 +2502,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
   const activeActor = game.encounter.partyActors.find((a) => a.characterId === activeCharacter.id);
   const hasteBonus = (activeActor?.hasteUntil ?? 0) > game.encounter.elapsedMs ? 50 : 0;
-  const mountBonus = activeCharacter.mountActive && activeCharacter.mount && activeCharacter.mount !== 'none' ? 20 : 0;
+  const mountBonus = getMountSpeedBonus(activeCharacter.mount, activeCharacter.mountActive);
   const playerSpeed = calculatePlayerSpeed(activeCharacter.level) + mountBonus + hasteBonus;
   const baseStepDurationMs = calculateStepDurationMs(playerSpeed);
-  // +100 points of speed for players when in the city
-  const citySpeedBonus = 100;
-  // Phase 164: Fixed city speed of 500 in Thais (formerly: const cityPlayerSpeed = playerSpeed + citySpeedBonus;)
-  const cityPlayerSpeed = THAIS_CITY_FIXED_SPEED;
+  // Phase 164 & 254: Fixed city speed of 500 in Thais + mount speed bonus (Free +20, Premium +40, Loja +60)
+  const cityPlayerSpeed = THAIS_CITY_FIXED_SPEED + mountBonus;
   const cityStepDurationMs = calculateStepDurationMs(cityPlayerSpeed);
   const heldDirectionRef = useRef<{ dx: number; dy: number } | null>(null);
   const lastStepTimeRef = useRef(0);
@@ -2689,6 +2733,65 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       }
     }
   }, []);
+
+  const handleBuyMount = useCallback(async (mountId: string): Promise<boolean> => {
+    const MOUNT_COST = 20_000;
+    if (game.session.gold < MOUNT_COST) {
+      setSaleMessage(`Você precisa de ${MOUNT_COST.toLocaleString('pt-BR')} gold para comprar esta montaria. Saldo atual: ${game.session.gold.toLocaleString('pt-BR')} gold.`);
+      return false;
+    }
+
+    setGame((cur) => {
+      const nextGold = cur.session.gold - MOUNT_COST;
+      const targetChar = cur.session.characters.find((c) => c.id === activeCharacter.id);
+      const updatedCompletedQuests = parseCompletedQuests(targetChar?.completedQuestsJson);
+      const mountKey = `mount:${normalizeKey(mountId)}`;
+      if (!updatedCompletedQuests.includes(mountKey)) {
+        updatedCompletedQuests.push(mountKey);
+      }
+      const updatedJson = JSON.stringify(updatedCompletedQuests);
+
+      const nextChars = cur.session.characters.map((c) =>
+        c.id === activeCharacter.id
+          ? {
+              ...c,
+              completedQuestsJson: updatedJson,
+              mount: mountId,
+              mountActive: true,
+            }
+          : c
+      );
+
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          gold: nextGold,
+          characters: nextChars,
+        },
+      };
+    });
+
+    setOnlineCharacter((prev: any) => {
+      if (!prev || prev.id !== activeCharacter.id) return prev;
+      const quests = parseCompletedQuests(prev.completedQuestsJson);
+      const mountKey = `mount:${normalizeKey(mountId)}`;
+      if (!quests.includes(mountKey)) quests.push(mountKey);
+      return {
+        ...prev,
+        completedQuestsJson: JSON.stringify(quests),
+        mount: mountId,
+        mountActive: true,
+      };
+    });
+
+    setSaleMessage(`Montaria desbloqueada e equipada com sucesso! -20.000 Gold`);
+
+    if (saveProgressRef.current) {
+      void saveProgressRef.current();
+    }
+    return true;
+  }, [activeCharacter.id, game.session.gold]);
 
   const handleToggleMount = useCallback((characterId: string) => {
     setGame((cur) => {
@@ -4286,6 +4389,16 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
     return { ok: result.ok, error: result.error };
   };
+  const handleSellShopItem = (container: 'backpack' | 'bag', itemId: number, quantity: number, unitPrice: number) => {
+    const result = sellShopItem(game, container, itemId, quantity, unitPrice);
+    if (result.ok) {
+      setGame(result.state);
+      if (result.message) {
+        setSaleMessage(result.message);
+      }
+    }
+    return { ok: result.ok, error: result.error };
+  };
   const handleUseItem = (itemId: number) => {
     const result = useTestConsumable(game, itemId, content);
     if (result.ok) {
@@ -4966,8 +5079,39 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             active={mode !== 'hunt' && !showAuthModal}
             isCharacterVisible={isCharacterVisible}
             squadFollowEnabled={squadFollowCity}
+            isAfk={isAfk}
           />
         </div>
+        {isAfk && mode !== 'hunt' && !showAuthModal && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 56,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'rgba(11, 15, 25, 0.88)',
+              border: '1px solid #0284c7',
+              borderRadius: 6,
+              padding: '6px 14px',
+              color: '#38bdf8',
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.5), 0 0 12px rgba(56, 189, 248, 0.2)',
+              zIndex: 30,
+              pointerEvents: 'none',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span>MODO AFK ATIVO &bull; ECONOMIA DE ENERGIA ATIVADA</span>
+          </div>
+        )}
         {isTrainingAtDummy && mode !== 'hunt' && !showAuthModal && (
           <TrainingProgressHUD
             members={partyTrainingEstimates}
@@ -4996,9 +5140,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               isPremium={Boolean(activeCharacter.isPremium)}
               avatarUrl={`/assets/avatars/avatar-${(activeCharacter as any).avatarId ?? 1}.png`}
               isConnected={isConnectedServer}
+              isBestiaryOpen={isBestiaryTrackerVisible}
               onOpenSettings={() => setMobileDrawerCategory('menu')}
               onOpenProfile={() => gameModal.openProfile(activeCharacter.id)}
               onOpenHuntSelector={() => setHuntSelectorOpen(true)}
+              onToggleBestiary={() => setIsBestiaryTrackerVisible((v) => !v)}
             />
             <MobileMusicBadge isLoading={initialLoadingActive || Boolean(transitionLoading?.active)} />
           </>
@@ -5020,6 +5166,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             maxStaminaMinutes={activeCharacter.maxStaminaMinutes ?? 15}
             avatarId={(activeCharacter as any).avatarId ?? 1}
             bestiaryKills={(game.session as any).bestiaryKills || (activeCharacter as any).bestiaryKills}
+            isBestiaryTrackerOpen={isBestiaryTrackerVisible}
+            onToggleBestiaryTracker={() => setIsBestiaryTrackerVisible((v) => !v)}
             onOpenProfile={() => gameModal.openOutfit(activeCharacter.id)}
             onToggleAutoIdle={() => {
               const nextEnabled = !((activeCharacter as any).isAutoIdle ?? false);
@@ -5287,7 +5435,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         availableCapacityOz={Math.max(0, characterCapacity(activeCharacter, content) - inventoryWeight(activeCharacter, content.equipment))}
         totalGold={game.session.gold}
         onClose={() => setEquipmentOpen(false)}
-        onEquipItem={(itemId) => setGame((cur) => equipItemFromContainer(cur, activeCharacter.id, itemId, content))}
+        onEquipItem={(itemId, slot) => setGame((cur) => equipItemFromContainer(cur, activeCharacter.id, itemId, content, slot))}
         onUnequipSlot={(slot) => setGame((cur) => unequipSlotToBag(cur, activeCharacter.id, slot, content))}
         onTransferContainerItem={(from, to, index) => setGame((cur) => transferItemBetweenContainers(cur, from, to, index))}
         onDestroyItem={(container, index) => setGame((cur) => destroyContainerItem(cur, container, index))}
@@ -5310,9 +5458,13 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         open={shopOpen}
         character={activeCharacter}
         equipmentCatalog={content.equipment}
+        backpackItems={game.session.loot}
+        bagItems={game.session.bag ?? []}
+        economyCatalog={content.economy}
         totalGold={game.session.gold}
         onClose={() => setShopOpen(false)}
         onBuyItem={handleBuyShopItem}
+        onSellItem={handleSellShopItem}
       />
 
       <VocationChoiceModal
@@ -5503,7 +5655,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onCreateCharacter={createMember}
       />
 
-      {trackedMonstersList.length > 0 && isBestiaryTrackerVisible && (
+      {isBestiaryTrackerVisible && (
         <BestiaryTrackerHUD
           monsters={trackedMonstersList}
           killsById={bestiaryKills}
@@ -5556,6 +5708,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           }
         }}
         gold={game.session.gold}
+        onBuyMount={handleBuyMount}
         bestiaryKills={bestiaryKills}
         trackedMonsterId={trackedBestiaryMonsterId}
         bossPoints={bossPoints}

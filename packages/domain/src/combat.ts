@@ -13,7 +13,7 @@ import { getBestiaryExpBonusPercent } from './bestiary';
 import { HOTBAR_POTIONS, RUNE_PROJECTILE_FLIGHT_MS, ensureHealthPotionInHotbar, findHotbarAction, getActionSupplyCost, getBestHealthPotionForCharacter, isHotbarActionUnlocked, isHotbarSlotConditionsMet } from './hotbarActions';
 import { findWandDefinition, canUseWand } from './wands';
 import { assertSpatialIntegrity, directionBetween, moveEnemiesTowardParty, movePartyToExit, movePartyTowardPoint, movePartyTowardTargets, synchronizeEncounterOccupancy } from './spatial/movement';
-import { findPath, isMeleeRange, meleeDistance } from './spatial/pathfinding';
+import { findPath, hasLineOfSight, isMeleeRange, meleeDistance } from './spatial/pathfinding';
 import { createRoomState, roomDefinitionAt } from './spatial/rooms';
 import { clonePosition, samePosition } from './spatial/tileMap';
 import type { GridPosition } from './spatial/types';
@@ -1606,7 +1606,11 @@ export function castAutomaticSpells(state: GameState, content: GameContent, allo
             const range = spell.area === 'self'
               ? (spell.range > 0 ? spell.range : (spell.words.includes('mas') ? 4 : 3))
               : Math.max(1, spell.range);
-            const inRange = eligibleEnemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range)
+            const inRange = eligibleEnemies.filter((enemy) =>
+              enemy.alive &&
+              meleeDistance(actor.position, enemy.position) <= range &&
+              (spell.area === 'square-1x1' || spell.area === 'self' || hasLineOfSight(encounter.room.map, actor.position, enemy.position))
+            )
               .sort((left, right) => {
                 const isLeftTarget = left.id === targetToPrioritize?.id;
                 const isRightTarget = right.id === targetToPrioritize?.id;
@@ -1952,7 +1956,7 @@ export function triggerManualHotbarAction(
     if ((actor.groupCooldowns['rune'] ?? 0) > encounter.elapsedMs || (actor.groupCooldowns['attack'] ?? 0) > encounter.elapsedMs) return false;
     const allLiving = encounter.enemies.filter((enemy) => enemy.alive);
     const inRange = allLiving
-      .filter((enemy) => meleeDistance(actor.position, enemy.position) <= rune.range)
+      .filter((enemy) => meleeDistance(actor.position, enemy.position) <= rune.range && hasLineOfSight(encounter.room.map, actor.position, enemy.position))
       .sort((left, right) => {
         const isLeftTarget = left.id === actor.targetId;
         const isRightTarget = right.id === actor.targetId;
@@ -2114,7 +2118,10 @@ export function triggerManualHotbarAction(
       const spellRange = Math.max(1, spell.range);
       const lockedTarget = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : null;
       const candidates = (lockedTarget && spell.area === 'target') ? [lockedTarget] : encounter.enemies.filter((enemy) => enemy.alive);
-      const inRange = candidates.filter((enemy) => meleeDistance(actor.position, enemy.position) <= spellRange)
+      const inRange = candidates.filter((enemy) =>
+        meleeDistance(actor.position, enemy.position) <= spellRange &&
+        (spell.area === 'square-1x1' || spell.area === 'self' || hasLineOfSight(encounter.room.map, actor.position, enemy.position))
+      )
         .sort((left, right) => {
           const isLeftTarget = left.id === actor.targetId;
           const isRightTarget = right.id === actor.targetId;
@@ -2413,19 +2420,18 @@ function playerAttacks(state: GameState, content: GameContent): void {
     const range = attackRange(character.id, state, content);
 
     let target: EnemyState | undefined;
-    if (isParty && !isFocusLead && leadTarget && meleeDistance(actor.position, leadTarget.position) <= range) {
+    if (isParty && !isFocusLead && leadTarget && meleeDistance(actor.position, leadTarget.position) <= range && (range <= 1 || hasLineOfSight(encounter.room.map, actor.position, leadTarget.position))) {
       target = leadTarget;
     } else {
       const lockedTarget = actor.targetId ? encounter.enemies.find((enemy) => enemy.id === actor.targetId && enemy.alive) : undefined;
-      if (lockedTarget) {
-        if (meleeDistance(actor.position, lockedTarget.position) <= range) {
-          target = lockedTarget;
-        } else {
-          // Locked target is out of range: do NOT redirect basic attacks to neighboring enemies (Phase 162)
-          continue;
-        }
+      if (lockedTarget && meleeDistance(actor.position, lockedTarget.position) <= range && (range <= 1 || hasLineOfSight(encounter.room.map, actor.position, lockedTarget.position))) {
+        target = lockedTarget;
       } else {
-        const inRangeEnemies = encounter.enemies.filter((enemy) => enemy.alive && meleeDistance(actor.position, enemy.position) <= range);
+        const inRangeEnemies = encounter.enemies.filter((enemy) =>
+          enemy.alive &&
+          meleeDistance(actor.position, enemy.position) <= range &&
+          (range <= 1 || hasLineOfSight(encounter.room.map, actor.position, enemy.position))
+        );
         if (inRangeEnemies.length > 0) {
           inRangeEnemies.sort((a, b) => meleeDistance(actor.position, a.position) - meleeDistance(actor.position, b.position) || a.id.localeCompare(b.id));
           target = inRangeEnemies[0];

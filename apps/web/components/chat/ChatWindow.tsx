@@ -262,7 +262,6 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
             flexShrink: 0,
           }}
         >
-          <span style={{ fontSize: '10px' }}>📍</span>
           <span>Local Chat</span>
         </button>
 
@@ -287,7 +286,6 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
             flexShrink: 0,
           }}
         >
-          <span style={{ fontSize: '10px' }}>🌐</span>
           <span>World Chat</span>
         </button>
 
@@ -327,7 +325,6 @@ export const ChatWindow = forwardRef<ChatWindowHandle, ChatWindowProps>(function
               }}
               title={`Conversa privada com ${tabName}`}
             >
-              <span style={{ fontSize: '10px' }}>💬</span>
               <span>{tabName}</span>
               {hasUnread && !isActive && (
                 <span

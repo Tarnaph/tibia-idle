@@ -50,6 +50,7 @@ export class PlayerState extends Schema {
   @type('number') staminaMinutes: number = 15;
   @type('number') maxStaminaMinutes: number = 15;
   @type('boolean') isAutoIdle: boolean = false;
+  @type('boolean') isAfk: boolean = false;
   @type('string') lastHuntId: string = '';
   @type('number') magicShieldUntil: number = 0;
   @type('number') hasteUntil: number = 0;

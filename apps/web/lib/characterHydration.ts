@@ -62,12 +62,15 @@ export function parseInventoryData(
   const loot: Array<{ itemId?: number; name: string; amount: number; attributes?: any }> = [];
   const equipment: Record<CharacterEquipmentSlot, number | null> = {
     head: null,
+    neck: null,
+    backpack: null,
     armor: null,
-    legs: null,
-    boots: null,
     leftHand: null,
     rightHand: null,
+    legs: null,
+    boots: null,
     ring: null,
+    ammo: null,
   };
   const equipmentAttributes: Partial<Record<CharacterEquipmentSlot, any>> = {};
   const itemAttributes: Record<number, any> = {};
@@ -75,7 +78,14 @@ export function parseInventoryData(
 
   const equipSlots: Record<string, CharacterEquipmentSlot> = {
     head: 'head',
+    helmet: 'head',
+    neck: 'neck',
+    necklace: 'neck',
+    amulet: 'neck',
+    backpack: 'backpack',
+    bag: 'backpack',
     armor: 'armor',
+    chest: 'armor',
     legs: 'legs',
     boots: 'boots',
     feet: 'boots',
@@ -85,6 +95,10 @@ export function parseInventoryData(
     right: 'rightHand',
     finger: 'ring',
     ring: 'ring',
+    ammo: 'ammo',
+    arrow: 'ammo',
+    arrows: 'ammo',
+    quiver: 'ammo',
   };
 
   if (Array.isArray(dbInventory)) {

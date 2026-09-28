@@ -9,6 +9,7 @@ import {
   createIdleGame,
   restartHunt,
   triggerManualHotbarAction,
+  hasLineOfSight,
 } from '../packages/domain/src';
 import { content } from './fixture';
 import { resolveActionImagePath } from '../apps/web/components/Tibia11ActionIcon.tsx';
@@ -147,9 +148,13 @@ describe('Phase 95: Authentic Rune Visual Effects, Projectiles and Area Parity (
     sorcerer.level = 50;
     sorcerer.skills.magicLevel = 30;
     sorcerer.hotbar = [2268]; // Sudden Death Rune
-
     const hunting = restartHunt(game, 'test-sd-combat', content, 'rat-cellars');
+    const actor = hunting.encounter.partyActors.find((a) => a.characterId === sorcerer.id)!;
     const enemy = hunting.encounter.enemies.find((e) => e.alive)!;
+    const walkableTile = hunting.encounter.room.map.tiles.find(
+      (t) => t.walkable && Math.abs(t.position.x - actor.position.x) + Math.abs(t.position.y - actor.position.y) === 2 && hasLineOfSight(hunting.encounter.room.map, actor.position, t.position)
+    );
+    if (walkableTile) enemy.position = { ...walkableTile.position };
 
     // Trigger Sudden Death manual hotbar action
     const triggered = triggerManualHotbarAction(hunting, sorcerer.id, 2268, content);
@@ -246,6 +251,12 @@ describe('Phase 95: Authentic Rune Visual Effects, Projectiles and Area Parity (
     sorcerer.hotbar = [2313]; // Explosion Rune
 
     const hunting = restartHunt(game, 'test-exp-area', content, 'rat-cellars');
+    const actor = hunting.encounter.partyActors.find((a) => a.characterId === sorcerer.id)!;
+    const enemy = hunting.encounter.enemies.find((e) => e.alive)!;
+    const walkableTile = hunting.encounter.room.map.tiles.find(
+      (t) => t.walkable && Math.abs(t.position.x - actor.position.x) + Math.abs(t.position.y - actor.position.y) === 2 && hasLineOfSight(hunting.encounter.room.map, actor.position, t.position)
+    );
+    if (walkableTile) enemy.position = { ...walkableTile.position };
 
     const triggered = triggerManualHotbarAction(hunting, sorcerer.id, 2313, content);
     expect(triggered).toBe(true);

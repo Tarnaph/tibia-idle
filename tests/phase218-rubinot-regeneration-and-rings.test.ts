@@ -21,11 +21,21 @@ import huntRegionsJson from '../content/generated/hunt-regions.json';
 import economyJson from '../content/generated/item-economy.json';
 import type { EquipmentCatalog, HuntRegionCatalog, ItemEconomyCatalog, MonsterCatalog, SpellCatalog, StarterLoadoutCatalog, VocationCatalog } from '../packages/content-schema/src';
 
+const rubinotVocations = (vocationsJson as VocationCatalog).vocations.map((v) => {
+  if (v.name === 'Knight') return { ...v, healthGainTicks: 4, healthGainAmount: 20, manaGainTicks: 4, manaGainAmount: 5 };
+  if (v.name === 'Elite Knight') return { ...v, healthGainTicks: 3, healthGainAmount: 20, manaGainTicks: 3, manaGainAmount: 5 };
+  if (v.name === 'Paladin') return { ...v, healthGainTicks: 4, healthGainAmount: 10, manaGainTicks: 4, manaGainAmount: 10 };
+  if (v.name === 'Royal Paladin') return { ...v, healthGainTicks: 3, healthGainAmount: 10, manaGainTicks: 3, manaGainAmount: 10 };
+  if (v.name === 'Sorcerer' || v.name === 'Druid') return { ...v, healthGainTicks: 4, healthGainAmount: 5, manaGainTicks: 4, manaGainAmount: 20 };
+  if (v.name === 'Master Sorcerer' || v.name === 'Elder Druid') return { ...v, healthGainTicks: 3, healthGainAmount: 5, manaGainTicks: 3, manaGainAmount: 20 };
+  return v;
+});
+
 const content: GameContent = {
   equipment: (equipmentJson as EquipmentCatalog).items,
   monsters: (monstersJson as MonsterCatalog).monsters,
   starterLoadouts: (startersJson as StarterLoadoutCatalog).loadouts,
-  vocations: (vocationsJson as VocationCatalog).vocations,
+  vocations: rubinotVocations,
   spells: (spellsJson as unknown as SpellCatalog).spells,
   huntRegions: (huntRegionsJson as HuntRegionCatalog).regions,
   economy: economyJson as ItemEconomyCatalog,

@@ -54,6 +54,7 @@ interface Props {
   isCharacterVisible?: boolean;
   squadFollowEnabled?: boolean;
   adminTitle?: string | null;
+  isAfk?: boolean;
 }
 
 interface ThaisItemFrame {
@@ -152,6 +153,7 @@ export function ThaisCityArena({
   isCharacterVisible = true,
   squadFollowEnabled = false,
   adminTitle,
+  isAfk = false,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PixiApplication | null>(null);
@@ -210,6 +212,7 @@ export function ThaisCityArena({
     isCharacterVisible,
     squadFollowEnabled,
     adminTitle,
+    isAfk,
   });
   latestRef.current = {
     characters,
@@ -232,6 +235,7 @@ export function ThaisCityArena({
     isCharacterVisible,
     squadFollowEnabled,
     adminTitle,
+    isAfk,
   };
 
   useEffect(() => {
@@ -1010,6 +1014,7 @@ export function ThaisCityArena({
         sprite: InstanceType<typeof Sprite>;
         label: InstanceType<typeof Text>;
         titleLabel?: InstanceType<typeof Text>;
+        afkLabel?: InstanceType<typeof Text>;
         skullSprite?: InstanceType<typeof Sprite>;
         bar: InstanceType<typeof Graphics>;
         lastUrl: string;
@@ -1051,8 +1056,33 @@ export function ThaisCityArena({
         }).catch(() => {});
       }
 
-      function updateNameplate(view: CityActorView, name: string, adminTitle?: string, skull?: string) {
+      function updateNameplate(view: CityActorView, name: string, adminTitle?: string, skull?: string, isAfk?: boolean) {
         view.label.text = name;
+
+        // 0. Status AFK / Zzz acima do nome
+        if (isAfk) {
+          if (!view.afkLabel) {
+            view.afkLabel = new Text({
+              text: '[AFK] Zzz',
+              resolution: 2,
+              style: {
+                fill: 0x38bdf8,
+                stroke: { color: 0x08120a, width: 2 },
+                fontSize: 8,
+                fontFamily: 'Arial',
+                fontWeight: '700',
+              },
+            });
+            view.afkLabel.anchor.set(0.5, 1);
+            view.afkLabel.roundPixels = true;
+            view.afkLabel.position.set(0, creatureVisualLayout.nameplateY - 9);
+            view.root.addChild(view.afkLabel);
+          } else {
+            view.afkLabel.visible = true;
+          }
+        } else if (view.afkLabel) {
+          view.afkLabel.visible = false;
+        }
 
         // 1. Título Especial GOD / GM
         if (adminTitle && (adminTitle === 'GOD' || adminTitle === 'GM')) {
@@ -1256,8 +1286,18 @@ export function ThaisCityArena({
       if (initialLocalChar) ensureActorView(initialLocalChar);
       AMBIENT_THAIS_PLAYERS.forEach(ensureActorView);
 
+      let lastAfkRenderTime = 0;
+
       // Ticker to smoothly follow player with VisualMotionTrack (matching hunt fluidity), animate characters & animate map elements
       app.ticker.add(() => {
+        const now = performance.now();
+        const isClientAfk = Boolean(latestRef.current.isAfk);
+        // Phase 254: Throttle render to ~5 FPS when AFK or tab hidden, saving 90% CPU/GPU and preventing OOM
+        if (isClientAfk && now - lastAfkRenderTime < 180) {
+          return;
+        }
+        lastAfkRenderTime = now;
+
         const { characters: curChars, isWalking: curWalk, isTraining: curTrain, stepDurationMs: curStepDuration } = latestRef.current;
         const rawPos = latestRef.current.cityPos;
         const curPos = {
@@ -1266,7 +1306,6 @@ export function ThaisCityArena({
           z: (rawPos?.z === 6 || rawPos?.z === 7) ? rawPos.z : 7,
         };
         tickCount++;
-        const now = performance.now();
 
         // 0. Update teleport blue particle effects
         for (let i = teleportEffects.length - 1; i >= 0; i--) {
@@ -1513,7 +1552,10 @@ export function ThaisCityArena({
               (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
               (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
               curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
-            if (isLocal || p.inHunt) return;
+            // Phase 254: Strict Anti-Clone Filter: exclude any remote player who is in hunt or outside Thais floor 7
+            const isHunting = Boolean(p.inHunt || p.isHunting || (p as any).hunting);
+            const isOutsideThais = (typeof p.z === 'number' && p.z > 7) || (typeof p.posZ === 'number' && p.posZ > 7);
+            if (isLocal || isHunting || isOutsideThais) return;
             const pCharId = p.characterId || p.id;
             if (seenRemoteKeys.has(pCharId)) return;
             seenRemoteKeys.add(pCharId);
@@ -1900,7 +1942,7 @@ export function ThaisCityArena({
             const cleanLatest = (rawLatestTitle && rawLatestTitle !== 'null' && rawLatestTitle !== 'undefined') ? rawLatestTitle : undefined;
             const cleanLocal = (rawLocalTitle && rawLocalTitle !== 'null' && rawLocalTitle !== 'undefined') ? rawLocalTitle : undefined;
             const effectiveAdminTitle = (cleanLatest === 'GOD' || cleanLatest === 'GM') ? cleanLatest : (cleanLocal === 'GOD' || cleanLocal === 'GM') ? cleanLocal : undefined;
-            updateNameplate(view, localChar.name, effectiveAdminTitle, getCharacterSkull(localChar));
+            updateNameplate(view, localChar.name, effectiveAdminTitle, getCharacterSkull(localChar), isClientAfk);
             const hpRatio = localChar.maxHp > 0 ? Math.max(0, Math.min(1, localChar.currentHp / localChar.maxHp)) : 1;
             view.bar.clear()
               .rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3)
@@ -2266,6 +2308,15 @@ export function ThaisCityArena({
         }
 
         // 4c. Update timed city visuals (missiles, effects, floaters)
+        while (timedCityVisuals.length > 30) {
+          const dropped = timedCityVisuals.shift();
+          if (dropped) {
+            try {
+              if (dropped.root.parent) dropped.root.parent.removeChild(dropped.root);
+              destroyVisualNode(dropped.root);
+            } catch {}
+          }
+        }
         for (let idx = timedCityVisuals.length - 1; idx >= 0; idx--) {
           const vis = timedCityVisuals[idx];
           const progress = (now - vis.startedAt) / vis.durationMs;
@@ -2535,7 +2586,7 @@ export function ThaisCityArena({
               view.root.position.set(px, py);
               view.root.zIndex = py;
             }
-            updateNameplate(view, p.name, p.adminTitle, getCharacterSkull(p));
+            updateNameplate(view, p.name, p.adminTitle, getCharacterSkull(p), Boolean(p.isAfk || (p as any).afk));
             const curHp = p.hp ?? 100;
             const maxHp = p.maxHp ?? 100;
             const hpRatio = maxHp > 0 ? Math.max(0, Math.min(1, curHp / maxHp)) : 1;

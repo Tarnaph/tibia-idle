@@ -384,6 +384,35 @@ export class CityPartyHandler {
         if (typeof (data as any).equippedRing === 'number') {
           player.equippedRing = (data as any).equippedRing;
         }
+
+        // Phase 254: Authoritative Hunt vs City state locking to eliminate ghost clones in Thais
+        if (data.isHunting === true || data.lastHuntId) {
+          player.inHunt = true;
+          player.posZ = 8; // Offset out of Thais floor 7 viewport to guarantee zero spatial collision/render
+          if (player.characterId) {
+            ServerCharacterContextRegistry.setActivity(player.characterId, {
+              isHunting: true,
+              huntId: data.lastHuntId || player.lastHuntId || 'active-hunt',
+            });
+          }
+        } else if (data.isHunting === false) {
+          player.inHunt = false;
+          if (player.posZ > 7) {
+            player.posZ = 7;
+          }
+          if (player.characterId) {
+            ServerCharacterContextRegistry.setActivity(player.characterId, {
+              isHunting: false,
+            });
+          }
+        }
+      }
+    });
+
+    this.room.onMessage('player:setAfk', (client, data: { isAfk: boolean }) => {
+      const player = this.room.state.players.get(client.sessionId);
+      if (player) {
+        player.isAfk = Boolean(data?.isAfk);
       }
     });
 

@@ -3,6 +3,7 @@ import type { CharacterEquipmentSlot, CharacterSkills, CharacterState, Trainable
 import { findEquipment } from './equipment';
 import { findWandDefinition } from './wands';
 import { calculateImbuementBonuses, type ActiveImbuementSlot, type AggregatedImbuementBonuses } from './imbuements';
+import { getMountSpeedBonus } from './appearancePermissions';
 
 export interface SkillTooltipInfo {
   name: string;
@@ -161,7 +162,8 @@ export function deriveStats(
   const attackSpeedBonusPercent = Number(Math.min(50, activeWeaponSkill * 0.4).toFixed(1));
   const attackIntervalMs = Math.round(2000 / (1 + attackSpeedBonusPercent / 100));
 
-  const movementSpeedBonus = (character.skills.fist * 0.25) + imbuementBonuses.speed;
+  const mountBonus = getMountSpeedBonus((character as any).mount, (character as any).mountActive);
+  const movementSpeedBonus = (character.skills.fist * 0.25) + imbuementBonuses.speed + mountBonus;
   const magicDamageResistancePercent = Number(Math.min(25, skills.magicLevel * 0.5).toFixed(1));
   const itemPhysicalProtection = items.reduce((acc, item) => acc + (item.elementalAbsorption?.physical ?? 0), 0);
   const physicalDamageMitigationPercent = Number(Math.min(50, itemPhysicalProtection).toFixed(1));

@@ -28,6 +28,7 @@ export interface GameModalHostProps {
   avatarId?: number;
   onSelectAvatar?: (avatarId: number) => void;
   gold: number;
+  onBuyMount?: (mountId: string) => Promise<boolean> | boolean;
   bestiaryKills: Record<string, number>;
   trackedMonsterId?: string | null;
   bossPoints?: number;
@@ -52,6 +53,7 @@ export function GameModalHost({
   avatarId = 1,
   onSelectAvatar,
   gold,
+  onBuyMount,
   bestiaryKills,
   trackedMonsterId,
   bossPoints,
@@ -94,6 +96,8 @@ export function GameModalHost({
             characters={characters}
             activeCharacterId={targetOutfitCharId}
             inventory={inventory || (effectiveChar as any)?.inventoryItems}
+            gold={gold}
+            onBuyMount={onBuyMount}
             onClose={closeOutfit}
             onOpenCharacterProfile={(charId) => {
               closeOutfit();

@@ -21,7 +21,10 @@ export function getPullSizeCounts(huntId: string, pullSize?: HuntPullSize): [num
 }
 
 export function getPullSizeMonsterPool(huntId: string, pullSize?: HuntPullSize, basePool: string[] = []): string[] {
-  const effective = pullSize ?? 'cauteloso';
+  if (!pullSize) {
+    return basePool && basePool.length > 0 ? basePool : (huntId.includes('rat') ? ['rat', 'cave-rat'] : ['rat']);
+  }
+  const effective = pullSize;
   if (huntId === 'elf-sanctuary' || huntId.includes('elf')) {
     if (effective === 'cauteloso') return ['elf'];
     if (effective === 'ousado') return ['elf', 'elf-scout'];

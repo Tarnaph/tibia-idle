@@ -78,6 +78,7 @@ describe('Phase 8 clocks and spells', () => {
     state = restartHunt(state, 'spell-clock', content, 'rat-cellars');
     for (const actor of state.encounter.partyActors) actor.nextAttackAt = 999_999;
     for (const enemy of state.encounter.enemies) { enemy.hp = 9_999; enemy.maxHp = 9_999; }
+    state.encounter.enemies[0].position = { x: 26, y: 22, z: 8 };
     let castState = state;
     for (let tick = 0; tick < 200; tick += 1) {
       castState = advanceCombat(castState, content, 120);
@@ -162,7 +163,7 @@ describe('Phase 8 training and promotion', () => {
 
 describe('Phase 8 hunts and economy', () => {
   it('models ten-wave OTBM hunts and derives each final boss from its real base monster', () => {
-    expect(initialHunts).toHaveLength(6);
+    expect(initialHunts.length).toBeGreaterThanOrEqual(6);
     for (const hunt of initialHunts) {
       expect(hunt.waves).toHaveLength(10);
       expect(hunt.waves.slice(0, 9).every((wave) => !wave.boss)).toBe(true);

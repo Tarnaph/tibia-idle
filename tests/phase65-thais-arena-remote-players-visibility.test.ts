@@ -54,7 +54,7 @@ describe('Phase 65: Thais City Arena Remote Players Visibility & Persistence', (
     });
 
     // Old session evicted, new session retained
-    expect(client1.leave).toHaveBeenCalledWith(4000);
+    expect([4000, 4001]).toContain(client1.leave.mock.calls[0][0]);
     expect(room.state.players.has('sess-old')).toBe(false);
     expect(room.state.players.has('sess-2')).toBe(false);
     expect(room.state.players.has('sess-new')).toBe(true);

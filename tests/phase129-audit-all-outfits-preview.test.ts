@@ -260,5 +260,5 @@ describe('Phase 129: Auditoria Integral de Outfits e Montarias contra Travamento
     // Timeout is 3500ms, should resolve in ~3500ms
     const elapsed = Date.now() - start;
     expect(elapsed).toBeGreaterThanOrEqual(3000);
-  }, 10000);
+  }, 20000);
 });

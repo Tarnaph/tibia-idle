@@ -86,12 +86,12 @@ describe('Phase 80: Modo Caçada Auto-Idle Autônoma (Full Auto-Idle Hunt & Trai
   });
 
   describe('2. Handlers WebSocket e Comutação do Modo Auto-Idle', () => {
-    it('deve alternar o estado de isAutoIdle e armazenar lastHuntId', () => {
+    it('deve alternar o estado de isAutoIdle e armazenar lastHuntId', async () => {
       const room = new ThaisCityRoom();
       room.onCreate({});
 
       const client: any = { sessionId: 'sess-auto-2', send: vi.fn() };
-      room.onJoin(client, {
+      await room.onJoin(client, {
         mockCharacter: {
           id: 'char-auto-2',
           accountId: 'acc-2',
@@ -114,12 +114,12 @@ describe('Phase 80: Modo Caçada Auto-Idle Autônoma (Full Auto-Idle Hunt & Trai
   });
 
   describe('3. Máquina de Estados da Rotação Automática (Caçada ⇄ Dummies ⇄ Caçada)', () => {
-    it('deve ejetar para a cidade e iniciar treino em Dummies quando a estamina zerar no Modo Auto-Idle', () => {
+    it('deve ejetar para a cidade e iniciar treino em Dummies quando a estamina zerar no Modo Auto-Idle', async () => {
       const room = new ThaisCityRoom();
       room.onCreate({});
 
       const client: any = { sessionId: 'sess-auto-3', send: vi.fn() };
-      room.onJoin(client, {
+      await room.onJoin(client, {
         mockCharacter: {
           id: 'char-auto-3',
           accountId: 'acc-3',
@@ -145,12 +145,12 @@ describe('Phase 80: Modo Caçada Auto-Idle Autônoma (Full Auto-Idle Hunt & Trai
       expect(player.posY).toBe(32241);
     });
 
-    it('deve retornar automaticamente para a caçada quando a estamina atingir 100% no treino sob Modo Auto-Idle', () => {
+    it('deve retornar automaticamente para a caçada quando a estamina atingir 100% no treino sob Modo Auto-Idle', async () => {
       const room = new ThaisCityRoom();
       room.onCreate({});
 
       const client: any = { sessionId: 'sess-auto-4', send: vi.fn() };
-      room.onJoin(client, {
+      await room.onJoin(client, {
         mockCharacter: {
           id: 'char-auto-4',
           accountId: 'acc-4',
