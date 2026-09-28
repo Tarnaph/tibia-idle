@@ -11,6 +11,7 @@ interface MobileMenuDrawerProps {
   onOpenInventory?: () => void;
   onOpenDepot?: () => void;
   onOpenQuickSell?: () => void;
+  quickSellCooldownRemaining?: number;
   onOpenTraining?: () => void;
   onOpenImbuements?: () => void;
   onOpenBlessings?: () => void;
@@ -31,6 +32,7 @@ export function MobileMenuDrawer({
   onOpenInventory,
   onOpenDepot,
   onOpenQuickSell,
+  quickSellCooldownRemaining = 0,
   onOpenTraining,
   onOpenImbuements,
   onOpenBlessings,
@@ -201,8 +203,17 @@ export function MobileMenuDrawer({
               </button>
               <button
                 type="button"
-                onClick={() => { onClose(); onOpenQuickSell?.(); }}
-                style={drawerButtonStyle}
+                disabled={quickSellCooldownRemaining > 0}
+                onClick={() => {
+                  if (quickSellCooldownRemaining > 0) return;
+                  onClose();
+                  onOpenQuickSell?.();
+                }}
+                style={{
+                  ...drawerButtonStyle,
+                  opacity: quickSellCooldownRemaining > 0 ? 0.6 : 1,
+                  cursor: quickSellCooldownRemaining > 0 ? 'not-allowed' : 'pointer',
+                }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 19a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v-7H6v7z" />
@@ -210,7 +221,9 @@ export function MobileMenuDrawer({
                   <path d="M10 6V4a2 2 0 0 1 4 0v2" />
                   <circle cx="12" cy="15" r="1.5" />
                 </svg>
-                Venda Rápida
+                {quickSellCooldownRemaining > 0
+                  ? `Venda Rápida (${Math.floor(quickSellCooldownRemaining / 60)}:${(quickSellCooldownRemaining % 60).toString().padStart(2, '0')})`
+                  : 'Venda Rápida'}
               </button>
               <button
                 type="button"

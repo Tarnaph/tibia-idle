@@ -9,6 +9,7 @@ export interface ItemContextMenuProps {
   itemId?: number;
   isEquipped?: boolean;
   isEquippable?: boolean;
+  isLootBag?: boolean;
   autoLoot: boolean;
   lockSell: boolean;
   quickSell: boolean;
@@ -19,6 +20,7 @@ export interface ItemContextMenuProps {
   onToggleAutoLoot: () => void;
   onToggleLockSell: () => void;
   onToggleQuickSell: () => void;
+  onToggleLockItem?: () => void;
   onDestroy: () => void;
   onClose: () => void;
 }
@@ -29,6 +31,7 @@ export function ItemContextMenu({
   itemName,
   isEquipped = false,
   isEquippable = true,
+  isLootBag = false,
   autoLoot,
   lockSell,
   quickSell,
@@ -39,6 +42,7 @@ export function ItemContextMenu({
   onToggleAutoLoot,
   onToggleLockSell,
   onToggleQuickSell,
+  onToggleLockItem,
   onDestroy,
   onClose,
 }: ItemContextMenuProps) {
@@ -135,15 +139,40 @@ export function ItemContextMenu({
         <span className="custom-checkbox" />
       </label>
 
-      <label className="context-menu-item checkbox-item">
-        <span>Travar venda</span>
-        <input
-          type="checkbox"
-          checked={lockSell}
-          onChange={() => onToggleLockSell()}
-        />
-        <span className="custom-checkbox" />
-      </label>
+      <button
+        type="button"
+        className="context-menu-item"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: lockSell ? '#f3f4f6' : '#9ca3af',
+          fontWeight: 600,
+        }}
+        onClick={() => {
+          if (onToggleLockItem) onToggleLockItem();
+          else onToggleLockSell();
+          onClose();
+        }}
+      >
+        {lockSell ? (
+          <>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="#4b5563" />
+              <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+            </svg>
+            <span>Unlock item</span>
+          </>
+        ) : (
+          <>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="#4b5563" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span>Lock item</span>
+          </>
+        )}
+      </button>
 
       <label className="context-menu-item checkbox-item">
         <span>Venda rápida</span>

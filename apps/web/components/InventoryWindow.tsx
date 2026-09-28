@@ -34,6 +34,7 @@ interface InventoryWindowProps {
   onUseItem?: (itemId: number) => void;
   onToggleItemPreference: (itemId: number, key: 'autoLoot' | 'lockSell' | 'quickSell') => void;
   getItemPreference: (itemId: number) => { autoLoot: boolean; lockSell: boolean; quickSell: boolean };
+  onToggleLockLootItem?: (container: 'backpack' | 'bag', index: number) => void;
 }
 
 export function InventoryWindow({
@@ -52,6 +53,7 @@ export function InventoryWindow({
   onUseItem,
   onToggleItemPreference,
   getItemPreference,
+  onToggleLockLootItem,
 }: InventoryWindowProps) {
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -335,7 +337,14 @@ export function InventoryWindow({
                           <ItemSprite itemId={stack.itemId} label={stack.name} />
                           {stack.amount > 1 && <span className="item-amount-badge">{stack.amount}</span>}
                           {pref.quickSell && <span className="item-quicksell-ribbon" title="Marcado para venda rápida" />}
-                          {pref.lockSell && <span className="item-locked-dot" title="Venda travada" />}
+                          {(pref.lockSell || stack.locked) && (
+                            <span className="item-lock-padlock-badge" title="Item protegido contra venda (Locked)">
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="#4b5563" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                              </svg>
+                            </span>
+                          )}
                         </>
                       )}
                     </div>
@@ -400,7 +409,14 @@ export function InventoryWindow({
                           <ItemSprite itemId={stack.itemId} label={stack.name} />
                           {stack.amount > 1 && <span className="item-amount-badge">{stack.amount}</span>}
                           {pref.quickSell && <span className="item-quicksell-ribbon" title="Marcado para venda rápida" />}
-                          {pref.lockSell && <span className="item-locked-dot" title="Venda travada" />}
+                          {(pref.lockSell || stack.locked) && (
+                            <span className="item-lock-padlock-badge" title="Item protegido contra venda (Locked)">
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="#4b5563" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                              </svg>
+                            </span>
+                          )}
                         </>
                       )}
                     </div>
@@ -446,8 +462,17 @@ export function InventoryWindow({
             isEquipped={contextMenu.container === 'equipped'}
             isEquippable={isEquippable}
             autoLoot={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).autoLoot : true}
-            lockSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).lockSell : false}
+            lockSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? (Boolean((contextMenu.item as LootStack).locked) || getItemPreference(contextMenu.item.itemId).lockSell) : false}
             quickSell={'itemId' in contextMenu.item && contextMenu.item.itemId ? getItemPreference(contextMenu.item.itemId).quickSell : false}
+            isLootBag={contextMenu.container === 'backpack'}
+            onToggleLockItem={() => {
+              if (contextMenu.container && typeof contextMenu.index === 'number' && onToggleLockLootItem) {
+                onToggleLockLootItem(contextMenu.container as 'backpack' | 'bag', contextMenu.index);
+              } else {
+                const id = 'itemId' in contextMenu.item ? contextMenu.item.itemId : ('id' in contextMenu.item ? (contextMenu.item as EquipmentDefinition).id : undefined);
+                if (id) onToggleItemPreference(id, 'lockSell');
+              }
+            }}
             onUse={
               'itemId' in contextMenu.item && contextMenu.item.itemId && isTestShopItem(contextMenu.item.itemId) && onUseItem
                 ? () => onUseItem((contextMenu.item as LootStack).itemId!)

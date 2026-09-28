@@ -906,11 +906,18 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             }
             const nameW = view.label.width;
             const totalW = nameW + skullW;
-            const startX = Math.round(-totalW / 2);
-            view.label.anchor.set(0, 0.5);
-            view.label.position.set(startX, creatureVisualLayout.nameplateY);
-            view.label.style.fill = 0x67de82;
-            updateActorSkull(view, charSkull, startX, nameW);
+            if (hasSkull) {
+              const startX = Math.round(-totalW / 2);
+              view.label.anchor.set(0, 0.5);
+              view.label.position.set(startX, creatureVisualLayout.nameplateY);
+              view.label.style.fill = 0x67de82;
+              updateActorSkull(view, charSkull, startX, nameW);
+            } else {
+              view.label.anchor.set(0.5, 0.5);
+              view.label.position.set(0, creatureVisualLayout.nameplateY);
+              view.label.style.fill = 0x67de82;
+              if (view.skullSprite) view.skullSprite.visible = false;
+            }
           }
           view.sprite.alpha = actor.alive ? 1 : 0.45;
           view.root.visible = latestRef.current.isCharacterVisible !== false && actor.alive;
@@ -1349,7 +1356,8 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           const visualMaxHp = enemy ? enemy.maxHp : actor && character ? character.maxHp : 1;
           const hpRatio = Math.max(0, Math.min(1, visualHp / visualMaxHp));
           const variantColor = enemy?.variant?.visualModifier === 'rare-aura' ? 0xb66cff : 0xffb52e;
-          if (!view.titleLabel || !view.titleLabel.visible) {
+          if (enemy) {
+            view.label.anchor.set(0.5, 0.5);
             view.label.position.set(0, creatureVisualLayout.nameplateY);
           }
           view.bar.clear().rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth, 3).fill({ color: 0x251010 }).rect(-creatureVisualLayout.hpBarWidth / 2, creatureVisualLayout.hpBarY, creatureVisualLayout.hpBarWidth * hpRatio, 3).fill({ color: enemy?.variant ? variantColor : enemy ? 0xd3564d : 0x4fc977 });

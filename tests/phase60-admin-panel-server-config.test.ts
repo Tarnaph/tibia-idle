@@ -11,7 +11,7 @@ describe('Phase 60: Admin Panel & Server Config Manager', () => {
   it('should initialize with default server rates and configurations', () => {
     const config = serverConfigManager.getConfig();
     expect(config.expRate).toBe(1.0);
-    expect(config.lootRate).toBe(1.0);
+    expect(config.lootRate).toBe(5.0);
     expect(config.skillRate).toBe(1.0);
     expect(config.maxClientsPerRoom).toBe(100);
     expect(config.periodicSaveIntervalMs).toBe(20000);

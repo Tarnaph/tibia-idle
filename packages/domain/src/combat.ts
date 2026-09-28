@@ -563,10 +563,11 @@ function rollLoot(state: GameState, monsterId: string, content: GameContent, mul
   });
   const partyMembers = livingPartyMembers.length > 0 ? livingPartyMembers : state.session.characters;
 
-  for (let roll = 0; roll < Math.max(1, Math.floor(multiplier)); roll += 1) {
-    for (const loot of monster.loot) {
-      if (rollInteger(rng, 0, 99_999) >= loot.chance) continue;
-      const amount = rollInteger(rng, 1, Math.max(1, loot.maxCount));
+  for (const loot of monster.loot) {
+    // Default formula reference: rollInteger(rng, 0, 99_999) >= loot.chance
+    const effectiveChance = Math.min(100_000, Math.round(loot.chance * Math.max(1, multiplier)));
+    if (rollInteger(rng, 0, 99_999) >= effectiveChance) continue;
+    const amount = rollInteger(rng, 1, Math.max(1, loot.maxCount));
 
       // Party mode: allocate loot to a party member according to rarity roll
       if (partyMembers.length > 1) {
@@ -600,7 +601,6 @@ function rollLoot(state: GameState, monsterId: string, content: GameContent, mul
         }
       }
     }
-  }
   state.encounter.rngState = rng.state;
 }
 

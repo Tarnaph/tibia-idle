@@ -1554,7 +1554,7 @@ export function ThaisCityArena({
               (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
               (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
               curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
-            if (isLocal) return;
+            if (isLocal || (p as any).isMonster || key.startsWith('dummy-') || key.startsWith('rotworm-')) return;
             // Phase 256: Thais City Visibility Guarantee:
             // Remote players on city surface floors (z: 7 or 6) are ALWAYS visible to each other.
             // Exclude only if genuinely underground / in hunt cave (z > 7).
@@ -2444,7 +2444,7 @@ export function ThaisCityArena({
               (myCharIdVal && (p.characterId === myCharIdVal || p.id === myCharIdVal)) ||
               (myCharNameVal && p.name && p.name.toLowerCase() === myCharNameVal) ||
               curChars.some((c) => c.id === p.id || c.id === (p as any).characterId || (c.name && p.name && c.name.toLowerCase() === p.name.toLowerCase()));
-            if (isLocal) return;
+            if (isLocal || (p as any).isMonster || key.startsWith('dummy-') || key.startsWith('rotworm-')) return;
             const pZ = typeof p.z === 'number' ? p.z : (typeof p.posZ === 'number' ? p.posZ : 7);
             if (pZ > 7) return; // Skip rendering remote players physically underground/in hunt
             const pCharId = p.characterId || p.id;
@@ -2530,8 +2530,15 @@ export function ThaisCityArena({
             const sample = rState.track.sample(now);
             const px = sample.renderPosition.x * TILE_SIZE + 16;
             const py = sample.renderPosition.y * TILE_SIZE + 16;
-            const dir = sample.direction || p.direction || 'south';
             const isMoving = sample.moving || p.isMoving;
+            // Phase 257: Se o player remoto estiver parado, p.direction sincronizado via rede tem prioridade sobre o histórico de passos
+            const dir = isMoving
+              ? (sample.direction || p.direction || 'south')
+              : (p.direction || sample.direction || 'south');
+
+            if (!sample.moving && p.direction) {
+              rState.track.reset(rState.lastTile, p.direction);
+            }
 
             view.root.visible = rZ === curPos.z;
             if (!view.root.visible) return;

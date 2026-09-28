@@ -6,14 +6,17 @@ interface MobileQuickSellBubbleProps {
   sellableCount: number;
   onQuickSell: () => void;
   isHunting?: boolean;
+  cooldownRemaining?: number;
 }
 
 export function MobileQuickSellBubble({
   sellableCount,
   onQuickSell,
   isHunting = false,
+  cooldownRemaining = 0,
 }: MobileQuickSellBubbleProps) {
   const [isPressing, setIsPressing] = useState(false);
+  const isOnCooldown = cooldownRemaining > 0;
 
   // Position safely above the hotkeys bar; if hunting, sits above the exit hunt button
   const bottomPos = isHunting ? '174px' : '124px';
@@ -21,8 +24,10 @@ export function MobileQuickSellBubble({
   return (
     <button
       type="button"
+      disabled={isOnCooldown}
       onClick={(e) => {
         e.stopPropagation();
+        if (isOnCooldown) return;
         setIsPressing(true);
         setTimeout(() => setIsPressing(false), 200);
         onQuickSell();
@@ -30,11 +35,12 @@ export function MobileQuickSellBubble({
       onTouchEnd={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (isOnCooldown) return;
         setIsPressing(true);
         setTimeout(() => setIsPressing(false), 200);
         onQuickSell();
       }}
-      title="Venda Rápida de Loot"
+      title={isOnCooldown ? `Venda Rápida em recarga: ${cooldownRemaining}s` : "Venda Rápida de Loot"}
       aria-label="Venda Rápida de Loot"
       style={{
         position: 'fixed',
@@ -45,16 +51,17 @@ export function MobileQuickSellBubble({
         height: '46px',
         borderRadius: '50%',
         backgroundColor: '#0f172a',
-        border: sellableCount > 0 ? '2px solid #eab308' : '1.5px solid #475569',
-        boxShadow: sellableCount > 0
+        border: isOnCooldown ? '1.5px solid #475569' : sellableCount > 0 ? '2px solid #eab308' : '1.5px solid #475569',
+        boxShadow: isOnCooldown ? '0 4px 10px rgba(0, 0, 0, 0.5)' : sellableCount > 0
           ? '0 0 12px rgba(234, 179, 8, 0.4), 0 4px 10px rgba(0, 0, 0, 0.7)'
           : '0 4px 10px rgba(0, 0, 0, 0.5)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: 'pointer',
+        cursor: isOnCooldown ? 'not-allowed' : 'pointer',
+        opacity: isOnCooldown ? 0.65 : 1,
         padding: 0,
-        transform: isPressing ? 'scale(0.92)' : 'scale(1)',
+        transform: isPressing && !isOnCooldown ? 'scale(0.92)' : 'scale(1)',
         transition: 'transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease',
         touchAction: 'manipulation',
       }}
@@ -76,8 +83,32 @@ export function MobileQuickSellBubble({
         <circle cx="12" cy="15" r="1.5" />
       </svg>
 
-      {/* Numerical Badge for sellable items count */}
-      {sellableCount > 0 && (
+      {/* Cooldown or Numerical Badge */}
+      {isOnCooldown ? (
+        <span
+          style={{
+            position: 'absolute',
+            top: '-6px',
+            right: '-6px',
+            backgroundColor: '#334155',
+            color: '#e2e8f0',
+            fontSize: '9px',
+            fontWeight: 800,
+            borderRadius: '9999px',
+            padding: '1px 5px',
+            minWidth: '24px',
+            height: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1.5px solid #0f172a',
+            lineHeight: 1,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
+          }}
+        >
+          {Math.floor(cooldownRemaining / 60)}:{(cooldownRemaining % 60).toString().padStart(2, '0')}
+        </span>
+      ) : sellableCount > 0 ? (
         <span
           style={{
             position: 'absolute',
@@ -101,7 +132,7 @@ export function MobileQuickSellBubble({
         >
           {sellableCount > 99 ? '99+' : sellableCount}
         </span>
-      )}
+      ) : null}
     </button>
   );
 }

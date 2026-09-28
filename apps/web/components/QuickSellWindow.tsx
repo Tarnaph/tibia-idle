@@ -53,6 +53,7 @@ interface QuickSellWindowProps {
   onClose: () => void;
   onExecuteSell: (selectedItemIds: number[]) => void;
   onToggleQuickSellPreference: (itemId: number) => void;
+  cooldownRemaining?: number;
 }
 
 export function QuickSellWindow({
@@ -63,6 +64,7 @@ export function QuickSellWindow({
   onClose,
   onExecuteSell,
   onToggleQuickSellPreference,
+  cooldownRemaining = 0,
 }: QuickSellWindowProps) {
   // Preço por itemId
   const priceMap = useMemo(() => {
@@ -78,6 +80,7 @@ export function QuickSellWindow({
   const sellableItems = useMemo(() => {
     return backpackItems.filter((stack) => {
       if (stack.itemId === undefined) return false;
+      if (stack.locked) return false;
       const pref = state.session.itemLootPreferences[String(stack.itemId)];
       if (pref?.lockSell) return false; // Travar venda exclui da venda rápida
       if ((stack as any).attributes?.imbuements?.length > 0 || (stack as any).attributesJson?.includes('"imbuements"')) return false;
@@ -328,20 +331,23 @@ export function QuickSellWindow({
             <button
               type="button"
               className="quicksell-btn-confirm"
-              disabled={totalCount === 0}
+              disabled={totalCount === 0 || cooldownRemaining > 0}
               onClick={() => {
+                if (cooldownRemaining > 0) return;
                 onExecuteSell([...selectedIds]);
                 onClose();
               }}
               onTouchEnd={(e) => {
-                if (totalCount === 0) return;
+                if (totalCount === 0 || cooldownRemaining > 0) return;
                 e.preventDefault();
                 e.stopPropagation();
                 onExecuteSell([...selectedIds]);
                 onClose();
               }}
             >
-              Vender por {formattedTotalPrice} gp
+              {cooldownRemaining > 0
+                ? `Recarga (${Math.floor(cooldownRemaining / 60)}:${(cooldownRemaining % 60).toString().padStart(2, '0')})`
+                : `Vender por ${formattedTotalPrice} gp`}
             </button>
           </div>
         </div>

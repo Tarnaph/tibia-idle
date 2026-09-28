@@ -748,18 +748,6 @@ export class ThaisCityRoom extends Room<WorldState> {
     dummy.posZ = 7;
     this.state.monsters.set(dummy.id, dummy);
 
-    const rotworm = new MonsterState();
-    rotworm.id = 'rotworm-1';
-    rotworm.name = 'Rotworm';
-    rotworm.monsterTypeId = 'rotworm';
-    rotworm.lookType = 26;
-    rotworm.hp = 65;
-    rotworm.maxHp = 65;
-    rotworm.posX = 32375;
-    rotworm.posY = 32245;
-    rotworm.posZ = 7;
-    this.state.monsters.set(rotworm.id, rotworm);
-
     // Spawn monsters from all imported hunt regions (including Dragon Lair at Z=11)
     let monsterIndex = 1;
     const monsterCatalog = (monstersJson as MonsterCatalog).monsters;

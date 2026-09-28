@@ -4386,7 +4386,21 @@ Plans:
 - [x] 255-04-PLAN: Onda 4 - Orientação Correta das Flechas (8 Eixos) e Projétil Canônico de Spear sem Magia
 - [x] 255-05-PLAN: Onda 5 - Testes Vitest, Validação Typecheck 100%, Documentação e Deploy na VPS
 
+---
 
+- [x] **Phase 256: Unificação das Caçadas em Caverna Fechada & Visibilidade Garantida em Thais** - Resolução de 2 frentes críticas: (1) Unificação de todas as 12 caçadas convencionais para a caverna subterrânea fechada em (32947, 32476, 9) com paredes rochosas intransponíveis, eliminando caminho para o vazio preto e garantindo instanciamento isolado por jogador; (2) Garantia de visibilidade mútua e sincronização em Thais no `onJoin` do servidor e renderização sem filtros indesejados no piso da cidade.
+Plans:
+- [x] 256-01-PLAN: Onda 1 - Unificação de Caçadas em Caverna Fechada e Instanciamento Isolado
+- [x] 256-02-PLAN: Onda 2 - Garantia de Visibilidade Mútua e Sincronização em Thais
+- [x] 256-03-PLAN: Onda 3 - Testes Vitest, Typecheck e Deploy na VPS
 
+---
 
-
+- [x] **Phase 257: Auto-Venda Periódica (10 min), Cooldown de Venda Rápida, Trava de Itens (Lock/Unlock) na Loot Bag, Drop Rate 5x, Sincronia de Direção em Tempo Real e Fixes de Nameplate/Rotworm** - Resolução completa dos itens críticos do FIX.md e problemas visuais relatados: (1) Correção do alinhamento do nameplate de jogadores na caçada (âncora centralizada 0.5 em PixiArena.tsx); (2) Extinção definitiva do Rotworm fantasma na cidade (remoção do spawn estático de teste em ThaisCityRoom.ts e blindagem de renderização); (3) Sistema de Auto-Venda nas caçadas a cada 10 minutos para itens não travados na Loot Bag; (4) Cooldown de 2 minutos no botão Venda Rápida dentro das hunts com feedback visual; (5) Sistema de Trava de Itens (Lock / Unlock item) no clique direito da Loot Bag com ícone de cadeado cinza e proteção contra venda rápida e auto-venda; (6) Elevação do Drop Rate do servidor de 1x para 5x no ServerConfig e motor de drop; (7) Sincronização em tempo real da direção/orientação do corpo dos players (norte, sul, leste, oeste) via Colyseus na cidade.
+Plans:
+- [x] 257-01-PLAN: Onda 1 - Fix do Nameplate Torto na Hunt e Extinção do Rotworm Fantasma na Cidade
+- [x] 257-02-PLAN: Onda 2 - Drop Rate 5x no Servidor e Motor de Drop (ServerConfigManager & Combat)
+- [x] 257-03-PLAN: Onda 3 - Sistema de Trava de Itens (Lock/Unlock) na Loot Bag com Ícone de Cadeado Cinza
+- [x] 257-04-PLAN: Onda 4 - Auto-Venda de Loot a Cada 10 Minutos e Cooldown de 2 Minutos na Venda Rápida
+- [x] 257-05-PLAN: Onda 5 - Sincronização em Tempo Real da Direção/Orientação do Jogador em Thais (Colyseus)
+- [x] 257-06-PLAN: Onda 6 - Verificação com Testes Vitest, Typecheck, Atualização do FIX.md e Deploy na VPS

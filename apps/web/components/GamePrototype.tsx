@@ -270,6 +270,79 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [depotOpen, setDepotOpen] = useState(false);
   const [quickSellOpen, setQuickSellOpen] = useState(false);
+  // Phase 257: Cooldown de 2 minutos (120s) na Venda Rápida durante caçadas
+  const [quickSellCooldownUntil, setQuickSellCooldownUntil] = useState<number>(0);
+  const [cooldownNowTime, setCooldownNowTime] = useState<number>(Date.now());
+
+  useEffect(() => {
+    if (quickSellCooldownUntil > Date.now()) {
+      const interval = setInterval(() => {
+        setCooldownNowTime(Date.now());
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [quickSellCooldownUntil]);
+
+  const quickSellCooldownRemaining =
+    mode === 'hunt' && quickSellCooldownUntil > cooldownNowTime
+      ? Math.max(0, Math.ceil((quickSellCooldownUntil - cooldownNowTime) / 1000))
+      : 0;
+
+  // Phase 257: Travar/destravar item da Loot Bag / Bag contra venda rápida e periódica
+  const handleToggleLockLootItem = useCallback((container: 'backpack' | 'bag', index: number) => {
+    setGame((cur) => {
+      const items = container === 'bag' ? [...(cur.session.bag ?? [])] : [...cur.session.loot];
+      const target = items[index];
+      if (!target) return cur;
+      const nextLocked = !target.locked;
+      items[index] = { ...target, locked: nextLocked };
+
+      let nextState = {
+        ...cur,
+        session: {
+          ...cur.session,
+          ...(container === 'bag' ? { bag: items } : { loot: items }),
+        },
+      };
+
+      if (target.itemId) {
+        nextState = updateItemLootPreference(nextState, target.itemId, { lockSell: nextLocked });
+      }
+
+      setSaleMessage(nextLocked ? `Item '${target.name}' protegido contra venda rápida.` : `Item '${target.name}' desbloqueado para venda.`);
+      return nextState;
+    });
+  }, []);
+
+  // Phase 257: Auto-venda periódica a cada 10 minutos (600s) nas hunts
+  useEffect(() => {
+    if (mode !== 'hunt') return;
+
+    const AUTO_SELL_INTERVAL_MS = 10 * 60 * 1000; // 600 segundos (10 minutos)
+    const timer = setInterval(() => {
+      setGame((cur) => {
+        if (!cur.session.loot || cur.session.loot.length === 0) return cur;
+        const result = sellAllLoot(cur, content);
+        if (result.goldEarned > 0) {
+          const formattedGold = result.goldEarned.toLocaleString('pt-BR');
+          setSaleMessage(`[Auto-Venda 10m] +${formattedGold} gp recebidos pela venda de ${result.soldStacks} itens de loot!`);
+          setChatMessages((prev) => [
+            ...prev.slice(-99),
+            {
+              id: `autosell-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              senderName: 'Servidor',
+              channel: 'local',
+              text: `💰 [Auto-Venda 10m] +${formattedGold} gold obtidos da venda de itens da Loot Bag (${result.soldStacks} itens vendidos).`,
+              timestamp: Date.now(),
+            },
+          ]);
+        }
+        return result.state;
+      });
+    }, AUTO_SELL_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [mode, content]);
   const [imbuingModalOpen, setImbuingModalOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [equipmentMessage, setEquipmentMessage] = useState('Arraste ou clique em um item para alterar o loadout.');
@@ -2105,6 +2178,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             serverId: stack.itemId || 2148,
             name: stack.name,
             count: stack.amount,
+            ...(stack.locked ? { attributesJson: JSON.stringify({ locked: true }) } : {}),
           });
           if (stack.itemId) savedServerIds.add(stack.itemId);
         });
@@ -2118,6 +2192,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             serverId: stack.itemId || 2148,
             name: stack.name,
             count: stack.amount,
+            ...(stack.locked ? { attributesJson: JSON.stringify({ locked: true }) } : {}),
           });
           if (stack.itemId) savedServerIds.add(stack.itemId);
         });
@@ -3598,6 +3673,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     const dir = stepY < 0 ? 'north' : stepY > 0 ? 'south' : stepX < 0 ? 'west' : 'east';
 
     lastStepTimeRef.current = now;
+    setCityDirection(dir);
+    gameNetwork.sendTurn(dir);
 
     setCityPos((pos) => {
       const stairTarget = resolveStairsTransition(pos, stepX, stepY);
@@ -4761,6 +4838,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
     const dir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
     setCityDirection(dir);
+    gameNetwork.sendTurn(dir);
 
     setCityPos((current) => {
       const stairTarget = resolveStairsTransition(current, deltaX, deltaY);
@@ -4896,6 +4974,21 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
 
+      // Ctrl + arrow keys: turn in place in city mode
+      if (mode !== 'hunt' && (e.ctrlKey || e.metaKey)) {
+        let turnDir: 'north' | 'south' | 'east' | 'west' | null = null;
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') turnDir = 'north';
+        else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') turnDir = 'south';
+        else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') turnDir = 'west';
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') turnDir = 'east';
+        if (turnDir) {
+          e.preventDefault();
+          setCityDirection(turnDir);
+          gameNetwork.sendTurn(turnDir);
+          return;
+        }
+      }
+
       // Manual movement via arrow keys (and WASD) in city mode
       if (mode !== 'hunt' && !e.ctrlKey && !e.metaKey) {
         let deltaX = 0;
@@ -4907,6 +5000,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
         if (deltaX !== 0 || deltaY !== 0) {
           e.preventDefault();
+          const stepDir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
+          setCityDirection(stepDir);
+          gameNetwork.sendTurn(stepDir);
           if (isFollowingLeader) {
             setSaleMessage('Você está seguindo o líder da party. Para andar manualmente, saia da party.');
             return;
@@ -5346,6 +5442,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             sellableCount={mobileSellableLootCount}
             onQuickSell={() => setQuickSellOpen(true)}
             isHunting={mode === 'hunt'}
+            cooldownRemaining={quickSellCooldownRemaining}
           />
           <MobileBottomNav
             activeTab={mobileActiveTab}
@@ -5364,6 +5461,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               onOpenInventory={() => setEquipmentOpen(true)}
               onOpenDepot={() => setDepotOpen(true)}
               onOpenQuickSell={() => setQuickSellOpen(true)}
+              quickSellCooldownRemaining={quickSellCooldownRemaining}
               onOpenTraining={handleOpenTrainingMenu}
               onOpenImbuements={() => setImbuingModalOpen(true)}
               onOpenBlessings={() => setIsBlessingsModalOpen(true)}
@@ -5413,6 +5511,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           onToggleBackpack={() => setEquipmentOpen((prev) => !prev)}
           onOpenDepot={() => setDepotOpen(true)}
           onOpenQuickSell={() => setQuickSellOpen(true)}
+          quickSellCooldownRemaining={quickSellCooldownRemaining}
           onOpenTraining={handleOpenTrainingMenu}
           onOpenImbuements={() => setImbuingModalOpen(true)}
           onOpenBlessings={() => setIsBlessingsModalOpen(true)}
@@ -5445,6 +5544,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         onUseItem={handleUseItem}
         onToggleItemPreference={(itemId, key) => setGame((cur) => updateItemLootPreference(cur, itemId, { [key]: !itemLootPreference(cur, itemId)[key] }))}
         getItemPreference={(itemId) => itemLootPreference(game, itemId)}
+        onToggleLockLootItem={handleToggleLockLootItem}
       />
 
       <DepotWindow
@@ -5538,12 +5638,19 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         backpackItems={game.session.loot}
         economy={content.economy}
         state={game}
+        cooldownRemaining={quickSellCooldownRemaining}
         onClose={() => setQuickSellOpen(false)}
         onExecuteSell={(selectedIds) => {
           setGame((cur) => {
             const result = executeQuickSell(cur, content, selectedIds);
+            if (result.goldEarned > 0) {
+              setSaleMessage(`Venda Rápida: +${result.goldEarned.toLocaleString('pt-BR')} gp (${result.itemsSold} itens vendidos)!`);
+            }
             return result.state;
           });
+          if (mode === 'hunt') {
+            setQuickSellCooldownUntil(Date.now() + 120_000);
+          }
         }}
         onToggleQuickSellPreference={(itemId) => {
           setGame((cur) => updateItemLootPreference(cur, itemId, { quickSell: !itemLootPreference(cur, itemId).quickSell }));

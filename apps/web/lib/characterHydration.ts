@@ -49,8 +49,8 @@ export interface HydratedInventoryResult {
   itemAttributes: Record<number, any>;
   equipmentIds: number[];
   gold: number;
-  bag: Array<{ itemId?: number; name: string; amount: number; attributes?: any }>;
-  loot: Array<{ itemId?: number; name: string; amount: number; attributes?: any }>;
+  bag: Array<{ itemId?: number; name: string; amount: number; attributes?: any; locked?: boolean }>;
+  loot: Array<{ itemId?: number; name: string; amount: number; attributes?: any; locked?: boolean }>;
 }
 
 export function parseInventoryData(
@@ -58,8 +58,8 @@ export function parseInventoryData(
   contentEquipment: any[]
 ): HydratedInventoryResult {
   let gold = 0;
-  const bag: Array<{ itemId?: number; name: string; amount: number; attributes?: any }> = [];
-  const loot: Array<{ itemId?: number; name: string; amount: number; attributes?: any }> = [];
+  const bag: Array<{ itemId?: number; name: string; amount: number; attributes?: any; locked?: boolean }> = [];
+  const loot: Array<{ itemId?: number; name: string; amount: number; attributes?: any; locked?: boolean }> = [];
   const equipment: Record<CharacterEquipmentSlot, number | null> = {
     head: null,
     neck: null,
@@ -139,6 +139,7 @@ export function parseInventoryData(
           name: item.name || 'Item',
           amount: count,
           attributes: parsedAttr,
+          locked: Boolean(parsedAttr?.locked),
         });
         if (findEquipment(contentEquipment, serverId) && !equipmentIds.includes(serverId)) {
           equipmentIds.push(serverId);
@@ -149,6 +150,7 @@ export function parseInventoryData(
           name: item.name || 'Loot',
           amount: count,
           attributes: parsedAttr,
+          locked: Boolean(parsedAttr?.locked),
         });
         if (findEquipment(contentEquipment, serverId) && !equipmentIds.includes(serverId)) {
           equipmentIds.push(serverId);

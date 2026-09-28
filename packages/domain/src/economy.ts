@@ -22,6 +22,7 @@ export function sellAllLoot(state: GameState, content: GameContent): SellLootRes
   let goldEarned = 0;
   let soldStacks = 0;
   const remaining = state.session.loot.filter((stack) => {
+    if (stack.locked) return true;
     if (stack.itemId !== undefined && itemLootPreference(state, stack.itemId).lockSell) return true;
     const price = stack.itemId === undefined ? null : prices.get(stack.itemId);
     if (price === null || price === undefined) return true;
@@ -49,7 +50,7 @@ export function sellLootStack(state: GameState, content: GameContent, itemId: nu
   const stack = state.session.loot.find((candidate) => candidate.itemId === itemId);
   const economy = content.economy.items.find((candidate) => candidate.itemId === itemId);
   const price = economy ? preferredSellPrice(economy)?.price ?? null : null;
-  if (!stack || price === null || preference.lockSell) return { state, goldEarned: 0, soldStacks: 0, unsoldStacks: state.session.loot.length };
+  if (!stack || price === null || preference.lockSell || stack.locked) return { state, goldEarned: 0, soldStacks: 0, unsoldStacks: state.session.loot.length };
   const goldEarned = price * stack.amount;
   return { state: { ...state, session: { ...state.session, gold: state.session.gold + goldEarned, loot: state.session.loot.filter((candidate) => candidate !== stack) } }, goldEarned, soldStacks: 1, unsoldStacks: state.session.loot.length - 1 };
 }
@@ -130,6 +131,7 @@ export function executeQuickSell(
 
   const remaining = state.session.loot.filter((stack) => {
     if (stack.itemId === undefined || !selectedSet.has(stack.itemId)) return true;
+    if (stack.locked) return true;
     const pref = itemLootPreference(state, stack.itemId);
     if (pref.lockSell) return true;
     const price = prices.get(stack.itemId);

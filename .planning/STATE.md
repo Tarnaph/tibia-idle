@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-28T17:35:00.000Z"
-last_activity: "2026-09-28 — Conclusão da Phase 256: Unificação de Caçadas em Caverna Fechada (x: 32947, y: 32476, z: 9), Instâncias Isoladas de Caçada e Garantia de Visibilidade Mútua em Thais."
+last_updated: "2026-09-28T19:40:00.000Z"
+last_activity: "2026-09-28 — Conclusão integral da Phase 257: Nameplate Centralizado, Extinção de Rotworm na Cidade, Drop Rate 5x, Trava de Itens (Lock/Unlock) na Loot Bag com Cadeado Cinza, Auto-Venda 10m, Cooldown 2m na Venda Rápida e Sincronização em Tempo Real de Direção do Corpo."
 progress:
-  total_phases: 256
-  completed_phases: 256
-  total_plans: 356
-  completed_plans: 356
+  total_phases: 257
+  completed_phases: 257
+  total_plans: 362
+  completed_plans: 362
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 256: Unificação de Caçadas em Caverna Fechada, Instâncias Isoladas de Caçada e Garantia de Visibilidade Mútua em Thais.
+**Current focus:** Phase 257: Auto-Venda Periódica, Trava de Itens Loot Bag, Drop Rate 5x, Sincronia de Direção e Correções Visuais Concluídas com Sucesso.
 
 ## Current Position
 
-Phase: 256 of 256  
-Plan: 1 of 1 in Phase 256  
-Status: Complete ✅  
-Last activity: 2026-09-28 — Concluída a Phase 256 com unificação das coordenadas de hunt e garantia de visibilidade na cidade.
+Phase: 257 of 257  
+Plan: 6 of 6 in Phase 257  
+Status: Complete 🚀  
+Last activity: 2026-09-28 — Finalizada a Phase 257 com 100% de cobertura e aprovação em testes Vitest e typecheck TypeScript sem erros.
 
 Progress: [██████████] 100.0%
 

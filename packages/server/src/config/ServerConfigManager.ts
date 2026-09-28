@@ -15,7 +15,7 @@ export interface ServerConfig {
 
 export const defaultConfig: ServerConfig = {
   expRate: 1.0,
-  lootRate: 1.0,
+  lootRate: 5.0,
   skillRate: 1.0,
   regenRate: 1.0,
   maxClientsPerRoom: 100,

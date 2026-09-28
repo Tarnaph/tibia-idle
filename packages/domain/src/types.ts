@@ -251,7 +251,7 @@ export interface HuntDefinition {
   waves: WaveDefinition[];
 }
 
-export interface LootStack { itemId?: number; name: string; amount: number }
+export interface LootStack { itemId?: number; name: string; amount: number; locked?: boolean; }
 export interface ItemLootPreference { itemId: number; autoLoot: boolean; lockSell: boolean; quickSell: boolean }
 
 export type CombatEvent =
