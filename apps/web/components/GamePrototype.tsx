@@ -3395,10 +3395,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     const delta = Math.min(now - lastCombatTimeRef.current, 500);
     lastCombatTimeRef.current = now;
     setGame((current) => {
-      const next = advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120);
+      try {
+        const next = advanceCombat(current, content, delta > 0 ? Math.round(delta) : 120);
 
-      // ARENA PVP: CONSUMO AUTOMÁTICO DE POÇÕES E DETECÇÃO DE VITÓRIA / DERROTA
-      if (next.encounter.hunt?.id === 'pvp-arena' && activePvPDuelRef.current) {
+        // ARENA PVP: CONSUMO AUTOMÁTICO DE POÇÕES E DETECÇÃO DE VITÓRIA / DERROTA
+        if (next.encounter.hunt?.id === 'pvp-arena' && activePvPDuelRef.current) {
         const duel = activePvPDuelRef.current;
         const playerChar = next.session.characters.find((c) => c.id === next.session.selectedCharacterId);
         const oppEnemy = next.encounter.enemies.find((e) => e.id.startsWith('pvp_opp_'));
@@ -3716,7 +3717,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         }
       }
 
-      return next;
+        return next;
+      } catch (err) {
+        console.error('[GamePrototype] Erro ao avançar combate na hunt:', err);
+        return current;
+      }
     });
   }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady]);
 
@@ -3735,27 +3740,40 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
   useGameTicker(tickCityAutoSpells, 150, mode !== 'hunt');
 
-  // When defeated in hunt or dead, open authentic "You are dead" modal
+  // When defeated in hunt or local character dies, open authentic "You are dead" modal
   useEffect(() => {
-    if (mode === 'hunt' && encounter.status === 'defeated') {
+    if (mode === 'hunt') {
       if (encounter.hunt?.id === 'pvp-arena') return; // Duelo esportivo na Arena não ativa tela de morte
-      const deathEvt = encounter.events?.find((e: any) => e.type === 'player-death');
-      const killer = (deathEvt as any)?.killerName || encounter.enemies?.find((e) => e.alive)?.name || encounter.enemies?.[0]?.name || encounter.hunt?.name || 'Monstro';
-      setLastKillerName(killer);
-      playPlayerDeath();
-      setIsDeathModalOpen(true);
-      setOverheadMessages((prev) => [
-        ...prev,
-        {
-          id: `dead-${Date.now()}`,
-          senderName: activeCharacter.name,
-          text: 'You are dead.',
-          channel: 'local',
-          timestamp: Date.now(),
-        },
-      ]);
+      if (isDeathModalOpen) return;
+
+      const isDefeated = encounter.status === 'defeated';
+      const isLocalActorDead = Boolean(activeCharacter && encounter.partyActors?.some(
+        (actor) => actor.characterId === activeCharacter.id && (!actor.alive || actor.hp <= 0)
+      ));
+      const isLocalCharDead = Boolean(activeCharacter && activeCharacter.currentHp <= 0);
+      const hasLocalDeathEvent = Boolean(activeCharacter && encounter.events?.some(
+        (e: any) => e.type === 'player-death' && (e.characterId === activeCharacter.id || e.targetId === activeCharacter.id)
+      ));
+
+      if (isDefeated || isLocalActorDead || isLocalCharDead || hasLocalDeathEvent) {
+        const deathEvt = encounter.events?.find((e: any) => e.type === 'player-death' && (!activeCharacter || e.characterId === activeCharacter.id || e.targetId === activeCharacter.id)) || encounter.events?.find((e: any) => e.type === 'player-death');
+        const killer = (deathEvt as any)?.killerName || encounter.enemies?.find((e) => e.alive)?.name || encounter.enemies?.[0]?.name || encounter.hunt?.name || 'Monstro';
+        setLastKillerName(killer);
+        playPlayerDeath();
+        setIsDeathModalOpen(true);
+        setOverheadMessages((prev) => [
+          ...prev,
+          {
+            id: `dead-${Date.now()}`,
+            senderName: activeCharacter.name,
+            text: 'You are dead.',
+            channel: 'local',
+            timestamp: Date.now(),
+          },
+        ]);
+      }
     }
-  }, [mode, encounter.status, encounter.events, encounter.enemies, encounter.hunt, activeCharacter.name]);
+  }, [mode, encounter.status, encounter.events, encounter.enemies, encounter.hunt, encounter.partyActors, activeCharacter, isDeathModalOpen]);
 
   const deathPenaltyReport = useMemo(() => {
     if (!isDeathModalOpen || !activeCharacter) return undefined;

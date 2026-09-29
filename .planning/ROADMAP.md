@@ -4440,4 +4440,12 @@ Plans:
 - [x] 261-02-PLAN: Onda 14 - Extinção da Tela de Loading Congelada, Blindagem de Morte Multiplayer e Transição Urbana Fluida
 - [x] 261-03-PLAN: Validação Global - Testes Vitest Automatizados, TypeScript Typecheck (0 erros) e Atualização do FIX.md
 
+---
+
+- [x] **Phase 262: Extinção de Deadlocks em Hunts Contínuas, Morte Local em Party e Blindagem do Render Loop (Onda 15)** - Resolução integral da Onda 15 do FIX.md: (1) Extinção de exceções fatais (`throw new Error('[continuous-hunt-deadlock]...')`) durante a espera por respawn de criaturas em hunts contínuas em `packages/domain/src/combat.ts`, substituídas por transição suave e recuperação automática de zona; (2) Blindagem resiliente no dispatch de `tickCombat` em `apps/web/components/GamePrototype.tsx` com `try ... catch` prevenindo que falhas de simulação desmontem a árvore React; (3) Blindagem do loop de renderização do PixiJS (`PixiArena.tsx`) contra travamentos de ticker; (4) Detecção imediata de morte do herói local em party multiplayer sem depender do encerramento de toda a equipe (`encounter.status === 'defeated'`), acionando o modal "You are dead" no momento da morte; (5) Fallback seguro para corpos de monstros derrotados sem `corpseId` catalogado (`monster.corpseId ?? 3058`).
+Plans:
+- [x] 262-01-PLAN: Onda 15 - Extinção de Deadlocks em Hunts Contínuas e Fallback Seguro de Corpses (`packages/domain/src/combat.ts` e `movement.ts`)
+- [x] 262-02-PLAN: Onda 15 - Blindagem do Ciclo de Combate React e do Canvas PixiJS (`GamePrototype.tsx` e `PixiArena.tsx`)
+- [x] 262-03-PLAN: Onda 15 - Detecção Imediata de Morte Local em Party Multiplayer e Validação com Testes Vitest (`tests/phase262-anti-deadlock-and-hunt-resilience.test.ts`)
+
 

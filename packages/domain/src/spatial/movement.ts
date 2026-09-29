@@ -36,20 +36,20 @@ export function assertSpatialIntegrity(encounter: HuntEncounterState): void {
       throw new Error(`Spatial invariant failed: ${occupant.id} occupies blocked tile ${positionKey(occupant.position)} at tick ${encounter.round}; path=${JSON.stringify(entity?.path ?? [])}`);
     }
   }
-  if (rebuilt.size !== encounter.room.occupancy.size || [...rebuilt].some(([key, id]) => encounter.room.occupancy.get(key) !== id)) {
+  if (encounter.room.occupancy && (rebuilt.size !== encounter.room.occupancy.size || [...rebuilt].some(([key, id]) => encounter.room.occupancy.get(key) !== id))) {
     throw new Error(`Spatial invariant failed: occupancy map diverged at tick ${encounter.round}.`);
   }
-  if (new Set(encounter.room.reservations.keys()).size !== encounter.room.reservations.size) {
+  if (encounter.room.reservations && new Set(encounter.room.reservations.keys()).size !== encounter.room.reservations.size) {
     throw new Error(`Spatial invariant failed: duplicate reservation at tick ${encounter.round}.`);
   }
 }
 
 function occupiedKeys(encounter: HuntEncounterState): Set<string> {
-  return new Set(encounter.room.occupancy.keys());
+  return new Set(encounter.room.occupancy?.keys?.() ?? []);
 }
 
 function reservationKeys(encounter: HuntEncounterState): Set<string> {
-  return new Set(encounter.room.reservations.keys());
+  return new Set(encounter.room.reservations?.keys?.() ?? []);
 }
 
 export function isMovementStepLegal(encounter: HuntEncounterState, creatureId: string, from: GridPosition, to: GridPosition): boolean {

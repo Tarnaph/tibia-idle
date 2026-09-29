@@ -138,3 +138,16 @@
   - Cada jogador real em party multiplayer permanece estritamente vinculado ao seu próprio herói; a morte local nunca transfere o foco ou o envio de telemetria de progresso (XP) para o personagem do colega de grupo.
 - [x] **35. Transição Imediata de Retorno e Fechamento Limpo na Saída de Caçada em Grupo (`GamePrototype.tsx`):**
   - Em `exitHunt`, acionar a tela de transição de retorno a Thais de forma instantânea antes das etapas assíncronas de salvamento, garantindo feedback visual imediato e descarregamento limpo da caçada.
+
+## Onda 15: Extinção de Deadlocks em Hunts Contínuas, Morte Local em Party e Blindagem do Render Loop (Phase 262)
+- [x] **36. Extinção dos Deadlocks Fatais em Hunts Contínuas (`packages/domain/src/combat.ts`):**
+  - Remover `throw new Error('[continuous-hunt-deadlock]...')` em `recordContinuousActivityOrThrow` e `advanceContinuousHunt`.
+  - Implementar recuperação automática após 5 segundos de espera: avançar para a próxima zona ou reiniciar `lastActivityAt`, permitindo que monstros renasçam normalmente sem derrubar o cliente.
+- [x] **37. Blindagem Contra Queda do React no Loop de Combate (`apps/web/components/GamePrototype.tsx`):**
+  - Envolver `advanceCombat` em `tickCombat` com bloco `try ... catch (err)`, garantindo que qualquer inconsistência de simulação seja logada sem desmontar os componentes da tela ou deixar o viewport apenas no background.
+- [x] **38. Proteção do Ticker do PixiJS contra Erros de Renderização (`apps/web/components/PixiArena.tsx`):**
+  - Envolver a chamada de `render()` adicionada ao ticker do Pixi com `try ... catch`, impedindo que falhas pontuais de texturas travem o canvas.
+- [x] **39. Detecção Imediata de Morte do Jogador Local em Party Multiplayer (`apps/web/components/GamePrototype.tsx`):**
+  - Em `useEffect` de detecção de derrota, verificar se o ator local do jogador morreu (`!actor.alive || actor.hp <= 0` ou evento `player-death`), abrindo o modal autêntico "You are dead" imediatamente, sem depender de `encounter.status === 'defeated'`.
+- [x] **40. Fallback Resiliente de Corpo de Monstro Morto (`packages/domain/src/combat.ts`):**
+  - Em `defeatEnemy`, substituir `throw new Error` caso `corpseId` seja indefinido por fallback seguro (`monster.corpseId ?? 3058`), impedindo crash da engine ao derrotar criaturas com variantes customizadas.

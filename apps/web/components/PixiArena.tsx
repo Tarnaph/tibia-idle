@@ -1495,7 +1495,15 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         cameraInitialized = false;
       });
 
-      app.ticker.add(render);
+      const safeRender = () => {
+        try {
+          render();
+        } catch (err) {
+          console.error('[PixiArena] safeRender caught:', err);
+        }
+      };
+
+      app.ticker.add(safeRender);
       syncRef.current = sync; sync(latestRef.current.game, latestRef.current.debug);
       if (latestRef.current.active && (cameraInitialized || latestRef.current.game.encounter.partyActors.length > 0) && !sceneReadyNotified) {
         sceneReadyNotified = true;
@@ -1523,7 +1531,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         unsubZoom();
         if (resizeObserver) resizeObserver.disconnect();
         window.removeEventListener('resize', onResize);
-        app.ticker.remove(render);
+        app.ticker.remove(safeRender);
         try {
           for (const [, view] of views) destroyVisualNode(view.root);
           views.clear();

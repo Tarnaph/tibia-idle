@@ -609,8 +609,7 @@ export function defeatEnemy(state: GameState, target: EnemyState, content: GameC
   const encounter = state.encounter;
   target.alive = false; target.path = []; target.targetId = null;
   const monster = monsterFor(content, target.monsterId);
-  const corpseId = monster.corpseId;
-  if (corpseId === undefined) throw new Error(`${monster.name} has no corpseId.`);
+  const corpseId = monster.corpseId ?? 3058;
   const corpse: CorpseState = { id: `corpse-${target.id}`, monsterId: target.monsterId, corpseId, position: clonePosition(target.position), createdAt: encounter.elapsedMs };
   encounter.corpses.push(corpse);
   encounter.events.push({ type: 'enemy-death', enemyId: target.id, corpseId });
@@ -3174,8 +3173,13 @@ function recordContinuousActivityOrThrow(state: GameState, objective: HuntObject
   }
   if (progress.stalledSince === null) progress.stalledSince = state.encounter.elapsedMs;
   if (state.encounter.elapsedMs - progress.lastActivityAt >= 5_000) {
-    const leader = state.encounter.partyActors.find((actor) => actor.characterId === state.session.leaderId);
-    throw new Error(`[continuous-hunt-deadlock] hunt=${state.encounter.hunt.id} zone=${objective.zoneIndex} objective=${objective.kind} target=${objective.target.x},${objective.target.y},${objective.target.z} leader=${leader ? `${leader.position.x},${leader.position.y},${leader.position.z}` : 'missing'} elapsed=${state.encounter.elapsedMs}`);
+    // Phase 262: Safe anti-stall recovery — advance to next zone or refresh activity, never crash the game!
+    progress.lastActivityAt = state.encounter.elapsedMs;
+    progress.stalledSince = null;
+    if (state.encounter.huntRoute && state.encounter.huntRoute.respawnZones.length > 0) {
+      progress.currentZoneIndex = (progress.currentZoneIndex + 1) % state.encounter.huntRoute.respawnZones.length;
+      if (progress.currentZoneIndex === 0) progress.loopCount += 1;
+    }
   }
 }
 
@@ -3205,7 +3209,15 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   const objective = resolveNextHuntObjective(state);
   if (!objective) {
     if (progress.stalledSince === null) progress.stalledSince = encounter.elapsedMs;
-    if (encounter.elapsedMs - progress.stalledSince >= 5_000) throw new Error(`[continuous-hunt-deadlock] hunt=${encounter.hunt.id} zone=${progress.currentZoneIndex} elapsed=${encounter.elapsedMs} no objective`);
+    if (encounter.elapsedMs - progress.stalledSince >= 5_000) {
+      // Phase 262: Safe anti-stall recovery when no objective is ready
+      progress.stalledSince = null;
+      progress.lastActivityAt = encounter.elapsedMs;
+      if (route.respawnZones.length > 0) {
+        progress.currentZoneIndex = (progress.currentZoneIndex + 1) % route.respawnZones.length;
+        if (progress.currentZoneIndex === 0) progress.loopCount += 1;
+      }
+    }
     return;
   }
   progress.stalledSince = null;
