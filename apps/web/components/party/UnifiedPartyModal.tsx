@@ -110,6 +110,7 @@ export interface UnifiedPartyModalProps {
   accountCharacters?: CharacterState[];
   partyMemberIds?: string[];
   remoteMembers?: RemotePartyMember[];
+  friends?: Array<{ name: string; level?: number; vocation?: string; isOnline?: boolean }>;
   isPartyLeader?: boolean;
   currentHuntName?: string;
   onSelectActiveCharacter?: (charId: string) => void;
@@ -387,6 +388,7 @@ export function UnifiedPartyModal({
   accountCharacters = [],
   partyMemberIds = [],
   remoteMembers = [],
+  friends = [],
   isPartyLeader = true,
   currentHuntName,
   onSelectActiveCharacter,
@@ -475,10 +477,19 @@ export function UnifiedPartyModal({
     };
 
     // 2. Aloca membros remotos conectados
+    const vocOrder: VocationSlotType[] = ['Knight', 'Paladin', 'Sorcerer', 'Druid'];
     for (const remote of remoteMembers) {
       const rVoc = normalizeVocation(remote.vocation);
+      let targetSlot: VocationSlotType | null = null;
       if (result[rVoc].source === 'empty') {
-        result[rVoc] = {
+        targetSlot = rVoc;
+      } else {
+        // Encontra o próximo slot vazio disponível
+        targetSlot = vocOrder.find((v) => result[v].source === 'empty') || null;
+      }
+
+      if (targetSlot) {
+        result[targetSlot] = {
           character: null,
           remotePlayer: remote,
           source: 'remote',
@@ -767,38 +778,11 @@ export function UnifiedPartyModal({
                       {/* Watermark background icon */}
                       <div className="party-card-watermark-icon">{config.icon}</div>
 
-                      {/* Big circular (+) button */}
-                      <button
-                        type="button"
-                        className="party-card-add-circle"
-                        onClick={() => {
-                          if (availableAlts.length > 0) {
-                            setOpenDropdownVocation(openDropdownVocation === voc ? null : voc);
-                          } else if (onCreateCharacter) {
-                            setCreateCharVocation(voc);
-                            setCreateCharName('');
-                            setCreateCharError(null);
-                            setCreateCharModalOpen(true);
-                          } else {
-                            setInviteModalOpen(true);
-                          }
-                        }}
-                        title={`Adicionar ${config.title}`}
-                      >
-                        <span>+</span>
-                      </button>
-
-                      {/* 1-line concise description */}
-                      <div className="party-card-short-role">{config.shortRole}</div>
-
-                      {/* Diamond Divider */}
-                      <div className="party-card-diamond-divider">◈</div>
-
-                      {/* "+ Adicionar" button with dropdown */}
-                      <div className="party-card-add-action-wrap">
+                      {/* Big circular (+) button with dropdown action */}
+                      <div className="party-card-add-action-wrap" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <button
                           type="button"
-                          className="party-btn-add-slot"
+                          className="party-card-add-circle"
                           onClick={() => {
                             if (availableAlts.length > 0) {
                               setOpenDropdownVocation(openDropdownVocation === voc ? null : voc);
@@ -811,9 +795,16 @@ export function UnifiedPartyModal({
                               setInviteModalOpen(true);
                             }
                           }}
+                          title={`Adicionar ${config.title}`}
                         >
-                          + Adicionar
+                          <span>+</span>
                         </button>
+
+                        {/* 1-line concise description */}
+                        <div className="party-card-short-role">{config.shortRole}</div>
+
+                        {/* Diamond Divider */}
+                        <div className="party-card-diamond-divider">◈</div>
 
                         {openDropdownVocation === voc && (
                           <div className="party-alt-dropdown-menu">
@@ -914,18 +905,33 @@ export function UnifiedPartyModal({
 
           <div className="party-footer-right">
             {isPartyLeader ? (
-              <button
-                type="button"
-                className="party-footer-btn-disband"
-                onClick={() => {
-                  if (onDisbandParty) onDisbandParty();
-                  onClose();
-                }}
-                title="Desfazer o grupo atual"
-              >
-                <span>↺</span>
-                <span>Desfazer Grupo</span>
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="party-footer-btn-disband"
+                  onClick={() => {
+                    if (onDisbandParty) onDisbandParty();
+                    onClose();
+                  }}
+                  title="Encerrar a party para todos os membros"
+                >
+                  <span>↺</span>
+                  <span>Desfazer Grupo</span>
+                </button>
+                <button
+                  type="button"
+                  className="party-footer-btn-secondary"
+                  style={{ borderColor: '#ca8a04', color: '#facc15' }}
+                  onClick={() => {
+                    if (onLeaveParty) onLeaveParty();
+                    onClose();
+                  }}
+                  title="Sair do grupo e transferir liderança"
+                >
+                  <span>🚪</span>
+                  <span>Sair da Party</span>
+                </button>
+              </div>
             ) : (
               <button
                 type="button"
@@ -1035,6 +1041,65 @@ export function UnifiedPartyModal({
                 className="party-invite-input"
                 autoFocus
               />
+
+              {friends && friends.length > 0 && (
+                <div className="party-invite-friends-section" style={{ marginTop: '12px', borderTop: '1px solid #2a3447', paddingTop: '10px' }}>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, marginBottom: '6px', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>⭐ SEUS AMIGOS ({friends.length})</span>
+                    <span style={{ color: '#4ade80' }}>● {friends.filter((f) => f.isOnline).length} Online</span>
+                  </div>
+                  <div style={{ maxHeight: '160px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {friends.map((friend) => (
+                      <div
+                        key={friend.name}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '6px 10px',
+                          background: '#151922',
+                          border: '1px solid #2a3447',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '9px', color: friend.isOnline ? '#4ade80' : '#64748b' }}>●</span>
+                          <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '12px' }}>{friend.name}</span>
+                          {friend.level && (
+                            <span style={{ color: '#94a3b8', fontSize: '11px' }}>Nv. {friend.level}</span>
+                          )}
+                          {friend.vocation && (
+                            <span style={{ color: '#ca8a04', fontSize: '10.5px' }}>({friend.vocation})</span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onInviteRemotePlayer) {
+                              onInviteRemotePlayer(friend.name);
+                              setInviteModalOpen(false);
+                            }
+                          }}
+                          style={{
+                            padding: '4px 8px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            background: 'linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%)',
+                            border: '1px solid #60a5fa',
+                            borderRadius: '3px',
+                            color: '#ffffff',
+                            cursor: 'pointer',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(1.15)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.filter = 'none')}
+                        >
+                          Convidar
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '6px' }}>
                 <button

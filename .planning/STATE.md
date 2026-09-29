@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-28T21:15:00.000Z"
-last_activity: "2026-09-28 — Conclusão da Phase 259: Grade Rolável e Dinâmica na Loot Bag, HUD de Party para Jogadores Reais e Eliminação do Loop de Loading de Caçada."
+last_updated: "2026-09-29T09:35:00.000Z"
+last_activity: "2026-09-29 — Conclusão com sucesso da Phase 260: UI de Amigos/Party, Liberdade Urbana, Ciclo de Vida da Party e Sanitização Estrita de Sessão."
 progress:
-  total_phases: 259
-  completed_phases: 259
-  total_plans: 370
-  completed_plans: 370
+  total_phases: 260
+  completed_phases: 260
+  total_plans: 374
+  completed_plans: 374
   percent: 100.0
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 259 concluída com sucesso e pronta para deploy na VPS.
+**Current focus:** Phase 260 concluída com 100% dos testes e typecheck aprovados.
 
 ## Current Position
 
-Phase: 259 of 259  
-Plan: 4 of 4 in Phase 259  
+Phase: 260 of 260  
+Plan: 4 of 4 in Phase 260  
 Status: Complete ✅  
-Last activity: 2026-09-28 — Conclusão das 4 ondas da Phase 259 (Loot Bag Scroll, Party HUD e Fix Hunt Loop).
+Last activity: 2026-09-29 — Conclusão e validação global da Phase 260.
 
-Progress: [██████████] 100%
+Progress: [██████████] 100.0%
 
 
 

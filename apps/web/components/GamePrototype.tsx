@@ -544,11 +544,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const multiplayerPartyRef = useRef(multiplayerParty);
   multiplayerPartyRef.current = multiplayerParty;
   const followSuppressedUntilRef = useRef<number>(0);
-  const isFollowingLeader = Boolean(
-    multiplayerParty &&
-    gameNetwork.LocalPlayerId &&
-    multiplayerParty.leaderSessionId !== gameNetwork.LocalPlayerId
-  );
+  // Phase 260: Urban freedom - party members move 100% freely in Thais city without involuntary leashing
+  const isFollowingLeader = false;
   const modeRef = useRef(mode);
   modeRef.current = mode;
   const cityPosRef = useRef(cityPos);
@@ -1158,8 +1155,56 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
   }, [savedPool, game.session.selectedCharacterId, game.session.characters]);
 
+  // Phase 260: Strict session sanitization ensuring no remote players ever remain in session.characters
+  const purgeRemoteCharactersFromSession = useCallback(() => {
+    setGame((cur) => {
+      const ownChars = cur.session.characters.filter((c) => {
+        if (onlineCharacterRef.current && (c.id === onlineCharacterRef.current.id || c.name.toLowerCase() === onlineCharacterRef.current.name.toLowerCase())) {
+          return true;
+        }
+        return savedPoolRef.current.some(
+          (p) => p.id === c.id || (p.name && c.name && p.name.trim().toLowerCase() === c.name.trim().toLowerCase())
+        );
+      });
+
+      const fallbackChar = cur.session.characters.find(
+        (c) => onlineCharacterRef.current && (c.id === onlineCharacterRef.current.id || c.name.toLowerCase() === onlineCharacterRef.current.name.toLowerCase())
+      ) || ownChars[0] || cur.session.characters[0];
+
+      const safeChars = ownChars.length > 0 ? ownChars : (fallbackChar ? [fallbackChar] : []);
+      const primaryId = onlineCharacterRef.current?.id || safeChars[0]?.id || cur.session.selectedCharacterId;
+      const safeSelectedId = safeChars.some((c) => c.id === cur.session.selectedCharacterId)
+        ? cur.session.selectedCharacterId
+        : primaryId;
+
+      return {
+        ...cur,
+        session: {
+          ...cur.session,
+          characters: safeChars,
+          selectedCharacterId: safeSelectedId,
+          leaderId: safeSelectedId,
+          isMultiplayerParty: false,
+        },
+      };
+    });
+  }, []);
+
+  const handleLeaveParty = useCallback(() => {
+    gameNetwork.sendPartyLeave();
+    setMultiplayerParty(null);
+    setPartyMemberIds(onlineCharacterRef.current?.id ? [onlineCharacterRef.current.id] : []);
+    setIsPartyCreated(false);
+    setPartyModalOpen(false);
+    purgeRemoteCharactersFromSession();
+    setSaleMessage('Você saiu da party multiplayer.');
+    if (mode === 'hunt') {
+      void exitHuntRef.current?.();
+    }
+  }, [mode, purgeRemoteCharactersFromSession]);
+
   const handleDisbandParty = useCallback(() => {
-    setPartyMemberIds([]);
+    setPartyMemberIds(onlineCharacterRef.current?.id ? [onlineCharacterRef.current.id] : []);
     setIsPartyCreated(false);
     setPartyModalOpen(false);
 
@@ -1168,25 +1213,15 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       setMultiplayerParty(null);
     }
 
-    setGame((cur) => {
-      const activeId = cur.session.selectedCharacterId || cur.session.characters[0]?.id;
-      const solo = cur.session.characters.filter((c) => c.id === activeId);
-      return {
-        ...cur,
-        session: {
-          ...cur.session,
-          characters: solo.length > 0 ? solo : [cur.session.characters[0]],
-          isMultiplayerParty: false,
-        },
-      };
-    });
+    purgeRemoteCharactersFromSession();
+    setSaleMessage('Grupo desfeito.');
 
     // Phase 242: Se o jogador estiver dentro de uma caçada ao desfazer o grupo, abandona a caçada
     // e retorna com segurança ao Templo de Thais sem nenhum personagem remanescente no grupo.
     if (mode === 'hunt') {
       void exitHuntRef.current?.();
     }
-  }, [mode]);
+  }, [mode, purgeRemoteCharactersFromSession]);
 
   const handleAddToParty = useCallback((id: string) => {
     const activeId = game.session.selectedCharacterId || game.session.characters[0]?.id;
@@ -1267,10 +1302,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             maxHp: m.maxHp ?? localChar.maxHp,
             currentMana: m.mp ?? localChar.currentMana,
             maxMana: m.maxMp ?? localChar.maxMana,
-            outfit: m.outfit || localChar.outfit,
-            outfitColors: m.outfitColors || localChar.outfitColors,
-            mount: m.mount || localChar.mount,
-            mountActive: m.mountActive !== undefined ? Boolean(m.mountActive) : localChar.mountActive,
+            gender: localChar.gender || m.gender || 'male',
+            addons: localChar.addons ?? m.outfitAddons ?? 0,
+            outfit: localChar.outfit || m.outfit || (localChar.vocation as string) || 'Knight',
+            outfitColors: localChar.outfitColors || m.outfitColors,
+            mount: localChar.mount || m.mount || 'none',
+            mountActive: localChar.mountActive !== undefined ? Boolean(localChar.mountActive) : localChar.mountActive,
           };
           updatedChars.push(charObj);
         } else {
@@ -1278,12 +1315,16 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           const existingChar = cur.session.characters.find((c: CharacterState) => c.id === charId || c.name.toLowerCase() === nameKey);
           const vocName = ((m.vocationName as BaseVocationName) || VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
           const newChar = createCharacter(charId, m.name, vocName, content);
-          newChar.level = Math.max(m.level, 1);
+          newChar.level = Math.max(m.level || 1, 1);
+          newChar.experience = Math.max(newChar.level > 1 ? experienceForLevel(newChar.level) : 0, (m as any).experience || 0);
           newChar.currentHp = m.hp || newChar.maxHp;
           newChar.maxHp = m.maxHp || newChar.maxHp;
           newChar.currentMana = m.mp || newChar.maxMana;
           newChar.maxMana = m.maxMp || newChar.maxMana;
-          newChar.outfit = m.outfit || vocName;
+          newChar.gender = m.gender === 'female' ? 'female' : 'male';
+          newChar.addons = m.outfitAddons ?? (m as any).addons ?? 0;
+          newChar.outfit = m.outfit || (m.gender === 'female' ? `${vocName}_female` : vocName);
+          (newChar as any).outfitLookType = m.outfitLookType;
           newChar.outfitColors = m.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
           newChar.mount = m.mount || 'none';
           newChar.mountActive = Boolean(m.mountActive);
@@ -1477,28 +1518,21 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         setIsPartyCreated(true);
         setPartyMemberIds(party.members.map((m) => m.characterId));
 
-        // When accepting / joining as a follower, ensure we are near the leader
-        if (party.leaderSessionId !== gameNetwork.LocalPlayerId) {
-          const leader = party.members.find((m) => m.sessionId === party.leaderSessionId);
-          if (leader) {
-            const dist = Math.hypot(cityPosRef.current.x - leader.x, cityPosRef.current.y - leader.y);
-            if (dist > 8 || cityPosRef.current.z !== leader.z) {
-              const targetPos = { x: leader.x, y: leader.y + 1, z: leader.z };
-              setWalkingPath(null);
-              setCityPos(targetPos);
-              gameNetwork.sendMove('south', targetPos);
-            }
-          }
-        }
+        // Phase 260: Followers roam freely in Thais city, no forced teleport to leader
       } else {
-        setPartyMemberIds((prev) => (prev[0] ? [prev[0]] : []));
+        setPartyMemberIds(onlineCharacterRef.current?.id ? [onlineCharacterRef.current.id] : []);
+        setIsPartyCreated(false);
+        purgeRemoteCharactersFromSession();
       }
     });
 
     const unsubPartyNotification = gameNetwork.onPartyNotification((notif) => {
       setSaleMessage(notif.message);
-      if (notif.type === 'disbanded' && modeRef.current === 'hunt') {
-        exitHuntRef.current();
+      if (notif.type === 'disbanded') {
+        purgeRemoteCharactersFromSession();
+        if (modeRef.current === 'hunt') {
+          exitHuntRef.current();
+        }
       }
     });
 
@@ -1587,30 +1621,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       });
     });
 
-    const unsubLeaderMoved = gameNetwork.onPartyLeaderMoved((data) => {
-      if (Date.now() < followSuppressedUntilRef.current) return;
-      if (modeRef.current !== 'hunt' && data.leaderSessionId !== gameNetwork.LocalPlayerId) {
-        const dist = Math.hypot(cityPosRef.current.x - data.x, cityPosRef.current.y - data.y);
-        if (dist > 12 || cityPosRef.current.z !== data.z) {
-          const targetPos = { x: data.x, y: data.y + 1, z: data.z };
-          setWalkingPath(null);
-          setCityPos(targetPos);
-          gameNetwork.sendMove('south', targetPos);
-          return;
-        }
-        if (dist > 1.2 && cityPosRef.current.z === data.z) {
-          const activeTileMap = cityPosRef.current.z === 6 ? thaisTileMapZ6 : thaisTileMapZ7;
-          const path = findCityPath(activeTileMap, cityPosRef.current, { x: data.x, y: data.y, z: data.z }, 400);
-          if (path.length > 1) {
-            const followPath = path.slice(0, Math.max(1, path.length - 1));
-            setWalkingPath({
-              waypoints: followPath,
-              destinationName: `Seguindo líder`,
-              currentIndex: 0,
-            });
-          }
-        }
-      }
+    const unsubLeaderMoved = gameNetwork.onPartyLeaderMoved((_data) => {
+      // Phase 260: Followers roam 100% freely in Thais city, no involuntary following/movement
     });
 
     const unsubHuntReady = gameNetwork.onHuntContextReady((data) => {
@@ -2084,11 +2096,15 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         const charId = m.characterId || m.sessionId;
         const c = createCharacter(charId, m.name, vocName, content);
         c.level = Math.max(m.level || 1, 1);
+        c.experience = Math.max(c.level > 1 ? experienceForLevel(c.level) : 0, (m as any).experience || 0);
         c.maxHp = remote?.maxHp ?? m.maxHp ?? c.maxHp;
         c.currentHp = inHuntActor ? inHuntActor.hp : (remote?.hp ?? m.hp ?? c.maxHp);
         c.maxMana = m.maxMp ?? c.maxMana;
         c.currentMana = inHuntActor ? inHuntActor.mana : (m.mp ?? c.maxMana);
-        c.outfit = m.outfit || vocName;
+        c.gender = m.gender === 'female' ? 'female' : 'male';
+        c.addons = m.outfitAddons ?? (m as any).addons ?? 0;
+        c.outfit = m.outfit || (m.gender === 'female' ? `${vocName}_female` : vocName);
+        (c as any).outfitLookType = m.outfitLookType;
         c.outfitColors = m.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
         c.mount = m.mount || 'none';
         c.mountActive = Boolean(m.mountActive);
@@ -4097,10 +4113,28 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         }
       }
 
+      // Phase 260: Purge remote characters upon returning to city so the player only controls their own characters!
+      const ownChars = left.session.characters.filter((c) => {
+        if (onlineCharacterRef.current && (c.id === onlineCharacterRef.current.id || c.name.toLowerCase() === onlineCharacterRef.current.name.toLowerCase())) {
+          return true;
+        }
+        return savedPoolRef.current.some(
+          (p) => p.id === c.id || (p.name && c.name && p.name.trim().toLowerCase() === c.name.trim().toLowerCase())
+        );
+      });
+      const safeChars = ownChars.length > 0 ? ownChars : (left.session.characters[0] ? [left.session.characters[0]] : []);
+      const primaryId = onlineCharacterRef.current?.id || safeChars[0]?.id || left.session.selectedCharacterId;
+      const safeSelectedId = safeChars.some((c) => c.id === left.session.selectedCharacterId)
+        ? left.session.selectedCharacterId
+        : primaryId;
+
       return {
         ...left,
         session: {
           ...left.session,
+          characters: safeChars,
+          selectedCharacterId: safeSelectedId,
+          leaderId: safeSelectedId,
           isMultiplayerParty: false,
         },
       };
@@ -4553,8 +4587,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
   };
   const selectPartyCharacter = (characterId: string) => {
-    // Phase 259: Se for um membro remoto de multiplayer, não altera a sessão local
-    if (multiplayerPartyRef.current && multiplayerPartyRef.current.members.some((m) => (m.characterId === characterId || m.sessionId === characterId) && m.sessionId !== gameNetwork.LocalPlayerId)) {
+    // Phase 260: Prevent selecting or controlling remote party members or characters not owned by this account
+    const isOwned =
+      (onlineCharacterRef.current && (onlineCharacterRef.current.id === characterId || onlineCharacterRef.current.name.toLowerCase() === characterId.toLowerCase())) ||
+      savedPoolRef.current.some((c) => c.id === characterId || c.name.toLowerCase() === characterId.toLowerCase()) ||
+      savedPool.some((c) => c.id === characterId || c.name.toLowerCase() === characterId.toLowerCase());
+    if (!isOwned) {
       return;
     }
     setGame((current) => {
@@ -5779,6 +5817,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         activeCharacter={activeCharacter}
         accountCharacters={savedPool}
         partyMemberIds={partyMemberIds}
+        friends={effectiveFriendsList}
         remoteMembers={
           multiplayerParty
             ? multiplayerParty.members
@@ -5786,7 +5825,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 .map((m) => ({
                   id: m.sessionId,
                   name: m.name + (m.isLeader ? ' ⭐' : ''),
-                  vocation: VOCATION_MAP[m.vocationId] || 'Knight',
+                  vocation: (m as any).vocation || (m as any).vocationName || VOCATION_MAP[m.vocationId] || 'Knight',
                   level: m.level,
                   hp: m.hp,
                   maxHp: m.maxHp,
@@ -5821,15 +5860,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           }
         }}
         onDisbandParty={handleDisbandParty}
-        onLeaveParty={() => {
-          gameNetwork.sendPartyLeave();
-          setMultiplayerParty(null);
-          setPartyMemberIds([activeCharacter.id]);
-          setSaleMessage('Você saiu da party multiplayer.');
-          if (mode === 'hunt') {
-            void exitHuntRef.current?.();
-          }
-        }}
+        onLeaveParty={handleLeaveParty}
         onCreateCharacter={createMember}
       />
 
@@ -5858,6 +5889,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           activeCharacterId={activeCharacter.id}
           onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
           onOpenPartyModal={() => setPartyModalOpen(true)}
+          onLeaveParty={handleLeaveParty}
         />
       )}
 

@@ -62,3 +62,48 @@
 - [x] **17. Extinção do Loop Infinito de Loading ao Iniciar Caçada em Grupo:**
   - Em `GamePrototype.tsx`, remover o disparo redundante de `sendPartyHuntSync` dentro do `onFinish` do `ExuraLoadingScreen`.
   - Como o servidor já dispara `party:huntStarted` após a aprovação da proposta de caçada, o `sendPartyHuntSync` pós-loading estava reativando o evento no servidor e forçando ambos os jogadores a saírem da hunt recém-iniciada para um novo ciclo de loading infinito.
+
+## Onda 10: Lista de Amigos com Convite, Otimização da UI da Party, Feedback de Gênero e Sincronização de Membros Remotos no Gerenciador
+- [x] **18. Botão "Convidar para Party" na Lista de Amigos (`FriendsWindow.tsx`):**
+  - Adicionado botão de ação "Convidar para Party" (ícone `👤+`) na barra de ações inferiores ao selecionar um amigo, ao lado de "Mandar Mensagem".
+  - Incluído também a opção "Convidar para Party" no menu de contexto de clique direito no amigo.
+  - Integrado com `gameNetwork.sendPartyInvite(friend.name)` com validação e feedback caso o amigo esteja offline ou o grupo cheio.
+- [x] **19. Otimização do Slot de Adicionar e Lista de Amigos no Convidar Jogador (`UnifiedPartyModal.tsx` & `app/globals.css`):**
+  - Removida a duplicidade eliminando o botão retangular "+ Adicionar" dos cards de vocação vazios.
+  - Ampliada a bolinha circular `(+)` para 56px com ícone de 30px, borda dourada e hover destacado.
+  - No submodal "Convidar Jogador", adicionada logo abaixo do input de busca uma seção dedicada "Seus Amigos" exibindo a lista de amigos da conta com status online/offline, vocação e botão de 1 clique "Convidar".
+- [x] **20. Feedback Visual na Seleção de Gênero no Modal de Criar Herói (`app/globals.css`):**
+  - Declaradas as classes CSS `.party-gender-toggle` e `.party-gender-toggle.active`.
+  - Implementado feedback visual instantâneo e evidente ao selecionar: Masculino com borda ciano vibrante (`#38bdf8`) e fundo azul escuro, e Feminino com borda rosada vibrante (`#f472b6`) e fundo magenta escuro.
+- [x] **21. Correção da Alocação e Exibição de Membros Remotos no Gerenciador de Party (`UnifiedPartyModal.tsx` & `CityPartyHandler.ts`):**
+  - Corrigida a omissão de jogadores remotos (ex: Brututus na party de Caos) que sumiam do Gerenciador de Party mantendo o modal em `1/4 vagas`.
+  - Em `CityPartyHandler.ts`, padronizado o envio de `vocation`, `vocationId`, `outfitLookType`, `outfitAddons` e `gender` no `party:sync`.
+  - Em `GamePrototype.tsx`, mapeada `vocation` de membros remotos com fallback resiliente para evitar fallback nulo para Knight.
+  - Em `UnifiedPartyModal.tsx`, membros remotos ocupam qualquer vaga vazia disponível mesmo quando duas pessoas tiverem a mesma vocação, exibindo o card completo com sprite, nome, nível, HP e atualizando corretamente a contagem de vagas (`X/4 vagas`).
+
+## Onda 11: Liberdade de Locomoção Urbana e Sincronização Fiel da Caçada Multiplayer
+- [x] **22. Liberdade de Locomoção na Cidade de Thais (Desacoplamento do Seguir Líder):**
+  - Removida a condução forçada de movimento do seguidor em Thais (`unsubLeaderMoved` em `GamePrototype.tsx` e desativação de `isFollowingLeader`).
+  - Membros da party em Thais ficam 100% livres para andar para onde quiserem, conversar com NPCs e treinar sem serem puxados pela caminhada do líder.
+  - O agrupamento de combate tático (seguir posições e lutar em formação) é ativado exclusivamente **dentro do modo caçada (`mode === 'hunt'`)**.
+- [x] **23. Sincronização Autêntica de Outfits, Gênero e Addons de Membros Remotos na Caçada:**
+  - Em `CityPartyHandler.ts`, incluídos todos os metadados visuais no `party:sync` (`outfitLookType`, `outfitAddons`, `gender`, `vocationId`).
+  - Em `prepareHuntCharacters` e `partyHudCharacters`, hidratados os atores remotos da `PixiArena.tsx` com o outfit exato do jogador remoto (preservando gênero feminino/masculino, addons, lookType e cores reais), eliminando o bug em que Brututus mudava de roupa ou virava outro modelo genérico.
+- [x] **24. Sincronização em Tempo Real de Monstros, Alvos Focados e Nível/EXP Compartilhado na Hunt:**
+  - Sincronização de nível e experiência na hidratação remota (`experienceForLevel(level)`).
+  - Em `CityPartyHandler.ts`, transmissão imediata de `broadcastPartySync` quando qualquer membro sincroniza progresso (`player:syncProgress`), propagando HP, MP e Nível em tempo real para todo o grupo.
+  - Foco de ataque em tempo real via `party:targetSync` e compartilhamento de combate na hunt.
+
+## Onda 12: Ciclo de Vida da Party (Liderança, Desfazer, Sair e Limpeza Estrita de Personagens Sem Clonagem)
+- [x] **25. Dois Botões para o Líder ("Desfazer Grupo" e "Sair da Party") com Passagem de Liderança (`UnifiedPartyModal.tsx` & `CityPartyHandler.ts`):**
+  - No `UnifiedPartyModal.tsx`, quando o jogador for o líder da party, exibidos **ambos os botões**:
+    1. **"Desfazer Grupo"**: Encerra a party para todos os membros simultaneamente (`party:disband`), limpando o estado em todos os clientes conectados.
+    2. **"Sair da Party"**: O líder sai do grupo individualmente. No servidor (`CityPartyHandler.ts`), a liderança é repassada automaticamente para o próximo jogador da fila (`memberSessionIds[0]`), notificando a todos com o novo líder sem desfazer o time.
+  - Para jogadores que não são líderes, exibido unicamente o botão **"Sair da Party"**.
+- [x] **26. Botão Rápido de "Sair da Party" no HUD Flutuante (`FloatingPartyHUD.tsx`):**
+  - Adicionado botão de atalho `🚪 Sair` no cabeçalho do `FloatingPartyHUD`, permitindo sair do grupo com agilidade direto pela tela sem necessidade de abrir o Gerenciador de Party.
+- [x] **27. Limpeza Estrita de Personagens ao Sair/Desfazer Party (Extinção de Clones e Controle de Personagens de Outros Jogadores):**
+  - Eliminada a causa raiz pela qual jogadores conseguiam controlar o personagem do colega:
+    - Função dedicada `purgeRemoteCharactersFromSession()` acionada em `onLeaveParty`, `onDisbandParty`, `unsubPartySync` (disband) e em `exitHunt`.
+    - `cur.session.characters` é estritamente filtrado para conter apenas personagens pertencentes à conta do usuário (`savedPool`), forçando `selectedCharacterId` e `leaderId` de volta ao personagem online autêntico (`onlineCharacter.id`).
+    - Blindagem em `selectPartyCharacter` verificando `isOwned` para impedir qualquer seleção ou controle de personagens remotos.

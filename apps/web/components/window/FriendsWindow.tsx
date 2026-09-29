@@ -26,6 +26,7 @@ export function FriendsWindow({
   onAddFriend,
   onRemoveFriend,
   onPrivateMessage,
+  onInviteParty,
 }: FriendsWindowProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -490,6 +491,35 @@ export function FriendsWindow({
                 <span>Mandar Mensagem</span>
               </button>
 
+              {onInviteParty && (
+                <button
+                  type="button"
+                  onClick={() => onInviteParty(selectedFriend.name)}
+                  title={`Convidar ${selectedFriend.name} para a party`}
+                  style={{
+                    padding: '5px 10px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    background: 'linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%)',
+                    border: '1px solid #60a5fa',
+                    borderRadius: '4px',
+                    color: '#ffffff',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                    fontFamily: 'Georgia, serif',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(1.15)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.filter = 'none')}
+                >
+                  <span>👤+</span>
+                  <span>Convidar Party</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 title={`Remover ${selectedFriend.name} dos amigos`}
@@ -609,6 +639,30 @@ export function FriendsWindow({
               </svg>
               <span>Mandar mensagem para {selectedFriend.name}</span>
             </div>
+
+            {onInviteParty && (
+              <div
+                onClick={() => {
+                  onInviteParty(selectedFriend.name);
+                  setContextMenuPos(null);
+                }}
+                style={{
+                  padding: '7px 12px',
+                  color: '#60a5fa',
+                  borderTop: '1px solid #33363a',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'background-color 0.1s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#27292c')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <span>👤+</span>
+                <span>Convidar {selectedFriend.name} para Party</span>
+              </div>
+            )}
 
             <div
               onClick={() => {

@@ -83,6 +83,8 @@ export interface PartyMemberSnapshot {
   maxMp: number;
   outfit?: string;
   outfitLookType?: number;
+  outfitAddons?: number;
+  gender?: 'male' | 'female';
   outfitColors?: { head: number; primary: number; secondary: number; detail: number };
   mount?: string;
   mountActive?: boolean;

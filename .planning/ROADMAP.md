@@ -4423,4 +4423,13 @@ Plans:
 - [x] 259-03-PLAN: Onda 3 - Extinção do Loop Infinito de Loading de Hunt e Limpeza do `sendPartyHuntSync` Redundante
 - [x] 259-04-PLAN: Onda 4 - Testes Vitest Automatizados, Validação de Tipos (Typecheck), Atualização do FIX.md e Deploy na VPS
 
+---
+
+- [x] **Phase 260: Virada Arquitetural para Caçadas Multiplayer Autoritativas no Colyseus (`HuntDungeonRoom`), UI da Party e Resolução Integral do FIX.md (Ondas 10, 11 e 12)** - Implementação da grande virada arquitetural de multiplayer e resolução das 3 ondas do FIX.md: (1) Onda 10: Botão de convite de party na lista de amigos (`FriendsWindow.tsx`), otimização dos slots da party (`UnifiedPartyModal.tsx`) com remoção de duplicidade, bolinha (+) 56px, lista de amigos no convidar jogador, feedback de gênero azul/rosa e exibição correta de membros remotos; (2) Onda 11: Desacoplamento do seguir líder na cidade garantindo 100% de liberdade de locomoção em Thais, outfits/gênero/addons autênticos dos remotos na caçada e virada arquitetural para a sala autoritativa `HuntDungeonRoom` do Colyseus onde o servidor governa monstros, dano, magias, drops e EXP compartilhada em tempo real; (3) Onda 12: Ciclo de vida da party com dois botões para o líder (Desfazer e Sair com repasse de liderança para o segundo membro), botão rápido de saída no HUD flutuante e higienização estrita de `game.session.characters` ao sair da party para extinção definitiva de clones e controle indevido de personagens alheios.
+Plans:
+- [x] 260-01-PLAN: Onda 10 - UI da Party, Lista de Amigos com Convite, Feedback Visual de Gênero e Alocação Correta de Membros Remotos no Gerenciador
+- [x] 260-02-PLAN: Onda 11 - Liberdade Urbana em Thais (Sem Seguir Líder na Cidade), Outfits Autênticos de Remotos e Transição para Sala Autoritativa de Caçada
+- [x] 260-03-PLAN: Onda 12 - Ciclo de Vida da Party (Dois Botões de Líder, Repasse de Liderança, Botão Rápido no HUD e Expurgamento Total de Clones)
+- [x] 260-04-PLAN: Validação Global - Testes Vitest Automatizados, TypeScript Typecheck (0 erros), Atualização do FIX.md e Deploy Completo na VPS
+
 

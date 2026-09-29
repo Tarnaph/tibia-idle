@@ -9,6 +9,7 @@ export interface FloatingPartyHUDProps {
   activeCharacterId: string;
   onSelectActiveCharacter: (characterId: string) => void;
   onOpenPartyModal?: () => void;
+  onLeaveParty?: () => void;
 }
 
 const STORAGE_KEY = 'cavebound_floating_party_hud_pos';
@@ -19,6 +20,7 @@ export function FloatingPartyHUD({
   activeCharacterId,
   onSelectActiveCharacter,
   onOpenPartyModal,
+  onLeaveParty,
 }: FloatingPartyHUDProps) {
   // Only render when the party has more than 1 character
   if (!characters || characters.length <= 1) {
@@ -166,6 +168,32 @@ export function FloatingPartyHUD({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {onLeaveParty && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLeaveParty();
+              }}
+              title="Sair da Party"
+              style={{
+                background: 'rgba(239, 68, 68, 0.18)',
+                border: '1px solid rgba(239, 68, 68, 0.45)',
+                borderRadius: '3px',
+                color: '#f87171',
+                cursor: 'pointer',
+                padding: '2px 5px',
+                fontSize: '10px',
+                fontWeight: '600',
+                lineHeight: 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2px',
+              }}
+            >
+              🚪 Sair
+            </button>
+          )}
           {onOpenPartyModal && (
             <button
               type="button"

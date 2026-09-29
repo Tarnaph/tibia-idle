@@ -489,6 +489,12 @@ export class CityPartyHandler {
             });
           }
         }
+
+        // Phase 260: Broadcast updated party snapshot so party members immediately see live HP, MP and Level changes
+        const leaderId = this.room.playerPartyLeader.get(client.sessionId);
+        if (leaderId) {
+          this.broadcastPartySync(leaderId);
+        }
       }
     });
 
@@ -549,6 +555,7 @@ export class CityPartyHandler {
         characterId: p?.characterId || '',
         name: p?.name || 'Unknown',
         vocation: p?.vocationName || 'Knight',
+        vocationId: p?.vocationId ?? 1,
         level: p?.level || 1,
         hp: p?.hp || 100,
         maxHp: p?.maxHp || 100,
@@ -557,6 +564,9 @@ export class CityPartyHandler {
         z: p?.posZ || 7,
         isLeader: sessionId === party.leaderSessionId,
         outfit: p?.outfit || 'Warrior',
+        outfitLookType: p?.outfitLookType ?? 128,
+        outfitAddons: p?.outfitAddons ?? 0,
+        gender: (p as any)?.gender || 'male',
         outfitColors: {
           head: p?.outfitHead ?? 0,
           primary: p?.outfitBody ?? 0,
@@ -595,17 +605,34 @@ export class CityPartyHandler {
 
     if (party) {
       if (party.leaderSessionId === sessionId) {
-        // Leader left, disband party for all members
-        for (const memberId of party.memberSessionIds) {
-          if (memberId !== sessionId) {
-            this.room.playerPartyLeader.delete(memberId);
-            const memberClient = this.room.clients.find((c) => c.sessionId === memberId);
-            if (memberClient) {
-              memberClient.send('party:disbanded', { reason: 'O líder da party se desconectou ou saiu do grupo.' });
-            }
+        // Líder saiu: Se houver outros membros, transfere a liderança para o próximo da fila!
+        const remaining = party.memberSessionIds.filter((id) => id !== sessionId);
+        if (remaining.length > 0) {
+          const newLeaderId = remaining[0];
+          const newLeaderPlayer = this.room.state.players.get(newLeaderId);
+          party.leaderSessionId = newLeaderId;
+          party.leaderName = newLeaderPlayer?.name || 'Novo Líder';
+          party.memberSessionIds = remaining;
+
+          this.room.parties.delete(leaderId);
+          this.room.parties.set(newLeaderId, party);
+
+          for (const memId of remaining) {
+            this.room.playerPartyLeader.set(memId, newLeaderId);
           }
+
+          this.broadcastPartySync(newLeaderId);
+
+          const newLeaderClient = this.room.clients.find((c) => c.sessionId === newLeaderId);
+          if (newLeaderClient) {
+            newLeaderClient.send('party:notification', {
+              type: 'sent',
+              message: 'O líder anterior saiu do grupo. Você agora é o novo líder da party!',
+            });
+          }
+        } else {
+          this.room.parties.delete(leaderId);
         }
-        this.room.parties.delete(leaderId);
       } else {
         // Regular member left
         party.memberSessionIds = party.memberSessionIds.filter((id) => id !== sessionId);
