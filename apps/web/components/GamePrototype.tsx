@@ -5575,8 +5575,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           e.preventDefault();
           const stepDir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
           const myPlayer = gameNetwork.HuntRoom ? (gameNetwork.HuntRoom.state.players as any).get(gameNetwork.HuntRoom.sessionId) : null;
-          const curX = myPlayer?.posX ?? cityPos.x;
-          const curY = myPlayer?.posY ?? cityPos.y;
+          const curX = myPlayer?.posX ?? (game.encounter.partyActors[0]?.position.x ?? 10);
+          const curY = myPlayer?.posY ?? (game.encounter.partyActors[0]?.position.y ?? 15);
           gameNetwork.sendHuntMove(stepDir, curX + deltaX, curY + deltaY);
           return;
         }

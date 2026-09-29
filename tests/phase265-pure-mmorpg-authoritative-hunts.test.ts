@@ -212,4 +212,39 @@ describe('Phase 265 - Pure MMORPG Server-Authoritative Hunts', () => {
     expect(typeof gameNetwork.sendHuntMove).toBe('function');
     expect(typeof gameNetwork.IsInHuntRoom).toBe('boolean');
   });
+
+  it('6. verifies players and monsters spawn on local walkable tiles (not world 32000+ coords) and monster AI targets player', async () => {
+    const room = new HuntDungeonRoom();
+    (room as any).setSimulationInterval = vi.fn();
+    room.onCreate({ huntId: 'cyclops-camp', partyId: 'party-test' });
+
+    // Verify room has walkable tiles
+    expect(room.walkableTileKeys.size).toBeGreaterThan(0);
+
+    // Mock client joining
+    const mockClient: any = { sessionId: 'sess-lead-1', send: vi.fn() };
+    await room.onJoin(mockClient, { characterId: 'char-1', outfit: 'Knight' });
+
+    const player = room.state.players.get('sess-lead-1')!;
+    expect(player).toBeDefined();
+
+    // Verify coordinates are local arena coordinates (< 100) and NOT 32000+ world coordinates
+    expect(player.posX).toBeLessThan(100);
+    expect(player.posY).toBeLessThan(100);
+    expect(room.isTileWalkable(player.posX, player.posY)).toBe(true);
+
+    // Verify monsters also spawn on local walkable coordinates
+    const monsters = Array.from(room.state.monsters.values());
+    expect(monsters.length).toBeGreaterThan(0);
+    for (const m of monsters.slice(0, 3)) {
+      expect(m.posX).toBeLessThan(100);
+      expect(m.posY).toBeLessThan(100);
+      expect(room.isTileWalkable(m.posX, m.posY)).toBe(true);
+    }
+
+    // Run one update tick and verify monster AI finds the player
+    room.update(100);
+    const mFirst = monsters[0];
+    expect(mFirst.targetId).toBe('sess-lead-1');
+  });
 });
