@@ -196,7 +196,8 @@ export function movePartyTowardTargets(
   mainCharacterId?: string,
   targetStrategy: TargetSelectionStrategy = 'closest',
   minRanges?: Map<string, number>,
-  cardinalFocalPoints?: Map<string, GridPosition>
+  cardinalFocalPoints?: Map<string, GridPosition>,
+  localCharacterId?: string
 ): void {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
@@ -210,6 +211,11 @@ export function movePartyTowardTargets(
     .sort((a, b) => Number(b.characterId === mainActor?.characterId) - Number(a.characterId === mainActor?.characterId) || a.characterId.localeCompare(b.characterId));
 
   for (const actor of ordered) {
+    if (encounter.isMultiplayerParty && localCharacterId && actor.characterId !== localCharacterId) {
+      // Remote party actor: movement is strictly authoritative from the network snapshot, never simulated locally!
+      continue;
+    }
+
     actor.previousPosition = clonePosition(actor.position);
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
     const range = ranges.get(actor.characterId) ?? 1;
@@ -225,29 +231,47 @@ export function movePartyTowardTargets(
       if (mainTargetEnemy) {
         actor.targetId = mainTargetEnemy.id;
         selected = nearestEnemy(actor, encounter, range, reserved, new Set([mainTargetEnemy.id]), activeStrategy, minRange, focal);
+        if (!selected) {
+          // If main target is momentarily unreachable, engage nearest living enemy
+          selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange, focal)
+            ?? nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy, minRange, focal);
+          if (selected) {
+            actor.targetId = selected.enemy.id;
+          }
+        }
       } else {
-        // Leader has no active target: secondary actor waits and follows leader
-        actor.targetId = null;
-        actor.path = [];
-        const desiredFollowDist = minRange > 1 ? 3 : 1;
-        if (mainActor && meleeDistance(actor.position, mainActor.position) > desiredFollowDist) {
-          const blocked = new Set([...occupied, ...reserved]);
-          blocked.delete(positionKey(actor.position));
-          blocked.delete(positionKey(mainActor.position));
-          const path = findPath(encounter.room.map, actor.position, surroundingPositions(mainActor.position).filter((p) => isTileWalkable(encounter.room.map, p) && !blocked.has(positionKey(p))), blocked);
-          if (path.length > 0) {
-            const next = path[0];
-            if (destinationAvailable(encounter, next, occupied, reserved)) {
-              const from = clonePosition(actor.position);
-              if (commitMovement(encounter, actor.characterId, from, next, occupied, reserved)) {
-                actor.direction = directionBetween(actor.position, next);
-                actor.position = clonePosition(next);
-                actor.nextMoveAt = encounter.elapsedMs + stepDuration(actor.hasteUntil > encounter.elapsedMs ? actor.speed * 1.3 : actor.speed);
+        const livingEnemies = encounter.enemies.filter((e) => e.alive);
+        if (livingEnemies.length > 0) {
+          selected = nearestEnemy(actor, encounter, range, reserved, allowedEnemyIds, activeStrategy, minRange, focal)
+            ?? nearestEnemy(actor, encounter, range, reserved, undefined, activeStrategy, minRange, focal);
+          if (selected) {
+            actor.targetId = selected.enemy.id;
+          }
+        }
+        if (!selected) {
+          // Leader has no active target and room has no enemies: secondary actor waits and follows leader
+          actor.targetId = null;
+          actor.path = [];
+          const desiredFollowDist = minRange > 1 ? 3 : 1;
+          if (mainActor && meleeDistance(actor.position, mainActor.position) > desiredFollowDist) {
+            const blocked = new Set([...occupied, ...reserved]);
+            blocked.delete(positionKey(actor.position));
+            blocked.delete(positionKey(mainActor.position));
+            const path = findPath(encounter.room.map, actor.position, surroundingPositions(mainActor.position).filter((p) => isTileWalkable(encounter.room.map, p) && !blocked.has(positionKey(p))), blocked);
+            if (path.length > 0) {
+              const next = path[0];
+              if (destinationAvailable(encounter, next, occupied, reserved)) {
+                const from = clonePosition(actor.position);
+                if (commitMovement(encounter, actor.characterId, from, next, occupied, reserved)) {
+                  actor.direction = directionBetween(actor.position, next);
+                  actor.position = clonePosition(next);
+                  actor.nextMoveAt = encounter.elapsedMs + stepDuration(actor.hasteUntil > encounter.elapsedMs ? actor.speed * 1.3 : actor.speed);
+                }
               }
             }
           }
+          continue;
         }
-        continue;
       }
     } else {
       const currentLockedEnemy = actor.targetId ? encounter.enemies.find((e) => e.id === actor.targetId && e.alive) : undefined;
@@ -333,7 +357,12 @@ export function movePartyTowardTargets(
   }
 }
 
-export function movePartyTowardPoint(encounter: HuntEncounterState, target: GridPosition, mainCharacterId?: string): boolean {
+export function movePartyTowardPoint(
+  encounter: HuntEncounterState,
+  target: GridPosition,
+  mainCharacterId?: string,
+  localCharacterId?: string
+): boolean {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
   const living = encounter.partyActors.filter((candidate) => candidate.alive);
@@ -342,6 +371,9 @@ export function movePartyTowardPoint(encounter: HuntEncounterState, target: Grid
     ?? living[0];
   if (!leader) return false;
   for (const actor of living) {
+    if (encounter.isMultiplayerParty && localCharacterId && actor.characterId !== localCharacterId) {
+      continue;
+    }
     const isLeader = actor.characterId === leader.characterId;
     actor.previousPosition = clonePosition(actor.position);
     actor.targetId = null;
@@ -497,11 +529,14 @@ export function moveEnemiesTowardParty(encounter: HuntEncounterState): void {
   synchronizeEncounterOccupancy(encounter);
 }
 
-export function movePartyToExit(encounter: HuntEncounterState): boolean {
+export function movePartyToExit(encounter: HuntEncounterState, localCharacterId?: string): boolean {
   const occupied = occupiedKeys(encounter);
   const reserved = reservationKeys(encounter);
   const exitGoals = [encounter.room.exit, ...surroundingPositions(encounter.room.exit)];
   for (const actor of encounter.partyActors.filter((candidate) => candidate.alive)) {
+    if (encounter.isMultiplayerParty && localCharacterId && actor.characterId !== localCharacterId) {
+      continue;
+    }
     actor.previousPosition = clonePosition(actor.position);
     if (encounter.elapsedMs < actor.nextMoveAt) continue;
     const blocked = new Set([...occupied, ...reserved]);

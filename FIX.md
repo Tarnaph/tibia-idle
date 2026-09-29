@@ -151,3 +151,21 @@
   - Em `useEffect` de detecção de derrota, verificar se o ator local do jogador morreu (`!actor.alive || actor.hp <= 0` ou evento `player-death`), abrindo o modal autêntico "You are dead" imediatamente, sem depender de `encounter.status === 'defeated'`.
 - [x] **40. Fallback Resiliente de Corpo de Monstro Morto (`packages/domain/src/combat.ts`):**
   - Em `defeatEnemy`, substituir `throw new Error` caso `corpseId` seja indefinido por fallback seguro (`monster.corpseId ?? 3058`), impedindo crash da engine ao derrotar criaturas com variantes customizadas.
+
+## Onda 16: Sincronização Autoritativa da Party, Movimentação Fluida (Lerp) e Descongelamento do Seguidor na Caçada (Phase 263)
+- [x] **41. Descongelamento do Seguidor e Ataque Autônomo ao Inimigo Mais Próximo (`packages/domain/src/spatial/movement.ts`):**
+  - Removido o bloqueio que zerava `actor.targetId = null` e `actor.path = []` quando o líder não possuía alvo travado.
+  - Implementada busca e engajamento imediato do seguidor contra o inimigo vivo mais próximo (`nearestEnemy`), permitindo que o seguidor (ex: Caos) lute ativamente mesmo sem comando explícito do líder.
+- [x] **42. Eliminação do Conflito de Simulação Dupla (Tug-of-War) e Blindagem de Atores Remotos (`packages/domain/src/combat.ts` & `movement.ts`):**
+  - Passagem de `localCharacterId` (`state.session.selectedCharacterId`) para `movePartyTowardTargets`, `movePartyTowardPoint` e `movePartyToExit`.
+  - Atores de jogadores remotos (ex: Brututus na tela de Caos) são ignorados pela IA local do seguidor, eliminando o efeito elástico ("andando pra frente e pra trás").
+  - Guarda estrita de `moveEnemiesTowardParty` e `enemyAttacks` para que seguidores não simulem IA local de monstros, eliminando o travamento e stuttering dos Cyclops.
+- [x] **43. Enriquecimento do Snapshot de Caçada com `partyActors` e `currentZoneIndex` (`GameClientNetworkManager.ts` & `GamePrototype.tsx`):**
+  - Transmissão periódica de dados completos dos membros da party (`partyActors`: HP, MP, coordenadas X/Y/Z, direção e targetId) e índice da zona atual da caçada.
+- [x] **44. Reconciliação Fluida com Interpolação Lerp e Eventos de Movimento (`GamePrototype.tsx`):**
+  - No `unsubHuntEncounterSync`, comparação de posições anteriores e geração de eventos `{ type: 'movement', actorId, from, to, durationMs: 200 }` para atores e monstros.
+  - O motor PixiJS (`VisualMotionTrack`) consome os eventos e interpola a caminhada a 60 FPS contínuos, sem snaps ou teleportes travados.
+  - Sincronização de mapa de ocupação via `synchronizeEncounterOccupancy`.
+- [x] **45. Inicialização Imediata e Pré-Carregamento na Tela de Transição do Seguidor (`GamePrototype.tsx`):**
+  - No `unsubHuntStart`, chamada imediata de `preloadHunt`, `restartHunt`, `setMode('hunt')` e `sendSetInHunt(true)` sob a tela de loading.
+  - Redução da transição para 3 segundos, mantendo a sincronização de rede ativa desde o primeiro frame da caçada.

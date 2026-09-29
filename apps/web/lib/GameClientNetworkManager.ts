@@ -134,6 +134,20 @@ type DuplicateSessionListener = (message: string) => void;
 export interface PartyHuntEncounterData {
   huntId: string;
   wave: number;
+  currentZoneIndex?: number;
+  partyActors?: Array<{
+    characterId: string;
+    hp: number;
+    maxHp: number;
+    mana: number;
+    maxMana: number;
+    x: number;
+    y: number;
+    z: number;
+    direction: string;
+    targetId: string | null;
+    alive: boolean;
+  }>;
   enemies: Array<{
     id: string;
     monsterId: string;
@@ -142,6 +156,8 @@ export interface PartyHuntEncounterData {
     maxHp: number;
     x: number;
     y: number;
+    z?: number;
+    direction?: string;
     targetId?: string | null;
   }>;
   recentKills?: string[];

@@ -22,6 +22,7 @@ import {
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate, type TrainingDummyInfo,
   getMountSpeedBonus, parseCompletedQuests, normalizeKey,
+  synchronizeEncounterOccupancy, type CardinalDirection, clonePosition,
   type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState, type EnemyState, type HuntPullSize, type HotbarSlotConfig,
 } from '@/packages/domain/src';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
@@ -1581,20 +1582,33 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         playHuntBgm(data.huntId);
       }
 
-      // Phase 107: Save progress and trigger 10-second Exura loading screen for follower
+      // Phase 107 & 263: Save progress and trigger smooth 3-second Exura loading screen for follower
       void saveProgressRef.current?.();
       setTransitionLoading({
         active: true,
         message: `Viajando para ${targetHunt.name} com a party...`,
-        durationMs: 10000,
+        durationMs: 3000,
         huntId: data.huntId,
       });
+
+      // Phase 263: Instancia a hunt imediatamente no engine sob a tela de loading para sincronização de rede em tempo real
+      void huntAssetPreloader.preloadHunt(data.huntId);
+      setGame((current) => {
+        return restartHunt(prepareHuntCharactersRef.current(current), huntSeed, content, data.huntId, 'cauteloso');
+      });
+      setMode('hunt');
+      setIsArenaReady(false);
+      combatStartedRef.current = false;
+      setCityPos(entrance.worldPosition);
+      gameNetwork.sendSetInHunt(true, data.huntId);
+      gameNetwork.sendTeleport(entrance.worldPosition.x, entrance.worldPosition.y, entrance.worldPosition.z);
 
       pendingHuntTransitionRef.current = {
         huntId: data.huntId,
         targetHunt,
         nextSeed: huntSeed,
         entrance,
+        pullSize: 'cauteloso',
       };
     });
 
@@ -1655,16 +1669,68 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           return current;
         }
 
+        const eventsToEmit: any[] = [];
+        const nextPartyActors = current.encounter.partyActors.map((actor) => {
+          const syncActor = data.partyActors?.find((a) => a.characterId === actor.characterId);
+          if (!syncActor) return actor;
+
+          // For remote party actors (e.g. Brututus on Caos's client):
+          if (actor.characterId !== current.session.selectedCharacterId) {
+            const hasMoved = actor.position.x !== syncActor.x || actor.position.y !== syncActor.y;
+            if (hasMoved) {
+              eventsToEmit.push({
+                type: 'movement',
+                actorId: actor.characterId,
+                from: clonePosition(actor.position),
+                to: { x: syncActor.x, y: syncActor.y, z: syncActor.z ?? 7 },
+                durationMs: 200,
+              });
+            }
+            return {
+              ...actor,
+              hp: syncActor.hp,
+              maxHp: syncActor.maxHp,
+              mana: syncActor.mana,
+              maxMana: syncActor.maxMana,
+              position: { x: syncActor.x, y: syncActor.y, z: syncActor.z ?? 7 },
+              direction: (syncActor.direction as CardinalDirection) || actor.direction,
+              targetId: syncActor.targetId ?? null,
+              alive: syncActor.alive,
+            };
+          }
+
+          // For local follower: reconcile stats authoritatively
+          return {
+            ...actor,
+            hp: Math.min(actor.hp, syncActor.hp),
+            maxHp: syncActor.maxHp,
+            mana: Math.min(actor.mana, syncActor.mana),
+            maxMana: syncActor.maxMana,
+            alive: syncActor.alive,
+          };
+        });
+
         const enemyMap = new Map(data.enemies.map((e) => [e.id, e]));
         const updatedEnemies = current.encounter.enemies
           .filter((e) => enemyMap.has(e.id))
           .map((e) => {
             const sync = enemyMap.get(e.id)!;
+            const hasMoved = e.position.x !== sync.x || e.position.y !== sync.y;
+            if (hasMoved && e.alive && sync.hp > 0) {
+              eventsToEmit.push({
+                type: 'movement',
+                actorId: e.id,
+                from: clonePosition(e.position),
+                to: { x: sync.x, y: sync.y, z: sync.z ?? e.position?.z ?? 7 },
+                durationMs: 200,
+              });
+            }
             return {
               ...e,
               hp: sync.hp,
               maxHp: sync.maxHp,
-              position: { x: sync.x, y: sync.y, z: e.position?.z ?? 7 },
+              position: { x: sync.x, y: sync.y, z: sync.z ?? e.position?.z ?? 7 },
+              direction: (sync.direction as CardinalDirection) || e.direction,
               targetId: sync.targetId ?? null,
               alive: sync.hp > 0,
             };
@@ -1684,7 +1750,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               armor: 5,
               position: pos,
               previousPosition: pos,
-              direction: 'south',
+              direction: (sync.direction as CardinalDirection) || 'south',
               path: [],
               speed: 100,
               behavior: 'chase',
@@ -1700,13 +1766,23 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           }
         }
 
+        const nextEncounter = {
+          ...current.encounter,
+          waveIndex: data.wave,
+          partyActors: nextPartyActors,
+          enemies: updatedEnemies,
+          events: [...current.encounter.events, ...eventsToEmit],
+        };
+
+        if (typeof data.currentZoneIndex === 'number' && nextEncounter.continuousProgress) {
+          nextEncounter.continuousProgress.currentZoneIndex = data.currentZoneIndex;
+        }
+
+        synchronizeEncounterOccupancy(nextEncounter);
+
         return {
           ...current,
-          encounter: {
-            ...current.encounter,
-            waveIndex: data.wave,
-            enemies: updatedEnemies,
-          },
+          encounter: nextEncounter,
         };
       });
     });
@@ -3687,6 +3763,23 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           gameNetwork.sendPartyHuntEncounterSync({
             huntId: next.encounter.hunt?.id || '',
             wave: next.encounter.waveIndex,
+            currentZoneIndex: next.encounter.continuousProgress?.currentZoneIndex,
+            partyActors: next.encounter.partyActors.map((a) => {
+              const char = next.session.characters.find((c) => c.id === a.characterId);
+              return {
+                characterId: a.characterId,
+                hp: a.hp,
+                maxHp: char?.maxHp ?? a.hp,
+                mana: a.mana,
+                maxMana: char?.maxMana ?? a.mana,
+                x: a.position?.x ?? 0,
+                y: a.position?.y ?? 0,
+                z: a.position?.z ?? 7,
+                direction: a.direction,
+                targetId: a.targetId ?? null,
+                alive: a.alive,
+              };
+            }),
             enemies: next.encounter.enemies.map((e) => ({
               id: e.id,
               monsterId: e.monsterId,
@@ -3695,6 +3788,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               maxHp: e.maxHp,
               x: e.position?.x ?? 0,
               y: e.position?.y ?? 0,
+              z: e.position?.z ?? 7,
+              direction: e.direction,
               targetId: e.targetId ?? null,
             })),
           });

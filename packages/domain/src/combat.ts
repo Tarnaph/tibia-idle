@@ -3042,7 +3042,7 @@ function advanceRoomTransition(state: GameState, content: GameContent): void {
   } else if (room.phase === 'room-cleared') {
     if (--room.phaseTicks <= 0) { room.phase = 'exiting'; addLog(state, 'A party segue para a saída.'); }
   } else if (room.phase === 'exiting') {
-    if (!movePartyToExit(encounter)) return;
+    if (!movePartyToExit(encounter, state.session.selectedCharacterId)) return;
     if (encounter.waveIndex >= encounter.hunt.waves.length - 1) {
       encounter.status = 'completed'; encounter.events.push({ type: 'hunt-complete' }); addLog(state, `${encounter.hunt.name} concluída.`); return;
     }
@@ -3063,12 +3063,17 @@ function advanceSpatialCombat(state: GameState, content: GameContent): void {
   const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
   const activeChar = state.session.characters.find((candidate) => candidate.id === state.session.selectedCharacterId);
   const targetStrategy = activeChar?.targetStrategy ?? 'closest';
-  movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges, cardinalFocalPoints);
-  moveEnemiesTowardParty(encounter);
+  movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges, cardinalFocalPoints, state.session.selectedCharacterId);
+  const isMultiplayerFollower = encounter.isMultiplayerParty && state.session.leaderId !== state.session.selectedCharacterId;
+  if (!isMultiplayerFollower) {
+    moveEnemiesTowardParty(encounter);
+  }
   recordMovementEvents(encounter);
   castAutomaticSpells(state, content);
   playerAttacks(state, content);
-  enemyAttacks(state, content);
+  if (!isMultiplayerFollower) {
+    enemyAttacks(state, content);
+  }
   unlockExit(state);
 }
 
@@ -3085,16 +3090,21 @@ function advanceExpedition(state: GameState, content: GameContent): void {
     const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
     const activeChar = state.session.characters.find((candidate) => candidate.id === state.session.selectedCharacterId);
     const targetStrategy = activeChar?.targetStrategy ?? 'closest';
-    movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges, cardinalFocalPoints);
-    moveEnemiesTowardParty(encounter);
+    movePartyTowardTargets(encounter, ranges, undefined, mainLeadId, targetStrategy, minRanges, cardinalFocalPoints, state.session.selectedCharacterId);
+    const isMultiplayerFollower = encounter.isMultiplayerParty && state.session.leaderId !== state.session.selectedCharacterId;
+    if (!isMultiplayerFollower) {
+      moveEnemiesTowardParty(encounter);
+    }
     recordMovementEvents(encounter);
     castAutomaticSpells(state, content);
     playerAttacks(state, content);
-    enemyAttacks(state, content);
+    if (!isMultiplayerFollower) {
+      enemyAttacks(state, content);
+    }
     return;
   }
   if (current && !progress.activeEncounterSpawned) {
-    const reached = movePartyTowardPoint(encounter, current.anchor, state.session.selectedCharacterId); recordMovementEvents(encounter);
+    const reached = movePartyTowardPoint(encounter, current.anchor, state.session.selectedCharacterId, state.session.selectedCharacterId); recordMovementEvents(encounter);
     progress.explorationPercent = Math.max(progress.explorationPercent, Math.round(100 * progress.activeEncounterIndex / expedition.encounters.length));
     if (reached) spawnExpeditionEncounter(state, content);
     return;
@@ -3108,7 +3118,7 @@ function advanceExpedition(state: GameState, content: GameContent): void {
     progress.explorationPercent = Math.round(100 * progress.activeEncounterIndex / expedition.encounters.length);
     return;
   }
-  const reachedExit = movePartyTowardPoint(encounter, expedition.exitPoint, state.session.selectedCharacterId); recordMovementEvents(encounter);
+  const reachedExit = movePartyTowardPoint(encounter, expedition.exitPoint, state.session.selectedCharacterId, state.session.selectedCharacterId); recordMovementEvents(encounter);
   if (reachedExit) {
     progress.reachedExit = true; progress.explorationPercent = 100; encounter.status = 'completed';
     encounter.events.push({ type: 'hunt-complete' }); addLog(state, `${encounter.hunt.name} concluída.`);
@@ -3228,13 +3238,21 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
     const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state, content)]));
     const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
-    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds), mainLeadId, undefined, minRanges, cardinalFocalPoints);
+    movePartyTowardTargets(encounter, ranges, new Set(objective.enemyIds), mainLeadId, undefined, minRanges, cardinalFocalPoints, state.session.selectedCharacterId);
     const leader = encounter.partyActors.find((actor) => actor.characterId === (partyKnight?.characterId ?? state.session.leaderId) && actor.alive) ?? encounter.partyActors.find((actor) => actor.alive);
     if (leader && leader.path.length === 0 && !encounter.enemies.some((e) => e.alive && meleeDistance(leader.position, e.position) <= (ranges.get(leader.characterId) ?? 1))) {
-      movePartyTowardPoint(encounter, objective.target, mainLeadId);
+      movePartyTowardPoint(encounter, objective.target, mainLeadId, state.session.selectedCharacterId);
     }
-    moveEnemiesTowardParty(encounter); recordMovementEvents(encounter);
-    castAutomaticSpells(state, content); playerAttacks(state, content); enemyAttacks(state, content);
+    const isMultiplayerFollower = encounter.isMultiplayerParty && state.session.leaderId !== state.session.selectedCharacterId;
+    if (!isMultiplayerFollower) {
+      moveEnemiesTowardParty(encounter);
+    }
+    recordMovementEvents(encounter);
+    castAutomaticSpells(state, content);
+    playerAttacks(state, content);
+    if (!isMultiplayerFollower) {
+      enemyAttacks(state, content);
+    }
     recordContinuousActivityOrThrow(state, objective);
     return;
   }
@@ -3247,12 +3265,17 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
     const ranges = new Map(encounter.partyActors.map((actor) => [actor.characterId, attackRange(actor.characterId, state, content)]));
     const minRanges = new Map(encounter.partyActors.map((actor) => [actor.characterId, minTacticalRange(actor.characterId, state, content)]));
     const cardinalFocalPoints = computeCardinalFocalPoints(state, content);
-    movePartyTowardTargets(encounter, ranges, new Set(visibleEnemies.map((e) => e.id)), mainLeadId, undefined, minRanges, cardinalFocalPoints);
-    moveEnemiesTowardParty(encounter);
+    movePartyTowardTargets(encounter, ranges, new Set(visibleEnemies.map((e) => e.id)), mainLeadId, undefined, minRanges, cardinalFocalPoints, state.session.selectedCharacterId);
+    const isMultiplayerFollower = encounter.isMultiplayerParty && state.session.leaderId !== state.session.selectedCharacterId;
+    if (!isMultiplayerFollower) {
+      moveEnemiesTowardParty(encounter);
+    }
     recordMovementEvents(encounter);
     castAutomaticSpells(state, content);
     playerAttacks(state, content);
-    enemyAttacks(state, content);
+    if (!isMultiplayerFollower) {
+      enemyAttacks(state, content);
+    }
     recordContinuousActivityOrThrow(state, objective);
     return;
   }
@@ -3278,12 +3301,17 @@ function advanceContinuousHunt(state: GameState, content: GameContent): void {
   }
 
   const before = `${leader.position.x},${leader.position.y}`;
-  const reached = movePartyTowardPoint(encounter, targetPoint, mainLeadId);
-  moveEnemiesTowardParty(encounter);
+  const reached = movePartyTowardPoint(encounter, targetPoint, mainLeadId, state.session.selectedCharacterId);
+  const isMultiplayerFollowerFinal = encounter.isMultiplayerParty && state.session.leaderId !== state.session.selectedCharacterId;
+  if (!isMultiplayerFollowerFinal) {
+    moveEnemiesTowardParty(encounter);
+  }
   recordMovementEvents(encounter);
   castAutomaticSpells(state, content);
   playerAttacks(state, content);
-  enemyAttacks(state, content);
+  if (!isMultiplayerFollowerFinal) {
+    enemyAttacks(state, content);
+  }
   if (`${leader.position.x},${leader.position.y}` !== before) progress.lastActivityAt = encounter.elapsedMs;
   if (reached && objective.enemyIds.length === 0) {
     progress.currentZoneIndex = (progress.currentZoneIndex + 1) % route.respawnZones.length;

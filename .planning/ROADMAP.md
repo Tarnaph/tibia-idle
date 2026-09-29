@@ -4448,4 +4448,13 @@ Plans:
 - [x] 262-02-PLAN: Onda 15 - Blindagem do Ciclo de Combate React e do Canvas PixiJS (`GamePrototype.tsx` e `PixiArena.tsx`)
 - [x] 262-03-PLAN: Onda 15 - Detecção Imediata de Morte Local em Party Multiplayer e Validação com Testes Vitest (`tests/phase262-anti-deadlock-and-hunt-resilience.test.ts`)
 
+---
+
+- [x] **Phase 263: Sincronização Autoritativa da Party, Movimentação Fluida (Lerp) e Descongelamento do Seguidor na Caçada (Onda 16)** - Resolução integral da Onda 16 do FIX.md: (1) Descongelamento do seguidor e ataque autônomo ao inimigo vivo mais próximo em `packages/domain/src/spatial/movement.ts`, permitindo que o seguidor (ex: Caos) lute sem depender de alvo travado pelo líder; (2) Eliminação da simulação dupla (tug-of-war) passando `localCharacterId` para que atores remotos (ex: Brututus) não sejam movidos localmente pela IA do seguidor e guardando `moveEnemiesTowardParty` e `enemyAttacks` para que apenas o líder governe monstros; (3) Enriquecimento do snapshot `PartyHuntEncounterData` com `partyActors` e `currentZoneIndex`; (4) Reconciliação com geração de eventos `{ type: 'movement', actorId, from, to, durationMs: 200 }` para interpolação contínua a 60 FPS na PixiArena; (5) Pré-carregamento imediato no seguidor sob a tela de transição de 3s no `unsubHuntStart`.
+Plans:
+- [x] 263-01-PLAN: Onda 16 - Descongelamento do Seguidor e Táticas Autônomas de Ataque (`movement.ts`)
+- [x] 263-02-PLAN: Onda 16 - Eliminação do Conflito de Simulação Dupla (Tug-of-War) e Guarda de Atores Remotos (`combat.ts` e `movement.ts`)
+- [x] 263-03-PLAN: Onda 16 - Enriquecimento do Snapshot e Reconciliação Fluida com Eventos Lerp (`GameClientNetworkManager.ts` e `GamePrototype.tsx`)
+- [x] 263-04-PLAN: Onda 16 - Validação Global com Testes Vitest (`tests/phase263-multiplayer-hunt-sync-and-follower-tactics.test.ts`), Typecheck e Deploy na VPS
+
 

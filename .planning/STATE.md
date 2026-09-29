@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-29T15:05:00.000Z"
-last_activity: "2026-09-29 — Conclusão com sucesso da Phase 262: Extinção de Deadlocks em Hunts Contínuas, Morte Local em Party e Blindagem do Render Loop."
+last_updated: "2026-09-29T15:45:00.000Z"
+last_activity: "2026-09-29 — Conclusão com sucesso da Phase 263: Sincronização Autoritativa da Party, Movimentação Fluida (Lerp) e Descongelamento do Seguidor na Caçada."
 progress:
-  total_phases: 262
-  completed_phases: 262
-  total_plans: 380
-  completed_plans: 380
+  total_phases: 263
+  completed_phases: 263
+  total_plans: 384
+  completed_plans: 384
   percent: 100.0
 ---
 
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 262 concluída com 100% dos testes e typecheck aprovados.
+**Current focus:** Phase 263 concluída com 100% dos testes e typecheck aprovados.
 
 ## Current Position
 
-Phase: 262 of 262  
-Plan: 3 of 3 in Phase 262  
+Phase: 263 of 263  
+Plan: 4 of 4 in Phase 263  
 Status: Complete ✅  
-Last activity: 2026-09-29 — Conclusão e validação global da Phase 262.
+Last activity: 2026-09-29 — Conclusão e validação global da Phase 263.
 
 Progress: [██████████] 100.0%
 
