@@ -1273,7 +1273,16 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         if (!cameraInitialized) {
           const actor = state.encounter.partyActors.find((candidate) => candidate.characterId === state.session.cameraTargetCharacterId)
             ?? state.encounter.partyActors[0];
-          if (actor) { const point = worldPoint(actor.position); camera = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: state.encounter.room.map.width * TILE_SIZE, worldHeight: state.encounter.room.map.height * TILE_SIZE, targetX: point.x, targetY: point.y }); cameraInitialized = true; }
+          const mapW = (state.encounter.room?.map?.width || 30) * TILE_SIZE;
+          const mapH = (state.encounter.room?.map?.height || 30) * TILE_SIZE;
+          if (actor && actor.position) {
+            const point = worldPoint(actor.position);
+            camera = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: mapW, worldHeight: mapH, targetX: point.x, targetY: point.y });
+            cameraInitialized = true;
+          } else {
+            camera = desiredWorldCamera({ viewportWidth: app.screen.width, viewportHeight: app.screen.height, worldWidth: mapW, worldHeight: mapH, targetX: mapW / 2, targetY: mapH / 2 });
+            cameraInitialized = true;
+          }
         }
       };
 
@@ -1502,7 +1511,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
           }
         }
 
-        if (latestRef.current.active && (cameraInitialized || state.encounter.partyActors.length > 0) && !sceneReadyNotified) {
+        if (latestRef.current.active && !sceneReadyNotified) {
           sceneReadyNotified = true;
           console.log('[SCENE] PixiArena cenário pronto e primeiro frame renderizado:', performance.now());
           latestRef.current.onSceneReady?.();
@@ -1523,7 +1532,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
 
       app.ticker.add(safeRender);
       syncRef.current = sync; sync(latestRef.current.game, latestRef.current.debug);
-      if (latestRef.current.active && (cameraInitialized || latestRef.current.game.encounter.partyActors.length > 0) && !sceneReadyNotified) {
+      if (latestRef.current.active && !sceneReadyNotified) {
         sceneReadyNotified = true;
         console.log('[SCENE] PixiArena cenário pronto após sync inicial:', performance.now());
         latestRef.current.onSceneReady?.();

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-29T16:45:00.000Z"
-last_activity: "2026-09-29 — Conclusão da Phase 264: Arquitetura Definitiva de Caçada Multiplayer no Servidor Colyseus (HuntDungeonRoom) e Sincronização Autoritativa."
+last_updated: "2026-09-29T17:45:00.000Z"
+last_activity: "2026-09-29 — Conclusão da Phase 265: Transição Completa para MMORPG 100% Autoritativo (Thin-Client PixiArena, Extinção da Simulação Offline e Combate Autoritativo no Colyseus HuntDungeonRoom)."
 progress:
-  total_phases: 264
-  completed_phases: 264
-  total_plans: 388
-  completed_plans: 388
+  total_phases: 265
+  completed_phases: 265
+  total_plans: 392
+  completed_plans: 392
   percent: 100.0
 ---
 
@@ -20,16 +20,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 264 — Arquitetura Definitiva de Caçada Multiplayer no Servidor Colyseus (HuntDungeonRoom) e Sincronização Autoritativa (Complete).
+**Current focus:** Phase 265 — Transição Completa para MMORPG 100% Autoritativo (Thin-Client PixiArena, Extinção da Simulação Offline e Combate Autoritativo no Colyseus HuntDungeonRoom).
 
 ## Current Position
 
-Phase: 264 of 264  
-Plan: 4 of 4 in Phase 264  
+Phase: 265 of 265  
+Plan: 4 of 4 in Phase 265  
 Status: Complete ✅  
-Last activity: 2026-09-29 — Conclusão e validação global da Phase 264 / Onda 17.
+Last activity: 2026-09-29 — Conclusão da Phase 265 / Onda 18.
 
-Progress: [██████████] 100.0%
+Progress: [██████████] 100%
+
 
 
 

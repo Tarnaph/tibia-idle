@@ -191,7 +191,7 @@ export function ExuraLoadingScreen({
     let finishTimeoutId: NodeJS.Timeout;
     let isHandled = false;
     const initialDuration = durationMsRef.current || 2000;
-    const hardLimitMs = Math.max(initialDuration + 1000, 3500);
+    const hardLimitMs = Math.max(initialDuration + 500, 2500);
     let hardLimitTimeoutId: NodeJS.Timeout;
 
     const finish = () => {
@@ -235,7 +235,7 @@ export function ExuraLoadingScreen({
       const huntProgressPct = huntId ? huntAssetPreloader.getHuntProgress(huntId) : 100;
       const assetProgressPct = Math.min(globalProgressPct, huntProgressPct);
 
-      const isTimedOut = elapsed >= Math.max(effectiveDuration + 1000, 3500);
+      const isTimedOut = elapsed >= hardLimitMs;
       let effectivePct: number;
       if (isTimedOut) {
         effectivePct = 100;

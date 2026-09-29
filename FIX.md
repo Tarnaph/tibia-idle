@@ -182,3 +182,16 @@
   - Remover bloqueio que ignorava personagens ausentes de `session.characters`, permitindo que qualquer membro da party (ex: Brututus na tela do Caos) seja renderizado com fidelidade visual.
 - [x] **50. Validação Global com Testes Vitest, Typecheck e Deploy na VPS:**
   - Criar testes automatizados para a sala de caçada multiplayer do servidor, verificar 0 erros de tipagem, atualizar a documentação GSD e realizar deploy na VPS.
+
+## Onda 18: Transição Completa para MMORPG 100% Autoritativo (Phase 265)
+- [x] **51. Expansão do Combate Autoritativo no Servidor (`HuntDungeonRoom.ts`):**
+  - Adicionar suporte autoritativo a magias de dano e suporte (*Exori*, *Exori Flam*, *Exori Vis*, *Exura*, *Exura Gran*), poções de vida/mana, checagem de custo de mana e cooldowns.
+  - Geração de cadáveres e distribuição de loot permanente no servidor Colyseus com persistência via `PrismaPersistenceManager`.
+- [x] **52. Thin-Client no PixiArena Conectado Diretamente ao `HuntDungeonRoom` (`PixiArena.tsx`):**
+  - `PixiArena` renderiza monstros e players diretamente da sala Colyseus (`huntRoom.state.monsters` e `huntRoom.state.players`), com animações e eventos visuais do servidor.
+  - Comandos de ação (ataque, magia, movimentação) despachados diretamente via WebSocket para o servidor Colyseus.
+- [x] **53. Extinção da Simulação Offline e Transição Fluida de Masmorra (`GamePrototype.tsx`):**
+  - Desativar a simulação local `tickCombat` durante a caçada, eliminando o conflito de dois universos concorrentes.
+  - Transição de entrada e saída instantânea e à prova de falhas com sincronização simultânea de todos os membros da party.
+- [x] **54. Validação Global com Testes Vitest, Typecheck e Deploy na VPS:**
+  - Criar testes unitários para a masmorra autoritativa completa, validar 0 erros no TypeScript (`npm run typecheck`) e realizar deploy em produção.

@@ -348,7 +348,16 @@ export class HuntDungeonRoom extends Room<WorldState> {
       posX: targetMonster.posX,
       posY: targetMonster.posY,
     });
+
+    const droppedGold = Math.max(10, Math.floor((targetMonster.maxHp * 0.8 + Math.random() * 25) * 5));
     this.broadcast('monster:died', { monsterId: targetMonster.id, exp: expPerMember });
+    this.broadcast('hunt:loot', {
+      monsterId: targetMonster.id,
+      monsterName: targetMonster.name,
+      gold: droppedGold,
+      posX: targetMonster.posX,
+      posY: targetMonster.posY,
+    });
   }
 
   public update(deltaTime: number) {
@@ -463,7 +472,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       // Select target if not set
       if (!player.targetId) {
         let nearestMonster: MonsterState | null = null;
-        let minDist = 10;
+        let minDist = 12;
         for (const m of this.state.monsters.values()) {
           if (m.isDead) continue;
           const dist = Math.hypot(m.posX - player.posX, m.posY - player.posY);
@@ -484,19 +493,29 @@ export class HuntDungeonRoom extends Room<WorldState> {
           continue;
         }
 
-        if (now - player.lastAttackTime >= 2000) {
+        const dist = Math.hypot(targetMonster.posX - player.posX, targetMonster.posY - player.posY);
+        const isRanged = player.vocationId === 1 || player.vocationId === 2 || player.vocationId === 3; // Sorcerer, Paladin, Druid
+        const maxRange = isRanged ? 5.5 : 1.8;
+
+        if (dist <= maxRange && now - player.lastAttackTime >= player.attackCooldownMs) {
           player.lastAttackTime = now;
           const rawDmg = Math.max(5, Math.floor(player.attackPower * (0.7 + Math.random() * 0.5)));
           const finalDmg = Math.max(1, rawDmg - Math.floor(targetMonster.armorPower * 0.4));
 
           targetMonster.hp = Math.max(0, targetMonster.hp - finalDmg);
 
+          // Projétil / efeito visual baseado na vocação
+          const effectId = player.vocationId === 2 ? 1 // Paladin Arrow
+            : player.vocationId === 1 ? 3 // Sorcerer Fire
+            : player.vocationId === 3 ? 28 // Druid Ice
+            : 1; // Knight Melee Hit
+
           this.emitCombatEvent({
-            type: 'player-hit',
+            type: isRanged ? 'projectile-launched' : 'player-hit',
             sourceId: player.id,
             targetId: targetMonster.id,
             value: finalDmg,
-            effectId: 1, // Melee hit blood
+            effectId,
             posX: targetMonster.posX,
             posY: targetMonster.posY,
           });
@@ -511,19 +530,151 @@ export class HuntDungeonRoom extends Room<WorldState> {
     }
   }
 
+  private handlePlayerSpell(player: PlayerState, rawSpellId: string) {
+    if (!player || player.hp <= 0) return;
+    const spell = rawSpellId.toLowerCase().trim().replace(/[\s_]+/g, '-');
+    const now = Date.now();
 
-  private handlePlayerSpell(player: PlayerState, spellId: string) {
-    if (spellId === 'exura' || spellId === 'health-potion') {
-      const healAmount = spellId === 'health-potion' ? 200 : Math.floor(player.maxHp * 0.25);
-      player.hp = Math.min(player.maxHp, player.hp + healAmount);
-      this.emitCombatEvent({
-        type: 'spell-cast',
-        sourceId: player.id,
-        targetId: player.id,
-        effectId: 12, // Magic green
-        posX: player.posX,
-        posY: player.posY,
-      });
+    // 1. Curas e Suporte
+    if (spell === 'exura') {
+      if (player.mp < 20) return;
+      player.mp -= 20;
+      const heal = Math.round(player.level * 0.25 + 25 + Math.random() * 20);
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      return;
+    }
+    if (spell === 'exura-ico') {
+      if (player.mp < 40) return;
+      player.mp -= 40;
+      const heal = Math.round(player.level * 0.4 + 65 + Math.random() * 35);
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      return;
+    }
+    if (spell === 'exura-gran') {
+      if (player.mp < 70) return;
+      player.mp -= 70;
+      const heal = Math.round(player.level * 0.6 + 120 + Math.random() * 60);
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      return;
+    }
+    if (spell === 'exura-vita') {
+      if (player.mp < 160) return;
+      player.mp -= 160;
+      const heal = Math.round(player.level * 1.5 + 350 + Math.random() * 150);
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      return;
+    }
+
+    // 2. Poções de Vida e Mana
+    if (spell.includes('health-potion') || spell === 'potion-health') {
+      const heal = spell.includes('ultimate') ? 800 : spell.includes('great') ? 500 : spell.includes('strong') ? 300 : 150;
+      player.hp = Math.min(player.maxHp, player.hp + heal);
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      return;
+    }
+    if (spell.includes('mana-potion') || spell === 'potion-mana') {
+      const manaGain = spell.includes('ultimate') ? 500 : spell.includes('great') ? 350 : spell.includes('strong') ? 200 : 100;
+      player.mp = Math.min(player.maxMp, player.mp + manaGain);
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: manaGain, effectId: 13, posX: player.posX, posY: player.posY });
+      return;
+    }
+
+    // 3. Magias Ofensivas de Área: Exori (Berserk)
+    if (spell === 'exori') {
+      if (player.mp < 115) return;
+      player.mp -= 115;
+      const baseDmg = Math.round(player.level * 0.2 + player.attackPower * 1.25);
+
+      // Efeito central de Berserk
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, effectId: 10, posX: player.posX, posY: player.posY });
+
+      // Acerta todos os monstros no quadrado 3x3 ao redor do jogador
+      for (const monster of this.state.monsters.values()) {
+        if (monster.isDead) continue;
+        if (Math.abs(monster.posX - player.posX) <= 1 && Math.abs(monster.posY - player.posY) <= 1) {
+          const dmg = Math.max(1, Math.round(baseDmg * (0.8 + Math.random() * 0.4)) - Math.floor(monster.armorPower * 0.3));
+          monster.hp = Math.max(0, monster.hp - dmg);
+
+          this.emitCombatEvent({
+            type: 'player-hit',
+            sourceId: player.id,
+            targetId: monster.id,
+            value: dmg,
+            effectId: 1,
+            posX: monster.posX,
+            posY: monster.posY,
+          });
+
+          if (monster.hp <= 0) {
+            this.awardMonsterKill(monster);
+          }
+        }
+      }
+      return;
+    }
+
+    // 4. Magias Ofensivas Direcionadas
+    let targetMonster = player.targetId ? this.state.monsters.get(player.targetId) : null;
+    if (!targetMonster || targetMonster.isDead) {
+      // Pega o monstro vivo mais próximo
+      let minDist = 6;
+      for (const m of this.state.monsters.values()) {
+        if (m.isDead) continue;
+        const d = Math.hypot(m.posX - player.posX, m.posY - player.posY);
+        if (d < minDist) {
+          minDist = d;
+          targetMonster = m;
+        }
+      }
+    }
+
+    if (!targetMonster || targetMonster.isDead) return;
+    const dist = Math.hypot(targetMonster.posX - player.posX, targetMonster.posY - player.posY);
+
+    // Exori Ico (Melee Strike)
+    if (spell === 'exori-ico') {
+      if (player.mp < 30 || dist > 1.8) return;
+      player.mp -= 30;
+      const dmg = Math.max(5, Math.round(player.level * 0.2 + player.attackPower * 0.95 + Math.random() * 20));
+      targetMonster.hp = Math.max(0, targetMonster.hp - dmg);
+      this.emitCombatEvent({ type: 'player-hit', sourceId: player.id, targetId: targetMonster.id, value: dmg, effectId: 1, posX: targetMonster.posX, posY: targetMonster.posY });
+      if (targetMonster.hp <= 0) this.awardMonsterKill(targetMonster);
+      return;
+    }
+
+    // Exori Hur (Whirlwind Throw)
+    if (spell === 'exori-hur') {
+      if (player.mp < 40 || dist > 5.5) return;
+      player.mp -= 40;
+      const dmg = Math.max(5, Math.round(player.level * 0.2 + player.attackPower * 0.8 + Math.random() * 15));
+      targetMonster.hp = Math.max(0, targetMonster.hp - dmg);
+      this.emitCombatEvent({ type: 'player-hit', sourceId: player.id, targetId: targetMonster.id, value: dmg, effectId: 44, posX: targetMonster.posX, posY: targetMonster.posY });
+      if (targetMonster.hp <= 0) this.awardMonsterKill(targetMonster);
+      return;
+    }
+
+    // Elementais (Exori Flam, Vis, Frigo, Tera, San, Con)
+    if (spell.startsWith('exori-') || spell === 'flam' || spell === 'vis') {
+      const manaCost = 20;
+      if (player.mp < manaCost || dist > 4.5) return;
+      player.mp -= manaCost;
+
+      const effectId = spell.includes('flam') ? 5 // Fire
+        : spell.includes('vis') ? 11 // Energy
+        : spell.includes('frigo') ? 43 // Ice
+        : spell.includes('tera') ? 45 // Earth
+        : spell.includes('san') ? 40 // Holy
+        : 1; // Physical
+
+      const dmg = Math.max(5, Math.round(player.level * 0.5 + 40 + Math.random() * 40));
+      targetMonster.hp = Math.max(0, targetMonster.hp - dmg);
+      this.emitCombatEvent({ type: 'player-hit', sourceId: player.id, targetId: targetMonster.id, value: dmg, effectId, posX: targetMonster.posX, posY: targetMonster.posY });
+      if (targetMonster.hp <= 0) this.awardMonsterKill(targetMonster);
+      return;
     }
   }
 

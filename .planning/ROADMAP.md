@@ -4466,5 +4466,15 @@ Plans:
 - [x] 264-03-PLAN: Onda 17 - Eliminação de Travamento no Loading e Renderização Resiliente de Atores Remotos (`GamePrototype.tsx` & `PixiArena.tsx`)
 - [x] 264-04-PLAN: Onda 17 - Validação Global com Testes Vitest (`tests/phase264-colyseus-authoritative-hunt-room.test.ts`), Typecheck e Deploy na VPS
 
+---
+
+- [x] **Phase 265: Transição Completa para MMORPG 100% Autoritativo (Thin-Client PixiArena, Extinção da Simulação Offline e Combate Autoritativo no Colyseus HuntDungeonRoom) (Onda 18)** - Extinção definitiva da simulação local offline `advanceCombat` e unificação do jogo sob arquitetura de MMORPG autoritativo no Colyseus: (1) Expansão do combate autoritativo em `HuntDungeonRoom.ts` com magias vocacionais (*Exori*, *Exori Flam*, *Exori Vis*, *Exura*), poções de vida/mana, checagem de mana/cooldowns, geração de cadáveres e distribuição de loot com persistência permanente no Prisma DB; (2) Conversão do `PixiArena.tsx` em Thin-Client puro conectado diretamente a `huntRoom.state.monsters` e `huntRoom.state.players`, despachando ataques e magias via WebSocket; (3) Extinção da simulação concorrente em `GamePrototype.tsx` e transição de masmorra síncrona sem deadlocks de loading; (4) Validação global com testes Vitest, 0 erros no typecheck e deploy na VPS.
+Plans:
+- [x] 265-01-PLAN: Onda 18 - Expansão do Combate Autoritativo e Spells no Servidor Colyseus (`HuntDungeonRoom.ts`)
+- [x] 265-02-PLAN: Onda 18 - Thin-Client no PixiArena Conectado ao HuntRoom (`PixiArena.tsx` & `GameClientNetworkManager.ts`)
+- [x] 265-03-PLAN: Onda 18 - Extinção da Simulação Offline e Transições Fluídas de Masmorra (`GamePrototype.tsx`)
+- [x] 265-04-PLAN: Onda 18 - Validação Global com Testes Vitest, Typecheck e Deploy na VPS
+
+
 
 

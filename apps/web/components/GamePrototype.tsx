@@ -1582,12 +1582,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         playHuntBgm(data.huntId);
       }
 
-      // Phase 107 & 263: Save progress and trigger smooth 3-second Exura loading screen for follower
+      // Phase 107 & 265: Save progress and trigger smooth 2-second Exura loading screen for follower
       void saveProgressRef.current?.();
       setTransitionLoading({
         active: true,
         message: `Viajando para ${targetHunt.name} com a party...`,
-        durationMs: 3000,
+        durationMs: 2000,
         huntId: data.huntId,
       });
 
@@ -1603,24 +1603,27 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       gameNetwork.sendSetInHunt(true, data.huntId);
       gameNetwork.sendTeleport(entrance.worldPosition.x, entrance.worldPosition.y, entrance.worldPosition.z);
 
-      // Phase 264: Connect follower to authoritative Colyseus hunt_dungeon room
+      // Phase 265: Connect follower to authoritative Colyseus hunt_dungeon room
       const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
       const activeCharId = onlineCharacterRef.current?.id || activeCharacter?.id;
       const partyRoomKey = data.partyId || multiplayerPartyRef.current?.leaderSessionId || `solo_${activeCharId}`;
       if (token && activeCharId) {
-        void gameNetwork.joinHuntDungeon(token, activeCharId, data.huntId, partyRoomKey).catch((err) => {
+        void gameNetwork.joinHuntDungeon(token, activeCharId, data.huntId, partyRoomKey).then(() => {
+          setIsArenaReady(true);
+          setTransitionLoading(null);
+        }).catch((err) => {
           console.warn('[GamePrototype] Failed to connect to hunt_dungeon room:', err);
         });
       }
 
-      // Phase 264: Transition fail-safe (3.2s) - guarantee arena is shown and loading state never hangs
+      // Phase 265: Transition fail-safe (2.5s) - guarantee arena is shown and loading state never hangs
       setTimeout(() => {
         if (pendingHuntTransitionRef.current) {
           pendingHuntTransitionRef.current = null;
         }
         setIsArenaReady(true);
         setTransitionLoading(null);
-      }, 3200);
+      }, 2500);
 
       pendingHuntTransitionRef.current = {
         huntId: data.huntId,
@@ -1849,6 +1852,116 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       }));
     });
 
+    const unsubHuntState = gameNetwork.onHuntStateChange((huntState) => {
+      if (!huntState) return;
+
+      setGame((current) => {
+        const serverMonsters: any[] = [];
+        if (huntState.monsters) {
+          (huntState.monsters as any).forEach((m: any) => {
+            serverMonsters.push({
+              id: m.id,
+              monsterId: m.monsterTypeId || 'cyclops',
+              name: m.name,
+              lookType: m.lookType,
+              hp: m.hp,
+              maxHp: m.maxHp,
+              position: { x: m.posX, y: m.posY, z: m.posZ || 7 },
+              previousPosition: { x: m.posX, y: m.posY, z: m.posZ || 7 },
+              direction: m.direction || 'south',
+              alive: !m.isDead && m.hp > 0,
+              targetId: m.targetId || null,
+            });
+          });
+        }
+
+        const serverPlayers: any[] = [];
+        if (huntState.players) {
+          (huntState.players as any).forEach((p: any) => {
+            serverPlayers.push({
+              characterId: p.characterId,
+              hp: p.hp,
+              maxHp: p.maxHp,
+              mana: p.mp,
+              maxMana: p.maxMp,
+              position: { x: p.posX, y: p.posY, z: p.posZ || 7 },
+              previousPosition: { x: p.posX, y: p.posY, z: p.posZ || 7 },
+              direction: p.direction || 'south',
+              alive: p.hp > 0,
+              targetId: p.targetId || null,
+              name: p.name,
+              level: p.level,
+              experience: p.experience,
+              vocation: p.vocationName,
+              outfit: p.outfit,
+              outfitLookType: p.outfitLookType,
+              outfitHead: p.outfitHead,
+              outfitBody: p.outfitBody,
+              outfitLegs: p.outfitLegs,
+              outfitFeet: p.outfitFeet,
+              outfitAddons: p.outfitAddons,
+              mount: p.mount,
+              mountActive: p.mountActive,
+            });
+          });
+        }
+
+        const updatedCharacters = current.session.characters.map((char: any) => {
+          const sPlayer = serverPlayers.find((sp: any) => sp.characterId === char.id);
+          if (sPlayer) {
+            return {
+              ...char,
+              currentHp: sPlayer.hp,
+              maxHp: sPlayer.maxHp,
+              currentMana: sPlayer.mana,
+              maxMana: sPlayer.maxMana,
+              level: sPlayer.level,
+              experience: sPlayer.experience,
+            };
+          }
+          return char;
+        });
+
+        const rawEvents = Array.isArray(huntState.combatEvents) ? huntState.combatEvents : [];
+        const mappedEvents = rawEvents.map((ev: any) => ({
+          type: ev.type,
+          sourceId: ev.sourceId,
+          targetId: ev.targetId,
+          damage: ev.value,
+          amount: ev.value,
+          effectId: ev.effectId,
+          position: { x: ev.posX, y: ev.posY },
+          timestamp: ev.timestamp,
+        }));
+
+        return {
+          ...current,
+          session: {
+            ...current.session,
+            characters: updatedCharacters,
+          },
+          encounter: {
+            ...current.encounter,
+            status: 'running',
+            enemies: serverMonsters.length > 0 ? serverMonsters : current.encounter.enemies,
+            partyActors: serverPlayers.length > 0 ? serverPlayers : current.encounter.partyActors,
+            events: mappedEvents,
+          },
+        };
+      });
+    });
+
+    const unsubHuntLoot = gameNetwork.onHuntLoot((data) => {
+      setSaleMessage(`💰 Loot: ${data.monsterName} deixou ${data.gold} moedas de ouro!`);
+      setGame((cur) => ({
+        ...cur,
+        session: {
+          ...cur.session,
+          gold: (cur.session.gold || 0) + data.gold,
+        },
+      }));
+    });
+
     return () => {
       unsubState();
       unsubCombat();
@@ -1863,6 +1976,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       unsubHuntEncounterSync();
       unsubFollowerAttack();
       unsubHuntMonsterDied();
+      unsubHuntState();
+      unsubHuntLoot();
       unsubProposal();
       unsubProposalSync();
       unsubProposalRejected();
@@ -3501,6 +3616,11 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       lastCombatTimeRef.current = performance.now();
       return;
     }
+    // Phase 265: Se conectado à sala autoritativa HuntDungeonRoom, o servidor Colyseus governa 100% da simulação
+    if (gameNetwork.IsInHuntRoom) {
+      lastCombatTimeRef.current = performance.now();
+      return;
+    }
     if (mode !== 'hunt' || encounter.status !== 'running') {
       lastCombatTimeRef.current = performance.now();
       return;
@@ -3862,7 +3982,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
   }, [mode, encounter.status, content, initialLoadingActive, transitionLoading?.active, isArenaReady]);
 
-  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active);
+  useGameTicker(tickCombat, 120, mode === 'hunt' && encounter.status === 'running' && isArenaReady && !initialLoadingActive && !transitionLoading?.active && !gameNetwork.IsInHuntRoom);
 
   const lastCityAutoSpellsTimeRef = useRef(performance.now());
   const tickCityAutoSpells = useCallback(() => {
@@ -4180,7 +4300,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     const activeCharId = onlineCharacterRef.current?.id || activeCharacter.id;
     const partyRoomKey = multiplayerPartyRef.current?.leaderSessionId || (multiplayerPartyRef.current ? gameNetwork.LocalPlayerId : null) || `solo_${activeCharId}`;
     if (token && activeCharId) {
-      void gameNetwork.joinHuntDungeon(token, activeCharId, huntId, partyRoomKey).catch((err) => {
+      void gameNetwork.joinHuntDungeon(token, activeCharId, huntId, partyRoomKey).then(() => {
+        setIsArenaReady(true);
+        setTransitionLoading(null);
+      }).catch((err) => {
         console.warn('[GamePrototype] Failed to connect to hunt_dungeon room:', err);
       });
     }
@@ -4199,12 +4322,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       playHuntBgm(huntId);
     }
 
-    // Phase 102: Save progress and trigger 10-second Exura loading screen
+    // Phase 102 & 265: Save progress and trigger smooth 2-second Exura loading screen
     void saveProgressRef.current?.();
     setTransitionLoading({
       active: true,
       message: `Viajando para ${targetHunt.name}...`,
-      durationMs: 10000,
+      durationMs: 2000,
       huntId,
     });
 
@@ -4248,12 +4371,13 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   };
   startSelectedHuntRef.current = startSelectedHunt;
 
-  // Phase 248: Timeout de segurança estrito (máximo 4s) para desbloquear a arena e remover loading screen
+  // Phase 248 & 265: Timeout de segurança estrito (máximo 2.5s) para desbloquear a arena e remover loading screen
   useEffect(() => {
     if (mode === 'hunt' && !isArenaReady) {
       const timer = window.setTimeout(() => {
         setIsArenaReady(true);
-      }, 4000);
+        setTransitionLoading(null);
+      }, 2500);
       return () => window.clearTimeout(timer);
     }
   }, [mode, isArenaReady]);
@@ -5212,6 +5336,18 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       return;
     }
 
+    // Phase 265: Dispara spell diretamente para o servidor Colyseus quando na masmorra autoritativa
+    if (mode === 'hunt' && gameNetwork.IsInHuntRoom) {
+      const spellIdOrName = action?.kind === 'spell'
+        ? (action.spell.words || action.spell.name || String(action.spell.spellId))
+        : action?.kind === 'potion'
+        ? (action.potion.name || String(action.potion.id))
+        : action?.kind === 'rune'
+        ? (action.rune.words || action.rune.name || String(action.rune.id))
+        : String(actionId);
+      gameNetwork.sendHuntSpell(spellIdOrName);
+    }
+
     setGame((current) => {
       const next = structuredClone(current);
       const triggered = triggerManualHotbarAction(next, activeCharacter.id, actionId, content);
@@ -5426,6 +5562,26 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         }
       }
 
+      // Manual movement in hunt mode (authoritative dungeon)
+      if (mode === 'hunt' && gameNetwork.IsInHuntRoom && !e.ctrlKey && !e.metaKey) {
+        let deltaX = 0;
+        let deltaY = 0;
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') deltaY = -1;
+        else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') deltaY = 1;
+        else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') deltaX = -1;
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') deltaX = 1;
+
+        if (deltaX !== 0 || deltaY !== 0) {
+          e.preventDefault();
+          const stepDir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
+          const myPlayer = gameNetwork.HuntRoom ? (gameNetwork.HuntRoom.state.players as any).get(gameNetwork.HuntRoom.sessionId) : null;
+          const curX = myPlayer?.posX ?? cityPos.x;
+          const curY = myPlayer?.posY ?? cityPos.y;
+          gameNetwork.sendHuntMove(stepDir, curX + deltaX, curY + deltaY);
+          return;
+        }
+      }
+
       // Manual movement via arrow keys (and WASD) in city mode
       if (mode !== 'hunt' && !e.ctrlKey && !e.metaKey) {
         let deltaX = 0;
@@ -5575,6 +5731,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             onSceneReady={() => setIsArenaReady(true)}
             onSelectTarget={(enemyId) => {
               setGame((cur) => setActorTarget(cur, activeCharacter.id, enemyId));
+              if (gameNetwork.IsInHuntRoom) {
+                gameNetwork.sendHuntAttack(enemyId);
+              }
               if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
                 gameNetwork.sendPartyTargetSync(enemyId);
               }
@@ -6560,8 +6719,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         const activeHuntId = transitionLoading?.huntId || pendingHuntTransitionRef.current?.huntId || (mode === 'hunt' ? encounter.hunt?.id : undefined);
         const loadingConfig = getLoadingConfigForHunt(activeHuntId);
 
-        // Phase 261 / Onda 14: isHuntSceneLoading só é válido durante a transição inicial de entrada com pending ativo
-        const isHuntSceneLoading = mode === 'hunt' && !isArenaReady && Boolean(pendingHuntTransitionRef.current);
+        // Phase 261 / Onda 14 & Phase 265: isHuntSceneLoading só é válido durante a transição inicial de entrada com pending ativo e sem sala conectada
+        const isHuntSceneLoading = mode === 'hunt' && !isArenaReady && Boolean(pendingHuntTransitionRef.current) && !gameNetwork.IsInHuntRoom;
         const isLoadingActive = initialLoadingActive || Boolean(transitionLoading?.active) || isHuntSceneLoading;
 
         return (

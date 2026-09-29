@@ -251,6 +251,7 @@ export class GameClientNetworkManager {
   private huntRoom: Room<any> | null = null;
   private huntStateListeners: Set<(state: any) => void> = new Set();
   private huntMonsterDiedListeners: Set<(data: { monsterId: string; exp: number }) => void> = new Set();
+  private huntLootListeners: Set<(data: any) => void> = new Set();
   private huntDungeonEndedListeners: Set<(data: any) => void> = new Set();
 
   private playersMap: Map<string, RemotePlayerSnapshot> = new Map();
@@ -1046,6 +1047,10 @@ export class GameClientNetworkManager {
       this.huntMonsterDiedListeners.forEach((fn) => fn(data));
     });
 
+    this.huntRoom.onMessage('hunt:loot', (data: any) => {
+      this.huntLootListeners.forEach((fn) => fn(data));
+    });
+
     this.huntRoom.onMessage('dungeon:ended', (data: any) => {
       this.huntDungeonEndedListeners.forEach((fn) => fn(data));
     });
@@ -1081,6 +1086,11 @@ export class GameClientNetworkManager {
   onHuntMonsterDied(fn: (data: { monsterId: string; exp: number }) => void): () => void {
     this.huntMonsterDiedListeners.add(fn);
     return () => this.huntMonsterDiedListeners.delete(fn);
+  }
+
+  onHuntLoot(fn: (data: { monsterId: string; monsterName: string; gold: number; posX: number; posY: number }) => void): () => void {
+    this.huntLootListeners.add(fn);
+    return () => this.huntLootListeners.delete(fn);
   }
 
   onHuntDungeonEnded(fn: (data: any) => void): () => void {
