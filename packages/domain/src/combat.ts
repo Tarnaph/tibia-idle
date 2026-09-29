@@ -2591,6 +2591,12 @@ export function triggerEmergencyAutoPotion(
 }
 
 export function transferActiveMemberOnDeath(state: GameState, deadCharacterId: string): void {
+  // Phase 261 / Onda 14: Em party multiplayer real (Colyseus), cada jogador controla apenas o seu herói.
+  // JAMAIS transferir seleção ou câmera para o herói de outro jogador em caso de morte!
+  if (state.session.isMultiplayerParty) {
+    return;
+  }
+
   // Filtrar todos os membros sobreviventes vivos da party
   const livingCharacters = state.session.characters.filter((character) => {
     if (character.id === deadCharacterId) return false;

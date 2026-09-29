@@ -185,20 +185,34 @@ export function ExuraLoadingScreen({
     let intervalId: NodeJS.Timeout;
     let finishTimeoutId: NodeJS.Timeout;
     let isHandled = false;
+    const hardLimitMs = Math.max(durationMs + 2000, 4500);
+    let hardLimitTimeoutId: NodeJS.Timeout;
 
     const finish = () => {
       if (isHandled) return;
       isHandled = true;
       cancelAnimationFrame(animationFrameId);
       clearInterval(intervalId);
+      clearTimeout(hardLimitTimeoutId);
       setProgress(100);
       setIsFadingOut(true);
       finishTimeoutId = setTimeout(() => {
         setIsVisible(false);
         setIsFadingOut(false);
-        onFinishRef.current?.();
+        try {
+          onFinishRef.current?.();
+        } catch (err) {
+          console.error('[ExuraLoadingScreen] Error in onFinish callback:', err);
+        }
       }, 350);
     };
+
+    hardLimitTimeoutId = setTimeout(() => {
+      if (!isHandled) {
+        console.warn('[ExuraLoadingScreen] Hard fail-safe timeout reached, forcing finish.');
+        finish();
+      }
+    }, hardLimitMs);
 
     const updateProgress = (now: number) => {
       if (isHandled) return;
@@ -215,10 +229,10 @@ export function ExuraLoadingScreen({
       const huntProgressPct = huntId ? huntAssetPreloader.getHuntProgress(huntId) : 100;
       const assetProgressPct = Math.min(globalProgressPct, huntProgressPct);
 
-      const isTimedOut = elapsed >= Math.min(effectiveDuration + 1500, 4000);
+      const isTimedOut = elapsed >= Math.max(effectiveDuration + 1000, 3500);
       let effectivePct: number;
       if (isTimedOut) {
-        effectivePct = timePct;
+        effectivePct = 100;
       } else if (!isAssetsComplete) {
         effectivePct = Math.min(99, Math.max(timePct * 0.4, assetProgressPct));
       } else {
@@ -262,13 +276,15 @@ export function ExuraLoadingScreen({
       cancelAnimationFrame(animationFrameId);
       clearInterval(intervalId);
       clearTimeout(finishTimeoutId);
+      clearTimeout(hardLimitTimeoutId);
       if (typeof document !== 'undefined') {
         document.removeEventListener('visibilitychange', onVisibilityChange);
       }
     };
   }, [active, durationMs, waitForAssets]);
 
-  if (!isVisible && !active) return null;
+  // Phase 261 / Onda 14: Nunca renderizar o overlay se isVisible for falso
+  if (!isVisible) return null;
 
   return (
     <div

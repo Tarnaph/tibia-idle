@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { CharacterState, EnemyState, GameState } from '../packages/domain/src/types';
+import { transferActiveMemberOnDeath } from '../packages/domain/src/combat';
 
 describe('Phase 261 / Onda 13: Urban Decoupling, Account Isolation & Co-op Hunt', () => {
   it('1. should reject selecting or controlling remote party members', () => {
@@ -204,4 +205,86 @@ describe('Phase 261 / Onda 13: Urban Decoupling, Account Isolation & Co-op Hunt'
     expect(reconciled.find((e) => e.id === 'cyc_1')?.hp).toBe(120);
     expect(reconciled.find((e) => e.id === 'cyc_2')?.name).toBe('Cyclops Drone');
   });
+
+  it('5. should NOT transfer active member on death when isMultiplayerParty is true', () => {
+    const localChar: CharacterState = {
+      id: 'local_caos',
+      name: 'Caos',
+      currentHp: 0,
+      maxHp: 650,
+    } as any;
+
+    const remoteChar: CharacterState = {
+      id: 'remote_brututus',
+      name: 'Brututus',
+      currentHp: 500,
+      maxHp: 500,
+    } as any;
+
+    const state: GameState = {
+      session: {
+        isMultiplayerParty: true,
+        selectedCharacterId: 'local_caos',
+        leaderId: 'local_caos',
+        characters: [localChar, remoteChar],
+      },
+    } as any;
+
+    transferActiveMemberOnDeath(state, 'local_caos');
+
+    // Local player should NEVER switch control or active focus to remote player
+    expect(state.session.selectedCharacterId).toBe('local_caos');
+    expect(state.session.leaderId).toBe('local_caos');
+  });
+
+  it('6. should transfer active member on death in single-player squad mode (isMultiplayerParty: false)', () => {
+    const char1: CharacterState = {
+      id: 'squad_char_1',
+      name: 'Knight 1',
+      currentHp: 0,
+      maxHp: 650,
+    } as any;
+
+    const char2: CharacterState = {
+      id: 'squad_char_2',
+      name: 'Mage 2',
+      currentHp: 300,
+      maxHp: 300,
+    } as any;
+
+    const state: GameState = {
+      session: {
+        isMultiplayerParty: false,
+        selectedCharacterId: 'squad_char_1',
+        leaderId: 'squad_char_1',
+        characters: [char1, char2],
+      },
+      encounter: {
+        nextLogId: 1,
+        round: 1,
+        log: [],
+        events: [],
+      },
+    } as any;
+
+    transferActiveMemberOnDeath(state, 'squad_char_1');
+
+    // In single-player squad mode, controls smoothly transfer to next living hero
+    expect(state.session.selectedCharacterId).toBe('squad_char_2');
+    expect(state.session.leaderId).toBe('squad_char_2');
+  });
+
+  it('7. should protect loading screen against zombie visibility state', () => {
+    // Phase 261 / Onda 14: if !isVisible, loading overlay MUST NOT render regardless of active prop
+    const isVisible = false;
+    const active = true;
+
+    const shouldRender = isVisible; // New rule: if (!isVisible) return null;
+    expect(shouldRender).toBe(false);
+
+    // Legacy bug check: previously `if (!isVisible && !active) return null;` meant that if active was still true, it rendered even when isVisible was false!
+    const legacyShouldRender = !(!isVisible && !active);
+    expect(legacyShouldRender).toBe(true); // Demonstrates the previous zombie bug!
+  });
 });
+

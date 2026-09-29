@@ -4432,4 +4432,12 @@ Plans:
 - [x] 260-03-PLAN: Onda 12 - Ciclo de Vida da Party (Dois Botões de Líder, Repasse de Liderança, Botão Rápido no HUD e Expurgamento Total de Clones)
 - [x] 260-04-PLAN: Validação Global - Testes Vitest Automatizados, TypeScript Typecheck (0 erros), Atualização do FIX.md e Deploy Completo na VPS
 
+---
+
+- [x] **Phase 261: Desacoplamento Urbano, Isolamento Estrito de Contas, Sincronização Autoritativa de Hunt e Extinção da Tela de Loading Congelada (Ondas 13 e 14)** - Resolução integral das Ondas 13 e 14 do FIX.md: (1) Isolamento estrito de conta e imunização do `savedPool` eliminando contaminação de heróis de terceiros na conta local; (2) Desativação do squad follow urbano e renderização estrita de jogadores da party em posições reais; (3) Sincronização autoritativa de monstros e alvos na caçada (snapshot do líder com reconciliação imediata nos seguidores); (4) Isolamento pessoal de notificações e banners de level-up para o jogador ativo; (5) Ação imediata e resiliente dos botões de saída de party (HUD e Gerenciador); (6) Extinção definitiva da tela de loading congelada/zumbi (`!isVisible` unificado, fail-safe timer incondicional e proteção de loading de arena); (7) Imunização de controle e foco na morte multiplayer (`transferActiveMemberOnDeath` aborta em party multiplayer); (8) Transição instantânea de loading ao sair da caçada com salvamento assíncrono não-bloqueante.
+Plans:
+- [x] 261-01-PLAN: Onda 13 - Desacoplamento Urbano, Isolamento de Contas e Sincronização Autoritativa de Caçada
+- [x] 261-02-PLAN: Onda 14 - Extinção da Tela de Loading Congelada, Blindagem de Morte Multiplayer e Transição Urbana Fluida
+- [x] 261-03-PLAN: Validação Global - Testes Vitest Automatizados, TypeScript Typecheck (0 erros) e Atualização do FIX.md
+
 

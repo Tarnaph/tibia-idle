@@ -1560,8 +1560,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
 
     const unsubHuntStart = gameNetwork.onPartyHuntStart((data) => {
-      // Phase 259: Guard against redundant hunt start if already in active hunt
-      if (modeRef.current === 'hunt' && !pendingHuntTransitionRef.current) {
+      // Phase 259 & 261: Guard against redundant hunt start if already in active hunt or already transitioning
+      if (modeRef.current === 'hunt' || pendingHuntTransitionRef.current) {
         return;
       }
       setActiveHuntProposal(null);
@@ -1589,11 +1589,6 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         durationMs: 10000,
         huntId: data.huntId,
       });
-
-      if (modeRef.current === 'hunt') {
-        setGame((current) => leaveHunt(current));
-        setMode('training');
-      }
 
       pendingHuntTransitionRef.current = {
         huntId: data.huntId,
@@ -4205,31 +4200,13 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       gameNetwork.sendPartyHuntExit();
     }
 
-    // Phase 182 & 199: Final hunt save must succeed before releasing urban autosave and returning to city
-    isSaveSuspendedRef.current = false;
-    let saveOk = await saveProgressRef.current?.(false, true);
-    if (!saveOk) {
-      // In case server context is resolving version conflict or adopting lease, wait 600ms and retry
-      await new Promise((r) => setTimeout(r, 600));
-      isSaveSuspendedRef.current = false;
-      saveOk = await saveProgressRef.current?.(false, true);
-    }
-    if (!saveOk) {
-      // Third attempt with 1.2s delay for full propagation
-      await new Promise((r) => setTimeout(r, 1200));
-      isSaveSuspendedRef.current = false;
-      saveOk = await saveProgressRef.current?.(false, true);
-    }
-    if (!saveOk) {
-      // Fourth attempt with 1.5s delay to absorb any transient database lock
-      await new Promise((r) => setTimeout(r, 1500));
-      isSaveSuspendedRef.current = false;
-      saveOk = await saveProgressRef.current?.(false, true);
-    }
-    if (!saveOk) {
-      console.warn('[GamePrototype] Salvamento final da caçada falhou ou teve aviso, prosseguindo com retorno seguro à cidade.');
-      clientErrorLogger.error('HUNT_SAVE', 'Falha ao salvar progresso antes de sair da caçada, forçando saída segura.', { characterId: activeCharacter?.id });
-    }
+    // Phase 102/204 & Phase 261: Responsive 2-second Exura loading screen starts IMMEDIATELY
+    setTransitionLoading({
+      active: true,
+      message: 'Salvando progresso e retornando a Thais...',
+      durationMs: 2000,
+      huntId: undefined,
+    });
 
     gameNetwork.sendTeleport(THAIS_TEMPLE_POSITION.x, THAIS_TEMPLE_POSITION.y, THAIS_TEMPLE_POSITION.z);
     gameNetwork.sendReturnToCity();
@@ -4243,13 +4220,20 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     // Phase 226: Mark hunt analyzer as finalized (last hunt)
     setHuntAnalyzerData((prev) => ({ ...prev, isLive: false }));
 
-    // Phase 102/204: Responsive 2-second Exura loading screen for safe saving and smooth return
-    setTransitionLoading({
-      active: true,
-      message: 'Salvando progresso e retornando a Thais...',
-      durationMs: 2000,
-      huntId: undefined,
-    });
+    // Phase 182 & 199: Final hunt save runs gracefully without blocking the loading screen
+    isSaveSuspendedRef.current = false;
+    void (async () => {
+      try {
+        let saveOk = await saveProgressRef.current?.(false, true);
+        if (!saveOk) {
+          await new Promise((r) => setTimeout(r, 400));
+          isSaveSuspendedRef.current = false;
+          await saveProgressRef.current?.(false, true);
+        }
+      } catch (err) {
+        console.warn('[GamePrototype] Salvamento de saída da caçada avisou:', err);
+      }
+    })();
 
     setGame((current) => {
       // Phase 99: Use leaveHunt instead of respawnInTemple to eliminate death penalty (0% XP loss, 0% skill loss)
@@ -6400,12 +6384,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         />
       )}
 
-      {/* Phase 99/100/102/111: Authentic Exura 10s Cinematic Loading Screen for Login & Transitions */}
+      {/* Phase 99/100/102/111 & Phase 261: Authentic Exura 10s Cinematic Loading Screen for Login & Transitions */}
       {(() => {
         const activeHuntId = transitionLoading?.huntId || pendingHuntTransitionRef.current?.huntId || (mode === 'hunt' ? encounter.hunt?.id : undefined);
         const loadingConfig = getLoadingConfigForHunt(activeHuntId);
 
-        const isLoadingActive = initialLoadingActive || Boolean(transitionLoading?.active) || (mode === 'hunt' && !isArenaReady);
+        // Phase 261 / Onda 14: isHuntSceneLoading só é válido durante a transição inicial de entrada com pending ativo
+        const isHuntSceneLoading = mode === 'hunt' && !isArenaReady && Boolean(pendingHuntTransitionRef.current);
+        const isLoadingActive = initialLoadingActive || Boolean(transitionLoading?.active) || isHuntSceneLoading;
 
         return (
           <ExuraLoadingScreen
@@ -6414,10 +6400,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             durationMs={transitionLoading?.durationMs ?? 2000}
             message={
               transitionLoading?.message ||
-              (mode === 'hunt' && !isArenaReady ? 'Renderizando cenário e monstros...' :
+              (isHuntSceneLoading ? 'Renderizando cenário e monstros...' :
                onlineCharacter ? `Entrando com ${onlineCharacter.name}...` : 'Carregando o mundo de Thais...')
             }
-            waitForAssets={initialLoadingActive || (mode === 'hunt' && !isArenaReady)}
+            waitForAssets={initialLoadingActive || isHuntSceneLoading}
             bgImage={loadingConfig.bgImage}
             curiosities={loadingConfig.curiosities}
             onFinish={() => {
@@ -6447,12 +6433,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                   }
                 }
               }
-              if (initialLoadingActive) {
-                setInitialLoadingActive(false);
-              }
-              if (transitionLoading?.active) {
-                setTransitionLoading(null);
-              }
+
+              // Phase 261 / Onda 14: Resolução incondicional de todos os estados de carregamento
+              setIsArenaReady(true);
+              setInitialLoadingActive(false);
+              setTransitionLoading(null);
+
               // Phase 105: Music track notification box appears strictly after loading finishes in Thais
               if (!pending && mode === 'training') {
                 triggerTrackNotification(THAIS_THEME_TRACK);

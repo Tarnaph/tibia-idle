@@ -126,3 +126,15 @@
 - [x] **32. Ação Imediata e Resiliente dos Botões "Sair da Party" (HUD & Gerenciador) (`CityPartyHandler.ts` & `GamePrototype.tsx`):**
   - Limpeza síncrona e incondicional do estado da party, removendo o Floating HUD e limpando slots no ato do clique em "Sair".
   - Fallback de busca de grupo no servidor em `handlePlayerLeaveParty` garantindo disparo de `party:left` e remapeamento imediato mesmo sob falhas de índice.
+
+## Onda 14: Extinção da Tela de Loading Congelada, Blindagem de Morte Multiplayer e Transição Urbana Fluida
+- [x] **33. Extinção Definitiva da Tela de Loading Congelada / Zumbi (`ExuraLoadingScreen.tsx` & `GamePrototype.tsx`):**
+  - Corrigido o bug zumbi em `ExuraLoadingScreen.tsx`: substituir `if (!isVisible && !active) return null;` por `if (!isVisible) return null;`, garantindo que uma tela cujo ciclo expirou nunca permaneça renderizada cobrindo a interface a 100% de opacidade.
+  - Adicionado fail-safe timeout estrito no `ExuraLoadingScreen`: após o tempo limite máximo estipulado, força a finalização imediata e fecha o overlay mesmo sob atrasos de assets.
+  - Blindado `isLoadingActive` em `GamePrototype.tsx`: isolar a verificação de arena pronta estritamente à transição inicial de entrada (`!combatStartedRef.current && Boolean(pendingHuntTransitionRef.current)`), impossibilitando que a tela de loading de Thais surja no meio do combate.
+  - Padronizada a finalização incondicional em `onFinish`: disparar `setIsArenaReady(true)`, `setInitialLoadingActive(false)` e `setTransitionLoading(null)`.
+- [x] **34. Imunização de Controle e Identidade em Morte Multiplayer (`combat.ts`):**
+  - Em `transferActiveMemberOnDeath` (`packages/domain/src/combat.ts`), adicionar guarda imediata: se `state.session.isMultiplayerParty` for verdadeiro, abortar a transferência de herói ativo.
+  - Cada jogador real em party multiplayer permanece estritamente vinculado ao seu próprio herói; a morte local nunca transfere o foco ou o envio de telemetria de progresso (XP) para o personagem do colega de grupo.
+- [x] **35. Transição Imediata de Retorno e Fechamento Limpo na Saída de Caçada em Grupo (`GamePrototype.tsx`):**
+  - Em `exitHunt`, acionar a tela de transição de retorno a Thais de forma instantânea antes das etapas assíncronas de salvamento, garantindo feedback visual imediato e descarregamento limpo da caçada.
