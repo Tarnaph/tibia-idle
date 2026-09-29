@@ -131,6 +131,32 @@ type PartyHuntProposalListener = (proposal: PartyHuntProposal) => void;
 type PartyHuntProposalSyncListener = (data: { huntId: string; huntName: string; acceptedSessionIds: string[]; totalMembers: number }) => void;
 type PartyHuntProposalRejectedListener = (data: { rejectedByName: string; huntName: string }) => void;
 type DuplicateSessionListener = (message: string) => void;
+export interface PartyHuntEncounterData {
+  huntId: string;
+  wave: number;
+  enemies: Array<{
+    id: string;
+    monsterId: string;
+    name: string;
+    hp: number;
+    maxHp: number;
+    x: number;
+    y: number;
+    targetId?: string | null;
+  }>;
+  recentKills?: string[];
+  expShare?: number;
+}
+export interface PartyFollowerAttackData {
+  senderSessionId?: string;
+  attackerSessionId?: string;
+  targetEnemyId: string;
+  damage: number;
+  spellName?: string;
+  spellId?: string;
+}
+type PartyHuntEncounterSyncListener = (data: PartyHuntEncounterData) => void;
+type PartyFollowerAttackListener = (data: PartyFollowerAttackData) => void;
 
 export interface BestiarySyncData {
   kills: Record<string, number>;
@@ -199,6 +225,8 @@ export class GameClientNetworkManager {
   private partyHuntProposalListeners: Set<PartyHuntProposalListener> = new Set();
   private partyHuntProposalSyncListeners: Set<PartyHuntProposalSyncListener> = new Set();
   private partyHuntProposalRejectedListeners: Set<PartyHuntProposalRejectedListener> = new Set();
+  private partyHuntEncounterSyncListeners: Set<PartyHuntEncounterSyncListener> = new Set();
+  private partyFollowerAttackListeners: Set<PartyFollowerAttackListener> = new Set();
   private duplicateSessionListeners: Set<DuplicateSessionListener> = new Set();
   private pvpMatchFoundListeners: Set<PvPMatchFoundListener> = new Set();
   private pvpQueueTimeoutListeners: Set<PvPQueueTimeoutListener> = new Set();
@@ -533,6 +561,14 @@ export class GameClientNetworkManager {
       this.partyTargetSyncListeners.forEach((fn) => fn(data.targetId));
     });
 
+    this.room.onMessage('party:huntEncounterSync', (data: PartyHuntEncounterData) => {
+      this.partyHuntEncounterSyncListeners.forEach((fn) => fn(data));
+    });
+
+    this.room.onMessage('party:followerAttack', (data: PartyFollowerAttackData) => {
+      this.partyFollowerAttackListeners.forEach((fn) => fn(data));
+    });
+
     this.room.onMessage('session:duplicate', (data: { message: string }) => {
       if (data?.message) {
         this.duplicateSessionListeners.forEach((fn) => fn(data.message));
@@ -743,6 +779,26 @@ export class GameClientNetworkManager {
   sendPartyTargetSync(targetId: string | null): void {
     if (!this.room) return;
     this.room.send('party:targetSync', { targetId });
+  }
+
+  sendPartyHuntEncounterSync(data: PartyHuntEncounterData): void {
+    if (!this.room) return;
+    this.room.send('party:huntEncounterSync', data);
+  }
+
+  sendPartyFollowerAttack(data: PartyFollowerAttackData): void {
+    if (!this.room) return;
+    this.room.send('party:followerAttack', data);
+  }
+
+  onPartyHuntEncounterSync(listener: PartyHuntEncounterSyncListener): () => void {
+    this.partyHuntEncounterSyncListeners.add(listener);
+    return () => this.partyHuntEncounterSyncListeners.delete(listener);
+  }
+
+  onPartyFollowerAttack(listener: PartyFollowerAttackListener): () => void {
+    this.partyFollowerAttackListeners.add(listener);
+    return () => this.partyFollowerAttackListeners.delete(listener);
   }
 
   onPartyInvitation(listener: PartyInvitationListener): () => void {

@@ -555,6 +555,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   seedRef.current = seed;
   const prepareHuntCharactersRef = useRef<(cur: any) => any>((cur) => cur);
   const exitHuntRef = useRef<() => void>(() => {});
+  const lastEncounterSyncTimeRef = useRef(0);
   const pendingHuntTransitionRef = useRef<{
     huntId: string;
     targetHunt: any;
@@ -928,18 +929,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const [savedPool, setSavedPool] = useState<CharacterState[]>([]);
   const savedPoolRef = useRef<CharacterState[]>([]);
   savedPoolRef.current = savedPool;
-  const [squadFollowCity, setSquadFollowCity] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (game.session.characters.length > 0) {
-      setSavedPool((prev) => {
-        const map = new Map<string, CharacterState>();
-        prev.forEach((c) => map.set(c.id, c));
-        game.session.characters.forEach((c) => map.set(c.id, c));
-        return Array.from(map.values());
-      });
-    }
-  }, [game.session.characters]);
+  const [squadFollowCity, setSquadFollowCity] = useState<boolean>(false);
 
   // Canonical hydration helper to restore full character data including skills and skillTries
   const hydrateDbCharacter = useCallback((c: any): CharacterState => {
@@ -1158,18 +1148,34 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   // Phase 260: Strict session sanitization ensuring no remote players ever remain in session.characters
   const purgeRemoteCharactersFromSession = useCallback(() => {
     setGame((cur) => {
+      const remoteKeys = new Set<string>();
+      if (multiplayerPartyRef.current) {
+        for (const m of multiplayerPartyRef.current.members) {
+          if (m.sessionId !== gameNetwork.LocalPlayerId) {
+            remoteKeys.add(m.sessionId.toLowerCase());
+            if (m.characterId) remoteKeys.add(m.characterId.toLowerCase());
+            if (m.name) remoteKeys.add(m.name.trim().toLowerCase());
+          }
+        }
+      }
+
       const ownChars = cur.session.characters.filter((c) => {
-        if (onlineCharacterRef.current && (c.id === onlineCharacterRef.current.id || c.name.toLowerCase() === onlineCharacterRef.current.name.toLowerCase())) {
+        const idLower = (c.id || '').toLowerCase();
+        const nameLower = (c.name || '').trim().toLowerCase();
+        if (remoteKeys.has(idLower) || (nameLower && remoteKeys.has(nameLower))) {
+          return false;
+        }
+        if (onlineCharacterRef.current && (idLower === onlineCharacterRef.current.id.toLowerCase() || nameLower === onlineCharacterRef.current.name.toLowerCase())) {
           return true;
         }
         return savedPoolRef.current.some(
-          (p) => p.id === c.id || (p.name && c.name && p.name.trim().toLowerCase() === c.name.trim().toLowerCase())
+          (p) => !remoteKeys.has((p.id || '').toLowerCase()) && (p.id === c.id || (p.name && c.name && p.name.trim().toLowerCase() === nameLower))
         );
       });
 
       const fallbackChar = cur.session.characters.find(
-        (c) => onlineCharacterRef.current && (c.id === onlineCharacterRef.current.id || c.name.toLowerCase() === onlineCharacterRef.current.name.toLowerCase())
-      ) || ownChars[0] || cur.session.characters[0];
+        (c) => onlineCharacterRef.current && (c.id.toLowerCase() === onlineCharacterRef.current.id.toLowerCase() || c.name.toLowerCase() === onlineCharacterRef.current.name.toLowerCase())
+      ) || ownChars[0] || (onlineCharacterRef.current ? [onlineCharacterRef.current as any] : cur.session.characters)[0];
 
       const safeChars = ownChars.length > 0 ? ownChars : (fallbackChar ? [fallbackChar] : []);
       const primaryId = onlineCharacterRef.current?.id || safeChars[0]?.id || cur.session.selectedCharacterId;
@@ -1196,12 +1202,21 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     setPartyMemberIds(onlineCharacterRef.current?.id ? [onlineCharacterRef.current.id] : []);
     setIsPartyCreated(false);
     setPartyModalOpen(false);
+
+    // Sanitize savedPool from any leaked remote characters
+    if (onlineCharacterRef.current) {
+      setSavedPool((prev) => prev.filter((p) => {
+        if (p.id === onlineCharacterRef.current?.id || p.name.toLowerCase() === onlineCharacterRef.current?.name.toLowerCase()) return true;
+        return Boolean((p as any).accountId && onlineAccount && (p as any).accountId === onlineAccount.id);
+      }));
+    }
+
     purgeRemoteCharactersFromSession();
     setSaleMessage('Você saiu da party multiplayer.');
     if (mode === 'hunt') {
       void exitHuntRef.current?.();
     }
-  }, [mode, purgeRemoteCharactersFromSession]);
+  }, [mode, purgeRemoteCharactersFromSession, onlineAccount]);
 
   const handleDisbandParty = useCallback(() => {
     setPartyMemberIds(onlineCharacterRef.current?.id ? [onlineCharacterRef.current.id] : []);
@@ -1213,6 +1228,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       setMultiplayerParty(null);
     }
 
+    // Sanitize savedPool from any leaked remote characters
+    if (onlineCharacterRef.current) {
+      setSavedPool((prev) => prev.filter((p) => {
+        if (p.id === onlineCharacterRef.current?.id || p.name.toLowerCase() === onlineCharacterRef.current?.name.toLowerCase()) return true;
+        return Boolean((p as any).accountId && onlineAccount && (p as any).accountId === onlineAccount.id);
+      }));
+    }
+
     purgeRemoteCharactersFromSession();
     setSaleMessage('Grupo desfeito.');
 
@@ -1221,7 +1244,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     if (mode === 'hunt') {
       void exitHuntRef.current?.();
     }
-  }, [mode, purgeRemoteCharactersFromSession]);
+  }, [mode, purgeRemoteCharactersFromSession, onlineAccount]);
 
   const handleAddToParty = useCallback((id: string) => {
     const activeId = game.session.selectedCharacterId || game.session.characters[0]?.id;
@@ -1629,6 +1652,91 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       setIsHuntContextConfirmed(Boolean(data?.isHunting));
     });
 
+    const unsubHuntEncounterSync = gameNetwork.onPartyHuntEncounterSync((data) => {
+      setGame((current) => {
+        if (modeRef.current !== 'hunt' || current.encounter.status !== 'running') return current;
+        // Apenas seguidores reconciliam com o snapshot autoritativo do líder
+        if (multiplayerPartyRef.current && multiplayerPartyRef.current.leaderSessionId === gameNetwork.LocalPlayerId) {
+          return current;
+        }
+
+        const enemyMap = new Map(data.enemies.map((e) => [e.id, e]));
+        const updatedEnemies = current.encounter.enemies
+          .filter((e) => enemyMap.has(e.id))
+          .map((e) => {
+            const sync = enemyMap.get(e.id)!;
+            return {
+              ...e,
+              hp: sync.hp,
+              maxHp: sync.maxHp,
+              position: { x: sync.x, y: sync.y, z: e.position?.z ?? 7 },
+              targetId: sync.targetId ?? null,
+              alive: sync.hp > 0,
+            };
+          });
+
+        for (const sync of data.enemies) {
+          if (!updatedEnemies.some((e) => e.id === sync.id)) {
+            const pos = { x: sync.x, y: sync.y, z: 7 };
+            updatedEnemies.push({
+              id: sync.id,
+              monsterId: sync.monsterId,
+              name: sync.name,
+              hp: sync.hp,
+              maxHp: sync.maxHp,
+              attackMax: 25,
+              defense: 10,
+              armor: 5,
+              position: pos,
+              previousPosition: pos,
+              direction: 'south',
+              path: [],
+              speed: 100,
+              behavior: 'chase',
+              attackIntervalMs: 2000,
+              nextAttackAt: 0,
+              nextRoamAt: 0,
+              nextMoveAt: 0,
+              detectionRange: 6,
+              variant: null,
+              targetId: sync.targetId ?? null,
+              alive: sync.hp > 0,
+            });
+          }
+        }
+
+        return {
+          ...current,
+          encounter: {
+            ...current.encounter,
+            waveIndex: data.wave,
+            enemies: updatedEnemies,
+          },
+        };
+      });
+    });
+
+    const unsubFollowerAttack = gameNetwork.onPartyFollowerAttack((data) => {
+      setGame((current) => {
+        if (modeRef.current !== 'hunt' || current.encounter.status !== 'running') return current;
+        const enemy = current.encounter.enemies.find((e) => e.id === data.targetEnemyId);
+        if (!enemy) return current;
+        const newHp = Math.max(0, enemy.hp - data.damage);
+        enemy.hp = newHp;
+        if (newHp === 0 && (enemy as any).alive !== false) {
+          (enemy as any).alive = false;
+        }
+        current.encounter.events.push({
+          type: 'hit',
+          sourceId: data.attackerSessionId || 'follower',
+          targetId: enemy.id,
+          damage: data.damage,
+          isCritical: false,
+        } as any);
+        return { ...current };
+      });
+    });
+
     return () => {
       unsubState();
       unsubCombat();
@@ -1640,6 +1748,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       unsubHuntExit();
       unsubTargetSync();
       unsubLeaderMoved();
+      unsubHuntEncounterSync();
+      unsubFollowerAttack();
       unsubProposal();
       unsubProposalSync();
       unsubProposalRejected();
@@ -3086,7 +3196,12 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   }, [cityPos, mode, isFollowingLeader, thaisTileMapZ6, thaisTileMapZ7]);
 
   useEffect(() => {
-    const levelUpEvents = encounter.events.filter((e) => e.type === 'level-up');
+    const levelUpEvents = encounter.events.filter((e) => {
+      if (e.type !== 'level-up') return false;
+      const charId = (e as any).characterId;
+      // Phase 260 & Onda 13: Exibe banner dourado e diagnósticos estritamente para o personagem local
+      return !charId || charId === activeCharacter?.id || charId === onlineCharacterRef.current?.id;
+    });
     const latestLevelUp = levelUpEvents.at(-1);
     if (latestLevelUp && 'message' in latestLevelUp && latestLevelUp.message) {
       setLevelUpMessage({ text: latestLevelUp.message, timestamp: Date.now() });
@@ -3096,7 +3211,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         Number(activeCharacter?.experience || 0)
       );
     }
-  }, [encounter.events]);
+  }, [encounter.events, activeCharacter?.id]);
 
   // Continuously synchronize active character progress (experience, level & equipped ring) with Colyseus
   const lastSyncedExpRef = useRef<number>(-1);
@@ -3566,6 +3681,44 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           ...prev,
           elapsedMs: prev.elapsedMs + (delta > 0 ? Math.round(delta) : 120),
         }));
+      }
+
+      // Phase 260 & Onda 13: Broadcast authoritative hunt encounter snapshot to party members every 200ms
+      if (multiplayerPartyRef.current && multiplayerPartyRef.current.members.length > 1 && multiplayerPartyRef.current.leaderSessionId === gameNetwork.LocalPlayerId) {
+        const nowMs = performance.now();
+        if (nowMs - lastEncounterSyncTimeRef.current >= 200) {
+          lastEncounterSyncTimeRef.current = nowMs;
+          gameNetwork.sendPartyHuntEncounterSync({
+            huntId: next.encounter.hunt?.id || '',
+            wave: next.encounter.waveIndex,
+            enemies: next.encounter.enemies.map((e) => ({
+              id: e.id,
+              monsterId: e.monsterId,
+              name: e.name,
+              hp: e.hp,
+              maxHp: e.maxHp,
+              x: e.position?.x ?? 0,
+              y: e.position?.y ?? 0,
+              targetId: e.targetId ?? null,
+            })),
+          });
+        }
+      } else if (multiplayerPartyRef.current && multiplayerPartyRef.current.members.length > 1 && multiplayerPartyRef.current.leaderSessionId !== gameNetwork.LocalPlayerId) {
+        // Follower transmits hits to the leader
+        for (const ev of currentEvents) {
+          if (ev.type === 'player-attack' && ev.damage && ev.damage > 0 && ev.targetId) {
+            gameNetwork.sendPartyFollowerAttack({
+              targetEnemyId: ev.targetId,
+              damage: ev.damage,
+            });
+          } else if (ev.type === 'spell-cast' && !ev.healing && ev.amount && ev.amount > 0 && ev.targetId) {
+            gameNetwork.sendPartyFollowerAttack({
+              targetEnemyId: ev.targetId,
+              damage: ev.amount,
+              spellId: String(ev.spellId),
+            });
+          }
+        }
       }
 
       return next;
@@ -4114,15 +4267,31 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       }
 
       // Phase 260: Purge remote characters upon returning to city so the player only controls their own characters!
+      const remoteKeys = new Set<string>();
+      if (multiplayerPartyRef.current) {
+        for (const m of multiplayerPartyRef.current.members) {
+          if (m.sessionId !== gameNetwork.LocalPlayerId) {
+            remoteKeys.add(m.sessionId.toLowerCase());
+            if (m.characterId) remoteKeys.add(m.characterId.toLowerCase());
+            if (m.name) remoteKeys.add(m.name.trim().toLowerCase());
+          }
+        }
+      }
+
       const ownChars = left.session.characters.filter((c) => {
-        if (onlineCharacterRef.current && (c.id === onlineCharacterRef.current.id || c.name.toLowerCase() === onlineCharacterRef.current.name.toLowerCase())) {
+        const idLower = (c.id || '').toLowerCase();
+        const nameLower = (c.name || '').trim().toLowerCase();
+        if (remoteKeys.has(idLower) || (nameLower && remoteKeys.has(nameLower))) {
+          return false;
+        }
+        if (onlineCharacterRef.current && (idLower === onlineCharacterRef.current.id.toLowerCase() || nameLower === onlineCharacterRef.current.name.toLowerCase())) {
           return true;
         }
         return savedPoolRef.current.some(
-          (p) => p.id === c.id || (p.name && c.name && p.name.trim().toLowerCase() === c.name.trim().toLowerCase())
+          (p) => !remoteKeys.has((p.id || '').toLowerCase()) && (p.id === c.id || (p.name && c.name && p.name.trim().toLowerCase() === nameLower))
         );
       });
-      const safeChars = ownChars.length > 0 ? ownChars : (left.session.characters[0] ? [left.session.characters[0]] : []);
+      const safeChars = ownChars.length > 0 ? ownChars : (onlineCharacterRef.current ? [onlineCharacterRef.current as any] : (left.session.characters[0] ? [left.session.characters[0]] : []));
       const primaryId = onlineCharacterRef.current?.id || safeChars[0]?.id || left.session.selectedCharacterId;
       const safeSelectedId = safeChars.some((c) => c.id === left.session.selectedCharacterId)
         ? left.session.selectedCharacterId
@@ -4587,7 +4756,14 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
   };
   const selectPartyCharacter = (characterId: string) => {
-    // Phase 260: Prevent selecting or controlling remote party members or characters not owned by this account
+    // Phase 260 & Onda 13: Strictly forbid selecting or controlling any remote party member
+    if (multiplayerPartyRef.current?.members?.some((m) => m.sessionId !== gameNetwork.LocalPlayerId && (
+      m.sessionId.toLowerCase() === characterId.toLowerCase() ||
+      (m.characterId && m.characterId.toLowerCase() === characterId.toLowerCase()) ||
+      (m.name && m.name.trim().toLowerCase() === characterId.trim().toLowerCase())
+    ))) {
+      return;
+    }
     const isOwned =
       (onlineCharacterRef.current && (onlineCharacterRef.current.id === characterId || onlineCharacterRef.current.name.toLowerCase() === characterId.toLowerCase())) ||
       savedPoolRef.current.some((c) => c.id === characterId || c.name.toLowerCase() === characterId.toLowerCase()) ||
@@ -5253,8 +5429,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         </div>
         <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
           <ThaisCityArena
-            characters={game.session.characters}
-            activeCharacterId={activeCharacter.id}
+            characters={activeCharacter ? [activeCharacter] : game.session.characters.slice(0, 1)}
+            activeCharacterId={activeCharacter?.id}
             adminTitle={(() => {
               const rawTitle = (onlineCharacter as any)?.adminTitle || (game.session.characters[0] as any)?.adminTitle;
               const clean = (rawTitle && rawTitle !== 'null' && rawTitle !== 'undefined') ? rawTitle : undefined;
@@ -5283,7 +5459,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             overheadMessages={overheadMessages}
             active={mode !== 'hunt' && !showAuthModal}
             isCharacterVisible={isCharacterVisible}
-            squadFollowEnabled={squadFollowCity}
+            squadFollowEnabled={false}
             isAfk={isAfk}
           />
         </div>
@@ -5899,7 +6075,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         activeCharacterId={activeCharacter.id}
         inventory={game.session.loot}
         onSelectCharacter={(charId) => {
-          setGame((cur) => selectCharacter(cur, charId));
+          selectPartyCharacter(charId);
         }}
         onSaveOutfit={handleSaveOutfit}
         content={content}

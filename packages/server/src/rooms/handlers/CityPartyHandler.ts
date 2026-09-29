@@ -285,6 +285,35 @@ export class CityPartyHandler {
       }
     });
 
+    this.room.onMessage('party:huntEncounterSync', (client, data: any) => {
+      const leaderId = this.room.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.room.parties.get(leaderId);
+      if (!party || party.leaderSessionId !== client.sessionId) return;
+
+      for (const memberId of party.memberSessionIds) {
+        if (memberId === client.sessionId) continue;
+        const memberClient = this.room.clients.find((c) => c.sessionId === memberId);
+        if (memberClient) {
+          memberClient.send('party:huntEncounterSync', data);
+        }
+      }
+    });
+
+    this.room.onMessage('party:followerAttack', (client, data: any) => {
+      const leaderId = this.room.playerPartyLeader.get(client.sessionId);
+      if (!leaderId) return;
+      const party = this.room.parties.get(leaderId);
+      if (!party) return;
+      const leaderClient = this.room.clients.find((c) => c.sessionId === party.leaderSessionId);
+      if (leaderClient) {
+        leaderClient.send('party:followerAttack', {
+          senderSessionId: client.sessionId,
+          ...data,
+        });
+      }
+    });
+
     this.room.onMessage('player:returnToCity', async (client) => {
       const player = this.room.state.players.get(client.sessionId);
       if (!player || !player.characterId) return;
@@ -592,10 +621,16 @@ export class CityPartyHandler {
   }
 
   public handlePlayerLeaveParty(sessionId: string): void {
-    const leaderId = this.room.playerPartyLeader.get(sessionId);
-    if (!leaderId) return;
+    let leaderId = this.room.playerPartyLeader.get(sessionId);
+    if (!leaderId) {
+      for (const [lId, p] of this.room.parties.entries()) {
+        if (p.memberSessionIds.includes(sessionId)) {
+          leaderId = lId;
+          break;
+        }
+      }
+    }
 
-    const party = this.room.parties.get(leaderId);
     this.room.playerPartyLeader.delete(sessionId);
 
     const leavingClient = this.room.clients.find((c) => c.sessionId === sessionId);
@@ -603,6 +638,8 @@ export class CityPartyHandler {
       leavingClient.send('party:left', {});
     }
 
+    if (!leaderId) return;
+    const party = this.room.parties.get(leaderId);
     if (party) {
       if (party.leaderSessionId === sessionId) {
         // Líder saiu: Se houver outros membros, transfere a liderança para o próximo da fila!

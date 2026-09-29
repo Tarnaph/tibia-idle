@@ -107,3 +107,22 @@
     - Função dedicada `purgeRemoteCharactersFromSession()` acionada em `onLeaveParty`, `onDisbandParty`, `unsubPartySync` (disband) e em `exitHunt`.
     - `cur.session.characters` é estritamente filtrado para conter apenas personagens pertencentes à conta do usuário (`savedPool`), forçando `selectedCharacterId` e `leaderId` de volta ao personagem online autêntico (`onlineCharacter.id`).
     - Blindagem em `selectPartyCharacter` verificando `isOwned` para impedir qualquer seleção ou controle de personagens remotos.
+
+## Onda 13: Desacoplamento Total Urbano, Isolamento Estrito de Contas, Sincronização Autoritativa da Hunt e Isolamento de Level-Up
+- [x] **28. Isolamento Estrito de Conta e Imunização do `savedPool` (`GamePrototype.tsx`):**
+  - Removida a contaminação em que `game.session.characters` na hunt injetava personagens de outros jogadores no `savedPool` da conta local.
+  - `savedPool` restrito estritamente a personagens carregados de `/api/characters` ou criados localmente nesta conta.
+  - Blindagem total contra seleção de personagens de terceiros em hotbars, modal host e dock.
+- [x] **29. Extinção Definitiva do Snake Follow em Thais City (`ThaisCityArena.tsx` & `GamePrototype.tsx`):**
+  - Desativado o squad follow em Thais City (`squadFollowEnabled = false`).
+  - Passagem estrita de `characters={[activeCharacter]}` em Thais City online, garantindo que jogadores da party sejam renderizados exclusivamente via `remotePlayers` em suas posições reais.
+- [x] **30. Sincronização Autoritativa de Monstros na Hunt via Líder da Party (`CityPartyHandler.ts` & `GamePrototype.tsx`):**
+  - Transmissão de `party:huntEncounterSync` (5 Hz) pelo líder autoritativo com HP, IDs e posições de todos os monstros.
+  - Reconciliação dos monstros nos seguidores: monstros perdem vida e morrem simultaneamente na tela de todos os membros da party.
+  - Ataques de seguidores enviados via `party:followerAttack` e aplicados na vida do monstro autoritativo.
+- [x] **31. Isolamento Pessoal de Notificações e Banners de Level-Up (`GamePrototype.tsx`):**
+  - Filtragem estrita de `level-up` em `GamePrototype.tsx` para validar se `characterId === activeCharacter.id`.
+  - Banners dourados e diagnósticos de level-up exibidos apenas para o jogador que subiu de nível.
+- [x] **32. Ação Imediata e Resiliente dos Botões "Sair da Party" (HUD & Gerenciador) (`CityPartyHandler.ts` & `GamePrototype.tsx`):**
+  - Limpeza síncrona e incondicional do estado da party, removendo o Floating HUD e limpando slots no ato do clique em "Sair".
+  - Fallback de busca de grupo no servidor em `handlePlayerLeaveParty` garantindo disparo de `party:left` e remapeamento imediato mesmo sob falhas de índice.
