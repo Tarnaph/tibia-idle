@@ -33,8 +33,12 @@ export interface HuntJoinOptions {
   characterId?: string;
   huntId?: string;
   partyId?: string;
+  gender?: string;
   outfit?: string;
+  outfitLookType?: number;
   outfitColors?: { head?: number; primary?: number; secondary?: number; detail?: number };
+  addons?: number;
+  outfitAddons?: number;
   mount?: string;
   mountActive?: boolean;
 }
@@ -241,6 +245,17 @@ export class HuntDungeonRoom extends Room<WorldState> {
       }
     }
 
+    let outfitName = options.outfit || 'Knight';
+    let outfitLookType: number | undefined = typeof options.outfitLookType === 'number' && options.outfitLookType > 0 ? options.outfitLookType : undefined;
+    let outfitHead = options.outfitColors?.head;
+    let outfitBody = options.outfitColors?.primary;
+    let outfitLegs = options.outfitColors?.secondary;
+    let outfitFeet = options.outfitColors?.detail;
+    let outfitAddons = options.addons ?? options.outfitAddons ?? 0;
+    let mount = options.mount || 'none';
+    let mountActive = Boolean(options.mountActive);
+    let gender = options.gender || 'male';
+
     // Load authoritative character state from DB
     if (charId && !charId.startsWith('char-guest')) {
       try {
@@ -255,9 +270,51 @@ export class HuntDungeonRoom extends Room<WorldState> {
           maxHp = dbChar.maxHealth;
           mp = dbChar.mana;
           maxMp = dbChar.maxMana;
+
+          // Phase 267: Authoritatively preserve DB customization
+          if (dbChar.gender === 'female' || dbChar.gender === 'male') {
+            gender = dbChar.gender;
+          }
+          if (dbChar.outfit) {
+            outfitName = dbChar.outfit;
+          }
+          if (typeof dbChar.outfitLookType === 'number' && dbChar.outfitLookType > 0) {
+            outfitLookType = dbChar.outfitLookType;
+          }
+          if (typeof dbChar.outfitHead === 'number') outfitHead = dbChar.outfitHead;
+          if (typeof dbChar.outfitBody === 'number') outfitBody = dbChar.outfitBody;
+          if (typeof dbChar.outfitLegs === 'number') outfitLegs = dbChar.outfitLegs;
+          if (typeof dbChar.outfitFeet === 'number') outfitFeet = dbChar.outfitFeet;
+          if (typeof dbChar.outfitAddons === 'number') outfitAddons = dbChar.outfitAddons;
+          if (dbChar.mount) mount = dbChar.mount;
+          if (typeof dbChar.mountActive === 'boolean') mountActive = dbChar.mountActive;
         }
       } catch (err) {
         console.warn(`[HuntDungeonRoom] Aviso ao carregar personagem ${charId}:`, err);
+      }
+    }
+
+    // Resolve canonical lookType if missing or default 128 on female
+    if (!outfitLookType || (gender === 'female' && outfitLookType === 128)) {
+      const lowerOutfit = outfitName.toLowerCase();
+      if (gender === 'female') {
+        if (lowerOutfit.includes('oriental')) outfitLookType = 150;
+        else if (lowerOutfit.includes('knight')) outfitLookType = 139;
+        else if (lowerOutfit.includes('sorcerer') || lowerOutfit.includes('mage')) outfitLookType = 138;
+        else if (lowerOutfit.includes('paladin') || lowerOutfit.includes('hunter')) outfitLookType = 137;
+        else if (lowerOutfit.includes('druid')) outfitLookType = 148;
+        else if (lowerOutfit.includes('barbarian')) outfitLookType = 147;
+        else if (lowerOutfit.includes('warrior')) outfitLookType = 142;
+        else outfitLookType = 136;
+      } else {
+        if (lowerOutfit.includes('oriental')) outfitLookType = 146;
+        else if (lowerOutfit.includes('knight')) outfitLookType = 131;
+        else if (lowerOutfit.includes('sorcerer') || lowerOutfit.includes('mage')) outfitLookType = 130;
+        else if (lowerOutfit.includes('paladin') || lowerOutfit.includes('hunter')) outfitLookType = 129;
+        else if (lowerOutfit.includes('druid')) outfitLookType = 144;
+        else if (lowerOutfit.includes('barbarian')) outfitLookType = 143;
+        else if (lowerOutfit.includes('warrior')) outfitLookType = 134;
+        else outfitLookType = 128;
       }
     }
 
@@ -269,6 +326,9 @@ export class HuntDungeonRoom extends Room<WorldState> {
       capacity: 400,
     };
 
+    const effectiveLevel = Math.max(level, levelForExperience(experience));
+    const stats = calculateStatsForLevel(vocation.name || 'Knight', effectiveLevel);
+
     const player = new PlayerState();
     player.id = client.sessionId;
     player.characterId = charId;
@@ -276,24 +336,36 @@ export class HuntDungeonRoom extends Room<WorldState> {
     player.name = charName;
     player.vocationId = safeVocationId;
     player.vocationName = vocation.name || 'Knight';
-    player.level = Math.max(level, levelForExperience(experience));
+    player.level = effectiveLevel;
     player.experience = experience;
-    player.hp = hp > 0 ? hp : maxHp;
-    player.maxHp = maxHp;
-    player.mp = mp;
-    player.maxMp = maxMp;
+
+    // Phase 267: Ensure player enters hunt with 100% full battle-ready HP & MP (never 0 or dead)
+    player.maxHp = maxHp > 0 ? maxHp : stats.maxHp;
+    player.hp = player.maxHp;
+    player.maxMp = maxMp > 0 ? maxMp : stats.maxMana;
+    player.mp = player.maxMp;
+    player.capacity = stats.maxCap;
+
+    // Scale combat attributes authoritatively by level & vocation
+    const baseAtk = safeVocationId === 4 ? 65 : safeVocationId === 2 ? 60 : 50;
+    player.attackPower = Math.round(baseAtk + effectiveLevel * 1.6);
+    player.defensePower = Math.round(25 + effectiveLevel * 0.8);
+    player.armorPower = Math.round(20 + effectiveLevel * 0.5);
+    player.attackCooldownMs = safeVocationId === 2 ? 1800 : 2000;
+
     player.inHunt = true;
     player.lastHuntId = this.huntId;
 
-    if (options.outfit) player.outfit = options.outfit;
-    if (options.outfitColors) {
-      player.outfitHead = options.outfitColors.head ?? 0;
-      player.outfitBody = options.outfitColors.primary ?? 0;
-      player.outfitLegs = options.outfitColors.secondary ?? 0;
-      player.outfitFeet = options.outfitColors.detail ?? 0;
-    }
-    if (options.mount) player.mount = options.mount;
-    if (options.mountActive) player.mountActive = options.mountActive;
+    player.gender = gender;
+    player.outfit = outfitName;
+    player.outfitLookType = outfitLookType;
+    player.outfitHead = outfitHead ?? 0;
+    player.outfitBody = outfitBody ?? 86;
+    player.outfitLegs = outfitLegs ?? 114;
+    player.outfitFeet = outfitFeet ?? 76;
+    player.outfitAddons = outfitAddons;
+    player.mount = mount;
+    player.mountActive = mountActive;
 
     // Spawn player in dungeon entrance perimeter using guaranteed clean open-ground coordinates
     const pIdx = this.state.players.size;
@@ -342,6 +414,11 @@ export class HuntDungeonRoom extends Room<WorldState> {
     const player = this.state.players.get(client.sessionId);
     if (player) {
       try {
+        // If player died in hunt, restore to full health & mana for temple respawn
+        if (player.hp <= 0) {
+          player.hp = player.maxHp;
+          player.mp = player.maxMp;
+        }
         await persistenceManager.saveCharacter(player, { allowInHunt: true });
         await persistenceManager.setPlayerHuntStatus(player.characterId, false);
       } catch (err) {
@@ -610,6 +687,11 @@ export class HuntDungeonRoom extends Room<WorldState> {
 
           targetPlayer.hp = Math.max(0, targetPlayer.hp - finalDmg);
 
+          // Retaliate: target player immediately focuses the attacking monster if without target
+          if (!targetPlayer.targetId) {
+            targetPlayer.targetId = monster.id;
+          }
+
           this.emitCombatEvent({
             type: finalDmg > 0 ? 'enemy-attack' : 'block',
             sourceId: monster.id,
@@ -621,6 +703,15 @@ export class HuntDungeonRoom extends Room<WorldState> {
           });
 
           if (targetPlayer.hp <= 0) {
+            this.emitCombatEvent({
+              type: 'player-death',
+              sourceId: monster.id,
+              targetId: targetPlayer.characterId || targetPlayer.id,
+              text: monster.name,
+              value: 0,
+              posX: targetPlayer.posX,
+              posY: targetPlayer.posY,
+            });
             this.emitCombatEvent({
               type: 'creature-died',
               sourceId: monster.id,
@@ -665,9 +756,10 @@ export class HuntDungeonRoom extends Room<WorldState> {
         const dist = Math.hypot(targetMonster.posX - player.posX, targetMonster.posY - player.posY);
         const isRanged = player.vocationId === 1 || player.vocationId === 2 || player.vocationId === 3; // Sorcerer, Paladin, Druid
         const maxRange = isRanged ? 5.5 : 1.8;
+        const desiredDist = isRanged ? 3.5 : 1.2;
 
-        // Auto-step towards monster if melee and outside reach using BFS pathfinding
-        if (!isRanged && dist > 1.5 && now - player.lastStepTime >= 750) {
+        // Auto-step towards monster if outside reach using BFS pathfinding
+        if (dist > desiredDist && now - player.lastStepTime >= 750) {
           player.lastStepTime = now;
           const path = this.findShortestPath(
             { x: player.posX, y: player.posY },
@@ -694,8 +786,26 @@ export class HuntDungeonRoom extends Room<WorldState> {
 
         // Auto-heal if HP < 75%
         if (player.hp < player.maxHp * 0.75 && player.mp >= 20 && now - player.lastAttackTime >= 400) {
-          const healSpell = player.vocationId === 4 ? 'exura-ico' : 'exura';
+          const healSpell = player.vocationId === 4 ? 'exura-ico'
+            : player.hp < player.maxHp * 0.4 ? 'exura-vita'
+            : player.hp < player.maxHp * 0.6 ? 'exura-gran'
+            : 'exura';
           this.handlePlayerSpell(player, healSpell);
+        }
+
+        // Auto-spells for Sorcerer (Exori Flam / Exori Vis)
+        if (player.vocationId === 1 && player.mp >= 20 && dist <= 4.5 && Math.random() < 0.35) {
+          this.handlePlayerSpell(player, Math.random() < 0.5 ? 'exori-flam' : 'exori-vis');
+        }
+
+        // Auto-spells for Paladin (Exori San / Exori Con)
+        if (player.vocationId === 2 && player.mp >= 20 && dist <= 4.5 && Math.random() < 0.35) {
+          this.handlePlayerSpell(player, 'exori-san');
+        }
+
+        // Auto-spells for Druid (Exori Frigo / Exori Tera)
+        if (player.vocationId === 3 && player.mp >= 20 && dist <= 4.5 && Math.random() < 0.35) {
+          this.handlePlayerSpell(player, 'exori-frigo');
         }
 
         // Auto-spells for Knight

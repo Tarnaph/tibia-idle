@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { HuntDungeonRoom } from '../packages/server/src/rooms/HuntDungeonRoom';
+import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 import { gameNetwork } from '../apps/web/lib/GameClientNetworkManager';
 import { getHuntWorldEntrance, initialHunts } from '../packages/domain/src';
 import equipmentJson from '../content/generated/equipment.json';
@@ -30,24 +31,23 @@ describe('Phase 265 - Pure MMORPG Server-Authoritative Hunts', () => {
     room.onCreate({ huntId: 'cyclops-camp', partyId: 'party-lead-1' });
 
     // Add Knight player with 150 MP
-    const player: any = {
-      id: 'sess-knight',
-      characterId: 'char-knight',
-      name: 'Brututus',
-      posX: 32700,
-      posY: 32300,
-      posZ: 7,
-      hp: 500,
-      maxHp: 500,
-      mp: 150,
-      maxMp: 150,
-      level: 40,
-      attackPower: 80,
-      defensePower: 40,
-      armorPower: 25,
-      attackCooldownMs: 2000,
-      lastAttackTime: 0,
-    };
+    const player = new PlayerState();
+    player.id = 'sess-knight';
+    player.characterId = 'char-knight';
+    player.name = 'Brututus';
+    player.posX = 32700;
+    player.posY = 32300;
+    player.posZ = 7;
+    player.hp = 500;
+    player.maxHp = 500;
+    player.mp = 150;
+    player.maxMp = 150;
+    player.level = 40;
+    player.attackPower = 80;
+    player.defensePower = 40;
+    player.armorPower = 25;
+    player.attackCooldownMs = 2000;
+    player.lastAttackTime = 0;
     room.state.players.set(player.id, player);
 
     // Position 2 monsters around player: one adjacent (1 SQM away) and one far away (5 SQM away)
@@ -86,22 +86,21 @@ describe('Phase 265 - Pure MMORPG Server-Authoritative Hunts', () => {
     (room as any).setSimulationInterval = vi.fn();
     room.onCreate({ huntId: 'cyclops-camp', partyId: 'party-test' });
 
-    const player: any = {
-      id: 'sess-mage',
-      characterId: 'char-mage',
-      name: 'Caos',
-      posX: 32700,
-      posY: 32300,
-      posZ: 7,
-      hp: 100,
-      maxHp: 300,
-      mp: 200,
-      maxMp: 500,
-      level: 30,
-      attackPower: 20,
-      defensePower: 15,
-      armorPower: 10,
-    };
+    const player = new PlayerState();
+    player.id = 'sess-mage';
+    player.characterId = 'char-mage';
+    player.name = 'Caos';
+    player.posX = 32700;
+    player.posY = 32300;
+    player.posZ = 7;
+    player.hp = 100;
+    player.maxHp = 300;
+    player.mp = 200;
+    player.maxMp = 500;
+    player.level = 30;
+    player.attackPower = 20;
+    player.defensePower = 15;
+    player.armorPower = 10;
     room.state.players.set(player.id, player);
 
     // Cast Exura
@@ -126,26 +125,25 @@ describe('Phase 265 - Pure MMORPG Server-Authoritative Hunts', () => {
     room.onCreate({ huntId: 'cyclops-camp', partyId: 'party-test' });
 
     // Paladin player (vocationId = 2) at 4 SQM distance
-    const paladin: any = {
-      id: 'sess-pala',
-      characterId: 'char-pala',
-      name: 'Legolas',
-      vocationId: 2,
-      posX: 32700,
-      posY: 32300,
-      posZ: 7,
-      hp: 400,
-      maxHp: 400,
-      mp: 100,
-      maxMp: 100,
-      level: 25,
-      attackPower: 65,
-      defensePower: 25,
-      armorPower: 15,
-      attackCooldownMs: 2000,
-      lastAttackTime: 0,
-      targetId: '',
-    };
+    const paladin = new PlayerState();
+    paladin.id = 'sess-pala';
+    paladin.characterId = 'char-pala';
+    paladin.name = 'Legolas';
+    paladin.vocationId = 2;
+    paladin.posX = 32700;
+    paladin.posY = 32300;
+    paladin.posZ = 7;
+    paladin.hp = 400;
+    paladin.maxHp = 400;
+    paladin.mp = 100;
+    paladin.maxMp = 100;
+    paladin.level = 25;
+    paladin.attackPower = 65;
+    paladin.defensePower = 25;
+    paladin.armorPower = 15;
+    paladin.attackCooldownMs = 2000;
+    paladin.lastAttackTime = 0;
+    paladin.targetId = '';
     room.state.players.set(paladin.id, paladin);
 
     const monster = Array.from(room.state.monsters.values())[0];
@@ -169,20 +167,19 @@ describe('Phase 265 - Pure MMORPG Server-Authoritative Hunts', () => {
     (room as any).setSimulationInterval = vi.fn();
     room.onCreate({ huntId: 'cyclops-camp', partyId: 'party-test' });
 
-    const player: any = {
-      id: 'sess-p1',
-      characterId: 'char-p1',
-      name: 'Brututus',
-      posX: 32700,
-      posY: 32300,
-      posZ: 7,
-      hp: 500,
-      maxHp: 500,
-      mp: 100,
-      maxMp: 100,
-      level: 25,
-      experience: 1000,
-    };
+    const player = new PlayerState();
+    player.id = 'sess-p1';
+    player.characterId = 'char-p1';
+    player.name = 'Brututus';
+    player.posX = 32700;
+    player.posY = 32300;
+    player.posZ = 7;
+    player.hp = 500;
+    player.maxHp = 500;
+    player.mp = 100;
+    player.maxMp = 100;
+    player.level = 25;
+    player.experience = 1000;
     room.state.players.set(player.id, player);
 
     let lootBroadcastData: any = null;

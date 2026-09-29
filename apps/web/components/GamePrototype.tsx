@@ -1322,9 +1322,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             id: charId,
             name: m.name || localChar.name,
             level: Math.max(m.level || localChar.level, 1),
-            currentHp: m.hp ?? localChar.currentHp,
+            currentHp: localChar.maxHp,
             maxHp: m.maxHp ?? localChar.maxHp,
-            currentMana: m.mp ?? localChar.currentMana,
+            currentMana: localChar.maxMana,
             maxMana: m.maxMp ?? localChar.maxMana,
             gender: localChar.gender || m.gender || 'male',
             addons: localChar.addons ?? m.outfitAddons ?? 0,
@@ -1341,9 +1341,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           const newChar = createCharacter(charId, m.name, vocName, content);
           newChar.level = Math.max(m.level || 1, 1);
           newChar.experience = Math.max(newChar.level > 1 ? experienceForLevel(newChar.level) : 0, (m as any).experience || 0);
-          newChar.currentHp = m.hp || newChar.maxHp;
+          newChar.currentHp = newChar.maxHp;
           newChar.maxHp = m.maxHp || newChar.maxHp;
-          newChar.currentMana = m.mp || newChar.maxMana;
+          newChar.currentMana = newChar.maxMana;
           newChar.maxMana = m.maxMp || newChar.maxMana;
           newChar.gender = m.gender === 'female' ? 'female' : 'male';
           newChar.addons = m.outfitAddons ?? (m as any).addons ?? 0;
@@ -1417,11 +1417,17 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
 
     if (huntSquad.length > 0) {
+      const healedSquad = huntSquad.map((c) => ({
+        ...c,
+        currentHp: c.maxHp,
+        currentMana: c.maxMana,
+        combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+      }));
       return {
         ...cur,
         session: {
           ...cur.session,
-          characters: huntSquad,
+          characters: healedSquad,
         },
       };
     }
@@ -1591,10 +1597,31 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         huntId: data.huntId,
       });
 
-      // Phase 263: Instancia a hunt imediatamente no engine sob a tela de loading para sincronização de rede em tempo real
+      // Phase 263 & 267: Instancia a hunt imediatamente no engine com vida cheia e opções de outfit
+      setIsDeathModalOpen(false);
+      setLastKillerName(targetHunt?.name || 'Monstro');
+
       void huntAssetPreloader.preloadHunt(data.huntId);
       setGame((current) => {
-        return restartHunt(prepareHuntCharactersRef.current(current), huntSeed, content, data.huntId, 'cauteloso');
+        const prepared = prepareHuntCharactersRef.current(current);
+        const healedCharacters = prepared.session.characters.map((c: CharacterState) => ({
+          ...c,
+          currentHp: c.maxHp,
+          currentMana: c.maxMana,
+          combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+        }));
+        const stateWithHealedChars = {
+          ...prepared,
+          session: {
+            ...prepared.session,
+            characters: healedCharacters,
+          },
+        };
+        const restarted = restartHunt(stateWithHealedChars, huntSeed, content, data.huntId, 'cauteloso');
+        restarted.encounter.events = [];
+        restarted.encounter.visualEvents = [];
+        restarted.encounter.log = [];
+        return restarted;
       });
       setMode('hunt');
       setIsArenaReady(false);
@@ -1603,12 +1630,20 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       gameNetwork.sendSetInHunt(true, data.huntId);
       gameNetwork.sendTeleport(entrance.worldPosition.x, entrance.worldPosition.y, entrance.worldPosition.z);
 
-      // Phase 265: Connect follower to authoritative Colyseus hunt_dungeon room
+      // Phase 265 & 267: Connect follower to authoritative Colyseus hunt_dungeon room with full outfit options
       const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
       const activeCharId = onlineCharacterRef.current?.id || activeCharacter?.id;
       const partyRoomKey = data.partyId || multiplayerPartyRef.current?.leaderSessionId || `solo_${activeCharId}`;
       if (token && activeCharId) {
-        void gameNetwork.joinHuntDungeon(token, activeCharId, data.huntId, partyRoomKey).then(() => {
+        void gameNetwork.joinHuntDungeon(token, activeCharId, data.huntId, partyRoomKey, {
+          gender: activeCharacter?.gender,
+          outfit: activeCharacter?.outfit,
+          outfitLookType: (activeCharacter as any)?.outfitLookType,
+          outfitColors: activeCharacter?.outfitColors,
+          addons: activeCharacter?.addons,
+          mount: activeCharacter?.mount,
+          mountActive: activeCharacter?.mountActive,
+        }).then(() => {
           setIsArenaReady(true);
           setTransitionLoading(null);
         }).catch((err) => {
@@ -1951,6 +1986,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           effectId: ev.effectId,
           projectileId: ev.projectileId,
           speech: ev.text || ev.speech,
+          killerName: ev.killerName || ev.text,
           position: { x: ev.posX, y: ev.posY },
           timestamp: ev.timestamp,
         }));
@@ -2319,8 +2355,21 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       137: 'Paladin',
       138: 'Sorcerer',
       139: 'Knight',
+      140: 'Noble',
+      141: 'Summoner',
+      142: 'Warrior',
       143: 'Barbarian',
       144: 'Druid',
+      145: 'Wizard',
+      146: 'Oriental',
+      147: 'Barbarian',
+      148: 'Druid',
+      149: 'Wizard',
+      150: 'Oriental',
+      151: 'Pirate',
+      152: 'Assassin',
+      155: 'Pirate',
+      156: 'Assassin',
       999: 'Sire',
     };
 
@@ -2423,8 +2472,9 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     // Connect to live Colyseus Server room with full outfit info and initial hunt context
     gameNetwork
       .connect(authToken, charItem.id, {
+        gender: userChar.gender,
         outfit: userChar.outfit,
-        outfitLookType: charLookType || 128,
+        outfitLookType: charLookType || (userChar.gender === 'female' ? 136 : 128),
         outfitColors: userChar.outfitColors,
         addons: userChar.addons,
         mount: userChar.mount,
@@ -4101,6 +4151,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     if (mode === 'hunt') {
       if (encounter.hunt?.id === 'pvp-arena') return; // Duelo esportivo na Arena não ativa tela de morte
       if (isDeathModalOpen) return;
+      if (initialLoadingActive || Boolean(transitionLoading?.active)) return;
 
       const isDefeated = encounter.status === 'defeated';
       const isLocalActorDead = Boolean(activeCharacter && encounter.partyActors?.some(
@@ -4129,7 +4180,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         ]);
       }
     }
-  }, [mode, encounter.status, encounter.events, encounter.enemies, encounter.hunt, encounter.partyActors, activeCharacter, isDeathModalOpen]);
+  }, [mode, encounter.status, encounter.events, encounter.enemies, encounter.hunt, encounter.partyActors, activeCharacter, isDeathModalOpen, initialLoadingActive, transitionLoading?.active]);
 
   const deathPenaltyReport = useMemo(() => {
     if (!isDeathModalOpen || !activeCharacter) return undefined;
@@ -4149,6 +4200,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
   const handleConfirmDeath = useCallback(() => {
     setIsDeathModalOpen(false);
+    setLastKillerName('Monstro');
+    gameNetwork.leaveHuntDungeon();
     const cfg = serverConfigManager.getConfig();
     setGame((current) => {
       const respawned = respawnInTemple(
@@ -4394,12 +4447,20 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     // Phase 203: Notify server/Colyseus immediately that player has entered this hunt
     gameNetwork.sendSetInHunt(true, huntId);
 
-    // Phase 264: Connect to Colyseus Authoritative Hunt Dungeon Room
+    // Phase 264 & 267: Connect to Colyseus Authoritative Hunt Dungeon Room with full character options
     const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
     const activeCharId = onlineCharacterRef.current?.id || activeCharacter.id;
     const partyRoomKey = multiplayerPartyRef.current?.leaderSessionId || (multiplayerPartyRef.current ? gameNetwork.LocalPlayerId : null) || `solo_${activeCharId}`;
     if (token && activeCharId) {
-      void gameNetwork.joinHuntDungeon(token, activeCharId, huntId, partyRoomKey).then(() => {
+      void gameNetwork.joinHuntDungeon(token, activeCharId, huntId, partyRoomKey, {
+        gender: activeCharacter?.gender,
+        outfit: activeCharacter?.outfit,
+        outfitLookType: (activeCharacter as any)?.outfitLookType,
+        outfitColors: activeCharacter?.outfitColors,
+        addons: activeCharacter?.addons,
+        mount: activeCharacter?.mount,
+        mountActive: activeCharacter?.mountActive,
+      }).then(() => {
         setIsArenaReady(true);
         setTransitionLoading(null);
       }).catch((err) => {
@@ -4450,9 +4511,31 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     // Phase 215: Dispara pré-carregamento imediato dos dados da hunt (atlas, monstros, combate)
     void huntAssetPreloader.preloadHunt(huntId);
 
+    // Phase 267: Ensure clean state before entering hunt (no stale death modals or dead actors)
+    setIsDeathModalOpen(false);
+    setLastKillerName(targetHunt?.name || 'Monstro');
+
     // Instancia a hunt imediatamente no engine sob a proteção da tela de carregamento
     setGame((current) => {
-      return restartHunt(prepareHuntCharacters(current), nextSeed, content, huntId, pullSize ?? 'cauteloso');
+      const prepared = prepareHuntCharacters(current);
+      const healedCharacters = prepared.session.characters.map((c: CharacterState) => ({
+        ...c,
+        currentHp: c.maxHp,
+        currentMana: c.maxMana,
+        combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+      }));
+      const stateWithHealedChars = {
+        ...prepared,
+        session: {
+          ...prepared.session,
+          characters: healedCharacters,
+        },
+      };
+      const restarted = restartHunt(stateWithHealedChars, nextSeed, content, huntId, pullSize ?? 'cauteloso');
+      restarted.encounter.events = [];
+      restarted.encounter.visualEvents = [];
+      restarted.encounter.log = [];
+      return restarted;
     });
     setMode('hunt');
     setIsArenaReady(false);
@@ -6878,7 +6961,27 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 gameNetwork.sendSetInHunt(true, pending.huntId);
                 gameNetwork.sendTeleport(pending.entrance.worldPosition.x, pending.entrance.worldPosition.y, pending.entrance.worldPosition.z);
                 if (modeRef.current !== 'hunt') {
-                  setGame((current) => restartHunt(prepareHuntCharactersRef.current(current), pending.nextSeed, content, pending.huntId, pending.pullSize ?? 'cauteloso'));
+                  setGame((current) => {
+                    const prepared = prepareHuntCharactersRef.current(current);
+                    const healedCharacters = prepared.session.characters.map((c: CharacterState) => ({
+                      ...c,
+                      currentHp: c.maxHp,
+                      currentMana: c.maxMana,
+                      combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+                    }));
+                    const stateWithHealedChars = {
+                      ...prepared,
+                      session: {
+                        ...prepared.session,
+                        characters: healedCharacters,
+                      },
+                    };
+                    const restarted = restartHunt(stateWithHealedChars, pending.nextSeed, content, pending.huntId, pending.pullSize ?? 'cauteloso');
+                    restarted.encounter.events = [];
+                    restarted.encounter.visualEvents = [];
+                    restarted.encounter.log = [];
+                    return restarted;
+                  });
                   setMode('hunt');
                 }
                 setSaleMessage(pending.pvpMatch ? `⚔️ Duelo de Arena contra ${pending.pvpMatch.opponent.name} iniciado!` : `Você viajou para ${pending.targetHunt.name}!`);

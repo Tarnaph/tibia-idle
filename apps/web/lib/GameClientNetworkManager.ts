@@ -693,6 +693,7 @@ export class GameClientNetworkManager {
   }
 
   sendReturnToCity(): void {
+    this.leaveHuntDungeon();
     this.setHuntContext(false, undefined);
     this.isHuntContextConfirmed = false;
     this.huntContextReadyListeners.forEach((fn) => fn({ isHunting: false }));

@@ -211,3 +211,21 @@
   - Exibir cadáveres de monstros derrotados no chão.
 - [x] **58. Validação Global com Testes Vitest, Typecheck e Deploy na VPS:**
   - Validar todos os testes automatizados, garantir 0 erros de tipagem e atualizar a produção na VPS.
+
+## Onda 20: Restauração Canônica de Outfits/Gênero, Entrada em Hunt com Vida Cheia e Combate Ativo (Phase 267)
+- [x] **59. Blindagem de Outfits, Gênero e Customizações Visuais no Servidor (`HuntDungeonRoom.ts` & `PrismaPersistenceManager.ts`):**
+  - Carregar autoritativamente `gender`, `outfit`, `outfitLookType`, `outfitHead`, `outfitBody`, `outfitLegs`, `outfitFeet`, `outfitAddons` do banco de dados no `onJoin` de `HuntDungeonRoom`.
+  - Proibir que `saveCharacter` durante ou ao sair de hunt sobrescreva gênero, outfit ou cores para valores padrão vazios em `PrismaPersistenceManager.ts`.
+  - Restaurar Brututus no banco de dados como feminino (Sorcerer / Oriental, lookType 150) e Caos como masculino (Knight, lookType 131) com cores completas.
+- [x] **60. Blindagem Contra Morte Prematura e Mensagens Falsas na Entrada de Caçadas (`HuntDungeonRoom.ts`, `PrismaPersistenceManager.ts` & `GamePrototype.tsx`):**
+  - Garantir que qualquer personagem entrando em hunt (solo ou em grupo) tenha a vida e mana restauradas para 100% (`currentHp = maxHp`, `mp = maxMp`), impedindo spawn com 0 HP ou resíduos de caçadas anteriores.
+  - Resetar modal de morte (`isDeathModalOpen = false`), limpar todos os eventos residuais (`encounter.events = []`) e associar `lastKillerName` provisoriamente ao nome da hunt ao iniciar caçada.
+  - Desconexão limpa de masmorras anteriores no `sendReturnToCity()` e `handleConfirmDeath()` via `leaveHuntDungeon()`, evitando vazamento de eventos ou dano de masmorras passadas.
+  - Bloquear abertura do modal de morte durante telas de transição (`initialLoadingActive` e `transitionLoading?.active`).
+  - Atribuição autoritativa do nome do monstro agressor no servidor via `text: monster.name` em eventos `player-death`.
+- [x] **61. Engajamento Total de Combate, Retaliação Imediata e Magias Ofensivas (`HuntDungeonRoom.ts`):**
+  - Jogadores atacados por monstros reagem imediatamente retalhando o agressor (`targetPlayer.targetId = monster.id`).
+  - Mages/Paladinos/Knights fora do alcance caminham via BFS em direção aos monstros e disparam magias ofensivas (`exori`, `exori-flam`, `exori-san`, `exori-frigo`) além do auto-ataque padrão.
+  - Atributos de ataque e defesa dos jogadores no `HuntDungeonRoom` escalam com o nível e vocação reais.
+- [x] **62. Validação Global com Testes Vitest, Typecheck, Git Push e Deploy na VPS:**
+  - Garantir `git push origin main` antes do script de deploy, verificar 0 erros de tipagem e validar funcionamento na VPS.

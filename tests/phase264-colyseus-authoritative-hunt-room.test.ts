@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HuntDungeonRoom } from '../packages/server/src/rooms/HuntDungeonRoom';
+import { PlayerState } from '../packages/server/src/schemas/PlayerState';
 import { gameNetwork } from '../apps/web/lib/GameClientNetworkManager';
 import { getHuntWorldEntrance, initialHunts } from '../packages/domain/src';
 import equipmentJson from '../content/generated/equipment.json';
@@ -64,27 +65,26 @@ describe('Phase 264 - Colyseus Authoritative Hunt Room & Party Hunt Resilience',
     (room as any).setSimulationInterval = vi.fn();
     room.onCreate({ huntId: 'cyclops-camp', partyId: 'party-test' });
 
-    // Add a dummy player
-    const player = {
-      id: 'sess-p1',
-      characterId: 'char-p1',
-      name: 'Brututus',
-      posX: 32700,
-      posY: 32300,
-      posZ: 7,
-      hp: 500,
-      maxHp: 500,
-      level: 25,
-      experience: 10000,
-      targetId: '',
-      isWalking: false,
-    };
-    room.state.players.set(player.id, player as any);
+    // Add a valid PlayerState in local walkable coordinates
+    const player = new PlayerState();
+    player.id = 'sess-p1';
+    player.characterId = 'char-p1';
+    player.name = 'Brututus';
+    player.posX = 25;
+    player.posY = 25;
+    player.posZ = 7;
+    player.hp = 500;
+    player.maxHp = 500;
+    player.level = 25;
+    player.experience = 10000;
+    player.targetId = '';
+    player.isWalking = false;
+    room.state.players.set(player.id, player);
 
-    // Grab a monster and place it 3 tiles away
+    // Grab a monster and place it 2 tiles away along walkable ground
     const monster = Array.from(room.state.monsters.values())[0];
-    monster.posX = 32703;
-    monster.posY = 32300;
+    monster.posX = 27;
+    monster.posY = 25;
     monster.posZ = 7;
     monster.targetId = player.id;
     monster.lastStepTime = 0; // ready to step
@@ -102,34 +102,34 @@ describe('Phase 264 - Colyseus Authoritative Hunt Room & Party Hunt Resilience',
     (room as any).setSimulationInterval = vi.fn();
     room.onCreate({ huntId: 'cyclops-camp', partyId: 'party-multi' });
 
-    const p1 = {
-      id: 'sess-p1',
-      characterId: 'char-lead',
-      name: 'Brututus',
-      posX: 32700,
-      posY: 32300,
-      posZ: 7,
-      hp: 500,
-      maxHp: 500,
-      level: 20,
-      experience: 10000,
-      targetId: '',
-    };
-    const p2 = {
-      id: 'sess-p2',
-      characterId: 'char-follow',
-      name: 'Caos',
-      posX: 32701,
-      posY: 32301,
-      posZ: 7,
-      hp: 400,
-      maxHp: 400,
-      level: 20,
-      experience: 10000,
-      targetId: '',
-    };
-    room.state.players.set(p1.id, p1 as any);
-    room.state.players.set(p2.id, p2 as any);
+    const p1 = new PlayerState();
+    p1.id = 'sess-p1';
+    p1.characterId = 'char-lead';
+    p1.name = 'Brututus';
+    p1.posX = 25;
+    p1.posY = 25;
+    p1.posZ = 7;
+    p1.hp = 500;
+    p1.maxHp = 500;
+    p1.level = 20;
+    p1.experience = 10000;
+    p1.targetId = '';
+
+    const p2 = new PlayerState();
+    p2.id = 'sess-p2';
+    p2.characterId = 'char-follow';
+    p2.name = 'Caos';
+    p2.posX = 26;
+    p2.posY = 25;
+    p2.posZ = 7;
+    p2.hp = 400;
+    p2.maxHp = 400;
+    p2.level = 20;
+    p2.experience = 10000;
+    p2.targetId = '';
+
+    room.state.players.set(p1.id, p1);
+    room.state.players.set(p2.id, p2);
 
     const monster = Array.from(room.state.monsters.values())[0];
     monster.hp = 0; // Dead
