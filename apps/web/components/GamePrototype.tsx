@@ -22,7 +22,7 @@ import {
   calculatePlayerSpeed, calculateStepDurationMs, findCityPath, findHuntTravelRoute, THAIS_DOCK_TRAVEL, resolveStairsTransition,
   THAIS_CITY_FIXED_SPEED, THAIS_TRAINING_DUMMIES, THAIS_TRAINING_APPROACH_POINT, findBestTrainingTile, calculateTrainingTimeEstimate, type TrainingTimeEstimate, type TrainingDummyInfo,
   getMountSpeedBonus, parseCompletedQuests, normalizeKey,
-  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState, type EnemyState, type HuntPullSize,
+  type CharacterEquipmentSlot, type EquipmentTransferSource, type EquipmentTransferTarget, type GameContent, type TrainableSkill, type LootStack, type CharacterState, type EnemyState, type HuntPullSize, type HotbarSlotConfig,
 } from '@/packages/domain/src';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
 import { calculateSessionRates, formatSessionDuration } from '@/packages/presentation/src';
@@ -1293,9 +1293,15 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           newChar.skills[mainSkill] = Math.max(newChar.skills[mainSkill], 10 + Math.floor(newChar.level * 1.2));
           newChar.skills.shielding = Math.max(newChar.skills.shielding, 10 + Math.floor(newChar.level * 0.8));
 
-          // Characters only use spells configured in their hotbars; never force auto spells
-          newChar.hotbar = existingChar ? [...existingChar.hotbar] : [];
-          newChar.hotbarConfigs = existingChar?.hotbarConfigs ? { ...existingChar.hotbarConfigs } : {};
+          // Characters only use spells configured in their hotbars; if empty, populate with vocation spells
+          newChar.hotbar = existingChar?.hotbar?.length ? [...existingChar.hotbar] : [...newChar.spells];
+          const configs: Record<number, HotbarSlotConfig> = existingChar?.hotbarConfigs ? { ...existingChar.hotbarConfigs } : {};
+          for (const spellId of newChar.hotbar) {
+            if (!configs[spellId]) {
+              configs[spellId] = { enabled: true };
+            }
+          }
+          newChar.hotbarConfigs = configs;
           newChar.targetDistance = vocName === 'Knight' ? 1 : 3;
 
           updatedChars.push(newChar);
@@ -1497,6 +1503,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
 
     const unsubHuntStart = gameNetwork.onPartyHuntStart((data) => {
+      // Phase 259: Guard against redundant hunt start if already in active hunt
+      if (modeRef.current === 'hunt' && !pendingHuntTransitionRef.current) {
+        return;
+      }
       setActiveHuntProposal(null);
       setSaleMessage(`⚔️ Entrando na caçada com a party em ${data.huntId}...`);
       setWalkingPath(null);
@@ -2049,6 +2059,60 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
   const statsById = useMemo(() => new Map(game.session.characters.map((character) => [
     character.id, deriveStats(character, content.equipment, vocationFor(content, character.vocation)),
   ])), [game.session.characters]);
+
+  // Phase 259: Elenco sincronizado para o HUD Flutuante de Party (suporta tanto multiplayer Colyseus quanto squad local)
+  const partyHudCharacters = useMemo((): CharacterState[] => {
+    if (multiplayerParty && multiplayerParty.members && multiplayerParty.members.length > 1) {
+      const localSessionId = gameNetwork.LocalPlayerId;
+      const leaderMember = multiplayerParty.members.find((m) => m.isLeader || m.sessionId === multiplayerParty.leaderSessionId) || multiplayerParty.members[0];
+      const otherMembers = multiplayerParty.members.filter((m) => m.sessionId !== leaderMember.sessionId);
+      const orderedMembers = [leaderMember, ...otherMembers];
+
+      return orderedMembers.map((m) => {
+        if (m.sessionId === localSessionId || m.characterId === activeCharacter.id) {
+          const inHuntActor = mode === 'hunt' ? game.encounter?.partyActors?.find((a) => a.characterId === activeCharacter.id) : undefined;
+          return {
+            ...activeCharacter,
+            currentHp: inHuntActor ? inHuntActor.hp : activeCharacter.currentHp,
+            currentMana: inHuntActor ? inHuntActor.mana : activeCharacter.currentMana,
+          };
+        }
+        // Remote party member
+        const remote = remotePlayers.get(m.sessionId);
+        const inHuntActor = mode === 'hunt' ? game.encounter?.partyActors?.find((a) => a.characterId === (m.characterId || m.sessionId)) : undefined;
+        const vocName = ((m.vocationName as BaseVocationName) || VOCATION_MAP[m.vocationId] || 'Knight') as BaseVocationName;
+        const charId = m.characterId || m.sessionId;
+        const c = createCharacter(charId, m.name, vocName, content);
+        c.level = Math.max(m.level || 1, 1);
+        c.maxHp = remote?.maxHp ?? m.maxHp ?? c.maxHp;
+        c.currentHp = inHuntActor ? inHuntActor.hp : (remote?.hp ?? m.hp ?? c.maxHp);
+        c.maxMana = m.maxMp ?? c.maxMana;
+        c.currentMana = inHuntActor ? inHuntActor.mana : (m.mp ?? c.maxMana);
+        c.outfit = m.outfit || vocName;
+        c.outfitColors = m.outfitColors || { head: 0, primary: 86, secondary: 114, detail: 76 };
+        c.mount = m.mount || 'none';
+        c.mountActive = Boolean(m.mountActive);
+        return c;
+      });
+    }
+
+    if (game.session.characters && game.session.characters.length > 1) {
+      if (mode === 'hunt' && game.encounter?.partyActors?.length > 0) {
+        return game.session.characters.map((char) => {
+          const actor = game.encounter.partyActors.find((a) => a.characterId === char.id);
+          if (!actor) return char;
+          return {
+            ...char,
+            currentHp: actor.hp,
+            currentMana: actor.mana,
+          };
+        });
+      }
+      return game.session.characters;
+    }
+
+    return [];
+  }, [multiplayerParty, activeCharacter, remotePlayers, content, game.session.characters, mode, game.encounter?.partyActors]);
 
   // Track latest character, inventory, position, and economy snapshot for background & logout persistence
   const latestSaveStateRef = useRef<{
@@ -4489,6 +4553,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     }
   };
   const selectPartyCharacter = (characterId: string) => {
+    // Phase 259: Se for um membro remoto de multiplayer, não altera a sessão local
+    if (multiplayerPartyRef.current && multiplayerPartyRef.current.members.some((m) => (m.characterId === characterId || m.sessionId === characterId) && m.sessionId !== gameNetwork.LocalPlayerId)) {
+      return;
+    }
     setGame((current) => {
       let nextState = current;
       if (!current.session.characters.some((c) => c.id === characterId)) {
@@ -5783,10 +5851,10 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
         />
       )}
 
-      {/* Floating Party HUD showing all members when party > 1 */}
-      {game.session.characters.length > 1 && (
+      {/* Floating Party HUD showing all members when party > 1 (multiplayer real players or local squad) */}
+      {partyHudCharacters.length > 1 && (
         <FloatingPartyHUD
-          characters={game.session.characters}
+          characters={partyHudCharacters}
           activeCharacterId={activeCharacter.id}
           onSelectActiveCharacter={(id) => selectPartyCharacter(id)}
           onOpenPartyModal={() => setPartyModalOpen(true)}
@@ -6154,9 +6222,6 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
                 setCityPos(pending.entrance.worldPosition);
                 gameNetwork.sendSetInHunt(true, pending.huntId);
                 gameNetwork.sendTeleport(pending.entrance.worldPosition.x, pending.entrance.worldPosition.y, pending.entrance.worldPosition.z);
-                if (multiplayerParty && multiplayerParty.leaderSessionId === gameNetwork.LocalPlayerId) {
-                  gameNetwork.sendPartyHuntSync(pending.huntId, pending.nextSeed);
-                }
                 if (modeRef.current !== 'hunt') {
                   setGame((current) => restartHunt(prepareHuntCharactersRef.current(current), pending.nextSeed, content, pending.huntId, pending.pullSize ?? 'cauteloso'));
                   setMode('hunt');

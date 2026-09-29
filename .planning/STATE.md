@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: complete
-last_updated: "2026-09-28T20:21:00.000Z"
-last_activity: "2026-09-28 — Conclusão integral da Phase 258: Convites de Party Multiplayer em Thais, Desacoplamento de Armas e Magias (Flecha + Magia simultâneo), Transição de Hunt Fluida para Seguidor e Zero Clones em Thais."
+last_updated: "2026-09-28T21:15:00.000Z"
+last_activity: "2026-09-28 — Conclusão da Phase 259: Grade Rolável e Dinâmica na Loot Bag, HUD de Party para Jogadores Reais e Eliminação do Loop de Loading de Caçada."
 progress:
-  total_phases: 258
-  completed_phases: 258
-  total_plans: 366
-  completed_plans: 366
+  total_phases: 259
+  completed_phases: 259
+  total_plans: 370
+  completed_plans: 370
   percent: 100.0
 ---
 
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-02)
 
 **Core value:** Combate e progressão idle com mecânicas e fórmulas autênticas do Tibia 11 / 10.98+ (TFS 1.x / realmap11), com lógica de jogo autoritativa e determinística desacoplada da camada visual de renderização.  
-**Current focus:** Phase 258: Convites de Party Multiplayer em Thais, Transição Contínua para Hunt em Grupo (Sem Clones) e Desacoplamento do Auto-Ataque com Magias Concluídas.
+**Current focus:** Phase 259 concluída com sucesso e pronta para deploy na VPS.
 
 ## Current Position
 
-Phase: 258 of 258  
-Plan: 4 of 4 in Phase 258  
-Status: Complete 🚀  
-Last activity: 2026-09-28 — Finalizada a Phase 258 com 100% de cobertura e aprovação em testes Vitest e typecheck TypeScript com 0 erros.
+Phase: 259 of 259  
+Plan: 4 of 4 in Phase 259  
+Status: Complete ✅  
+Last activity: 2026-09-28 — Conclusão das 4 ondas da Phase 259 (Loot Bag Scroll, Party HUD e Fix Hunt Loop).
 
-Progress: [██████████] 100.0%
+Progress: [██████████] 100%
 
 
 

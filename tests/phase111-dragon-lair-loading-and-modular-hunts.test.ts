@@ -71,9 +71,9 @@ describe('Phase 111: Dragon Lair Loading Screen & Modular Hunt Curiosities', () 
       expect(rotConfig.bgImage).toBe('/images/loading/thais-loading.jpg');
       expect(rotConfig.curiosities).toEqual(THAIS_LORE_CURIOSITIES);
 
-      const cycConfig = getLoadingConfigForHunt('cyclops-camp');
-      expect(cycConfig.bgImage).toBe('/images/loading/thais-loading.jpg');
-      expect(cycConfig.curiosities).toEqual(THAIS_LORE_CURIOSITIES);
+      const wolfConfig = getLoadingConfigForHunt('wolf-den');
+      expect(wolfConfig.bgImage).toBe('/images/loading/thais-loading.jpg');
+      expect(wolfConfig.curiosities).toEqual(THAIS_LORE_CURIOSITIES);
 
       const nullConfig = getLoadingConfigForHunt(null);
       expect(nullConfig.bgImage).toBe('/images/loading/thais-loading.jpg');

@@ -3110,7 +3110,26 @@ h1, h2, h3, p { margin: 0; }
 
 .mochila-grid {
   grid-template-columns: repeat(5, 36px);
-  grid-template-rows: repeat(4, 36px);
+  grid-auto-rows: 36px;
+  max-height: 164px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+
+.mochila-grid::-webkit-scrollbar {
+  width: 5px;
+}
+.mochila-grid::-webkit-scrollbar-track {
+  background: #0d1017;
+  border-radius: 3px;
+}
+.mochila-grid::-webkit-scrollbar-thumb {
+  background: #273142;
+  border-radius: 3px;
+}
+.mochila-grid::-webkit-scrollbar-thumb:hover {
+  background: #3b4961;
 }
 
 .inventory-slot-cell {
@@ -10883,9 +10902,13 @@ h1, h2, h3, p { margin: 0; }
 
   .mochila-grid {
     grid-template-columns: repeat(5, 42px) !important;
-    grid-template-rows: repeat(4, 42px) !important;
+    grid-auto-rows: 42px !important;
+    max-height: 190px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     gap: 6px !important;
     justify-content: center !important;
+    padding-right: 2px !important;
   }
 
   .inventory-slot-cell {
@@ -11596,9 +11619,14 @@ h1, h2, h3, p { margin: 0; }
   .mochila-grid {
     display: grid !important;
     grid-template-columns: repeat(5, 36px) !important;
+    grid-auto-rows: 36px !important;
+    max-height: 164px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     gap: 4px !important;
     justify-content: center !important;
     margin: 0 auto !important;
+    padding-right: 2px !important;
   }
 
   /* 12. OUTFIT 50%/50% SPLIT OVERHAUL (Onda 4: Preview Amplo Centralizado + 3 Botões em Coluna) */

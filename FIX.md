@@ -51,3 +51,14 @@
   - Em `GamePrototype.tsx`, ao concluir o loading de transição (`onFinish`), acionar `setMode('hunt')` e `restartHunt(prepareHuntCharacters(current), pending.nextSeed, content, pending.huntId)` para o seguidor.
   - Garantir que ambos os jogadores compartilhem a mesma seed de caçada, vejam todos os membros na `PixiArena.tsx` com o Knight liderando o combate na linha de frente (1 sqm) e os atacantes à distância (3+ sqm).
   - Preservar o isolamento urbano (`posZ: 8` e `inHunt: true`) durante a caçada e restaurar ambos ao templo de Thais (`32369, 32241, 7`) no término ou saída do grupo.
+
+## Onda 9: Grade Rolável da Loot Bag e Ajustes Finais de Party Multiplayer (HUD & Loop de Loading)
+- [x] **15. Grade Rolável e Dinâmica na Loot Bag (`InventoryWindow.tsx` & `DepotWindow.tsx`):**
+  - Eliminar o teto rígido de 20 slots estáticos na Loot Bag do Inventário e do Depot.
+  - Tornar o container rolável com barra de rolagem estilizada (`overflow-y: auto`, altura fixa de 4 linhas) e gerar dinamicamente slots em múltiplos de 5 conforme caem itens adicionais (ex: 25, 30, 40 slots), exibindo Crown Legs, Two-Handed Sword, Wedding Ring, Potions e todos os drops sem cortes.
+- [x] **16. HUD Flutuante de Party (`FloatingPartyHUD`) para Jogadores Reais em Tempo Real:**
+  - Conectar o `FloatingPartyHUD` ao estado `multiplayerParty` além de `game.session.characters`, permitindo que o quadro flutuante (com avatar, nome, vocação, barras de vida, mana e nível) seja exibido na tela logo após o aceite de convite em Thais e permaneça ativo durante a caçada.
+  - Sincronizar em tempo real as barras de HP e Mana dos membros remotos via dados de rede do Colyseus.
+- [x] **17. Extinção do Loop Infinito de Loading ao Iniciar Caçada em Grupo:**
+  - Em `GamePrototype.tsx`, remover o disparo redundante de `sendPartyHuntSync` dentro do `onFinish` do `ExuraLoadingScreen`.
+  - Como o servidor já dispara `party:huntStarted` após a aprovação da proposta de caçada, o `sendPartyHuntSync` pós-loading estava reativando o evento no servidor e forçando ambos os jogadores a saírem da hunt recém-iniciada para um novo ciclo de loading infinito.

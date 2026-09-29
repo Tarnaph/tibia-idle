@@ -4414,3 +4414,13 @@ Plans:
 - [x] 258-03-PLAN: Onda 3 - Transição Perfeita de Caçada em Grupo: Acionamento da Caçada para Seguidor no Loading, IA Tática com Knight na Frente e Retorno sem Clones
 - [x] 258-04-PLAN: Onda 4 - Testes Vitest Automatizados, Validação de Tipos (Typecheck), Atualização do FIX.md e Deploy na VPS
 
+---
+
+- [x] **Phase 259: Grade Rolável da Loot Bag, HUD Flutuante de Party para Jogadores Reais e Eliminação do Loop de Loading de Hunt** - Resolução das frentes abertas da Onda 9 do FIX.md: (1) Grade dinâmica e rolável da Loot Bag em `InventoryWindow.tsx` e `DepotWindow.tsx`, removendo o limite estático de 20 slots e permitindo rolar verticalmente para interagir com todos os drops obtidos (Crown Legs, etc.); (2) Exibição e atualização do `FloatingPartyHUD` para grupos multiplayer de jogadores reais conectados via Colyseus em tempo real; (3) Eliminação definitiva do loop infinito de carregamento ao iniciar caçadas em grupo, extinguindo o disparo redundante pós-loading.
+Plans:
+- [x] 259-01-PLAN: Onda 1 - Grade Rolável com Slots Dinâmicos na Loot Bag (`InventoryWindow.tsx`, `DepotWindow.tsx`, `app/globals.css`)
+- [x] 259-02-PLAN: Onda 2 - HUD Flutuante de Party (`FloatingPartyHUD`) Integrado com Jogadores Reais do Colyseus em Tempo Real
+- [x] 259-03-PLAN: Onda 3 - Extinção do Loop Infinito de Loading de Hunt e Limpeza do `sendPartyHuntSync` Redundante
+- [x] 259-04-PLAN: Onda 4 - Testes Vitest Automatizados, Validação de Tipos (Typecheck), Atualização do FIX.md e Deploy na VPS
+
+

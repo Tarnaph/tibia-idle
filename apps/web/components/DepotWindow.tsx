@@ -238,7 +238,7 @@ export function DepotWindow({
                 <span className="container-title">Loot Bag</span>
               </div>
               <div className="container-grid mochila-grid">
-                {Array.from({ length: 20 }).map((_, index) => {
+                {Array.from({ length: Math.max(20, Math.ceil((backpackItems.length + 1) / 5) * 5) }).map((_, index) => {
                   const stack = backpackItems[index];
                   return (
                     <div

@@ -355,7 +355,7 @@ export function InventoryWindow({
 
             <div className="container-section-divider" />
 
-            {/* 2. Loot Bag (20 slots: 4x5) */}
+            {/* 2. Loot Bag (Slots dinâmicos roláveis em múltiplos de 5) */}
             <div className="container-section mochila-section">
               <div className="container-section-header">
                 <span className="container-title">Loot Bag</span>
@@ -366,7 +366,7 @@ export function InventoryWindow({
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDropOnContainer(e, 'backpack')}
               >
-                {Array.from({ length: 20 }).map((_, index) => {
+                {Array.from({ length: Math.max(20, Math.ceil((backpackItems.length + 1) / 5) * 5) }).map((_, index) => {
                   const stack = backpackItems[index];
                   const pref = stack?.itemId ? getItemPreference(stack.itemId) : { autoLoot: true, lockSell: false, quickSell: false };
 
