@@ -170,8 +170,8 @@ export function createGameServer(options: CreateGameServerOptions = {}) {
   // Register Colyseus Rooms
   gameServer.define('thais-city', ThaisCityRoom as any);
   gameServer.define('thais_city', ThaisCityRoom as any);
-  gameServer.define('hunt-dungeon', HuntDungeonRoom as any);
-  gameServer.define('hunt_dungeon', HuntDungeonRoom as any);
+  gameServer.define('hunt-dungeon', HuntDungeonRoom as any).filterBy(['partyId', 'huntId']);
+  gameServer.define('hunt_dungeon', HuntDungeonRoom as any).filterBy(['partyId', 'huntId']);
 
   return {
     app,

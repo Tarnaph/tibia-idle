@@ -156,6 +156,7 @@ export class CityPartyHandler {
             seed: data.seed,
             leaderName: party.leaderName,
             leaderSessionId: party.leaderSessionId,
+            partyId: leaderId,
           });
         }
       }
@@ -228,6 +229,7 @@ export class CityPartyHandler {
               seed: proposal.seed,
               leaderName: party.leaderName,
               leaderSessionId: party.leaderSessionId,
+              partyId: leaderId,
             });
           }
         }

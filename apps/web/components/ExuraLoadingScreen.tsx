@@ -161,6 +161,11 @@ export function ExuraLoadingScreen({
     };
   }, [active, waitForAssets, huntId]);
 
+  const durationMsRef = useRef(durationMs);
+  durationMsRef.current = durationMs;
+  const waitForAssetsRef = useRef(waitForAssets);
+  waitForAssetsRef.current = waitForAssets;
+
   useEffect(() => {
     if (!active) {
       if (isVisible && !isFadingOut) {
@@ -185,7 +190,8 @@ export function ExuraLoadingScreen({
     let intervalId: NodeJS.Timeout;
     let finishTimeoutId: NodeJS.Timeout;
     let isHandled = false;
-    const hardLimitMs = Math.max(durationMs + 2000, 4500);
+    const initialDuration = durationMsRef.current || 2000;
+    const hardLimitMs = Math.max(initialDuration + 1000, 3500);
     let hardLimitTimeoutId: NodeJS.Timeout;
 
     const finish = () => {
@@ -217,15 +223,15 @@ export function ExuraLoadingScreen({
     const updateProgress = (now: number) => {
       if (isHandled) return;
       const elapsed = now - startTime;
-      const effectiveDuration = durationMs;
+      const effectiveDuration = durationMsRef.current || 2000;
       const timePct = Math.min(100, (elapsed / effectiveDuration) * 100);
 
       // Phase 146, 178, 223 & 242: Sincronização autoritativa com o pré-carregamento global E da hunt ativa
-      const isGlobalAssetsComplete = !waitForAssets || assetPreloader.isComplete();
+      const isGlobalAssetsComplete = !waitForAssetsRef.current || assetPreloader.isComplete();
       const isHuntAssetsComplete = !huntId || huntAssetPreloader.isHuntReady(huntId);
       const isAssetsComplete = isGlobalAssetsComplete && isHuntAssetsComplete;
 
-      const globalProgressPct = waitForAssets ? assetPreloader.getProgress() : 100;
+      const globalProgressPct = waitForAssetsRef.current ? assetPreloader.getProgress() : 100;
       const huntProgressPct = huntId ? huntAssetPreloader.getHuntProgress(huntId) : 100;
       const assetProgressPct = Math.min(globalProgressPct, huntProgressPct);
 
@@ -281,7 +287,7 @@ export function ExuraLoadingScreen({
         document.removeEventListener('visibilitychange', onVisibilityChange);
       }
     };
-  }, [active, durationMs, waitForAssets]);
+  }, [active]);
 
   // Phase 261 / Onda 14: Nunca renderizar o overlay se isVisible for falso
   if (!isVisible) return null;

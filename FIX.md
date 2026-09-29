@@ -169,3 +169,16 @@
 - [x] **45. Inicialização Imediata e Pré-Carregamento na Tela de Transição do Seguidor (`GamePrototype.tsx`):**
   - No `unsubHuntStart`, chamada imediata de `preloadHunt`, `restartHunt`, `setMode('hunt')` e `sendSetInHunt(true)` sob a tela de loading.
   - Redução da transição para 3 segundos, mantendo a sincronização de rede ativa desde o primeiro frame da caçada.
+
+## Onda 17: Arquitetura Definitiva de Caçada Multiplayer no Servidor Colyseus (`HuntDungeonRoom`) e Sincronização Autoritativa (Phase 264)
+- [x] **46. Sala de Caçada Autoritativa no Colyseus para a Party (`HuntDungeonRoom.ts` & `CityPartyHandler.ts`):**
+  - Ao iniciar caçada em grupo, o servidor Colyseus gerencia a masmorra autoritativa onde todos os membros da party conectam-se como clientes na mesma sala.
+  - O servidor governa monstros (spawn, perseguição e ataques), combate, experiência compartilhada e persistência, acabando com simulação no navegador do jogador.
+- [x] **47. Conexão do Cliente à Sala de Caçada do Colyseus (`colyseusClient.ts` & `GameClientNetworkManager.ts`):**
+  - Implementar gerenciador de conexão com `hunt_dungeon`, sincronizando `state.players`, `state.monsters` e eventos de combate em tempo real para todos os membros.
+- [x] **48. Eliminação Definitiva do Congelamento no Background de Loading (`GamePrototype.tsx` & `ExuraLoadingScreen.tsx`):**
+  - Garantir liberação imediata da tela de carregamento na entrada de masmorra multiplayer, com timeout de segurança e transição confiável.
+- [x] **49. Renderização Resiliente de Atores Remotos no PixiJS (`PixiArena.tsx`):**
+  - Remover bloqueio que ignorava personagens ausentes de `session.characters`, permitindo que qualquer membro da party (ex: Brututus na tela do Caos) seja renderizado com fidelidade visual.
+- [x] **50. Validação Global com Testes Vitest, Typecheck e Deploy na VPS:**
+  - Criar testes automatizados para a sala de caçada multiplayer do servidor, verificar 0 erros de tipagem, atualizar a documentação GSD e realizar deploy na VPS.

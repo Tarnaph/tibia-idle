@@ -851,7 +851,25 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         const committedMovements = state.encounter.events.filter((event) => event.type === 'movement');
         const liveIds = new Set<string>();
         for (const actor of state.encounter.partyActors) {
-          const character = state.session.characters.find((candidate) => candidate.id === actor.characterId); if (!character) continue;
+          const foundChar = state.session.characters.find((candidate) => candidate.id === actor.characterId);
+          const character: any = foundChar || {
+            id: actor.characterId,
+            name: (actor as any).name || 'Companheiro',
+            vocation: (actor as any).vocation || 'Knight',
+            level: (actor as any).level || 1,
+            maxHp: (actor as any).maxHp || actor.hp || 100,
+            currentHp: actor.hp,
+            maxMana: (actor as any).maxMana || actor.mana || 35,
+            currentMana: actor.mana,
+            outfit: (actor as any).outfit || 'Knight',
+            outfitLookType: (actor as any).outfitLookType || 128,
+            gender: (actor as any).gender || 'male',
+            skills: { fist: 10, club: 10, sword: 10, axe: 10, distance: 10, shielding: 10, magicLevel: 0 },
+            equipment: {},
+            hotbar: [],
+            blessings: [],
+            combatState: { targetId: null, spellCooldowns: {}, groupCooldowns: {} },
+          };
           liveIds.add(actor.characterId);
           const outfitKey = character.outfit || character.vocation;
           const mapping = visualAssets.outfits[outfitKey] || visualAssets.outfits[baseVocation(outfitKey)] || visualAssets.outfits['Knight'];

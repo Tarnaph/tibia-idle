@@ -18,6 +18,7 @@ export class MonsterState extends Schema {
   @type('boolean') isDead: boolean = false;
   @type('number') respawnTimerMs: number = 0;
   @type('number') lastAttackTime: number = 0;
+  @type('number') lastStepTime: number = 0;
   @type('number') attackPower: number = 18;
   @type('number') defensePower: number = 8;
   @type('number') armorPower: number = 4;

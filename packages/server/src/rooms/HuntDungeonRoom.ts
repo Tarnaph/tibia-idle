@@ -4,7 +4,7 @@ import { PlayerState } from '../schemas/PlayerState';
 import { MonsterState } from '../schemas/MonsterState';
 import { CombatEventSchema } from '../schemas/CombatEventSchema';
 import { verifyAuthToken, VOCATION_CONFIGS, ServerCharacterContextRegistry } from '../../../auth/src';
-import { experienceForLevel, levelForExperience, calculateStatsForLevel, initialHunts, type GameContent } from '../../../domain/src';
+import { experienceForLevel, levelForExperience, calculateStatsForLevel, initialHunts, getHuntWorldEntrance, type GameContent } from '../../../domain/src';
 import vocationsJson from '../../../../content/generated/vocations.json';
 import equipmentJson from '../../../../content/generated/equipment.json';
 import monstersJson from '../../../../content/generated/monsters.json';
@@ -32,6 +32,7 @@ export interface HuntJoinOptions {
   token?: string;
   characterId?: string;
   huntId?: string;
+  partyId?: string;
   outfit?: string;
   outfitColors?: { head?: number; primary?: number; secondary?: number; detail?: number };
   mount?: string;
@@ -40,6 +41,7 @@ export interface HuntJoinOptions {
 
 export class HuntDungeonRoom extends Room<WorldState> {
   public static activeRooms: Set<HuntDungeonRoom> = new Set();
+
 
   public static async flushAllActiveRooms(): Promise<void> {
     console.log(`[HuntDungeonRoom] Executando flush forçado em ${HuntDungeonRoom.activeRooms.size} masmorras ativas...`);
@@ -50,6 +52,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
 
   maxClients = 50;
   public huntId: string = 'cyclops-camp';
+  public partyId: string = '';
   private autoSaveTimer: any = null;
   private simulationTimer: any = null;
   private nextEventId: number = 1;
@@ -58,6 +61,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
     HuntDungeonRoom.activeRooms.add(this);
     this.setState(new WorldState());
     this.huntId = options.huntId || 'cyclops-camp';
+    this.partyId = options.partyId || '';
     this.state.regionName = `hunt:${this.huntId}`;
 
     // Initialize dungeon monsters for this hunt
@@ -72,20 +76,22 @@ export class HuntDungeonRoom extends Room<WorldState> {
     }, 25000);
 
     this.registerMessageHandlers();
-    console.log(`[HuntDungeonRoom] Masmorra autoritativa '${this.huntId}' iniciada com sucesso.`);
+    console.log(`[HuntDungeonRoom] Masmorra autoritativa '${this.huntId}' (Party: ${this.partyId || 'Solo'}) iniciada com sucesso.`);
   }
 
   private registerMessageHandlers() {
     // Attack / Focus target
-    this.onMessage('attack', (client, data: { targetId: string | null }) => {
+    const handleAttack = (client: Client, data: { targetId: string | null }) => {
       const player = this.state.players.get(client.sessionId);
       if (player) {
         player.targetId = data.targetId || '';
       }
-    });
+    };
+    this.onMessage('attack', handleAttack);
+    this.onMessage('player:attack', handleAttack);
 
     // Move within dungeon
-    this.onMessage('move', (client, data: { direction: string; x?: number; y?: number; z?: number }) => {
+    const handleMove = (client: Client, data: { direction: string; x?: number; y?: number; z?: number }) => {
       const player = this.state.players.get(client.sessionId);
       if (player) {
         if (data.direction) player.direction = data.direction;
@@ -95,15 +101,19 @@ export class HuntDungeonRoom extends Room<WorldState> {
         player.isWalking = true;
         player.lastStepTime = Date.now();
       }
-    });
+    };
+    this.onMessage('move', handleMove);
+    this.onMessage('player:move', handleMove);
 
     // Cast spell or potion
-    this.onMessage('castSpell', (client, data: { spellId: string }) => {
+    const handleSpell = (client: Client, data: { spellId: string }) => {
       const player = this.state.players.get(client.sessionId);
       if (player && data.spellId) {
         this.handlePlayerSpell(player, data.spellId);
       }
-    });
+    };
+    this.onMessage('castSpell', handleSpell);
+    this.onMessage('player:spell', handleSpell);
 
     // Request leave hunt
     this.onMessage('leaveHunt', async (client) => {
@@ -191,10 +201,12 @@ export class HuntDungeonRoom extends Room<WorldState> {
     if (options.mount) player.mount = options.mount;
     if (options.mountActive) player.mountActive = options.mountActive;
 
-    // Spawn player in dungeon safe perimeter
-    player.posX = 32000;
-    player.posY = 32000;
-    player.posZ = 8;
+    // Spawn player in dungeon entrance perimeter
+    const entrance = getHuntWorldEntrance(this.huntId, gameContent);
+    const pIdx = this.state.players.size;
+    player.posX = entrance.worldPosition.x + (pIdx % 2 === 0 ? -1 : 1) * Math.floor(pIdx / 2);
+    player.posY = entrance.worldPosition.y + (pIdx > 2 ? 1 : 0);
+    player.posZ = entrance.worldPosition.z;
 
     this.state.players.set(client.sessionId, player);
 
@@ -210,7 +222,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       await persistenceManager.setPlayerHuntStatus(charId, true, this.huntId, client.sessionId);
     } catch {}
 
-    client.send('server:huntContextReady', { isHunting: true, huntId: this.huntId });
+    client.send('server:huntContextReady', { isHunting: true, huntId: this.huntId, partyId: this.partyId });
     console.log(`[HuntDungeonRoom] Jogador '${player.name}' (${player.characterId}) entrou na masmorra '${this.huntId}'.`);
   }
 
@@ -230,11 +242,16 @@ export class HuntDungeonRoom extends Room<WorldState> {
   }
 
   private spawnDungeonMonsters() {
+    const entrance = getHuntWorldEntrance(this.huntId, gameContent);
+    const baseX = entrance.worldPosition.x;
+    const baseY = entrance.worldPosition.y;
+    const baseZ = entrance.worldPosition.z;
+
     const monsterTypesByHunt: Record<string, Array<{ typeId: string; name: string; lookType: number; hp: number; atk: number; def: number; count: number }>> = {
       'cyclops-camp': [
         { typeId: 'cyclops', name: 'Cyclops', lookType: 22, hp: 260, atk: 105, def: 30, count: 6 },
         { typeId: 'cyclops_drone', name: 'Cyclops Drone', lookType: 281, hp: 325, atk: 120, def: 35, count: 2 },
-        { typeId: 'cyclops_smith', name: 'Cyclops Smith', lookType: 282, hp: 435, atk: 140, def: 40, count: 1 },
+        { typeId: 'cyclops_smith', name: 'Cyclops Smith', lookType: 282, hp: 435, atk: 140, def: 40, count: 2 },
       ],
       'dragon-lair': [
         { typeId: 'dragon_hatchling', name: 'Dragon Hatchling', lookType: 283, hp: 380, atk: 130, def: 38, count: 4 },
@@ -244,6 +261,23 @@ export class HuntDungeonRoom extends Room<WorldState> {
       'rat-cellars': [
         { typeId: 'rat', name: 'Rat', lookType: 21, hp: 20, atk: 8, def: 2, count: 8 },
         { typeId: 'cave_rat', name: 'Cave Rat', lookType: 56, hp: 30, atk: 12, def: 4, count: 4 },
+      ],
+      'rotworm-cave': [
+        { typeId: 'rotworm', name: 'Rotworm', lookType: 26, hp: 65, atk: 40, def: 8, count: 8 },
+        { typeId: 'carrion_worm', name: 'Carrion Worm', lookType: 27, hp: 145, atk: 70, def: 14, count: 3 },
+      ],
+      'troll-camp': [
+        { typeId: 'troll', name: 'Troll', lookType: 15, hp: 50, atk: 25, def: 6, count: 8 },
+        { typeId: 'swamp_troll', name: 'Swamp Troll', lookType: 16, hp: 55, atk: 30, def: 7, count: 4 },
+      ],
+      'spider-burrow': [
+        { typeId: 'spider', name: 'Spider', lookType: 30, hp: 20, atk: 10, def: 2, count: 6 },
+        { typeId: 'poison_spider', name: 'Poison Spider', lookType: 31, hp: 26, atk: 18, def: 4, count: 4 },
+        { typeId: 'bug', name: 'Bug', lookType: 45, hp: 29, atk: 18, def: 4, count: 4 },
+      ],
+      'elf-sanctuary': [
+        { typeId: 'elf', name: 'Elf', lookType: 62, hp: 100, atk: 45, def: 12, count: 6 },
+        { typeId: 'elf_scout', name: 'Elf Scout', lookType: 63, hp: 160, atk: 75, def: 16, count: 4 },
       ],
     };
 
@@ -262,9 +296,11 @@ export class HuntDungeonRoom extends Room<WorldState> {
         monster.attackPower = def.atk;
         monster.defensePower = def.def;
         monster.armorPower = Math.round(def.def * 0.5);
-        monster.posX = 32000 + (monsterIndex % 5) * 2 - 4;
-        monster.posY = 32000 + Math.floor(monsterIndex / 5) * 2 - 4;
-        monster.posZ = 8;
+        const angle = (monsterIndex * 0.8) + (i * 0.5);
+        const radius = 3 + (monsterIndex % 5);
+        monster.posX = Math.round(baseX + Math.cos(angle) * radius);
+        monster.posY = Math.round(baseY + Math.sin(angle) * radius);
+        monster.posZ = baseZ;
         monster.isDead = false;
 
         this.state.monsters.set(monster.id, monster);
@@ -272,9 +308,59 @@ export class HuntDungeonRoom extends Room<WorldState> {
     }
   }
 
-  private update(deltaTime: number) {
+
+  public awardMonsterKill(targetMonster: MonsterState): void {
+    targetMonster.isDead = true;
+    targetMonster.respawnTimerMs = 15000;
+
+    const baseExp = targetMonster.maxHp * 1.5;
+    const awardedExp = Math.round(baseExp);
+    const activePlayers = Array.from(this.state.players.values()).filter((p) => p.hp > 0);
+    const partyBonus = activePlayers.length > 1 ? 1.2 : 1.0;
+    const expPerMember = Math.max(1, Math.round((awardedExp * partyBonus) / Math.max(1, activePlayers.length)));
+
+    for (const p of activePlayers) {
+      p.experience += expPerMember;
+      const nextLevel = levelForExperience(p.experience);
+      if (nextLevel > p.level) {
+        p.level = nextLevel;
+        const stats = calculateStatsForLevel(p.vocationName || 'Knight', p.level);
+        p.maxHp = stats.maxHp;
+        p.maxMp = stats.maxMana;
+        p.hp = p.maxHp;
+        p.mp = p.maxMp;
+
+        this.emitCombatEvent({
+          type: 'level-up',
+          sourceId: p.id,
+          targetId: p.id,
+          effectId: 13, // Fireworks
+          posX: p.posX,
+          posY: p.posY,
+        });
+      }
+    }
+
+    this.emitCombatEvent({
+      type: 'creature-died',
+      targetId: targetMonster.id,
+      value: 0,
+      posX: targetMonster.posX,
+      posY: targetMonster.posY,
+    });
+    this.broadcast('monster:died', { monsterId: targetMonster.id, exp: expPerMember });
+  }
+
+  public update(deltaTime: number) {
     this.state.serverTick += 1;
     const now = Date.now();
+
+    // 0. Check for any monsters killed that need EXP distribution
+    for (const monster of this.state.monsters.values()) {
+      if (!monster.isDead && monster.hp <= 0) {
+        this.awardMonsterKill(monster);
+      }
+    }
 
     // 1. Update Monster Respawns
     for (const monster of this.state.monsters.values()) {
@@ -314,7 +400,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
         }
       }
 
-      // 3. Monster Attack Loop
+      // 3. Monster Movement & Attack Loop
       if (monster.targetId) {
         const targetPlayer = this.state.players.get(monster.targetId);
         if (!targetPlayer || targetPlayer.hp <= 0) {
@@ -322,7 +408,24 @@ export class HuntDungeonRoom extends Room<WorldState> {
           continue;
         }
 
-        if (now - monster.lastAttackTime >= 2000) {
+        const dist = Math.hypot(targetPlayer.posX - monster.posX, targetPlayer.posY - monster.posY);
+
+        // Step towards player if not in melee reach
+        if (dist > 1.2 && now - monster.lastStepTime >= 1000) {
+          monster.lastStepTime = now;
+          const dx = Math.sign(targetPlayer.posX - monster.posX);
+          const dy = Math.sign(targetPlayer.posY - monster.posY);
+          if (Math.abs(targetPlayer.posX - monster.posX) >= Math.abs(targetPlayer.posY - monster.posY)) {
+            monster.posX += dx;
+            monster.direction = dx > 0 ? 'east' : 'west';
+          } else {
+            monster.posY += dy;
+            monster.direction = dy > 0 ? 'south' : 'north';
+          }
+        }
+
+        // Attack if in range
+        if (dist <= 1.8 && now - monster.lastAttackTime >= 2000) {
           monster.lastAttackTime = now;
           const rawDmg = Math.max(1, Math.floor(monster.attackPower * (0.6 + Math.random() * 0.4)));
           const defReduction = Math.floor(targetPlayer.defensePower * 0.5 + targetPlayer.armorPower * 0.3);
@@ -400,46 +503,14 @@ export class HuntDungeonRoom extends Room<WorldState> {
 
           // Monster killed authoritatively!
           if (targetMonster.hp <= 0) {
-            targetMonster.isDead = true;
-            targetMonster.respawnTimerMs = 15000; // 15 seconds respawn
             player.targetId = '';
-
-            // Award authoritative experience
-            const baseExp = targetMonster.maxHp * 1.5;
-            const awardedExp = Math.round(baseExp);
-            player.experience += awardedExp;
-
-            const nextLevel = levelForExperience(player.experience);
-            if (nextLevel > player.level) {
-              player.level = nextLevel;
-              const stats = calculateStatsForLevel(player.vocationName, player.level);
-              player.maxHp = stats.maxHp;
-              player.maxMp = stats.maxMana;
-              player.hp = player.maxHp;
-              player.mp = player.maxMp;
-
-              this.emitCombatEvent({
-                type: 'level-up',
-                sourceId: player.id,
-                targetId: player.id,
-                effectId: 13, // Fireworks
-                posX: player.posX,
-                posY: player.posY,
-              });
-            }
-
-            this.emitCombatEvent({
-              type: 'creature-died',
-              targetId: targetMonster.id,
-              value: 0,
-              posX: targetMonster.posX,
-              posY: targetMonster.posY,
-            });
+            this.awardMonsterKill(targetMonster);
           }
         }
       }
     }
   }
+
 
   private handlePlayerSpell(player: PlayerState, spellId: string) {
     if (spellId === 'exura' || spellId === 'health-potion') {

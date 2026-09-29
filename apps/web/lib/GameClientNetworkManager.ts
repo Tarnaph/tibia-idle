@@ -1,5 +1,5 @@
 import type { Room } from 'colyseus.js';
-import { joinGameRoom } from './colyseusClient';
+import { joinGameRoom, joinHuntDungeonRoom } from './colyseusClient';
 import { serverConfigManager } from '@/packages/server/src/config/ServerConfigManager';
 
 export interface RemotePlayerSnapshot {
@@ -122,7 +122,7 @@ type ChatMessageListener = (msg: NetworkChatMessage) => void;
 type StateChangeListener = (players: Map<string, RemotePlayerSnapshot>) => void;
 type PartyInvitationListener = (invitation: PartyInvitation) => void;
 type PartySyncListener = (party: PartySnapshot | null) => void;
-type PartyHuntStartListener = (data: { huntId: string; seed?: string; leaderName: string; leaderSessionId: string }) => void;
+type PartyHuntStartListener = (data: { huntId: string; seed?: string; leaderName: string; leaderSessionId: string; partyId?: string }) => void;
 type PartyHuntExitListener = (data?: { x?: number; y?: number; z?: number }) => void;
 type PartyTargetSyncListener = (targetId: string | null) => void;
 type PartyLeaderMovedListener = (data: { leaderSessionId: string; x: number; y: number; z: number; direction: string }) => void;
@@ -248,6 +248,10 @@ export class GameClientNetworkManager {
   private pvpQueueTimeoutListeners: Set<PvPQueueTimeoutListener> = new Set();
   private pvpQueueSearchingListeners: Set<PvPQueueSearchingListener> = new Set();
   private pvpDuelEndedListeners: Set<PvPDuelEndedListener> = new Set();
+  private huntRoom: Room<any> | null = null;
+  private huntStateListeners: Set<(state: any) => void> = new Set();
+  private huntMonsterDiedListeners: Set<(data: { monsterId: string; exp: number }) => void> = new Set();
+  private huntDungeonEndedListeners: Set<(data: any) => void> = new Set();
 
   private playersMap: Map<string, RemotePlayerSnapshot> = new Map();
   private localPlayerId: string | null = null;
@@ -553,7 +557,7 @@ export class GameClientNetworkManager {
       this.partyNotificationListeners.forEach((fn) => fn({ type: 'error', message: data.message }));
     });
 
-    this.room.onMessage('party:huntStarted', (data: { huntId: string; seed?: string; leaderName: string; leaderSessionId: string }) => {
+    this.room.onMessage('party:huntStarted', (data: { huntId: string; seed?: string; leaderName: string; leaderSessionId: string; partyId?: string }) => {
       this.partyHuntStartListeners.forEach((fn) => fn(data));
     });
 
@@ -991,6 +995,97 @@ export class GameClientNetworkManager {
 
   get Room(): Room<any> | null {
     return this.room;
+  }
+
+  get HuntRoom(): Room<any> | null {
+    return this.huntRoom;
+  }
+
+  get IsInHuntRoom(): boolean {
+    return this.huntRoom !== null;
+  }
+
+  async joinHuntDungeon(
+    token: string,
+    characterId: string,
+    huntId: string,
+    partyId?: string,
+    options?: Record<string, any>
+  ): Promise<Room<any>> {
+    this.leaveHuntDungeon();
+    try {
+      const room = await joinHuntDungeonRoom(token, characterId, huntId, partyId, options);
+      this.huntRoom = room;
+      this.setupHuntRoomListeners();
+      return room;
+    } catch (err) {
+      console.error('[GameClientNetworkManager] Failed to join hunt dungeon room:', err);
+      throw err;
+    }
+  }
+
+  leaveHuntDungeon(): void {
+    if (this.huntRoom) {
+      try {
+        this.huntRoom.leave();
+      } catch (e) {
+        console.warn('[GameClientNetworkManager] Error leaving hunt dungeon room:', e);
+      }
+      this.huntRoom = null;
+    }
+  }
+
+  private setupHuntRoomListeners(): void {
+    if (!this.huntRoom) return;
+
+    this.huntRoom.onStateChange((state) => {
+      this.huntStateListeners.forEach((fn) => fn(state));
+    });
+
+    this.huntRoom.onMessage('monster:died', (data: { monsterId: string; exp: number }) => {
+      this.huntMonsterDiedListeners.forEach((fn) => fn(data));
+    });
+
+    this.huntRoom.onMessage('dungeon:ended', (data: any) => {
+      this.huntDungeonEndedListeners.forEach((fn) => fn(data));
+    });
+
+    this.huntRoom.onLeave(() => {
+      this.huntRoom = null;
+    });
+  }
+
+  sendHuntMove(direction: string, x: number, y: number): void {
+    if (this.huntRoom) {
+      this.huntRoom.send('player:move', { direction, x, y });
+    }
+  }
+
+  sendHuntAttack(targetId: string, skillType?: string): void {
+    if (this.huntRoom) {
+      this.huntRoom.send('player:attack', { targetId, skillType });
+    }
+  }
+
+  sendHuntSpell(spellId: string, targetId?: string): void {
+    if (this.huntRoom) {
+      this.huntRoom.send('player:spell', { spellId, targetId });
+    }
+  }
+
+  onHuntStateChange(fn: (state: any) => void): () => void {
+    this.huntStateListeners.add(fn);
+    return () => this.huntStateListeners.delete(fn);
+  }
+
+  onHuntMonsterDied(fn: (data: { monsterId: string; exp: number }) => void): () => void {
+    this.huntMonsterDiedListeners.add(fn);
+    return () => this.huntMonsterDiedListeners.delete(fn);
+  }
+
+  onHuntDungeonEnded(fn: (data: any) => void): () => void {
+    this.huntDungeonEndedListeners.add(fn);
+    return () => this.huntDungeonEndedListeners.delete(fn);
   }
 }
 

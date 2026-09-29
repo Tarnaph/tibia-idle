@@ -55,3 +55,25 @@ export async function reconnectGameRoom(reconnectionToken: string): Promise<Room
   const room = await client.reconnect<WorldState>(reconnectionToken, WorldState);
   return room;
 }
+
+export async function joinHuntDungeonRoom(
+  token: string,
+  characterId: string,
+  huntId: string,
+  partyId?: string,
+  options?: Record<string, any>
+): Promise<Room<any>> {
+  const client = getColyseusClient();
+  const room = await client.joinOrCreate(
+    'hunt_dungeon',
+    {
+      token,
+      characterId,
+      huntId,
+      partyId: partyId || `solo_${characterId}`,
+      ...options,
+    }
+  );
+  return room;
+}
+

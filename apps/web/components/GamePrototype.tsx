@@ -1603,6 +1603,25 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       gameNetwork.sendSetInHunt(true, data.huntId);
       gameNetwork.sendTeleport(entrance.worldPosition.x, entrance.worldPosition.y, entrance.worldPosition.z);
 
+      // Phase 264: Connect follower to authoritative Colyseus hunt_dungeon room
+      const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+      const activeCharId = onlineCharacterRef.current?.id || activeCharacter?.id;
+      const partyRoomKey = data.partyId || multiplayerPartyRef.current?.leaderSessionId || `solo_${activeCharId}`;
+      if (token && activeCharId) {
+        void gameNetwork.joinHuntDungeon(token, activeCharId, data.huntId, partyRoomKey).catch((err) => {
+          console.warn('[GamePrototype] Failed to connect to hunt_dungeon room:', err);
+        });
+      }
+
+      // Phase 264: Transition fail-safe (3.2s) - guarantee arena is shown and loading state never hangs
+      setTimeout(() => {
+        if (pendingHuntTransitionRef.current) {
+          pendingHuntTransitionRef.current = null;
+        }
+        setIsArenaReady(true);
+        setTransitionLoading(null);
+      }, 3200);
+
       pendingHuntTransitionRef.current = {
         huntId: data.huntId,
         targetHunt,
@@ -1613,6 +1632,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     });
 
     const unsubHuntExit = gameNetwork.onPartyHuntExit((coords) => {
+      gameNetwork.leaveHuntDungeon();
       setSaleMessage('O líder encerrou a caçada. Retornando ao Templo de Thais...');
       followSuppressedUntilRef.current = Date.now() + 2500;
       stopHuntBgm();
@@ -1808,6 +1828,27 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       });
     });
 
+    const unsubHuntMonsterDied = gameNetwork.onHuntMonsterDied((data) => {
+      setGame((current) => {
+        if (modeRef.current !== 'hunt') return current;
+        const char = current.session.characters.find((c) => c.id === current.session.selectedCharacterId) || current.session.characters[0];
+        if (char) {
+          char.experience = (Number(char.experience) || 0) + data.exp;
+        }
+        current.encounter.events.push({
+          type: 'text-particle',
+          text: `+${data.exp} XP (Party)`,
+          color: '#ffd700',
+        } as any);
+        return { ...current };
+      });
+      setHuntAnalyzerData((prev) => ({
+        ...prev,
+        kills: prev.kills + 1,
+        xpGained: prev.xpGained + data.exp,
+      }));
+    });
+
     return () => {
       unsubState();
       unsubCombat();
@@ -1821,6 +1862,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       unsubLeaderMoved();
       unsubHuntEncounterSync();
       unsubFollowerAttack();
+      unsubHuntMonsterDied();
       unsubProposal();
       unsubProposalSync();
       unsubProposalRejected();
@@ -4133,6 +4175,21 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     // Phase 203: Notify server/Colyseus immediately that player has entered this hunt
     gameNetwork.sendSetInHunt(true, huntId);
 
+    // Phase 264: Connect to Colyseus Authoritative Hunt Dungeon Room
+    const token = typeof window !== 'undefined' ? localStorage.getItem('tibia_auth_token') || localStorage.getItem('colyseus_token') : null;
+    const activeCharId = onlineCharacterRef.current?.id || activeCharacter.id;
+    const partyRoomKey = multiplayerPartyRef.current?.leaderSessionId || (multiplayerPartyRef.current ? gameNetwork.LocalPlayerId : null) || `solo_${activeCharId}`;
+    if (token && activeCharId) {
+      void gameNetwork.joinHuntDungeon(token, activeCharId, huntId, partyRoomKey).catch((err) => {
+        console.warn('[GamePrototype] Failed to connect to hunt_dungeon room:', err);
+      });
+    }
+
+    // Phase 264: Party leader synchronizes hunt start with all followers
+    if (multiplayerPartyRef.current && multiplayerPartyRef.current.leaderSessionId === gameNetwork.LocalPlayerId) {
+      gameNetwork.sendPartyHuntSync(huntId, seed.trim() || defaultSeed);
+    }
+
     // Phase 109: Start Dragon Lair music immediately during loading screen if entering dragon-lair!
     if (huntId === 'dragon-lair') {
       pauseCityBgm();
@@ -4312,6 +4369,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
     if (party && party.leaderSessionId === gameNetwork.LocalPlayerId) {
       gameNetwork.sendPartyHuntExit();
     }
+    gameNetwork.leaveHuntDungeon();
 
     // Phase 102/204 & Phase 261: Responsive 2-second Exura loading screen starts IMMEDIATELY
     setTransitionLoading({

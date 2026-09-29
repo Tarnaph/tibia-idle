@@ -4457,4 +4457,14 @@ Plans:
 - [x] 263-03-PLAN: Onda 16 - Enriquecimento do Snapshot e Reconciliação Fluida com Eventos Lerp (`GameClientNetworkManager.ts` e `GamePrototype.tsx`)
 - [x] 263-04-PLAN: Onda 16 - Validação Global com Testes Vitest (`tests/phase263-multiplayer-hunt-sync-and-follower-tactics.test.ts`), Typecheck e Deploy na VPS
 
+---
+
+- [x] **Phase 264: Arquitetura Definitiva de Caçada Multiplayer no Servidor Colyseus (`HuntDungeonRoom`) e Sincronização Autoritativa (Onda 17)** - Resolução definitiva da Onda 17 do FIX.md: (1) Sala de caçada autoritativa no Colyseus (`HuntDungeonRoom.ts`), onde o servidor hospeda a masmorra da party, gera os monstros (Cyclops, etc.), roda o loop de tick de 100ms, move os monstros perseguindo os jogadores, calcula danos e emite eventos para todos os membros conectados; (2) Integração do client via `colyseusClient.ts` e `GameClientNetworkManager.ts` para conectar à sala de caçada do Colyseus (`hunt_dungeon`) ao iniciar a hunt em grupo; (3) Eliminação definitiva do travamento no loading e background em `GamePrototype.tsx` e `ExuraLoadingScreen.tsx`; (4) Renderização resiliente de qualquer ator remoto no PixiJS (`PixiArena.tsx`), eliminando a exigência de estar em `session.characters`; (5) Validação rigorosa com testes Vitest, 0 erros no typecheck e deploy na VPS.
+Plans:
+- [x] 264-01-PLAN: Onda 17 - Sala de Caçada Autoritativa da Party no Colyseus (`HuntDungeonRoom.ts` & `CityPartyHandler.ts`)
+- [x] 264-02-PLAN: Onda 17 - Conexão e Transição de Sala no Cliente (`colyseusClient.ts` & `GameClientNetworkManager.ts`)
+- [x] 264-03-PLAN: Onda 17 - Eliminação de Travamento no Loading e Renderização Resiliente de Atores Remotos (`GamePrototype.tsx` & `PixiArena.tsx`)
+- [x] 264-04-PLAN: Onda 17 - Validação Global com Testes Vitest (`tests/phase264-colyseus-authoritative-hunt-room.test.ts`), Typecheck e Deploy na VPS
+
+
 
