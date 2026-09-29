@@ -22,6 +22,7 @@ interface PixiArenaProps {
   isCharacterVisible?: boolean;
   adminTitle?: string | null;
   onSelectTarget?: (enemyId: string) => void;
+  onTileClick?: (tileX: number, tileY: number) => void;
   onCharacterContextMenu?: (characterId: string, x: number, y: number) => void;
   onSceneReady?: () => void;
 }
@@ -99,13 +100,13 @@ function projectileDirection(from: GridPosition, to: GridPosition): string {
   return vertical && horizontal ? `${vertical}-${horizontal}` : vertical || horizontal || 'south';
 }
 
-export function PixiArena({ game, debug, active = true, isCharacterVisible = true, adminTitle, onSelectTarget, onCharacterContextMenu, onSceneReady }: PixiArenaProps) {
+export function PixiArena({ game, debug, active = true, isCharacterVisible = true, adminTitle, onSelectTarget, onTileClick, onCharacterContextMenu, onSceneReady }: PixiArenaProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
   const syncRef = useRef<((state: GameState, showDebug: boolean) => void) | null>(null);
   const resetSceneReadyRef = useRef<(() => void) | null>(null);
-  const latestRef = useRef({ game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady });
-  latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady };
+  const latestRef = useRef({ game, debug, onSelectTarget, onTileClick, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady });
+  latestRef.current = { game, debug, onSelectTarget, onTileClick, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady };
 
   useEffect(() => {
     const app = appRef.current;
@@ -427,6 +428,17 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       const overlay = new Container();
       const targetReticle = new Graphics();
       terrain.sortableChildren = true; corpses.sortableChildren = true; actors.sortableChildren = true; effects.sortableChildren = true;
+
+      terrain.eventMode = 'static';
+      terrain.cursor = 'default';
+      terrain.on('pointerdown', (e) => {
+        if (e.button === 0) {
+          const localPoint = terrain.toLocal(e.global);
+          const tileX = Math.round(localPoint.x / TILE_SIZE);
+          const tileY = Math.round(localPoint.y / TILE_SIZE);
+          latestRef.current.onTileClick?.(tileX, tileY);
+        }
+      });
       world.addChild(backing, terrain, corpses, actors, targetReticle, darkSprite, effects, spatialDebug);
       app.stage.addChild(world, overlay);
       const views = new Map<string, ActorView>();
@@ -705,8 +717,26 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
         views.set(id, view); return view;
       };
 
-      const actorPosition = (state: GameState, id: string): GridPosition | undefined => state.encounter.partyActors.find((actor) => actor.characterId === id)?.position
-        ?? state.encounter.enemies.find((enemy) => enemy.id === id)?.position;
+      const getView = (id: string): ActorView | undefined => {
+        if (!id) return undefined;
+        const direct = views.get(id);
+        if (direct) return direct;
+        for (const [key, v] of views.entries()) {
+          if (key === id || key.includes(id) || id.includes(key)) return v;
+        }
+        return undefined;
+      };
+
+      const actorPosition = (state: GameState, id: string): GridPosition | undefined => {
+        if (!id) return undefined;
+        const partyActor = state.encounter.partyActors.find((actor) => actor.characterId === id || (actor as any).id === id);
+        if (partyActor) return partyActor.position;
+        const char = state.session.characters.find((c) => c.id === id);
+        if (char && state.encounter.partyActors[0]) return state.encounter.partyActors[0].position;
+        const enemy = state.encounter.enemies.find((e) => e.id === id);
+        if (enemy) return enemy.position;
+        return undefined;
+      };
 
       const addSpellVisual = (state: GameState, event: Extract<GameState['encounter']['events'][number], { type: 'spell-visual' }>, now: number) => {
         const from = actorPosition(state, event.sourceId);
@@ -1115,26 +1145,33 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
             if ((event as any).type === 'player-death') {
               playPlayerDeath();
             }
-            if (event.type !== 'player-attack' && event.type !== 'enemy-attack' && event.type !== 'spell-cast') continue;
+            const combatEv = event as any;
+            if (combatEv.type !== 'player-attack' && combatEv.type !== 'enemy-attack' && combatEv.type !== 'spell-cast' && combatEv.type !== 'player-hit' && combatEv.type !== 'monster-hit') continue;
 
-            if (event.type === 'player-attack') {
-              const char = state.session.characters.find((c) => c.id === event.sourceId);
-              const actor = state.encounter.partyActors.find((a) => a.characterId === event.sourceId);
+            if (combatEv.type === 'player-attack' || combatEv.type === 'player-hit') {
+              const char = state.session.characters.find((c) => c.id === combatEv.sourceId);
+              const actor = state.encounter.partyActors.find((a) => a.characterId === combatEv.sourceId || (a as any).id === combatEv.sourceId);
               const vocation = char?.vocation || (char as any)?.vocationName || (actor as any)?.vocation;
               playPhysicalAttack(vocation);
-            } else if (event.type === 'spell-cast') {
-              const char = state.session.characters.find((c) => c.id === event.sourceId);
+            } else if (combatEv.type === 'spell-cast') {
+              const char = state.session.characters.find((c) => c.id === combatEv.sourceId);
               const vocation = char?.vocation || (char as any)?.vocationName;
-              playMagicSpell(vocation, (event as any).element);
+              playMagicSpell(vocation, combatEv.element);
             }
 
-            const targetId = event.targetId; const targetPosition = actorPosition(state, targetId); if (!targetPosition) continue;
-            const amount = event.type === 'spell-cast' ? event.amount : event.damage;
+            const targetId: string = combatEv.targetId;
+            const targetPosition = actorPosition(state, targetId);
+            if (!targetPosition) continue;
+
+            const amount: number = combatEv.type === 'spell-cast'
+              ? (combatEv.amount || combatEv.value || combatEv.damage || 0)
+              : (combatEv.damage || combatEv.value || combatEv.amount || 0);
+
             if (amount > 0) {
-              const isHealing = event.type === 'spell-cast' && event.healing;
+              const isHealing = combatEv.type === 'spell-cast' && combatEv.healing;
               const prefix = isHealing ? '+' : '';
-              const delay = (event.type === 'spell-cast' && typeof event.delayMs === 'number') ? event.delayMs : 0;
-              const element = (event as any).element;
+              const delay = (combatEv.type === 'spell-cast' && typeof combatEv.delayMs === 'number') ? combatEv.delayMs : 0;
+              const element = combatEv.element;
               if (delay > 0 && !isHealing) {
                 pendingImpacts.push({ targetId, amount, impactAt: now + delay, element });
               }
@@ -1155,7 +1192,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
               effects.addChild(text);
               timed.push({ root: text, startedAt: now + delay, durationMs: 700, kind: 'float' });
             }
-            const sourceView = views.get(event.sourceId);
+            const sourceView = getView(combatEv.sourceId);
             if (sourceView) sourceView.attackUntil = now + 160;
           }
         }
@@ -1574,7 +1611,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
   }, []);
 
   useEffect(() => {
-    latestRef.current = { game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady };
+    latestRef.current = { game, debug, onSelectTarget, onTileClick, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady };
     const app = appRef.current;
     if (app && active) {
       if (!app.ticker.started) app.ticker.start();
@@ -1583,7 +1620,7 @@ export function PixiArena({ game, debug, active = true, isCharacterVisible = tru
       } catch {}
     }
     syncRef.current?.(game, debug);
-  }, [game, debug, onSelectTarget, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady]);
+  }, [game, debug, onSelectTarget, onTileClick, onCharacterContextMenu, active, isCharacterVisible, adminTitle, onSceneReady]);
   return (
     <div
       ref={hostRef}

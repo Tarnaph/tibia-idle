@@ -64,6 +64,62 @@ export class HuntDungeonRoom extends Room<WorldState> {
     return this.walkableTileKeys.has(`${x},${y}`);
   }
 
+  public findShortestPath(
+    start: { x: number; y: number },
+    goal: { x: number; y: number },
+    stopAdjacent = false,
+    maxDepth = 25
+  ): Array<{ x: number; y: number; dir: string }> {
+    if (start.x === goal.x && start.y === goal.y) return [];
+    if (stopAdjacent && Math.hypot(start.x - goal.x, start.y - goal.y) <= 1.5) return [];
+
+    const queue: Array<{ x: number; y: number; path: Array<{ x: number; y: number; dir: string }> }> = [];
+    const visited = new Set<string>();
+    visited.add(`${start.x},${start.y}`);
+    queue.push({ x: start.x, y: start.y, path: [] });
+
+    const directions = [
+      { dx: 0, dy: -1, dir: 'north' },
+      { dx: 1, dy: 0, dir: 'east' },
+      { dx: 0, dy: 1, dir: 'south' },
+      { dx: -1, dy: 0, dir: 'west' },
+    ].sort((a, b) => {
+      const distA = Math.hypot(start.x + a.dx - goal.x, start.y + a.dy - goal.y);
+      const distB = Math.hypot(start.x + b.dx - goal.x, start.y + b.dy - goal.y);
+      return distA - distB;
+    });
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      if (current.path.length >= maxDepth) continue;
+
+      for (const { dx, dy, dir } of directions) {
+        const nx = current.x + dx;
+        const ny = current.y + dy;
+        const key = `${nx},${ny}`;
+
+        if (stopAdjacent && Math.hypot(nx - goal.x, ny - goal.y) <= 1.2) {
+          return [...current.path, { x: nx, y: ny, dir }];
+        }
+
+        if (nx === goal.x && ny === goal.y) {
+          return [...current.path, { x: nx, y: ny, dir }];
+        }
+
+        if (!visited.has(key) && this.isTileWalkable(nx, ny)) {
+          visited.add(key);
+          queue.push({
+            x: nx,
+            y: ny,
+            path: [...current.path, { x: nx, y: ny, dir }],
+          });
+        }
+      }
+    }
+
+    return [];
+  }
+
   public getPlayerByIdOrSession(idOrSession: string): PlayerState | undefined {
     if (!idOrSession) return undefined;
     const direct = this.state.players.get(idOrSession);
@@ -239,19 +295,29 @@ export class HuntDungeonRoom extends Room<WorldState> {
     if (options.mount) player.mount = options.mount;
     if (options.mountActive) player.mountActive = options.mountActive;
 
-    // Spawn player in dungeon entrance perimeter using local room coordinates
+    // Spawn player in dungeon entrance perimeter using guaranteed clean open-ground coordinates
     const pIdx = this.state.players.size;
-    const partySpawns = this.roomDefinition?.partySpawns || [];
-    const spawn = partySpawns[pIdx % Math.max(1, partySpawns.length)] || this.roomDefinition?.entrance;
-    if (spawn) {
-      player.posX = spawn.x;
-      player.posY = spawn.y;
-      player.posZ = spawn.z ?? 7;
+    const entrance = getHuntWorldEntrance(this.huntId, gameContent);
+    const baseX = this.roomDefinition?.entrance?.x ?? entrance.localPosition?.x ?? 25;
+    const baseY = this.roomDefinition?.entrance?.y ?? entrance.localPosition?.y ?? 25;
+    const baseZ = this.roomDefinition?.entrance?.z ?? entrance.localPosition?.z ?? 7;
+
+    // Guaranteed clear walkable candidates immediately adjacent to dungeon entrance
+    const candidatePartySpawns = [
+      { x: baseX, y: baseY, z: baseZ },
+      { x: baseX, y: baseY + 1, z: baseZ },
+      { x: baseX - 1, y: baseY, z: baseZ },
+      { x: baseX + 1, y: baseY, z: baseZ },
+    ];
+    const candidate = candidatePartySpawns[pIdx % candidatePartySpawns.length];
+    if (this.isTileWalkable(candidate.x, candidate.y)) {
+      player.posX = candidate.x;
+      player.posY = candidate.y;
+      player.posZ = candidate.z;
     } else {
-      const entrance = getHuntWorldEntrance(this.huntId, gameContent);
-      player.posX = entrance.localPosition?.x ?? 25;
-      player.posY = entrance.localPosition?.y ?? 25;
-      player.posZ = entrance.localPosition?.z ?? 7;
+      player.posX = baseX;
+      player.posY = baseY;
+      player.posZ = baseZ;
     }
 
     this.state.players.set(client.sessionId, player);
@@ -297,36 +363,66 @@ export class HuntDungeonRoom extends Room<WorldState> {
     const monsterTypesByHunt: Record<string, Array<{ typeId: string; name: string; lookType: number; hp: number; atk: number; def: number; count: number }>> = {
       'cyclops-camp': [
         { typeId: 'cyclops', name: 'Cyclops', lookType: 22, hp: 260, atk: 105, def: 30, count: 6 },
-        { typeId: 'cyclops_drone', name: 'Cyclops Drone', lookType: 281, hp: 325, atk: 120, def: 35, count: 2 },
-        { typeId: 'cyclops_smith', name: 'Cyclops Smith', lookType: 282, hp: 435, atk: 140, def: 40, count: 2 },
+        { typeId: 'cyclops-drone', name: 'Cyclops Drone', lookType: 281, hp: 325, atk: 120, def: 35, count: 2 },
+        { typeId: 'cyclops-smith', name: 'Cyclops Smith', lookType: 282, hp: 435, atk: 140, def: 40, count: 2 },
       ],
       'dragon-lair': [
-        { typeId: 'dragon_hatchling', name: 'Dragon Hatchling', lookType: 283, hp: 380, atk: 130, def: 38, count: 4 },
+        { typeId: 'dragon-hatchling', name: 'Dragon Hatchling', lookType: 283, hp: 380, atk: 130, def: 38, count: 4 },
         { typeId: 'dragon', name: 'Dragon', lookType: 34, hp: 1000, atk: 190, def: 45, count: 4 },
-        { typeId: 'dragon_lord', name: 'Dragon Lord', lookType: 39, hp: 1900, atk: 260, def: 55, count: 1 },
+        { typeId: 'dragon-lord', name: 'Dragon Lord', lookType: 39, hp: 1900, atk: 260, def: 55, count: 1 },
       ],
       'rat-cellars': [
         { typeId: 'rat', name: 'Rat', lookType: 21, hp: 20, atk: 8, def: 2, count: 8 },
-        { typeId: 'cave_rat', name: 'Cave Rat', lookType: 56, hp: 30, atk: 12, def: 4, count: 4 },
+        { typeId: 'cave-rat', name: 'Cave Rat', lookType: 56, hp: 30, atk: 12, def: 4, count: 4 },
       ],
       'rotworm-cave': [
         { typeId: 'rotworm', name: 'Rotworm', lookType: 26, hp: 65, atk: 40, def: 8, count: 8 },
-        { typeId: 'carrion_worm', name: 'Carrion Worm', lookType: 27, hp: 145, atk: 70, def: 14, count: 3 },
+        { typeId: 'carrion-worm', name: 'Carrion Worm', lookType: 27, hp: 145, atk: 70, def: 14, count: 3 },
       ],
       'troll-camp': [
         { typeId: 'troll', name: 'Troll', lookType: 15, hp: 50, atk: 25, def: 6, count: 8 },
-        { typeId: 'swamp_troll', name: 'Swamp Troll', lookType: 16, hp: 55, atk: 30, def: 7, count: 4 },
+        { typeId: 'swamp-troll', name: 'Swamp Troll', lookType: 16, hp: 55, atk: 30, def: 7, count: 4 },
       ],
       'spider-burrow': [
         { typeId: 'spider', name: 'Spider', lookType: 30, hp: 20, atk: 10, def: 2, count: 6 },
-        { typeId: 'poison_spider', name: 'Poison Spider', lookType: 31, hp: 26, atk: 18, def: 4, count: 4 },
+        { typeId: 'poison-spider', name: 'Poison Spider', lookType: 31, hp: 26, atk: 18, def: 4, count: 4 },
         { typeId: 'bug', name: 'Bug', lookType: 45, hp: 29, atk: 18, def: 4, count: 4 },
       ],
       'elf-sanctuary': [
         { typeId: 'elf', name: 'Elf', lookType: 62, hp: 100, atk: 45, def: 12, count: 6 },
-        { typeId: 'elf_scout', name: 'Elf Scout', lookType: 63, hp: 160, atk: 75, def: 16, count: 4 },
+        { typeId: 'elf-scout', name: 'Elf Scout', lookType: 63, hp: 160, atk: 75, def: 16, count: 4 },
       ],
     };
+
+    // Filter clean walkable tiles free from roofs (6470..6500), walls (1000..1200), mountain rock (8133), or obstacles
+    const cleanWalkableSpawns: Array<{ x: number; y: number; z: number; dist: number }> = [];
+    if (this.roomDefinition?.map?.tiles) {
+      for (const t of this.roomDefinition.map.tiles) {
+        if (!t.walkable) continue;
+        const serverIds: number[] = t.serverItemIds || [];
+        const isBlocked = serverIds.some(
+          (id: number) =>
+            (id >= 6470 && id <= 6500) ||
+            (id >= 1000 && id <= 1200) ||
+            (id >= 3600 && id <= 3650) ||
+            id === 8133
+        );
+        if (!isBlocked) {
+          const dist = Math.hypot(t.position.x - baseX, t.position.y - baseY);
+          cleanWalkableSpawns.push({
+            x: t.position.x,
+            y: t.position.y,
+            z: t.position.z ?? baseZ,
+            dist,
+          });
+        }
+      }
+    }
+
+    // Sort clean spawns: prioritize immediate engagement perimeter (5 to 16 SQMs from entrance)
+    cleanWalkableSpawns.sort((a, b) => a.dist - b.dist);
+    const combatSpawns = cleanWalkableSpawns.filter((s) => s.dist >= 4.5);
+    const chosenSpawns = combatSpawns.length >= 6 ? combatSpawns : cleanWalkableSpawns;
 
     const definitions = monsterTypesByHunt[this.huntId] || monsterTypesByHunt['cyclops-camp'];
     let monsterIndex = 0;
@@ -344,14 +440,19 @@ export class HuntDungeonRoom extends Room<WorldState> {
         monster.defensePower = def.def;
         monster.armorPower = Math.round(def.def * 0.5);
 
-        if (enemySpawns.length > 0) {
+        if (chosenSpawns.length > 0) {
+          const spawn = chosenSpawns[monsterIndex % chosenSpawns.length];
+          monster.posX = spawn.x;
+          monster.posY = spawn.y;
+          monster.posZ = spawn.z ?? baseZ;
+        } else if (enemySpawns.length > 0) {
           const spawn = enemySpawns[monsterIndex % enemySpawns.length];
           monster.posX = spawn.x;
           monster.posY = spawn.y;
           monster.posZ = spawn.z ?? baseZ;
         } else {
           const angle = (monsterIndex * 0.8) + (i * 0.5);
-          const radius = 3 + (monsterIndex % 5);
+          const radius = 5 + (monsterIndex % 6);
           monster.posX = Math.round(baseX + Math.cos(angle) * radius);
           monster.posY = Math.round(baseY + Math.sin(angle) * radius);
           monster.posZ = baseZ;
@@ -475,37 +576,29 @@ export class HuntDungeonRoom extends Room<WorldState> {
 
         const dist = Math.hypot(targetPlayer.posX - monster.posX, targetPlayer.posY - monster.posY);
 
-        // Step towards player if not in melee reach (with wall collision check)
-        if (dist > 1.2 && now - monster.lastStepTime >= 1000) {
+        // Step towards player using BFS pathfinding if not in melee reach
+        if (dist > 1.2 && now - monster.lastStepTime >= 950) {
           monster.lastStepTime = now;
-          const dx = Math.sign(targetPlayer.posX - monster.posX);
-          const dy = Math.sign(targetPlayer.posY - monster.posY);
+          const path = this.findShortestPath(
+            { x: monster.posX, y: monster.posY },
+            { x: targetPlayer.posX, y: targetPlayer.posY },
+            true
+          );
 
-          let nextX = monster.posX;
-          let nextY = monster.posY;
-          let stepDir = monster.direction;
+          if (path.length > 0) {
+            const nextStep = path[0];
+            monster.posX = nextStep.x;
+            monster.posY = nextStep.y;
+            monster.direction = nextStep.dir;
 
-          if (Math.abs(targetPlayer.posX - monster.posX) >= Math.abs(targetPlayer.posY - monster.posY)) {
-            if (dx !== 0 && this.isTileWalkable(monster.posX + dx, monster.posY)) {
-              nextX = monster.posX + dx;
-              stepDir = dx > 0 ? 'east' : 'west';
-            } else if (dy !== 0 && this.isTileWalkable(monster.posX, monster.posY + dy)) {
-              nextY = monster.posY + dy;
-              stepDir = dy > 0 ? 'south' : 'north';
-            }
-          } else {
-            if (dy !== 0 && this.isTileWalkable(monster.posX, monster.posY + dy)) {
-              nextY = monster.posY + dy;
-              stepDir = dy > 0 ? 'south' : 'north';
-            } else if (dx !== 0 && this.isTileWalkable(monster.posX + dx, monster.posY)) {
-              nextX = monster.posX + dx;
-              stepDir = dx > 0 ? 'east' : 'west';
-            }
+            this.emitCombatEvent({
+              type: 'movement',
+              sourceId: monster.id,
+              targetId: monster.id,
+              posX: monster.posX,
+              posY: monster.posY,
+            });
           }
-
-          monster.posX = nextX;
-          monster.posY = nextY;
-          monster.direction = stepDir;
         }
 
         // Attack if in range
@@ -518,9 +611,9 @@ export class HuntDungeonRoom extends Room<WorldState> {
           targetPlayer.hp = Math.max(0, targetPlayer.hp - finalDmg);
 
           this.emitCombatEvent({
-            type: finalDmg > 0 ? 'monster-hit' : 'block',
+            type: finalDmg > 0 ? 'enemy-attack' : 'block',
             sourceId: monster.id,
-            targetId: targetPlayer.id,
+            targetId: targetPlayer.characterId || targetPlayer.id,
             value: finalDmg,
             effectId: finalDmg > 0 ? 1 : 4,
             posX: targetPlayer.posX,
@@ -530,7 +623,8 @@ export class HuntDungeonRoom extends Room<WorldState> {
           if (targetPlayer.hp <= 0) {
             this.emitCombatEvent({
               type: 'creature-died',
-              targetId: targetPlayer.id,
+              sourceId: monster.id,
+              targetId: targetPlayer.characterId || targetPlayer.id,
               value: 0,
               posX: targetPlayer.posX,
               posY: targetPlayer.posY,
@@ -572,40 +666,49 @@ export class HuntDungeonRoom extends Room<WorldState> {
         const isRanged = player.vocationId === 1 || player.vocationId === 2 || player.vocationId === 3; // Sorcerer, Paladin, Druid
         const maxRange = isRanged ? 5.5 : 1.8;
 
-        // Auto-step towards monster if melee and outside reach
-        if (!isRanged && dist > 1.5 && now - player.lastStepTime >= 800) {
+        // Auto-step towards monster if melee and outside reach using BFS pathfinding
+        if (!isRanged && dist > 1.5 && now - player.lastStepTime >= 750) {
           player.lastStepTime = now;
-          const dx = Math.sign(targetMonster.posX - player.posX);
-          const dy = Math.sign(targetMonster.posY - player.posY);
+          const path = this.findShortestPath(
+            { x: player.posX, y: player.posY },
+            { x: targetMonster.posX, y: targetMonster.posY },
+            true
+          );
 
-          let nextX = player.posX;
-          let nextY = player.posY;
-          let stepDir = player.direction;
+          if (path.length > 0) {
+            const nextStep = path[0];
+            player.posX = nextStep.x;
+            player.posY = nextStep.y;
+            player.direction = nextStep.dir;
+            player.isWalking = true;
 
-          if (Math.abs(targetMonster.posX - player.posX) >= Math.abs(targetMonster.posY - player.posY)) {
-            if (dx !== 0 && this.isTileWalkable(player.posX + dx, player.posY)) {
-              nextX = player.posX + dx;
-              stepDir = dx > 0 ? 'east' : 'west';
-            } else if (dy !== 0 && this.isTileWalkable(player.posX, player.posY + dy)) {
-              nextY = player.posY + dy;
-              stepDir = dy > 0 ? 'south' : 'north';
-            }
-          } else {
-            if (dy !== 0 && this.isTileWalkable(player.posX, player.posY + dy)) {
-              nextY = player.posY + dy;
-              stepDir = dy > 0 ? 'south' : 'north';
-            } else if (dx !== 0 && this.isTileWalkable(player.posX + dx, player.posY)) {
-              nextX = player.posX + dx;
-              stepDir = dx > 0 ? 'east' : 'west';
-            }
+            this.emitCombatEvent({
+              type: 'movement',
+              sourceId: player.characterId || player.id,
+              targetId: player.characterId || player.id,
+              posX: player.posX,
+              posY: player.posY,
+            });
           }
-
-          player.posX = nextX;
-          player.posY = nextY;
-          player.direction = stepDir;
-          player.isWalking = true;
         }
 
+        // Auto-heal if HP < 75%
+        if (player.hp < player.maxHp * 0.75 && player.mp >= 20 && now - player.lastAttackTime >= 400) {
+          const healSpell = player.vocationId === 4 ? 'exura-ico' : 'exura';
+          this.handlePlayerSpell(player, healSpell);
+        }
+
+        // Auto-spells for Knight
+        if (player.vocationId === 4 && player.mp >= 115) {
+          const adjacentMonsters = Array.from(this.state.monsters.values()).filter(
+            (m) => !m.isDead && Math.hypot(m.posX - player.posX, m.posY - player.posY) <= 1.5
+          );
+          if (adjacentMonsters.length >= 2) {
+            this.handlePlayerSpell(player, 'exori');
+          }
+        }
+
+        // Standard Attack
         if (dist <= maxRange && now - player.lastAttackTime >= player.attackCooldownMs) {
           player.lastAttackTime = now;
           const rawDmg = Math.max(5, Math.floor(player.attackPower * (0.7 + Math.random() * 0.5)));
@@ -620,14 +723,19 @@ export class HuntDungeonRoom extends Room<WorldState> {
             : 1; // Knight Melee Hit
 
           this.emitCombatEvent({
-            type: isRanged ? 'projectile-launched' : 'player-hit',
-            sourceId: player.id,
+            type: isRanged ? 'projectile-launched' : 'player-attack',
+            sourceId: player.characterId || player.id,
             targetId: targetMonster.id,
             value: finalDmg,
             effectId,
             posX: targetMonster.posX,
             posY: targetMonster.posY,
           });
+
+          // Chance to trigger Exori Ico on attack if Knight has mana
+          if (player.vocationId === 4 && player.mp >= 30 && dist <= 1.5 && Math.random() < 0.3) {
+            this.handlePlayerSpell(player, 'exori-ico');
+          }
 
           // Monster killed authoritatively!
           if (targetMonster.hp <= 0) {
@@ -642,7 +750,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
   private handlePlayerSpell(player: PlayerState, rawSpellId: string) {
     if (!player || player.hp <= 0) return;
     const spell = rawSpellId.toLowerCase().trim().replace(/[\s_]+/g, '-');
-    const now = Date.now();
+    const casterId = player.characterId || player.id;
 
     // 1. Curas e Suporte
     if (spell === 'exura') {
@@ -650,7 +758,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       player.mp -= 20;
       const heal = Math.round(player.level * 0.25 + 25 + Math.random() * 20);
       player.hp = Math.min(player.maxHp, player.hp + heal);
-      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: casterId, targetId: casterId, value: heal, effectId: 12, text: 'exura', posX: player.posX, posY: player.posY });
       return;
     }
     if (spell === 'exura-ico') {
@@ -658,7 +766,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       player.mp -= 40;
       const heal = Math.round(player.level * 0.4 + 65 + Math.random() * 35);
       player.hp = Math.min(player.maxHp, player.hp + heal);
-      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: casterId, targetId: casterId, value: heal, effectId: 12, text: 'exura ico', posX: player.posX, posY: player.posY });
       return;
     }
     if (spell === 'exura-gran') {
@@ -666,7 +774,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       player.mp -= 70;
       const heal = Math.round(player.level * 0.6 + 120 + Math.random() * 60);
       player.hp = Math.min(player.maxHp, player.hp + heal);
-      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: casterId, targetId: casterId, value: heal, effectId: 12, text: 'exura gran', posX: player.posX, posY: player.posY });
       return;
     }
     if (spell === 'exura-vita') {
@@ -674,7 +782,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       player.mp -= 160;
       const heal = Math.round(player.level * 1.5 + 350 + Math.random() * 150);
       player.hp = Math.min(player.maxHp, player.hp + heal);
-      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: casterId, targetId: casterId, value: heal, effectId: 12, text: 'exura vita', posX: player.posX, posY: player.posY });
       return;
     }
 
@@ -682,13 +790,13 @@ export class HuntDungeonRoom extends Room<WorldState> {
     if (spell.includes('health-potion') || spell === 'potion-health') {
       const heal = spell.includes('ultimate') ? 800 : spell.includes('great') ? 500 : spell.includes('strong') ? 300 : 150;
       player.hp = Math.min(player.maxHp, player.hp + heal);
-      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: heal, effectId: 12, posX: player.posX, posY: player.posY });
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: casterId, targetId: casterId, value: heal, effectId: 12, text: 'Aaaah...', posX: player.posX, posY: player.posY });
       return;
     }
     if (spell.includes('mana-potion') || spell === 'potion-mana') {
       const manaGain = spell.includes('ultimate') ? 500 : spell.includes('great') ? 350 : spell.includes('strong') ? 200 : 100;
       player.mp = Math.min(player.maxMp, player.mp + manaGain);
-      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, value: manaGain, effectId: 13, posX: player.posX, posY: player.posY });
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: casterId, targetId: casterId, value: manaGain, effectId: 13, text: 'Aaaah...', posX: player.posX, posY: player.posY });
       return;
     }
 
@@ -698,8 +806,8 @@ export class HuntDungeonRoom extends Room<WorldState> {
       player.mp -= 115;
       const baseDmg = Math.round(player.level * 0.2 + player.attackPower * 1.25);
 
-      // Efeito central de Berserk
-      this.emitCombatEvent({ type: 'spell-cast', sourceId: player.id, targetId: player.id, effectId: 10, posX: player.posX, posY: player.posY });
+      // Efeito central de Berserk e speech
+      this.emitCombatEvent({ type: 'spell-cast', sourceId: casterId, targetId: casterId, effectId: 10, text: 'exori', posX: player.posX, posY: player.posY });
 
       // Acerta todos os monstros no quadrado 3x3 ao redor do jogador
       for (const monster of this.state.monsters.values()) {
@@ -709,8 +817,8 @@ export class HuntDungeonRoom extends Room<WorldState> {
           monster.hp = Math.max(0, monster.hp - dmg);
 
           this.emitCombatEvent({
-            type: 'player-hit',
-            sourceId: player.id,
+            type: 'player-attack',
+            sourceId: casterId,
             targetId: monster.id,
             value: dmg,
             effectId: 1,
@@ -729,7 +837,6 @@ export class HuntDungeonRoom extends Room<WorldState> {
     // 4. Magias Ofensivas Direcionadas
     let targetMonster = player.targetId ? this.state.monsters.get(player.targetId) : null;
     if (!targetMonster || targetMonster.isDead) {
-      // Pega o monstro vivo mais próximo
       let minDist = 6;
       for (const m of this.state.monsters.values()) {
         if (m.isDead) continue;
@@ -750,7 +857,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       player.mp -= 30;
       const dmg = Math.max(5, Math.round(player.level * 0.2 + player.attackPower * 0.95 + Math.random() * 20));
       targetMonster.hp = Math.max(0, targetMonster.hp - dmg);
-      this.emitCombatEvent({ type: 'player-hit', sourceId: player.id, targetId: targetMonster.id, value: dmg, effectId: 1, posX: targetMonster.posX, posY: targetMonster.posY });
+      this.emitCombatEvent({ type: 'player-attack', sourceId: casterId, targetId: targetMonster.id, value: dmg, effectId: 1, text: 'exori ico', posX: targetMonster.posX, posY: targetMonster.posY });
       if (targetMonster.hp <= 0) this.awardMonsterKill(targetMonster);
       return;
     }
@@ -761,7 +868,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
       player.mp -= 40;
       const dmg = Math.max(5, Math.round(player.level * 0.2 + player.attackPower * 0.8 + Math.random() * 15));
       targetMonster.hp = Math.max(0, targetMonster.hp - dmg);
-      this.emitCombatEvent({ type: 'player-hit', sourceId: player.id, targetId: targetMonster.id, value: dmg, effectId: 44, posX: targetMonster.posX, posY: targetMonster.posY });
+      this.emitCombatEvent({ type: 'player-attack', sourceId: casterId, targetId: targetMonster.id, value: dmg, effectId: 44, text: 'exori hur', posX: targetMonster.posX, posY: targetMonster.posY });
       if (targetMonster.hp <= 0) this.awardMonsterKill(targetMonster);
       return;
     }
@@ -781,7 +888,7 @@ export class HuntDungeonRoom extends Room<WorldState> {
 
       const dmg = Math.max(5, Math.round(player.level * 0.5 + 40 + Math.random() * 40));
       targetMonster.hp = Math.max(0, targetMonster.hp - dmg);
-      this.emitCombatEvent({ type: 'player-hit', sourceId: player.id, targetId: targetMonster.id, value: dmg, effectId, posX: targetMonster.posX, posY: targetMonster.posY });
+      this.emitCombatEvent({ type: 'player-attack', sourceId: casterId, targetId: targetMonster.id, value: dmg, effectId, text: spell.replace('-', ' '), posX: targetMonster.posX, posY: targetMonster.posY });
       if (targetMonster.hp <= 0) this.awardMonsterKill(targetMonster);
       return;
     }
@@ -795,11 +902,28 @@ export class HuntDungeonRoom extends Room<WorldState> {
     event.targetId = eventData.targetId || '';
     event.value = eventData.value || 0;
     event.effectId = eventData.effectId || 0;
+    event.projectileId = eventData.projectileId || 0;
+    event.text = eventData.text || '';
     event.posX = eventData.posX || 0;
     event.posY = eventData.posY || 0;
     event.timestamp = Date.now();
 
     this.state.combatEvents.push(event);
+
+    // Broadcast for instantaneous reactive audio-visual triggers on web client
+    this.broadcast('hunt:combatEvent', {
+      id: event.id,
+      type: event.type,
+      sourceId: event.sourceId,
+      targetId: event.targetId,
+      value: event.value,
+      effectId: event.effectId,
+      projectileId: event.projectileId,
+      text: event.text,
+      posX: event.posX,
+      posY: event.posY,
+      timestamp: event.timestamp,
+    });
 
     // Keep events array bounded
     if (this.state.combatEvents.length > 30) {

@@ -1857,21 +1857,32 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
       setGame((current) => {
         const serverMonsters: any[] = [];
+        const serverCorpses: any[] = [];
         if (huntState.monsters) {
           (huntState.monsters as any).forEach((m: any) => {
-            serverMonsters.push({
-              id: m.id,
-              monsterId: m.monsterTypeId || 'cyclops',
-              name: m.name,
-              lookType: m.lookType,
-              hp: m.hp,
-              maxHp: m.maxHp,
-              position: { x: m.posX, y: m.posY, z: m.posZ || 7 },
-              previousPosition: { x: m.posX, y: m.posY, z: m.posZ || 7 },
-              direction: m.direction || 'south',
-              alive: !m.isDead && m.hp > 0,
-              targetId: m.targetId || null,
-            });
+            const isAlive = !m.isDead && m.hp > 0;
+            if (isAlive) {
+              serverMonsters.push({
+                id: m.id,
+                monsterId: m.monsterTypeId || 'cyclops',
+                name: m.name,
+                lookType: m.lookType,
+                hp: m.hp,
+                maxHp: m.maxHp,
+                position: { x: m.posX, y: m.posY, z: m.posZ || 7 },
+                previousPosition: { x: m.posX, y: m.posY, z: m.posZ || 7 },
+                direction: m.direction || 'south',
+                alive: true,
+                targetId: m.targetId || null,
+              });
+            } else {
+              serverCorpses.push({
+                monsterId: m.monsterTypeId || 'cyclops',
+                corpseId: 5972,
+                position: { x: m.posX, y: m.posY, z: m.posZ || 7 },
+                discoveredAt: Date.now(),
+              });
+            }
           });
         }
 
@@ -1922,7 +1933,15 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           return char;
         });
 
-        const rawEvents = Array.isArray(huntState.combatEvents) ? huntState.combatEvents : [];
+        const rawEvents: any[] = [];
+        if (huntState.combatEvents) {
+          if (typeof (huntState.combatEvents as any).forEach === 'function') {
+            (huntState.combatEvents as any).forEach((ev: any) => rawEvents.push(ev));
+          } else if (Array.isArray(huntState.combatEvents)) {
+            rawEvents.push(...huntState.combatEvents);
+          }
+        }
+
         const mappedEvents = rawEvents.map((ev: any) => ({
           type: ev.type,
           sourceId: ev.sourceId,
@@ -1930,6 +1949,8 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           damage: ev.value,
           amount: ev.value,
           effectId: ev.effectId,
+          projectileId: ev.projectileId,
+          speech: ev.text || ev.speech,
           position: { x: ev.posX, y: ev.posY },
           timestamp: ev.timestamp,
         }));
@@ -1945,10 +1966,87 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
             status: 'running',
             enemies: serverMonsters.length > 0 ? serverMonsters : current.encounter.enemies,
             partyActors: serverPlayers.length > 0 ? serverPlayers : current.encounter.partyActors,
-            events: mappedEvents,
+            corpses: serverCorpses.length > 0 ? [...current.encounter.corpses, ...serverCorpses] : current.encounter.corpses,
+            events: mappedEvents.length > 0 ? mappedEvents : current.encounter.events,
           },
         };
       });
+    });
+
+    const unsubHuntCombatEvent = gameNetwork.onHuntCombatEvent((ev: any) => {
+      if (!ev) return;
+      setGame((current) => {
+        const nextEvents = [...current.encounter.events];
+        const nextLogs = [...current.encounter.log];
+        let nextLogId = current.encounter.nextLogId || 1;
+
+        nextEvents.push({
+          type: ev.type,
+          sourceId: ev.sourceId,
+          targetId: ev.targetId,
+          damage: ev.value,
+          amount: ev.value,
+          effectId: ev.effectId,
+          projectileId: ev.projectileId,
+          speech: ev.text || ev.speech,
+          position: { x: ev.posX, y: ev.posY },
+          timestamp: ev.timestamp || Date.now(),
+        } as any);
+
+        if (nextEvents.length > 25) {
+          nextEvents.splice(0, nextEvents.length - 25);
+        }
+
+        if ((ev.type === 'player-attack' || ev.type === 'player-hit') && ev.value > 0) {
+          const monster = current.encounter.enemies.find((e) => e.id === ev.targetId);
+          const targetName = monster?.name || 'Criatura';
+          nextLogs.push({
+            id: nextLogId++,
+            round: current.encounter.round,
+            message: `Você causou ${ev.value} pontos de dano a ${targetName}.`,
+          });
+        } else if ((ev.type === 'enemy-attack' || ev.type === 'monster-hit') && ev.value > 0) {
+          const monster = current.encounter.enemies.find((e) => e.id === ev.sourceId);
+          const attackerName = monster?.name || 'Criatura';
+          nextLogs.push({
+            id: nextLogId++,
+            round: current.encounter.round,
+            message: `${attackerName} causou ${ev.value} pontos de dano a você.`,
+          });
+        } else if (ev.type === 'spell-cast' && ev.value > 0) {
+          nextLogs.push({
+            id: nextLogId++,
+            round: current.encounter.round,
+            message: `Você se curou em ${ev.value} pontos de vida.`,
+          });
+        }
+
+        if (nextLogs.length > 60) {
+          nextLogs.splice(0, nextLogs.length - 60);
+        }
+
+        return {
+          ...current,
+          encounter: {
+            ...current.encounter,
+            events: nextEvents,
+            log: nextLogs,
+            nextLogId,
+          },
+        };
+      });
+
+      if ((ev.type === 'player-attack' || ev.type === 'player-hit') && ev.value > 0) {
+        setHuntAnalyzerData((prev) => ({
+          ...prev,
+          damageDealt: prev.damageDealt + ev.value,
+        }));
+      } else if ((ev.type === 'enemy-attack' || ev.type === 'monster-hit') && ev.value > 0) {
+        setHuntAnalyzerData((prev) => ({
+          ...prev,
+          damageTaken: prev.damageTaken + ev.value,
+        }));
+      }
     });
 
     const unsubHuntLoot = gameNetwork.onHuntLoot((data) => {
@@ -1977,6 +2075,7 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
       unsubFollowerAttack();
       unsubHuntMonsterDied();
       unsubHuntState();
+      unsubHuntCombatEvent();
       unsubHuntLoot();
       unsubProposal();
       unsubProposalSync();
@@ -5495,21 +5594,34 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
 
   // Continuous movement loop while arrow keys or WASD are held, strictly paced at normal speed with Web Worker ticker
   const tickHeldKeyboardMove = useCallback(() => {
-    if (mode === 'hunt') return;
     if (isFollowingLeader) {
       heldDirectionRef.current = null;
       return;
     }
     if (heldDirectionRef.current) {
       const now = performance.now();
+      if (mode === 'hunt' && gameNetwork.IsInHuntRoom) {
+        if (now - lastStepTimeRef.current >= 200) {
+          lastStepTimeRef.current = now;
+          const deltaX = heldDirectionRef.current.dx;
+          const deltaY = heldDirectionRef.current.dy;
+          const stepDir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
+          const myPlayer = gameNetwork.HuntRoom ? (gameNetwork.HuntRoom.state.players as any).get(gameNetwork.HuntRoom.sessionId) : null;
+          const curX = myPlayer?.posX ?? (game.encounter.partyActors[0]?.position.x ?? 25);
+          const curY = myPlayer?.posY ?? (game.encounter.partyActors[0]?.position.y ?? 25);
+          gameNetwork.sendHuntMove(stepDir, curX + deltaX, curY + deltaY);
+        }
+        return;
+      }
+
       if (now - lastStepTimeRef.current >= cityStepDurationMs) {
         lastStepTimeRef.current = now;
         takeCityStep(heldDirectionRef.current.dx, heldDirectionRef.current.dy);
       }
     }
-  }, [mode, isFollowingLeader, cityStepDurationMs, takeCityStep]);
+  }, [mode, isFollowingLeader, cityStepDurationMs, takeCityStep, game.encounter.partyActors]);
 
-  useGameTicker(tickHeldKeyboardMove, 16, mode !== 'hunt' && !isFollowingLeader);
+  useGameTicker(tickHeldKeyboardMove, 16, !isFollowingLeader);
 
   useHotbarShortcuts({
     enabled: Boolean(onlineCharacter),
@@ -5575,9 +5687,15 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
           e.preventDefault();
           const stepDir = deltaY < 0 ? 'north' : deltaY > 0 ? 'south' : deltaX < 0 ? 'west' : 'east';
           const myPlayer = gameNetwork.HuntRoom ? (gameNetwork.HuntRoom.state.players as any).get(gameNetwork.HuntRoom.sessionId) : null;
-          const curX = myPlayer?.posX ?? (game.encounter.partyActors[0]?.position.x ?? 10);
-          const curY = myPlayer?.posY ?? (game.encounter.partyActors[0]?.position.y ?? 15);
-          gameNetwork.sendHuntMove(stepDir, curX + deltaX, curY + deltaY);
+          const curX = myPlayer?.posX ?? (game.encounter.partyActors[0]?.position.x ?? 25);
+          const curY = myPlayer?.posY ?? (game.encounter.partyActors[0]?.position.y ?? 25);
+          const now = performance.now();
+          const isNewDir = !heldDirectionRef.current || heldDirectionRef.current.dx !== deltaX || heldDirectionRef.current.dy !== deltaY;
+          heldDirectionRef.current = { dx: deltaX, dy: deltaY };
+          if (isNewDir && now - lastStepTimeRef.current >= 200) {
+            lastStepTimeRef.current = now;
+            gameNetwork.sendHuntMove(stepDir, curX + deltaX, curY + deltaY);
+          }
           return;
         }
       }
@@ -5739,6 +5857,19 @@ function GamePrototypeContent({ initialSelection, onSwitchCharacter }: GameProto
               }
             }}
             onCharacterContextMenu={(charId, x, y) => setCharContextMenu({ characterId: charId, x, y })}
+            onTileClick={(tileX, tileY) => {
+              if (mode === 'hunt' && gameNetwork.IsInHuntRoom) {
+                const myPlayer = gameNetwork.HuntRoom ? (gameNetwork.HuntRoom.state.players as any).get(gameNetwork.HuntRoom.sessionId) : null;
+                const curX = myPlayer?.posX ?? (game.encounter.partyActors[0]?.position.x ?? 25);
+                const curY = myPlayer?.posY ?? (game.encounter.partyActors[0]?.position.y ?? 25);
+                const dx = Math.sign(tileX - curX);
+                const dy = Math.sign(tileY - curY);
+                if (dx !== 0 || dy !== 0) {
+                  const stepDir = dy < 0 ? 'north' : dy > 0 ? 'south' : dx < 0 ? 'west' : 'east';
+                  gameNetwork.sendHuntMove(stepDir, curX + dx, curY + dy);
+                }
+              }
+            }}
           />
         </div>
         <div style={{ display: mode !== 'hunt' ? 'block' : 'none', width: '100%', height: '100%', position: 'absolute', inset: 0 }}>

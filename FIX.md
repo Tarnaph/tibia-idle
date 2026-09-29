@@ -195,3 +195,19 @@
   - Transição de entrada e saída instantânea e à prova de falhas com sincronização simultânea de todos os membros da party.
 - [x] **54. Validação Global com Testes Vitest, Typecheck e Deploy na VPS:**
   - Criar testes unitários para a masmorra autoritativa completa, validar 0 erros no TypeScript (`npm run typecheck`) e realizar deploy em produção.
+
+## Onda 19: Pathfinding BFS no Servidor, Spawns Limpos, Alinhamento de IDs e Feedback Visual Completo (Phase 266)
+- [x] **55. Pathfinding Inteligente BFS & Spawns em Clareira Limpa (`HuntDungeonRoom.ts`):**
+  - Implementar algoritmo BFS (`findShortestPath`) sobre `walkableTileKeys` para monstros e auto-combate de jogadores, eliminando travamento contra pedras, quinas ou obstáculos.
+  - Fixar posições de spawn da party estritamente na clareira limpa e aberta da entrada (25,25 / 25,26 / 24,25 / 26,25), impedindo nascimento dentro de huts ou estruturas com teto.
+  - Posicionar pack inicial de monstros a distância de combate imediato (4-7 SQMs da entrada) e distribuir os demais pelo mapa.
+- [x] **56. IDs Canônicos de Monstros, Alinhamento de Eventos e Feedback Visual (`HuntDungeonRoom.ts` & `PixiArena.tsx`):**
+  - Padronizar IDs de monstros com hífens (`cyclops-drone`, `cyclops-smith`, etc.) para exibição correta dos sprites oficiais em vez de rotworms.
+  - Emitir eventos de combate com `sourceId` e `targetId` baseados no `characterId` do jogador, viabilizando textos flutuantes de dano, sangue e projéteis no `PixiArena.tsx`.
+  - Habilitar click-to-move e click-to-target no canvas do `PixiArena.tsx`.
+- [x] **57. Movimentação Contínua, Battle Log em Tempo Real e Reconciliação (`GamePrototype.tsx`):**
+  - Suportar caminhada fluida contínua ao manter setas ou WASD pressionados no modo caçada.
+  - Alimentar o log de combate (`encounter.log`) e métricas (`huntAnalyzerData`) a partir dos eventos autoritativos do `HuntDungeonRoom`.
+  - Exibir cadáveres de monstros derrotados no chão.
+- [x] **58. Validação Global com Testes Vitest, Typecheck e Deploy na VPS:**
+  - Validar todos os testes automatizados, garantir 0 erros de tipagem e atualizar a produção na VPS.

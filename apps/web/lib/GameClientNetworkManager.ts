@@ -1055,9 +1055,20 @@ export class GameClientNetworkManager {
       this.huntDungeonEndedListeners.forEach((fn) => fn(data));
     });
 
+    this.huntRoom.onMessage('hunt:combatEvent', (data: any) => {
+      this.huntCombatEventListeners.forEach((fn) => fn(data));
+    });
+
     this.huntRoom.onLeave(() => {
       this.huntRoom = null;
     });
+  }
+
+  private huntCombatEventListeners: Set<(data: any) => void> = new Set();
+
+  onHuntCombatEvent(fn: (data: any) => void): () => void {
+    this.huntCombatEventListeners.add(fn);
+    return () => this.huntCombatEventListeners.delete(fn);
   }
 
   sendHuntMove(direction: string, x: number, y: number): void {
